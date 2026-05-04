@@ -92,10 +92,10 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center px-4 gap-4">
 
-          {/* Mobile menu trigger */}
+          {/* Hamburger menu trigger (all screen sizes) */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="القائمة">
+              <Button variant="ghost" size="icon" aria-label="القائمة">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -189,59 +189,23 @@ export function Layout({ children }: { children: ReactNode }) {
             </motion.span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6 flex-1">
-            {isAuthenticated ? (
-              merchantNav.map((item) => {
-                const active = isActive(item.href);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`relative flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary ${
-                      active ? "text-primary" : "text-muted-foreground"
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {item.name}
-                    {item.name === "متجري" && (
-                      <Badge variant="outline" className="text-[10px] px-1 py-0 ms-0.5">↗</Badge>
-                    )}
-                    {active && (
-                      <motion.span
-                        layoutId="nav-indicator"
-                        className="absolute -bottom-[21px] start-0 end-0 h-0.5 bg-primary rounded-full"
-                      />
-                    )}
-                  </Link>
-                );
-              })
-            ) : (
-              PUBLIC_NAV.map((item) => (
-                <NavLink key={item.name} href={item.href} active={isActive(item.href)}>
-                  {item.name}
-                </NavLink>
-              ))
-            )}
-          </nav>
 
           {/* Right actions */}
           <div className="ms-auto flex items-center gap-2">
             {isAuthenticated ? (
               <>
                 {merchant?.name && (
-                  <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground border border-border/50 rounded-full px-3 py-1.5">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground border border-border/50 rounded-full px-3 py-1.5">
                     <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px] font-bold">
                       {merchant.name[0]}
                     </div>
-                    <span className="max-w-[120px] truncate">{merchant.name}</span>
+                    <span className="max-w-[120px] truncate hidden sm:inline">{merchant.name}</span>
                     {merchant.isPlatformAdmin ? (
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-primary border-primary/30">
                         مشغّل
                       </Badge>
                     ) : merchant.role && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 capitalize">
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 capitalize hidden sm:inline-flex">
                         {merchant.role === "owner" ? "مالك" : merchant.role === "manager" ? "مدير" : "موظف"}
                       </Badge>
                     )}
@@ -251,18 +215,18 @@ export function Layout({ children }: { children: ReactNode }) {
                   variant="ghost"
                   size="sm"
                   onClick={logout}
-                  className="hidden md:flex text-muted-foreground hover:text-destructive gap-1.5"
+                  className="flex text-muted-foreground hover:text-destructive gap-1.5"
                 >
                   <LogOut className="w-4 h-4" />
-                  خروج
+                  <span className="hidden sm:inline">خروج</span>
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="ghost" size="sm" asChild className="hidden md:flex text-muted-foreground">
+                <Button variant="ghost" size="sm" asChild className="flex text-muted-foreground">
                   <Link href="/login">
                     <LogIn className="w-4 h-4 me-1.5" />
-                    دخول
+                    <span className="hidden sm:inline">دخول</span>
                   </Link>
                 </Button>
                 <Button size="sm" className="rounded-full px-5" asChild>
