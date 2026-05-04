@@ -13,6 +13,7 @@ import {
   SECTION_LABELS, SECTION_DESCRIPTIONS, SECTION_ICONS,
   createDefaultConfig, createDefaultSection,
 } from "@/lib/store-config";
+import { SectionPreview } from "@/components/editor/SectionPreview";
 
 interface OnboardingWizardProps {
   initial: StoreConfig;
@@ -529,50 +530,113 @@ function Step5HomepageSections({ config, toggleSection }: {
 
 // ─── Step 6: Generated Draft ──────────────────────────────────────────────────
 function Step6Draft({ config, onEdit }: { config: StoreConfig; onEdit: () => void }) {
+  const sortedSections = [...config.homepage.sections].sort((a, b) => a.order - b.order);
+  const previewSections = sortedSections.slice(0, 4);
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-stone-900 mb-2">متجرك جاهز للتحرير! 🎉</h1>
-      <p className="text-stone-500 mb-8">بناءً على إجاباتك، أنشأنا مسودة متجرك. اضغطي "ابدأ التحرير" لتخصيصها بالكامل.</p>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      {/* Left: summary */}
+      <div>
+        <h1 className="text-3xl font-bold text-stone-900 mb-2">متجرك جاهز للتحرير! 🎉</h1>
+        <p className="text-stone-500 mb-6">أنشأنا مسودة متجرك بناءً على اختياراتك. اضغطي "ابدأ التحرير" لتخصيصها بالكامل.</p>
 
-      <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden mb-6">
-        <div className="p-4 border-b border-stone-100 flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-400" />
-          <div className="w-3 h-3 rounded-full bg-yellow-400" />
-          <div className="w-3 h-3 rounded-full bg-green-400" />
-          <span className="text-xs text-stone-400 mr-2">معاينة المتجر</span>
-        </div>
-        <div className="p-6 space-y-3">
-          <div className="rounded-xl h-32 flex items-center justify-center text-white text-lg font-bold" style={{ background: `linear-gradient(135deg, ${config.theme.primaryColor}, ${config.theme.secondaryColor})` }}>
-            {config.brand.name} ✨
+        {/* Brand summary card */}
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-5 mb-4">
+          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-stone-100">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg font-bold" style={{ background: config.theme.primaryColor }}>
+              {config.brand.name.slice(0, 1)}
+            </div>
+            <div>
+              <p className="font-semibold text-stone-900">{config.brand.name}</p>
+              <p className="text-xs text-stone-400">{PERSONALITY_PRESETS[config.brand.personality]?.label}</p>
+            </div>
+            <div className="mr-auto flex gap-1.5">
+              <div className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ background: config.theme.primaryColor }} />
+              <div className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ background: config.theme.secondaryColor }} />
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-2">
-            {[1, 2, 3].map((i) => <div key={i} className="h-16 rounded-lg bg-stone-100" />)}
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-stone-400">الفئة</span>
+              <span className="font-medium text-stone-700">{config.brand.category}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-stone-400">عدد الأقسام</span>
+              <span className="font-medium text-stone-700">{config.homepage.sections.length} قسم</span>
+            </div>
+            {config.business.whatsapp && (
+              <div className="flex justify-between">
+                <span className="text-stone-400">واتساب</span>
+                <span className="font-medium text-stone-700 text-xs" dir="ltr">{config.business.whatsapp}</span>
+              </div>
+            )}
           </div>
-          <div className="h-8 w-2/3 rounded-lg bg-stone-100" />
-          <div className="h-4 w-full rounded bg-stone-50" />
-          <div className="h-4 w-4/5 rounded bg-stone-50" />
         </div>
+
+        {/* Sections list */}
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-4 mb-5">
+          <p className="text-xs font-medium text-stone-500 mb-3">أقسام الصفحة الرئيسية</p>
+          <div className="space-y-1.5">
+            {sortedSections.map((s, i) => (
+              <div key={s.id} className="flex items-center gap-2.5 py-1">
+                <span className="text-sm w-5 text-center">{s.id.startsWith("hero") || s.type === "hero" ? "🖼️" : s.id.startsWith("trust") ? "✅" : ""}{SECTION_ICONS[s.type]}</span>
+                <span className="text-xs text-stone-700 flex-1">{s.label}</span>
+                <span className="text-[10px] text-stone-300">#{i + 1}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Button
+          onClick={onEdit}
+          size="lg"
+          className="w-full text-white gap-2 h-12"
+          style={{ background: "#8B1A35" }}
+        >
+          <Wand2 className="w-5 h-5" />
+          ابدأ التحرير المرئي
+        </Button>
+        <p className="text-center text-xs text-stone-400 mt-2">يمكنك تعديل كل شيء لاحقاً من المحرر</p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-5 mb-4">
-        <p className="font-medium text-stone-700 mb-3">ملخص قصة علامتك</p>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between"><span className="text-stone-400">اسم المتجر</span><span className="font-medium">{config.brand.name}</span></div>
-          <div className="flex justify-between"><span className="text-stone-400">الفئة</span><span className="font-medium">{config.brand.category}</span></div>
-          <div className="flex justify-between"><span className="text-stone-400">الشخصية</span><span className="font-medium">{PERSONALITY_PRESETS[config.brand.personality]?.label}</span></div>
-          <div className="flex justify-between"><span className="text-stone-400">عدد الأقسام</span><span className="font-medium">{config.homepage.sections.length} قسم</span></div>
+      {/* Right: live section previews */}
+      <div className="lg:sticky lg:top-4">
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+          {/* Browser chrome */}
+          <div className="px-4 py-2.5 border-b border-stone-100 flex items-center gap-2 bg-stone-50">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+              <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+              <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+            </div>
+            <div className="flex-1 bg-white rounded-md px-3 py-1 text-[10px] text-stone-400 text-center border border-stone-200">
+              nour.eg/{config.brand.name.toLowerCase().replace(/\s+/g, "-")}
+            </div>
+          </div>
+
+          {/* Section previews stacked */}
+          <div className="overflow-hidden" style={{ maxHeight: 480 }}>
+            <div style={{ transform: "scale(0.6)", transformOrigin: "top center", width: "167%", marginBottom: "-40%" }}>
+              {previewSections.map((section) => (
+                <SectionPreview
+                  key={section.id}
+                  section={section}
+                  theme={config.theme}
+                  brand={config.brand}
+                  selected={false}
+                  onClick={() => {}}
+                />
+              ))}
+            </div>
+          </div>
+
+          {sortedSections.length > 4 && (
+            <div className="px-4 py-2 bg-stone-50 border-t border-stone-100 text-center text-[10px] text-stone-400">
+              + {sortedSections.length - 4} أقسام إضافية
+            </div>
+          )}
         </div>
       </div>
-
-      <Button
-        onClick={onEdit}
-        size="lg"
-        className="w-full text-white gap-2 h-12"
-        style={{ background: "#8B1A35" }}
-      >
-        <Wand2 className="w-5 h-5" />
-        ابدأ التحرير المرئي
-      </Button>
     </div>
   );
 }

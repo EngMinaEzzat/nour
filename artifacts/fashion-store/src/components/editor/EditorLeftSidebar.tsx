@@ -6,6 +6,7 @@ import {
   SECTION_LABELS, SECTION_ICONS, SECTION_DESCRIPTIONS,
   AVAILABLE_SECTIONS, createDefaultSection,
 } from "@/lib/store-config";
+import ReadinessChecklist from "./ReadinessChecklist";
 
 type SidebarTab = "sections" | "theme" | "ai";
 
@@ -15,10 +16,11 @@ interface EditorLeftSidebarProps {
   onSelect: (id: string) => void;
   onConfigChange: (config: StoreConfig) => void;
   onOpenAI: () => void;
+  productCount?: number;
 }
 
 export default function EditorLeftSidebar({
-  config, selectedId, onSelect, onConfigChange, onOpenAI,
+  config, selectedId, onSelect, onConfigChange, onOpenAI, productCount = 0,
 }: EditorLeftSidebarProps) {
   const [tab, setTab] = useState<SidebarTab>("sections");
   const [addingSection, setAddingSection] = useState(false);
@@ -98,81 +100,88 @@ export default function EditorLeftSidebar({
       </div>
 
       {tab === "sections" && (
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Section list */}
-          <div className="p-2 space-y-1">
-            {sections.map((section, idx) => {
-              const isSelected = section.id === selectedId;
-              return (
-                <div
-                  key={section.id}
-                  onClick={() => onSelect(section.id)}
-                  className={`group relative rounded-xl p-3 cursor-pointer transition-all ${isSelected ? "bg-rose-50 border border-[#8B1A35]/20" : "hover:bg-stone-50 border border-transparent"}`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-base shrink-0">{SECTION_ICONS[section.type]}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-medium truncate ${section.visible ? "text-stone-800" : "text-stone-400"}`}>
-                        {section.label}
-                      </p>
-                      {!section.visible && <p className="text-[10px] text-stone-400">مخفي</p>}
-                    </div>
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-2 space-y-1">
+              {sections.map((section, idx) => {
+                const isSelected = section.id === selectedId;
+                return (
+                  <div
+                    key={section.id}
+                    onClick={() => onSelect(section.id)}
+                    className={`group relative rounded-xl p-3 cursor-pointer transition-all ${isSelected ? "bg-rose-50 border border-[#8B1A35]/20" : "hover:bg-stone-50 border border-transparent"}`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-base shrink-0">{SECTION_ICONS[section.type]}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-xs font-medium truncate ${section.visible ? "text-stone-800" : "text-stone-400"}`}>
+                          {section.label}
+                        </p>
+                        {!section.visible && <p className="text-[10px] text-stone-400">مخفي</p>}
+                      </div>
 
-                    {/* Actions on hover/selected */}
-                    <div className={`flex items-center gap-0.5 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }}
-                        disabled={idx === 0}
-                        className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30"
-                        title="رفع"
-                      >
-                        <ChevronUp className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }}
-                        disabled={idx === sections.length - 1}
-                        className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30"
-                        title="خفض"
-                      >
-                        <ChevronDown className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }}
-                        className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
-                        title={section.visible ? "إخفاء" : "إظهار"}
-                      >
-                        {section.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3 text-stone-400" />}
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }}
-                        className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
-                        title="تكرار"
-                      >
-                        <Copy className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }}
-                        className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500"
-                        title="حذف"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
+                      {/* Actions on hover/selected */}
+                      <div className={`flex items-center gap-0.5 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }}
+                          disabled={idx === 0}
+                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30"
+                          title="رفع"
+                        >
+                          <ChevronUp className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }}
+                          disabled={idx === sections.length - 1}
+                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30"
+                          title="خفض"
+                        >
+                          <ChevronDown className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }}
+                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
+                          title={section.visible ? "إخفاء" : "إظهار"}
+                        >
+                          {section.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3 text-stone-400" />}
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }}
+                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
+                          title="تكرار"
+                        >
+                          <Copy className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }}
+                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500"
+                          title="حذف"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+
+            {/* Add section button */}
+            <div className="p-2 border-t border-stone-100">
+              <button
+                onClick={() => setAddingSection(true)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-stone-300 text-sm text-stone-500 hover:border-[#8B1A35] hover:text-[#8B1A35] transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                إضافة قسم
+              </button>
+            </div>
           </div>
 
-          {/* Add section button */}
-          <div className="p-2 border-t border-stone-100">
-            <button
-              onClick={() => setAddingSection(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-stone-300 text-sm text-stone-500 hover:border-[#8B1A35] hover:text-[#8B1A35] transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              إضافة قسم
-            </button>
+          {/* Readiness checklist pinned at bottom */}
+          <div className="p-2 border-t border-stone-100 shrink-0">
+            <ReadinessChecklist config={config} productCount={productCount} />
           </div>
         </div>
       )}

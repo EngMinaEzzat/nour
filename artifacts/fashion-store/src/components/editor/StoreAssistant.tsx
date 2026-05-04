@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Wand2, Send, Sparkles } from "lucide-react";
-import { AI_QUICK_ACTIONS, MOCK_AI_RESPONSES } from "@/lib/store-config";
+import { X, Wand2, Send, Sparkles, RefreshCw } from "lucide-react";
+import { AI_QUICK_ACTIONS } from "@/lib/store-config";
 
 interface Message {
   role: "user" | "assistant";
   text: string;
+  streaming?: boolean;
 }
 
 interface StoreAssistantProps {
@@ -14,27 +15,99 @@ interface StoreAssistantProps {
 
 export default function StoreAssistant({ onClose }: StoreAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", text: "مرحباً! أنا مساعدك لتحسين متجرك. اختاري أحد الإجراءات أدناه أو اكتبي طلبك." },
+    { role: "assistant", text: "مرحباً! أنا مساعدك الذكي لتحسين متجرك. اختاري أحد الإجراءات أدناه أو اكتبي طلبك." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function sendMessage(text: string) {
+  async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
+    setError(null);
     setMessages((m) => [...m, { role: "user", text }]);
     setInput("");
     setLoading(true);
 
-    setTimeout(() => {
-      const response = MOCK_AI_RESPONSES[text] ?? MOCK_AI_RESPONSES["default"];
-      setMessages((m) => [...m, { role: "assistant", text: response }]);
+    abortRef.current?.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    let assistantText = "";
+    setMessages((m) => [...m, { role: "assistant", text: "", streaming: true }]);
+
+    try {
+      const res = await fetch("/api/ai/assistant/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ message: text, conversationId, model: "claude" }),
+        signal: ctrl.signal,
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error((body as { error?: string }).error ?? "حدث خطأ في الاتصال");
+      }
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (reader) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() ?? "";
+
+        for (const part of parts) {
+          const line = part.trim();
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const data = JSON.parse(line.slice(6)) as {
+              chunk?: string;
+              done?: boolean;
+              conversationId?: number;
+              error?: string;
+            };
+            if (data.error) throw new Error(data.error);
+            if (data.conversationId) setConversationId(data.conversationId);
+            if (data.chunk) {
+              assistantText += data.chunk;
+              setMessages((m) => {
+                const updated = [...m];
+                updated[updated.length - 1] = { role: "assistant", text: assistantText, streaming: true };
+                return updated;
+              });
+            }
+            if (data.done) {
+              setMessages((m) => {
+                const updated = [...m];
+                updated[updated.length - 1] = { role: "assistant", text: assistantText, streaming: false };
+                return updated;
+              });
+            }
+          } catch (parseErr) {
+            if ((parseErr as Error).message !== "Unexpected end of JSON input") throw parseErr;
+          }
+        }
+      }
+    } catch (err) {
+      if ((err as Error).name === "AbortError") return;
+      const msg = (err as Error).message ?? "حدث خطأ — حاولي مرة أخرى";
+      setError(msg);
+      setMessages((m) => m.filter((_, i) => i !== m.length - 1));
+    } finally {
       setLoading(false);
-    }, 1200 + Math.random() * 800);
+    }
   }
 
   return (
@@ -46,10 +119,11 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
       dir="rtl"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-stone-100" style={{ background: "linear-gradient(135deg, #8B1A35, #c97b8b)" }}>
+      <div className="flex items-center justify-between p-4 border-b border-stone-100 shrink-0" style={{ background: "linear-gradient(135deg, #8B1A35, #c97b8b)" }}>
         <div className="flex items-center gap-2 text-white">
           <Wand2 className="w-4 h-4" />
           <span className="font-semibold text-sm">مساعد المتجر الذكي</span>
+          <span className="text-[10px] bg-white/20 rounded-full px-2 py-0.5">AI</span>
         </div>
         <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
           <X className="w-4 h-4" />
@@ -74,11 +148,14 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
               style={msg.role === "user" ? { background: "#8B1A35" } : {}}
             >
               {msg.text}
+              {msg.streaming && (
+                <span className="inline-block w-1.5 h-3 bg-stone-400 rounded-sm mr-0.5 animate-pulse" />
+              )}
             </div>
           </motion.div>
         ))}
 
-        {loading && (
+        {loading && messages[messages.length - 1]?.text === "" && (
           <div className="flex justify-end">
             <div className="bg-stone-100 rounded-2xl rounded-tl-sm px-3 py-2">
               <div className="flex gap-1 items-center">
@@ -94,11 +171,23 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
             </div>
           </div>
         )}
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-2 bg-red-50 text-red-600 rounded-xl px-3 py-2 text-xs"
+          >
+            <RefreshCw className="w-3 h-3 shrink-0" />
+            <span>{error}</span>
+          </motion.div>
+        )}
+
         <div ref={bottomRef} />
       </div>
 
       {/* Quick actions */}
-      <div className="px-4 pb-3">
+      <div className="px-4 pb-3 shrink-0">
         <p className="text-[10px] text-stone-400 mb-2">إجراءات سريعة:</p>
         <div className="flex flex-wrap gap-1.5">
           {AI_QUICK_ACTIONS.map((action) => (
@@ -116,7 +205,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
       </div>
 
       {/* Input */}
-      <div className="p-3 border-t border-stone-100">
+      <div className="p-3 border-t border-stone-100 shrink-0">
         <div className="flex gap-2">
           <input
             value={input}
@@ -135,7 +224,10 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
             <Send className="w-3.5 h-3.5" />
           </button>
         </div>
-        <p className="text-[9px] text-stone-300 mt-1.5 text-center">هذا مساعد تجريبي — سيتم ربطه بالذكاء الاصطناعي قريباً</p>
+        <p className="text-[9px] text-stone-300 mt-1.5 text-center flex items-center justify-center gap-1">
+          <Sparkles className="w-2.5 h-2.5" />
+          مدعوم بالذكاء الاصطناعي — Claude AI
+        </p>
       </div>
     </motion.div>
   );

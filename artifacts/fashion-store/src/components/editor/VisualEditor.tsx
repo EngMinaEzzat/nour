@@ -138,6 +138,7 @@ export default function VisualEditor({
           onSelect={setSelectedId}
           onConfigChange={pushConfig}
           onOpenAI={() => setAiOpen(true)}
+          productCount={productCount}
         />
 
         {/* Center canvas */}
@@ -149,11 +150,6 @@ export default function VisualEditor({
             onSelectSection={setSelectedId}
             onDeselectAll={() => setSelectedId(null)}
           />
-
-          {/* Bottom readiness checklist */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-80 z-10">
-            <ReadinessChecklist config={config} productCount={productCount} />
-          </div>
         </div>
 
         {/* Right inspector panel */}
