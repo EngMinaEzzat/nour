@@ -12,10 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Settings, Save, Store, MapPin, Globe, Image, Palette,
   AlertCircle, CheckCircle2, Copy, Check, ExternalLink, Eye,
-  Search, Share2, QrCode, Download,
+  Search, Share2, QrCode, Download, Menu, X,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -132,6 +133,79 @@ const THEMES: { id: StoreTheme; name: string; nameEn: string; desc: string; prev
     preview:(p,s)=>(<div className="w-full h-full rounded-lg overflow-hidden bg-white"><div className="absolute top-0 left-0 right-0 flex h-14 border-b border-gray-100"><div className="flex-1 p-2 flex flex-col justify-center"><div className="h-5 w-4/5 mb-0.5" style={{background:p}}/><div className="h-1.5 w-1/2 rounded bg-black/15"/></div><div className="w-14 shrink-0" style={{background:`${s||p}33`}}/></div><div className="absolute bottom-0 left-0 right-0 grid grid-cols-2 gap-0.5 p-0.5 top-14">{[...Array(2)].map((_,i)=><div key={i} className="aspect-[4/5] bg-gray-50"/>)}</div></div>),
   },
 ];
+
+const SETTING_SECTIONS = [
+  { id: "section-identity",  name: "هوية المتجر",          icon: Store },
+  { id: "section-media",     name: "الصور والمظهر",         icon: Image },
+  { id: "section-colors",    name: "الألوان",               icon: Palette },
+  { id: "section-theme",     name: "قالب المتجر",           icon: Settings },
+  { id: "section-seo",       name: "تحسين البحث (SEO)",     icon: Search },
+  { id: "section-social",    name: "الروابط الاجتماعية",    icon: Share2 },
+];
+
+function scrollToSection(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function SectionNav() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mb-6" style={{ direction: "rtl" }}>
+      {/* Mobile: hamburger button + Sheet */}
+      <div className="flex md:hidden items-center gap-2">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2 rounded-xl">
+              <Menu className="w-4 h-4" />
+              انتقل إلى قسم
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-64 p-0 flex flex-col" style={{ direction: "rtl" }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 shrink-0">
+              <span className="text-sm font-semibold">أقسام الإعدادات</span>
+              <Button variant="ghost" size="icon" onClick={() => setOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex flex-col p-3 space-y-1 overflow-y-auto flex-1">
+              {SETTING_SECTIONS.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => { scrollToSection(s.id); setOpen(false); }}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-right"
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    {s.name}
+                  </button>
+                );
+              })}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop: horizontal scrollable pill tabs */}
+      <div className="hidden md:flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {SETTING_SECTIONS.map((s) => {
+          const Icon = s.icon;
+          return (
+            <button
+              key={s.id}
+              onClick={() => scrollToSection(s.id)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-muted-foreground bg-muted/50 hover:bg-muted hover:text-foreground border border-border/40 transition-all whitespace-nowrap shrink-0"
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {s.name}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function StorefrontPreview({ form }: { form: FormState }) {
   const gradient = CATEGORY_GRADIENT[form.category] ?? CATEGORY_GRADIENT.both;
@@ -471,12 +545,15 @@ export default function StoreSettings() {
         </div>
       </motion.div>
 
+      {/* ─── Section navigator ─── */}
+      <SectionNav />
+
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* ─── Form ─── */}
         <div className="lg:col-span-3 space-y-6">
 
           {/* Identity section */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+          <motion.div id="section-identity" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
             <Card className="border-border/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -553,7 +630,7 @@ export default function StoreSettings() {
           </motion.div>
 
           {/* Media section */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <motion.div id="section-media" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <Card className="border-border/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -612,7 +689,7 @@ export default function StoreSettings() {
           </motion.div>
 
           {/* Brand color section */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <motion.div id="section-colors" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <Card className="border-border/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -764,7 +841,7 @@ export default function StoreSettings() {
           </motion.div>
 
           {/* Theme picker */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+          <motion.div id="section-theme" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
             <Card className="border-border/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -819,12 +896,12 @@ export default function StoreSettings() {
           </motion.div>
 
           {/* SEO Section */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <motion.div id="section-seo" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <SeoSection tenantId={tenantId!} />
           </motion.div>
 
           {/* Social Links Section */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          <motion.div id="section-social" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <SocialSection tenantId={tenantId!} />
           </motion.div>
 
