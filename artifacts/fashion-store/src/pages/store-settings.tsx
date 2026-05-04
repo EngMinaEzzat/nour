@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetTenant, getGetTenantQueryKey, useUpdateTenant } from "@workspace/api-client-react";
+import GuideCard from "@/components/admin/GuideCard";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -558,6 +559,25 @@ export default function StoreSettings() {
           <TooltipContent side="right">{saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</TooltipContent>
         </Tooltip>
       </div>
+
+      {/* ─── Settings Guide ─── */}
+      <GuideCard
+        storageKey="store-settings"
+        title="كيف تضبط إعدادات متجرك؟"
+        description="هذه الصفحة تتحكم في كيفية ظهور متجرك للعالم. اضبطها مرة واحدة جيداً وستشعر بالفرق في المبيعات."
+        steps={[
+          { icon: "🏪", title: "هوية المتجر", desc: "اسم واضح ووصف جذاب يساعد العملاء على معرفة تخصصك بسرعة." },
+          { icon: "🖼️", title: "الصور والمظهر", desc: "الشعار وصورة الغلاف هما أول ما يراه العميل — اجعلهما احترافيين." },
+          { icon: "🎨", title: "اللون الرئيسي", desc: "اختر لوناً يعكس هوية علامتك وتمسّك به في كل مكان." },
+          { icon: "🔍", title: "SEO", desc: "عنوان ووصف البحث يساعدك على الظهور في نتائج Google." },
+        ]}
+        tips={[
+          "شعار دائري 200×200 بكسل يبدو أفضل في الهاتف.",
+          "صورة الغلاف المثالية: 1400×600 بكسل بجودة عالية.",
+          "أضف رقم واتساب لزيادة التواصل المباشر مع العملاء.",
+        ]}
+        variant="info"
+      />
 
       {/* ─── Section navigator ─── */}
       <SectionNav />

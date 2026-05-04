@@ -67,6 +67,23 @@ The system is built as a monorepo using `pnpm workspaces`, Node.js 24, and TypeS
 - **Email Service:** Resend (for password reset emails)
 - **Carrier Integration:** Bosta (for shipping)
 - **WhatsApp API:** Integrated for messaging (provider credentials managed server-side)
-- **AI Services:** Integrated for the AI assistant panel.
+- **AI Services:** Integrated for the AI assistant panel (Claude via Anthropic + Gemini via Google).
 - **Redis:** For session storage (optional, falls back to PostgreSQL).
 - **File Upload:** Multer (for disk storage).
+
+## Recent Changes (Session 2)
+
+### Issue Fixes
+1. **Store Preview Bug (#1):** `store-builder.tsx` now saves ALL branding fields (logoUrl, coverUrl, name, description, primaryColor, secondaryColor) to API on save.
+2. **AI Model Selector (#2):** `StoreAssistant.tsx` rewritten with Claude/Gemini model selector dropdown, color-coded per model.
+3. **Real Themes + Sticky Save (#3):** 8+ visual theme cards in EditorLeftSidebar, sticky floating save button with dirty tracking.
+4. **Admin Guides (#4):** `GuideCard` component added to Orders, Products, Customers, and Store Settings pages — dismissible, expandable, localStorage-persisted.
+5. **Better Merchant UX (#5):** GuideCard provides step-by-step workflows per page, with Arabic tips and icons.
+6. **Comprehensive Tests (#6):** 207 tests passing across 15 test files:
+   - `storefront.test.ts` — public API, tenant isolation, branding persistence
+   - `store-settings.test.ts` — branding, social, GET settings
+   - `analytics.test.ts` — dashboard KPIs, tenant scoping
+   - `ai-assistant.test.ts` — model selection, auth, empty message validation
+   - `security.test.ts` — tenant isolation, auth middleware, input validation
+   - `edge-cases.test.ts` — boundary conditions, pagination, auth edge cases
+7. **Product Validation:** API now rejects negative prices and negative stock with 400 errors.

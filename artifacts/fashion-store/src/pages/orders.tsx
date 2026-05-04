@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Search, ChevronLeft } from "lucide-react";
+import GuideCard from "@/components/admin/GuideCard";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending:   { label: "قيد الانتظار", color: "bg-yellow-100 text-yellow-800 border-yellow-200" },
@@ -40,8 +41,26 @@ export default function Orders() {
           <FileText className="w-6 h-6 text-primary" />
           <h1 className="text-3xl font-bold">الطلبات</h1>
         </div>
-        <p className="text-muted-foreground mb-8">إدارة ومتابعة جميع الطلبات</p>
+        <p className="text-muted-foreground mb-4">إدارة ومتابعة جميع الطلبات الواردة من متجرك</p>
       </motion.div>
+
+      <GuideCard
+        storageKey="orders"
+        title="كيف تدير طلباتك؟"
+        description="هنا تجد كل الطلبات التي وردت من متجرك. انقر على أي طلب لعرض تفاصيله وتحديث حالته."
+        steps={[
+          { icon: "📦", title: "استلام الطلب", desc: "عند ورود طلب جديد ستصلك إشعار — تأكد من مراجعته خلال 24 ساعة." },
+          { icon: "✅", title: "تأكيد وتحضير", desc: "غير الحالة إلى «مؤكد» عند التحقق من الطلب وبدء التحضير." },
+          { icon: "🚚", title: "الشحن والتوصيل", desc: "عند الإرسال للشحن غير الحالة إلى «تم الشحن» وأضف رقم التتبع." },
+          { icon: "⭐", title: "ما بعد التوصيل", desc: "تابع مع العميل للتأكد من رضاه وشجعه على ترك تقييم." },
+        ]}
+        tips={[
+          "رد على طلبات COD خلال ساعتين لتقليل نسبة الإلغاء.",
+          "استخدم فلتر «قيد الانتظار» لعرض الطلبات التي تحتاج اهتماماً فورياً.",
+          "أرسل رسالة واتساب للعميل فور تأكيد طلبه لبناء الثقة.",
+        ]}
+        variant="guide"
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}

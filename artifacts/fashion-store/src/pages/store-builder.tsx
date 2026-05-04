@@ -38,7 +38,6 @@ export default function StoreBuilder() {
   const [mode, setMode] = useState<"wizard" | "editor" | null>(null);
   const [storeConfig, setStoreConfig] = useState<StoreConfig | null>(null);
 
-  // Once tenant loads, build initial config from real data + saved draft
   useEffect(() => {
     if (!tenant) return;
 
@@ -78,11 +77,10 @@ export default function StoreBuilder() {
       },
     };
 
-    // Merge saved draft over API data (draft takes priority for homepage sections)
+    // Merge: API data first, then saved draft overrides (draft has priority for sections/theme)
     const merged = createDefaultConfig({ ...fromApi, ...(saved ?? {}) });
     setStoreConfig(merged);
 
-    // Determine mode: if they have saved sections, go to editor; else show wizard
     if (saved?.homepage?.sections?.length) {
       setMode("editor");
     } else {
@@ -98,7 +96,7 @@ export default function StoreBuilder() {
     saveConfig(slug, config);
     setStoreConfig(config);
 
-    // Persist branding to API
+    // Persist ALL branding fields to API — including logo, cover, colors
     const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
     const headers = { "Content-Type": "application/json" };
     const creds = { credentials: "include" as const };
@@ -109,6 +107,10 @@ export default function StoreBuilder() {
         headers,
         ...creds,
         body: JSON.stringify({
+          name: config.brand.name,
+          description: config.brand.uniqueValue || undefined,
+          logoUrl: config.brand.logoUrl ?? null,
+          coverUrl: config.brand.coverUrl ?? null,
           primaryColor: config.theme.primaryColor,
           secondaryColor: config.theme.secondaryColor,
         }),
@@ -128,7 +130,6 @@ export default function StoreBuilder() {
     if (tenant?.slug) saveConfig(tenant.slug, config);
   }
 
-  // ─── Loading state ────────────────────────────────────────────────────────
   if (isLoading || !mode || !storeConfig) {
     return (
       <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir="rtl">
@@ -144,19 +145,17 @@ export default function StoreBuilder() {
     );
   }
 
-  // ─── No tenant ────────────────────────────────────────────────────────────
   if (!tenant) {
     return (
       <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir="rtl">
         <div className="text-center">
           <p className="text-stone-600 mb-4">لا يوجد متجر مرتبط بحسابك.</p>
-          <a href="/setup" className="text-[#8B1A35] underline text-sm">أنشئي متجرك أولاً</a>
+          <a href="/setup" className="text-[#8B1A35] underline text-sm">أنشئ متجرك أولاً</a>
         </div>
       </div>
     );
   }
 
-  // ─── Wizard ───────────────────────────────────────────────────────────────
   if (mode === "wizard") {
     return (
       <OnboardingWizard
@@ -166,7 +165,6 @@ export default function StoreBuilder() {
     );
   }
 
-  // ─── Visual editor ─────────────────────────────────────────────────────────
   return (
     <VisualEditor
       initialConfig={storeConfig}

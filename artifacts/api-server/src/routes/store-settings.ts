@@ -48,7 +48,7 @@ router.get("/store-settings", requireRole("owner", "manager", "staff"), async (r
 router.put("/store-settings/branding", requireRole("owner", "manager"), async (req, res) => {
   try {
     const tenantId = req.merchantTenantId!;
-    const { name, description, logoUrl, coverUrl, faviconUrl, primaryColor, city } = req.body;
+    const { name, description, logoUrl, coverUrl, faviconUrl, primaryColor, secondaryColor, city } = req.body;
 
     if (name && (name.length < 2 || name.length > 100)) {
       return res.status(400).json({ error: "اسم المتجر يجب أن يكون بين 2 و 100 حرف" });
@@ -61,6 +61,7 @@ router.put("/store-settings/branding", requireRole("owner", "manager"), async (r
       ...(coverUrl !== undefined ? { coverUrl } : {}),
       ...(faviconUrl !== undefined ? { faviconUrl } : {}),
       ...(primaryColor !== undefined ? { primaryColor } : {}),
+      ...(secondaryColor !== undefined ? { secondaryColor } : {}),
       ...(city !== undefined ? { city } : {}),
     }).where(eq(tenantsTable.id, tenantId)).returning({ id: tenantsTable.id, name: tenantsTable.name, logoUrl: tenantsTable.logoUrl });
 

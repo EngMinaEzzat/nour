@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Copy, Palette, LayoutList, Wand2 } from "lucide-react";
+import { Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Copy, Palette, LayoutList, Wand2, CheckCircle2 } from "lucide-react";
 import {
   StoreConfig, SectionConfig, SectionType,
   SECTION_LABELS, SECTION_ICONS, SECTION_DESCRIPTIONS,
@@ -79,7 +79,7 @@ export default function EditorLeftSidebar({
 
   const TABS = [
     { key: "sections" as SidebarTab, icon: LayoutList, label: "الأقسام" },
-    { key: "theme" as SidebarTab, icon: Palette, label: "المظهر" },
+    { key: "theme" as SidebarTab, icon: Palette, label: "الثيم" },
     { key: "ai" as SidebarTab, icon: Wand2, label: "مساعد" },
   ];
 
@@ -101,7 +101,6 @@ export default function EditorLeftSidebar({
 
       {tab === "sections" && (
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Section list */}
           <div className="flex-1 overflow-y-auto">
             <div className="p-2 space-y-1">
               {sections.map((section, idx) => {
@@ -121,43 +120,20 @@ export default function EditorLeftSidebar({
                         {!section.visible && <p className="text-[10px] text-stone-400">مخفي</p>}
                       </div>
 
-                      {/* Actions on hover/selected */}
                       <div className={`flex items-center gap-0.5 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }}
-                          disabled={idx === 0}
-                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30"
-                          title="رفع"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }} disabled={idx === 0} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30" title="رفع">
                           <ChevronUp className="w-3 h-3" />
                         </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }}
-                          disabled={idx === sections.length - 1}
-                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30"
-                          title="خفض"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }} disabled={idx === sections.length - 1} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30" title="خفض">
                           <ChevronDown className="w-3 h-3" />
                         </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }}
-                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
-                          title={section.visible ? "إخفاء" : "إظهار"}
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={section.visible ? "إخفاء" : "إظهار"}>
                           {section.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3 text-stone-400" />}
                         </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }}
-                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
-                          title="تكرار"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title="تكرار">
                           <Copy className="w-3 h-3" />
                         </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }}
-                          className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500"
-                          title="حذف"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500" title="حذف">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
@@ -167,7 +143,6 @@ export default function EditorLeftSidebar({
               })}
             </div>
 
-            {/* Add section button */}
             <div className="p-2 border-t border-stone-100">
               <button
                 onClick={() => setAddingSection(true)}
@@ -179,7 +154,6 @@ export default function EditorLeftSidebar({
             </div>
           </div>
 
-          {/* Readiness checklist pinned at bottom */}
           <div className="p-2 border-t border-stone-100 shrink-0">
             <ReadinessChecklist config={config} productCount={productCount} />
           </div>
@@ -187,29 +161,25 @@ export default function EditorLeftSidebar({
       )}
 
       {tab === "theme" && (
-        <QuickThemePanel config={config} onConfigChange={onConfigChange} />
+        <ThemePanel config={config} onConfigChange={onConfigChange} />
       )}
 
-      {/* Add section modal */}
       <AnimatePresence>
         {addingSection && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/20 z-40"
               onClick={() => setAddingSection(false)}
             />
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
               className="fixed bottom-4 right-4 w-72 bg-white rounded-2xl shadow-2xl border border-stone-200 z-50 max-h-[70vh] overflow-y-auto"
               dir="rtl"
             >
               <div className="p-4 border-b border-stone-100">
                 <p className="font-medium text-stone-800">اختاري قسماً لإضافته</p>
+                <p className="text-xs text-stone-400 mt-0.5">انقري على أي قسم لإضافته للصفحة</p>
               </div>
               <div className="p-2 space-y-1">
                 {AVAILABLE_SECTIONS.map((type) => (
@@ -234,8 +204,91 @@ export default function EditorLeftSidebar({
   );
 }
 
-// ─── Quick Theme Panel ─────────────────────────────────────────────────────────
-function QuickThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigChange: (c: StoreConfig) => void }) {
+// ─── Visual Theme Panel ─────────────────────────────────────────────────────────
+const VISUAL_THEMES = [
+  {
+    id: "rose-boutique",
+    name: "بوتيك ورديّ",
+    desc: "أناقة فاخرة بلمسة دافئة",
+    emoji: "🌸",
+    gradient: "from-rose-400 to-pink-600",
+    preview: { bg: "#fff0f3", accent: "#8B1A35", text: "#1a0a0e" },
+    theme: { primaryColor: "#8B1A35", secondaryColor: "#c8963a", fontPairing: "serif-sans" as const, buttonStyle: "pill" as const, radius: 12, animationLevel: "subtle" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
+  },
+  {
+    id: "midnight-glam",
+    name: "جلام ليلي",
+    desc: "أسود راقٍ مع ذهبي ملكي",
+    emoji: "🌙",
+    gradient: "from-gray-900 to-yellow-700",
+    preview: { bg: "#0d0d0d", accent: "#c8963a", text: "#f5f0e8" },
+    theme: { primaryColor: "#1a1614", secondaryColor: "#c8963a", fontPairing: "serif-serif" as const, buttonStyle: "square" as const, radius: 0, animationLevel: "subtle" as const, pageWidth: "wide" as const, cardShadow: "strong" as const },
+  },
+  {
+    id: "emerald-fresh",
+    name: "أخضر زمردي",
+    desc: "نضارة طبيعية وعصرية",
+    emoji: "🌿",
+    gradient: "from-emerald-500 to-teal-600",
+    preview: { bg: "#f0fdf4", accent: "#059669", text: "#0a2e1a" },
+    theme: { primaryColor: "#059669", secondaryColor: "#f59e0b", fontPairing: "sans-sans" as const, buttonStyle: "rounded" as const, radius: 8, animationLevel: "lively" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
+  },
+  {
+    id: "purple-luxe",
+    name: "بنفسجي فاخر",
+    desc: "غموض وأناقة بنفسجية",
+    emoji: "💜",
+    gradient: "from-violet-600 to-purple-800",
+    preview: { bg: "#faf5ff", accent: "#7c3aed", text: "#2e1065" },
+    theme: { primaryColor: "#7c3aed", secondaryColor: "#ec4899", fontPairing: "serif-sans" as const, buttonStyle: "pill" as const, radius: 16, animationLevel: "lively" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
+  },
+  {
+    id: "sand-minimal",
+    name: "رملي مينيمال",
+    desc: "بساطة وأصالة",
+    emoji: "🏜️",
+    gradient: "from-amber-300 to-stone-500",
+    preview: { bg: "#faf7f0", accent: "#795548", text: "#2c1810" },
+    theme: { primaryColor: "#795548", secondaryColor: "#c8963a", fontPairing: "serif-sans" as const, buttonStyle: "rounded" as const, radius: 4, animationLevel: "none" as const, pageWidth: "contained" as const, cardShadow: "none" as const },
+  },
+  {
+    id: "ocean-blue",
+    name: "أزرق محيطي",
+    desc: "هدوء وثقة زرقاء",
+    emoji: "🌊",
+    gradient: "from-blue-500 to-cyan-600",
+    preview: { bg: "#eff6ff", accent: "#1d4ed8", text: "#0f172a" },
+    theme: { primaryColor: "#1d4ed8", secondaryColor: "#06b6d4", fontPairing: "sans-sans" as const, buttonStyle: "rounded" as const, radius: 8, animationLevel: "subtle" as const, pageWidth: "wide" as const, cardShadow: "soft" as const },
+  },
+  {
+    id: "coral-playful",
+    name: "مرجاني شبابي",
+    desc: "طاقة وألوان زاهية",
+    emoji: "🎨",
+    gradient: "from-orange-400 to-pink-500",
+    preview: { bg: "#fff7f0", accent: "#ea580c", text: "#431407" },
+    theme: { primaryColor: "#ea580c", secondaryColor: "#ec4899", fontPairing: "sans-sans" as const, buttonStyle: "pill" as const, radius: 20, animationLevel: "lively" as const, pageWidth: "contained" as const, cardShadow: "strong" as const },
+  },
+  {
+    id: "ivory-classic",
+    name: "كلاسيك عاجي",
+    desc: "تراث وفخامة خالدة",
+    emoji: "🤍",
+    gradient: "from-stone-200 to-stone-600",
+    preview: { bg: "#fdfbf7", accent: "#333333", text: "#111111" },
+    theme: { primaryColor: "#333333", secondaryColor: "#888888", fontPairing: "serif-serif" as const, buttonStyle: "square" as const, radius: 0, animationLevel: "none" as const, pageWidth: "contained" as const, cardShadow: "none" as const },
+  },
+];
+
+function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigChange: (c: StoreConfig) => void }) {
+  const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
+  const [showCustom, setShowCustom] = useState(false);
+
+  function applyTheme(theme: typeof VISUAL_THEMES[0]) {
+    setActiveThemeId(theme.id);
+    onConfigChange({ ...config, theme: { ...config.theme, ...theme.theme } });
+  }
+
   function patchTheme(t: Partial<StoreConfig["theme"]>) {
     onConfigChange({ ...config, theme: { ...config.theme, ...t } });
   }
@@ -243,77 +296,122 @@ function QuickThemePanel({ config, onConfigChange }: { config: StoreConfig; onCo
   const COLORS = ["#8B1A35", "#7c3aed", "#2563eb", "#059669", "#d97706", "#dc2626", "#db2777", "#1e3a5f", "#795548", "#333333"];
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-5">
-      <div>
-        <p className="text-xs font-medium text-stone-500 mb-2">اللون الرئيسي</p>
-        <div className="flex flex-wrap gap-1.5">
-          {COLORS.map((c) => (
-            <button
-              key={c}
-              onClick={() => patchTheme({ primaryColor: c })}
-              className="w-6 h-6 rounded-full border-2 transition-all"
-              style={{ background: c, borderColor: config.theme.primaryColor === c ? "white" : "transparent", boxShadow: config.theme.primaryColor === c ? `0 0 0 3px ${c}` : "none" }}
-            />
-          ))}
-          <input type="color" value={config.theme.primaryColor} onChange={(e) => patchTheme({ primaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" title="لون مخصص" />
+    <div className="flex-1 overflow-y-auto" dir="rtl">
+      {/* Theme Cards */}
+      <div className="p-3">
+        <p className="text-xs font-semibold text-stone-500 mb-2 uppercase tracking-wide">اختاري ثيم متجرك</p>
+        <div className="grid grid-cols-2 gap-2">
+          {VISUAL_THEMES.map((t) => {
+            const isActive = activeThemeId === t.id || (
+              !activeThemeId &&
+              config.theme.primaryColor === t.theme.primaryColor &&
+              config.theme.buttonStyle === t.theme.buttonStyle
+            );
+            return (
+              <motion.button
+                key={t.id}
+                onClick={() => applyTheme(t)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`relative rounded-xl overflow-hidden border-2 transition-all text-right ${isActive ? "border-[#8B1A35] shadow-lg" : "border-transparent hover:border-stone-300"}`}
+              >
+                {/* Theme preview swatch */}
+                <div
+                  className="h-16 relative"
+                  style={{ background: t.preview.bg }}
+                >
+                  {/* Mock product card preview */}
+                  <div
+                    className="absolute inset-2 rounded-lg opacity-80"
+                    style={{ background: `linear-gradient(135deg, ${t.preview.accent}22, ${t.preview.accent}44)` }}
+                  />
+                  <div
+                    className="absolute bottom-2 right-2 left-2 h-5 rounded-md flex items-center justify-center text-white text-[8px] font-bold"
+                    style={{
+                      background: t.preview.accent,
+                      borderRadius: t.theme.radius ?? 8,
+                    }}
+                  >
+                    اشتري الآن
+                  </div>
+                  <div className={`absolute top-2 right-2 w-full h-px bg-gradient-to-r ${t.gradient} opacity-60`} />
+                  {isActive && (
+                    <motion.div
+                      initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      className="absolute top-1 left-1 bg-[#8B1A35] rounded-full p-0.5"
+                    >
+                      <CheckCircle2 className="w-3 h-3 text-white" />
+                    </motion.div>
+                  )}
+                </div>
+                {/* Theme name */}
+                <div className="px-2 py-1.5 bg-white">
+                  <p className="text-[11px] font-semibold text-stone-800 flex items-center gap-1">
+                    <span>{t.emoji}</span> {t.name}
+                  </p>
+                  <p className="text-[9px] text-stone-400 truncate">{t.desc}</p>
+                </div>
+              </motion.button>
+            );
+          })}
         </div>
       </div>
 
-      <div>
-        <p className="text-xs font-medium text-stone-500 mb-2">اللون الثانوي</p>
-        <div className="flex flex-wrap gap-1.5">
-          {["#c8963a", "#f59e0b", "#06b6d4", "#10b981", "#f97316", "#a855f7", "#ec4899"].map((c) => (
-            <button
-              key={c}
-              onClick={() => patchTheme({ secondaryColor: c })}
-              className="w-6 h-6 rounded-full border-2 transition-all"
-              style={{ background: c, borderColor: config.theme.secondaryColor === c ? "white" : "transparent", boxShadow: config.theme.secondaryColor === c ? `0 0 0 3px ${c}` : "none" }}
-            />
-          ))}
-          <input type="color" value={config.theme.secondaryColor} onChange={(e) => patchTheme({ secondaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" />
-        </div>
-      </div>
+      {/* Custom tweaks */}
+      <div className="border-t border-stone-100">
+        <button
+          onClick={() => setShowCustom((s) => !s)}
+          className="w-full flex items-center justify-between px-4 py-3 text-xs text-stone-500 hover:bg-stone-50 transition-colors"
+        >
+          <span className="font-medium">تخصيص متقدم</span>
+          <motion.span animate={{ rotate: showCustom ? 180 : 0 }} transition={{ duration: 0.2 }}>▾</motion.span>
+        </button>
 
-      <div>
-        <p className="text-xs font-medium text-stone-500 mb-2">أسلوب الخطوط</p>
-        {(["serif-sans", "sans-sans", "serif-serif"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => patchTheme({ fontPairing: f })}
-            className={`block w-full text-right text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.fontPairing === f ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}
-          >
-            {f === "serif-sans" ? "عناوين خطية + نص عادي (موصى به)" : f === "sans-sans" ? "كل شيء خط عادي (بسيط)" : "كل شيء خطي (كلاسيك)"}
-          </button>
-        ))}
-      </div>
-
-      <div>
-        <p className="text-xs font-medium text-stone-500 mb-2">شكل الأزرار</p>
-        <div className="flex gap-2">
-          {(["pill", "rounded", "square"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => patchTheme({ buttonStyle: s })}
-              className={`flex-1 py-1.5 text-xs border-2 transition-all ${config.theme.buttonStyle === s ? "border-[#8B1A35] text-[#8B1A35]" : "border-stone-200 text-stone-500"}`}
-              style={{ borderRadius: s === "pill" ? 999 : s === "rounded" ? 6 : 0 }}
+        <AnimatePresence>
+          {showCustom && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="px-4 pb-4 space-y-4 overflow-hidden"
             >
-              {s === "pill" ? "دائري" : s === "rounded" ? "مدور" : "مربع"}
-            </button>
-          ))}
-        </div>
-      </div>
+              <div>
+                <p className="text-xs font-medium text-stone-500 mb-2">اللون الرئيسي</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {COLORS.map((c) => (
+                    <button key={c} onClick={() => patchTheme({ primaryColor: c })}
+                      className="w-6 h-6 rounded-full border-2 transition-all"
+                      style={{ background: c, borderColor: config.theme.primaryColor === c ? "white" : "transparent", boxShadow: config.theme.primaryColor === c ? `0 0 0 3px ${c}` : "none" }} />
+                  ))}
+                  <input type="color" value={config.theme.primaryColor} onChange={(e) => patchTheme({ primaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" title="لون مخصص" />
+                </div>
+              </div>
 
-      <div>
-        <p className="text-xs font-medium text-stone-500 mb-2">حيوية التحريك</p>
-        {(["none", "subtle", "lively"] as const).map((a) => (
-          <button
-            key={a}
-            onClick={() => patchTheme({ animationLevel: a })}
-            className={`block w-full text-right text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.animationLevel === a ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}
-          >
-            {a === "none" ? "بدون تحريك" : a === "subtle" ? "تحريك خفيف" : "تحريك حيوي"}
-          </button>
-        ))}
+              <div>
+                <p className="text-xs font-medium text-stone-500 mb-2">شكل الأزرار</p>
+                <div className="flex gap-2">
+                  {(["pill", "rounded", "square"] as const).map((s) => (
+                    <button key={s} onClick={() => patchTheme({ buttonStyle: s })}
+                      className={`flex-1 py-1.5 text-xs border-2 transition-all ${config.theme.buttonStyle === s ? "border-[#8B1A35] text-[#8B1A35]" : "border-stone-200 text-stone-500"}`}
+                      style={{ borderRadius: s === "pill" ? 999 : s === "rounded" ? 6 : 0 }}>
+                      {s === "pill" ? "دائري" : s === "rounded" ? "مدور" : "مربع"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-stone-500 mb-2">مستوى التحريك</p>
+                {(["none", "subtle", "lively"] as const).map((a) => (
+                  <button key={a} onClick={() => patchTheme({ animationLevel: a })}
+                    className={`block w-full text-right text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.animationLevel === a ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}>
+                    {a === "none" ? "⬜ بدون تحريك (أسرع)" : a === "subtle" ? "✨ تحريك خفيف (موصى به)" : "🎬 تحريك حيوي (مبهج)"}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

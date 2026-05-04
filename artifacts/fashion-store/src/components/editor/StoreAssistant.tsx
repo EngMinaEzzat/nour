@@ -1,7 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Wand2, Send, Sparkles, RefreshCw } from "lucide-react";
+import { X, Wand2, Send, Sparkles, RefreshCw, ChevronDown } from "lucide-react";
 import { AI_QUICK_ACTIONS } from "@/lib/store-config";
+
+type AiModel = "claude" | "gemini";
+
+const MODEL_OPTIONS: { key: AiModel; label: string; badge: string; color: string }[] = [
+  { key: "claude", label: "Claude", badge: "Anthropic", color: "#8B1A35" },
+  { key: "gemini", label: "Gemini", badge: "Google", color: "#1a73e8" },
+];
 
 interface Message {
   role: "user" | "assistant";
@@ -15,18 +22,22 @@ interface StoreAssistantProps {
 
 export default function StoreAssistant({ onClose }: StoreAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", text: "مرحباً! أنا مساعدك الذكي لتحسين متجرك. اختاري أحد الإجراءات أدناه أو اكتبي طلبك." },
+    { role: "assistant", text: "مرحباً! أنا مساعدك الذكي لتحسين متجرك. اختر أحد الإجراءات أدناه أو اكتب طلبك." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [model, setModel] = useState<AiModel>("claude");
+  const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const activeModel = MODEL_OPTIONS.find((m) => m.key === model)!;
 
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
@@ -47,7 +58,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ message: text, conversationId, model: "claude" }),
+        body: JSON.stringify({ message: text, conversationId, model }),
         signal: ctrl.signal,
       });
 
@@ -102,7 +113,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
       }
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
-      const msg = (err as Error).message ?? "حدث خطأ — حاولي مرة أخرى";
+      const msg = (err as Error).message ?? "حدث خطأ — حاول مرة أخرى";
       setError(msg);
       setMessages((m) => m.filter((_, i) => i !== m.length - 1));
     } finally {
@@ -119,15 +130,55 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
       dir="rtl"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-stone-100 shrink-0" style={{ background: "linear-gradient(135deg, #8B1A35, #c97b8b)" }}>
+      <div
+        className="flex items-center justify-between p-4 border-b border-stone-100 shrink-0"
+        style={{ background: `linear-gradient(135deg, ${activeModel.color}, ${activeModel.color}99)` }}
+      >
         <div className="flex items-center gap-2 text-white">
           <Wand2 className="w-4 h-4" />
           <span className="font-semibold text-sm">مساعد المتجر الذكي</span>
-          <span className="text-[10px] bg-white/20 rounded-full px-2 py-0.5">AI</span>
         </div>
-        <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
-          <X className="w-4 h-4" />
-        </button>
+
+        {/* Model selector */}
+        <div className="relative flex items-center gap-2">
+          <button
+            onClick={() => setModelMenuOpen((o) => !o)}
+            className="flex items-center gap-1 text-white/90 bg-white/20 hover:bg-white/30 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all"
+          >
+            <span>{activeModel.label}</span>
+            <ChevronDown className="w-3 h-3" />
+          </button>
+          <AnimatePresence>
+            {modelMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                transition={{ duration: 0.12 }}
+                className="absolute top-8 left-0 bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden z-50 w-44"
+              >
+                {MODEL_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => { setModel(opt.key); setModelMenuOpen(false); setConversationId(null); }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 text-xs transition-colors ${model === opt.key ? "bg-stone-50 font-semibold" : "hover:bg-stone-50"}`}
+                  >
+                    <span className="text-stone-800">{opt.label}</span>
+                    <span
+                      className="text-[10px] px-1.5 py-0.5 rounded-full text-white font-medium"
+                      style={{ background: opt.color }}
+                    >
+                      {opt.badge}
+                    </span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -145,7 +196,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
                   ? "bg-stone-100 text-stone-700 rounded-tl-sm"
                   : "text-white rounded-tr-sm"
               }`}
-              style={msg.role === "user" ? { background: "#8B1A35" } : {}}
+              style={msg.role === "user" ? { background: activeModel.color } : {}}
             >
               {msg.text}
               {msg.streaming && (
@@ -211,7 +262,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-            placeholder="اكتبي طلبك هنا..."
+            placeholder="اكتب طلبك هنا..."
             className="flex-1 text-xs border border-stone-200 rounded-lg px-3 py-2 text-right focus:outline-none focus:ring-2 focus:ring-[#8B1A35]/30"
             disabled={loading}
           />
@@ -219,14 +270,14 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
             onClick={() => sendMessage(input)}
             disabled={!input.trim() || loading}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-white disabled:opacity-50 transition-opacity"
-            style={{ background: "#8B1A35" }}
+            style={{ background: activeModel.color }}
           >
             <Send className="w-3.5 h-3.5" />
           </button>
         </div>
         <p className="text-[9px] text-stone-300 mt-1.5 text-center flex items-center justify-center gap-1">
           <Sparkles className="w-2.5 h-2.5" />
-          مدعوم بالذكاء الاصطناعي — Claude AI
+          مدعوم بالذكاء الاصطناعي — {activeModel.label} ({activeModel.badge})
         </p>
       </div>
     </motion.div>

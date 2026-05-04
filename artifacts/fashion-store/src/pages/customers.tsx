@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Users, Search, Phone, Mail, MapPin, Star, ShoppingCart, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import GuideCard from "@/components/admin/GuideCard";
 
 const stagger = {
   container: { hidden: {}, show: { transition: { staggerChildren: 0.06 } } },
@@ -62,8 +63,20 @@ export default function Customers() {
           <Users className="w-6 h-6 text-primary" />
           <h1 className="text-3xl font-bold">العملاء</h1>
         </div>
-        <p className="text-muted-foreground mb-8">قاعدة بيانات عملاء المتجر مع معدل تأكيد الدفع عند الاستلام</p>
+        <p className="text-muted-foreground mb-4">قاعدة بيانات عملاء المتجر مع معدل تأكيد الدفع عند الاستلام</p>
       </motion.div>
+
+      <GuideCard
+        storageKey="customers"
+        title="فهم قاعدة عملائك"
+        description="هنا تجد كل عميل سبق وأجرى طلباً. ابحث عن أي عميل واطّلع على سجل مشترياته ومعدل التأكيد."
+        tips={[
+          "العملاء ذوو معدل تأكيد منخفض (أقل 50%) — تابع معهم قبل التغليف.",
+          "العملاء المتكررون هم كنزك الحقيقي — أرسل لهم عروضاً خاصة.",
+          "رقم الهاتف المتحقق منه يعني عميلاً أكثر مصداقية لطلبات COD.",
+        ]}
+        variant="tip"
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}

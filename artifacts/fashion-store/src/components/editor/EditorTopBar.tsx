@@ -14,6 +14,7 @@ interface EditorTopBarProps {
   onRedo: () => void;
   onSave: () => void;
   saving: boolean;
+  isDirty: boolean;
   onBack: () => void;
 }
 
@@ -28,11 +29,11 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 export default function EditorTopBar({
   storeName, storeSlug, device, onDeviceChange,
   canUndo, canRedo, onUndo, onRedo,
-  onSave, saving, onBack,
+  onSave, saving, isDirty, onBack,
 }: EditorTopBarProps) {
   return (
     <div
-      className="h-14 bg-white border-b border-stone-200 flex items-center justify-between px-4 gap-4 shrink-0 z-20"
+      className="h-14 bg-white border-b border-stone-200 flex items-center justify-between px-4 gap-4 shrink-0 z-20 sticky top-0"
       style={{ direction: "rtl" }}
     >
       {/* Left: back + store name */}
@@ -53,6 +54,14 @@ export default function EditorTopBar({
             {storeName?.[0]?.toUpperCase() ?? "م"}
           </div>
           <span className="text-sm font-medium text-stone-800 max-w-[160px] truncate">{storeName}</span>
+          {isDirty && (
+            <motion.span
+              initial={{ opacity: 0, scale: 0.7 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-2 h-2 rounded-full bg-amber-400"
+              title="يوجد تغييرات غير محفوظة"
+            />
+          )}
         </div>
       </div>
 
@@ -112,10 +121,10 @@ export default function EditorTopBar({
 
         <Button
           onClick={onSave}
-          disabled={saving}
+          disabled={saving || !isDirty}
           size="sm"
-          className="gap-1.5 text-white h-8 px-4"
-          style={{ background: "#8B1A35" }}
+          className={`gap-1.5 text-white h-8 px-4 transition-all ${isDirty ? "opacity-100 shadow-lg" : "opacity-50"}`}
+          style={{ background: isDirty ? "linear-gradient(135deg, #8B1A35, #c8963a)" : "#9ca3af" }}
         >
           {saving ? (
             <span className="flex items-center gap-1.5">
@@ -125,7 +134,7 @@ export default function EditorTopBar({
           ) : (
             <span className="flex items-center gap-1.5">
               <Save className="w-3.5 h-3.5" />
-              حفظ
+              {isDirty ? "حفظ التغييرات" : "محفوظ"}
             </span>
           )}
         </Button>

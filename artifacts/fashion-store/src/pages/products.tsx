@@ -5,6 +5,7 @@ import {
   useListCategories, useListProductVariants, useCreateProductVariant,
   useUpdateProductVariant, useDeleteProductVariant,
 } from "@workspace/api-client-react";
+import GuideCard from "@/components/admin/GuideCard";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -702,6 +703,24 @@ export default function Products() {
           </Button>
         </div>
       </motion.div>
+
+      <GuideCard
+        storageKey="products"
+        title="كيف تضيف وتدير منتجاتك؟"
+        description='انقر «منتج جديد» لإضافة منتج. أضف صورة وسعراً واضحاً لزيادة المبيعات. يمكنك أيضاً استيراد كميات كبيرة عبر ملف CSV.'
+        steps={[
+          { icon: "📸", title: "أضف صورة جذابة", desc: "الصورة هي أهم عامل في قرار الشراء — استخدم صوراً واضحة بخلفية بيضاء أو محايدة." },
+          { icon: "💰", title: "سعر تنافسي", desc: "أضف السعر الأصلي مع سعر الخصم ليشعر العميل بالصفقة الجيدة." },
+          { icon: "📦", title: "راقب المخزون", desc: "حدّث المخزون دائماً — المنتجات «نفذ» تضر بتجربة العميل." },
+          { icon: "⭐", title: "منتجات مميزة", desc: "علّم أفضل منتجاتك كـ«مميز» لتظهر في أعلى المتجر." },
+        ]}
+        tips={[
+          "استخدم الاستيراد عبر CSV لإضافة أكثر من 10 منتجات دفعة واحدة.",
+          "اكتب وصفاً تفصيلياً يذكر المقاسات والمواد والعناية بالمنتج.",
+          "أضف المنتجات إلى تصنيفات لتسهيل التنقل في المتجر.",
+        ]}
+        variant="guide"
+      />
 
       {/* Search */}
       <div className="relative mb-6 max-w-sm">

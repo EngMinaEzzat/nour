@@ -152,6 +152,13 @@ router.post("/products", requireRole("owner", "manager", "staff"), async (req, r
   const parsed = CreateProductBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
+  if (parsed.data.price < 0) {
+    return res.status(400).json({ error: "لا يمكن أن يكون السعر سالباً" });
+  }
+  if (parsed.data.stock < 0) {
+    return res.status(400).json({ error: "لا يمكن أن يكون المخزون سالباً" });
+  }
+
   const sessionTenantId = req.merchantTenantId!;
   try {
     const [tenant] = await db
