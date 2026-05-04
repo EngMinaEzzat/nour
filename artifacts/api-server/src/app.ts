@@ -39,7 +39,7 @@ function buildSessionStore(): session.Store {
   return new PgStore({
     conString: process.env.DATABASE_URL,
     tableName: "sessions",
-    createTableIfMissing: true,
+    createTableIfMissing: false,
   });
 }
 
