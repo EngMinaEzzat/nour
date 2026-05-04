@@ -20,10 +20,6 @@ author = "agent"
 task = "workflow.run"
 args = "Start API Server"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start Frontend"
-
 [[workflows.workflow]]
 name = "Start API Server"
 author = "agent"
@@ -35,18 +31,6 @@ outputType = "webview"
 task = "shell.exec"
 args = "PORT=8080 pnpm --filter @workspace/api-server run dev"
 waitForPort = 8080
-
-[[workflows.workflow]]
-name = "Start Frontend"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=25935 BASE_PATH=/ pnpm --filter @workspace/fashion-store run dev"
-waitForPort = 25935
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -74,6 +58,10 @@ externalPort = 3002
 [[ports]]
 localPort = 25935
 externalPort = 3000
+
+[[ports]]
+localPort = 25936
+externalPort = 3001
 
 [userenv]
 
