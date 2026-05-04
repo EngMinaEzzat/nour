@@ -68,7 +68,7 @@ export default function Discounts() {
 
   const { data: codes = [], isLoading } = useQuery<DiscountCode[]>({
     queryKey: ["discounts"],
-    queryFn: () => fetch(api("/discounts"), { credentials: "include" }).then((r) => r.json()),
+    queryFn: () => fetch(api("/discounts"), { credentials: "include" }).then(async (r) => { const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "failed"); return Array.isArray(d) ? d : []; }),
   });
 
   const createMutation = useMutation({
