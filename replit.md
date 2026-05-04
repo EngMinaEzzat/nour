@@ -15,7 +15,8 @@ Multi-tenant SaaS platform for Egyptian merchants to create and manage their own
 - **Validation**: Zod (via Orval-generated schemas), `drizzle-zod`
 - **API codegen**: Orval (OpenAPI → React Query hooks + Zod schemas)
 - **Auth**: express-session + connect-pg-simple + bcryptjs
-- **Frontend**: React + Vite, Framer Motion, Cairo/Tajawal Arabic fonts, RTL
+- **Frontend**: React + Vite, Framer Motion, Cairo/Tajawal + Cormorant Garamond fonts, RTL
+- **Storefront design**: Premium redesign (2025) — blush/ivory/champagne palette, serif headings, 15 section components in `src/components/storefront/`
 - **Build**: esbuild (CJS bundle)
 
 ## Key Commands

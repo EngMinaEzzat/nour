@@ -1,0 +1,290 @@
+You are a senior product designer and frontend engineer. I want you to completely redesign and implement the storefront/homepage of my girls fashion and cosmetics ecommerce web app into a modern, premium, professional, conversion-focused web experience.
+
+Project context:
+- The app sells fashion and cosmetics for girls/women.
+- Target audience: stylish young women and girls who care about fashion, makeup, skincare, self-care, trends, cute aesthetics, and easy shopping.
+- The new design should feel premium, feminine, modern, clean, fast, trustworthy, and highly visual.
+- Do not make it look like a generic ecommerce template.
+- Take inspiration from modern fashion/beauty ecommerce experiences like Zara, Sephora, Source Beauty, Care to Beauty, luxury fashion stores, and modern Shopify beauty brands.
+- Use strong editorial photography, beauty product visuals, lifestyle banners, soft animations, video hero sections, trend-led product sections, and polished UI details.
+
+Main goal:
+Transform the storefront into a premium fashion + cosmetics landing page that makes the brand feel professional and trustworthy, increases browsing, and encourages users to shop.
+
+Design direction:
+- Use a modern editorial look with a feminine luxury feel.
+- Color palette: soft blush pink, warm ivory, champagne beige, clean white, deep charcoal/black for contrast, and optional rose-gold accents.
+- Typography: elegant high-impact serif or display font for headings, clean modern sans-serif for body and UI.
+- Use large visual sections, generous spacing, rounded cards where appropriate, subtle shadows, smooth hover states, and cinematic transitions.
+- The design should look beautiful on desktop and mobile.
+- Prioritize mobile responsiveness because many shoppers will browse from phones.
+
+Homepage structure to implement:
+
+1. Announcement bar
+- Small premium top bar.
+- Example messages:
+  - “Free delivery on orders over 999 EGP”
+  - “100% original beauty products”
+  - “New arrivals just dropped”
+- Add subtle horizontal movement or fading messages.
+
+2. Header / Navigation
+- Sticky transparent header over hero, turning solid/blurred on scroll.
+- Logo on the left or center depending on current project style.
+- Navigation links:
+  - New Arrivals
+  - Fashion
+  - Makeup
+  - Skincare
+  - Hair Care
+  - Fragrance
+  - Offers
+  - Best Sellers
+- Add icons/actions:
+  - Search
+  - Wishlist
+  - Cart
+  - Account
+- Add mobile hamburger menu with smooth slide-in drawer.
+- Search should feel premium: full-screen or large overlay search with trending keywords.
+
+3. Hero section with video/image
+- Create a cinematic hero section using a full-width image or video background.
+- If no real assets exist, use high-quality placeholder images/videos from the current project or safe external placeholder URLs.
+- Hero content:
+  - Small label: “Spring Glow Collection”
+  - Big headline: “Fashion, Beauty & Confidence in One Place”
+  - Supporting text: “Discover new outfits, makeup essentials, skincare favorites, and trend-led pieces curated for your daily glow.”
+  - Primary CTA: “Shop New Arrivals”
+  - Secondary CTA: “Explore Beauty”
+- Add smooth entrance animation: text fades/slides up, CTA appears after delay.
+- Add subtle parallax or scale effect on hero media.
+- Make hero height around 85–100vh on desktop and 70–85vh on mobile.
+
+4. Category tiles section
+- Add beautiful visual category cards:
+  - Dresses
+  - Tops
+  - Bags
+  - Shoes
+  - Makeup
+  - Skincare
+  - Hair Care
+  - Fragrance
+- Use image cards with overlay labels.
+- Hover effect: image zooms slightly, overlay darkens softly, arrow appears.
+- On mobile: horizontal scroll carousel or 2-column grid.
+
+5. New Arrivals section
+- Add a premium “New Arrivals” product section.
+- Include tabs or filters:
+  - All
+  - Fashion
+  - Makeup
+  - Skincare
+  - Accessories
+- Product cards should include:
+  - Product image
+  - Name
+  - Category
+  - Price
+  - Discount price if available
+  - Wishlist heart
+  - Quick add button
+  - “New” badge
+  - Optional color swatches
+- Add hover image swap if product has more than one image.
+- Add “View All New Arrivals” CTA.
+- Animate product cards with staggered fade-up on scroll.
+
+6. Beauty spotlight section
+- Create a section inspired by beauty ecommerce sites.
+- Title: “Your Glow Routine”
+- Layout: one large editorial image/video on one side and product/routine cards on the other.
+- Cards:
+  - Cleanse
+  - Treat
+  - Moisturize
+  - Glow
+- Add CTA: “Build Your Routine”
+- Add microcopy: “Skincare, makeup, and self-care picks curated for everyday confidence.”
+
+7. Fashion lookbook / editorial section
+- Create a premium editorial section inspired by fashion lookbooks.
+- Title: “The Lookbook”
+- Add 3–4 large image panels:
+  - Casual Day Out
+  - Soft Glam Night
+  - Campus / Everyday Style
+  - Weekend Brunch
+- Each panel should have CTA: “Shop the Look”
+- Add elegant hover interactions.
+- Make it feel like a magazine/fashion campaign, not just product cards.
+
+8. Trending now section
+- Add a horizontal carousel or grid called “Trending Now”.
+- Include trend chips:
+  - Pink Edit
+  - Clean Girl Makeup
+  - Soft Neutrals
+  - Summer Dresses
+  - Glossy Lips
+  - Korean Skincare
+- Add product cards or collection cards under it.
+- Add subtle animated ticker text:
+  “NEW ARRIVALS • BEST SELLERS • GLOW ESSENTIALS • FASHION PICKS”
+
+9. Best sellers section
+- Add “Loved by Customers” or “Best Sellers”.
+- Product cards should include rating stars, review count, and bestseller badge.
+- Add trust-building microcopy:
+  - “Popular picks customers keep coming back for.”
+
+10. Offers / promo banners
+- Add two or three premium promo cards:
+  - “Beauty Bundles up to 25% off”
+  - “Complete the Look”
+  - “Weekend Glow Sale”
+- Use split layouts with image, title, description, and CTA.
+- Avoid loud discount design; keep it premium.
+
+11. Social proof / UGC section
+- Add “Styled & Loved by You”
+- Display Instagram/TikTok-style image cards.
+- Include captions like:
+  - “Soft glam essentials”
+  - “My everyday outfit”
+  - “New skincare favorites”
+- Add CTA: “Tag us to be featured”
+- Make it visually rich and community-driven.
+
+12. Trust section
+- Add a clean trust strip with icons:
+  - 100% Original Products
+  - Fast Delivery
+  - Easy Returns
+  - Secure Checkout
+  - Beauty & Style Support
+- This is important for cosmetics and fashion because customers need confidence before buying.
+
+13. Newsletter / loyalty section
+- Add a premium newsletter block:
+  - “Join the Glow Club”
+  - “Get early access to new arrivals, exclusive offers, and beauty/fashion tips.”
+  - Email input + CTA “Join Now”
+- Add small benefits:
+  - Early access
+  - Birthday surprises
+  - Private offers
+
+14. Footer
+- Professional footer with:
+  - Logo + brand description
+  - Shop links
+  - Help links
+  - Contact info
+  - Social links
+  - Payment icons
+  - Newsletter mini form
+- Keep it clean and trustworthy.
+
+Animations and interactions:
+- Use Framer Motion if available.
+- Add:
+  - Fade-up animations on scroll
+  - Staggered product card entrance
+  - Smooth hover zoom on images
+  - Magnetic/soft hover effect on buttons
+  - Sticky header blur on scroll
+  - Animated announcement bar
+  - Smooth mobile menu animation
+  - Product quick-view modal if possible
+  - Add-to-cart micro animation
+- Keep animations elegant and performant, not excessive.
+
+Images and videos:
+- Use existing project product images if available.
+- If no images exist, add a clean asset strategy using placeholder image URLs.
+- Use image aspect ratios consistently:
+  - Hero: 16:9 or full cover
+  - Product cards: 4:5
+  - Editorial panels: 3:4 or 9:16
+- Add support for video hero:
+  - Autoplay
+  - Muted
+  - Loop
+  - Plays inline
+  - Fallback image for mobile/performance
+
+Ecommerce UX requirements:
+- Product cards should be reusable components.
+- Collection/category sections should be data-driven arrays, not hardcoded repeated markup where possible.
+- Add clear CTAs.
+- Make products easy to scan.
+- Add wishlist and quick add interactions.
+- Keep the cart/action buttons visible and intuitive.
+- Ensure all buttons and links have proper hover/focus states.
+- Use semantic HTML and accessible labels.
+- Use lazy loading for images.
+- Optimize for performance and responsive design.
+
+Technical requirements:
+- First inspect the existing codebase structure before making changes.
+- Identify the framework used: React / Next.js / Vite / plain React / etc.
+- Preserve existing routing, cart logic, auth logic, product data logic, and API integration.
+- Do not break existing functionality.
+- Refactor only what is necessary.
+- Create reusable components where useful:
+  - AnnouncementBar
+  - StoreHeader
+  - HeroSection
+  - CategoryGrid
+  - ProductCard
+  - ProductCarousel
+  - EditorialLookbook
+  - BeautyRoutineSection
+  - PromoBanner
+  - TrustStrip
+  - NewsletterSection
+  - Footer
+- If Tailwind CSS exists, use Tailwind.
+- If the project uses CSS modules or plain CSS, follow the current style system.
+- If Framer Motion is not installed, either install it or implement CSS animations depending on the project setup.
+- Make the implementation production-quality.
+
+Content tone:
+- Premium but friendly.
+- Feminine but not childish.
+- Professional, elegant, and modern.
+- Use copy like:
+  - “New Arrivals”
+  - “Glow Essentials”
+  - “Shop the Look”
+  - “Beauty That Feels Like You”
+  - “Curated Fashion & Cosmetics for Every Mood”
+  - “Your Daily Glow Starts Here”
+  - “Fresh Drops, Soft Glam, Effortless Style”
+
+Important creative details:
+- Add an editorial “campaign” feeling, like a real fashion/beauty brand launch.
+- Mix fashion and cosmetics naturally instead of separating them too much.
+- The homepage should tell a story:
+  1. Inspire with hero
+  2. Let users choose category
+  3. Show new products
+  4. Build beauty routine
+  5. Show fashion looks
+  6. Push trending/bestsellers
+  7. Build trust
+  8. Convert with newsletter/offers
+- Make the design feel like a brand, not just a shop.
+
+Deliverables:
+- Implement the redesigned storefront/homepage.
+- Update or create the necessary components and styles.
+- Make it fully responsive.
+- Keep existing business logic working.
+- Add placeholder data only if real data is unavailable.
+- After implementation, explain briefly what files were changed and what sections were added.
+- Also mention any missing assets or recommended next steps.
