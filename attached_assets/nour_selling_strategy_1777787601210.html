@@ -1,0 +1,361 @@
+
+<style>
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.tab { padding: 5px 14px; font-size: 12.5px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); }
+.tab.active { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; font-weight: 500; }
+.hero-card { border: 0.5px solid #AFA9EC; background: #EEEDFE; border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+.hero-card h3 { font-size: 15px; font-weight: 500; color: #26215C; margin: 0 0 6px; }
+.hero-card p { font-size: 13px; color: #3C3489; margin: 0; line-height: 1.6; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; background: var(--color-background-primary); }
+.card h4 { font-size: 13.5px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 6px; }
+.card p { font-size: 12.5px; color: var(--color-text-secondary); margin: 0; line-height: 1.65; }
+.badge { display: inline-block; font-size: 10.5px; padding: 2px 8px; border-radius: var(--border-radius-md); font-weight: 500; margin-bottom: 8px; }
+.b-purple { background: #EEEDFE; color: #3C3489; }
+.b-teal  { background: #E1F5EE; color: #085041; }
+.b-coral { background: #FAECE7; color: #712B13; }
+.b-amber { background: #FAEEDA; color: #633806; }
+.b-gray  { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.section-title { font-size: 11.5px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 8px; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.row { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); margin-bottom: 6px; background: var(--color-background-primary); }
+.row-body { flex: 1; }
+.row-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 3px; }
+.row-desc { font-size: 12.5px; color: var(--color-text-secondary); margin: 0; line-height: 1.6; }
+.vs-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 1rem; }
+.vs-table th { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-secondary); text-align: left; }
+.vs-table td { padding: 9px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; color: var(--color-text-primary); }
+.vs-table tr:last-child td { border-bottom: none; }
+.win { color: #0F6E56; font-weight: 500; }
+.lose { color: #A32D2D; }
+.neutral { color: var(--color-text-secondary); }
+.btn { padding: 7px 14px; font-size: 12.5px; border: 0.5px solid #AFA9EC; border-radius: var(--border-radius-md); cursor: pointer; background: #EEEDFE; color: #3C3489; font-weight: 500; margin-top: 1rem; display: inline-block; }
+.pitch { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; font-size: 13px; color: var(--color-text-primary); line-height: 1.75; margin-top: 8px; font-style: italic; }
+</style>
+
+<div class="wrap">
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Competitive positioning and selling strategy for نور Egyptian fashion SaaS</h2>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-i="0">Your unfair advantage</div>
+  <div class="tab" data-i="1">vs competitors</div>
+  <div class="tab" data-i="2">Features to build</div>
+  <div class="tab" data-i="3">Pricing strategy</div>
+  <div class="tab" data-i="4">Go-to-market</div>
+</div>
+
+<div id="content"></div>
+<button class="btn" id="main-btn">Build this feature ↗</button>
+</div>
+
+<script>
+const tabs = [
+
+// Tab 0 — Your unfair advantage
+() => `
+<div class="hero-card">
+  <h3>Your core position: the only SaaS built for how Egyptians actually sell</h3>
+  <p>Most Egyptian merchants sell through Instagram DMs and WhatsApp, confirm orders by phone, collect cash on delivery, and run their whole business from their phone. نور is the only platform built around that reality — not adapted from a Western template.</p>
+</div>
+
+<div class="section-title">What you have that no competitor has together</div>
+<div class="grid2">
+  <div class="card">
+    <span class="badge b-purple">Built-in AI</span>
+    <h4>Claude + Gemini inside the dashboard</h4>
+    <p>An AI assistant that knows each merchant's actual orders, revenue, and products — and replies in Egyptian Arabic dialect. No competitor in the Egyptian market has this. A merchant can ask "إيه أكتر منتج بيتباع عندي الشهر ده؟" and get a real answer.</p>
+  </div>
+  <div class="card">
+    <span class="badge b-teal">Egyptian-first</span>
+    <h4>COD-first, WhatsApp-native checkout</h4>
+    <p>Built for COD as the default, not an afterthought. Bosta shipping integration. Paymob payment integration. WhatsApp order confirmation in Egyptian Arabic dialect. Every competitor forces merchants to adapt a Western checkout — you start from how Egypt works.</p>
+  </div>
+  <div class="card">
+    <span class="badge b-coral">AI-powered</span>
+    <h4>Facebook page AI moderator</h4>
+    <p>Merchants connect their Facebook page and an AI reads comments, generates draft replies in Arabic, and can post responses. No competitor offers this. For Egyptian fashion sellers who do most of their marketing on Facebook, this alone is worth the subscription.</p>
+  </div>
+  <div class="card">
+    <span class="badge b-amber">Operations</span>
+    <h4>AI-generated WhatsApp messages</h4>
+    <p>One click generates a professional Arabic WhatsApp message for order confirmation, shipping update, or follow-up — tailored to the specific order. Saves merchants 10–20 minutes per day of copy-pasting messages.</p>
+  </div>
+  <div class="card">
+    <span class="badge b-purple">Import</span>
+    <h4>Import products from Facebook pages via AI</h4>
+    <p>A merchant can paste their Facebook shop URL and the AI scrapes and imports their products automatically. This is a zero-friction migration from Facebook — the #1 acquisition channel in your market.</p>
+  </div>
+  <div class="card">
+    <span class="badge b-teal">Multi-tenant</span>
+    <h4>Full SaaS — each store is isolated and brandable</h4>
+    <p>Custom domains, custom colors, custom logos, SEO settings, favicon — each store is fully independent. Shopify costs $39/month minimum in USD. نور is priced in EGP for Egyptian merchants.</p>
+  </div>
+</div>
+`,
+
+// Tab 1 — vs competitors
+() => `
+<div class="section-title">Egyptian market competitors</div>
+<table class="vs-table">
+  <tr>
+    <th>Feature</th>
+    <th>نور</th>
+    <th>Shopify</th>
+    <th>Zid / Salla</th>
+    <th>Woocommerce</th>
+  </tr>
+  <tr>
+    <td>Pricing</td>
+    <td class="win">299–1499 EGP/mo</td>
+    <td class="lose">~1,500+ EGP/mo (USD)</td>
+    <td class="neutral">400–1200 EGP/mo</td>
+    <td class="neutral">Free + hosting cost</td>
+  </tr>
+  <tr>
+    <td>Arabic RTL UI</td>
+    <td class="win">Native, Egyptian dialect</td>
+    <td class="lose">English-first, poor RTL</td>
+    <td class="win">Good Arabic</td>
+    <td class="neutral">Plugin-dependent</td>
+  </tr>
+  <tr>
+    <td>COD-first checkout</td>
+    <td class="win">Default, built-in</td>
+    <td class="lose">Requires plugin</td>
+    <td class="win">Supported</td>
+    <td class="neutral">Plugin required</td>
+  </tr>
+  <tr>
+    <td>Paymob integration</td>
+    <td class="win">Built-in</td>
+    <td class="lose">No</td>
+    <td class="win">Yes</td>
+    <td class="neutral">Plugin</td>
+  </tr>
+  <tr>
+    <td>Bosta shipping</td>
+    <td class="win">Built-in</td>
+    <td class="lose">No</td>
+    <td class="neutral">Partial</td>
+    <td class="lose">No</td>
+  </tr>
+  <tr>
+    <td>WhatsApp order ops</td>
+    <td class="win">Native + AI-drafted msgs</td>
+    <td class="lose">No</td>
+    <td class="neutral">Basic links only</td>
+    <td class="lose">No</td>
+  </tr>
+  <tr>
+    <td>AI assistant</td>
+    <td class="win">Claude + Gemini, Arabic, store-aware</td>
+    <td class="lose">No</td>
+    <td class="lose">No</td>
+    <td class="lose">No</td>
+  </tr>
+  <tr>
+    <td>Facebook AI moderator</td>
+    <td class="win">Unique — reads comments, drafts replies</td>
+    <td class="lose">No</td>
+    <td class="lose">No</td>
+    <td class="lose">No</td>
+  </tr>
+  <tr>
+    <td>AI product import from Facebook</td>
+    <td class="win">Unique</td>
+    <td class="lose">No</td>
+    <td class="lose">No</td>
+    <td class="lose">No</td>
+  </tr>
+  <tr>
+    <td>Abandoned cart recovery</td>
+    <td class="win">With WhatsApp link</td>
+    <td class="win">Email + SMS</td>
+    <td class="neutral">Basic</td>
+    <td class="neutral">Plugin</td>
+  </tr>
+  <tr>
+    <td>Target market</td>
+    <td class="win">Egypt-specific</td>
+    <td class="lose">Global (US-first)</td>
+    <td class="neutral">Gulf-first</td>
+    <td class="neutral">Global</td>
+  </tr>
+</table>
+<div class="row" style="border-color:#5DCAA5; background:#E1F5EE;">
+  <div class="row-body">
+    <div class="row-title" style="color:#085041">Your strongest argument against Zid and Salla</div>
+    <div class="row-desc" style="color:#0F6E56">Zid and Salla are built for Gulf merchants (Saudi, UAE). Their Arabic is Gulf dialect, their integrations are Gulf-focused (STC Pay, Mada), and their support is Saudi-hours. نور is Egyptian-first in language, integrations (Paymob, Bosta, EGP pricing), and culture. For an Egyptian merchant, نور is simply more relevant.</div>
+  </div>
+</div>
+`,
+
+// Tab 2 — Features to build that become selling points
+() => `
+<div class="section-title">5 features that become marketing headlines — none exist in competitors</div>
+
+<div class="row">
+  <div class="row-body">
+    <span class="badge b-purple">Highest impact</span>
+    <div class="row-title">TikTok & Instagram comment-to-order flow</div>
+    <div class="row-desc">Egyptian sellers get flooded with "كام السعر؟" and "متاح؟" comments on TikTok and Instagram. Build an AI that reads these comments and auto-replies with the product link, price, and a checkout link. This is how Egyptian merchants actually get orders — make it automatic. No competitor has this.</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="row-body">
+    <span class="badge b-teal">High impact</span>
+    <div class="row-title">WhatsApp store link — order without visiting the website</div>
+    <div class="row-desc">Generate a WhatsApp link for each product that opens a conversation with the merchant's WhatsApp pre-filled with the product name and price. Egyptian shoppers trust WhatsApp more than websites. "اطلب على واتساب" button on every product card — converts better than a checkout form for COD customers.</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="row-body">
+    <span class="badge b-coral">High impact</span>
+    <div class="row-title">AI pricing advisor — "is my price competitive?"</div>
+    <div class="row-desc">The AI assistant already knows the merchant's products and sales. Extend it to suggest optimal pricing based on category, cancellation rate, and return rate. Tell a merchant "منتجاتك في الأزياء بيتردوا بنسبة 30% — جرب ترفع السعر وتقلل الخصم". Unique to نور because only you have the data.</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="row-body">
+    <span class="badge b-amber">Medium impact</span>
+    <div class="row-title">COD confirmation rate scoring</div>
+    <div class="row-desc">The biggest problem for Egyptian COD merchants is customers who order and never answer the phone — "وهمي" orders. Build a score per customer based on history: answered on first call, confirmed, cancelled, fake number. Show merchants their "customer risk" before dispatching. No one offers this.</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="row-body">
+    <span class="badge b-purple">Quick win</span>
+    <div class="row-title">Storefront in a QR code — for physical sellers</div>
+    <div class="row-desc">Many Egyptian fashion sellers have physical stalls in markets (خان الخليلي، الهانوفيل، وكالة البلح). Generate a QR code for their storefront that they can print and put on their stall. Scan → mobile storefront. This bridges physical and online selling — very relevant for your target market.</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="row-body">
+    <span class="badge b-teal">Quick win</span>
+    <div class="row-title">Seasonal campaign templates — Ramadan, back-to-school, Eid</div>
+    <div class="row-desc">Egyptian retail is extremely seasonal. Build pre-made discount campaigns and storefront banner templates for Ramadan, Eid el-Fitr, Eid el-Adha, back-to-school, and Mother's Day. One click activates a Ramadan theme with a countdown timer and a pre-set discount code. Nobody in the Egyptian market does this well.</div>
+  </div>
+</div>
+`,
+
+// Tab 3 — Pricing strategy
+() => `
+<div class="section-title">Current pricing</div>
+<div class="grid2">
+  <div class="card">
+    <span class="badge b-gray">Starter — 299 EGP/mo</span>
+    <h4>30 products, 100 orders/mo, 1 staff</h4>
+    <p>Good entry point. Problem: at 100 orders a month, a merchant making 150 EGP average order value earns 15,000 EGP/mo gross. 299 EGP is 2% of that — very affordable. <strong>Raise to 399 EGP.</strong></p>
+  </div>
+  <div class="card">
+    <span class="badge b-teal">Growth — 699 EGP/mo</span>
+    <h4>200 products, 500 orders/mo, 3 staff</h4>
+    <p>Strong plan. At 500 orders × 150 EGP = 75,000 EGP/mo gross revenue, 699 EGP is less than 1%. This plan should include WhatsApp automation to justify the jump. <strong>Keep or raise to 799 EGP.</strong></p>
+  </div>
+  <div class="card">
+    <span class="badge b-purple">Pro — 1499 EGP/mo</span>
+    <h4>Unlimited, 10 staff, custom domain</h4>
+    <p>Only Pro merchants get custom domain and WhatsApp automation. This creates a clear reason to upgrade. <strong>Consider adding AI features (Facebook moderator, TikTok comments) as Pro-only</strong> — this makes AI the upgrade driver.</p>
+  </div>
+</div>
+
+<div class="section-title">Recommended pricing changes</div>
+<div class="row">
+  <div class="row-body">
+    <div class="row-title">Add a free trial — 14 days, no card required</div>
+    <div class="row-desc">Egyptian merchants are risk-averse. A 14-day trial with no payment details required removes the biggest adoption barrier. After 14 days, they've already got products and orders — they won't leave. Currently your trial is unlimited (no expiry enforcement) which means you're already giving this away for free without the marketing benefit.</div>
+  </div>
+</div>
+<div class="row">
+  <div class="row-body">
+    <div class="row-title">Lock AI features behind Growth+ plans</div>
+    <div class="row-desc">The Facebook AI moderator and AI assistant are your biggest differentiators. Starter merchants get WhatsApp links only — Growth+ gets AI-drafted messages — Pro gets Facebook comment AI + TikTok comment AI. This creates a natural upgrade path driven by the features merchants actually want.</div>
+  </div>
+</div>
+<div class="row">
+  <div class="row-body">
+    <div class="row-title">Offer annual billing at 2 months free (pay 10, get 12)</div>
+    <div class="row-desc">Annual billing improves your cash flow and reduces churn. 2 months free is a strong incentive. At 699 EGP × 10 months = 6,990 EGP vs 699 × 12 = 8,388 EGP — merchant saves 1,398 EGP, you get a year of retention.</div>
+  </div>
+</div>
+`,
+
+// Tab 4 — Go to market
+() => `
+<div class="section-title">Who to target first</div>
+<div class="grid2">
+  <div class="card">
+    <span class="badge b-coral">Primary target</span>
+    <h4>Instagram/Facebook fashion sellers with 5k–50k followers</h4>
+    <p>They already have an audience. They're getting DMs and comments they can't handle manually. They're doing COD already. They need a store — they just don't know which one. Your AI Facebook moderator is the hook.</p>
+  </div>
+  <div class="card">
+    <span class="badge b-purple">Secondary target</span>
+    <h4>TikTok cosmetics creators getting product requests</h4>
+    <p>TikTok creators in beauty are increasingly being asked "فين بتبيعي؟". They need a store link in their bio. نور gives them a store in 5 minutes with Arabic product pages and COD checkout.</p>
+  </div>
+</div>
+
+<div class="section-title">Your one-liner pitch</div>
+<div class="pitch">"نور هو أول متجر إلكتروني مصري بيفهم إزاي التجارة بتشتغل في مصر — واتساب، كاش عند الاستلام، وذكاء اصطناعي بيساعدك ترد على عملائك بالعربي."</div>
+
+<div class="section-title">Marketing channels that will work</div>
+<div class="row">
+  <div class="row-body">
+    <div class="row-title">Facebook groups for Egyptian small business owners</div>
+    <div class="row-desc">Groups like "تجار مصر" and "بيع وشراء أونلاين" have 100k+ members who are your exact audience. Post case studies: "كيف فتحت متجري في 10 دقائق وجبت أول طلب في نفس اليوم". Don't advertise — tell stories.</div>
+  </div>
+</div>
+<div class="row">
+  <div class="row-body">
+    <div class="row-title">TikTok tutorials in Egyptian Arabic</div>
+    <div class="row-desc">Short videos showing the Facebook AI moderator in action: "الذكاء الاصطناعي بيرد على كومنتات الفيسبوك بدلاً عني". This kind of content goes viral in the Egyptian small business community. Show the product, don't explain it.</div>
+  </div>
+</div>
+<div class="row">
+  <div class="row-body">
+    <div class="row-title">Referral program — invite a merchant, get a free month</div>
+    <div class="row-desc">Egyptian merchants talk to each other. A referral program where both the referrer and the new merchant get a free month is extremely cost-effective. "خد شهر مجاناً لكل صاحبك تجيبه" is a message that spreads naturally via WhatsApp groups.</div>
+  </div>
+</div>
+<div class="row">
+  <div class="row-body">
+    <div class="row-title">Partner with Bosta and Paymob sales teams</div>
+    <div class="row-desc">Bosta and Paymob both have sales teams actively selling to the same merchants you're targeting. Offer a co-marketing deal: Bosta recommends نور to new delivery clients, you recommend Bosta to new نور merchants. Both companies win.</div>
+  </div>
+</div>
+`
+];
+
+let cur = 0;
+function render() {
+  document.getElementById('content').innerHTML = tabs[cur]();
+  const btns = ['Build TikTok comment-to-order feature ↗', 'Show me full competitor analysis ↗', 'Build the top missing feature ↗', 'Build annual billing flow ↗', 'Write the launch marketing plan ↗'];
+  document.getElementById('main-btn').textContent = btns[cur];
+  document.getElementById('main-btn').onclick = () => {
+    const prompts = [
+      'Give me the full implementation plan for a TikTok and Instagram comment-to-order AI feature for نور. Include how to read comments via API, generate Arabic replies with AI, and create order links.',
+      'Do a deep competitive analysis of نور vs Zid, Salla, and Shopify for the Egyptian market. Focus on features, pricing, and positioning.',
+      'Build the WhatsApp store link feature for نور — a "اطلب على واتساب" button on every product card that opens a pre-filled WhatsApp conversation with the product details.',
+      'Build annual billing support for نور — yearly plan pricing, billing cycle management, and the upgrade flow in the dashboard.',
+      'Write a full go-to-market launch plan for نور targeting Egyptian Instagram and Facebook fashion sellers. Include content calendar, Facebook group strategy, and TikTok video ideas.'
+    ];
+    sendPrompt(prompts[cur]);
+  };
+}
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab');
+  if (!t) return;
+  cur = parseInt(t.dataset.i);
+  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === cur));
+  render();
+});
+
+render();
+</script>

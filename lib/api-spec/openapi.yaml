@@ -1,0 +1,2160 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Nour — Egyptian Fashion & Beauty Marketplace API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: storefront
+    description: Public merchant storefronts
+  - name: auth
+    description: Merchant authentication
+  - name: tenants
+    description: Store/brand tenant management
+  - name: products
+    description: Product catalog
+  - name: categories
+    description: Product categories
+  - name: orders
+    description: Customer orders
+  - name: customers
+    description: Customer management
+  - name: dashboard
+    description: Dashboard analytics and summaries
+  - name: onboarding
+    description: Merchant onboarding progress
+  - name: plans
+    description: Subscription plans and entitlements
+  - name: platform
+    description: Platform operator console
+
+paths:
+  /staff:
+    get:
+      operationId: listStaff
+      tags: [auth]
+      summary: List all staff members for the current tenant (owner/manager only)
+      security:
+        - session: []
+      responses:
+        "200":
+          description: List of staff members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffMember"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+    post:
+      operationId: inviteStaff
+      tags: [auth]
+      summary: Invite a new staff member (owner only)
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InviteStaffBody"
+      responses:
+        "201":
+          description: Staff member created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "400":
+          description: Validation error
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /staff/{id}:
+    put:
+      operationId: updateStaffRole
+      tags: [auth]
+      summary: Update a staff member's role (owner only)
+      security:
+        - session: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStaffRoleBody"
+      responses:
+        "200":
+          description: Updated staff member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffMember"
+        "403":
+          description: Forbidden
+        "404":
+          description: Staff member not found
+    delete:
+      operationId: removeStaff
+      tags: [auth]
+      summary: Remove a staff member (owner only)
+      security:
+        - session: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removed
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+
+  /payments/paymob/init:
+    post:
+      operationId: initPaymobPayment
+      tags: [orders]
+      summary: Initialize a Paymob payment for an order
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitPaymobPaymentBody"
+      responses:
+        "200":
+          description: Payment init response with iframe URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InitPaymobPaymentResponse"
+
+  /payments/paymob/webhook:
+    post:
+      operationId: paymobWebhook
+      tags: [orders]
+      summary: Paymob payment webhook (called by Paymob on payment event)
+      responses:
+        "200":
+          description: Webhook acknowledged
+
+  /shipping/bosta/create:
+    post:
+      operationId: createBostaShipment
+      tags: [orders]
+      summary: Create a Bosta shipment for an order
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBostaShipmentBody"
+      responses:
+        "200":
+          description: Shipment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateBostaShipmentResponse"
+
+  /shipping/track/{trackingNumber}:
+    get:
+      operationId: trackShipment
+      tags: [orders]
+      summary: Track a Bosta shipment
+      parameters:
+        - in: path
+          name: trackingNumber
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tracking info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackingInfo"
+
+  /notifications/whatsapp:
+    post:
+      operationId: sendWhatsApp
+      tags: [orders]
+      summary: Send WhatsApp order confirmation (automated API if configured, link otherwise)
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendWhatsAppBody"
+      responses:
+        "200":
+          description: WhatsApp response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendWhatsAppResponse"
+
+  /store/{slug}:
+    get:
+      operationId: getStorefront
+      tags: [storefront]
+      summary: Get public merchant storefront by slug
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Merchant storefront data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorefrontResponse"
+        "404":
+          description: Store not found
+
+  /auth/register:
+    post:
+      operationId: registerMerchant
+      tags: [auth]
+      summary: Register a new merchant and create their store
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: Registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "409":
+          description: Email already exists
+
+  /auth/login:
+    post:
+      operationId: loginMerchant
+      tags: [auth]
+      summary: Log in as a merchant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logoutMerchant
+      tags: [auth]
+      summary: Log out current merchant
+      responses:
+        "204":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated merchant
+      responses:
+        "200":
+          description: Current merchant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Not authenticated
+
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /tenants:
+    get:
+      operationId: listTenants
+      tags: [tenants]
+      summary: List all tenants/stores
+      responses:
+        "200":
+          description: List of tenants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tenant"
+    post:
+      operationId: createTenant
+      tags: [tenants]
+      summary: Create a new tenant/store
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTenantBody"
+      responses:
+        "201":
+          description: Created tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+
+  /tenants/{id}:
+    get:
+      operationId: getTenant
+      tags: [tenants]
+      summary: Get a tenant by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+        "404":
+          description: Not found
+    put:
+      operationId: updateTenant
+      tags: [tenants]
+      summary: Update a tenant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTenantBody"
+      responses:
+        "200":
+          description: Updated tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+    delete:
+      operationId: deleteTenant
+      tags: [tenants]
+      summary: Delete a tenant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tenants/{id}/stats:
+    get:
+      operationId: getTenantStats
+      tags: [tenants]
+      summary: Get stats for a specific tenant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tenant statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantStats"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryBody"
+      responses:
+        "201":
+          description: Created category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List products with optional filters
+      parameters:
+        - name: tenantId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductBody"
+      responses:
+        "201":
+          description: Created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    put:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductBody"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /products/{id}/variants:
+    get:
+      operationId: listProductVariants
+      tags: [products]
+      summary: List all variants for a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of variants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductVariant"
+    post:
+      operationId: createProductVariant
+      tags: [products]
+      summary: Add a variant to a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductVariantBody"
+      responses:
+        "201":
+          description: Created variant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductVariant"
+
+  /products/{id}/variants/{variantId}:
+    put:
+      operationId: updateProductVariant
+      tags: [products]
+      summary: Update a product variant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: variantId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductVariantBody"
+      responses:
+        "200":
+          description: Updated variant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductVariant"
+    delete:
+      operationId: deleteProductVariant
+      tags: [products]
+      summary: Delete a product variant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: variantId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /products/featured:
+    get:
+      operationId: listFeaturedProducts
+      tags: [products]
+      summary: Get featured products across all tenants
+      responses:
+        "200":
+          description: Featured products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/trending:
+    get:
+      operationId: listTrendingProducts
+      tags: [products]
+      summary: Get trending products by order count
+      responses:
+        "200":
+          description: Trending products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /customers:
+    get:
+      operationId: listCustomers
+      tags: [customers]
+      summary: List all customers
+      responses:
+        "200":
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Customer"
+    post:
+      operationId: createCustomer
+      tags: [customers]
+      summary: Create a new customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCustomerBody"
+      responses:
+        "201":
+          description: Created customer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+
+  /customers/{id}:
+    get:
+      operationId: getCustomer
+      tags: [customers]
+      summary: Get a customer by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Customer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders with optional filters
+      parameters:
+        - name: tenantId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderBody"
+      responses:
+        "201":
+          description: Created order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get an order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+    put:
+      operationId: updateOrder
+      tags: [orders]
+      summary: Update an order status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderBody"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /onboarding:
+    get:
+      operationId: getOnboarding
+      tags: [onboarding]
+      summary: Get onboarding steps and progress for the authenticated merchant
+      security:
+        - session: []
+      responses:
+        "200":
+          description: Onboarding status with step completion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardingStatus"
+        "401":
+          description: Unauthorized
+    patch:
+      operationId: patchOnboarding
+      tags: [onboarding]
+      summary: Mark a manual onboarding step as done or not done
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                step:
+                  type: string
+                  enum: [homepage_message, shipping_setup, integrations_review, launch_review]
+                done:
+                  type: boolean
+              required: [step, done]
+      responses:
+        "200":
+          description: Updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required: [ok]
+        "400":
+          description: Invalid step
+        "401":
+          description: Unauthorized
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get overall platform dashboard summary
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/merchant-analytics:
+    get:
+      operationId: getMerchantAnalytics
+      tags: [dashboard]
+      summary: Get merchant-specific analytics for a tenant
+      parameters:
+        - name: tenantId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Merchant analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MerchantAnalytics"
+
+  /dashboard/activity:
+    get:
+      operationId: getDashboardActivity
+      tags: [dashboard]
+      summary: Get recent platform activity feed
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /plans:
+    get:
+      operationId: listPlans
+      tags: [plans]
+      summary: List all available subscription plans
+      responses:
+        "200":
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Plan"
+
+  /plans/entitlements:
+    get:
+      operationId: getEntitlements
+      tags: [plans]
+      summary: Get current tenant plan usage and limits
+      security:
+        - session: []
+      responses:
+        "200":
+          description: Entitlement status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntitlementStatus"
+
+  /tenants/{id}/plan:
+    put:
+      operationId: updateTenantPlan
+      tags: [tenants]
+      summary: Platform admin — update tenant plan and subscription status
+      security:
+        - session: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTenantPlanBody"
+      responses:
+        "200":
+          description: Updated tenant
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /tenants/{id}/support-notes:
+    get:
+      operationId: listTenantSupportNotes
+      tags: [tenants]
+      summary: Platform admin — list support notes for a tenant
+      security:
+        - session: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of support notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SupportNote"
+    post:
+      operationId: createTenantSupportNote
+      tags: [tenants]
+      summary: Platform admin — add a support note to a tenant
+      security:
+        - session: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+              required: [note]
+      responses:
+        "201":
+          description: Created support note
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportNote"
+
+  /orders/{id}/contact-attempts:
+    get:
+      operationId: listContactAttempts
+      tags: [orders]
+      summary: List contact attempts for an order
+      security:
+        - session: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of contact attempts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactAttempt"
+    post:
+      operationId: createContactAttempt
+      tags: [orders]
+      summary: Record a contact attempt on an order
+      security:
+        - session: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContactAttemptBody"
+      responses:
+        "201":
+          description: Created contact attempt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactAttempt"
+
+  /platform/stats:
+    get:
+      operationId: getPlatformStats
+      tags: [platform]
+      summary: Platform admin — activation and usage metrics
+      security:
+        - session: []
+      responses:
+        "200":
+          description: Platform statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        logoUrl:
+          type: string
+          nullable: true
+        coverUrl:
+          type: string
+          nullable: true
+        primaryColor:
+          type: string
+          nullable: true
+        category:
+          type: string
+          enum: [fashion, cosmetics, both]
+        status:
+          type: string
+          enum: [active, inactive, pending]
+        city:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        planCode:
+          type: string
+        subscriptionStatus:
+          type: string
+          enum: [trial, active, past_due, suspended, canceled]
+      required: [id, name, slug, description, category, status, createdAt]
+
+    CreateTenantBody:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        logoUrl:
+          type: string
+          nullable: true
+        coverUrl:
+          type: string
+          nullable: true
+        category:
+          type: string
+          enum: [fashion, cosmetics, both]
+        city:
+          type: string
+          nullable: true
+      required: [name, slug, description, category]
+
+    UpdateTenantBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        logoUrl:
+          type: string
+          nullable: true
+        coverUrl:
+          type: string
+          nullable: true
+        primaryColor:
+          type: string
+          nullable: true
+        category:
+          type: string
+          enum: [fashion, cosmetics, both]
+        status:
+          type: string
+          enum: [active, inactive, pending]
+        city:
+          type: string
+          nullable: true
+
+    TenantStats:
+      type: object
+      properties:
+        tenantId:
+          type: integer
+        totalProducts:
+          type: integer
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: number
+        totalCustomers:
+          type: integer
+        recentOrders:
+          type: integer
+          description: Orders in the last 30 days
+      required: [tenantId, totalProducts, totalOrders, totalRevenue, totalCustomers, recentOrders]
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameAr:
+          type: string
+          description: Arabic name
+        type:
+          type: string
+          enum: [fashion, cosmetics]
+        productCount:
+          type: integer
+      required: [id, name, nameAr, type, productCount]
+
+    CreateCategoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        type:
+          type: string
+          enum: [fashion, cosmetics]
+      required: [name, nameAr, type]
+
+    ProductVariant:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        size:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        colorHex:
+          type: string
+          nullable: true
+        stock:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, productId, stock, createdAt]
+
+    CreateProductVariantBody:
+      type: object
+      properties:
+        size:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        colorHex:
+          type: string
+          nullable: true
+        stock:
+          type: integer
+      required: [stock]
+
+    UpdateProductVariantBody:
+      type: object
+      properties:
+        size:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        colorHex:
+          type: string
+          nullable: true
+        stock:
+          type: integer
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        tenantName:
+          type: string
+        categoryId:
+          type: integer
+          nullable: true
+        categoryName:
+          type: string
+          nullable: true
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        originalPrice:
+          type: number
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        stock:
+          type: integer
+        featured:
+          type: boolean
+        status:
+          type: string
+          enum: [active, out_of_stock, hidden]
+        orderCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, tenantId, tenantName, name, description, price, stock, featured, status, orderCount, createdAt]
+
+    CreateProductBody:
+      type: object
+      properties:
+        tenantId:
+          type: integer
+        categoryId:
+          type: integer
+          nullable: true
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        originalPrice:
+          type: number
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        stock:
+          type: integer
+        featured:
+          type: boolean
+      required: [tenantId, name, description, price, stock, featured]
+
+    UpdateProductBody:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          nullable: true
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        originalPrice:
+          type: number
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        stock:
+          type: integer
+        featured:
+          type: boolean
+        status:
+          type: string
+          enum: [active, out_of_stock, hidden]
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        totalOrders:
+          type: integer
+        totalSpent:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, email, totalOrders, totalSpent, createdAt]
+
+    CreateCustomerBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+      required: [name, email]
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+        totalPrice:
+          type: number
+      required: [id, productId, productName, quantity, unitPrice, totalPrice]
+
+    OrderStatusHistoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        fromStatus:
+          type: string
+          nullable: true
+        toStatus:
+          type: string
+        note:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, orderId, toStatus, createdAt]
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        tenantName:
+          type: string
+        customerId:
+          type: integer
+        customerName:
+          type: string
+        status:
+          type: string
+          enum: [pending, awaiting_confirmation, confirmed, dispatched, shipped, delivered, cancelled, returned]
+        totalAmount:
+          type: number
+        shippingCost:
+          type: number
+        shippingAddress:
+          type: string
+          nullable: true
+        customerPhone:
+          type: string
+          nullable: true
+        paymentMethod:
+          type: string
+          enum: [cod, paymob]
+        paymentStatus:
+          type: string
+          enum: [pending, paid, failed]
+        paymobOrderId:
+          type: string
+          nullable: true
+        paymobTransactionId:
+          type: string
+          nullable: true
+        bostaShipmentId:
+          type: string
+          nullable: true
+        trackingNumber:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        statusHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderStatusHistoryItem"
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, tenantId, tenantName, customerId, customerName, status, totalAmount, paymentMethod, paymentStatus, items, createdAt]
+
+    CreateOrderBody:
+      type: object
+      properties:
+        tenantId:
+          type: integer
+        customerId:
+          type: integer
+        shippingAddress:
+          type: string
+          nullable: true
+        customerPhone:
+          type: string
+          nullable: true
+        paymentMethod:
+          type: string
+          enum: [cod, paymob]
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: integer
+              quantity:
+                type: integer
+            required: [productId, quantity]
+      required: [tenantId, customerId, items]
+
+    UpdateOrderBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, awaiting_confirmation, confirmed, dispatched, shipped, delivered, cancelled, returned]
+        paymentStatus:
+          type: string
+          enum: [pending, paid, failed]
+        paymobTransactionId:
+          type: string
+        bostaShipmentId:
+          type: string
+        trackingNumber:
+          type: string
+      required: [status]
+
+    OnboardingStep:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        done:
+          type: boolean
+        href:
+          type: string
+      required: [key, label, description, done, href]
+
+    OnboardingStatus:
+      type: object
+      properties:
+        tenantId:
+          type: integer
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/OnboardingStep"
+        completedCount:
+          type: integer
+        totalCount:
+          type: integer
+        isComplete:
+          type: boolean
+      required: [tenantId, steps, completedCount, totalCount, isComplete]
+
+    InitPaymobPaymentBody:
+      type: object
+      properties:
+        orderId:
+          type: integer
+      required: [orderId]
+
+    InitPaymobPaymentResponse:
+      type: object
+      properties:
+        iframeUrl:
+          type: string
+        paymobOrderId:
+          type: integer
+        configured:
+          type: boolean
+      required: [iframeUrl, paymobOrderId, configured]
+
+    CreateBostaShipmentBody:
+      type: object
+      properties:
+        orderId:
+          type: integer
+        customerPhone:
+          type: string
+        dropOffCity:
+          type: string
+      required: [orderId, customerPhone]
+
+    CreateBostaShipmentResponse:
+      type: object
+      properties:
+        shipmentId:
+          type: string
+        trackingNumber:
+          type: string
+        configured:
+          type: boolean
+      required: [shipmentId, trackingNumber, configured]
+
+    TrackingInfo:
+      type: object
+      properties:
+        trackingNumber:
+          type: string
+        status:
+          type: string
+        timeline:
+          type: array
+          items:
+            type: object
+      required: [trackingNumber, status]
+
+    SendWhatsAppBody:
+      type: object
+      properties:
+        orderId:
+          type: integer
+        customerPhone:
+          type: string
+      required: [orderId, customerPhone]
+
+    SendWhatsAppResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        messageId:
+          type: string
+          nullable: true
+        whatsappLink:
+          type: string
+        configured:
+          type: boolean
+      required: [success, whatsappLink, configured]
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalTenants:
+          type: integer
+        activeTenants:
+          type: integer
+        totalProducts:
+          type: integer
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: number
+        totalCustomers:
+          type: integer
+        pendingOrders:
+          type: integer
+        ordersThisMonth:
+          type: integer
+        revenueThisMonth:
+          type: number
+        categoryBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+            required: [category, count]
+      required: [totalTenants, activeTenants, totalProducts, totalOrders, totalRevenue, totalCustomers, pendingOrders, ordersThisMonth, revenueThisMonth, categoryBreakdown]
+
+    MerchantAnalytics:
+      type: object
+      properties:
+        totalRevenue:
+          type: number
+        totalOrders:
+          type: integer
+        avgOrderValue:
+          type: number
+        totalCustomers:
+          type: integer
+        pendingOrders:
+          type: integer
+        revenueThisMonth:
+          type: number
+        ordersThisMonth:
+          type: integer
+        orderStatusBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              label:
+                type: string
+              count:
+                type: integer
+            required: [status, label, count]
+        salesByDay:
+          type: array
+          items:
+            type: object
+            properties:
+              day:
+                type: string
+              date:
+                type: string
+              revenue:
+                type: number
+              orders:
+                type: integer
+            required: [day, date, revenue, orders]
+        topProducts:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              revenue:
+                type: number
+              quantity:
+                type: integer
+            required: [name, revenue, quantity]
+        recentOrders:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              totalAmount:
+                type: number
+              status:
+                type: string
+              paymentMethod:
+                type: string
+              createdAt:
+                type: string
+                format: date-time
+            required: [id, totalAmount, status, paymentMethod, createdAt]
+      required: [totalRevenue, totalOrders, avgOrderValue, totalCustomers, pendingOrders, revenueThisMonth, ordersThisMonth, orderStatusBreakdown, salesByDay, topProducts, recentOrders]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [new_order, new_tenant, new_customer, order_shipped, order_delivered]
+        message:
+          type: string
+        tenantName:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, type, message, createdAt]
+
+    RegisterBody:
+      type: object
+      properties:
+        storeName:
+          type: string
+        slug:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        category:
+          type: string
+          enum: [fashion, cosmetics, both]
+        city:
+          type: string
+          nullable: true
+        description:
+          type: string
+      required: [storeName, slug, email, password, category, description]
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+
+    MerchantRole:
+      type: string
+      enum: [owner, manager, staff]
+
+    StaffMember:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+          nullable: true
+        role:
+          $ref: "#/components/schemas/MerchantRole"
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, email, role, createdAt]
+
+    InviteStaffBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          $ref: "#/components/schemas/MerchantRole"
+        password:
+          type: string
+          minLength: 6
+      required: [email, password, role]
+
+    UpdateStaffRoleBody:
+      type: object
+      properties:
+        role:
+          $ref: "#/components/schemas/MerchantRole"
+      required: [role]
+
+    AuthResponse:
+      type: object
+      properties:
+        merchantId:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+          nullable: true
+        role:
+          $ref: "#/components/schemas/MerchantRole"
+        tenantId:
+          type: integer
+        storeName:
+          type: string
+        slug:
+          type: string
+        category:
+          type: string
+          enum: [fashion, cosmetics, both]
+        status:
+          type: string
+        city:
+          type: string
+          nullable: true
+        logoUrl:
+          type: string
+          nullable: true
+        coverUrl:
+          type: string
+          nullable: true
+        description:
+          type: string
+        isPlatformAdmin:
+          type: boolean
+        planCode:
+          type: string
+        subscriptionStatus:
+          type: string
+          enum: [trial, active, past_due, suspended, canceled]
+      required: [merchantId, email, role, tenantId, storeName, slug, category, status, description, isPlatformAdmin, planCode, subscriptionStatus]
+
+    StorefrontProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        originalPrice:
+          type: number
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        stock:
+          type: integer
+        status:
+          type: string
+        categoryId:
+          type: integer
+          nullable: true
+        categoryName:
+          type: string
+          nullable: true
+      required: [id, name, description, price, stock, status]
+
+    StorefrontResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [fashion, cosmetics, both]
+        status:
+          type: string
+        city:
+          type: string
+          nullable: true
+        logoUrl:
+          type: string
+          nullable: true
+        coverUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/StorefrontProduct"
+        totalProducts:
+          type: integer
+        totalOrders:
+          type: integer
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+            required: [id, name]
+      required: [id, name, slug, description, category, status, createdAt, products, totalProducts, totalOrders, categories]
+
+    Plan:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        descriptionAr:
+          type: string
+        priceEgp:
+          type: number
+        productLimit:
+          type: integer
+        monthlyOrderLimit:
+          type: integer
+        staffSeatLimit:
+          type: integer
+        customDomainAllowed:
+          type: boolean
+        advancedAnalyticsAllowed:
+          type: boolean
+        paymobAllowed:
+          type: boolean
+        whatsappAutomationAllowed:
+          type: boolean
+        brandingRemovalAllowed:
+          type: boolean
+        isActive:
+          type: boolean
+      required: [code, name, nameAr, descriptionAr, priceEgp, productLimit, monthlyOrderLimit, staffSeatLimit, isActive]
+
+    EntitlementStatus:
+      type: object
+      properties:
+        planCode:
+          type: string
+        subscriptionStatus:
+          type: string
+          enum: [trial, active, past_due, suspended, canceled]
+        plan:
+          $ref: "#/components/schemas/Plan"
+        usage:
+          type: object
+          properties:
+            productCount:
+              type: integer
+            staffCount:
+              type: integer
+            monthlyOrderCount:
+              type: integer
+          required: [productCount, staffCount, monthlyOrderCount]
+        atProductLimit:
+          type: boolean
+        nearProductLimit:
+          type: boolean
+        atStaffLimit:
+          type: boolean
+        nearStaffLimit:
+          type: boolean
+        atMonthlyOrderLimit:
+          type: boolean
+      required: [planCode, subscriptionStatus, plan, usage, atProductLimit, nearProductLimit, atStaffLimit]
+
+    ContactAttempt:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        tenantId:
+          type: integer
+        merchantId:
+          type: integer
+        method:
+          type: string
+          enum: [phone, whatsapp, email, other]
+        note:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, orderId, tenantId, merchantId, method, createdAt]
+
+    CreateContactAttemptBody:
+      type: object
+      properties:
+        method:
+          type: string
+          enum: [phone, whatsapp, email, other]
+        note:
+          type: string
+          nullable: true
+      required: [method]
+
+    SupportNote:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        note:
+          type: string
+        createdBy:
+          type: integer
+        createdByName:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, tenantId, note, createdBy, createdAt]
+
+    UpdateTenantPlanBody:
+      type: object
+      properties:
+        planCode:
+          type: string
+          enum: [starter, growth, pro]
+        subscriptionStatus:
+          type: string
+          enum: [trial, active, past_due, suspended, canceled]
+        note:
+          type: string
+          nullable: true
+      required: [planCode, subscriptionStatus]
+
+    PlatformStats:
+      type: object
+      properties:
+        totalTenants:
+          type: integer
+        activeTenants:
+          type: integer
+        trialTenants:
+          type: integer
+        suspendedTenants:
+          type: integer
+        tenantsWithNoProducts:
+          type: integer
+        tenantsWithNoOrders:
+          type: integer
+        tenantsNearProductLimit:
+          type: integer
+        planBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              planCode:
+                type: string
+              count:
+                type: integer
+            required: [planCode, count]
+        onboardingCompletion:
+          type: object
+          properties:
+            complete:
+              type: integer
+            partial:
+              type: integer
+            notStarted:
+              type: integer
+          required: [complete, partial, notStarted]
+      required: [totalTenants, activeTenants, trialTenants, suspendedTenants, tenantsWithNoProducts, tenantsWithNoOrders, tenantsNearProductLimit, planBreakdown, onboardingCompletion]

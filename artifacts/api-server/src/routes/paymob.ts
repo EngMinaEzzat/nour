@@ -1,0 +1,262 @@
+import { Router } from "express";
+import { db } from "@workspace/db";
+import {
+  paymobProvidersTable, paymentRecordsTable, paymentWebhooksTable,
+  ordersTable, tenantsTable, tenantAuditEventsTable,
+} from "@workspace/db";
+import { requireRole } from "../middleware/require-role";
+import { eq, and, desc, lt, isNull } from "drizzle-orm";
+import crypto from "crypto";
+
+const router = Router();
+
+const PLAN_ALLOWS_PAYMOB = ["growth", "pro"];
+
+// GET /paymob/status
+router.get("/paymob/status", requireRole("owner", "manager", "staff"), async (req, res) => {
+  try {
+    const tenantId = req.merchantTenantId!;
+    const [tenant] = await db.select({ planCode: tenantsTable.planCode }).from(tenantsTable).where(eq(tenantsTable.id, tenantId));
+    if (!PLAN_ALLOWS_PAYMOB.includes(tenant?.planCode ?? "")) {
+      return res.json({ status: "PLAN_DISALLOWED", planRequired: "growth" });
+    }
+    const [provider] = await db.select({
+      id: paymobProvidersTable.id,
+      status: paymobProvidersTable.status,
+      integrationId: paymobProvidersTable.integrationId,
+      iframeId: paymobProvidersTable.iframeId,
+      isMockAllowed: paymobProvidersTable.isMockAllowed,
+      lastErrorAt: paymobProvidersTable.lastErrorAt,
+      lastErrorMessage: paymobProvidersTable.lastErrorMessage,
+      updatedAt: paymobProvidersTable.updatedAt,
+    }).from(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, tenantId));
+    if (!provider) return res.json({ status: "NOT_CONFIGURED" });
+    res.json({ ...provider, hasApiKey: !!provider.integrationId });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل جلب حالة Paymob" });
+  }
+});
+
+// PUT /paymob/configure
+router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
+  try {
+    const tenantId = req.merchantTenantId!;
+    const merchantId = req.session?.merchantId;
+    const [tenant] = await db.select({ planCode: tenantsTable.planCode }).from(tenantsTable).where(eq(tenantsTable.id, tenantId));
+    if (!PLAN_ALLOWS_PAYMOB.includes(tenant?.planCode ?? "")) {
+      return res.status(402).json({ error: "هذه الميزة تتطلب خطة جروث أو برو" });
+    }
+
+    const { apiKey, integrationId, iframeId, hmacSecret, enabled } = req.body;
+    if (!integrationId || !iframeId) {
+      return res.status(400).json({ error: "integration_id و iframe_id مطلوبان" });
+    }
+
+    const apiKeyHash = apiKey ? crypto.createHash("sha256").update(apiKey).digest("hex") : undefined;
+    const status = enabled ? "ACTIVE" : "CONFIGURED_DISABLED";
+
+    const existing = await db.select({ id: paymobProvidersTable.id }).from(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, tenantId));
+    if (existing.length > 0) {
+      await db.update(paymobProvidersTable).set({
+        status,
+        integrationId,
+        iframeId,
+        ...(apiKeyHash ? { apiKeyHash } : {}),
+        ...(hmacSecret ? { hmacSecret } : {}),
+        updatedAt: new Date(),
+      }).where(eq(paymobProvidersTable.tenantId, tenantId));
+    } else {
+      await db.insert(paymobProvidersTable).values({
+        tenantId,
+        status,
+        integrationId,
+        iframeId,
+        apiKeyHash: apiKeyHash ?? "",
+        hmacSecret: hmacSecret ?? "",
+      });
+    }
+
+    await db.insert(tenantAuditEventsTable).values({
+      tenantId,
+      actorId: merchantId,
+      actorLabel: "تاجر",
+      eventType: "paymob_configured",
+      summary: `تم ${enabled ? "تفعيل" : "إيقاف"} Paymob — integrationId: ${integrationId}`,
+    }).catch(() => {});
+
+    res.json({ success: true, status });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل تهيئة Paymob" });
+  }
+});
+
+// POST /paymob/initiate — initiate payment for an order
+router.post("/paymob/initiate", requireRole("owner", "manager", "staff"), async (req, res) => {
+  try {
+    const tenantId = req.merchantTenantId!;
+    const { orderId, amount } = req.body;
+    if (!orderId || !amount) return res.status(400).json({ error: "orderId و amount مطلوبان" });
+
+    const [provider] = await db.select().from(paymobProvidersTable).where(
+      and(eq(paymobProvidersTable.tenantId, tenantId), eq(paymobProvidersTable.status, "ACTIVE"))
+    );
+    if (!provider) return res.status(422).json({ error: "Paymob غير مفعّل لهذا المتجر" });
+
+    const idempotencyKey = `${tenantId}-${orderId}-${Date.now()}`;
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+    const [record] = await db.insert(paymentRecordsTable).values({
+      tenantId,
+      orderId: Number(orderId),
+      idempotencyKey,
+      amount: String(amount),
+      status: "initiated",
+      expiresAt,
+    }).returning();
+
+    const iframeSrc = `https://accept.paymob.com/api/acceptance/iframes/${provider.iframeId}?payment_token=DEMO_TOKEN_${record.id}`;
+    await db.update(paymentRecordsTable).set({ iframeSrc, status: "pending" }).where(eq(paymentRecordsTable.id, record.id));
+
+    res.json({ paymentRecordId: record.id, iframeSrc, expiresAt });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل بدء عملية الدفع" });
+  }
+});
+
+// POST /paymob/webhook — public endpoint (no auth) — HMAC verified
+router.post("/paymob/webhook", async (req, res) => {
+  try {
+    const { hmac } = req.query;
+    const body = req.body;
+
+    // HMAC verification — required if PAYMOB_HMAC_SECRET is configured
+    const platformHmacSecret = process.env.PAYMOB_HMAC_SECRET;
+    if (platformHmacSecret && hmac) {
+      // Paymob HMAC: SHA512 of concatenated transaction fields
+      const obj = body?.obj ?? body ?? {};
+      const fields = [
+        String(obj.amount_cents ?? ""),
+        String(obj.created_at ?? ""),
+        String(obj.currency ?? ""),
+        String(obj.error_occured ?? ""),
+        String(obj.has_parent_transaction ?? ""),
+        String(obj.id ?? ""),
+        String(obj.integration_id ?? ""),
+        String(obj.is_3d_secure ?? ""),
+        String(obj.is_auth ?? ""),
+        String(obj.is_capture ?? ""),
+        String(obj.is_refunded ?? ""),
+        String(obj.is_standalone_payment ?? ""),
+        String(obj.is_voided ?? ""),
+        String(obj.order?.id ?? ""),
+        String(obj.owner ?? ""),
+        String(obj.pending ?? ""),
+        String(obj.source_data?.pan ?? ""),
+        String(obj.source_data?.sub_type ?? ""),
+        String(obj.source_data?.type ?? ""),
+        String(obj.success ?? ""),
+      ].join("");
+
+      const computed = crypto.createHmac("sha512", platformHmacSecret).update(fields).digest("hex");
+      if (computed !== hmac) {
+        req.log.warn({ transactionId: obj.id }, "Paymob webhook HMAC mismatch — rejected");
+        return res.status(401).json({ error: "HMAC verification failed" });
+      }
+    } else if (platformHmacSecret && !hmac) {
+      req.log.warn("Paymob webhook received without HMAC — rejected");
+      return res.status(401).json({ error: "Missing HMAC signature" });
+    }
+
+    const transactionId = String(body?.obj?.id ?? body?.transaction_id ?? "unknown");
+    const success = String(body?.obj?.success ?? body?.success ?? "false");
+    const idempotencyKey = `paymob-wh-${transactionId}`;
+
+    const existing = await db.select().from(paymentWebhooksTable).where(eq(paymentWebhooksTable.idempotencyKey, idempotencyKey));
+    if (existing.length > 0) {
+      req.log.info({ transactionId }, "Duplicate Paymob webhook — idempotent skip");
+      return res.json({ received: true, duplicate: true });
+    }
+
+    await db.insert(paymentWebhooksTable).values({
+      provider: "paymob",
+      idempotencyKey,
+      eventType: body?.type ?? "transaction",
+      providerTransactionId: transactionId,
+      success,
+      processedAt: new Date(),
+    });
+
+    if (success === "true") {
+      const paymentToken = body?.obj?.payment_key_claims?.extra?.payment_token ?? null;
+      const updated = await db.update(paymentRecordsTable).set({
+        status: "paid",
+        providerTransactionId: transactionId,
+        paidAt: new Date(),
+        updatedAt: new Date(),
+      }).where(eq(paymentRecordsTable.idempotencyKey, idempotencyKey)).returning({ orderId: paymentRecordsTable.orderId, tenantId: paymentRecordsTable.tenantId });
+
+      if (updated.length > 0 && updated[0].orderId) {
+        await db.update(ordersTable).set({ paymentStatus: "paid" }).where(eq(ordersTable.id, updated[0].orderId!));
+        await db.insert(tenantAuditEventsTable).values({
+          tenantId: updated[0].tenantId,
+          actorLabel: "Paymob Webhook",
+          eventType: "payment_succeeded",
+          summary: `تم الدفع بنجاح — معرف المعاملة: ${transactionId}`,
+          metadata: JSON.stringify({ transactionId, orderId: updated[0].orderId }),
+        }).catch(() => {});
+      }
+    } else {
+      await db.update(paymentRecordsTable).set({
+        status: "failed",
+        providerTransactionId: transactionId,
+        failureReason: body?.obj?.data?.message ?? "Payment failed",
+        updatedAt: new Date(),
+      }).where(eq(paymentRecordsTable.idempotencyKey, idempotencyKey)).catch(() => {});
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Webhook processing failed" });
+  }
+});
+
+// GET /paymob/payments — merchant payment records
+router.get("/paymob/payments", requireRole("owner", "manager"), async (req, res) => {
+  try {
+    const tenantId = req.merchantTenantId!;
+    const records = await db.select().from(paymentRecordsTable)
+      .where(eq(paymentRecordsTable.tenantId, tenantId))
+      .orderBy(desc(paymentRecordsTable.createdAt))
+      .limit(100);
+    res.json(records.map((r) => ({ ...r, paymentToken: undefined, iframeSrc: undefined })));
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل جلب سجلات الدفع" });
+  }
+});
+
+// GET /paymob/reconciliation — platform admin: stale pending + failed
+router.get("/paymob/reconciliation", async (req, res) => {
+  if (!req.session?.isPlatformAdmin) return res.status(403).json({ error: "غير مصرح" });
+  try {
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+    const stale = await db.select().from(paymentRecordsTable)
+      .where(and(eq(paymentRecordsTable.status, "pending"), lt(paymentRecordsTable.createdAt, thirtyMinutesAgo)))
+      .orderBy(desc(paymentRecordsTable.createdAt))
+      .limit(50);
+    const failed = await db.select().from(paymentRecordsTable)
+      .where(eq(paymentRecordsTable.status, "failed"))
+      .orderBy(desc(paymentRecordsTable.createdAt))
+      .limit(50);
+    res.json({ stalePending: stale.length, failedCount: failed.length, stale, failed });
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل المطابقة" });
+  }
+});
+
+export default router;

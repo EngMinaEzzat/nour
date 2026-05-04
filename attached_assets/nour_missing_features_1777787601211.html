@@ -1,0 +1,293 @@
+
+<style>
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.tab { padding: 5px 13px; font-size: 12.5px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); }
+.tab.active { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; font-weight: 500; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 1.25rem; }
+.card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+.card-lbl { font-size: 11px; color: var(--color-text-secondary); margin: 0 0 3px; }
+.card-val { font-size: 20px; font-weight: 500; margin: 0; }
+.section-title { font-size: 11.5px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin: 16px 0 8px; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.feature { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 8px; background: var(--color-background-primary); }
+.fhead { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+.ftitle { font-size: 13.5px; font-weight: 500; color: var(--color-text-primary); flex: 1; min-width: 150px; }
+.fbody { font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.65; }
+.fbody code { font-family: var(--font-mono); font-size: 11.5px; background: var(--color-background-secondary); padding: 1px 5px; border-radius: 3px; color: var(--color-text-primary); }
+.badge { display: inline-block; font-size: 10.5px; padding: 2px 8px; border-radius: var(--border-radius-md); font-weight: 500; white-space: nowrap; }
+.b-fire { background: #FCEBEB; color: #791F1F; }
+.b-high { background: #FAECE7; color: #712B13; }
+.b-med  { background: #FAEEDA; color: #633806; }
+.b-low  { background: #E1F5EE; color: #085041; }
+.b-gray { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.effort { font-size: 10.5px; padding: 2px 8px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); }
+.btn { padding: 7px 14px; font-size: 12.5px; border: 0.5px solid #AFA9EC; border-radius: var(--border-radius-md); cursor: pointer; background: #EEEDFE; color: #3C3489; font-weight: 500; margin-top: 1rem; display: inline-block; }
+</style>
+
+<div class="wrap">
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Missing features analysis for نور Egyptian fashion SaaS platform</h2>
+
+<div class="cards">
+  <div class="card"><p class="card-lbl">Missing features</p><p class="card-val" style="color:#791F1F">23</p></div>
+  <div class="card"><p class="card-lbl">Revenue-critical</p><p class="card-val" style="color:#712B13">6</p></div>
+  <div class="card"><p class="card-lbl">Quick wins</p><p class="card-val" style="color:#633806">8</p></div>
+  <div class="card"><p class="card-lbl">Shopper UX gaps</p><p class="card-val" style="color:#085041">5</p></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-i="0">Revenue & billing</div>
+  <div class="tab" data-i="1">Shopper experience</div>
+  <div class="tab" data-i="2">Merchant ops</div>
+  <div class="tab" data-i="3">Platform & admin</div>
+  <div class="tab" data-i="4">Growth & retention</div>
+</div>
+
+<div id="content"></div>
+<button class="btn" id="build-btn">Build this feature ↗</button>
+</div>
+
+<script>
+const data = [
+  // Revenue & billing
+  {
+    sections: [
+      {
+        title: "Billing — the biggest gap",
+        items: [
+          {
+            impact: "fire", effort: "High", title: "Subscription billing is fully manual",
+            body: "The billing page shows a current plan and invoice list, but there is <strong>no actual payment collection</strong>. Merchants can see their plan but there is no Stripe, Paymob, or any gateway connected to charge the monthly 299/699/1499 EGP subscription. The <code>billing.ts</code> route returns static mock data. This means the platform currently earns zero automated revenue.",
+            cta: "Build subscription billing with Paymob recurring"
+          },
+          {
+            impact: "fire", effort: "Med", title: "No trial expiry enforcement",
+            body: "The <code>tenantsTable</code> has a <code>trialEndsAt</code> column but it is never set on signup and never checked anywhere. Merchants who sign up stay on trial forever. There is no job or middleware that downgrades or blocks access when the trial ends.",
+            cta: "Build trial enforcement and expiry flow"
+          },
+          {
+            impact: "high", effort: "Med", title: "Plan upgrade has no payment step",
+            body: "<code>POST /billing/upgrade</code> just updates the <code>planCode</code> column in the DB — no payment is initiated. A merchant can upgrade from Starter (299 EGP) to Pro (1499 EGP) for free with a direct API call.",
+            cta: "Build plan upgrade with payment gate"
+          },
+          {
+            impact: "high", effort: "Low", title: "Invoice records are never created",
+            body: "The <code>billingTable</code> schema exists but <code>GET /billing/invoices</code> returns empty arrays in all cases. No invoice is written when a merchant pays or upgrades. Merchants have no billing history.",
+            cta: "Build invoice creation on plan change"
+          },
+        ]
+      },
+      {
+        title: "Paymob — partially wired",
+        items: [
+          {
+            impact: "high", effort: "Med", title: "Paymob webhook not idempotent",
+            body: "The webhook handler at <code>/payments/paymob/webhook</code> updates order status on every call. If Paymob retries the webhook (which it does), the order gets processed twice — potentially double-confirming stock decrements or sending duplicate WhatsApp messages. No idempotency key check exists.",
+            cta: "Add idempotency to Paymob webhook handler"
+          },
+          {
+            impact: "med", effort: "Low", title: "No payment reconciliation view",
+            body: "Phase 4 requires a platform view of stale pending payments and failed transactions. The <code>payment_records</code> table exists but no admin or platform UI surfaces pending/failed Paymob payments for reconciliation.",
+            cta: "Build payment reconciliation dashboard"
+          }
+        ]
+      }
+    ]
+  },
+  // Shopper experience
+  {
+    sections: [
+      {
+        title: "Storefront — critical shopper gaps",
+        items: [
+          {
+            impact: "fire", effort: "Med", title: "Product variants not shown on storefront",
+            body: "The <code>product_variants</code> table exists (size, color, SKU, stock per variant) and the admin products page manages them — but the <code>GET /store/:slug</code> endpoint never returns variants. A shopper cannot select a size or color before adding to cart. This is a critical gap for a fashion platform.",
+            cta: "Add variant selection to storefront and checkout"
+          },
+          {
+            impact: "high", effort: "Low", title: "No product search or filter on storefront",
+            body: "The storefront page has a category filter button in the UI but filtering only works client-side from the preloaded product list. There is no <code>?search=</code> or <code>?category=</code> query param support on the storefront API, so large catalogs are slow and unsearchable.",
+            cta: "Add search and filter to storefront API"
+          },
+          {
+            impact: "high", effort: "Med", title: "No order tracking page for shoppers",
+            body: "After checkout, a shopper gets an order confirmation page with an order ID. But there is no public <code>/track/:orderId</code> page where they can check their delivery status. The <code>tracking.ts</code> route handles pixel tracking, not order tracking. Shoppers must WhatsApp the merchant to get updates.",
+            cta: "Build public order tracking page"
+          },
+          {
+            impact: "high", effort: "Low", title: "Storefront does not use store branding",
+            body: "Tenants can set <code>primaryColor</code>, <code>logoUrl</code>, <code>coverUrl</code>, <code>faviconUrl</code>, <code>seoTitle</code>, and <code>seoDescription</code> via store settings — but the public storefront page ignores all of them. Every store looks identical. The storefront API returns <code>logoUrl</code> and <code>coverUrl</code> but the frontend doesn't apply <code>primaryColor</code> or set the page title/favicon dynamically.",
+            cta: "Apply tenant branding to storefront"
+          },
+          {
+            impact: "med", effort: "Low", title: "Cart does not persist across page reloads",
+            body: "The cart state lives only in React context (<code>use-cart.tsx</code>). Refreshing the page empties the cart. There is a <code>cart/sync</code> API endpoint that saves cart sessions to DB, but it is only called during checkout, not on every cart change. Shoppers lose their carts on accidental refresh.",
+            cta: "Persist cart to DB on every add/remove"
+          },
+        ]
+      }
+    ]
+  },
+  // Merchant ops
+  {
+    sections: [
+      {
+        title: "WhatsApp — half-built",
+        items: [
+          {
+            impact: "high", effort: "Med", title: "Only one WhatsApp template is wired",
+            body: "The <code>whatsapp.ts</code> lib only implements <code>order_confirmation</code> template. Phase 3 requires 6 templates: order confirmed, dispatched, delivery follow-up, cancellation notice, return/exchange follow-up. The routes and UI exist for templates but they all return the same message.",
+            cta: "Build all 6 WhatsApp templates"
+          },
+          {
+            impact: "high", effort: "Low", title: "WhatsApp message logs not written to DB",
+            body: "The <code>whatsapp_messages</code> and <code>conversations</code> tables exist in the schema. But <code>sendWhatsAppMessage()</code> never writes to these tables — it fires the API call and returns. There is no way for a merchant to see sent message history or delivery status.",
+            cta: "Write every WhatsApp send to message log table"
+          },
+          {
+            impact: "med", effort: "Low", title: "Automation rules are stored but never executed",
+            body: "The <code>automation_rules</code> table exists and the UI lets merchants create rules (e.g. 'send WhatsApp when order is confirmed'). But there is no background job or order hook that evaluates and fires these rules. Rules are saved to DB and silently ignored.",
+            cta: "Wire automation rules to order status change events"
+          },
+        ]
+      },
+      {
+        title: "Inventory & products",
+        items: [
+          {
+            impact: "high", effort: "Low", title: "Stock is decremented but never reserved",
+            body: "When an order is created, stock is decremented immediately. But for Paymob orders, payment can fail after stock is already gone. There is no stock reservation for pending payments, and no stock restoration on payment failure or order cancellation.",
+            cta: "Add stock reservation and restoration logic"
+          },
+          {
+            impact: "med", effort: "Low", title: "Inventory alerts trigger but no notification is sent",
+            body: "The <code>inventory_alerts</code> route returns low-stock products, and the UI page shows them. But when a product hits low stock, no alert is sent to the merchant — no email, no WhatsApp, no in-app notification. The data is there but the notification is missing.",
+            cta: "Send WhatsApp or in-app alert on low stock"
+          },
+        ]
+      }
+    ]
+  },
+  // Platform & admin
+  {
+    sections: [
+      {
+        title: "Platform operator — visibility gaps",
+        items: [
+          {
+            impact: "high", effort: "Low", title: "No email system at all",
+            body: "There is no email sending anywhere in the codebase — no welcome email on signup, no password reset flow (forgot password is completely missing), no order confirmation email, no billing receipts. For an Egyptian SaaS targeting merchants, this is a significant trust gap.",
+            cta: "Add Resend or SendGrid for transactional emails"
+          },
+          {
+            impact: "high", effort: "Low", title: "Password reset flow is missing",
+            body: "<code>POST /auth/login</code> and <code>POST /auth/register</code> exist, but there is no <code>POST /auth/forgot-password</code> or <code>POST /auth/reset-password</code> endpoint. Merchants who forget their password have no self-service recovery — they need to contact support.",
+            cta: "Build forgot password and reset flow"
+          },
+          {
+            impact: "med", effort: "Low", title: "Platform health scores are hardcoded",
+            body: "<code>GET /platform/health-scores</code> returns tenant health scores, but looking at the route, the scores are computed from simple metrics. There is no per-tenant onboarding completion score, no risk flag for tenants with many failed orders, and no churn signal.",
+            cta: "Build real health score algorithm"
+          },
+        ]
+      },
+      {
+        title: "Security & compliance",
+        items: [
+          {
+            impact: "high", effort: "Low", title: "Staff invitations never expire",
+            body: "The <code>staff_invitations</code> table has a <code>token</code> column but no <code>expires_at</code> column. An invitation link sent via email or WhatsApp never expires and can be accepted weeks or months later by anyone who has the link.",
+            cta: "Add expiry to staff invitation tokens"
+          },
+          {
+            impact: "med", effort: "Low", title: "Audit log writes are missing on most mutations",
+            body: "The <code>audit_log</code> and <code>tenant_audit</code> tables exist but only a handful of routes write to them. Major events like product deletion, order cancellation, staff role changes, and billing upgrades are not audited.",
+            cta: "Add audit log writes to all critical mutations"
+          },
+        ]
+      }
+    ]
+  },
+  // Growth & retention
+  {
+    sections: [
+      {
+        title: "SEO & discoverability",
+        items: [
+          {
+            impact: "high", effort: "Low", title: "No SEO meta tags on storefront pages",
+            body: "Tenants can set <code>seoTitle</code> and <code>seoDescription</code> via store settings, and the fields are stored in the DB. But the Vite SPA uses a static <code>index.html</code> — no dynamic <code>&lt;title&gt;</code> or <code>&lt;meta&gt;</code> tags are injected per store. Every storefront shows the same default title in Google.",
+            cta: "Add SSR or meta tag injection for storefront SEO"
+          },
+          {
+            impact: "med", effort: "Low", title: "Social share links are stored but not rendered",
+            body: "Tenants can set Instagram, TikTok, and other social links in store settings. The <code>social_links</code> JSONB column stores them. But no storefront page renders these links as clickable icons for shoppers.",
+            cta: "Render social links on storefront footer"
+          },
+        ]
+      },
+      {
+        title: "Customer retention",
+        items: [
+          {
+            impact: "high", effort: "Med", title: "No repeat customer detection or loyalty signal",
+            body: "Customers are tracked by phone number in the <code>customers</code> table. The analytics route counts repeat orders but there is no feature that identifies VIP customers, no repeat-buyer badge on the customer list, and no way for a merchant to filter 'customers who ordered more than once' to target with a discount.",
+            cta: "Build repeat customer segmentation and VIP tags"
+          },
+          {
+            impact: "med", effort: "Low", title: "Abandoned cart recovery is tracked but not acted on",
+            body: "The abandoned cart system correctly identifies carts inactive for 2+ hours with customer contact info. The <code>/abandoned-carts</code> page shows them. But there is no one-click 'send recovery WhatsApp' button on the UI, and no automation rule for cart abandonment.",
+            cta: "Add recovery WhatsApp button to abandoned carts"
+          },
+          {
+            impact: "med", effort: "Low", title: "Product reviews exist in DB but are hidden on storefront",
+            body: "The <code>product_reviews</code> table and full CRUD API exist. The admin reviews page lets merchants manage reviews. But the public storefront product cards show no star ratings and the product detail page has no review section.",
+            cta: "Show ratings and reviews on storefront"
+          },
+        ]
+      }
+    ]
+  }
+];
+
+const impactLabel = { fire: 'Revenue-critical', high: 'High impact', med: 'Medium', low: 'Low' };
+const impactClass = { fire: 'b-fire', high: 'b-high', med: 'b-med', low: 'b-low' };
+let cur = 0;
+
+function render() {
+  const tab = data[cur];
+  let html = '';
+  tab.sections.forEach(sec => {
+    html += `<div class="section-title">${sec.title}</div>`;
+    sec.items.forEach(item => {
+      html += `<div class="feature">
+        <div class="fhead">
+          <span class="badge ${impactClass[item.impact]}">${impactLabel[item.impact]}</span>
+          <span class="effort">${item.effort} effort</span>
+          <span class="ftitle">${item.title}</span>
+        </div>
+        <div class="fbody">${item.body}</div>
+      </div>`;
+    });
+  });
+  document.getElementById('content').innerHTML = html;
+
+  const tabItems = document.querySelectorAll('.tab');
+  const labels = ['Revenue & billing','Shopper experience','Merchant ops','Platform & admin','Growth & retention'];
+  document.getElementById('build-btn').onclick = () => {
+    const sec = data[cur].sections[0];
+    const first = sec.items[0];
+    sendPrompt(`Build this feature for the نور platform: "${first.title}". Provide the full implementation including backend API route changes and frontend UI changes.`);
+  };
+}
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab');
+  if (!t) return;
+  cur = parseInt(t.dataset.i);
+  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', i === cur));
+  render();
+});
+
+render();
+</script>

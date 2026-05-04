@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "w7KpCKM1rDHCCbeAFPOAl"
+uri = "file://artifacts/fashion-store/public/hero.png"
+type = "image"
+title = "Nour hero banner"
+
+[[generated]]
+id = "9gFJ74s86xabNu10ZUVvZ"
+uri = "file://artifacts/fashion-store/public/product-cosmetics.png"
+type = "image"
+title = "Cosmetics product photo"
+
+[[generated]]
+id = "O086NUTIxN65wdQGSolB8"
+uri = "file://artifacts/fashion-store/public/product-fashion.png"
+type = "image"
+title = "Fashion editorial photo"
+
+[[generated]]
+id = "4V8M--rY3GEuEuNZUiQJq"
+uri = "file://artifacts/fashion-store/public/store-logo.png"
+type = "image"
+title = "Boutique logo placeholder"
