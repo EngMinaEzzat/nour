@@ -74,3 +74,8 @@ externalPort = 3002
 [[ports]]
 localPort = 25935
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+AI_INTEGRATIONS_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com"

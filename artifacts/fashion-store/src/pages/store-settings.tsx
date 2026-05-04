@@ -524,7 +524,7 @@ export default function StoreSettings() {
       </motion.div>
 
       {/* ─── Fixed floating action buttons ─── */}
-      <div className="fixed bottom-6 left-6 z-[100] flex flex-col gap-2 items-center" style={{ direction: "ltr" }}>
+      <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-2 items-center" style={{ direction: "ltr" }}>
         {tenant?.slug && (
           <Tooltip>
             <TooltipTrigger asChild>
