@@ -51,6 +51,7 @@ import Affiliates from "@/pages/affiliates";
 import OrderTrack from "@/pages/order-track";
 import CodScore from "@/pages/cod-score";
 import SocialOrders from "@/pages/social-orders";
+import StoreBuilder from "@/pages/store-builder";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -158,6 +159,9 @@ function Router() {
             </Route>
             <Route path="/store-settings">
               <ProtectedRoute><StoreSettings /></ProtectedRoute>
+            </Route>
+            <Route path="/store-builder">
+              <ProtectedRoute><StoreBuilder /></ProtectedRoute>
             </Route>
             <Route path="/billing">
               <ProtectedRoute><Billing /></ProtectedRoute>

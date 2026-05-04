@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Store, Package, Tags, Users, FileText,
   Menu, LogOut, LogIn, UserCog, X, Settings, ShieldCheck,
   BarChart2, Truck, Bell, RotateCcw, Zap, CreditCard, Globe,
-  Download, TrendingUp, Ticket, Star, ShoppingCart, AlertTriangle, Facebook,
+  Download, TrendingUp, Ticket, Star, ShoppingCart, AlertTriangle, Facebook, Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/use-auth";
 function getMerchantNav(merchant: { slug?: string; role?: string; isPlatformAdmin?: boolean } | null) {
   const base = [
     { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
+    { name: "محرر المتجر", href: "/store-builder", icon: Wand2 },
     { name: "التحليلات", href: "/analytics", icon: BarChart2 },
     { name: "الطلبات", href: "/orders", icon: FileText },
     { name: "المتابعة", href: "/follow-up", icon: Bell },

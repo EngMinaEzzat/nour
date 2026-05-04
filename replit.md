@@ -17,6 +17,7 @@ Multi-tenant SaaS platform for Egyptian merchants to create and manage their own
 - **Auth**: express-session + connect-pg-simple + bcryptjs
 - **Frontend**: React + Vite, Framer Motion, Cairo/Tajawal + Cormorant Garamond fonts, RTL
 - **Storefront design**: Premium redesign (2025) — blush/ivory/champagne palette, serif headings, 15 section components in `src/components/storefront/`
+- **Store Builder** (`/store-builder`): 6-step onboarding wizard + full visual WYSIWYG editor. Config types in `src/lib/store-config.ts`. Components in `src/components/editor/` and `src/components/onboarding/`. AI assistant panel, readiness checklist, 30-item undo/redo history.
 - **Build**: esbuild (CJS bundle)
 
 ## Key Commands

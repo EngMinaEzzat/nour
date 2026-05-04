@@ -1,0 +1,468 @@
+You are a senior SaaS product designer, UX strategist, and frontend engineer.
+
+I want you to improve the merchant experience for creating and editing their online store. The current experience should be transformed into a guided, story-driven onboarding and visual website editor that helps merchants build a beautiful store without technical knowledge.
+
+Product context:
+- This is a SaaS platform where merchants create their own ecommerce stores.
+- The target users are small and medium merchants, especially non-technical business owners.
+- Merchants may sell fashion, cosmetics, accessories, home products, food, handmade products, or other categories.
+- The goal is to make store creation feel simple, guided, professional, and emotionally engaging.
+- The merchant should not feel they are filling boring forms. They should feel they are telling the story of their brand and watching their store come alive.
+
+Main goal:
+Create a merchant onboarding and visual editing experience that helps the merchant:
+1. Define their brand story.
+2. Choose the right store style.
+3. Add essential business information.
+4. Generate a complete storefront draft.
+5. Visually edit the website directly.
+6. Publish confidently.
+
+UX direction:
+- Make the flow feel like “Build your brand story” rather than “Create website settings”.
+- Use conversational guidance, helpful examples, previews, and smart suggestions.
+- Reduce cognitive load.
+- Keep the merchant focused on one decision at a time.
+- Show progress clearly.
+- Make the store preview visible as early as possible.
+- Make editing visual and intuitive.
+- Avoid developer terminology.
+- Use friendly business language.
+
+Create / improve these main areas:
+
+1. Story-driven onboarding wizard
+
+Build a multi-step onboarding flow titled something like:
+“Let’s build your store story”
+
+Steps should include:
+
+Step 1: Business identity
+Ask:
+- What is your store name?
+- What do you sell?
+- Who are your customers?
+- What makes your store special?
+
+UX:
+- Use simple cards, not plain forms.
+- Provide examples under each question.
+- Add AI suggestion buttons like:
+  - “Suggest based on my category”
+  - “Make it sound more premium”
+  - “Make it more friendly”
+  - “Shorten it”
+- Show a small live brand summary on the side.
+
+Step 2: Brand personality
+Let the merchant choose a brand personality using cards:
+- Elegant & Premium
+- Friendly & Simple
+- Bold & Trendy
+- Minimal & Clean
+- Warm & Handmade
+- Youthful & Colorful
+
+Each card should show:
+- Small description
+- Color preview
+- Typography mood
+- Example sentence
+
+Step 3: Visual style
+Let the merchant choose a website style/template mood:
+- Modern Boutique
+- Beauty Brand
+- Minimal Store
+- Premium Fashion
+- Local Brand
+- Playful Shop
+- Luxury Catalog
+
+Show visual preview cards with small mockups.
+Allow “Start with this style”.
+
+Step 4: Store essentials
+Ask for:
+- Logo upload or generate text logo
+- Main brand color
+- Secondary color
+- Cover image / hero image
+- WhatsApp/contact number
+- Social links
+- Delivery areas
+- Return policy
+- Payment methods
+
+UX:
+- Do not overwhelm the user.
+- Group into collapsible sections.
+- Allow skipping optional items.
+- Show completion status.
+
+Step 5: Homepage story builder
+Instead of asking “Add sections”, frame it as:
+“What should customers see first?”
+
+Offer section blocks:
+- Hero banner
+- New arrivals
+- Best sellers
+- Featured categories
+- Customer reviews
+- Offers
+- About the brand
+- Instagram/social section
+- FAQ
+- Contact / WhatsApp section
+
+For each section:
+- Explain what it does.
+- Show when it is recommended.
+- Add “Add to my homepage” button.
+- Provide smart recommendations based on store category.
+
+Step 6: AI-generated store draft
+Generate a first version of the store using the merchant’s answers:
+- Homepage headline
+- Hero subtitle
+- Category names
+- About brand text
+- CTA labels
+- Section order
+- Theme colors
+- Product presentation style
+
+Show a split screen:
+- Left: story/setup summary
+- Right: live storefront preview
+
+Add CTA:
+- “Continue to visual editor”
+- “Regenerate design”
+- “Change style”
+
+2. Visual website editor
+
+Create a visual editor experience where merchants can edit their store like they are editing a slide or Canva page.
+
+Layout:
+- Top bar:
+  - Back to dashboard
+  - Device preview switcher: Desktop / Tablet / Mobile
+  - Undo / Redo
+  - Preview
+  - Publish
+- Left sidebar:
+  - Add section
+  - Pages
+  - Theme
+  - Store settings
+  - AI assistant
+- Center:
+  - Live website canvas / preview
+- Right sidebar:
+  - Contextual editing panel for the selected section or element
+
+Editing behavior:
+- Merchant can click any section in the preview to edit it.
+- Selected section should show an outline and label.
+- Right panel changes depending on selection.
+- Use simple controls:
+  - Text input
+  - Image upload
+  - Color picker
+  - Toggle
+  - Dropdown
+  - Drag slider
+  - Reorder buttons
+- Support drag-and-drop section reordering if possible.
+- Add delete / duplicate / hide section actions.
+- Add “Move up” and “Move down” as fallback if drag-and-drop is complex.
+
+3. Contextual editing examples
+
+When hero section is selected:
+Right panel should show:
+- Headline
+- Subtitle
+- CTA text
+- CTA link
+- Background image/video
+- Overlay darkness
+- Text alignment
+- Section height
+
+When product section is selected:
+Right panel should show:
+- Section title
+- Product source: New arrivals / Best sellers / Manual selection / Category
+- Number of products
+- Card style
+- Show prices toggle
+- Show quick add toggle
+
+When category section is selected:
+Right panel should show:
+- Section title
+- Category list
+- Layout: Grid / Carousel / Editorial cards
+- Image style
+
+When testimonial section is selected:
+Right panel should show:
+- Title
+- Reviews
+- Layout
+- Show rating toggle
+
+When theme is selected:
+Right panel should show:
+- Primary color
+- Secondary color
+- Font pairing
+- Button style
+- Corner radius
+- Card shadow
+- Page width
+- Animation intensity
+
+4. AI assistant inside editor
+
+Add an AI helper panel called something like:
+“Store Assistant”
+
+It should help merchants with:
+- Rewrite headline
+- Make copy more premium
+- Make copy more friendly
+- Suggest homepage sections
+- Suggest colors
+- Suggest product categories
+- Improve CTA
+- Generate About section
+- Generate FAQ
+- Suggest offer banners
+- Check store before publishing
+
+Example assistant prompts:
+- “Make my hero headline more attractive”
+- “Suggest a better homepage order for a cosmetics store”
+- “Write an About section for a handmade accessories brand”
+- “Create 3 offer banner ideas”
+- “Make this section sound more professional”
+- “Check if my store is ready to publish”
+
+Add quick action chips in the UI.
+
+5. Store readiness checklist
+
+Before publishing, show a friendly checklist:
+- Store name added
+- Logo added
+- Hero section completed
+- At least 3 products added
+- Payment method selected
+- Delivery policy added
+- Contact information added
+- Mobile preview checked
+- SEO title added
+- Social links added
+
+Use statuses:
+- Complete
+- Recommended
+- Missing
+
+Add a store readiness score:
+Example:
+“Your store is 82% ready to publish”
+
+Do not block publishing unless critical items are missing.
+Critical items:
+- Store name
+- At least one product
+- Contact or checkout method
+
+6. Story preview / brand summary
+
+Create a small “Brand Story” summary panel:
+- Brand name
+- One-line positioning
+- Target customer
+- Brand personality
+- Visual style
+- Main promise
+- Suggested tone of voice
+
+This summary should be editable and used to generate store copy.
+
+7. Templates and section presets
+
+Add section presets that are useful for ecommerce:
+- Fashion launch homepage
+- Cosmetics launch homepage
+- Accessories boutique homepage
+- Handmade brand homepage
+- Food store homepage
+- Minimal catalog homepage
+- Offer-focused homepage
+- WhatsApp-first store homepage
+
+Each preset should define:
+- Section order
+- Suggested copy style
+- Recommended colors
+- Recommended imagery
+- Recommended CTAs
+
+8. Microcopy and emotional UX
+
+Use helpful microcopy throughout:
+- “Don’t worry, you can change this later.”
+- “We’ll use this to suggest better text for your homepage.”
+- “This helps customers understand why they should buy from you.”
+- “Recommended for stores that depend on visuals.”
+- “Your store is starting to feel like a real brand.”
+
+Avoid cold labels like:
+- Configuration
+- Parameters
+- JSON
+- Schema
+- Metadata
+
+Use merchant-friendly labels:
+- Store story
+- Brand look
+- Homepage sections
+- Customer promise
+- Store preview
+- Ready to publish
+
+9. Visual polish
+
+The UI should feel modern SaaS:
+- Clean dashboard layout
+- Soft cards
+- Clear hierarchy
+- Smooth transitions
+- Progress indicator
+- Empty states with guidance
+- Preview thumbnails
+- Subtle animations
+- Friendly icons
+- Responsive design
+
+Design style:
+- Professional, calm, premium
+- Not childish
+- Not overloaded
+- Suitable for merchants in Egypt/MENA and also globally
+
+10. Technical implementation requirements
+
+Before coding:
+- Inspect the current project structure.
+- Identify the framework, routing, state management, styling system, and existing components.
+- Reuse existing components where possible.
+- Preserve existing auth, dashboard, store data, product data, and publish logic.
+- Do not break current functionality.
+
+Implementation suggestions:
+- Create reusable components:
+  - MerchantOnboardingWizard
+  - StoryStep
+  - BrandPersonalitySelector
+  - TemplateSelector
+  - StoreEssentialsForm
+  - HomepageSectionBuilder
+  - GeneratedStorePreview
+  - VisualEditor
+  - EditorTopBar
+  - EditorSidebar
+  - EditorCanvas
+  - InspectorPanel
+  - SectionControls
+  - StoreAssistantPanel
+  - StoreReadinessChecklist
+  - BrandStorySummary
+  - DevicePreviewSwitcher
+- Use clean state management for:
+  - selected section
+  - selected device
+  - theme settings
+  - section order
+  - edited content
+  - readiness checklist
+- Make the editor data-driven using a store configuration object.
+- Store sections should be represented as structured data, for example:
+  - id
+  - type
+  - title
+  - content
+  - settings
+  - visible
+  - order
+- Avoid hardcoding repeated UI.
+- Keep future backend integration easy.
+
+11. Suggested store configuration model
+
+Use or adapt a structure like:
+
+storeConfig = {
+  brand: {
+    name,
+    category,
+    targetCustomer,
+    uniqueValue,
+    personality,
+    tone,
+    colors,
+    typography,
+    logo,
+  },
+  homepage: {
+    sections: [
+      {
+        id,
+        type,
+        visible,
+        content,
+        settings,
+      }
+    ]
+  },
+  theme: {
+    primaryColor,
+    secondaryColor,
+    fontPairing,
+    buttonStyle,
+    radius,
+    animationLevel,
+  },
+  business: {
+    contact,
+    deliveryAreas,
+    paymentMethods,
+    returnPolicy,
+    socialLinks,
+  }
+}
+
+12. Expected result
+
+At the end, the merchant should be able to:
+- Start with a guided story-based setup.
+- Pick a brand personality and website style.
+- Generate a homepage draft.
+- Visually edit sections by clicking on them.
+- Preview desktop/mobile.
+- Get AI suggestions.
+- See store readiness score.
+- Publish with confidence.
+
+Deliver a production-quality UX, not just a static mockup.
+Focus on making the merchant feel guided, confident, and in control.
