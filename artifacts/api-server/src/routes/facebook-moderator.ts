@@ -54,7 +54,7 @@ async function getMerchantConnection(merchantId: number) {
 async function callAI(model: AiModel, system: string, prompt: string): Promise<string> {
   if (model === "gemini") {
     const response = await gemini.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: `${system}\n\n${prompt}` }] }],
       config: { maxOutputTokens: 1024 },
     });

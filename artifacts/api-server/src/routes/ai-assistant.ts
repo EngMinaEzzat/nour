@@ -197,7 +197,7 @@ ${recentOrders.map((o) => `#${o.id} | ${o.customerName} | ${parseFloat(o.totalAm
       ];
 
       const stream = await gemini.models.generateContentStream({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents: geminiContents,
         config: { maxOutputTokens: MAX_OUTPUT_TOKENS },
       });
@@ -297,7 +297,7 @@ ${description ? `- الوصف: ${(description).slice(0, 500)}` : ""}
   try {
     if (aiModel === "gemini") {
       const result = await gemini.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         config: { maxOutputTokens: 600, temperature: 0.7 },
       });

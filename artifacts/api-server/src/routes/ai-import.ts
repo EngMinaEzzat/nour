@@ -32,7 +32,7 @@ async function callAI(
 
   if (model === "gemini") {
     const response = await gemini.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: truncated }] }],
       config: {
         maxOutputTokens: MAX_OUTPUT_TOKENS,
