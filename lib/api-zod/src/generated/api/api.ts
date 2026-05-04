@@ -419,7 +419,7 @@ export const CreateProductBody = zod.object({
   imageUrl: zod.string().nullish(),
   stock: zod.number(),
   featured: zod.boolean().optional().default(false),
-  status: zod.enum(["active", "draft", "archived"]).optional().default("active"),
+  status: zod.enum(["active", "out_of_stock", "hidden"]).optional().default("active"),
 });
 
 /**
