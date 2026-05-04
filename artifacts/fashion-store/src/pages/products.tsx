@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useListProducts, useCreateProduct, useUpdateProduct, useDeleteProduct,
@@ -25,6 +25,7 @@ import {
 import {
   Package, Plus, Pencil, Trash2, Search, Star, Eye, EyeOff,
   AlertCircle, Layers, X, Check, Palette, AlertTriangle, Sparkles, Loader2,
+  FileUp, FileDown, CheckCircle2, XCircle, UploadCloud,
 } from "lucide-react";
 import { ImageUpload } from "@/components/image-upload";
 
@@ -245,6 +246,305 @@ function VariantManager({ productId }: { productId: number }) {
   );
 }
 
+/* ─── CSV helpers ─── */
+const CSV_COLUMNS = ["name", "description", "price", "originalPrice", "imageUrl", "stock", "featured", "status"];
+const CSV_TEMPLATE_HEADER = CSV_COLUMNS.join(",");
+const CSV_TEMPLATE_EXAMPLE = [
+  "فستان صيفي زهري,فستان قطن خفيف للصيف مناسب للخروجات,250,350,https://example.com/image.jpg,10,false,active",
+  "بلوزة كاجوال,بلوزة قطن مريحة بألوان متعددة,180,,https://example.com/image2.jpg,25,true,active",
+].join("\n");
+
+function downloadCsvTemplate() {
+  const blob = new Blob([`${CSV_TEMPLATE_HEADER}\n${CSV_TEMPLATE_EXAMPLE}`], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "products_template.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+type CsvRow = {
+  name: string; description: string; price: number; originalPrice: number | null;
+  imageUrl: string; stock: number; featured: boolean;
+  status: "active" | "out_of_stock" | "hidden";
+  _error?: string;
+};
+
+function parseCsv(text: string): CsvRow[] {
+  const lines = text.trim().split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const idx = (col: string) => header.indexOf(col);
+
+  return lines.slice(1).map((line) => {
+    const cells = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+    const get = (col: string) => cells[idx(col)] ?? "";
+    const price = parseFloat(get("price"));
+    const originalPrice = get("originalprice") ? parseFloat(get("originalprice")) : null;
+    const stock = parseInt(get("stock"), 10);
+    const rawStatus = get("status").toLowerCase();
+    const status: CsvRow["status"] =
+      rawStatus === "out_of_stock" ? "out_of_stock" : rawStatus === "hidden" ? "hidden" : "active";
+    const featured = get("featured").toLowerCase() === "true" || get("featured") === "1";
+    const name = get("name");
+    const error = !name ? "الاسم مطلوب" : isNaN(price) || price <= 0 ? "السعر غير صالح" : undefined;
+    return {
+      name, description: get("description"),
+      price: isNaN(price) ? 0 : price,
+      originalPrice: originalPrice && !isNaN(originalPrice) ? originalPrice : null,
+      imageUrl: get("imageurl") || get("image_url") || get("imageUrl"),
+      stock: isNaN(stock) ? 0 : stock,
+      featured, status,
+      _error: error,
+    };
+  });
+}
+
+type ImportStatus = "idle" | "importing" | "done";
+type RowResult = "pending" | "ok" | "error";
+
+function CsvImportDialog({
+  open, onClose, tenantId, onImported,
+}: {
+  open: boolean; onClose: () => void; tenantId?: number; onImported: () => void;
+}) {
+  const createProduct = useCreateProduct();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [rows, setRows] = useState<CsvRow[]>([]);
+  const [status, setStatus] = useState<ImportStatus>("idle");
+  const [results, setResults] = useState<RowResult[]>([]);
+  const [progress, setProgress] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
+
+  function reset() {
+    setRows([]); setStatus("idle"); setResults([]); setProgress(0);
+  }
+
+  function handleClose() {
+    reset(); onClose();
+  }
+
+  function loadFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      setRows(parseCsv(text));
+      setStatus("idle");
+      setResults([]);
+      setProgress(0);
+    };
+    reader.readAsText(file, "utf-8");
+  }
+
+  function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) loadFile(file);
+    e.target.value = "";
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault(); setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && (file.name.endsWith(".csv") || file.type === "text/csv")) loadFile(file);
+  }
+
+  const validRows = rows.filter((r) => !r._error);
+  const invalidRows = rows.filter((r) => r._error);
+
+  async function handleImport() {
+    if (!tenantId || validRows.length === 0) return;
+    setStatus("importing");
+    const res: RowResult[] = Array(validRows.length).fill("pending");
+    setResults([...res]);
+    for (let i = 0; i < validRows.length; i++) {
+      const row = validRows[i];
+      try {
+        await createProduct.mutateAsync({
+          data: {
+            tenantId,
+            name: row.name,
+            description: row.description,
+            price: row.price,
+            originalPrice: row.originalPrice ?? undefined,
+            imageUrl: row.imageUrl || undefined,
+            stock: row.stock,
+            featured: row.featured,
+            status: row.status,
+          },
+        });
+        res[i] = "ok";
+      } catch {
+        res[i] = "error";
+      }
+      setResults([...res]);
+      setProgress(i + 1);
+    }
+    setStatus("done");
+    onImported();
+  }
+
+  const doneOk = results.filter((r) => r === "ok").length;
+  const doneErr = results.filter((r) => r === "error").length;
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0" style={{ direction: "rtl" }}>
+        <DialogHeader className="px-6 py-4 border-b border-border/40 shrink-0">
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <FileUp className="w-4 h-4 text-primary" />
+            استيراد منتجات من CSV
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+          {/* Template download */}
+          <div className="flex items-center justify-between bg-muted/40 rounded-xl px-4 py-3 border border-border/40">
+            <div>
+              <p className="text-sm font-medium">نموذج CSV</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                حمّل النموذج واملأه بمنتجاتك — الأعمدة: name, description, price, originalPrice, imageUrl, stock, featured, status
+              </p>
+            </div>
+            <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={downloadCsvTemplate}>
+              <FileDown className="w-3.5 h-3.5" />
+              تحميل النموذج
+            </Button>
+          </div>
+
+          {/* Drop zone */}
+          {rows.length === 0 && (
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={onDrop}
+              onClick={() => fileRef.current?.click()}
+              className={`border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-3 py-12 cursor-pointer transition-colors ${
+                dragOver ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/40 hover:bg-muted/30"
+              }`}
+            >
+              <UploadCloud className={`w-8 h-8 ${dragOver ? "text-primary" : "text-muted-foreground"}`} />
+              <div className="text-center">
+                <p className="text-sm font-medium">اسحب ملف CSV هنا أو انقر للاختيار</p>
+                <p className="text-xs text-muted-foreground mt-1">يدعم ملفات .csv فقط</p>
+              </div>
+              <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={onFileChange} />
+            </div>
+          )}
+
+          {/* Preview table */}
+          {rows.length > 0 && status !== "importing" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="font-medium">{rows.length} صف في الملف</span>
+                  {validRows.length > 0 && (
+                    <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
+                      <CheckCircle2 className="w-3 h-3 me-1" /> {validRows.length} صالح
+                    </Badge>
+                  )}
+                  {invalidRows.length > 0 && (
+                    <Badge className="bg-red-100 text-red-700 border-red-200 text-[11px]">
+                      <XCircle className="w-3 h-3 me-1" /> {invalidRows.length} خطأ
+                    </Badge>
+                  )}
+                </div>
+                <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={reset}>
+                  <X className="w-3 h-3" /> تغيير الملف
+                </Button>
+              </div>
+
+              <div className="border border-border/40 rounded-xl overflow-hidden">
+                <div className="overflow-x-auto max-h-60">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/60 sticky top-0">
+                      <tr>
+                        <th className="text-right px-3 py-2 font-medium text-muted-foreground w-6">#</th>
+                        <th className="text-right px-3 py-2 font-medium">الاسم</th>
+                        <th className="text-right px-3 py-2 font-medium">السعر</th>
+                        <th className="text-right px-3 py-2 font-medium">الكمية</th>
+                        <th className="text-right px-3 py-2 font-medium">الحالة</th>
+                        <th className="text-right px-3 py-2 font-medium w-20">ملاحظة</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row, i) => (
+                        <tr key={i} className={`border-t border-border/30 ${row._error ? "bg-red-50/50" : "hover:bg-muted/20"}`}>
+                          <td className="px-3 py-1.5 text-muted-foreground">{i + 1}</td>
+                          <td className="px-3 py-1.5 font-medium max-w-[160px] truncate">{row.name || <span className="text-red-500">—</span>}</td>
+                          <td className="px-3 py-1.5">{row.price > 0 ? `${row.price} ج.م` : <span className="text-red-500">—</span>}</td>
+                          <td className="px-3 py-1.5">{row.stock}</td>
+                          <td className="px-3 py-1.5">{row.status === "active" ? "نشط" : row.status === "out_of_stock" ? "نفذ" : "مخفي"}</td>
+                          <td className="px-3 py-1.5">
+                            {row._error
+                              ? <span className="text-red-500 flex items-center gap-1"><XCircle className="w-3 h-3" />{row._error}</span>
+                              : <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Import progress */}
+          {status === "importing" && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  جارٍ الاستيراد...
+                </span>
+                <span className="text-muted-foreground">{progress} / {validRows.length}</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300 rounded-full"
+                  style={{ width: `${validRows.length > 0 ? (progress / validRows.length) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Done summary */}
+          {status === "done" && (
+            <div className="rounded-xl border border-border/40 bg-muted/30 p-4 flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
+              <div className="text-sm">
+                <p className="font-semibold mb-1">اكتمل الاستيراد</p>
+                <p className="text-muted-foreground">
+                  تم استيراد <strong className="text-foreground">{doneOk}</strong> منتج بنجاح
+                  {doneErr > 0 && <span className="text-red-500"> · فشل {doneErr}</span>}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="px-6 py-4 border-t border-border/40 shrink-0 gap-2">
+          <Button variant="outline" onClick={handleClose}>
+            {status === "done" ? "إغلاق" : "إلغاء"}
+          </Button>
+          {status !== "done" && rows.length > 0 && validRows.length > 0 && (
+            <Button
+              onClick={handleImport}
+              disabled={status === "importing"}
+              className="gap-2"
+            >
+              {status === "importing"
+                ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> جارٍ الاستيراد...</>
+                : <><FileUp className="w-3.5 h-3.5" /> استيراد {validRows.length} منتج</>}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ─── Main Products Page ─── */
 export default function Products() {
   const { merchant } = useAuth();
@@ -261,6 +561,7 @@ export default function Products() {
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   const [search, setSearch] = useState("");
+  const [csvImportOpen, setCsvImportOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [variantsProductId, setVariantsProductId] = useState<number | null>(null);
@@ -392,9 +693,14 @@ export default function Products() {
           </div>
           <p className="text-muted-foreground text-sm">إدارة منتجات متجرك — الأسعار والمخزون والمقاسات</p>
         </div>
-        <Button className="gap-2 rounded-xl" onClick={openCreate}>
-          <Plus className="w-4 h-4" /> منتج جديد
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="gap-2 rounded-xl" onClick={() => setCsvImportOpen(true)}>
+            <FileUp className="w-4 h-4" /> استيراد CSV
+          </Button>
+          <Button className="gap-2 rounded-xl" onClick={openCreate}>
+            <Plus className="w-4 h-4" /> منتج جديد
+          </Button>
+        </div>
       </motion.div>
 
       {/* Search */}
@@ -669,6 +975,14 @@ export default function Products() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* CSV Import dialog */}
+      <CsvImportDialog
+        open={csvImportOpen}
+        onClose={() => setCsvImportOpen(false)}
+        tenantId={tenantId}
+        onImported={() => { refetch(); }}
+      />
 
       {/* ─── AI Pricing Advisor Dialog ─── */}
       <Dialog open={!!pricingProduct} onOpenChange={(o) => { if (!o) { setPricingProduct(null); setPricingAdvice(null); } }}>
