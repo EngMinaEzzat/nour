@@ -40,6 +40,8 @@ function buildSessionStore(): session.Store {
     conString: process.env.DATABASE_URL,
     tableName: "sessions",
     createTableIfMissing: true,
+    // Explicit path so tsx/ts-node can find the SQL file regardless of cwd/dist layout
+    schemaFilePath: require.resolve("connect-pg-simple/table.sql"),
   });
 }
 
