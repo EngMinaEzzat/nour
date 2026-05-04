@@ -13,10 +13,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Settings, Save, Store, MapPin, Globe, Image, Palette,
   AlertCircle, CheckCircle2, Copy, Check, ExternalLink, Eye,
-  Search, Share2, QrCode, Download, Menu, X,
+  Search, Share2, QrCode, Download, Menu, X, Loader2,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -511,39 +512,52 @@ export default function StoreSettings() {
           </div>
           <p className="text-muted-foreground text-sm">خصّص مظهر متجرك وبياناته الأساسية</p>
         </div>
-        <div className="flex items-center gap-2">
-          {tenant.slug && (
-            <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" asChild>
-              <Link href={`/store/${tenant.slug}`} target="_blank">
-                <Eye className="w-3.5 h-3.5" /> معاينة المتجر <ExternalLink className="w-3 h-3" />
-              </Link>
-            </Button>
+        <AnimatePresence>
+          {isDirty && (
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+              <Badge variant="outline" className="gap-1 text-amber-600 border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-medium">
+                <AlertCircle className="w-3 h-3" /> تغييرات غير محفوظة
+              </Badge>
+            </motion.div>
           )}
-          <AnimatePresence>
-            {isDirty && (
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
-                <Badge variant="outline" className="gap-1 text-amber-600 border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-medium">
-                  <AlertCircle className="w-3 h-3" /> تغييرات غير محفوظة
-                </Badge>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <Button
-            onClick={handleSave}
-            disabled={saving || !isDirty}
-            className="gap-2 rounded-xl px-5"
-          >
-            {saving ? (
-              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
-                <Save className="w-4 h-4" />
-              </motion.div>
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            {saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}
-          </Button>
-        </div>
+        </AnimatePresence>
       </motion.div>
+
+      {/* ─── Fixed floating action buttons ─── */}
+      <div className="fixed bottom-6 left-6 z-[100] flex flex-col gap-2 items-center" style={{ direction: "ltr" }}>
+        {tenant?.slug && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-11 w-11 rounded-full shadow-lg border-border/60 bg-background/95 backdrop-blur-sm hover:border-primary/40"
+                asChild
+              >
+                <Link href={`/store/${tenant.slug}`} target="_blank">
+                  <Eye className="w-4 h-4" />
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">معاينة المتجر</TooltipContent>
+          </Tooltip>
+        )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              className="h-11 w-11 rounded-full shadow-lg"
+              onClick={handleSave}
+              disabled={saving || !isDirty}
+            >
+              {saving
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Save className="w-4 h-4" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">{saving ? "جارٍ الحفظ..." : "حفظ التغييرات"}</TooltipContent>
+        </Tooltip>
+      </div>
 
       {/* ─── Section navigator ─── */}
       <SectionNav />
@@ -905,32 +919,6 @@ export default function StoreSettings() {
             <SocialSection tenantId={tenantId!} />
           </motion.div>
 
-          {/* Save footer */}
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="flex justify-end gap-3 pb-8"
-          >
-            <Button
-              variant="outline"
-              onClick={() => { if (initialForm) setForm(initialForm); }}
-              disabled={!isDirty || saving}
-              className="rounded-xl"
-            >
-              تراجع عن التغييرات
-            </Button>
-            <Button onClick={handleSave} disabled={saving || !isDirty} className="gap-2 rounded-xl px-6">
-              {saving ? (
-                <>
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
-                    <Save className="w-4 h-4" />
-                  </motion.div>
-                  جارٍ الحفظ...
-                </>
-              ) : (
-                <><Save className="w-4 h-4" /> حفظ التغييرات</>
-              )}
-            </Button>
-          </motion.div>
         </div>
 
         {/* ─── Live Preview ─── */}
