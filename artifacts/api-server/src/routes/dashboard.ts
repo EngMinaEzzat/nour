@@ -142,9 +142,9 @@ router.get("/dashboard/merchant-analytics", async (req, res) => {
       .where(and(eq(ordersTable.tenantId, tenantId), gte(ordersTable.createdAt, startOfMonth)));
 
     const [customerCount] = await db
-      .select({ total: count() })
-      .from(customersTable)
-      .where(eq(customersTable.tenantId, tenantId));
+      .select({ total: sql<number>`count(distinct ${ordersTable.customerId})` })
+      .from(ordersTable)
+      .where(eq(ordersTable.tenantId, tenantId));
 
     /* Sales by day — last 30 days */
     const salesByDay = await db.execute(sql`
