@@ -196,18 +196,17 @@ ${recentOrders.map((o) => `#${o.id} | ${o.customerName} | ${parseFloat(o.totalAm
         { role: "user" as const, parts: [{ text: safeMessage }] },
       ];
 
-      const stream = await gemini.models.generateContentStream({
+      // Replit's AI proxy supports generateContent but not streamGenerateContent,
+      // so we use the non-streaming call and emit a single SSE chunk.
+      const result = await gemini.models.generateContent({
         model: "gemini-2.5-flash",
         contents: geminiContents,
         config: { maxOutputTokens: MAX_OUTPUT_TOKENS },
       });
 
-      for await (const chunk of stream) {
-        const text = chunk.text ?? "";
-        if (text) {
-          fullResponse += text;
-          sendSSE(res, { chunk: text });
-        }
+      fullResponse = result.text ?? "";
+      if (fullResponse) {
+        sendSSE(res, { chunk: fullResponse });
       }
     } else {
       const claudeMessages = [
