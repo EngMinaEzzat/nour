@@ -5,25 +5,14 @@ import { logger } from "./lib/logger";
 import { startScheduler } from "./lib/scheduler.js";
 
 const rawPort = process.env["PORT"];
-
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
+const startPort =
+  rawPort && !Number.isNaN(Number(rawPort)) && Number(rawPort) > 0
+    ? Number(rawPort)
+    : 8080;
 
 const server = http.createServer(app);
 
 // ─── Dev: proxy WebSocket upgrade requests to the Vite HMR server ────────────
-// The Vite dev server handles HMR via a WebSocket. Since all traffic comes in
-// on port 8080 (Express), we forward upgrade requests to Vite so that HMR
-// works through the Replit proxy without needing a direct browser→Vite connection.
 if (process.env.NODE_ENV !== "production") {
   const VITE_PORT = Number(process.env.VITE_PORT ?? 25935);
 
@@ -50,12 +39,32 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-server.listen(port, (err?: Error) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
+// ─── Port probe: find the first available port starting from startPort ────────
+// Uses a lightweight net.Server probe so we only call server.listen() once
+// with a port we know is free — avoids the multiple-listener bug that arises
+// from calling http.Server.listen() several times on the same instance.
+function probePort(port: number): Promise<number> {
+  return new Promise((resolve) => {
+    const probe = net.createServer();
+    probe.once("error", () => resolve(probePort(port + 1)));
+    probe.listen(port, "0.0.0.0", () => {
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+probePort(startPort).then((port) => {
+  if (port !== startPort) {
+    logger.warn({ startPort, port }, "Requested port busy — using next available port");
   }
 
-  logger.info({ port }, "Server listening");
-  startScheduler();
+  server.listen(port, () => {
+    logger.info({ port }, "Server listening");
+    startScheduler();
+  });
+
+  server.on("error", (err) => {
+    logger.error({ err }, "Unexpected server error");
+    process.exit(1);
+  });
 });
