@@ -11,6 +11,7 @@ import path from "path";
 import fs from "fs";
 import http from "http";
 import router from "./routes";
+import seoPublicRouter from "./lib/seo-public";
 import { logger } from "./lib/logger";
 import { doubleCsrfProtection, generateCsrfToken, isCsrfExempt } from "./lib/csrf";
 
@@ -123,6 +124,11 @@ app.get("/api/csrf-token", (req, res) => {
   const token = generateCsrfToken(req, res);
   res.json({ csrfToken: token });
 });
+
+// ─── Public SEO routes: /robots.txt, /sitemap.xml, bot prerender for /store/:slug ─
+// Must be mounted BEFORE /api and BEFORE the Vite proxy so bots get
+// server-rendered meta HTML instead of an empty JS shell.
+app.use(seoPublicRouter);
 
 app.use("/api", router);
 
