@@ -8,6 +8,12 @@ import { publicEntitySlug } from "@/lib/seo-slugs";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+
+function productImageUrl(url?: string | null) {
+  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  return url;
+}
 
 export interface ProductCardData {
   id: number;
@@ -66,6 +72,7 @@ export function StorefrontProductCard({
   const productHref = storeSlug
     ? `/store/${storeSlug}/product/${publicEntitySlug(product.id, product.name)}`
     : `/products/${product.id}`;
+  const imageUrl = productImageUrl(product.imageUrl);
 
   function prefetchProduct() {
     queryClient.prefetchQuery({
@@ -106,10 +113,12 @@ export function StorefrontProductCard({
       <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
         <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-stone-100`}>
           <img
-            src={product.imageUrl ?? "/product-fashion.png"}
+            src={imageUrl}
             alt={product.name}
             width={600}
             height={800}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
           />
 

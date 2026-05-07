@@ -4,6 +4,12 @@ import { Search, X, ArrowLeft } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
+const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+
+function productImageUrl(url?: string | null) {
+  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  return url;
+}
 
 interface Product {
   id: number;
@@ -134,8 +140,12 @@ export function SearchOverlay({
                     className="flex items-center gap-4 p-3 rounded-2xl text-right transition-all hover:bg-stone-100 group"
                   >
                     <img
-                      src={pr.imageUrl ?? "/product-fashion.png"}
+                      src={productImageUrl(pr.imageUrl)}
                       alt={pr.name}
+                      width={56}
+                      height={56}
+                      loading="lazy"
+                      decoding="async"
                       className="w-14 h-14 rounded-xl object-cover shrink-0"
                     />
                     <div className="flex-1 min-w-0">

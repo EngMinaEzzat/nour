@@ -15,6 +15,12 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+
+function productImageUrl(url?: string | null) {
+  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  return url;
+}
 
 type Review = { id: number; customerName: string; rating: number; body: string | null; createdAt: string };
 type ReviewsData = { reviews: Review[]; avgRating: number | null; totalCount: number };
@@ -108,7 +114,7 @@ export default function ProductDetail() {
       ? {
           title: `${product.name} | ${(product as any).tenantName ?? "نور"}`,
           description: product.description?.slice(0, 160) ?? undefined,
-          image: product.imageUrl ?? null,
+          image: productImageUrl(product.imageUrl),
           canonicalPath: productCanonicalPath,
           type: "product",
           jsonLd: {
@@ -116,7 +122,7 @@ export default function ProductDetail() {
             "@type": "Product",
             name: product.name,
             description: product.description ?? undefined,
-            ...(product.imageUrl ? { image: product.imageUrl } : {}),
+            image: productImageUrl(product.imageUrl),
             url: productCanonicalUrl,
             offers: {
               "@type": "Offer",
@@ -212,7 +218,7 @@ export default function ProductDetail() {
       tenantName: product.tenantName,
       name: product.name,
       price: product.price,
-      imageUrl: product.imageUrl ?? null,
+      imageUrl: productImageUrl(product.imageUrl),
       variantId: selectedVariant?.id,
       variantLabel: [selectedSize, selectedColor].filter(Boolean).join(" / ") || undefined,
     });
@@ -250,6 +256,7 @@ export default function ProductDetail() {
   const discountPercent = product.originalPrice && product.originalPrice > product.price
     ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
   const backHref = productTenantSlug ? `/store/${productTenantSlug}` : "/products";
+  const imageUrl = productImageUrl(product.imageUrl);
 
   return (
     <div className="container mx-auto px-4 py-8 pb-24">
@@ -264,10 +271,13 @@ export default function ProductDetail() {
         <motion.div className="w-full lg:w-1/2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
           <div className="aspect-[3/4] bg-muted rounded-3xl overflow-hidden relative border border-border/50">
             <img
-              src={product.imageUrl || "/product-fashion.png"}
+              src={imageUrl}
               alt={product.name}
               width={900}
               height={1200}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className="w-full h-full object-cover"
             />
             {unavailable && (

@@ -23,6 +23,12 @@ const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; desc: string; icon
 ];
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+
+function productImageUrl(url?: string | null) {
+  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  return url;
+}
 
 type CouponState = {
   input: string;
@@ -375,7 +381,15 @@ export default function Checkout() {
                   {group.items.map((item) => (
                     <div key={item.productId} className="flex items-center gap-3 mb-3">
                       <div className="w-12 h-14 rounded-lg overflow-hidden bg-muted shrink-0">
-                        <img src={item.imageUrl || "/product-fashion.png"} alt={item.name} className="w-full h-full object-cover" />
+                        <img
+                          src={productImageUrl(item.imageUrl)}
+                          alt={item.name}
+                          width={48}
+                          height={56}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium line-clamp-1">{item.name}</p>

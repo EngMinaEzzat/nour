@@ -96,6 +96,8 @@ export function EditorialLookbook({
               <img
                 src={panel.image}
                 alt={panel.headline}
+                loading="lazy"
+                decoding="async"
                 className={`absolute inset-0 w-full h-full object-cover ${panel.imgClass} transition-transform duration-700 group-hover:scale-105`}
               />
 

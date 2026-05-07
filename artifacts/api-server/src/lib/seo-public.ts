@@ -14,6 +14,7 @@ import { categoriesTable, productsTable, tenantsTable } from "@workspace/db";
 import { and, eq, inArray, isNull, or } from "drizzle-orm";
 
 const router = Router();
+const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
 
 type TenantPublic = {
   id: number;
@@ -105,6 +106,11 @@ function absoluteUrl(req: Request, url: string | null | undefined): string | nul
   return `${requestBase(req)}${url.startsWith("/") ? url : `/${url}`}`;
 }
 
+function productImageUrl(url: string | null | undefined): string {
+  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  return url;
+}
+
 function slugPart(value: string | null | undefined): string {
   const slug = (value || "item")
     .normalize("NFKD")
@@ -182,6 +188,7 @@ window.__vite_plugin_react_preamble_installed__ = true;
 
   const indexCandidates = [
     path.resolve(process.cwd(), "artifacts/fashion-store/dist/public/index.html"),
+    path.resolve(process.cwd(), "../fashion-store/dist/public/index.html"),
     path.resolve(process.cwd(), "dist/public/index.html"),
   ];
 
@@ -363,7 +370,7 @@ function renderDocument(opts: {
   const assets = getClientAssets();
   const twitterCard = opts.image ? "summary_large_image" : "summary";
   const preload = opts.preloadApi
-    ? `<link rel="preload" href="${esc(opts.preloadApi)}" as="fetch" crossorigin="anonymous" />`
+    ? `<link rel="preload" href="${esc(opts.preloadApi)}" as="fetch" crossorigin="use-credentials" />`
     : "";
 
   return `<!DOCTYPE html>
@@ -472,11 +479,12 @@ function renderStorePage(req: Request, tenant: TenantPublic, products: ProductPu
     .map((category) => `<li><a class="ssr-chip" href="${esc(categoryUrl(req, tenant, category))}">${esc(category.nameAr || category.name)}</a></li>`)
     .join("");
   const cards = products
-    .map((product) => {
-      const productImage = absoluteUrl(req, product.imageUrl) ?? "/product-fashion.png";
+    .map((product, index) => {
+      const productImage = absoluteUrl(req, productImageUrl(product.imageUrl));
       const availability = product.stock > 0 ? "متاح" : "نفذت الكمية";
+      const imagePriority = index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
       return `<a class="ssr-card" href="${esc(productUrl(req, tenant, product))}">
-        <img src="${esc(productImage)}" alt="${esc(product.name)}" width="600" height="800" loading="lazy" />
+        <img src="${esc(productImage)}" alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
         <div class="ssr-card-body">
           ${product.categoryNameAr || product.categoryName ? `<p class="ssr-muted">${esc(product.categoryNameAr || product.categoryName)}</p>` : ""}
           <h2 class="ssr-card-title">${esc(product.name)}</h2>
@@ -518,7 +526,7 @@ function renderProductPage(req: Request, tenant: TenantPublic, product: ProductP
   const canonical = productUrl(req, tenant, product);
   const title = `${product.name} | ${tenant.name}`;
   const description = product.description || `${product.name} من ${tenant.name}`;
-  const image = absoluteUrl(req, product.imageUrl);
+  const image = absoluteUrl(req, productImageUrl(product.imageUrl));
   const price = Number(product.price);
   const availability = product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
   const categoryName = product.categoryNameAr || product.categoryName;
@@ -560,7 +568,7 @@ function renderProductPage(req: Request, tenant: TenantPublic, product: ProductP
   const body = `<main class="ssr-public-page">
     <section class="ssr-wrap ssr-product">
       <div>
-        <img src="${esc(image ?? "/product-fashion.png")}" alt="${esc(product.name)}" width="900" height="1200" fetchpriority="high" />
+        <img src="${esc(image)}" alt="${esc(product.name)}" width="900" height="1200" fetchpriority="high" />
       </div>
       <article>
         <p class="ssr-kicker"><a href="${esc(storeUrl(req, tenant))}">${esc(tenant.name)}</a>${categoryName ? ` / ${esc(categoryName)}` : ""}</p>
@@ -598,10 +606,11 @@ function renderCategoryPage(
   const description = `تسوق ${category.nameAr || category.name} من ${tenant.name} على نور.`;
   const image = absoluteUrl(req, tenant.coverUrl ?? tenant.logoUrl);
   const cards = products
-    .map((product) => {
-      const productImage = absoluteUrl(req, product.imageUrl) ?? "/product-fashion.png";
+    .map((product, index) => {
+      const productImage = absoluteUrl(req, productImageUrl(product.imageUrl));
+      const imagePriority = index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
       return `<a class="ssr-card" href="${esc(productUrl(req, tenant, product))}">
-        <img src="${esc(productImage)}" alt="${esc(product.name)}" width="600" height="800" loading="lazy" />
+        <img src="${esc(productImage)}" alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
         <div class="ssr-card-body">
           <h2 class="ssr-card-title">${esc(product.name)}</h2>
           <p class="ssr-price">${esc(formatPrice(product.price))}</p>

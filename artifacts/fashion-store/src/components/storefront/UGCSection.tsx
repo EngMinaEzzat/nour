@@ -78,6 +78,8 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
               <img
                 src={item.src}
                 alt={`لوك ${i + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
 

@@ -34,6 +34,12 @@ import type { ProductCardData } from "@/components/storefront/StorefrontProductC
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
+const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+
+function productImageUrl(url?: string | null) {
+  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  return url;
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type StoreData = StorefrontResponse;
@@ -333,7 +339,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const handleAddToCart = useCallback((product: ProductCardData) => {
     if (!store) return;
     if ((product as any).hasVariants) { navigate(productHref(product)); return; }
-    addItem({ productId:product.id, tenantId:store.id, tenantSlug:store.slug, tenantName:store.name, name:product.name, price:product.price, imageUrl:product.imageUrl??null });
+    addItem({ productId:product.id, tenantId:store.id, tenantSlug:store.slug, tenantName:store.name, name:product.name, price:product.price, imageUrl:productImageUrl(product.imageUrl) });
     setAddedIds(prev => new Set(prev).add(product.id));
     setTimeout(() => setAddedIds(prev => { const n=new Set(prev); n.delete(product.id); return n; }), 2000);
   }, [store, addItem, navigate, productHref]);

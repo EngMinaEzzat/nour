@@ -132,6 +132,8 @@ export function CategoryGrid({
               <img
                 src={cat.image}
                 alt={cat.label}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
                 style={{ transform: "scale(1)" }}
               />

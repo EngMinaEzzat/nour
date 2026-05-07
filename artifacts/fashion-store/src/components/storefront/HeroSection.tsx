@@ -3,8 +3,7 @@ import { ChevronDown, Sparkles } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
-const FALLBACK_HERO =
-  "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400&q=80&fit=crop";
+const FALLBACK_HERO = "/hero-optimized.jpg";
 
 interface HeroSectionProps {
   storeName: string;
@@ -134,8 +133,12 @@ export function HeroSection({
         <img
           src={imgSrc}
           alt={storeName}
+          width={900}
+          height={1200}
           className="absolute inset-0 w-full h-full object-cover object-top"
           loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
         {/* Subtle left-edge blend */}
         <div

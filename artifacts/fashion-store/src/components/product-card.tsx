@@ -5,6 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Check, Layers } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 
+const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+
+function productImageUrl(url?: string | null) {
+  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  return url;
+}
+
 interface ProductCardProps {
   product: Product & { hasVariants?: boolean };
 }
@@ -39,8 +46,12 @@ export function ProductCard({ product }: ProductCardProps) {
       <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-none bg-card group h-full flex flex-col">
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">
           <img
-            src={product.imageUrl || "/product-fashion.png"}
+            src={productImageUrl(product.imageUrl)}
             alt={product.name}
+            width={600}
+            height={800}
+            loading="lazy"
+            decoding="async"
             className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
           />
           {product.featured && (

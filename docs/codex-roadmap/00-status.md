@@ -8,13 +8,13 @@ Base project: `C:\proj\nour`.
 
 Foundation decision: continue hardening `C:\proj\nour`; Phase 1 did not prove a rewrite or Next.js/NestJS migration is required.
 
-Current phase: Phase 3, SEO And App-Like Speed, public SSR/SEO implemented with performance follow-up pending.
+Current phase: Phase 3, SEO And App-Like Speed, complete.
 
 ## Phase Status
 
 - Phase 1: Complete - foundation report written at `docs/codex-roadmap/foundation-report.md`.
 - Phase 2: Preview build-ready - production hardening pass implemented, scoped runtime tests pass, root build passes locally, and `pnpm exec vercel build --yes` completes.
-- Phase 3: Implemented - public store/product/category pages return server-rendered HTML with metadata/JSON-LD, sitemap/robots are dynamic, and SPA behavior is preserved after load. Lighthouse/LCP lab measurement and bundle splitting remain follow-up work.
+- Phase 3: Complete - public store/product/category pages return server-rendered HTML with metadata/JSON-LD, sitemap/robots are dynamic, SPA behavior is preserved after load, and mobile lab smoke meets the 2.5s LCP target on the warmed seeded catalog.
 - Phase 4: Not started.
 - Phase 5: Not started.
 - Phase 6: Not started.
@@ -34,9 +34,11 @@ Current phase: Phase 3, SEO And App-Like Speed, public SSR/SEO implemented with 
 - 2026-05-07: Fixed live Production signup slug checks on Vercel. Production `DATABASE_URL` and `SESSION_SECRET` were added as sensitive Vercel env vars, Postgres uses SSL in production, Vercel upload paths now use `/tmp`, and signup shows a server-connection error instead of "link used" when slug checking fails. Deployed Production with `pnpm exec vercel deploy --prebuilt --prod --yes`; live verification passed: `GET /api/auth/check-slug` returned `200` and `available: true` for a random slug.
 - 2026-05-07: Fixed Production signup account creation. Express now trusts the Vercel proxy so secure session cookies are emitted, and `/api/csrf-token` persists a session marker before returning the CSRF token. Live verification passed: browser-style CSRF flow plus `POST /api/auth/register` returned `201`; the smoke-test tenant was deleted afterward.
 - 2026-05-08: Phase 3 SSR/SEO pass implemented. Replaced bot-only storefront rendering with universal public SSR for `/store/:slug`, `/store/:slug/product/:productSlug`, `/store/:slug/category/:categorySlug`, custom-domain canonical handling, Product/OnlineStore/CollectionPage/Breadcrumb JSON-LD, active-only sitemap entries, expanded robots exclusions, and Vercel rewrites for public SSR routes. Added stable `id-name` product/category URL helpers, storefront/product route support, product prefetching, responsive image dimensions, and a Vite manifest for production asset discovery.
-- 2026-05-08: Phase 3 verification passed: `pnpm --filter @workspace/fashion-store run typecheck`, `pnpm --filter @workspace/api-server run typecheck`, `pnpm --filter @workspace/api-server exec vitest run src/test/seo-public.test.ts --fileParallelism=false` (6 tests), scoped API/fashion builds, in-app browser smoke for storefront/product/add-to-cart/checkout using temporary cleaned-up smoke data, and `pnpm exec vercel build --yes`. Build warnings remain for sourcemap source locations and the large fashion-store bundle (`assets/index.js` about 1.64 MB minified).
+- 2026-05-08: Completed Phase 3 performance finish. Split dashboard/admin routes out of the public entry, changed Vite to content-hashed entry/CSS assets, added compressed fallback storefront images (`hero-optimized.jpg`, `product-fashion-optimized.jpg`), fixed SSR asset discovery for both repo-root and API-package cwd, skipped CSRF bootstrapping on read-only public SSR routes, and made first SSR product/category images eager while keeping below-fold storefront images lazy.
+- 2026-05-08: Phase 3 verification passed: `pnpm --filter @workspace/fashion-store run typecheck`, `pnpm --filter @workspace/api-server run typecheck`, `pnpm --filter @workspace/fashion-store run build`, `pnpm --filter @workspace/api-server run build`, `pnpm --filter @workspace/api-server exec vitest run src/test/seo-public.test.ts --fileParallelism=false` (6 tests), and `pnpm exec vercel build --yes`.
+- 2026-05-08: Mobile Edge CDP smoke on a production-style local server with gzip-equivalent static assets passed storefront/product/category/cart-to-checkout CTA: warmed seeded catalog LCP was store `2180ms`, product `1436ms`, category `2244ms`; CLS was store about `0.004`, product/category `0`; add-to-cart then `/checkout` rendered the checkout form. Lighthouse CLI itself did not produce metrics earlier because Chromium reported `NO_NAVSTART` and an EPERM temp-directory cleanup error, so CDP was used for the lab check.
+- 2026-05-08: Remaining non-blocking build warnings: Vite still warns that the public entry chunk is over 500 KB (`index-*.js` about `599.75 KB` minified, `188.68 KB` gzip), and existing sourcemap location warnings remain for several shadcn/ui wrapper files. Phase 3 LCP smoke passed despite those warnings.
 
 ## Active Blockers
 
 - Vercel Production is now wired to the configured Supabase database for main-branch testing. A separate staging/test database is still recommended before real merchants/users are onboarded.
-- Phase 3 mobile LCP was not measured with Lighthouse because no Lighthouse/Playwright performance harness is configured. SSR raw HTML and browser smoke passed, but bundle splitting/performance lab instrumentation should be the smallest next action before claiming the 2.5s mobile LCP target.

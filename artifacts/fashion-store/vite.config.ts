@@ -45,11 +45,11 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       output: {
-        entryFileNames: "assets/[name].js",
+        entryFileNames: "assets/[name]-[hash].js",
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: (assetInfo) =>
           assetInfo.name?.endsWith(".css")
-            ? "assets/[name][extname]"
+            ? "assets/[name]-[hash][extname]"
             : "assets/[name]-[hash][extname]",
       },
     },

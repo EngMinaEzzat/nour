@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, Minus, Plus, Trash2, ArrowRight, PackageOpen } from "lucide-react";
 
+const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+
+function productImageUrl(url?: string | null) {
+  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  return url;
+}
+
 interface CartDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -58,8 +65,12 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <div key={item.productId} className="flex gap-4 items-start">
                   <div className="w-20 h-24 rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border/50">
                     <img
-                      src={item.imageUrl || "/product-fashion.png"}
+                      src={productImageUrl(item.imageUrl)}
                       alt={item.name}
+                      width={80}
+                      height={96}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   </div>
