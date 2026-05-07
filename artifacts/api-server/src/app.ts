@@ -54,6 +54,7 @@ function buildSessionStore(): session.Store {
 }
 
 const app: Express = express();
+app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
@@ -132,8 +133,15 @@ app.use(csrfMiddleware);
 
 // Expose CSRF token so the frontend can seed it on startup
 app.get("/api/csrf-token", (req, res) => {
+  (req.session as session.Session & { csrfIssuedAt?: number }).csrfIssuedAt = Date.now();
   const token = generateCsrfToken(req, res);
-  res.json({ csrfToken: token });
+  req.session.save((err) => {
+    if (err) {
+      req.log.error({ err }, "Failed to persist CSRF session");
+      return res.status(500).json({ error: "Failed to initialize security token" });
+    }
+    return res.json({ csrfToken: token });
+  });
 });
 
 // ─── Public SEO routes: /robots.txt, /sitemap.xml, bot prerender for /store/:slug ─
