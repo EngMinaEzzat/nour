@@ -5,7 +5,8 @@ import {
   merchantsTable, tenantsTable, productsTable, ordersTable,
   orderItemsTable, discountCodesTable, billingTransferRequestsTable,
   billingInvoicesTable, orderStatusHistoryTable, merchantOnboardingTable,
-  categoriesTable, productReviewsTable,
+  categoriesTable, productReviewsTable, cartSessionsTable, paymentRecordsTable,
+  paymentWebhooksTable, paymobProvidersTable, tenantAuditEventsTable,
 } from "@workspace/db";
 import { eq, inArray } from "drizzle-orm";
 
@@ -110,7 +111,11 @@ export async function cleanupTenant(tenantId: number, merchantId: number) {
     if (orderIds.length) {
       await db.delete(orderStatusHistoryTable).where(inArray(orderStatusHistoryTable.orderId, orderIds));
       await db.delete(orderItemsTable).where(inArray(orderItemsTable.orderId, orderIds));
+      await db.delete(paymentRecordsTable).where(inArray(paymentRecordsTable.orderId, orderIds));
     }
+    await db.delete(paymentWebhooksTable).where(eq(paymentWebhooksTable.tenantId, tenantId));
+    await db.delete(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, tenantId));
+    await db.delete(cartSessionsTable).where(eq(cartSessionsTable.tenantId, tenantId));
     await db.delete(ordersTable).where(eq(ordersTable.tenantId, tenantId));
     await db.delete(productReviewsTable).where(eq(productReviewsTable.tenantId, tenantId));
     await db.delete(productsTable).where(eq(productsTable.tenantId, tenantId));
@@ -119,6 +124,7 @@ export async function cleanupTenant(tenantId: number, merchantId: number) {
     await db.delete(billingInvoicesTable).where(eq(billingInvoicesTable.tenantId, tenantId));
     await db.delete(categoriesTable).where(eq(categoriesTable.tenantId, tenantId));
     await db.delete(merchantOnboardingTable).where(eq(merchantOnboardingTable.tenantId, tenantId));
+    await db.delete(tenantAuditEventsTable).where(eq(tenantAuditEventsTable.tenantId, tenantId));
     await db.delete(merchantsTable).where(eq(merchantsTable.id, merchantId));
     await db.delete(tenantsTable).where(eq(tenantsTable.id, tenantId));
   } catch (err) {

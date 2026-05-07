@@ -9,7 +9,7 @@ import {
   UpdateTenantParams, DeleteTenantParams, GetTenantStatsParams,
 } from "@workspace/api-zod";
 import { eq, count, sum, ilike, or, sql } from "drizzle-orm";
-import { requirePlatformAdmin } from "../middleware/require-role";
+import { requirePlatformAdmin, requireRole } from "../middleware/require-role";
 import { getPlan } from "../lib/entitlements";
 
 const router = Router();
@@ -67,11 +67,14 @@ router.get("/tenants/:id", async (req, res) => {
   }
 });
 
-router.put("/tenants/:id", async (req, res) => {
+router.put("/tenants/:id", requireRole("owner", "manager"), async (req, res) => {
   const paramsParsed = UpdateTenantParams.safeParse({ id: Number(req.params.id) });
   if (!paramsParsed.success) return res.status(400).json({ error: "معرّف غير صحيح" });
   const bodyParsed = UpdateTenantBody.safeParse(req.body);
   if (!bodyParsed.success) return res.status(400).json({ error: bodyParsed.error.flatten() });
+  if (req.merchantTenantId !== paramsParsed.data.id) {
+    return res.status(403).json({ error: "لا يمكنك تعديل بيانات متجر آخر" });
+  }
   try {
     const [tenant] = await db
       .update(tenantsTable)
@@ -86,7 +89,7 @@ router.put("/tenants/:id", async (req, res) => {
   }
 });
 
-router.delete("/tenants/:id", async (req, res) => {
+router.delete("/tenants/:id", requirePlatformAdmin, async (req, res) => {
   const parsed = DeleteTenantParams.safeParse({ id: Number(req.params.id) });
   if (!parsed.success) return res.status(400).json({ error: "معرّف غير صحيح" });
   try {

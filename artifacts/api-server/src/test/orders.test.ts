@@ -71,7 +71,7 @@ describe("Orders", () => {
   });
 
   it("✅ GET /orders/:id returns full order with items and statusHistory (public route)", async () => {
-    const res = await request(app).get(`/api/orders/${orderId}`);
+    const res = await ctx.agent.get(`/api/orders/${orderId}`);
     expect(res.status).toBe(200);
     expect(res.body.id).toBe(orderId);
     expect(Array.isArray(res.body.items)).toBe(true);
@@ -80,7 +80,7 @@ describe("Orders", () => {
   });
 
   it("✅ order amounts are parsed as numbers (not strings)", async () => {
-    const res = await request(app).get(`/api/orders/${orderId}`);
+    const res = await ctx.agent.get(`/api/orders/${orderId}`);
     expect(res.status).toBe(200);
     expect(typeof res.body.totalAmount).toBe("number");
     expect(res.body.totalAmount).toBeGreaterThan(0);
@@ -110,8 +110,7 @@ describe("Orders", () => {
   it("✅ GET /orders/:id is a public route — accessible by any agent", async () => {
     const other = await createTestMerchant();
     const res = await other.agent.get(`/api/orders/${orderId}`);
-    expect(res.status).toBe(200);
-    expect(res.body.id).toBe(orderId);
+    expect(res.status).toBe(403);
     await cleanupTenant(other.tenantId, other.merchantId);
   });
 
@@ -183,5 +182,60 @@ describe("Orders", () => {
   it("❌ update order status without auth returns 401", async () => {
     const res = await request(app).put(`/api/orders/${orderId}`).send({ status: "cancelled" });
     expect(res.status).toBe(401);
+  });
+
+  it("rejects checkout when tenantId does not own the product", async () => {
+    const other = await createTestMerchant();
+    const product = await createTestProduct(other.agent, { stock: 3 });
+    const before = await other.agent.get(`/api/products/${product.body.id}`);
+    const cust = await createTestCustomer();
+
+    const res = await request(app).post("/api/orders").send({
+      tenantId: ctx.tenantId,
+      customerId: cust.body.id,
+      customerPhone: "01012345678",
+      paymentMethod: "cod",
+      shippingAddress: "Address",
+      items: [{ productId: product.body.id, quantity: 1 }],
+    });
+
+    const after = await other.agent.get(`/api/products/${product.body.id}`);
+    expect(res.status).toBe(403);
+    expect(after.body.stock).toBe(before.body.stock);
+    await cleanupTenant(other.tenantId, other.merchantId);
+  });
+
+  it("rejects checkout when quantity exceeds stock without changing stock", async () => {
+    const limited = await createTestProduct(ctx.agent, { stock: 1 });
+    const cust = await createTestCustomer();
+
+    const res = await request(app).post("/api/orders").send({
+      tenantId: ctx.tenantId,
+      customerId: cust.body.id,
+      customerPhone: "01012345678",
+      paymentMethod: "cod",
+      shippingAddress: "Address",
+      items: [{ productId: limited.body.id, quantity: 2 }],
+    });
+
+    const after = await ctx.agent.get(`/api/products/${limited.body.id}`);
+    expect(res.status).toBe(409);
+    expect(after.body.stock).toBe(1);
+  });
+
+  it("public order tracking requires the public code and token", async () => {
+    const tracked = await createTestOrder(ctx.tenantId, productId);
+    expect(tracked.status).toBe(201);
+
+    const raw = await request(app).get(`/api/orders/${tracked.body.id}`);
+    expect(raw.status).toBe(401);
+
+    const missingToken = await request(app).get(`/api/orders/track/${tracked.body.publicCode}`);
+    expect(missingToken.status).toBe(400);
+
+    const publicRes = await request(app).get(`/api/orders/track/${tracked.body.publicCode}?token=${tracked.body.trackingToken}`);
+    expect(publicRes.status).toBe(200);
+    expect(publicRes.body.id).toBe(tracked.body.id);
+    expect(publicRes.body.trackingToken).toBeUndefined();
   });
 });

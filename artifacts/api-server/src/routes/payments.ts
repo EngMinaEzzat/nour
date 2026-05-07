@@ -1,19 +1,20 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { ordersTable, customersTable, tenantsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import * as paymob from "../lib/paymob";
 import * as whatsapp from "../lib/whatsapp";
-import { requireAuth } from "../middleware/require-role";
+import { requireRole } from "../middleware/require-role";
 import crypto from "crypto";
 
 const router = Router();
 
-router.post("/payments/paymob/init", requireAuth, async (req, res) => {
+router.post("/payments/paymob/init", requireRole("owner", "manager", "staff"), async (req, res) => {
   const { orderId } = req.body as { orderId?: number };
   if (!orderId) return res.status(400).json({ error: "orderId مطلوب" });
 
   try {
+    const tenantId = req.merchantTenantId!;
     const [row] = await db
       .select({
         id: ordersTable.id,
@@ -25,7 +26,7 @@ router.post("/payments/paymob/init", requireAuth, async (req, res) => {
       })
       .from(ordersTable)
       .leftJoin(customersTable, eq(ordersTable.customerId, customersTable.id))
-      .where(eq(ordersTable.id, orderId));
+      .where(and(eq(ordersTable.id, orderId), eq(ordersTable.tenantId, tenantId)));
 
     if (!row) return res.status(404).json({ error: "الطلب غير موجود" });
 
@@ -61,6 +62,9 @@ router.post("/payments/paymob/init", requireAuth, async (req, res) => {
 router.post("/payments/paymob/webhook", async (req, res) => {
   try {
     const hmacSecret = process.env.PAYMOB_HMAC_SECRET ?? "";
+    if (process.env.NODE_ENV === "production" && !hmacSecret) {
+      return res.status(503).json({ error: "Paymob webhook HMAC secret is not configured" });
+    }
     if (hmacSecret) {
       const receivedHmac = req.query.hmac as string;
       const payload = req.body as paymob.PaymobWebhookPayload;

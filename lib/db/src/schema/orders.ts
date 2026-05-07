@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, numeric, boolean, timestamp, pgEnum, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, numeric, boolean, timestamp, pgEnum, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { tenantsTable } from "./tenants";
@@ -31,6 +31,8 @@ export const ordersTable = pgTable(
     customerPhone: text("customer_phone"),
     paymentMethod: paymentMethodEnum("payment_method").notNull().default("cod"),
     paymentStatus: paymentStatusEnum("payment_status").notNull().default("pending"),
+    publicCode: text("public_code").notNull(),
+    trackingToken: text("tracking_token").notNull(),
     paymobOrderId: text("paymob_order_id"),
     paymobTransactionId: text("paymob_transaction_id"),
     bostaShipmentId: text("bosta_shipment_id"),
@@ -47,6 +49,7 @@ export const ordersTable = pgTable(
     index("idx_orders_tenant_created_at").on(table.tenantId, table.createdAt),
     // High-traffic: order filtering by status per tenant
     index("idx_orders_tenant_status").on(table.tenantId, table.status),
+    uniqueIndex("idx_orders_public_code").on(table.publicCode),
   ],
 );
 

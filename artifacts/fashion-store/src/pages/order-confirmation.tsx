@@ -8,6 +8,13 @@ export default function OrderConfirmation() {
   const search = useSearch();
   const params = new URLSearchParams(search);
   const orderIds = params.get("orders")?.split(",").filter(Boolean) ?? [];
+  const orderTracks = (() => {
+    try {
+      return JSON.parse(params.get("tracks") ?? "[]") as Array<{ id: number; publicCode?: string; trackingToken?: string }>;
+    } catch {
+      return [];
+    }
+  })();
   const name = params.get("name") ?? "عزيزتنا";
   const phone = params.get("phone") ?? "";
   const paymentMethod = params.get("payment") ?? "cod";
@@ -79,7 +86,12 @@ export default function OrderConfirmation() {
               {orderIds.map((id) => (
                 <div key={id} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
                   <span className="text-muted-foreground text-sm">طلب #{id}</span>
-                  <Link href={`/orders/${id}`} className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
+                  <Link href={(() => {
+                    const track = orderTracks.find((t) => String(t.id) === id);
+                    return track?.publicCode && track.trackingToken
+                      ? `/order-track/${track.publicCode}?token=${track.trackingToken}`
+                      : `/orders/${id}`;
+                  })()} className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
                     عرض التفاصيل <ChevronLeft className="w-3 h-3" />
                   </Link>
                 </div>

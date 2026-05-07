@@ -18,6 +18,8 @@ router.get("/store-settings", requireRole("owner", "manager", "staff"), async (r
       logoUrl: tenantsTable.logoUrl,
       coverUrl: tenantsTable.coverUrl,
       primaryColor: tenantsTable.primaryColor,
+      secondaryColor: tenantsTable.secondaryColor,
+      theme: tenantsTable.theme,
       category: tenantsTable.category,
       city: tenantsTable.city,
       faviconUrl: tenantsTable.faviconUrl,
@@ -48,7 +50,7 @@ router.get("/store-settings", requireRole("owner", "manager", "staff"), async (r
 router.put("/store-settings/branding", requireRole("owner", "manager"), async (req, res) => {
   try {
     const tenantId = req.merchantTenantId!;
-    const { name, description, logoUrl, coverUrl, faviconUrl, primaryColor, secondaryColor, city } = req.body;
+    const { name, description, logoUrl, coverUrl, faviconUrl, primaryColor, secondaryColor, theme, city } = req.body;
 
     if (name && (name.length < 2 || name.length > 100)) {
       return res.status(400).json({ error: "اسم المتجر يجب أن يكون بين 2 و 100 حرف" });
@@ -62,8 +64,18 @@ router.put("/store-settings/branding", requireRole("owner", "manager"), async (r
       ...(faviconUrl !== undefined ? { faviconUrl } : {}),
       ...(primaryColor !== undefined ? { primaryColor } : {}),
       ...(secondaryColor !== undefined ? { secondaryColor } : {}),
+      ...(theme !== undefined ? { theme } : {}),
       ...(city !== undefined ? { city } : {}),
-    }).where(eq(tenantsTable.id, tenantId)).returning({ id: tenantsTable.id, name: tenantsTable.name, logoUrl: tenantsTable.logoUrl });
+    }).where(eq(tenantsTable.id, tenantId)).returning({
+      id: tenantsTable.id,
+      name: tenantsTable.name,
+      logoUrl: tenantsTable.logoUrl,
+      coverUrl: tenantsTable.coverUrl,
+      faviconUrl: tenantsTable.faviconUrl,
+      primaryColor: tenantsTable.primaryColor,
+      secondaryColor: tenantsTable.secondaryColor,
+      theme: tenantsTable.theme,
+    });
 
     res.json(updated);
   } catch (err) {

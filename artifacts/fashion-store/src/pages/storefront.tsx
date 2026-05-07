@@ -268,23 +268,13 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string }) 
     return () => { document.documentElement.style.removeProperty("--storefront-primary"); };
   }, [store]);
 
-  const handleAddToCart = useCallback(
-    (product: Product | any) => {
-      if (!store) return;
-      if ((product as any).hasVariants) { navigate(`/products/${product.id}`); return; }
-      addItem({
-        productId: product.id,
-        tenantId: store.id,
-        tenantName: store.name,
-        name: product.name,
-        price: product.price,
-        imageUrl: product.imageUrl ?? null,
-      });
-      setAddedIds(prev => new Set(prev).add(product.id));
-      setTimeout(() => setAddedIds(prev => { const n = new Set(prev); n.delete(product.id); return n; }), 2000);
-    },
-    [store, addItem, navigate],
-  );
+  const handleAddToCart = useCallback((product: Product) => {
+    if (!store) return;
+    if ((product as any).hasVariants) { navigate(`/products/${product.id}`); return; }
+    addItem({ productId:product.id, tenantId:store.id, tenantSlug:store.slug, tenantName:store.name, name:product.name, price:product.price, imageUrl:product.imageUrl??null });
+    setAddedIds(prev => new Set(prev).add(product.id));
+    setTimeout(() => setAddedIds(prev => { const n=new Set(prev); n.delete(product.id); return n; }), 2000);
+  }, [store, addItem, navigate]);
 
   function scrollToProducts() {
     document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });

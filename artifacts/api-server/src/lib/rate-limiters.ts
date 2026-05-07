@@ -3,6 +3,8 @@ import type { Request } from "express";
 
 const isTest = process.env.NODE_ENV === "test";
 
+const getIpKey = (req: Request) => ipKeyGenerator(req.ip ?? req.socket.remoteAddress ?? "unknown");
+
 // 200 requests/minute per IP for public storefront pages
 export const storefrontLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -11,7 +13,7 @@ export const storefrontLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "تجاوزت الحد المسموح — حاول لاحقاً" },
-  keyGenerator: (req: Request) => ipKeyGenerator(req),
+  keyGenerator: (req: Request) => getIpKey(req),
 });
 
 // 10 requests/minute per IP for checkout (prevent order flooding)
@@ -22,7 +24,7 @@ export const checkoutLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "تجاوزت الحد المسموح للدفع — حاول لاحقاً" },
-  keyGenerator: (req: Request) => ipKeyGenerator(req),
+  keyGenerator: (req: Request) => getIpKey(req),
 });
 
 // 5 requests/hour per tenant for data exports (CPU-heavy)
@@ -36,7 +38,7 @@ export const exportLimiter = rateLimit({
   keyGenerator: (req: Request) =>
     req.merchantTenantId != null
       ? String(req.merchantTenantId)
-      : ipKeyGenerator(req),
+      : getIpKey(req),
 });
 
 // 20 requests/hour per tenant for AI endpoints
@@ -52,5 +54,5 @@ export const aiLimiter = rateLimit({
       ? String(req.merchantTenantId)
       : req.session?.merchantId != null
         ? String(req.session.merchantId)
-        : ipKeyGenerator(req),
+        : getIpKey(req),
 });

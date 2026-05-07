@@ -1,11 +1,12 @@
 import { Router } from "express";
+import crypto from "crypto";
 import { isValidEgyptianPhone, PHONE_ERROR_AR, normaliseEgyptianPhone } from "../lib/egypt";
 import { getPlan, isAtLimit } from "../lib/entitlements";
 import { db } from "@workspace/db";
 import {
   ordersTable, orderItemsTable, orderStatusHistoryTable,
   tenantsTable, customersTable, productsTable, contactAttemptsTable,
-  automationRulesTable,
+  automationRulesTable, cartSessionsTable,
 } from "@workspace/db";
 import { checkoutLimiter } from "../lib/rate-limiters";
 import {
@@ -15,11 +16,42 @@ import {
   UpdateOrderParams,
   ListOrdersQueryParams,
 } from "@workspace/api-zod";
-import { eq, and, sql, desc } from "drizzle-orm";
+import { eq, and, sql, desc, inArray } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { buildOrderConfirmationMessage, buildDispatchedMessage, buildCancelledMessage, buildDeliveryFollowUpMessage, buildReturnExchangeMessage, buildShippingUpdateMessage, buildWhatsAppLink } from "../lib/whatsapp.js";
 
 const router = Router();
+
+class CheckoutHttpError extends Error {
+  statusCode: number;
+
+  constructor(statusCode: number, message: string) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
+
+function createPublicOrderCode(): string {
+  return `NO-${crypto.randomBytes(5).toString("hex").toUpperCase()}`;
+}
+
+function createTrackingToken(): string {
+  return crypto.randomBytes(24).toString("hex");
+}
+
+function combineCheckoutItems(items: Array<{ productId: number; quantity: number }>) {
+  const combined = new Map<number, number>();
+  for (const item of items) {
+    if (!Number.isInteger(item.productId) || item.productId <= 0) {
+      throw new CheckoutHttpError(400, "معرّف المنتج غير صحيح");
+    }
+    if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+      throw new CheckoutHttpError(400, "كمية المنتج يجب أن تكون رقمًا موجبًا");
+    }
+    combined.set(item.productId, (combined.get(item.productId) ?? 0) + item.quantity);
+  }
+  return [...combined.entries()].map(([productId, quantity]) => ({ productId, quantity }));
+}
 
 async function fetchOrderWithItems(orderId: number) {
   const [order] = await db
@@ -36,6 +68,8 @@ async function fetchOrderWithItems(orderId: number) {
       customerPhone: ordersTable.customerPhone,
       paymentMethod: ordersTable.paymentMethod,
       paymentStatus: ordersTable.paymentStatus,
+      publicCode: ordersTable.publicCode,
+      trackingToken: ordersTable.trackingToken,
       paymobOrderId: ordersTable.paymobOrderId,
       paymobTransactionId: ordersTable.paymobTransactionId,
       bostaShipmentId: ordersTable.bostaShipmentId,
@@ -177,18 +211,17 @@ async function fireAutomationRules(params: {
   }
 }
 
-router.get("/orders", async (req, res) => {
+router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res) => {
   const parsed = ListOrdersQueryParams.safeParse(req.query);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
-  const { tenantId: queryTenantId, status } = parsed.data;
+  const { status } = parsed.data;
   const search = req.query.search as string | undefined;
 
   // Tenant isolation: authenticated merchant sessions are always scoped to their tenant
-  const sessionTenantId = req.merchantTenantId ?? null;
-  const effectiveTenantId = sessionTenantId ?? queryTenantId;
+  const effectiveTenantId = req.merchantTenantId!;
 
   const conditions = [];
-  if (effectiveTenantId) conditions.push(eq(ordersTable.tenantId, effectiveTenantId));
+  conditions.push(eq(ordersTable.tenantId, effectiveTenantId));
   if (status) conditions.push(sql`${ordersTable.status} = ${status}`);
 
   try {
@@ -281,8 +314,88 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
   }
   const normalisedPhone = rawPhone ? normaliseEgyptianPhone(rawPhone) : null;
 
+  const rawBody = req.body as {
+    tenantId?: number;
+    cartSessionId?: string;
+    sessionId?: string;
+    storefrontSlug?: string;
+  };
+  const cartSessionId =
+    typeof rawBody.cartSessionId === "string" && rawBody.cartSessionId.trim()
+      ? rawBody.cartSessionId.trim()
+      : typeof rawBody.sessionId === "string" && rawBody.sessionId.trim()
+        ? rawBody.sessionId.trim()
+        : null;
+  const storefrontSlug =
+    typeof rawBody.storefrontSlug === "string" && rawBody.storefrontSlug.trim()
+      ? rawBody.storefrontSlug.trim()
+      : null;
+
   // ── Sprint 6: Monthly order limit enforcement ──────────────────────────────
-  const orderTenantId = parsed.data.tenantId;
+  let orderTenantId = parsed.data.tenantId;
+  let checkoutItems: Array<{ productId: number; quantity: number }>;
+  try {
+    checkoutItems = combineCheckoutItems(parsed.data.items);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "بيانات المنتجات غير صحيحة";
+    return res.status(err instanceof CheckoutHttpError ? err.statusCode : 400).json({ error: msg });
+  }
+  if (checkoutItems.length === 0) {
+    return res.status(400).json({ error: "لا يمكن إنشاء طلب بدون منتجات" });
+  }
+
+  try {
+    const productIds = checkoutItems.map((item) => item.productId);
+    const productTenants = await db
+      .select({ id: productsTable.id, tenantId: productsTable.tenantId })
+      .from(productsTable)
+      .where(inArray(productsTable.id, productIds));
+
+    if (productTenants.length !== productIds.length) {
+      return res.status(400).json({ error: "واحد أو أكثر من المنتجات غير موجود" });
+    }
+
+    const tenantIds = new Set(productTenants.map((product) => product.tenantId));
+    if (tenantIds.size !== 1) {
+      return res.status(400).json({ error: "يجب أن يحتوي الطلب الواحد على منتجات من متجر واحد فقط" });
+    }
+
+    const serverTenantId = productTenants[0].tenantId;
+    if (orderTenantId !== serverTenantId) {
+      return res.status(403).json({ error: "لا يمكن إنشاء طلب لمنتجات متجر آخر" });
+    }
+    orderTenantId = serverTenantId;
+
+    if (storefrontSlug) {
+      const [tenantFromSlug] = await db
+        .select({ id: tenantsTable.id })
+        .from(tenantsTable)
+        .where(eq(tenantsTable.slug, storefrontSlug));
+      if (!tenantFromSlug || tenantFromSlug.id !== orderTenantId) {
+        return res.status(403).json({ error: "رابط المتجر لا يطابق منتجات الطلب" });
+      }
+    }
+
+    if (cartSessionId) {
+      const [cartSession] = await db
+        .select({ id: cartSessionsTable.id })
+        .from(cartSessionsTable)
+        .where(
+          and(
+            eq(cartSessionsTable.sessionId, cartSessionId),
+            eq(cartSessionsTable.tenantId, orderTenantId),
+            eq(cartSessionsTable.status, "active"),
+          ),
+        );
+      if (!cartSession && storefrontSlug) {
+        return res.status(403).json({ error: "جلسة السلة لا تطابق هذا المتجر" });
+      }
+    }
+  } catch (err) {
+    req.log.error(err);
+    const msg = err instanceof Error ? err.message : "فشل التحقق من الطلب";
+    return res.status(err instanceof CheckoutHttpError ? err.statusCode : 400).json({ error: msg });
+  }
   if (orderTenantId) {
     const [tenant] = await db
       .select({ planCode: tenantsTable.planCode, subscriptionStatus: tenantsTable.subscriptionStatus })
@@ -307,24 +420,29 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
   }
 
   const paymentMethod = ((parsed.data as { paymentMethod?: string }).paymentMethod ?? "cod") as "cod" | "paymob";
-  const isPaymobReservation = paymentMethod === "paymob";
 
   try {
     const createdOrder = await db.transaction(async (tx) => {
       let subtotal = 0;
 
+      const [customer] = await tx
+        .select({ id: customersTable.id, name: customersTable.name })
+        .from(customersTable)
+        .where(eq(customersTable.id, parsed.data.customerId));
+      if (!customer) throw new CheckoutHttpError(400, "بيانات العميل غير موجودة");
+
       const itemsWithPrices = await Promise.all(
-        parsed.data.items.map(async (item) => {
+        checkoutItems.map(async (item) => {
           const [product] = await tx
             .select()
             .from(productsTable)
-            .where(eq(productsTable.id, item.productId));
+            .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, orderTenantId)));
 
           if (!product) throw new Error(`منتج #${item.productId} غير موجود`);
           if (product.status !== "active")
             throw new Error(`منتج "${product.name}" غير متاح للبيع حالياً`);
           if ((product.stock ?? 0) < item.quantity)
-            throw new Error(
+            throw new CheckoutHttpError(409,
               `الكمية المطلوبة من "${product.name}" تتجاوز المخزون المتاح (${product.stock ?? 0} متبقٍ)`
             );
 
@@ -338,16 +456,19 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
       const [order] = await tx
         .insert(ordersTable)
         .values({
-          tenantId: parsed.data.tenantId,
+          tenantId: orderTenantId,
           customerId: parsed.data.customerId,
-          shippingAddress: parsed.data.shippingAddress ?? null,
+          customerName: customer.name,
+          shippingAddress: parsed.data.shippingAddress?.trim() || null,
           customerPhone: normalisedPhone,
           paymentMethod,
           totalAmount: String(subtotal),
           shippingCost: "0",
           // Paymob orders start as pending_payment until webhook confirms; COD starts as pending
           status: "pending",
-          paymentStatus: isPaymobReservation ? "pending" : "pending",
+          paymentStatus: "pending",
+          publicCode: createPublicOrderCode(),
+          trackingToken: createTrackingToken(),
         })
         .returning();
 
@@ -365,22 +486,26 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
       // For both COD and Paymob we decrement stock atomically inside the transaction.
       // Paymob webhook will release the reservation if payment fails (see paymob.ts).
       // COD cancellation restores stock via the status-change handler below.
-      await Promise.all(
-        itemsWithPrices.map((item) =>
-          tx
-            .update(productsTable)
-            .set({
-              stock: sql`${productsTable.stock} - ${item.quantity}`,
-              orderCount: sql`${productsTable.orderCount} + ${item.quantity}`,
-            })
-            .where(
-              and(
-                eq(productsTable.id, item.productId),
-                sql`${productsTable.stock} >= ${item.quantity}`
-              )
+      for (const item of itemsWithPrices) {
+        const decremented = await tx
+          .update(productsTable)
+          .set({
+            stock: sql`${productsTable.stock} - ${item.quantity}`,
+            orderCount: sql`${productsTable.orderCount} + ${item.quantity}`,
+          })
+          .where(
+            and(
+              eq(productsTable.id, item.productId),
+              eq(productsTable.tenantId, orderTenantId),
+              sql`${productsTable.stock} >= ${item.quantity}`
             )
-        )
-      );
+          )
+          .returning({ id: productsTable.id });
+
+        if (decremented.length === 0) {
+          throw new CheckoutHttpError(409, `الكمية المطلوبة من المنتج #${item.productId} تتجاوز المخزون المتاح`);
+        }
+      }
 
       await tx.insert(orderStatusHistoryTable).values({
         orderId: order.id,
@@ -388,6 +513,13 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
         toStatus: "pending",
         note: "تم إنشاء الطلب",
       });
+
+      if (cartSessionId) {
+        await tx
+          .update(cartSessionsTable)
+          .set({ status: "converted", convertedAt: new Date(), lastActivityAt: new Date() })
+          .where(and(eq(cartSessionsTable.sessionId, cartSessionId), eq(cartSessionsTable.tenantId, orderTenantId)));
+      }
 
       return order;
     });
@@ -397,19 +529,45 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
   } catch (err) {
     req.log.error(err);
     const msg = err instanceof Error ? err.message : "فشل إنشاء الطلب";
-    res.status(400).json({ error: msg });
+    const statusCode = err instanceof CheckoutHttpError ? err.statusCode : 400;
+    res.status(statusCode).json({ error: msg });
   }
 });
 
-router.get("/orders/:id", async (req, res) => {
+router.get("/orders/track/:publicCode", async (req, res) => {
+  const publicCode = req.params.publicCode?.trim();
+  const token = typeof req.query.token === "string" ? req.query.token.trim() : "";
+  if (!publicCode || !token) {
+    return res.status(400).json({ error: "كود التتبع والرمز مطلوبان" });
+  }
+
+  try {
+    const [orderRef] = await db
+      .select({ id: ordersTable.id })
+      .from(ordersTable)
+      .where(and(eq(ordersTable.publicCode, publicCode), eq(ordersTable.trackingToken, token)));
+
+    if (!orderRef) return res.status(404).json({ error: "الطلب غير موجود" });
+
+    const order = await fetchOrderWithItems(orderRef.id);
+    if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
+
+    const { trackingToken: _trackingToken, customerId: _customerId, ...publicOrder } = order;
+    res.json(publicOrder);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل جلب بيانات التتبع" });
+  }
+});
+
+router.get("/orders/:id", requireRole("owner", "manager", "staff"), async (req, res) => {
   const parsed = GetOrderParams.safeParse({ id: Number(req.params.id) });
   if (!parsed.success) return res.status(400).json({ error: "معرّف الطلب غير صحيح" });
   try {
     const order = await fetchOrderWithItems(parsed.data.id);
     if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
 
-    // If the caller is an authenticated merchant, enforce tenant isolation.
-    // Unauthenticated callers (storefront customers viewing their own order confirmation) are
+    // Merchant order detail is tenant-scoped. Public tracking uses /orders/track/:publicCode.
     // allowed through — they know their order ID from the checkout response.
     const sessionTenantId = req.merchantTenantId;
     if (sessionTenantId && order.tenantId !== sessionTenantId) {
@@ -470,7 +628,7 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
           db
             .update(productsTable)
             .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
-            .where(eq(productsTable.id, item.productId))
+            .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, existing.tenantId)))
         )
       );
     }

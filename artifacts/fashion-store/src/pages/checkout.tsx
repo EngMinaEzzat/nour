@@ -148,6 +148,7 @@ export default function Checkout() {
       }
 
       const orderIds: number[] = [];
+      const orderTracks: Array<{ id: number; publicCode?: string; trackingToken?: string }> = [];
 
       for (const [tenantIdStr, group] of Object.entries(groupedByTenant)) {
         const order = await createOrder.mutateAsync({ data: {
@@ -156,9 +157,12 @@ export default function Checkout() {
           shippingAddress: address.trim(),
           customerPhone: phone.trim(),
           paymentMethod,
+          cartSessionId: sessionId,
+          storefrontSlug: group.items[0]?.tenantSlug,
           items: group.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
         } as Parameters<typeof createOrder.mutateAsync>[0]["data"] });
         orderIds.push(order.id);
+        orderTracks.push({ id: order.id, publicCode: (order as any).publicCode, trackingToken: (order as any).trackingToken });
       }
 
       if (coupon.valid && coupon.codeId && orderIds[0]) {
@@ -196,7 +200,8 @@ export default function Checkout() {
       }
 
       clearCart();
-      navigate(`/order-confirmation?orders=${orderIds.join(",")}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&payment=${paymentMethod}`);
+      const tracks = encodeURIComponent(JSON.stringify(orderTracks));
+      navigate(`/order-confirmation?orders=${orderIds.join(",")}&tracks=${tracks}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&payment=${paymentMethod}`);
     } catch {
       setErrors({ submit: "حدث خطأ أثناء تنفيذ الطلب. يرجى المحاولة مرة أخرى." });
     } finally {

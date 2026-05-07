@@ -2,10 +2,11 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import {
   paymobProvidersTable, paymentRecordsTable, paymentWebhooksTable,
-  ordersTable, tenantsTable, tenantAuditEventsTable,
+  ordersTable, tenantsTable, tenantAuditEventsTable, orderItemsTable, customersTable, productsTable,
 } from "@workspace/db";
 import { requireRole } from "../middleware/require-role";
-import { eq, and, desc, lt, isNull } from "drizzle-orm";
+import { eq, and, desc, lt, isNull, sql } from "drizzle-orm";
+import { initPayment, isConfigured as isPlatformPaymobConfigured } from "../lib/paymob";
 import crypto from "crypto";
 
 const router = Router();
@@ -96,7 +97,8 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
 router.post("/paymob/initiate", requireRole("owner", "manager", "staff"), async (req, res) => {
   try {
     const tenantId = req.merchantTenantId!;
-    const { orderId, amount } = req.body;
+    const { orderId } = req.body as { orderId?: number };
+    const amount = 1;
     if (!orderId || !amount) return res.status(400).json({ error: "orderId و amount مطلوبان" });
 
     const [provider] = await db.select().from(paymobProvidersTable).where(
@@ -104,22 +106,86 @@ router.post("/paymob/initiate", requireRole("owner", "manager", "staff"), async 
     );
     if (!provider) return res.status(422).json({ error: "Paymob غير مفعّل لهذا المتجر" });
 
-    const idempotencyKey = `${tenantId}-${orderId}-${Date.now()}`;
+    const [order] = await db
+      .select({
+        id: ordersTable.id,
+        totalAmount: ordersTable.totalAmount,
+        shippingAddress: ordersTable.shippingAddress,
+        customerPhone: ordersTable.customerPhone,
+        customerName: customersTable.name,
+        customerEmail: customersTable.email,
+      })
+      .from(ordersTable)
+      .leftJoin(customersTable, eq(ordersTable.customerId, customersTable.id))
+      .where(and(eq(ordersTable.id, Number(orderId)), eq(ordersTable.tenantId, tenantId)));
+    if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
+
+    const existing = await db
+      .select()
+      .from(paymentRecordsTable)
+      .where(and(eq(paymentRecordsTable.tenantId, tenantId), eq(paymentRecordsTable.orderId, order.id), eq(paymentRecordsTable.status, "pending")))
+      .limit(1);
+    if (existing[0]?.iframeSrc) {
+      return res.json({ paymentRecordId: existing[0].id, iframeSrc: existing[0].iframeSrc, expiresAt: existing[0].expiresAt });
+    }
+
+    const mockAllowed = provider.isMockAllowed === "true";
+    if (!isPlatformPaymobConfigured() && (process.env.NODE_ENV === "production" || !mockAllowed)) {
+      return res.status(503).json({ error: "Paymob live credentials are not configured" });
+    }
+
+    const idempotencyKey = `paymob-init-${tenantId}-${order.id}`;
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+    if (!isPlatformPaymobConfigured()) {
+      const [record] = await db.insert(paymentRecordsTable).values({
+        tenantId,
+        orderId: order.id,
+        idempotencyKey,
+        amount: String(order.totalAmount),
+        status: "pending",
+        expiresAt,
+        iframeSrc: `https://accept.paymob.com/api/acceptance/iframes/${provider.iframeId}?payment_token=DEV_MOCK_${crypto.randomUUID()}`,
+      }).onConflictDoUpdate({
+        target: paymentRecordsTable.idempotencyKey,
+        set: { status: "pending", expiresAt, updatedAt: new Date() },
+      }).returning();
+
+      return res.json({ paymentRecordId: record.id, iframeSrc: record.iframeSrc, expiresAt });
+    }
+
+    const payment = await initPayment({
+      orderId: order.id,
+      amountEGP: parseFloat(order.totalAmount as string),
+      customerName: order.customerName ?? "Customer",
+      customerEmail: order.customerEmail ?? "customer@nour.eg",
+      customerPhone: order.customerPhone ?? "01000000000",
+      shippingAddress: order.shippingAddress ?? "Cairo, Egypt",
+    });
 
     const [record] = await db.insert(paymentRecordsTable).values({
       tenantId,
-      orderId: Number(orderId),
+      orderId: order.id,
       idempotencyKey,
-      amount: String(amount),
-      status: "initiated",
+      amount: String(order.totalAmount),
+      status: "pending",
+      providerOrderId: String(payment.paymobOrderId),
+      paymentToken: payment.paymentKey,
+      iframeSrc: payment.iframeUrl,
       expiresAt,
+    }).onConflictDoUpdate({
+      target: paymentRecordsTable.idempotencyKey,
+      set: {
+        status: "pending",
+        providerOrderId: String(payment.paymobOrderId),
+        paymentToken: payment.paymentKey,
+        iframeSrc: payment.iframeUrl,
+        expiresAt,
+        updatedAt: new Date(),
+      },
     }).returning();
 
-    const iframeSrc = `https://accept.paymob.com/api/acceptance/iframes/${provider.iframeId}?payment_token=DEMO_TOKEN_${record.id}`;
-    await db.update(paymentRecordsTable).set({ iframeSrc, status: "pending" }).where(eq(paymentRecordsTable.id, record.id));
-
-    res.json({ paymentRecordId: record.id, iframeSrc, expiresAt });
+    res.json({ paymentRecordId: record.id, iframeSrc: record.iframeSrc, expiresAt });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل بدء عملية الدفع" });
@@ -134,6 +200,9 @@ router.post("/paymob/webhook", async (req, res) => {
 
     // HMAC verification — required if PAYMOB_HMAC_SECRET is configured
     const platformHmacSecret = process.env.PAYMOB_HMAC_SECRET;
+    if (process.env.NODE_ENV === "production" && !platformHmacSecret) {
+      return res.status(503).json({ error: "Paymob webhook HMAC secret is not configured" });
+    }
     if (platformHmacSecret && hmac) {
       // Paymob HMAC: SHA512 of concatenated transaction fields
       const obj = body?.obj ?? body ?? {};
@@ -180,7 +249,18 @@ router.post("/paymob/webhook", async (req, res) => {
       return res.json({ received: true, duplicate: true });
     }
 
+    const providerOrderId = String(body?.obj?.order?.id ?? "");
+    const merchantOrderId = String(body?.obj?.order?.merchant_order_id ?? "");
+    const nourOrderId = Number.parseInt(merchantOrderId.replace("NOUR-", ""), 10);
+    let [paymentRecord] = providerOrderId
+      ? await db.select().from(paymentRecordsTable).where(eq(paymentRecordsTable.providerOrderId, providerOrderId)).limit(1)
+      : [];
+    if (!paymentRecord && Number.isInteger(nourOrderId)) {
+      [paymentRecord] = await db.select().from(paymentRecordsTable).where(eq(paymentRecordsTable.orderId, nourOrderId)).limit(1);
+    }
+
     await db.insert(paymentWebhooksTable).values({
+      tenantId: paymentRecord?.tenantId ?? null,
       provider: "paymob",
       idempotencyKey,
       eventType: body?.type ?? "transaction",
@@ -196,7 +276,7 @@ router.post("/paymob/webhook", async (req, res) => {
         providerTransactionId: transactionId,
         paidAt: new Date(),
         updatedAt: new Date(),
-      }).where(eq(paymentRecordsTable.idempotencyKey, idempotencyKey)).returning({ orderId: paymentRecordsTable.orderId, tenantId: paymentRecordsTable.tenantId });
+      }).where(eq(paymentRecordsTable.id, paymentRecord?.id ?? -1)).returning({ orderId: paymentRecordsTable.orderId, tenantId: paymentRecordsTable.tenantId });
 
       if (updated.length > 0 && updated[0].orderId) {
         await db.update(ordersTable).set({ paymentStatus: "paid" }).where(eq(ordersTable.id, updated[0].orderId!));
@@ -209,12 +289,30 @@ router.post("/paymob/webhook", async (req, res) => {
         }).catch(() => {});
       }
     } else {
-      await db.update(paymentRecordsTable).set({
-        status: "failed",
-        providerTransactionId: transactionId,
-        failureReason: body?.obj?.data?.message ?? "Payment failed",
-        updatedAt: new Date(),
-      }).where(eq(paymentRecordsTable.idempotencyKey, idempotencyKey)).catch(() => {});
+      if (paymentRecord) {
+        await db.transaction(async (tx) => {
+          await tx.update(paymentRecordsTable).set({
+            status: "failed",
+            providerTransactionId: transactionId,
+            failureReason: body?.obj?.data?.message ?? "Payment failed",
+            updatedAt: new Date(),
+          }).where(eq(paymentRecordsTable.id, paymentRecord.id));
+
+          if (paymentRecord.orderId) {
+            await tx.update(ordersTable).set({ paymentStatus: "failed" }).where(eq(ordersTable.id, paymentRecord.orderId));
+            const items = await tx
+              .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
+              .from(orderItemsTable)
+              .where(eq(orderItemsTable.orderId, paymentRecord.orderId));
+            for (const item of items) {
+              await tx
+                .update(productsTable)
+                .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
+                .where(eq(productsTable.id, item.productId));
+            }
+          }
+        });
+      }
     }
 
     res.json({ received: true });

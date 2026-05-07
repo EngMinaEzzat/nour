@@ -19,6 +19,15 @@ import { doubleCsrfProtection, generateCsrfToken, isCsrfExempt } from "./lib/csr
 if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET environment variable is required");
 }
+if (process.env.NODE_ENV === "production") {
+  const missing = ["DATABASE_URL", "ALLOWED_ORIGINS", "REDIS_URL"].filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(`Missing required production environment variables: ${missing.join(", ")}`);
+  }
+  if (process.env.PAYMOB_ALLOW_MOCKS === "true") {
+    throw new Error("PAYMOB_ALLOW_MOCKS must not be enabled in production");
+  }
+}
 
 const PgStore = ConnectPgSimple(session);
 

@@ -1,4 +1,4 @@
-import { useRoute } from "wouter";
+import { useRoute, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Package, Clock, CheckCircle2, Truck, XCircle, RotateCcw, MapPin, Phone, ArrowRight } from "lucide-react";
@@ -23,20 +23,21 @@ const TIMELINE_STATUSES = ["pending", "confirmed", "dispatched", "shipped", "del
 
 export default function OrderTrack() {
   const [, params] = useRoute("/order-track/:orderId");
-  const orderId = Number(params?.orderId);
+  const publicCode = params?.orderId ?? "";
+  const token = new URLSearchParams(useSearch()).get("token") ?? "";
 
   const { data: order, isLoading, isError } = useQuery({
-    queryKey: ["public-order", orderId],
+    queryKey: ["public-order", publicCode, token],
     queryFn: () =>
-      fetch(`${BASE}/api/orders/${orderId}`).then((r) => {
+      fetch(`${BASE}/api/orders/track/${encodeURIComponent(publicCode)}?token=${encodeURIComponent(token)}`).then((r) => {
         if (!r.ok) throw new Error("not found");
         return r.json();
       }),
-    enabled: !!orderId && !isNaN(orderId),
+    enabled: !!publicCode && !!token,
     retry: false,
   });
 
-  if (!orderId || isNaN(orderId)) {
+  if (!publicCode || !token) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6" dir="rtl">
         <div className="text-center">

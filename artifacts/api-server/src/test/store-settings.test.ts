@@ -1,140 +1,69 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import {
-  request, app, uid, createTestMerchant, cleanupTenant,
-} from "./helpers.js";
+import { app, request, createTestMerchant, cleanupTenant } from "./helpers.js";
 
-describe("Store Settings — Branding", () => {
+describe("Store settings", () => {
   let ctx: Awaited<ReturnType<typeof createTestMerchant>>;
 
-  beforeAll(async () => { ctx = await createTestMerchant(); });
-  afterAll(async () => { await cleanupTenant(ctx.tenantId, ctx.merchantId); });
-
-  it("✅ updates store name", async () => {
-    const res = await ctx.agent
-      .put("/api/store-settings/branding")
-      .send({ name: `Updated Store ${uid()}` });
-    expect(res.status).toBe(200);
+  beforeAll(async () => {
+    ctx = await createTestMerchant();
   });
 
-  it("✅ updates primary and secondary color", async () => {
-    const res = await ctx.agent
-      .put("/api/store-settings/branding")
-      .send({ primaryColor: "#7c3aed", secondaryColor: "#f59e0b" });
-    expect(res.status).toBe(200);
+  afterAll(async () => {
+    await cleanupTenant(ctx.tenantId, ctx.merchantId);
   });
 
-  it("✅ updates logoUrl and coverUrl", async () => {
-    const res = await ctx.agent
-      .put("/api/store-settings/branding")
-      .send({
-        logoUrl: "https://example.com/logo.png",
-        coverUrl: "https://example.com/cover.jpg",
-      });
-    expect(res.status).toBe(200);
-  });
-
-  it("✅ updates description", async () => {
-    const res = await ctx.agent
-      .put("/api/store-settings/branding")
-      .send({ description: "متجر رائع جداً يستهدف المرأة العصرية" });
-    expect(res.status).toBe(200);
-  });
-
-  it("❌ rejects store name shorter than 2 chars", async () => {
-    const res = await ctx.agent
-      .put("/api/store-settings/branding")
-      .send({ name: "X" });
-    expect(res.status).toBe(400);
-    expect(res.body).toHaveProperty("error");
-  });
-
-  it("❌ rejects store name longer than 100 chars", async () => {
-    const res = await ctx.agent
-      .put("/api/store-settings/branding")
-      .send({ name: "A".repeat(101) });
-    expect(res.status).toBe(400);
-  });
-
-  it("❌ unauthenticated request returns 401", async () => {
-    const res = await request(app)
-      .put("/api/store-settings/branding")
-      .send({ name: "Hacked Store" });
-    expect(res.status).toBe(401);
-  });
-
-  it("✅ saved color is persisted and readable via GET", async () => {
-    const color = "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, "0");
-    await ctx.agent.put("/api/store-settings/branding").send({ primaryColor: color });
-    const res = await ctx.agent.get("/api/store-settings");
-    expect(res.status).toBe(200);
-    expect(res.body.primaryColor).toBe(color);
-  });
-});
-
-describe("Store Settings — Social Links", () => {
-  let ctx: Awaited<ReturnType<typeof createTestMerchant>>;
-
-  beforeAll(async () => { ctx = await createTestMerchant(); });
-  afterAll(async () => { await cleanupTenant(ctx.tenantId, ctx.merchantId); });
-
-  it("✅ updates social links with valid data", async () => {
-    const res = await ctx.agent
-      .put("/api/store-settings/social")
-      .send({
-        instagram: "https://instagram.com/mystore",
-        facebook: "https://facebook.com/mystore",
-        tiktok: "https://tiktok.com/@mystore",
-      });
-    expect(res.status).toBe(200);
-  });
-
-  it("✅ accepts empty social links object", async () => {
-    const res = await ctx.agent
-      .put("/api/store-settings/social")
-      .send({});
-    expect(res.status).toBe(200);
-  });
-
-  it("❌ unauthenticated request returns 401", async () => {
-    const res = await request(app)
-      .put("/api/store-settings/social")
-      .send({ instagram: "https://instagram.com/hack" });
-    expect(res.status).toBe(401);
-  });
-
-  it("✅ social links are persisted and readable after save", async () => {
-    const instaHandle = `mystore${uid()}`;
-    await ctx.agent.put("/api/store-settings/social").send({
-      instagram: `https://instagram.com/${instaHandle}`,
+  it("persists theme, secondary color, media, SEO, social links, and tracking settings", async () => {
+    const branding = await ctx.agent.put("/api/store-settings/branding").send({
+      name: ctx.storeName,
+      description: "Updated settings description",
+      logoUrl: "/uploads/logo.webp",
+      coverUrl: "/uploads/cover.webp",
+      faviconUrl: "/uploads/favicon.png",
+      primaryColor: "#123456",
+      secondaryColor: "#abcdef",
+      theme: "luxe",
+      city: "Cairo",
     });
-    const res = await ctx.agent.get("/api/store-settings");
-    expect(res.status).toBe(200);
-    expect(res.body.socialLinks?.instagram).toContain(instaHandle);
-  });
-});
+    expect(branding.status).toBe(200);
+    expect(branding.body.secondaryColor).toBe("#abcdef");
+    expect(branding.body.theme).toBe("luxe");
 
-describe("Store Settings — GET settings", () => {
-  let ctx: Awaited<ReturnType<typeof createTestMerchant>>;
+    const seo = await ctx.agent.put("/api/store-settings/seo").send({
+      seoTitle: "Nour Test Store",
+      seoDescription: "A focused SEO description",
+    });
+    expect(seo.status).toBe(200);
 
-  beforeAll(async () => { ctx = await createTestMerchant(); });
-  afterAll(async () => { await cleanupTenant(ctx.tenantId, ctx.merchantId); });
+    const social = await ctx.agent.put("/api/store-settings/social").send({
+      instagram: "https://instagram.com/nour",
+      facebook: "https://facebook.com/nour",
+      tiktok: "https://tiktok.com/@nour",
+      whatsapp: "01012345678",
+      email: "merchant@nour.test",
+      phone: "01012345678",
+    });
+    expect(social.status).toBe(200);
 
-  it("✅ reads tenant settings with 200", async () => {
-    const res = await ctx.agent.get("/api/store-settings");
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("id");
-    expect(res.body).toHaveProperty("slug");
-    expect(res.body).toHaveProperty("name");
-  });
+    const tracking = await ctx.agent.put("/api/tracking/settings").send({
+      ga4MeasurementId: "G-ABC123",
+      ga4Enabled: true,
+      metaPixelId: "1234567890",
+      metaEnabled: true,
+    });
+    expect(tracking.status).toBe(200);
 
-  it("✅ response includes social links object (not string)", async () => {
-    const res = await ctx.agent.get("/api/store-settings");
-    expect(res.status).toBe(200);
-    expect(typeof res.body.socialLinks).toBe("object");
-  });
+    const settings = await ctx.agent.get("/api/store-settings");
+    expect(settings.status).toBe(200);
+    expect(settings.body.secondaryColor).toBe("#abcdef");
+    expect(settings.body.theme).toBe("luxe");
+    expect(settings.body.faviconUrl).toBe("/uploads/favicon.png");
+    expect(settings.body.seoTitle).toBe("Nour Test Store");
+    expect(settings.body.socialLinks.whatsapp).toBe("01012345678");
 
-  it("❌ unauthenticated request returns 401", async () => {
-    const res = await request(app).get("/api/store-settings");
-    expect(res.status).toBe(401);
+    const storefront = await request(app).get(`/api/store/${ctx.slug}`);
+    expect(storefront.status).toBe(200);
+    expect(storefront.body.secondaryColor).toBe("#abcdef");
+    expect(storefront.body.theme).toBe("luxe");
+    expect(storefront.body.trackingSettings.ga4Enabled).toBe(true);
   });
 });

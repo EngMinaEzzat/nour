@@ -1,15 +1,19 @@
 import "express-session";
-import "express";
 
 declare module "express-session" {
   interface SessionData {
     merchantId: number;
+    isPlatformAdmin?: boolean;
   }
 }
 
-declare module "express" {
-  interface Request {
-    merchantRole?: string;
-    merchantTenantId?: number;
+declare global {
+  namespace Express {
+    interface Request {
+      merchantRole?: string;
+      merchantTenantId?: number;
+    }
   }
 }
+
+export {};
