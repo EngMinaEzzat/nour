@@ -17,6 +17,7 @@ function getEnvFileNames(): string[] {
   const names: string[] = [];
   if (process.env.NODE_ENV) names.push(`.env.${process.env.NODE_ENV}`);
   names.push(".env");
+  if (!names.includes(".env.test")) names.push(".env.test");
   return names;
 }
 

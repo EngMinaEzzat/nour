@@ -96,6 +96,8 @@ export interface UpdateTenantBody {
   logoUrl?: string | null;
   coverUrl?: string | null;
   primaryColor?: string | null;
+  secondaryColor?: string | null;
+  theme?: string;
   category?: UpdateTenantBodyCategory;
   status?: UpdateTenantBodyStatus;
   city?: string | null;
@@ -201,6 +203,7 @@ export interface CreateProductBody {
   imageUrl?: string | null;
   stock: number;
   featured: boolean;
+  status?: ProductStatus;
 }
 
 export type UpdateProductBodyStatus =

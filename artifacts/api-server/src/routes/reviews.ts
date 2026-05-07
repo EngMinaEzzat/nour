@@ -75,11 +75,14 @@ router.post("/reviews", async (req, res) => {
 router.get("/reviews", requireRole("owner", "manager", "staff"), async (req, res) => {
   const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const { status, productId } = req.query;
+  const status = typeof req.query.status === "string" ? req.query.status : undefined;
+  const productId = typeof req.query.productId === "string" ? req.query.productId : undefined;
   try {
     const conditions = [eq(productReviewsTable.tenantId, tenantId)];
-    if (status) conditions.push(eq(productReviewsTable.status, status as string));
-    if (productId) conditions.push(eq(productReviewsTable.productId, parseInt(productId as string, 10)));
+    if (status && ["pending", "approved", "rejected"].includes(status)) {
+      conditions.push(eq(productReviewsTable.status, status as "pending" | "approved" | "rejected"));
+    }
+    if (productId) conditions.push(eq(productReviewsTable.productId, parseInt(productId, 10)));
 
     const reviews = await db.select({
       id: productReviewsTable.id,
@@ -108,8 +111,9 @@ router.get("/reviews", requireRole("owner", "manager", "staff"), async (req, res
 router.put("/reviews/:id/status", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   const { status } = req.body;
+  const nextStatus = status as "pending" | "approved" | "rejected";
   if (!["approved", "rejected", "pending"].includes(status)) return res.status(400).json({ error: "الحالة غير صحيحة" });
 
   try {
@@ -119,7 +123,7 @@ router.put("/reviews/:id/status", requireRole("owner", "manager"), async (req, r
     if (!existing) return res.status(404).json({ error: "التقييم غير موجود" });
 
     const [updated] = await db.update(productReviewsTable)
-      .set({ status })
+      .set({ status: nextStatus })
       .where(eq(productReviewsTable.id, id))
       .returning();
     res.json({ ...updated, createdAt: updated.createdAt.toISOString() });
@@ -133,7 +137,7 @@ router.put("/reviews/:id/status", requireRole("owner", "manager"), async (req, r
 router.delete("/reviews/:id", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   try {
     const [existing] = await db.select({ id: productReviewsTable.id })
       .from(productReviewsTable)

@@ -83,7 +83,7 @@ router.put("/inventory-alerts/settings", requireRole("owner", "manager"), async 
 /* ─── PUT /api/inventory-alerts/product/:id — update per-product threshold ─── */
 router.put("/inventory-alerts/product/:id", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId!;
-  const productId = parseInt(req.params.id, 10);
+  const productId = parseInt(String(req.params.id), 10);
   const { threshold } = req.body as { threshold?: number | null };
 
   try {

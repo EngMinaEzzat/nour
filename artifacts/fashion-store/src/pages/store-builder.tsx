@@ -30,7 +30,7 @@ export default function StoreBuilder() {
   const tenantId = (merchant as any)?.tenantId as number | undefined;
 
   const { data: tenant, isLoading } = useGetTenant(tenantId!, {
-    query: { enabled: !!tenantId },
+    query: { queryKey: [`/api/tenants/${tenantId}`], enabled: !!tenantId },
   });
 
   const updateTenant = useUpdateTenant();

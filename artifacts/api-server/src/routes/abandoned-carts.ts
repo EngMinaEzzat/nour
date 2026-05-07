@@ -7,6 +7,8 @@ import { requireRole } from "../middleware/require-role";
 const router = Router();
 
 const ABANDON_THRESHOLD_HOURS = 2;
+const CART_SESSION_STATUSES = ["active", "abandoned", "converted"] as const;
+type CartSessionStatus = (typeof CART_SESSION_STATUSES)[number];
 
 // POST /api/cart/sync — public: upsert cart session per tenant
 router.post("/cart/sync", async (req, res) => {
@@ -102,13 +104,15 @@ router.get("/abandoned-carts", requireRole("owner", "manager"), async (req, res)
         )
       );
 
-    const { status: statusFilter } = req.query;
+    const statusFilter = typeof req.query.status === "string" ? req.query.status : undefined;
 
     const conditions = [
       eq(cartSessionsTable.tenantId, tenantId),
       ne(cartSessionsTable.status, "converted"),
     ];
-    if (statusFilter) conditions.push(eq(cartSessionsTable.status, statusFilter as string));
+    if (statusFilter && CART_SESSION_STATUSES.includes(statusFilter as CartSessionStatus)) {
+      conditions.push(eq(cartSessionsTable.status, statusFilter as CartSessionStatus));
+    }
 
     const rows = await db
       .select()
@@ -151,7 +155,7 @@ router.get("/abandoned-carts", requireRole("owner", "manager"), async (req, res)
 router.post("/abandoned-carts/:id/remind", requireRole("owner", "manager", "staff"), async (req, res) => {
   const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
 
   try {
     const [cart] = await db
@@ -194,7 +198,7 @@ router.post("/abandoned-carts/:id/remind", requireRole("owner", "manager", "staf
 router.delete("/abandoned-carts/:id", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   try {
     await db.delete(cartSessionsTable).where(and(eq(cartSessionsTable.id, id), eq(cartSessionsTable.tenantId, tenantId)));
     res.json({ success: true });

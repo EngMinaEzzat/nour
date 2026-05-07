@@ -76,7 +76,7 @@ router.post("/exports", requireRole("owner", "manager"), exportLimiter, async (r
         rows = data.map((r) => ({ id: r.id, orderId: r.orderId, status: r.status, reason: r.reason, created: r.createdAt }));
       } else if (exportType === "inventory_adjustments") {
         const data = await db.select().from(stockAdjustmentLogsTable).where(eq(stockAdjustmentLogsTable.tenantId, tenantId));
-        rows = data.map((s) => ({ id: s.id, productId: s.productId, delta: s.delta, source: s.source, note: s.note, created: s.createdAt }));
+        rows = data.map((s) => ({ id: s.id, productId: s.productId, delta: s.delta, source: s.source, reason: s.reason, created: s.createdAt }));
       }
 
       await db.update(exportJobsTable).set({

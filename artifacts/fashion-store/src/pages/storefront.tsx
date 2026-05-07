@@ -3,6 +3,7 @@ import { useParams, useLocation } from "wouter";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetStorefront, getGetStorefrontQueryKey } from "@workspace/api-client-react";
+import type { StorefrontResponse } from "@workspace/api-client-react";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,11 +30,12 @@ import { TrustStrip } from "@/components/storefront/TrustStrip";
 import { NewsletterSection } from "@/components/storefront/NewsletterSection";
 import { StoreFooter } from "@/components/storefront/StoreFooter";
 import { StorefrontProductCard } from "@/components/storefront/StorefrontProductCard";
+import type { ProductCardData } from "@/components/storefront/StorefrontProductCard";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type StoreData = NonNullable<ReturnType<typeof useGetStorefront>["data"]>;
+type StoreData = StorefrontResponse;
 type Product = StoreData["products"][0];
 
 function getWhatsAppNumber(store: StoreData): string | null {
@@ -199,7 +201,7 @@ function AdminBar() {
 }
 
 // ─── ROOT COMPONENT ───────────────────────────────────────────────────────────
-export default function Storefront({ overrideSlug }: { overrideSlug?: string }) {
+export default function Storefront({ overrideSlug }: { overrideSlug?: string; params?: { slug?: string } }) {
   const params = useParams<{ slug: string }>();
   const slug = overrideSlug ?? params.slug;
   const [, navigate] = useLocation();
@@ -211,7 +213,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string }) 
 
   const { addItem, items } = useCart();
 
-  const { data: store, isLoading, error } = useGetStorefront(slug, {
+  const { data: store, isLoading, error } = useGetStorefront<StorefrontResponse>(slug, {
     query: { queryKey: getGetStorefrontQueryKey(slug) },
   });
 
@@ -268,7 +270,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string }) 
     return () => { document.documentElement.style.removeProperty("--storefront-primary"); };
   }, [store]);
 
-  const handleAddToCart = useCallback((product: Product) => {
+  const handleAddToCart = useCallback((product: ProductCardData) => {
     if (!store) return;
     if ((product as any).hasVariants) { navigate(`/products/${product.id}`); return; }
     addItem({ productId:product.id, tenantId:store.id, tenantSlug:store.slug, tenantName:store.name, name:product.name, price:product.price, imageUrl:product.imageUrl??null });
@@ -498,7 +500,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string }) 
                       product={product as any}
                       primaryColor={p}
                       inCart={addedIds.has(product.id)}
-                      onAdd={() => handleAddToCart(product)}
+                      onAdd={() => handleAddToCart({ ...product, tenantId: store.id, tenantName: store.name })}
                       showRating={false}
                     />
                   </motion.div>

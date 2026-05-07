@@ -81,15 +81,27 @@ router.get("/platform/stats", requirePlatformAdmin, async (req, res) => {
     const onboardingRows = await db
       .select({
         tenantId: merchantOnboardingTable.tenantId,
-        isComplete: merchantOnboardingTable.isComplete,
-        completedCount: merchantOnboardingTable.completedCount,
+        storeIdentityDone: merchantOnboardingTable.storeIdentityDone,
+        homepageMessageDone: merchantOnboardingTable.homepageMessageDone,
+        firstProductDone: merchantOnboardingTable.firstProductDone,
+        shippingSetupDone: merchantOnboardingTable.shippingSetupDone,
+        integrationsReviewDone: merchantOnboardingTable.integrationsReviewDone,
+        launchReviewDone: merchantOnboardingTable.launchReviewDone,
       })
       .from(merchantOnboardingTable);
 
     let complete = 0, partial = 0, notStarted = 0;
     for (const row of onboardingRows) {
-      if (row.isComplete) complete++;
-      else if ((row.completedCount ?? 0) > 0) partial++;
+      const completedCount = [
+        row.storeIdentityDone,
+        row.homepageMessageDone,
+        row.firstProductDone,
+        row.shippingSetupDone,
+        row.integrationsReviewDone,
+        row.launchReviewDone,
+      ].filter(Boolean).length;
+      if (completedCount === 6) complete++;
+      else if (completedCount > 0) partial++;
       else notStarted++;
     }
 

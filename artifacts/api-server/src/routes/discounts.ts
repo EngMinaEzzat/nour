@@ -73,7 +73,7 @@ router.post("/discounts", requireRole("owner", "manager"), async (req, res) => {
 router.put("/discounts/:id", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   const { active, value, minOrderAmount, maxUses, expiresAt, type } = req.body;
 
   try {
@@ -90,7 +90,7 @@ router.put("/discounts/:id", requireRole("owner", "manager"), async (req, res) =
     if (type !== undefined) updates.type = type;
 
     const [updated] = await db.update(discountCodesTable)
-      .set(updates as Parameters<typeof db.update>[0] extends infer T ? T : never)
+      .set(updates as any)
       .where(eq(discountCodesTable.id, id))
       .returning();
     res.json({ ...updated, value: parseFloat(updated.value as string) });
@@ -104,7 +104,7 @@ router.put("/discounts/:id", requireRole("owner", "manager"), async (req, res) =
 router.delete("/discounts/:id", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
   try {
     const [existing] = await db.select({ id: discountCodesTable.id })
       .from(discountCodesTable)

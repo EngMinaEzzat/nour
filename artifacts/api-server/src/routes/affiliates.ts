@@ -144,7 +144,7 @@ router.post("/affiliates", requireRole("owner", "manager"), async (req, res) => 
 router.put("/affiliates/:id", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
 
   try {
     const [existing] = await db.select().from(affiliatesTable)
@@ -158,7 +158,7 @@ router.put("/affiliates/:id", requireRole("owner", "manager"), async (req, res) 
     if (req.body.notes !== undefined) updates.notes = req.body.notes;
 
     const [updated] = await db.update(affiliatesTable)
-      .set(updates as Parameters<typeof db.update>[0] extends infer T ? T : never)
+      .set(updates as any)
       .where(eq(affiliatesTable.id, id))
       .returning();
 
@@ -173,7 +173,7 @@ router.put("/affiliates/:id", requireRole("owner", "manager"), async (req, res) 
 router.delete("/affiliates/:id", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(String(req.params.id), 10);
 
   try {
     const [existing] = await db.select().from(affiliatesTable)
