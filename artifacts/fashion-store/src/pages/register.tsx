@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff, Sparkles, CheckCircle2, XCircle } from "lucide-react";
 
-type SlugStatus = "idle" | "checking" | "available" | "taken" | "invalid";
+type SlugStatus = "idle" | "checking" | "available" | "taken" | "invalid" | "error";
 
 async function checkSlugAvailability(slug: string): Promise<{ available: boolean; reason?: string }> {
   const res = await fetch(`/api/auth/check-slug?slug=${encodeURIComponent(slug)}`);
-  if (!res.ok) return { available: false };
+  if (!res.ok) throw new Error(`Slug check failed: ${res.status}`);
   return res.json();
 }
 
@@ -64,7 +64,7 @@ export default function Register() {
           setSlugStatus(result.available ? "available" : "taken");
         }
       } catch {
-        setSlugStatus("idle");
+        setSlugStatus("error");
       }
     }, 500);
 
@@ -115,6 +115,7 @@ export default function Register() {
     available: { color: "text-green-600", icon: <CheckCircle2 className="w-3.5 h-3.5" />, text: "الرابط متاح" },
     taken: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: "الرابط مستخدم، جرّب اسمًا آخر" },
     invalid: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: "الرابط يحتوي على أحرف غير مقبولة أو محجوز" },
+    error: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: "تعذر الاتصال بالخادم، حاول مرة أخرى" },
   }[slugStatus];
 
   return (

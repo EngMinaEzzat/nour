@@ -9,6 +9,7 @@ import { createClient } from "redis";
 import pinoHttp from "pino-http";
 import path from "path";
 import fs from "fs";
+import os from "os";
 import http from "http";
 import router from "./routes";
 import seoPublicRouter from "./lib/seo-public";
@@ -84,12 +85,12 @@ const allowedOrigins = rawAllowed ? rawAllowed.split(",").map((s) => s.trim()) :
 app.use(
   cors({
     origin:
-      allowedOrigins || process.env.NODE_ENV === "production"
+      allowedOrigins
         ? (origin, cb) => {
             if (!origin || allowedOrigins?.includes(origin)) return cb(null, true);
             cb(new Error(`CORS: origin ${origin} not allowed`));
           }
-        : true, // permissive in dev (no ALLOWED_ORIGINS set)
+        : process.env.NODE_ENV !== "production", // permissive in dev; same-origin only in production
     credentials: true,
   }),
 );
@@ -113,7 +114,7 @@ app.use(
   }),
 );
 
-const uploadsDir = path.join(process.cwd(), "uploads");
+const uploadsDir = process.env.VERCEL ? path.join(os.tmpdir(), "uploads") : path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use("/api/uploads", express.static(uploadsDir));
 
