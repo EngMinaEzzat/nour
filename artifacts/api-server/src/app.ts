@@ -20,7 +20,7 @@ if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET environment variable is required");
 }
 if (process.env.NODE_ENV === "production") {
-  const missing = ["DATABASE_URL", "ALLOWED_ORIGINS", "REDIS_URL"].filter((key) => !process.env[key]);
+  const missing = ["DATABASE_URL"].filter((key) => !process.env[key]);
   if (missing.length > 0) {
     throw new Error(`Missing required production environment variables: ${missing.join(", ")}`);
   }
@@ -83,12 +83,13 @@ const allowedOrigins = rawAllowed ? rawAllowed.split(",").map((s) => s.trim()) :
 
 app.use(
   cors({
-    origin: allowedOrigins
-      ? (origin, cb) => {
-          if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-          cb(new Error(`CORS: origin ${origin} not allowed`));
-        }
-      : true, // permissive in dev (no ALLOWED_ORIGINS set)
+    origin:
+      allowedOrigins || process.env.NODE_ENV === "production"
+        ? (origin, cb) => {
+            if (!origin || allowedOrigins?.includes(origin)) return cb(null, true);
+            cb(new Error(`CORS: origin ${origin} not allowed`));
+          }
+        : true, // permissive in dev (no ALLOWED_ORIGINS set)
     credentials: true,
   }),
 );
