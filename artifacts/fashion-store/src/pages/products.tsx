@@ -30,6 +30,8 @@ import {
 } from "lucide-react";
 import { ImageUpload } from "@/components/image-upload";
 
+const SELECT_NONE_VALUE = "__none__";
+
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "فري سايز", "مقاس واحد"];
 const PRESET_COLORS = [
   { name: "أسود", hex: "#1a1a1a" },
@@ -156,12 +158,17 @@ function VariantManager({ productId }: { productId: number }) {
             {/* Size */}
             <div className="space-y-1">
               <Label className="text-[10px] text-muted-foreground">المقاس</Label>
-              <Select value={row.size} onValueChange={(v) => updateRow(i, "size", v)}>
+              <Select
+                value={row.size || SELECT_NONE_VALUE}
+                onValueChange={(v) =>
+                  updateRow(i, "size", v === SELECT_NONE_VALUE ? "" : v)
+                }
+              >
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue placeholder="اختر..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">— بدون —</SelectItem>
+                  <SelectItem value={SELECT_NONE_VALUE}>— بدون —</SelectItem>
                   {SIZES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -904,10 +911,18 @@ export default function Products() {
               </div>
               <div className="space-y-1.5">
                 <Label>الفئة</Label>
-                <Select value={form.categoryId} onValueChange={(v) => setForm((f) => ({ ...f, categoryId: v }))}>
+                <Select
+                  value={form.categoryId || SELECT_NONE_VALUE}
+                  onValueChange={(v) =>
+                    setForm((f) => ({
+                      ...f,
+                      categoryId: v === SELECT_NONE_VALUE ? "" : v,
+                    }))
+                  }
+                >
                   <SelectTrigger><SelectValue placeholder="اختر فئة..." /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">— بدون فئة —</SelectItem>
+                    <SelectItem value={SELECT_NONE_VALUE}>— بدون فئة —</SelectItem>
                     {categories?.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
