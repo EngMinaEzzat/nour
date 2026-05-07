@@ -30,6 +30,7 @@ async function fetchProductsWithJoin(conditions: ReturnType<typeof and>[]) {
       id: productsTable.id,
       tenantId: productsTable.tenantId,
       tenantName: tenantsTable.name,
+      tenantSlug: tenantsTable.slug,
       tenantSocialLinks: tenantsTable.socialLinks,
       categoryId: productsTable.categoryId,
       categoryName: categoriesTable.name,

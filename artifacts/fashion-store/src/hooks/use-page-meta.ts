@@ -56,7 +56,11 @@ export function usePageMeta(options: PageMetaOptions | null, deps: unknown[] = [
     const { title, description, image, canonicalPath, type = "website", jsonLd } = options;
 
     const siteBase = window.location.origin;
-    const canonical = canonicalPath ? `${siteBase}${canonicalPath}` : null;
+    const canonical = canonicalPath
+      ? /^https?:\/\//i.test(canonicalPath)
+        ? canonicalPath
+        : `${siteBase}${canonicalPath}`
+      : null;
 
     document.title = title;
     setMeta('meta[name="description"]', "content", description ?? null);

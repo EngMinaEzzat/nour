@@ -65,6 +65,13 @@ const queryClient = new QueryClient({
 // Returns null for everything else (localhost, Replit preview domains, nour.eg itself).
 function getSubdomainSlug(): string | null {
   if (typeof window === "undefined") return null;
+  const initialPublicPage = (window as typeof window & {
+    __NOUR_INITIAL_PUBLIC_PAGE__?: { slug?: string };
+  }).__NOUR_INITIAL_PUBLIC_PAGE__;
+  if (initialPublicPage?.slug && !window.location.pathname.startsWith("/store/")) {
+    return initialPublicPage.slug;
+  }
+
   const hostname = window.location.hostname;
   // Must end with .nour.eg and have exactly one subdomain label before it
   // e.g. "boutique.nour.eg" → "boutique"
@@ -82,6 +89,8 @@ function StorefrontRouter({ slug }: { slug: string }) {
     <CartProvider>
       <Switch>
         <Route path="/" component={() => <Storefront overrideSlug={slug} />} />
+        <Route path="/product/:productSlug" component={ProductDetail} />
+        <Route path="/category/:categorySlug" component={() => <Storefront overrideSlug={slug} />} />
         <Route path="/products/:id" component={ProductDetail} />
         <Route path="/checkout" component={Checkout} />
         <Route path="/order-confirmation" component={OrderConfirmation} />
@@ -105,6 +114,8 @@ function Router() {
       <Route path="/reset-password" component={ResetPassword} />
 
       {/* Standalone storefront routes — no dashboard chrome */}
+      <Route path="/store/:slug/product/:productSlug" component={ProductDetail} />
+      <Route path="/store/:slug/category/:categorySlug" component={Storefront} />
       <Route path="/store/:slug" component={Storefront} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/order-confirmation" component={OrderConfirmation} />

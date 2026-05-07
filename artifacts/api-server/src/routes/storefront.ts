@@ -15,12 +15,12 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
     const [tenant] = await db
       .select()
       .from(tenantsTable)
-      .where(eq(tenantsTable.slug, slug));
+      .where(and(eq(tenantsTable.slug, slug), eq(tenantsTable.status, "active")));
 
     if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
 
     // Build product conditions — always scope to tenant, optionally filter by name/category
-    const conditions = [eq(productsTable.tenantId, tenant.id)];
+    const conditions = [eq(productsTable.tenantId, tenant.id), eq(productsTable.status, "active")];
     if (searchQ) conditions.push(ilike(productsTable.name, `%${searchQ}%`));
     if (categoryIdQ) conditions.push(eq(productsTable.categoryId, categoryIdQ));
 

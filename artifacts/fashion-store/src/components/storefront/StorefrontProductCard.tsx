@@ -2,8 +2,12 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Check, Layers, Heart, Star } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getGetProductQueryKey } from "@workspace/api-client-react";
+import { publicEntitySlug } from "@/lib/seo-slugs";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export interface ProductCardData {
   id: number;
@@ -22,6 +26,7 @@ export interface ProductCardData {
 
 interface StorefrontProductCardProps {
   product: ProductCardData;
+  storeSlug?: string;
   primaryColor: string;
   inCart?: boolean;
   onAdd?: () => void;
@@ -31,6 +36,7 @@ interface StorefrontProductCardProps {
 
 export function StorefrontProductCard({
   product,
+  storeSlug,
   primaryColor: p,
   inCart = false,
   onAdd,
@@ -40,6 +46,7 @@ export function StorefrontProductCard({
   const [hovered, setHovered] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [, navigate] = useLocation();
+  const queryClient = useQueryClient();
 
   const unavailable =
     product.status === "out_of_stock" || (product.stock ?? 1) === 0;
@@ -56,12 +63,28 @@ export function StorefrontProductCard({
       ? "aspect-[4/3]"
       : "aspect-[3/4]";
 
+  const productHref = storeSlug
+    ? `/store/${storeSlug}/product/${publicEntitySlug(product.id, product.name)}`
+    : `/products/${product.id}`;
+
+  function prefetchProduct() {
+    queryClient.prefetchQuery({
+      queryKey: getGetProductQueryKey(product.id),
+      queryFn: async () => {
+        const response = await fetch(`${BASE}/api/products/${product.id}`);
+        if (!response.ok) throw new Error("Failed to prefetch product");
+        return response.json();
+      },
+      staleTime: 30_000,
+    });
+  }
+
   function handleAdd(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     if (unavailable) return;
     if (product.hasVariants) {
-      navigate(`/products/${product.id}`);
+      navigate(productHref);
       return;
     }
     onAdd?.();
@@ -80,11 +103,13 @@ export function StorefrontProductCard({
       onMouseLeave={() => setHovered(false)}
     >
       {/* Image */}
-      <Link href={`/products/${product.id}`}>
+      <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
         <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-stone-100`}>
           <img
             src={product.imageUrl ?? "/product-fashion.png"}
             alt={product.name}
+            width={600}
+            height={800}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
           />
 
@@ -178,7 +203,7 @@ export function StorefrontProductCard({
             {product.categoryName}
           </p>
         )}
-        <Link href={`/products/${product.id}`}>
+        <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
           <h3
             className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
             style={{ fontFamily: SERIF, fontWeight: 400 }}

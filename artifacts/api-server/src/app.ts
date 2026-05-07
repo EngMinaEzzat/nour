@@ -144,9 +144,10 @@ app.get("/api/csrf-token", (req, res) => {
   });
 });
 
-// ─── Public SEO routes: /robots.txt, /sitemap.xml, bot prerender for /store/:slug ─
-// Must be mounted BEFORE /api and BEFORE the Vite proxy so bots get
-// server-rendered meta HTML instead of an empty JS shell.
+// Public SSR routes: /robots.txt, /sitemap.xml, and storefront pages.
+// Mount under /api/ssr as well so Vercel rewrites can invoke the serverless
+// function while preserving clean public URLs in the browser.
+app.use("/api/ssr", seoPublicRouter);
 app.use(seoPublicRouter);
 
 app.use("/api", router);

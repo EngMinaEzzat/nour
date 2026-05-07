@@ -4,6 +4,26 @@
   "outputDirectory": "artifacts/fashion-store/dist/public",
   "rewrites": [
     {
+      "source": "/robots.txt",
+      "destination": "/api/ssr/robots.txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/ssr/sitemap.xml"
+    },
+    {
+      "source": "/store/:slug/product/:productSlug",
+      "destination": "/api/ssr/store/:slug/product/:productSlug"
+    },
+    {
+      "source": "/store/:slug/category/:categorySlug",
+      "destination": "/api/ssr/store/:slug/category/:categorySlug"
+    },
+    {
+      "source": "/store/:slug",
+      "destination": "/api/ssr/store/:slug"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/[...path]"
     },

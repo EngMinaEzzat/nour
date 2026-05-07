@@ -31,6 +31,7 @@ import { NewsletterSection } from "@/components/storefront/NewsletterSection";
 import { StoreFooter } from "@/components/storefront/StoreFooter";
 import { StorefrontProductCard } from "@/components/storefront/StorefrontProductCard";
 import type { ProductCardData } from "@/components/storefront/StorefrontProductCard";
+import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -202,8 +203,8 @@ function AdminBar() {
 
 // ─── ROOT COMPONENT ───────────────────────────────────────────────────────────
 export default function Storefront({ overrideSlug }: { overrideSlug?: string; params?: { slug?: string } }) {
-  const params = useParams<{ slug: string }>();
-  const slug = overrideSlug ?? params.slug;
+  const params = useParams<{ slug?: string; categorySlug?: string }>();
+  const slug = overrideSlug ?? params.slug ?? "";
   const [, navigate] = useLocation();
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -217,27 +218,79 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     query: { queryKey: getGetStorefrontQueryKey(slug) },
   });
 
+  useEffect(() => {
+    if (!store) return;
+    if (!params.categorySlug) {
+      setSelectedCategory(null);
+      return;
+    }
+
+    const categoryId = idFromPublicSlug(params.categorySlug);
+    const exists = store.categories?.some((category) => category.id === categoryId);
+    setSelectedCategory(exists ? categoryId : null);
+  }, [store, params.categorySlug]);
+
   // Prevent body scroll when search is open
   useEffect(() => {
     document.body.style.overflow = searchOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [searchOpen]);
 
+  const selectedCategoryMeta = store?.categories?.find((category) => category.id === selectedCategory) ?? null;
+  const initialPublicPage = typeof window !== "undefined"
+    ? (window as typeof window & { __NOUR_INITIAL_PUBLIC_PAGE__?: { page?: string; canonical?: string } }).__NOUR_INITIAL_PUBLIC_PAGE__
+    : undefined;
+  const initialCanonicalMatches = initialPublicPage?.canonical
+    && ((!selectedCategoryMeta && initialPublicPage.page === "store")
+      || (selectedCategoryMeta && initialPublicPage.page === "category"));
+  const storefrontCanonicalPath = store
+    ? initialCanonicalMatches
+      ? initialPublicPage.canonical
+      : selectedCategoryMeta
+      ? `/store/${store.slug}/category/${publicEntitySlug(selectedCategoryMeta.id, selectedCategoryMeta.name)}`
+      : `/store/${store.slug}`
+    : null;
+  const storefrontCanonicalUrl = storefrontCanonicalPath
+    ? /^https?:\/\//i.test(storefrontCanonicalPath)
+      ? storefrontCanonicalPath
+      : `${window.location.origin}${storefrontCanonicalPath}`
+    : null;
+  const storeCanonicalUrl = store
+    ? initialPublicPage?.page === "store" && initialPublicPage.canonical
+      ? initialPublicPage.canonical
+      : `${window.location.origin}/store/${store.slug}`
+    : null;
+
   // SEO meta
   usePageMeta(
     store
       ? {
-          title: ((store as any).seoTitle ?? store.name) as string,
-          description: ((store as any).seoDescription ?? store.description ?? undefined) as string | undefined,
+          title: selectedCategoryMeta
+            ? `${selectedCategoryMeta.name} | ${store.name}`
+            : (((store as any).seoTitle ?? store.name) as string),
+          description: selectedCategoryMeta
+            ? `تسوق ${selectedCategoryMeta.name} من ${store.name} على نور.`
+            : (((store as any).seoDescription ?? store.description ?? undefined) as string | undefined),
           image: ((store as any).coverUrl ?? (store as any).logoUrl ?? null) as string | null,
-          canonicalPath: `/store/${store.slug}`,
+          canonicalPath: storefrontCanonicalPath ?? undefined,
           type: "website",
-          jsonLd: {
+          jsonLd: selectedCategoryMeta ? {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: `${selectedCategoryMeta.name} | ${store.name}`,
+            description: `تسوق ${selectedCategoryMeta.name} من ${store.name} على نور.`,
+            url: storefrontCanonicalUrl ?? undefined,
+            isPartOf: {
+              "@type": "OnlineStore",
+              name: store.name,
+              url: storeCanonicalUrl ?? undefined,
+            },
+          } : {
             "@context": "https://schema.org",
             "@type": "OnlineStore",
             name: store.name,
             description: store.description ?? undefined,
-            url: `${window.location.origin}/store/${store.slug}`,
+            url: storefrontCanonicalUrl ?? undefined,
             ...((store as any).logoUrl ? { image: (store as any).logoUrl } : {}),
             ...((store as any).city ? {
               location: {
@@ -253,7 +306,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           },
         }
       : null,
-    [store],
+    [store, selectedCategoryMeta],
   );
 
   // Favicon + CSS primary color
@@ -270,16 +323,38 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     return () => { document.documentElement.style.removeProperty("--storefront-primary"); };
   }, [store]);
 
+  const productHref = useCallback((product: Pick<ProductCardData, "id" | "name">) => {
+    if (!store) return `/products/${product.id}`;
+    const slugPart = publicEntitySlug(product.id, product.name);
+    const isStoreRoot = overrideSlug && typeof window !== "undefined" && !window.location.pathname.startsWith("/store/");
+    return isStoreRoot ? `/product/${slugPart}` : `/store/${store.slug}/product/${slugPart}`;
+  }, [store, overrideSlug]);
+
   const handleAddToCart = useCallback((product: ProductCardData) => {
     if (!store) return;
-    if ((product as any).hasVariants) { navigate(`/products/${product.id}`); return; }
+    if ((product as any).hasVariants) { navigate(productHref(product)); return; }
     addItem({ productId:product.id, tenantId:store.id, tenantSlug:store.slug, tenantName:store.name, name:product.name, price:product.price, imageUrl:product.imageUrl??null });
     setAddedIds(prev => new Set(prev).add(product.id));
     setTimeout(() => setAddedIds(prev => { const n=new Set(prev); n.delete(product.id); return n; }), 2000);
-  }, [store, addItem, navigate]);
+  }, [store, addItem, navigate, productHref]);
 
   function scrollToProducts() {
     document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function handleCategorySelect(categoryId: number | null) {
+    setSelectedCategory(categoryId);
+    if (!store) return;
+    const isStoreRoot = overrideSlug && typeof window !== "undefined" && !window.location.pathname.startsWith("/store/");
+    if (!categoryId) {
+      navigate(isStoreRoot ? "/" : `/store/${store.slug}`);
+      return;
+    }
+    const category = store.categories?.find((c) => c.id === categoryId);
+    if (category) {
+      const href = `${isStoreRoot ? "" : `/store/${store.slug}`}/category/${publicEntitySlug(category.id, category.name)}`;
+      navigate(href);
+    }
   }
 
   // ── Error state ──
@@ -461,7 +536,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           <CategoryFilter
             store={store}
             selected={selectedCategory}
-            onSelect={setSelectedCategory}
+            onSelect={handleCategorySelect}
             p={p}
           />
 
@@ -498,6 +573,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                   >
                     <StorefrontProductCard
                       product={product as any}
+                      storeSlug={store.slug}
                       primaryColor={p}
                       inCart={addedIds.has(product.id)}
                       onAdd={() => handleAddToCart({ ...product, tenantId: store.id, tenantName: store.name })}

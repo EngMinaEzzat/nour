@@ -12,6 +12,7 @@ import { ShoppingBag, AlertCircle, ChevronRight, Store, Tag, Check, Layers, Star
 import { useState, useMemo, useEffect } from "react";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -46,8 +47,8 @@ function StarRow({ rating, interactive = false, onRate }: { rating: number; inte
 type Variant = { id: number; size?: string | null; color?: string | null; colorHex?: string | null; stock: number };
 
 export default function ProductDetail() {
-  const { id } = useParams<{ id: string }>();
-  const productId = parseInt(id || "0", 10);
+  const params = useParams<{ id?: string; slug?: string; productSlug?: string }>();
+  const productId = idFromPublicSlug(params.id ?? params.productSlug);
 
   const { data: product, isLoading, error } = useGetProduct(productId, {
     query: { enabled: !!productId, queryKey: getGetProductQueryKey(productId) },
@@ -88,6 +89,19 @@ export default function ProductDetail() {
   const productPrice = product ? parseFloat(String(product.price)) : 0;
   const productAvailability = product && product.stock > 0 && product.status === "active"
     ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+  const initialPublicPage = typeof window !== "undefined"
+    ? (window as typeof window & { __NOUR_INITIAL_PUBLIC_PAGE__?: { page?: string; canonical?: string } }).__NOUR_INITIAL_PUBLIC_PAGE__
+    : undefined;
+  const productTenantSlug = params.slug ?? (product as any)?.tenantSlug;
+  const productPublicSlug = product ? publicEntitySlug(product.id, product.name) : null;
+  const productCanonicalPath = initialPublicPage?.page === "product" && initialPublicPage.canonical
+    ? initialPublicPage.canonical
+    : productTenantSlug && productPublicSlug
+    ? `/store/${productTenantSlug}/product/${productPublicSlug}`
+    : `/products/${product?.id ?? productId}`;
+  const productCanonicalUrl = /^https?:\/\//i.test(productCanonicalPath)
+    ? productCanonicalPath
+    : `${window.location.origin}${productCanonicalPath}`;
 
   usePageMeta(
     product
@@ -95,7 +109,7 @@ export default function ProductDetail() {
           title: `${product.name} | ${(product as any).tenantName ?? "نور"}`,
           description: product.description?.slice(0, 160) ?? undefined,
           image: product.imageUrl ?? null,
-          canonicalPath: `/products/${product.id}`,
+          canonicalPath: productCanonicalPath,
           type: "product",
           jsonLd: {
             "@context": "https://schema.org",
@@ -103,13 +117,13 @@ export default function ProductDetail() {
             name: product.name,
             description: product.description ?? undefined,
             ...(product.imageUrl ? { image: product.imageUrl } : {}),
-            url: `${window.location.origin}/products/${product.id}`,
+            url: productCanonicalUrl,
             offers: {
               "@type": "Offer",
               price: productPrice,
               priceCurrency: "EGP",
               availability: productAvailability,
-              url: `${window.location.origin}/products/${product.id}`,
+              url: productCanonicalUrl,
             },
             ...(reviewsData?.avgRating != null
               ? {
@@ -123,7 +137,7 @@ export default function ProductDetail() {
           },
         }
       : null,
-    [product, reviewsData],
+    [product, reviewsData, productCanonicalPath],
   );
 
   function validateReview() {
@@ -235,12 +249,13 @@ export default function ProductDetail() {
 
   const discountPercent = product.originalPrice && product.originalPrice > product.price
     ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+  const backHref = productTenantSlug ? `/store/${productTenantSlug}` : "/products";
 
   return (
     <div className="container mx-auto px-4 py-8 pb-24">
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <Button variant="ghost" size="sm" asChild className="mb-6 -ms-2">
-          <Link href="/products"><ChevronRight className="w-4 h-4 me-1" /> العودة للمنتجات</Link>
+          <Link href={backHref}><ChevronRight className="w-4 h-4 me-1" /> العودة للمنتجات</Link>
         </Button>
       </motion.div>
 
@@ -248,7 +263,13 @@ export default function ProductDetail() {
         {/* Image */}
         <motion.div className="w-full lg:w-1/2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
           <div className="aspect-[3/4] bg-muted rounded-3xl overflow-hidden relative border border-border/50">
-            <img src={product.imageUrl || "/product-fashion.png"} alt={product.name} className="w-full h-full object-cover" />
+            <img
+              src={product.imageUrl || "/product-fashion.png"}
+              alt={product.name}
+              width={900}
+              height={1200}
+              className="w-full h-full object-cover"
+            />
             {unavailable && (
               <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
                 <Badge variant="destructive" className="text-lg px-6 py-2">نفذت الكمية</Badge>
