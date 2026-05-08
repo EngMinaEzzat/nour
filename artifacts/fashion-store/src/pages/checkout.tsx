@@ -165,7 +165,7 @@ export default function Checkout() {
           paymentMethod,
           cartSessionId: sessionId,
           storefrontSlug: group.items[0]?.tenantSlug,
-          items: group.items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          items: group.items.map((i) => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
         } as Parameters<typeof createOrder.mutateAsync>[0]["data"] });
         orderIds.push(order.id);
         orderTracks.push({ id: order.id, publicCode: (order as any).publicCode, trackingToken: (order as any).trackingToken });
@@ -379,7 +379,7 @@ export default function Checkout() {
                 <div key={tenantId}>
                   <p className="text-xs text-primary font-semibold mb-2">{group.tenantName}</p>
                   {group.items.map((item) => (
-                    <div key={item.productId} className="flex items-center gap-3 mb-3">
+                    <div key={`${item.productId}-${item.variantId ?? "base"}`} className="flex items-center gap-3 mb-3">
                       <div className="w-12 h-14 rounded-lg overflow-hidden bg-muted shrink-0">
                         <img
                           src={productImageUrl(item.imageUrl)}
@@ -393,6 +393,7 @@ export default function Checkout() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium line-clamp-1">{item.name}</p>
+                        {item.variantLabel && <p className="text-xs text-muted-foreground line-clamp-1">{item.variantLabel}</p>}
                         <p className="text-xs text-muted-foreground">الكمية: {item.quantity}</p>
                       </div>
                       <p className="text-sm font-bold shrink-0">{(item.price * item.quantity).toLocaleString("ar-EG")} ج.م</p>

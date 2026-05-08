@@ -28,7 +28,7 @@ import {
   AlertCircle, Layers, X, Check, Palette, AlertTriangle, Sparkles, Loader2,
   FileUp, FileDown, CheckCircle2, XCircle, UploadCloud,
 } from "lucide-react";
-import { ImageUpload } from "@/components/image-upload";
+import { ImageUpload, ImageUploadList } from "@/components/image-upload";
 
 const SELECT_NONE_VALUE = "__none__";
 
@@ -56,16 +56,28 @@ const STATUS_MAP = {
 
 type ProductForm = {
   name: string; description: string; price: string; originalPrice: string;
-  imageUrl: string; stock: string; featured: boolean;
+  imageUrl: string; featured: boolean;
   status: "active" | "out_of_stock" | "hidden"; categoryId: string;
 };
 
 const EMPTY_FORM: ProductForm = {
   name: "", description: "", price: "", originalPrice: "",
-  imageUrl: "", stock: "0", featured: false, status: "active", categoryId: "",
+  imageUrl: "", featured: false, status: "active", categoryId: "",
 };
 
-type VariantRow = { id?: number; size: string; color: string; colorHex: string; stock: string; isNew?: boolean };
+type VariantRow = { id?: number; size: string; color: string; colorHex: string; stock: string; imageUrls: string[]; isNew?: boolean };
+
+function newVariantRow(): VariantRow {
+  return { size: "", color: "", colorHex: "#000000", stock: "0", imageUrls: [], isNew: true };
+}
+
+function variantStock(rows: VariantRow[]) {
+  return rows.reduce((total, row) => total + (parseInt(row.stock, 10) || 0), 0);
+}
+
+function firstVariantImage(rows: VariantRow[]) {
+  return rows.flatMap((row) => row.imageUrls).find(Boolean) ?? "";
+}
 
 /* ─── Variant Manager sub-component ─── */
 function VariantManager({ productId }: { productId: number }) {
@@ -83,16 +95,17 @@ function VariantManager({ productId }: { productId: number }) {
       size: v.size ?? "",
       color: v.color ?? "",
       colorHex: v.colorHex ?? "#000000",
+      imageUrls: v.imageUrls ?? [],
       stock: String(v.stock),
     })));
     setInitialized(true);
   }
 
   function addRow() {
-    setRows((r) => [...r, { size: "", color: "", colorHex: "#000000", stock: "0", isNew: true }]);
+    setRows((r) => [...r, newVariantRow()]);
   }
 
-  function updateRow(i: number, field: keyof VariantRow, value: string) {
+  function updateRow(i: number, field: keyof VariantRow, value: string | string[]) {
     setRows((r) => r.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
   }
 
@@ -107,6 +120,7 @@ function VariantManager({ productId }: { productId: number }) {
       size: row.size || null,
       color: row.color || null,
       colorHex: row.colorHex || null,
+      imageUrls: row.imageUrls,
       stock: parseInt(row.stock, 10) || 0,
     };
     if (row.id) {
@@ -153,7 +167,7 @@ function VariantManager({ productId }: { productId: number }) {
             key={i}
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-[1fr_1fr_auto_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50"
+            className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50"
           >
             {/* Size */}
             <div className="space-y-1">
@@ -225,6 +239,14 @@ function VariantManager({ productId }: { productId: number }) {
               />
             </div>
 
+            <div className="sm:col-span-3">
+              <ImageUploadList
+                label="صور المتغير"
+                values={row.imageUrls}
+                onChange={(urls) => updateRow(i, "imageUrls", urls)}
+              />
+            </div>
+
             {/* Save */}
             <Button
               type="button"
@@ -250,6 +272,96 @@ function VariantManager({ productId }: { productId: number }) {
           </motion.div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function DraftVariantManager({
+  rows,
+  onChange,
+}: {
+  rows: VariantRow[];
+  onChange: (rows: VariantRow[]) => void;
+}) {
+  function updateRow(i: number, field: keyof VariantRow, value: string | string[]) {
+    onChange(rows.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
+  }
+
+  function setPresetColor(i: number, name: string, hex: string) {
+    onChange(rows.map((row, idx) => idx === i ? { ...row, color: name, colorHex: hex } : row));
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="flex items-center gap-1.5 text-sm font-semibold">
+          <Layers className="w-3.5 h-3.5 text-primary" /> المتغيرات والكمية
+        </Label>
+        <Button type="button" size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => onChange([...rows, newVariantRow()])}>
+          <Plus className="w-3 h-3" /> إضافة متغير
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {rows.map((row, i) => (
+          <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50">
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">المقاس</Label>
+              <Select value={row.size || SELECT_NONE_VALUE} onValueChange={(v) => updateRow(i, "size", v === SELECT_NONE_VALUE ? "" : v)}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="اختاري..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={SELECT_NONE_VALUE}>بدون</SelectItem>
+                  {SIZES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">اللون</Label>
+              <div className="flex gap-1">
+                <div className="relative flex-1">
+                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder="اسم اللون" className="h-8 text-xs ps-7" />
+                  <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50" style={{ backgroundColor: row.colorHex || "#000" }} />
+                </div>
+                <Select onValueChange={(v) => {
+                  const preset = PRESET_COLORS.find((c) => c.name === v);
+                  if (preset) setPresetColor(i, preset.name, preset.hex);
+                }}>
+                  <SelectTrigger className="h-8 w-8 p-0 border-border/50">
+                    <Palette className="w-3 h-3 mx-auto text-muted-foreground" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRESET_COLORS.map((c) => (
+                      <SelectItem key={c.name} value={c.name}>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: c.hex }} />
+                          {c.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">الكمية</Label>
+              <Input type="number" min="0" value={row.stock} onChange={(e) => updateRow(i, "stock", e.target.value)} className="h-8 text-xs w-20" />
+            </div>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-destructive hover:bg-destructive/10"
+              onClick={() => rows.length > 1 && onChange(rows.filter((_, idx) => idx !== i))}
+              disabled={rows.length === 1}
+            >
+              <X className="w-3.5 h-3.5" />
+            </Button>
+            <div className="sm:col-span-4">
+              <ImageUploadList label="صور المتغير" values={row.imageUrls} onChange={(urls) => updateRow(i, "imageUrls", urls)} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">إجمالي المخزون المحسوب من المتغيرات: {variantStock(rows)}</p>
     </div>
   );
 }
@@ -565,6 +677,7 @@ export default function Products() {
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
+  const createProductVariant = useCreateProductVariant();
 
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -575,6 +688,8 @@ export default function Products() {
   const [variantsProductId, setVariantsProductId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState<ProductForm>(EMPTY_FORM);
+  const [draftVariants, setDraftVariants] = useState<VariantRow[]>([newVariantRow()]);
+  const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   // Pricing advisor state
@@ -631,6 +746,8 @@ export default function Products() {
 
   function openCreate() {
     setForm(EMPTY_FORM);
+    setDraftVariants([newVariantRow()]);
+    setFormError(null);
     setEditingId(null);
     setVariantsProductId(null);
     setDialogOpen(true);
@@ -640,10 +757,11 @@ export default function Products() {
     setForm({
       name: p.name, description: p.description,
       price: String(p.price), originalPrice: p.originalPrice ? String(p.originalPrice) : "",
-      imageUrl: p.imageUrl ?? "", stock: String(p.stock),
+      imageUrl: p.imageUrl ?? "",
       featured: p.featured, status: p.status,
       categoryId: p.categoryId ? String(p.categoryId) : "",
     });
+    setFormError(null);
     setEditingId(p.id);
     setVariantsProductId(p.id);
     setDialogOpen(true);
@@ -651,23 +769,35 @@ export default function Products() {
 
   async function handleSave() {
     if (!tenantId) return;
+    const rowsForCreate = draftVariants.length ? draftVariants : [newVariantRow()];
+    if (!editingId && rowsForCreate.length === 0) {
+      setFormError("يجب إضافة متغير واحد على الأقل للمنتج.");
+      return;
+    }
     setSaving(true);
+    setFormError(null);
     try {
+      const representativeImage = form.imageUrl.trim() || firstVariantImage(rowsForCreate);
+      const derivedStock = editingId ? undefined : variantStock(rowsForCreate);
       const payload = {
         name: form.name.trim(),
         description: form.description.trim(),
         price: parseFloat(form.price) || 0,
         originalPrice: form.originalPrice ? parseFloat(form.originalPrice) : undefined,
-        imageUrl: form.imageUrl.trim() || undefined,
-        stock: parseInt(form.stock, 10) || 0,
+        imageUrl: representativeImage || undefined,
+        stock: derivedStock ?? 0,
         featured: form.featured,
         status: form.status,
         categoryId: form.categoryId ? parseInt(form.categoryId, 10) : undefined,
       };
       if (editingId) {
-        await updateProduct.mutateAsync({ id: editingId, data: payload });
+        const { stock: _stock, ...updatePayload } = payload;
+        await updateProduct.mutateAsync({ id: editingId, data: updatePayload });
       } else {
         const created = await createProduct.mutateAsync({ data: { ...payload, tenantId } });
+        for (const row of rowsForCreate) {
+          await createVariantFromDraft(created.id, row);
+        }
         setVariantsProductId(created.id);
         setEditingId(created.id);
       }
@@ -686,6 +816,19 @@ export default function Products() {
 
   const field = (key: keyof ProductForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  async function createVariantFromDraft(productId: number, row: VariantRow) {
+    await createProductVariant.mutateAsync({
+      id: productId,
+      data: {
+        size: row.size || null,
+        color: row.color || null,
+        colorHex: row.colorHex || null,
+        imageUrls: row.imageUrls,
+        stock: parseInt(row.stock, 10) || 0,
+      },
+    });
+  }
 
   return (
     <div className="container mx-auto px-4 py-10">
@@ -906,10 +1049,6 @@ export default function Products() {
                 <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder="399" />
               </div>
               <div className="space-y-1.5">
-                <Label>المخزون الإجمالي</Label>
-                <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" />
-              </div>
-              <div className="space-y-1.5">
                 <Label>الفئة</Label>
                 <Select
                   value={form.categoryId || SELECT_NONE_VALUE}
@@ -956,6 +1095,16 @@ export default function Products() {
               </div>
             </div>
 
+            {!variantsProductId && (
+              <div className="border-t border-border/50 pt-5">
+                <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
+              </div>
+            )}
+
+            {formError && (
+              <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2">{formError}</p>
+            )}
+
             {/* Save basic info first before showing variants */}
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>إغلاق</Button>
@@ -980,12 +1129,6 @@ export default function Products() {
               </AnimatePresence>
             )}
 
-            {!variantsProductId && (
-              <div className="border border-dashed border-border/60 rounded-xl p-4 text-center">
-                <Layers className="w-5 h-5 text-muted-foreground mx-auto mb-2 opacity-50" />
-                <p className="text-xs text-muted-foreground">احفظ المنتج أولاً لإضافة المقاسات والألوان</p>
-              </div>
-            )}
           </div>
         </DialogContent>
       </Dialog>

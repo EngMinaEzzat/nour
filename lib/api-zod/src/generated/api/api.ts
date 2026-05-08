@@ -158,12 +158,16 @@ export const GetStorefrontResponse = zod.object({
 /**
  * @summary Register a new merchant and create their store
  */
+export const registerMerchantBodyCategoryDefault = `both`;
+
 export const RegisterMerchantBody = zod.object({
   storeName: zod.string(),
   slug: zod.string(),
   email: zod.string(),
   password: zod.string(),
-  category: zod.enum(["fashion", "cosmetics", "both"]).optional().default("both"),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(registerMerchantBodyCategoryDefault),
   city: zod.string().nullish(),
   description: zod.string(),
 });
@@ -239,6 +243,8 @@ export const HealthCheckResponse = zod.object({
 /**
  * @summary List all tenants/stores
  */
+export const listTenantsResponseCategoryDefault = `both`;
+
 export const ListTenantsResponseItem = zod.object({
   id: zod.number(),
   name: zod.string(),
@@ -247,7 +253,11 @@ export const ListTenantsResponseItem = zod.object({
   logoUrl: zod.string().nullish(),
   coverUrl: zod.string().nullish(),
   primaryColor: zod.string().nullish(),
-  category: zod.enum(["fashion", "cosmetics", "both"]),
+  secondaryColor: zod.string().nullish(),
+  theme: zod.string().optional(),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(listTenantsResponseCategoryDefault),
   status: zod.enum(["active", "inactive", "pending"]),
   city: zod.string().nullish(),
   createdAt: zod.coerce.date(),
@@ -261,13 +271,17 @@ export const ListTenantsResponse = zod.array(ListTenantsResponseItem);
 /**
  * @summary Create a new tenant/store
  */
+export const createTenantBodyCategoryDefault = `both`;
+
 export const CreateTenantBody = zod.object({
   name: zod.string(),
   slug: zod.string(),
   description: zod.string(),
   logoUrl: zod.string().nullish(),
   coverUrl: zod.string().nullish(),
-  category: zod.enum(["fashion", "cosmetics", "both"]),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(createTenantBodyCategoryDefault),
   city: zod.string().nullish(),
 });
 
@@ -278,6 +292,8 @@ export const GetTenantParams = zod.object({
   id: zod.coerce.number(),
 });
 
+export const getTenantResponseCategoryDefault = `both`;
+
 export const GetTenantResponse = zod.object({
   id: zod.number(),
   name: zod.string(),
@@ -286,7 +302,11 @@ export const GetTenantResponse = zod.object({
   logoUrl: zod.string().nullish(),
   coverUrl: zod.string().nullish(),
   primaryColor: zod.string().nullish(),
-  category: zod.enum(["fashion", "cosmetics", "both"]),
+  secondaryColor: zod.string().nullish(),
+  theme: zod.string().optional(),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(getTenantResponseCategoryDefault),
   status: zod.enum(["active", "inactive", "pending"]),
   city: zod.string().nullish(),
   createdAt: zod.coerce.date(),
@@ -310,11 +330,13 @@ export const UpdateTenantBody = zod.object({
   coverUrl: zod.string().nullish(),
   primaryColor: zod.string().nullish(),
   secondaryColor: zod.string().nullish(),
-  theme: zod.enum(["classic","luxe","minimal","vibrant","boutique","elegant","royal","magazine","retro","pastel","neon","street","summer","nature","glass","craft","sporty","heritage","salon","bold"]).optional(),
+  theme: zod.string().optional(),
   category: zod.enum(["fashion", "cosmetics", "both"]).optional(),
   status: zod.enum(["active", "inactive", "pending"]).optional(),
   city: zod.string().nullish(),
 });
+
+export const updateTenantResponseCategoryDefault = `both`;
 
 export const UpdateTenantResponse = zod.object({
   id: zod.number(),
@@ -324,7 +346,11 @@ export const UpdateTenantResponse = zod.object({
   logoUrl: zod.string().nullish(),
   coverUrl: zod.string().nullish(),
   primaryColor: zod.string().nullish(),
-  category: zod.enum(["fashion", "cosmetics", "both"]),
+  secondaryColor: zod.string().nullish(),
+  theme: zod.string().optional(),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(updateTenantResponseCategoryDefault),
   status: zod.enum(["active", "inactive", "pending"]),
   city: zod.string().nullish(),
   createdAt: zod.coerce.date(),
@@ -387,6 +413,8 @@ export const ListProductsQueryParams = zod.object({
   search: zod.coerce.string().optional(),
 });
 
+export const listProductsResponseDescriptionDefault = ``;
+
 export const ListProductsResponseItem = zod.object({
   id: zod.number(),
   tenantId: zod.number(),
@@ -394,7 +422,7 @@ export const ListProductsResponseItem = zod.object({
   categoryId: zod.number().nullish(),
   categoryName: zod.string().nullish(),
   name: zod.string(),
-  description: zod.string(),
+  description: zod.string().default(listProductsResponseDescriptionDefault),
   price: zod.number(),
   originalPrice: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
@@ -409,17 +437,23 @@ export const ListProductsResponse = zod.array(ListProductsResponseItem);
 /**
  * @summary Create a new product
  */
+export const createProductBodyDescriptionDefault = ``;
+export const createProductBodyFeaturedDefault = false;
+export const createProductBodyStatusDefault = `active`;
+
 export const CreateProductBody = zod.object({
   tenantId: zod.number().optional(),
   categoryId: zod.number().nullish(),
   name: zod.string(),
-  description: zod.string().optional().default(""),
+  description: zod.string().default(createProductBodyDescriptionDefault),
   price: zod.number(),
   originalPrice: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
   stock: zod.number(),
-  featured: zod.boolean().optional().default(false),
-  status: zod.enum(["active", "out_of_stock", "hidden"]).optional().default("active"),
+  featured: zod.boolean().default(createProductBodyFeaturedDefault),
+  status: zod
+    .enum(["active", "out_of_stock", "hidden"])
+    .default(createProductBodyStatusDefault),
 });
 
 /**
@@ -429,6 +463,8 @@ export const GetProductParams = zod.object({
   id: zod.coerce.number(),
 });
 
+export const getProductResponseDescriptionDefault = ``;
+
 export const GetProductResponse = zod.object({
   id: zod.number(),
   tenantId: zod.number(),
@@ -436,7 +472,7 @@ export const GetProductResponse = zod.object({
   categoryId: zod.number().nullish(),
   categoryName: zod.string().nullish(),
   name: zod.string(),
-  description: zod.string(),
+  description: zod.string().default(getProductResponseDescriptionDefault),
   price: zod.number(),
   originalPrice: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
@@ -466,6 +502,8 @@ export const UpdateProductBody = zod.object({
   status: zod.enum(["active", "out_of_stock", "hidden"]).optional(),
 });
 
+export const updateProductResponseDescriptionDefault = ``;
+
 export const UpdateProductResponse = zod.object({
   id: zod.number(),
   tenantId: zod.number(),
@@ -473,7 +511,7 @@ export const UpdateProductResponse = zod.object({
   categoryId: zod.number().nullish(),
   categoryName: zod.string().nullish(),
   name: zod.string(),
-  description: zod.string(),
+  description: zod.string().default(updateProductResponseDescriptionDefault),
   price: zod.number(),
   originalPrice: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
@@ -504,6 +542,7 @@ export const ListProductVariantsResponseItem = zod.object({
   size: zod.string().nullish(),
   color: zod.string().nullish(),
   colorHex: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).optional(),
   stock: zod.number(),
   createdAt: zod.coerce.date(),
 });
@@ -522,6 +561,7 @@ export const CreateProductVariantBody = zod.object({
   size: zod.string().nullish(),
   color: zod.string().nullish(),
   colorHex: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).optional(),
   stock: zod.number(),
 });
 
@@ -537,6 +577,7 @@ export const UpdateProductVariantBody = zod.object({
   size: zod.string().nullish(),
   color: zod.string().nullish(),
   colorHex: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).optional(),
   stock: zod.number().optional(),
 });
 
@@ -546,6 +587,7 @@ export const UpdateProductVariantResponse = zod.object({
   size: zod.string().nullish(),
   color: zod.string().nullish(),
   colorHex: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).optional(),
   stock: zod.number(),
   createdAt: zod.coerce.date(),
 });
@@ -561,6 +603,8 @@ export const DeleteProductVariantParams = zod.object({
 /**
  * @summary Get featured products across all tenants
  */
+export const listFeaturedProductsResponseDescriptionDefault = ``;
+
 export const ListFeaturedProductsResponseItem = zod.object({
   id: zod.number(),
   tenantId: zod.number(),
@@ -568,7 +612,9 @@ export const ListFeaturedProductsResponseItem = zod.object({
   categoryId: zod.number().nullish(),
   categoryName: zod.string().nullish(),
   name: zod.string(),
-  description: zod.string(),
+  description: zod
+    .string()
+    .default(listFeaturedProductsResponseDescriptionDefault),
   price: zod.number(),
   originalPrice: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
@@ -585,6 +631,8 @@ export const ListFeaturedProductsResponse = zod.array(
 /**
  * @summary Get trending products by order count
  */
+export const listTrendingProductsResponseDescriptionDefault = ``;
+
 export const ListTrendingProductsResponseItem = zod.object({
   id: zod.number(),
   tenantId: zod.number(),
@@ -592,7 +640,9 @@ export const ListTrendingProductsResponseItem = zod.object({
   categoryId: zod.number().nullish(),
   categoryName: zod.string().nullish(),
   name: zod.string(),
-  description: zod.string(),
+  description: zod
+    .string()
+    .default(listTrendingProductsResponseDescriptionDefault),
   price: zod.number(),
   originalPrice: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
@@ -687,6 +737,7 @@ export const ListOrdersResponseItem = zod.object({
     zod.object({
       id: zod.number(),
       productId: zod.number(),
+      variantId: zod.number().nullish(),
       productName: zod.string(),
       quantity: zod.number(),
       unitPrice: zod.number(),
@@ -721,6 +772,7 @@ export const CreateOrderBody = zod.object({
   items: zod.array(
     zod.object({
       productId: zod.number(),
+      variantId: zod.number().nullish(),
       quantity: zod.number(),
     }),
   ),
@@ -763,6 +815,7 @@ export const GetOrderResponse = zod.object({
     zod.object({
       id: zod.number(),
       productId: zod.number(),
+      variantId: zod.number().nullish(),
       productName: zod.string(),
       quantity: zod.number(),
       unitPrice: zod.number(),
@@ -838,6 +891,7 @@ export const UpdateOrderResponse = zod.object({
     zod.object({
       id: zod.number(),
       productId: zod.number(),
+      variantId: zod.number().nullish(),
       productName: zod.string(),
       quantity: zod.number(),
       unitPrice: zod.number(),

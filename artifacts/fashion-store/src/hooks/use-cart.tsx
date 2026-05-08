@@ -53,6 +53,8 @@ async function syncCartToServer(sessionId: string, items: CartItem[]) {
     const itemCount = tenantItems.reduce((s, i) => s + i.quantity, 0);
     const payload = tenantItems.map((i) => ({
       productId: i.productId,
+      variantId: i.variantId,
+      variantLabel: i.variantLabel,
       tenantSlug: i.tenantSlug,
       name: i.name,
       price: i.price,

@@ -3,7 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { tenantsTable } from "./tenants";
 import { customersTable } from "./customers";
-import { productsTable } from "./products";
+import { productsTable, productVariantsTable } from "./products";
 
 export const orderStatusEnum = pgEnum("order_status", [
   "pending",
@@ -57,6 +57,7 @@ export const orderItemsTable = pgTable("order_items", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id").notNull().references(() => ordersTable.id, { onDelete: "cascade" }),
   productId: integer("product_id").notNull().references(() => productsTable.id),
+  variantId: integer("variant_id").references(() => productVariantsTable.id, { onDelete: "set null" }),
   quantity: integer("quantity").notNull(),
   unitPrice: numeric("unit_price", { precision: 10, scale: 2 }).notNull(),
   totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),

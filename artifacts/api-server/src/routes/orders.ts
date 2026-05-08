@@ -6,7 +6,7 @@ import { db } from "@workspace/db";
 import {
   ordersTable, orderItemsTable, orderStatusHistoryTable,
   tenantsTable, customersTable, productsTable, contactAttemptsTable,
-  automationRulesTable, cartSessionsTable,
+  automationRulesTable, cartSessionsTable, productVariantsTable,
 } from "@workspace/db";
 import { checkoutLimiter } from "../lib/rate-limiters";
 import {
@@ -16,7 +16,7 @@ import {
   UpdateOrderParams,
   ListOrdersQueryParams,
 } from "@workspace/api-zod";
-import { eq, and, sql, desc, inArray } from "drizzle-orm";
+import { eq, and, sql, desc, inArray, count } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { buildOrderConfirmationMessage, buildDispatchedMessage, buildCancelledMessage, buildDeliveryFollowUpMessage, buildReturnExchangeMessage, buildShippingUpdateMessage, buildWhatsAppLink } from "../lib/whatsapp.js";
 
@@ -39,18 +39,31 @@ function createTrackingToken(): string {
   return crypto.randomBytes(24).toString("hex");
 }
 
-function combineCheckoutItems(items: Array<{ productId: number; quantity: number }>) {
-  const combined = new Map<number, number>();
+function checkoutItemKey(productId: number, variantId?: number | null) {
+  return `${productId}:${variantId ?? "none"}`;
+}
+
+function combineCheckoutItems(items: Array<{ productId: number; variantId?: number | null; quantity: number }>) {
+  const combined = new Map<string, { productId: number; variantId?: number | null; quantity: number }>();
   for (const item of items) {
     if (!Number.isInteger(item.productId) || item.productId <= 0) {
       throw new CheckoutHttpError(400, "معرّف المنتج غير صحيح");
     }
+    if (item.variantId != null && (!Number.isInteger(item.variantId) || item.variantId <= 0)) {
+      throw new CheckoutHttpError(400, "معرّف المتغير غير صحيح");
+    }
     if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
       throw new CheckoutHttpError(400, "كمية المنتج يجب أن تكون رقمًا موجبًا");
     }
-    combined.set(item.productId, (combined.get(item.productId) ?? 0) + item.quantity);
+    const key = checkoutItemKey(item.productId, item.variantId);
+    const existing = combined.get(key);
+    combined.set(key, {
+      productId: item.productId,
+      variantId: item.variantId ?? null,
+      quantity: (existing?.quantity ?? 0) + item.quantity,
+    });
   }
-  return [...combined.entries()].map(([productId, quantity]) => ({ productId, quantity }));
+  return [...combined.values()];
 }
 
 async function fetchOrderWithItems(orderId: number) {
@@ -87,6 +100,7 @@ async function fetchOrderWithItems(orderId: number) {
     .select({
       id: orderItemsTable.id,
       productId: orderItemsTable.productId,
+      variantId: orderItemsTable.variantId,
       productName: productsTable.name,
       quantity: orderItemsTable.quantity,
       unitPrice: orderItemsTable.unitPrice,
@@ -341,7 +355,7 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
 
   // ── Sprint 6: Monthly order limit enforcement ──────────────────────────────
   let orderTenantId = parsed.data.tenantId;
-  let checkoutItems: Array<{ productId: number; quantity: number }>;
+  let checkoutItems: Array<{ productId: number; variantId?: number | null; quantity: number }>;
   try {
     checkoutItems = combineCheckoutItems(parsed.data.items);
   } catch (err) {
@@ -449,9 +463,30 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
           if (!product) throw new Error(`منتج #${item.productId} غير موجود`);
           if (product.status !== "active")
             throw new Error(`منتج "${product.name}" غير متاح للبيع حالياً`);
-          if ((product.stock ?? 0) < item.quantity)
+
+          let availableStock = product.stock ?? 0;
+          if (item.variantId) {
+            const [variant] = await tx
+              .select()
+              .from(productVariantsTable)
+              .where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId)));
+            if (!variant) throw new CheckoutHttpError(400, `المتغير المحدد للمنتج "${product.name}" غير موجود`);
+            availableStock = variant.stock ?? 0;
+          }
+
+          if (!item.variantId) {
+            const [{ variantCount }] = await tx
+              .select({ variantCount: count() })
+              .from(productVariantsTable)
+              .where(eq(productVariantsTable.productId, item.productId));
+            if (variantCount > 0) {
+              throw new CheckoutHttpError(400, `ÙŠØ¬Ø¨ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù‚Ø§Ø³/Ù„ÙˆÙ† Ù„Ù„Ù…Ù†ØªØ¬ "${product.name}"`);
+            }
+          }
+
+          if (availableStock < item.quantity)
             throw new CheckoutHttpError(409,
-              `الكمية المطلوبة من "${product.name}" تتجاوز المخزون المتاح (${product.stock ?? 0} متبقٍ)`
+              `الكمية المطلوبة من "${product.name}" تتجاوز المخزون المتاح (${availableStock} متبقٍ)`
             );
 
           const unitPrice = parseFloat(product.price as string);
@@ -484,6 +519,7 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
         itemsWithPrices.map((item) => ({
           orderId: order.id,
           productId: item.productId,
+          variantId: item.variantId ?? null,
           quantity: item.quantity,
           unitPrice: String(item.unitPrice),
           totalPrice: String(item.totalPrice),
@@ -495,24 +531,45 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
       // Paymob webhook will release the reservation if payment fails (see paymob.ts).
       // COD cancellation restores stock via the status-change handler below.
       for (const item of itemsWithPrices) {
-        const decremented = await tx
-          .update(productsTable)
-          .set({
-            stock: sql`${productsTable.stock} - ${item.quantity}`,
-            orderCount: sql`${productsTable.orderCount} + ${item.quantity}`,
-          })
-          .where(
-            and(
-              eq(productsTable.id, item.productId),
-              eq(productsTable.tenantId, orderTenantId),
-              sql`${productsTable.stock} >= ${item.quantity}`
-            )
-          )
-          .returning({ id: productsTable.id });
+        const decremented = item.variantId
+          ? await tx
+              .update(productVariantsTable)
+              .set({ stock: sql`${productVariantsTable.stock} - ${item.quantity}` })
+              .where(
+                and(
+                  eq(productVariantsTable.id, item.variantId),
+                  eq(productVariantsTable.productId, item.productId),
+                  sql`${productVariantsTable.stock} >= ${item.quantity}`
+                )
+              )
+              .returning({ id: productVariantsTable.id })
+          : await tx
+              .update(productsTable)
+              .set({ stock: sql`${productsTable.stock} - ${item.quantity}` })
+              .where(
+                and(
+                  eq(productsTable.id, item.productId),
+                  eq(productsTable.tenantId, orderTenantId),
+                  sql`${productsTable.stock} >= ${item.quantity}`
+                )
+              )
+              .returning({ id: productsTable.id });
 
         if (decremented.length === 0) {
           throw new CheckoutHttpError(409, `الكمية المطلوبة من المنتج #${item.productId} تتجاوز المخزون المتاح`);
         }
+
+        const productSummaryUpdate = item.variantId
+          ? {
+              stock: sql`${productsTable.stock} - ${item.quantity}`,
+              orderCount: sql`${productsTable.orderCount} + ${item.quantity}`,
+            }
+          : { orderCount: sql`${productsTable.orderCount} + ${item.quantity}` };
+
+        await tx
+          .update(productsTable)
+          .set(productSummaryUpdate)
+          .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, orderTenantId)));
       }
 
       await tx.insert(orderStatusHistoryTable).values({
@@ -630,18 +687,23 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
         (newStatus === "cancelled" || newStatus === "returned")
       ) {
         const items = await tx
-          .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
+          .select({ productId: orderItemsTable.productId, variantId: orderItemsTable.variantId, quantity: orderItemsTable.quantity })
           .from(orderItemsTable)
           .where(eq(orderItemsTable.orderId, paramsParsed.data.id));
 
-        await Promise.all(
-          items.map((item) =>
-            tx
-              .update(productsTable)
-              .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
-              .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, existing.tenantId)))
-          )
-        );
+        for (const item of items) {
+          await tx
+            .update(productsTable)
+            .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
+            .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, existing.tenantId)));
+
+          if (item.variantId) {
+            await tx
+              .update(productVariantsTable)
+              .set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` })
+              .where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId)));
+          }
+        }
       }
 
       await tx

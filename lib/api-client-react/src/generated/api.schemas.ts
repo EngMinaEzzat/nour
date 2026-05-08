@@ -45,6 +45,8 @@ export interface Tenant {
   logoUrl?: string | null;
   coverUrl?: string | null;
   primaryColor?: string | null;
+  secondaryColor?: string | null;
+  theme?: string;
   category: TenantCategory;
   status: TenantStatus;
   city?: string | null;
@@ -149,6 +151,7 @@ export interface ProductVariant {
   size?: string | null;
   color?: string | null;
   colorHex?: string | null;
+  imageUrls?: string[];
   stock: number;
   createdAt: string;
 }
@@ -157,6 +160,7 @@ export interface CreateProductVariantBody {
   size?: string | null;
   color?: string | null;
   colorHex?: string | null;
+  imageUrls?: string[];
   stock: number;
 }
 
@@ -164,6 +168,7 @@ export interface UpdateProductVariantBody {
   size?: string | null;
   color?: string | null;
   colorHex?: string | null;
+  imageUrls?: string[];
   stock?: number;
 }
 
@@ -193,17 +198,26 @@ export interface Product {
   createdAt: string;
 }
 
+export type CreateProductBodyStatus =
+  (typeof CreateProductBodyStatus)[keyof typeof CreateProductBodyStatus];
+
+export const CreateProductBodyStatus = {
+  active: "active",
+  out_of_stock: "out_of_stock",
+  hidden: "hidden",
+} as const;
+
 export interface CreateProductBody {
-  tenantId: number;
+  tenantId?: number;
   categoryId?: number | null;
   name: string;
-  description: string;
+  description?: string;
   price: number;
   originalPrice?: number | null;
   imageUrl?: string | null;
   stock: number;
-  featured: boolean;
-  status?: ProductStatus;
+  featured?: boolean;
+  status?: CreateProductBodyStatus;
 }
 
 export type UpdateProductBodyStatus =
@@ -248,6 +262,7 @@ export interface CreateCustomerBody {
 export interface OrderItem {
   id: number;
   productId: number;
+  variantId?: number | null;
   productName: string;
   quantity: number;
   unitPrice: number;
@@ -325,6 +340,7 @@ export const CreateOrderBodyPaymentMethod = {
 
 export type CreateOrderBodyItemsItem = {
   productId: number;
+  variantId?: number | null;
   quantity: number;
 };
 

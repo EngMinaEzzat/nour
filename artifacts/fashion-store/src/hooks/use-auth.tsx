@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     city?: string;
     description: string;
   }): Promise<AuthResponse> {
-    const result = await registerMutation.mutateAsync({ data });
+    const result = await registerMutation.mutateAsync({ data: { category: "fashion", ...data } });
     queryClient.setQueryData(getGetMeQueryKey(), result);
     return result;
   }

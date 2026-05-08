@@ -24,6 +24,52 @@ function formatProduct(p: Record<string, unknown>) {
   };
 }
 
+function normalizeImageUrls(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((url): url is string => typeof url === "string")
+    .map((url) => url.trim())
+    .filter(Boolean);
+}
+
+function parseVariantImageUrls(value: unknown): string[] {
+  if (Array.isArray(value)) return normalizeImageUrls(value);
+  if (typeof value !== "string" || !value.trim()) return [];
+  try {
+    return normalizeImageUrls(JSON.parse(value));
+  } catch {
+    return [];
+  }
+}
+
+function formatVariant(v: Record<string, unknown>) {
+  return {
+    ...v,
+    imageUrls: parseVariantImageUrls(v.imageUrls),
+    createdAt: (v.createdAt as Date).toISOString(),
+  };
+}
+
+async function syncProductVariantSummary(productId: number) {
+  const variants = await db
+    .select({
+      stock: productVariantsTable.stock,
+      imageUrls: productVariantsTable.imageUrls,
+    })
+    .from(productVariantsTable)
+    .where(eq(productVariantsTable.productId, productId));
+
+  const stock = variants.reduce((total, variant) => total + (variant.stock ?? 0), 0);
+  const firstVariantImage = variants
+    .flatMap((variant) => parseVariantImageUrls(variant.imageUrls))
+    .find(Boolean);
+
+  const updateData: { stock: number; imageUrl?: string } = { stock };
+  if (firstVariantImage) updateData.imageUrl = firstVariantImage;
+
+  await db.update(productsTable).set(updateData).where(eq(productsTable.id, productId));
+}
+
 async function fetchProductsWithJoin(conditions: ReturnType<typeof and>[]) {
   const rows = await db
     .select({
@@ -331,7 +377,7 @@ router.get("/products/:id/variants", async (req, res) => {
       .from(productVariantsTable)
       .where(eq(productVariantsTable.productId, productId))
       .orderBy(productVariantsTable.createdAt);
-    res.json(variants);
+    res.json(variants.map((variant) => formatVariant(variant as Record<string, unknown>)));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب متغيرات المنتج" });
@@ -341,8 +387,8 @@ router.get("/products/:id/variants", async (req, res) => {
 router.post("/products/:id/variants", requireRole("owner", "manager", "staff"), async (req, res) => {
   const productId = Number(req.params.id);
   if (isNaN(productId)) return res.status(400).json({ error: "معرّف المنتج غير صحيح" });
-  const { size, color, colorHex, stock } = req.body as {
-    size?: string; color?: string; colorHex?: string; stock?: number;
+  const { size, color, colorHex, imageUrls, stock } = req.body as {
+    size?: string; color?: string; colorHex?: string; imageUrls?: unknown; stock?: number;
   };
   if (stock === undefined || stock === null) return res.status(400).json({ error: "stock مطلوب" });
   if (typeof stock !== "number" || stock < 0) return res.status(400).json({ error: "لا يمكن أن يكون المخزون سالباً" });
@@ -358,9 +404,17 @@ router.post("/products/:id/variants", requireRole("owner", "manager", "staff"), 
     }
     const [variant] = await db
       .insert(productVariantsTable)
-      .values({ productId, size: size ?? null, color: color ?? null, colorHex: colorHex ?? null, stock })
+      .values({
+        productId,
+        size: size ?? null,
+        color: color ?? null,
+        colorHex: colorHex ?? null,
+        imageUrls: JSON.stringify(normalizeImageUrls(imageUrls)),
+        stock,
+      })
       .returning();
-    res.status(201).json(variant);
+    await syncProductVariantSummary(productId);
+    res.status(201).json(formatVariant(variant as Record<string, unknown>));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل إنشاء المتغير" });
@@ -371,8 +425,8 @@ router.put("/products/:id/variants/:variantId", requireRole("owner", "manager", 
   const productId = Number(req.params.id);
   const variantId = Number(req.params.variantId);
   if (isNaN(productId) || isNaN(variantId)) return res.status(400).json({ error: "معرّف غير صحيح" });
-  const { size, color, colorHex, stock } = req.body as {
-    size?: string | null; color?: string | null; colorHex?: string | null; stock?: number;
+  const { size, color, colorHex, imageUrls, stock } = req.body as {
+    size?: string | null; color?: string | null; colorHex?: string | null; imageUrls?: unknown; stock?: number;
   };
   try {
     // Tenant ownership check
@@ -391,6 +445,7 @@ router.put("/products/:id/variants/:variantId", requireRole("owner", "manager", 
     if (size !== undefined) updateData.size = size;
     if (color !== undefined) updateData.color = color;
     if (colorHex !== undefined) updateData.colorHex = colorHex;
+    if (imageUrls !== undefined) updateData.imageUrls = JSON.stringify(normalizeImageUrls(imageUrls));
     if (stock !== undefined) updateData.stock = stock;
     const [variant] = await db
       .update(productVariantsTable)
@@ -398,7 +453,8 @@ router.put("/products/:id/variants/:variantId", requireRole("owner", "manager", 
       .where(and(eq(productVariantsTable.id, variantId), eq(productVariantsTable.productId, productId)))
       .returning();
     if (!variant) return res.status(404).json({ error: "المتغير غير موجود" });
-    res.json(variant);
+    await syncProductVariantSummary(productId);
+    res.json(formatVariant(variant as Record<string, unknown>));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل تحديث المتغير" });
@@ -422,6 +478,7 @@ router.delete("/products/:id/variants/:variantId", requireRole("owner", "manager
     await db
       .delete(productVariantsTable)
       .where(and(eq(productVariantsTable.id, variantId), eq(productVariantsTable.productId, productId)));
+    await syncProductVariantSummary(productId);
     res.status(204).send();
   } catch (err) {
     req.log.error(err);

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import {
   paymobProvidersTable, paymentRecordsTable, paymentWebhooksTable,
-  ordersTable, tenantsTable, tenantAuditEventsTable, orderItemsTable, customersTable, productsTable,
+  ordersTable, tenantsTable, tenantAuditEventsTable, orderItemsTable, customersTable, productsTable, productVariantsTable,
 } from "@workspace/db";
 import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
 import { eq, and, desc, lt, isNull, sql } from "drizzle-orm";
@@ -301,7 +301,7 @@ router.post("/paymob/webhook", async (req, res) => {
           if (paymentRecord.orderId) {
             await tx.update(ordersTable).set({ paymentStatus: "failed" }).where(eq(ordersTable.id, paymentRecord.orderId));
             const items = await tx
-              .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
+              .select({ productId: orderItemsTable.productId, variantId: orderItemsTable.variantId, quantity: orderItemsTable.quantity })
               .from(orderItemsTable)
               .where(eq(orderItemsTable.orderId, paymentRecord.orderId));
             for (const item of items) {
@@ -309,6 +309,12 @@ router.post("/paymob/webhook", async (req, res) => {
                 .update(productsTable)
                 .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
                 .where(eq(productsTable.id, item.productId));
+              if (item.variantId) {
+                await tx
+                  .update(productVariantsTable)
+                  .set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` })
+                  .where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId)));
+              }
             }
           }
         });

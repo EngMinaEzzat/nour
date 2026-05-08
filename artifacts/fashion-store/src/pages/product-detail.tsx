@@ -50,7 +50,7 @@ function StarRow({ rating, interactive = false, onRate }: { rating: number; inte
   );
 }
 
-type Variant = { id: number; size?: string | null; color?: string | null; colorHex?: string | null; stock: number };
+type Variant = { id: number; size?: string | null; color?: string | null; colorHex?: string | null; imageUrls?: string[]; stock: number };
 
 export default function ProductDetail() {
   const params = useParams<{ id?: string; slug?: string; productSlug?: string }>();
@@ -171,6 +171,7 @@ export default function ProductDetail() {
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
 
   const hasVariants = variants.length > 0;
   const uniqueSizes = useMemo(() => [...new Set(variants.map((v) => v.size).filter(Boolean))], [variants]) as string[];
@@ -194,6 +195,10 @@ export default function ProductDetail() {
     }) ?? null;
   }, [variants, selectedSize, selectedColor, hasVariants, uniqueSizes, uniqueColors]);
 
+  useEffect(() => {
+    setActiveImage(null);
+  }, [selectedVariant?.id, product?.id]);
+
   const variantSelectionComplete = useMemo(() => {
     if (!hasVariants) return true;
     const needsSize = uniqueSizes.length > 0;
@@ -207,7 +212,7 @@ export default function ProductDetail() {
     ? (selectedVariant?.stock ?? 0)
     : (product?.stock ?? 0);
 
-  const inCart = product ? isInCart(product.id) : false;
+  const inCart = product ? isInCart(product.id, selectedVariant?.id) : false;
   const unavailable = effectiveStock === 0;
 
   function handleAddToCart() {
@@ -218,7 +223,7 @@ export default function ProductDetail() {
       tenantName: product.tenantName,
       name: product.name,
       price: product.price,
-      imageUrl: productImageUrl(product.imageUrl),
+      imageUrl: productImageUrl(selectedVariant?.imageUrls?.[0] ?? product.imageUrl),
       variantId: selectedVariant?.id,
       variantLabel: [selectedSize, selectedColor].filter(Boolean).join(" / ") || undefined,
     });
@@ -256,7 +261,13 @@ export default function ProductDetail() {
   const discountPercent = product.originalPrice && product.originalPrice > product.price
     ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
   const backHref = productTenantSlug ? `/store/${productTenantSlug}` : "/products";
-  const imageUrl = productImageUrl(product.imageUrl);
+  const defaultImageUrl = productImageUrl(selectedVariant?.imageUrls?.[0] ?? product.imageUrl);
+  const imageUrl = activeImage ?? defaultImageUrl;
+  const galleryImages = [
+    imageUrl,
+    ...(selectedVariant?.imageUrls ?? []).map(productImageUrl),
+    productImageUrl(product.imageUrl),
+  ].filter((url, index, all) => url && all.indexOf(url) === index);
 
   return (
     <div className="container mx-auto px-4 py-8 pb-24">
@@ -291,6 +302,20 @@ export default function ProductDetail() {
               </div>
             )}
           </div>
+          {galleryImages.length > 1 && (
+            <div className="grid grid-cols-5 gap-2 mt-3">
+              {galleryImages.map((url) => (
+                <button
+                  key={url}
+                  type="button"
+                  className={`aspect-square rounded-xl overflow-hidden border ${url === imageUrl ? "border-primary" : "border-border/50"}`}
+                  onClick={() => setActiveImage(url)}
+                >
+                  <img src={url} alt={product.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                </button>
+              ))}
+            </div>
+          )}
         </motion.div>
 
         {/* Info */}

@@ -1120,9 +1120,15 @@ components:
         primaryColor:
           type: string
           nullable: true
+        secondaryColor:
+          type: string
+          nullable: true
+        theme:
+          type: string
         category:
           type: string
           enum: [fashion, cosmetics, both]
+          default: both
         status:
           type: string
           enum: [active, inactive, pending]
@@ -1157,6 +1163,7 @@ components:
         category:
           type: string
           enum: [fashion, cosmetics, both]
+          default: both
         city:
           type: string
           nullable: true
@@ -1178,6 +1185,11 @@ components:
         primaryColor:
           type: string
           nullable: true
+        secondaryColor:
+          type: string
+          nullable: true
+        theme:
+          type: string
         category:
           type: string
           enum: [fashion, cosmetics, both]
@@ -1251,6 +1263,10 @@ components:
         colorHex:
           type: string
           nullable: true
+        imageUrls:
+          type: array
+          items:
+            type: string
         stock:
           type: integer
         createdAt:
@@ -1270,6 +1286,10 @@ components:
         colorHex:
           type: string
           nullable: true
+        imageUrls:
+          type: array
+          items:
+            type: string
         stock:
           type: integer
       required: [stock]
@@ -1286,6 +1306,10 @@ components:
         colorHex:
           type: string
           nullable: true
+        imageUrls:
+          type: array
+          items:
+            type: string
         stock:
           type: integer
 
@@ -1308,6 +1332,7 @@ components:
           type: string
         description:
           type: string
+          default: ""
         price:
           type: number
         originalPrice:
@@ -1342,6 +1367,7 @@ components:
           type: string
         description:
           type: string
+          default: ""
         price:
           type: number
         originalPrice:
@@ -1354,7 +1380,12 @@ components:
           type: integer
         featured:
           type: boolean
-      required: [tenantId, name, description, price, stock, featured]
+          default: false
+        status:
+          type: string
+          enum: [active, out_of_stock, hidden]
+          default: active
+      required: [name, price, stock]
 
     UpdateProductBody:
       type: object
@@ -1428,6 +1459,9 @@ components:
           type: integer
         productId:
           type: integer
+        variantId:
+          type: integer
+          nullable: true
         productName:
           type: string
         quantity:
@@ -1538,6 +1572,9 @@ components:
             properties:
               productId:
                 type: integer
+              variantId:
+                type: integer
+                nullable: true
               quantity:
                 type: integer
             required: [productId, quantity]
@@ -1810,12 +1847,13 @@ components:
         category:
           type: string
           enum: [fashion, cosmetics, both]
+          default: both
         city:
           type: string
           nullable: true
         description:
           type: string
-      required: [storeName, slug, email, password, category, description]
+      required: [storeName, slug, email, password, description]
 
     LoginBody:
       type: object

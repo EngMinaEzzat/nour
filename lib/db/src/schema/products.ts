@@ -38,6 +38,7 @@ export const productVariantsTable = pgTable("product_variants", {
   size: text("size"),
   color: text("color"),
   colorHex: text("color_hex"),
+  imageUrls: text("image_urls").notNull().default("[]"),
   stock: integer("stock").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
