@@ -52,3 +52,9 @@ Thumbs.db
 .local/
 .vercel
 .env*.local
+/*.zip
+
+# Runtime/test uploads
+artifacts/api-server/uploads/
+
+.codex/

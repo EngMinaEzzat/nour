@@ -8,7 +8,7 @@ const router = Router();
 
 /* ─── GET /api/inventory-alerts — list low-stock products ─── */
 router.get("/inventory-alerts", requireRole("owner", "manager", "staff"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId!;
+  const tenantId = req.merchantTenantId!;
 
   try {
     const [tenant] = await db
@@ -60,7 +60,7 @@ router.get("/inventory-alerts", requireRole("owner", "manager", "staff"), async 
 
 /* ─── PUT /api/inventory-alerts/settings — update global threshold ─── */
 router.put("/inventory-alerts/settings", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId!;
+  const tenantId = req.merchantTenantId!;
   const { globalThreshold } = req.body as { globalThreshold?: number };
 
   if (globalThreshold === undefined || isNaN(Number(globalThreshold)) || Number(globalThreshold) < 0) {
@@ -82,7 +82,7 @@ router.put("/inventory-alerts/settings", requireRole("owner", "manager"), async 
 
 /* ─── PUT /api/inventory-alerts/product/:id — update per-product threshold ─── */
 router.put("/inventory-alerts/product/:id", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId!;
+  const tenantId = req.merchantTenantId!;
   const productId = parseInt(String(req.params.id), 10);
   const { threshold } = req.body as { threshold?: number | null };
 
@@ -103,7 +103,7 @@ router.put("/inventory-alerts/product/:id", requireRole("owner", "manager"), asy
 
 /* ─── POST /api/inventory-alerts/notify — generate WhatsApp summary ─── */
 router.post("/inventory-alerts/notify", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId!;
+  const tenantId = req.merchantTenantId!;
   const { phone } = req.body as { phone?: string };
 
   if (!phone) return res.status(400).json({ error: "رقم الهاتف مطلوب" });

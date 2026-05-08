@@ -21,10 +21,9 @@ describe("Middleware — requireAuth", () => {
     expect(res.status).toBe(401);
   });
 
-  it("✅ GET /products without auth returns 200 (public route)", async () => {
+  it("❌ GET /products without auth AND without tenantId returns 400 (requires scope)", async () => {
     const res = await request(app).get("/api/products");
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.status).toBe(400);
   });
 });
 

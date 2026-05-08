@@ -17,7 +17,12 @@ function getEnvFileNames(): string[] {
   const names: string[] = [];
   if (process.env.NODE_ENV) names.push(`.env.${process.env.NODE_ENV}`);
   names.push(".env");
-  if (!names.includes(".env.test")) names.push(".env.test");
+  // Only include .env.test when explicitly running in test mode.
+  // Previous behavior unconditionally appended .env.test, which could
+  // cause production/staging runs to silently use test credentials.
+  if (process.env.NODE_ENV === "test" && !names.includes(".env.test")) {
+    names.push(".env.test");
+  }
   return names;
 }
 

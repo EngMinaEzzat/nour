@@ -131,7 +131,15 @@ async function fireAutomationRules(params: {
   trackingNumber?: string | null;
   log: { warn: (obj: object, msg: string) => void; info: (obj: object, msg: string) => void };
 }) {
-  const triggerKey = `status_changed_to_${params.newStatus}`;
+  const triggerByStatus: Partial<Record<string, typeof automationRulesTable.$inferSelect["trigger"]>> = {
+    confirmed: "status_changed_to_confirmed",
+    dispatched: "status_changed_to_dispatched",
+    delivered: "status_changed_to_delivered",
+    cancelled: "status_changed_to_cancelled",
+  };
+  const triggerKey = triggerByStatus[params.newStatus];
+  if (!triggerKey) return;
+
   try {
     const rules = await db
       .select()
@@ -139,7 +147,7 @@ async function fireAutomationRules(params: {
       .where(
         and(
           eq(automationRulesTable.tenantId, params.tenantId),
-          eq(automationRulesTable.trigger, triggerKey as typeof automationRulesTable.$inferSelect["trigger"]),
+          eq(automationRulesTable.trigger, triggerKey),
           eq(automationRulesTable.isEnabled, true),
         )
       );
@@ -612,41 +620,47 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
 
     const newStatus = bodyParsed.data.status;
 
-    // Stock restoration: when order cancelled or returned, give stock back
-    if (
-      newStatus &&
-      newStatus !== existing.status &&
-      (newStatus === "cancelled" || newStatus === "returned")
-    ) {
-      const items = await db
-        .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
-        .from(orderItemsTable)
-        .where(eq(orderItemsTable.orderId, paramsParsed.data.id));
+    // Wrap status update + stock restoration + history in a transaction
+    // to prevent race conditions on concurrent cancels/returns.
+    await db.transaction(async (tx) => {
+      // Stock restoration: when order cancelled or returned, give stock back
+      if (
+        newStatus &&
+        newStatus !== existing.status &&
+        (newStatus === "cancelled" || newStatus === "returned")
+      ) {
+        const items = await tx
+          .select({ productId: orderItemsTable.productId, quantity: orderItemsTable.quantity })
+          .from(orderItemsTable)
+          .where(eq(orderItemsTable.orderId, paramsParsed.data.id));
 
-      await Promise.all(
-        items.map((item) =>
-          db
-            .update(productsTable)
-            .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
-            .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, existing.tenantId)))
-        )
-      );
-    }
+        await Promise.all(
+          items.map((item) =>
+            tx
+              .update(productsTable)
+              .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
+              .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, existing.tenantId)))
+          )
+        );
+      }
 
-    await db
-      .update(ordersTable)
-      .set(bodyParsed.data)
-      .where(eq(ordersTable.id, paramsParsed.data.id));
+      await tx
+        .update(ordersTable)
+        .set(bodyParsed.data)
+        .where(eq(ordersTable.id, paramsParsed.data.id));
+
+      if (newStatus && newStatus !== existing.status) {
+        await tx.insert(orderStatusHistoryTable).values({
+          orderId: existing.id,
+          fromStatus: existing.status,
+          toStatus: newStatus,
+          note: null,
+        });
+      }
+    });
 
     if (newStatus && newStatus !== existing.status) {
-      await db.insert(orderStatusHistoryTable).values({
-        orderId: existing.id,
-        fromStatus: existing.status,
-        toStatus: newStatus,
-        note: null,
-      });
-
-      // Fire automation rules for this status change (non-blocking)
+      // Fire automation rules for this status change (non-blocking, outside transaction)
       fireAutomationRules({
         tenantId: existing.tenantId!,
         orderId: existing.id,

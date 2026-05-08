@@ -41,10 +41,11 @@ export const exportLimiter = rateLimit({
       : getIpKey(req),
 });
 
-// 20 requests/hour per tenant for AI endpoints
+// Coarse abuse guard for AI endpoints. Plan-aware limits are enforced inside
+// AI routes so higher paid plans are not capped at the starter quota here.
 export const aiLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 20,
+  max: 120,
   skip: () => isTest,
   standardHeaders: true,
   legacyHeaders: false,

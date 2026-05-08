@@ -238,4 +238,60 @@ describe("Orders", () => {
     expect(publicRes.body.id).toBe(tracked.body.id);
     expect(publicRes.body.trackingToken).toBeUndefined();
   });
+
+  it("✅ cancel already-cancelled order is idempotent (does not double restore stock)", async () => {
+    const cancelOrder = await createTestOrder(ctx.tenantId, productId);
+    const cancelId = cancelOrder.body.id;
+
+    // First cancel
+    await ctx.agent.put(`/api/orders/${cancelId}`).send({ status: "cancelled" });
+    const afterFirst = await ctx.agent.get(`/api/products/${productId}`);
+    const stockAfterFirst = afterFirst.body.stock;
+
+    // Second cancel
+    const res = await ctx.agent.put(`/api/orders/${cancelId}`).send({ status: "cancelled" });
+    expect(res.status).toBe(200);
+    
+    const afterSecond = await ctx.agent.get(`/api/products/${productId}`);
+    expect(afterSecond.body.stock).toBe(stockAfterFirst);
+  });
+
+  it("✅ returned order restores product stock", async () => {
+    const returnOrder = await createTestOrder(ctx.tenantId, productId);
+    const returnId = returnOrder.body.id;
+
+    const beforeReturn = await ctx.agent.get(`/api/products/${productId}`);
+    const stockBeforeReturn = beforeReturn.body.stock;
+
+    await ctx.agent.put(`/api/orders/${returnId}`).send({ status: "returned" });
+    
+    const afterReturn = await ctx.agent.get(`/api/products/${productId}`);
+    expect(afterReturn.body.stock).toBe(stockBeforeReturn + 1);
+  });
+
+  it("❌ create order with negative quantity returns 400", async () => {
+    const cust = await createTestCustomer();
+    const res = await request(app).post("/api/orders").send({
+      tenantId: ctx.tenantId,
+      customerId: cust.body.id,
+      customerPhone: "01012345678",
+      paymentMethod: "cod",
+      shippingAddress: "Address",
+      items: [{ productId, quantity: -1 }],
+    });
+    expect([400, 422]).toContain(res.status);
+  });
+
+  it("❌ create order with invalid Egypt phone format returns 400", async () => {
+    const cust = await createTestCustomer();
+    const res = await request(app).post("/api/orders").send({
+      tenantId: ctx.tenantId,
+      customerId: cust.body.id,
+      customerPhone: "99999999999", // Invalid format
+      paymentMethod: "cod",
+      shippingAddress: "Address",
+      items: [{ productId, quantity: 1 }],
+    });
+    expect([400, 422]).toContain(res.status);
+  });
 });

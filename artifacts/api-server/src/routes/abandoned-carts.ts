@@ -10,33 +10,45 @@ const ABANDON_THRESHOLD_HOURS = 2;
 const CART_SESSION_STATUSES = ["active", "abandoned", "converted"] as const;
 type CartSessionStatus = (typeof CART_SESSION_STATUSES)[number];
 
+async function upsertCartSession(
+  sessionId: string,
+  tenantId: number,
+  values: Partial<typeof cartSessionsTable.$inferInsert>,
+) {
+  const [existing] = await db
+    .select({ id: cartSessionsTable.id })
+    .from(cartSessionsTable)
+    .where(and(eq(cartSessionsTable.sessionId, sessionId), eq(cartSessionsTable.tenantId, tenantId)))
+    .limit(1);
+
+  if (existing) {
+    await db.update(cartSessionsTable).set(values).where(eq(cartSessionsTable.id, existing.id));
+    return;
+  }
+
+  await db.insert(cartSessionsTable).values({
+    sessionId,
+    tenantId,
+    items: [],
+    totalAmount: "0",
+    itemCount: 0,
+    ...values,
+  });
+}
+
 // POST /api/cart/sync — public: upsert cart session per tenant
 router.post("/cart/sync", async (req, res) => {
   const { sessionId, tenantId, items, totalAmount, itemCount } = req.body;
   if (!sessionId || !tenantId) return res.status(400).json({ error: "sessionId and tenantId required" });
 
   try {
-    await db
-      .insert(cartSessionsTable)
-      .values({
-        sessionId,
-        tenantId,
-        items: items ?? [],
-        totalAmount: String(totalAmount ?? 0),
-        itemCount: itemCount ?? 0,
-        status: "active",
-        lastActivityAt: new Date(),
-      })
-      .onConflictDoUpdate({
-        target: [cartSessionsTable.sessionId, cartSessionsTable.tenantId],
-        set: {
-          items: items ?? [],
-          totalAmount: String(totalAmount ?? 0),
-          itemCount: itemCount ?? 0,
-          status: "active",
-          lastActivityAt: new Date(),
-        },
-      });
+    await upsertCartSession(sessionId, Number(tenantId), {
+      items: items ?? [],
+      totalAmount: String(totalAmount ?? 0),
+      itemCount: itemCount ?? 0,
+      status: "active",
+      lastActivityAt: new Date(),
+    });
     res.json({ ok: true });
   } catch (err) {
     req.log.error(err);
@@ -55,13 +67,7 @@ router.post("/cart/contact", async (req, res) => {
     if (customerEmail) updates.customerEmail = customerEmail;
     if (customerPhone) updates.customerPhone = customerPhone;
 
-    await db
-      .insert(cartSessionsTable)
-      .values({ sessionId, tenantId, items: [], totalAmount: "0", itemCount: 0, ...updates })
-      .onConflictDoUpdate({
-        target: [cartSessionsTable.sessionId, cartSessionsTable.tenantId],
-        set: updates,
-      });
+    await upsertCartSession(sessionId, Number(tenantId), updates);
     res.json({ ok: true });
   } catch (err) {
     req.log.error(err);
@@ -87,7 +93,7 @@ router.post("/cart/convert", async (req, res) => {
 
 // GET /api/abandoned-carts — merchant: list abandoned/active carts with items
 router.get("/abandoned-carts", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
+  const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
 
   try {
@@ -153,7 +159,7 @@ router.get("/abandoned-carts", requireRole("owner", "manager"), async (req, res)
 
 // POST /api/abandoned-carts/:id/remind — generate WhatsApp link
 router.post("/abandoned-carts/:id/remind", requireRole("owner", "manager", "staff"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
+  const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
   const id = parseInt(String(req.params.id), 10);
 
@@ -196,7 +202,7 @@ router.post("/abandoned-carts/:id/remind", requireRole("owner", "manager", "staf
 
 // DELETE /api/abandoned-carts/:id — merchant: dismiss/delete cart
 router.delete("/abandoned-carts/:id", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
+  const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
   const id = parseInt(String(req.params.id), 10);
   try {

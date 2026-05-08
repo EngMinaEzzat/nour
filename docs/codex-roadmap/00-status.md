@@ -8,15 +8,15 @@ Base project: `C:\proj\nour`.
 
 Foundation decision: continue hardening `C:\proj\nour`; Phase 1 did not prove a rewrite or Next.js/NestJS migration is required.
 
-Current phase: Phase 3, SEO And App-Like Speed, complete.
+Current phase: Phase 5, AI Hardening, implementation complete and focused AI hardening tests pass against the configured `.env.test` database.
 
 ## Phase Status
 
 - Phase 1: Complete - foundation report written at `docs/codex-roadmap/foundation-report.md`.
 - Phase 2: Preview build-ready - production hardening pass implemented, scoped runtime tests pass, root build passes locally, and `pnpm exec vercel build --yes` completes.
 - Phase 3: Complete - public store/product/category pages return server-rendered HTML with metadata/JSON-LD, sitemap/robots are dynamic, SPA behavior is preserved after load, and mobile lab smoke meets the 2.5s LCP target on the warmed seeded catalog.
-- Phase 4: Not started.
-- Phase 5: Not started.
+- Phase 4: Complete - refreshed foundation report written at `docs/codex-roadmap/foundation-report.md`; local install/typecheck/build/tests/Drizzle check/API health smoke pass, but status remains NEEDS WORK due to payment webhook/env/test-safety and product/variant ownership gaps.
+- Phase 5: Complete - AI routes are authenticated/tenant-scoped, provider access is server-side with explicit mock gating, usage events and migration were added, plan-aware rate limits/input limits are in place, and focused AI hardening tests pass.
 - Phase 6: Not started.
 - Phase 7: Not started.
 
@@ -38,7 +38,17 @@ Current phase: Phase 3, SEO And App-Like Speed, complete.
 - 2026-05-08: Phase 3 verification passed: `pnpm --filter @workspace/fashion-store run typecheck`, `pnpm --filter @workspace/api-server run typecheck`, `pnpm --filter @workspace/fashion-store run build`, `pnpm --filter @workspace/api-server run build`, `pnpm --filter @workspace/api-server exec vitest run src/test/seo-public.test.ts --fileParallelism=false` (6 tests), and `pnpm exec vercel build --yes`.
 - 2026-05-08: Mobile Edge CDP smoke on a production-style local server with gzip-equivalent static assets passed storefront/product/category/cart-to-checkout CTA: warmed seeded catalog LCP was store `2180ms`, product `1436ms`, category `2244ms`; CLS was store about `0.004`, product/category `0`; add-to-cart then `/checkout` rendered the checkout form. Lighthouse CLI itself did not produce metrics earlier because Chromium reported `NO_NAVSTART` and an EPERM temp-directory cleanup error, so CDP was used for the lab check.
 - 2026-05-08: Remaining non-blocking build warnings: Vite still warns that the public entry chunk is over 500 KB (`index-*.js` about `599.75 KB` minified, `188.68 KB` gzip), and existing sourcemap location warnings remain for several shadcn/ui wrapper files. Phase 3 LCP smoke passed despite those warnings.
+- 2026-05-08: Ran Phase 4 foundation reality check. Verification passed: `CI=true pnpm install --frozen-lockfile`, `pnpm run typecheck`, `pnpm -r --if-present run build`, `pnpm -r --if-present test` (API server: 17 files, 203 tests), `pnpm --filter @workspace/db run check`, and production-mode API health smoke on `/api/healthz`. `pnpm audit --prod` still fails with one moderate `ip-address` advisory through `express-rate-limit`.
+- 2026-05-08: Phase 4 decision remains to continue hardening `C:\proj\nour`, not rewrite or migrate. Current critical blockers: Paymob webhook route likely misses production CSRF exemption, and env loading can fall back to `.env.test` outside test mode. High-priority gaps: tests mutate the configured Postgres DB directly, product category ownership is not proven, variant stock/checkout behavior is incomplete, and Paymob reconciliation bypasses DB-backed platform-admin middleware.
+- 2026-05-08: Phase 5 AI hardening implementation completed. AI assistant, pricing advice, Facebook/Instagram import, product description, and reply draft routes now require merchant roles, derive tenant/merchant from the authenticated session, enforce tenant-scoped conversation access, apply plan-aware tenant AI quotas plus prompt input limits, and return suggestions/drafts without mutating products/orders/messages.
+- 2026-05-08: Added server-side AI provider abstraction for Anthropic, Gemini, and OpenAI-compatible chat completions, with explicit non-production mock mode only (`AI_USE_MOCK=true`) and production-safe provider configuration failures. Added persisted `ai_usage_events` records with tenant, merchant, prompt type, provider/model, token counts, estimated cost cents, status, duration, timestamps, and truncated summaries.
+- 2026-05-08: Added Drizzle migration `lib/db/drizzle/0001_messy_microbe.sql` for `ai_usage_events` plus nullable tenant/merchant columns on legacy `conversations`; new conversations are written with tenant/merchant and legacy unscoped conversations are rejected by route guards. Verification passed: API typecheck, workspace lib typecheck, root typecheck, API build, Drizzle migration/check against the configured `.env.test` database, and `pnpm --filter @workspace/api-server exec vitest run src/test/ai-hardening.test.ts --fileParallelism=false` (23 tests).
 
 ## Active Blockers
 
-- Vercel Production is now wired to the configured Supabase database for main-branch testing. A separate staging/test database is still recommended before real merchants/users are onboarded.
+- Paymob production webhook reachability must be fixed and tested: `/api/paymob/webhook` must be exempt from CSRF only after HMAC/idempotency protections are proven.
+- Product/category ownership and variant stock behavior need route guards and tests before merchant catalog workflows are treated as production-safe.
+- `pnpm audit --prod` still reports one moderate `ip-address` advisory through `express-rate-limit`.
+- `.env.test` now explicitly opts into using its configured database for destructive local tests via `NOUR_TEST_DATABASE_OK=true`; keep this database isolated from any real merchant/user data.
+- AI cost estimation uses conservative internal per-provider defaults and should be reconciled against actual provider invoices before billing customers on exact margins.
+- Vercel Production is wired to the configured Supabase database for main-branch testing. A separate staging/test database is still recommended before real merchants/users are onboarded.

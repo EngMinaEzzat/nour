@@ -23,6 +23,7 @@ export const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
 export const CSRF_EXEMPT_PATHS = [
   "/api/paymob/callback",
   "/api/paymob/hmac-verify",
+  "/api/paymob/webhook",
   "/api/whatsapp/messages/",
 ];
 

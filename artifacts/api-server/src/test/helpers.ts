@@ -7,6 +7,8 @@ import {
   billingInvoicesTable, orderStatusHistoryTable, merchantOnboardingTable,
   categoriesTable, productReviewsTable, cartSessionsTable, paymentRecordsTable,
   paymentWebhooksTable, paymobProvidersTable, tenantAuditEventsTable,
+  staffInvitationsTable, customDomainsTable, exportJobsTable,
+  aiUsageEventsTable, conversations,
 } from "@workspace/db";
 import { eq, inArray } from "drizzle-orm";
 
@@ -113,6 +115,9 @@ export async function cleanupTenant(tenantId: number, merchantId: number) {
       await db.delete(orderItemsTable).where(inArray(orderItemsTable.orderId, orderIds));
       await db.delete(paymentRecordsTable).where(inArray(paymentRecordsTable.orderId, orderIds));
     }
+    await db.delete(staffInvitationsTable).where(eq(staffInvitationsTable.tenantId, tenantId));
+    await db.delete(customDomainsTable).where(eq(customDomainsTable.tenantId, tenantId));
+    await db.delete(exportJobsTable).where(eq(exportJobsTable.tenantId, tenantId));
     await db.delete(paymentWebhooksTable).where(eq(paymentWebhooksTable.tenantId, tenantId));
     await db.delete(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, tenantId));
     await db.delete(cartSessionsTable).where(eq(cartSessionsTable.tenantId, tenantId));
@@ -125,10 +130,12 @@ export async function cleanupTenant(tenantId: number, merchantId: number) {
     await db.delete(categoriesTable).where(eq(categoriesTable.tenantId, tenantId));
     await db.delete(merchantOnboardingTable).where(eq(merchantOnboardingTable.tenantId, tenantId));
     await db.delete(tenantAuditEventsTable).where(eq(tenantAuditEventsTable.tenantId, tenantId));
+    await db.delete(aiUsageEventsTable).where(eq(aiUsageEventsTable.tenantId, tenantId));
+    await db.delete(conversations).where(eq(conversations.tenantId, tenantId));
     await db.delete(merchantsTable).where(eq(merchantsTable.id, merchantId));
     await db.delete(tenantsTable).where(eq(tenantsTable.id, tenantId));
   } catch (err) {
-    console.warn("[cleanup] Non-fatal error:", err);
+    throw new Error(`[cleanup] Failed to clean tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 

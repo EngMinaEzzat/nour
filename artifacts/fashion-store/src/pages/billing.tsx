@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { getCsrfToken } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
@@ -158,7 +159,10 @@ function TransferRequestForm({ currentPlanCode, onSubmitted }: { currentPlanCode
     try {
       const form = new FormData();
       form.append("image", file);
-      const res = await fetch(api("/uploads/image"), { method: "POST", credentials: "include", body: form });
+      const headers: Record<string, string> = {};
+      const csrf = getCsrfToken();
+      if (csrf) headers["x-csrf-token"] = csrf;
+      const res = await fetch(api("/uploads/image"), { method: "POST", credentials: "include", headers, body: form });
       const data = await res.json();
       setReceiptUrl(data.url ?? "");
     } catch {
@@ -174,9 +178,12 @@ function TransferRequestForm({ currentPlanCode, onSubmitted }: { currentPlanCode
     if (!ref.trim()) { setError("أدخل رقم مرجع التحويل"); return; }
     setSubmitting(true);
     try {
+      const csrfHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      const csrfVal = getCsrfToken();
+      if (csrfVal) csrfHeaders["x-csrf-token"] = csrfVal;
       const res = await fetch(api("/billing/transfer-request"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: csrfHeaders,
         credentials: "include",
         body: JSON.stringify({ planCode, referenceNumber: ref.trim(), receiptImageUrl: receiptUrl || null }),
       });

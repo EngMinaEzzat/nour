@@ -4,7 +4,7 @@ import {
   paymobProvidersTable, paymentRecordsTable, paymentWebhooksTable,
   ordersTable, tenantsTable, tenantAuditEventsTable, orderItemsTable, customersTable, productsTable,
 } from "@workspace/db";
-import { requireRole } from "../middleware/require-role";
+import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
 import { eq, and, desc, lt, isNull, sql } from "drizzle-orm";
 import { initPayment, isConfigured as isPlatformPaymobConfigured } from "../lib/paymob";
 import crypto from "crypto";
@@ -338,8 +338,7 @@ router.get("/paymob/payments", requireRole("owner", "manager"), async (req, res)
 });
 
 // GET /paymob/reconciliation — platform admin: stale pending + failed
-router.get("/paymob/reconciliation", async (req, res) => {
-  if (!req.session?.isPlatformAdmin) return res.status(403).json({ error: "غير مصرح" });
+router.get("/paymob/reconciliation", requirePlatformAdmin, async (req, res) => {
   try {
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
     const stale = await db.select().from(paymentRecordsTable)

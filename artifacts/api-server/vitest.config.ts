@@ -8,6 +8,7 @@ export default defineConfig({
     hookTimeout: 30000,
     setupFiles: ["./src/test/env-setup.ts"],
     sequence: { concurrent: false },
+    fileParallelism: false,
     reporter: "verbose",
   },
 });

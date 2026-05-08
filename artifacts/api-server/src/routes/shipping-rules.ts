@@ -287,7 +287,7 @@ router.post("/shipping/calculate", async (req, res) => {
       );
     }
 
-    if (!matchedZone && !settings?.isEnabled) {
+    if (!matchedZone && settings && !settings.isEnabled) {
       return res.status(422).json({ error: "الشحن غير متاح لهذه المنطقة" });
     }
 

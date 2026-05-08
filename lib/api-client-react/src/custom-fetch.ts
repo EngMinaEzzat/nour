@@ -30,6 +30,14 @@ export function setCsrfToken(token: string | null): void {
 }
 
 /**
+ * Return the current CSRF token so raw fetch() calls (e.g. FormData uploads)
+ * can attach it via the `x-csrf-token` header.
+ */
+export function getCsrfToken(): string | null {
+  return _csrfToken;
+}
+
+/**
  * Fetch a fresh CSRF token from the server and store it.
  * Call once on app startup before any state-mutating requests.
  */

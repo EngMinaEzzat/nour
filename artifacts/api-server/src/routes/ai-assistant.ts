@@ -1,32 +1,36 @@
 import { Router } from "express";
 import type { Response } from "express";
-import { requireAuth } from "../middleware/require-role";
-import { anthropic } from "@workspace/integrations-anthropic-ai";
-import { ai as gemini } from "@workspace/integrations-gemini-ai";
+import { requireRole } from "../middleware/require-role.js";
 import {
   db,
-  merchantsTable,
   tenantsTable,
   ordersTable,
   conversations,
   messages,
 } from "@workspace/db";
 import { eq, desc, count, sum, sql, and, gte } from "drizzle-orm";
-import { checkAiRateLimit } from "../lib/ai-rate-limit";
-import { aiLimiter } from "../lib/rate-limiters";
+import { checkAiRateLimit, getMaxInputLength } from "../lib/ai-rate-limit.js";
+import { aiLimiter } from "../lib/rate-limiters.js";
+import {
+  generateContent,
+  requestedModelToProvider,
+  resolveAiModel,
+  resolveAiProvider,
+  streamChatWithHistory,
+} from "../lib/ai-provider.js";
+import { logAiUsage } from "../lib/ai-usage-logger.js";
+import { isAiConfigurationError } from "../lib/ai-safety.js";
 
 const router = Router();
-type AiModel = "claude" | "gemini";
 
-const MAX_INPUT_CHARS = 4000;
 const MAX_OUTPUT_TOKENS = 2000;
 
 function sendSSE(res: Response, data: object): void {
   res.write(`data: ${JSON.stringify(data)}\n\n`);
 }
 
-router.post("/ai/assistant/chat", requireAuth, aiLimiter, async (req, res) => {
-  const { message, conversationId, model = "claude" } = req.body as {
+router.post("/ai/assistant/chat", requireRole("owner", "manager", "staff"), aiLimiter, async (req, res) => {
+  const { message, conversationId, model } = req.body as {
     message?: string;
     conversationId?: number;
     model?: string;
@@ -38,31 +42,48 @@ router.post("/ai/assistant/chat", requireAuth, aiLimiter, async (req, res) => {
   }
 
   const merchantId = req.session.merchantId!;
-  const aiModel: AiModel = model === "gemini" ? "gemini" : "claude";
+  const tenantId = req.merchantTenantId!;
+  const requestedProvider = requestedModelToProvider(model);
+  const provider = resolveAiProvider(requestedProvider);
+  const providerModel = resolveAiModel(provider, model);
 
-  // Truncate user input to prevent prompt injection via long payloads
-  const safeMessage = message.trim().slice(0, MAX_INPUT_CHARS);
+  // Input length validation
+  const maxLen = getMaxInputLength("chat");
+  if (message.trim().length > maxLen) {
+    await logAiUsage({
+      tenantId,
+      merchantId,
+      promptType: "chat",
+      provider,
+      model: providerModel,
+      status: "blocked",
+      inputSummary: message.trim(),
+      errorMessage: `Input exceeded ${maxLen} characters`,
+    });
+    res.status(400).json({ error: `الرسالة طويلة جداً — الحد الأقصى ${maxLen} حرف` });
+    return;
+  }
+
+  const safeMessage = message.trim().slice(0, maxLen);
+
+  // Per-tenant AI rate limit (plan-aware)
+  const [tenantForPlan] = await db
+    .select({ planCode: tenantsTable.planCode })
+    .from(tenantsTable)
+    .where(eq(tenantsTable.id, tenantId));
+
+  const rateCheck = checkAiRateLimit(tenantId, tenantForPlan?.planCode);
+  if (!rateCheck.allowed) {
+    await logAiUsage({
+      tenantId, merchantId, promptType: "chat", provider, model: providerModel,
+      status: "rate_limited", inputSummary: safeMessage,
+    });
+    res.setHeader("Retry-After", String(rateCheck.retryAfter ?? 3600));
+    res.status(429).json({ error: "تجاوزت الحد المسموح للذكاء الاصطناعي — حاول لاحقاً" });
+    return;
+  }
 
   try {
-    const [merchantRow] = await db
-      .select({ tenantId: merchantsTable.tenantId })
-      .from(merchantsTable)
-      .where(eq(merchantsTable.id, merchantId));
-
-    if (!merchantRow?.tenantId) {
-      res.status(400).json({ error: "المتجر غير موجود" });
-      return;
-    }
-    const tenantId = merchantRow.tenantId;
-
-    // Per-tenant AI rate limit (20 requests/hour)
-    const rateCheck = checkAiRateLimit(tenantId);
-    if (!rateCheck.allowed) {
-      res.setHeader("Retry-After", String(rateCheck.retryAfter ?? 3600));
-      res.status(429).json({ error: "تجاوزت الحد المسموح للذكاء الاصطناعي — حاول لاحقاً" });
-      return;
-    }
-
     const [tenant] = await db
       .select({ name: tenantsTable.name, category: tenantsTable.category })
       .from(tenantsTable)
@@ -159,10 +180,24 @@ ${recentOrders.map((o) => `#${o.id} | ${o.customerName} | ${parseFloat(o.totalAm
 • تحدث دائماً بالعربية بأسلوب ودود ومهني ومختصر`;
 
     let convId = conversationId;
+
+    // Verify existing conversation belongs to this tenant
+    if (convId) {
+      const [existingConv] = await db
+        .select({ tenantId: conversations.tenantId })
+        .from(conversations)
+        .where(eq(conversations.id, convId));
+
+      if (!existingConv || existingConv.tenantId !== tenantId) {
+        res.status(403).json({ error: "لا يمكنك الوصول لهذه المحادثة" });
+        return;
+      }
+    }
+
     if (!convId) {
       const [newConv] = await db
         .insert(conversations)
-        .values({ title: safeMessage.slice(0, 60) })
+        .values({ title: safeMessage.slice(0, 60), tenantId, merchantId })
         .returning({ id: conversations.id });
       convId = newConv.id;
     }
@@ -183,62 +218,49 @@ ${recentOrders.map((o) => `#${o.id} | ${o.customerName} | ${parseFloat(o.totalAm
 
     sendSSE(res, { conversationId: convId });
 
-    let fullResponse = "";
+    const startTime = Date.now();
 
-    if (aiModel === "gemini") {
-      const geminiContents = [
-        { role: "user" as const, parts: [{ text: systemPrompt }] },
-        { role: "model" as const, parts: [{ text: "مرحباً! أنا مساعدك الذكي لمتجرك على نور. كيف يمكنني مساعدتك اليوم؟" }] },
-        ...history.map((m) => ({
-          role: (m.role === "assistant" ? "model" : "user") as "user" | "model",
-          parts: [{ text: m.content }],
-        })),
-        { role: "user" as const, parts: [{ text: safeMessage }] },
-      ];
+    const result = await streamChatWithHistory({
+      provider,
+      model: providerModel,
+      systemPrompt,
+      history,
+      userMessage: safeMessage,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      onChunk: (text) => sendSSE(res, { chunk: text }),
+    });
 
-      // Replit's AI proxy supports generateContent but not streamGenerateContent,
-      // so we use the non-streaming call and emit a single SSE chunk.
-      const result = await gemini.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: geminiContents,
-        config: { maxOutputTokens: MAX_OUTPUT_TOKENS },
-      });
+    const durationMs = Date.now() - startTime;
 
-      fullResponse = result.text ?? "";
-      if (fullResponse) {
-        sendSSE(res, { chunk: fullResponse });
-      }
-    } else {
-      const claudeMessages = [
-        ...history.map((m) => ({
-          role: (m.role === "assistant" ? "assistant" : "user") as "user" | "assistant",
-          content: m.content,
-        })),
-        { role: "user" as const, content: safeMessage },
-      ];
+    await db.insert(messages).values({ conversationId: convId, role: "assistant", content: result.text });
 
-      const stream = await anthropic.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: MAX_OUTPUT_TOKENS,
-        system: systemPrompt,
-        messages: claudeMessages,
-        stream: true,
-      });
-
-      for await (const event of stream) {
-        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-          fullResponse += event.delta.text;
-          sendSSE(res, { chunk: event.delta.text });
-        }
-      }
-    }
-
-    await db.insert(messages).values({ conversationId: convId, role: "assistant", content: fullResponse });
+    await logAiUsage({
+      tenantId,
+      merchantId,
+      promptType: "chat",
+      inputSummary: safeMessage,
+      resultSummary: result.text,
+      provider: result.provider,
+      model: result.model,
+      inputTokens: result.inputTokens,
+      outputTokens: result.outputTokens,
+      status: "success",
+      durationMs,
+    });
 
     sendSSE(res, { done: true, conversationId: convId });
     res.end();
   } catch (err: unknown) {
     req.log.error(err);
+    await logAiUsage({
+      tenantId, merchantId, promptType: "chat", provider, model: providerModel,
+      status: "failure", inputSummary: safeMessage,
+      errorMessage: err instanceof Error ? err.message : "Unknown error",
+    }).catch(() => {});
+    if (!res.headersSent && isAiConfigurationError(err)) {
+      res.status(503).json({ error: "AI provider is not configured" });
+      return;
+    }
     try {
       sendSSE(res, { error: "حدث خطأ، حاول مرة أخرى" });
       res.end();
@@ -249,10 +271,10 @@ ${recentOrders.map((o) => `#${o.id} | ${o.customerName} | ${parseFloat(o.totalAm
 });
 
 /* ─── AI Pricing Advisor ─── */
-router.post("/ai/pricing-advice", requireAuth, aiLimiter, async (req, res) => {
+router.post("/ai/pricing-advice", requireRole("owner", "manager", "staff"), aiLimiter, async (req, res) => {
   const {
     productName, category, price, originalPrice, stock,
-    orderCount, description, model = "claude",
+    orderCount, description, model,
   } = req.body as {
     productName?: string; category?: string; price?: number; originalPrice?: number | null;
     stock?: number; orderCount?: number; description?: string; model?: string;
@@ -262,18 +284,43 @@ router.post("/ai/pricing-advice", requireAuth, aiLimiter, async (req, res) => {
     return res.status(400).json({ error: "اسم المنتج والسعر مطلوبان" });
   }
 
-  const aiModel: AiModel = model === "gemini" ? "gemini" : "claude";
+  const merchantId = req.session.merchantId!;
+  const tenantId = req.merchantTenantId!;
+  const requestedProvider = requestedModelToProvider(model);
+  const provider = resolveAiProvider(requestedProvider);
+  const providerModel = resolveAiModel(provider, model);
 
-  // Per-merchant AI rate limit (pricing advisor uses requireAuth, no tenantId on req)
-  const merchantIdForRate = req.session.merchantId;
-  if (merchantIdForRate) {
-    const rateCheck = checkAiRateLimit(merchantIdForRate);
-    if (!rateCheck.allowed) {
-      res.setHeader("Retry-After", String(rateCheck.retryAfter ?? 3600));
-      return res.status(429).json({
-        error: "تجاوزت الحد المسموح للذكاء الاصطناعي — حاول لاحقاً",
-      });
-    }
+  // Input length validation
+  const maxLen = getMaxInputLength("pricing_advice");
+  const combinedInput = `${productName} ${category ?? ""} ${description ?? ""}`;
+  if (combinedInput.length > maxLen) {
+    await logAiUsage({
+      tenantId,
+      merchantId,
+      promptType: "pricing_advice",
+      provider,
+      model: providerModel,
+      status: "blocked",
+      inputSummary: combinedInput,
+      errorMessage: `Input exceeded ${maxLen} characters`,
+    });
+    return res.status(400).json({ error: `المدخلات طويلة جداً — الحد الأقصى ${maxLen} حرف` });
+  }
+
+  // Per-tenant AI rate limit (plan-aware)
+  const [tenantForPlan] = await db
+    .select({ planCode: tenantsTable.planCode })
+    .from(tenantsTable)
+    .where(eq(tenantsTable.id, tenantId));
+
+  const rateCheck = checkAiRateLimit(tenantId, tenantForPlan?.planCode);
+  if (!rateCheck.allowed) {
+    await logAiUsage({
+      tenantId, merchantId, promptType: "pricing_advice", provider, model: providerModel,
+      status: "rate_limited",
+    });
+    res.setHeader("Retry-After", String(rateCheck.retryAfter ?? 3600));
+    return res.status(429).json({ error: "تجاوزت الحد المسموح للذكاء الاصطناعي — حاول لاحقاً" });
   }
 
   const prompt = `المنتج المراد تحليله:
@@ -293,38 +340,64 @@ ${description ? `- الوصف: ${(description).slice(0, 500)}` : ""}
 
 أجب بالعربية، كن محدداً بالأرقام، وتحدث كمستشار خبير وودود.`;
 
+  const startTime = Date.now();
+
   try {
-    if (aiModel === "gemini") {
-      const result = await gemini.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        config: { maxOutputTokens: 600, temperature: 0.7 },
-      });
-      const text = result.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text).join("") ?? "";
-      return res.json({ advice: text });
-    } else {
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 600,
-        messages: [{ role: "user", content: prompt }],
-      });
-      const text = response.content.map((c) => ("text" in c ? c.text : "")).join("");
-      return res.json({ advice: text });
-    }
+    const result = await generateContent({
+      provider,
+      model: providerModel,
+      userPrompt: prompt,
+      maxOutputTokens: 600,
+      temperature: 0.7,
+    });
+
+    const durationMs = Date.now() - startTime;
+
+    await logAiUsage({
+      tenantId, merchantId, promptType: "pricing_advice",
+      inputSummary: `${productName} - ${price} EGP`,
+      resultSummary: result.text,
+      provider: result.provider, model: result.model,
+      inputTokens: result.inputTokens, outputTokens: result.outputTokens,
+      status: "success", durationMs,
+    });
+
+    return res.json({ advice: result.text });
   } catch (err) {
+    const durationMs = Date.now() - startTime;
     req.log.error(err);
+    await logAiUsage({
+      tenantId, merchantId, promptType: "pricing_advice", provider, model: providerModel,
+      status: "failure", errorMessage: err instanceof Error ? err.message : "Unknown error",
+      durationMs,
+    }).catch(() => {});
+    if (isAiConfigurationError(err)) {
+      return res.status(503).json({ error: "AI provider is not configured" });
+    }
     return res.status(500).json({ error: "فشل توليد استشارة السعر" });
   }
 });
 
-router.get("/ai/assistant/history/:conversationId", requireAuth, async (req, res) => {
+router.get("/ai/assistant/history/:conversationId", requireRole("owner", "manager", "staff"), async (req, res) => {
   const convId = parseInt(req.params["conversationId"] as string, 10);
   if (isNaN(convId)) {
     res.status(400).json({ error: "معرف المحادثة غير صالح" });
     return;
   }
 
+  const tenantId = req.merchantTenantId!;
+
   try {
+    // Verify conversation belongs to this tenant
+    const [conv] = await db
+      .select({ tenantId: conversations.tenantId })
+      .from(conversations)
+      .where(eq(conversations.id, convId));
+
+    if (!conv || conv.tenantId !== tenantId) {
+      return res.status(403).json({ error: "لا يمكنك الوصول لهذه المحادثة" });
+    }
+
     const msgs = await db
       .select({ id: messages.id, role: messages.role, content: messages.content, createdAt: messages.createdAt })
       .from(messages)
@@ -338,14 +411,26 @@ router.get("/ai/assistant/history/:conversationId", requireAuth, async (req, res
   }
 });
 
-router.delete("/ai/assistant/history/:conversationId", requireAuth, async (req, res) => {
+router.delete("/ai/assistant/history/:conversationId", requireRole("owner", "manager", "staff"), async (req, res) => {
   const convId = parseInt(req.params["conversationId"] as string, 10);
   if (isNaN(convId)) {
     res.status(400).json({ error: "معرف المحادثة غير صالح" });
     return;
   }
 
+  const tenantId = req.merchantTenantId!;
+
   try {
+    // Verify conversation belongs to this tenant
+    const [conv] = await db
+      .select({ tenantId: conversations.tenantId })
+      .from(conversations)
+      .where(eq(conversations.id, convId));
+
+    if (!conv || conv.tenantId !== tenantId) {
+      return res.status(403).json({ error: "لا يمكنك الوصول لهذه المحادثة" });
+    }
+
     await db.delete(conversations).where(eq(conversations.id, convId));
     return res.json({ success: true });
   } catch (err) {

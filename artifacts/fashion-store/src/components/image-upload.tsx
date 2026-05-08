@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, X, Link2 } from "lucide-react";
+import { getCsrfToken } from "@workspace/api-client-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -29,9 +30,13 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
     try {
       const formData = new FormData();
       formData.append("image", file);
+      const headers: Record<string, string> = {};
+      const csrf = getCsrfToken();
+      if (csrf) headers["x-csrf-token"] = csrf;
       const res = await fetch(`${BASE}/api/uploads/image`, {
         method: "POST",
         credentials: "include",
+        headers,
         body: formData,
       });
       const data = await res.json() as { url?: string; error?: string };

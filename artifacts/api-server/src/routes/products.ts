@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { productsTable, tenantsTable, categoriesTable, productVariantsTable } from "@workspace/db";
+import { productsTable, tenantsTable, categoriesTable, productVariantsTable, merchantsTable } from "@workspace/db";
 import {
   CreateProductBody,
   UpdateProductBody,
@@ -9,7 +9,7 @@ import {
   DeleteProductParams,
   ListProductsQueryParams,
 } from "@workspace/api-zod";
-import { eq, and, ilike, desc, count } from "drizzle-orm";
+import { eq, and, ilike, desc, count, isNull, or } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { getPlan, isAtLimit } from "../lib/entitlements";
 
@@ -132,11 +132,24 @@ router.get("/products", async (req, res) => {
 
   // Tenant isolation: if the request comes from an authenticated merchant session,
   // always scope to their own tenant — ignore any tenantId passed in query params.
-  const sessionTenantId = req.merchantTenantId ?? null;
+  // Note: merchantTenantId is only set by requireRole() middleware, so we must
+  // also resolve it from the session directly for this public-ish route.
+  let sessionTenantId = req.merchantTenantId ?? null;
+  if (!sessionTenantId && req.session?.merchantId) {
+    const [merchant] = await db
+      .select({ tenantId: merchantsTable.tenantId })
+      .from(merchantsTable)
+      .where(eq(merchantsTable.id, req.session.merchantId));
+    sessionTenantId = merchant?.tenantId ?? null;
+  }
   const effectiveTenantId = sessionTenantId ?? queryTenantId;
 
-  const conditions = [];
-  if (effectiveTenantId) conditions.push(eq(productsTable.tenantId, effectiveTenantId));
+  // Require tenant context — never return unscoped product data
+  if (!effectiveTenantId) {
+    return res.status(400).json({ error: "tenantId مطلوب" });
+  }
+
+  const conditions = [eq(productsTable.tenantId, effectiveTenantId)];
   if (categoryId) conditions.push(eq(productsTable.categoryId, categoryId));
   if (search) conditions.push(ilike(productsTable.name, `%${search}%`));
   try {
@@ -193,6 +206,22 @@ router.post("/products", requireRole("owner", "manager", "staff"), async (req, r
       });
     }
 
+    // Category ownership: ensure the categoryId belongs to this tenant or is global
+    if (parsed.data.categoryId) {
+      const [cat] = await db
+        .select({ id: categoriesTable.id })
+        .from(categoriesTable)
+        .where(
+          and(
+            eq(categoriesTable.id, parsed.data.categoryId),
+            or(eq(categoriesTable.tenantId, sessionTenantId), isNull(categoriesTable.tenantId)),
+          ),
+        );
+      if (!cat) {
+        return res.status(400).json({ error: "الفئة المحددة غير موجودة أو لا تنتمي لمتجرك" });
+      }
+    }
+
     const [product] = await db
       .insert(productsTable)
       .values({
@@ -237,6 +266,22 @@ router.put("/products/:id", requireRole("owner", "manager", "staff"), async (req
     if (!existing) return res.status(404).json({ error: "المنتج غير موجود" });
     if (existing.tenantId !== req.merchantTenantId) {
       return res.status(403).json({ error: "لا يمكنك تعديل منتجات متجر آخر" });
+    }
+
+    // Category ownership: ensure the categoryId belongs to this tenant or is global
+    if (bodyParsed.data.categoryId) {
+      const [cat] = await db
+        .select({ id: categoriesTable.id })
+        .from(categoriesTable)
+        .where(
+          and(
+            eq(categoriesTable.id, bodyParsed.data.categoryId),
+            or(eq(categoriesTable.tenantId, req.merchantTenantId!), isNull(categoriesTable.tenantId)),
+          ),
+        );
+      if (!cat) {
+        return res.status(400).json({ error: "الفئة المحددة غير موجودة أو لا تنتمي لمتجرك" });
+      }
     }
 
     const updateData: Record<string, unknown> = { ...bodyParsed.data };
@@ -300,6 +345,7 @@ router.post("/products/:id/variants", requireRole("owner", "manager", "staff"), 
     size?: string; color?: string; colorHex?: string; stock?: number;
   };
   if (stock === undefined || stock === null) return res.status(400).json({ error: "stock مطلوب" });
+  if (typeof stock !== "number" || stock < 0) return res.status(400).json({ error: "لا يمكن أن يكون المخزون سالباً" });
   try {
     // Tenant ownership check — must own the parent product
     const [existing] = await db
@@ -337,6 +383,9 @@ router.put("/products/:id/variants/:variantId", requireRole("owner", "manager", 
     if (!existingProduct) return res.status(404).json({ error: "المنتج غير موجود" });
     if (existingProduct.tenantId !== req.merchantTenantId) {
       return res.status(403).json({ error: "لا يمكنك تعديل متغيرات منتج متجر آخر" });
+    }
+    if (stock !== undefined && (typeof stock !== "number" || stock < 0)) {
+      return res.status(400).json({ error: "لا يمكن أن يكون المخزون سالباً" });
     }
     const updateData: Record<string, unknown> = {};
     if (size !== undefined) updateData.size = size;
