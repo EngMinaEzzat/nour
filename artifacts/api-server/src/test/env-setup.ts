@@ -60,6 +60,7 @@ function loadTestDatabaseUrl(): string {
 // a test/development database. This prevents accidental data destruction if
 // DATABASE_URL points to a production database.
 const dbUrl = loadTestDatabaseUrl();
+const hasExplicitOverride = process.env.NOUR_TEST_DATABASE_OK === "true";
 const isSafeDb =
   dbUrl.includes("localhost") ||
   dbUrl.includes("127.0.0.1") ||
@@ -67,13 +68,23 @@ const isSafeDb =
   dbUrl.includes("-test") ||
   dbUrl.includes("test_") ||
   dbUrl.includes("localtest") ||
-  process.env.NOUR_TEST_DATABASE_OK === "true";
+  hasExplicitOverride;
 
 if (!isSafeDb) {
   console.error(
     "\nDATABASE_URL is missing or does not look like a dedicated test database.\n" +
     "Tests create and delete real data, so refusing to run.\n" +
-    "Use a local database or a URL/name containing _test, -test, test_, or localtest.\n"
+    "Use a local database, a URL/name containing _test, -test, test_, or localtest,\n" +
+    "or set NOUR_TEST_DATABASE_OK=true in .env.test only when intentionally using\n" +
+    "a disposable/shared development database with no real merchant data.\n"
   );
   process.exit(1);
+}
+
+if (hasExplicitOverride) {
+  console.warn(
+    "\nNOUR_TEST_DATABASE_OK=true is enabled. Destructive tests may create/delete data\n" +
+    "in the configured DATABASE_URL. Use this only while the database has no real\n" +
+    "merchant, customer, order, or payment data.\n",
+  );
 }
