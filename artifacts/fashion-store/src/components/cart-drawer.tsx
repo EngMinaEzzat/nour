@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, Minus, Plus, Trash2, ArrowRight, PackageOpen } from "lucide-react";
 
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const FALLBACK_PRODUCT_IMAGE = `${BASE}/product-fashion-optimized.jpg`;
 
 function productImageUrl(url?: string | null) {
   if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  if (url && url.startsWith("/")) return `${BASE}${url}`;
   return url;
 }
 

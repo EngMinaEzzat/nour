@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 interface StoreHeaderProps {
   storeName: string;
@@ -93,7 +94,7 @@ export function StoreHeader({
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
             {logoUrl
-              ? <img src={logoUrl} alt={storeName} className="w-9 h-9 rounded-xl object-cover" />
+              ? <img src={logoUrl.startsWith("/") ? `${BASE}${logoUrl}` : logoUrl} alt={storeName} className="w-9 h-9 rounded-xl object-cover" />
               : (
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-lg shrink-0"

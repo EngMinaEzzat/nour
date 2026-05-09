@@ -23,10 +23,11 @@ const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; desc: string; icon
 ];
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+const FALLBACK_PRODUCT_IMAGE = `${BASE}/product-fashion-optimized.jpg`;
 
 function productImageUrl(url?: string | null) {
   if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  if (url && url.startsWith("/")) return `${BASE}${url}`;
   return url;
 }
 

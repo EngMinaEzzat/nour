@@ -5,10 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Check, Layers } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const FALLBACK_PRODUCT_IMAGE = `${BASE}/product-fashion-optimized.jpg`;
 
 function productImageUrl(url?: string | null) {
   if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  if (url && url.startsWith("/")) return `${BASE}${url}`;
   return url;
 }
 

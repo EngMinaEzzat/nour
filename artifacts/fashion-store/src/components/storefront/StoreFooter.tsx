@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { MapPin, MessageCircle, Instagram, Facebook, Twitter, ArrowUp } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 interface StoreFooterProps {
   storeName: string;
@@ -73,7 +74,7 @@ export function StoreFooter({
           <div className="sm:col-span-2 md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               {logoUrl
-                ? <img src={logoUrl} alt={storeName} className="w-10 h-10 rounded-xl object-cover" />
+                ? <img src={logoUrl.startsWith("/") ? `${BASE}${logoUrl}` : logoUrl} alt={storeName} className="w-10 h-10 rounded-xl object-cover" />
                 : (
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg"

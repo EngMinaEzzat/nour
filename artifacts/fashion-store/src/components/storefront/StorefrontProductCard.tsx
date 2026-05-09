@@ -8,10 +8,11 @@ import { publicEntitySlug } from "@/lib/seo-slugs";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+const FALLBACK_PRODUCT_IMAGE = `${BASE}/product-fashion-optimized.jpg`;
 
 function productImageUrl(url?: string | null) {
   if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  if (url.startsWith("/")) return `${BASE}${url}`;
   return url;
 }
 

@@ -138,7 +138,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
       {value && (
         <div className="relative mt-2 inline-block">
           <img
-            src={value}
+            src={value.startsWith("/") ? `${BASE}${value}` : value}
             alt="معاينة"
             className="h-20 w-20 object-cover rounded-xl border border-border shadow-sm"
           />
@@ -229,7 +229,7 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
             {values.map((url, i) => (
               <div key={`${url}-${i}`} className="relative">
                 <img
-                  src={url}
+                  src={url.startsWith("/") ? `${BASE}${url}` : url}
                   alt="معاينة"
                   className="h-16 w-16 object-cover rounded-lg border border-border shadow-sm"
                 />

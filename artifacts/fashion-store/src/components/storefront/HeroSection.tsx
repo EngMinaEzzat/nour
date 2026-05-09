@@ -2,8 +2,9 @@ import { motion } from "framer-motion";
 import { ChevronDown, Sparkles } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const FALLBACK_HERO = "/hero-optimized.jpg";
+const FALLBACK_HERO = `${BASE}/hero-optimized.jpg`;
 
 interface HeroSectionProps {
   storeName: string;
@@ -24,7 +25,7 @@ export function HeroSection({
   secondaryColor: s,
   onScrollToProducts,
 }: HeroSectionProps) {
-  const imgSrc = coverUrl || FALLBACK_HERO;
+  const imgSrc = coverUrl ? (coverUrl.startsWith("/") ? `${BASE}${coverUrl}` : coverUrl) : FALLBACK_HERO;
   const tagline =
     category === "cosmetics"
       ? "جمال حقيقي، عناية فائقة"
