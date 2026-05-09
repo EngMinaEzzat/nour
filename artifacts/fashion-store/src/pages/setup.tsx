@@ -706,14 +706,25 @@ export default function Setup() {
                           رابط الشعار
                           <span className="text-muted-foreground text-xs me-1">(اختياري)</span>
                         </Label>
-                        <Input
-                          id="logoUrl"
-                          placeholder="https://example.com/logo.png"
-                          dir="ltr"
-                          value={brandForm.logoUrl}
-                          onChange={(e) => setBrandForm((f) => ({ ...f, logoUrl: e.target.value }))}
-                          className="h-11"
-                        />
+                        <div className="flex gap-2">
+                          <Input
+                            id="logoUrl"
+                            placeholder="https://example.com/logo.png"
+                            dir="ltr"
+                            value={brandForm.logoUrl}
+                            onChange={(e) => setBrandForm((f) => ({ ...f, logoUrl: e.target.value }))}
+                            className="h-11 flex-1"
+                          />
+                          {brandForm.logoUrl && (
+                            <div className="w-11 h-11 rounded-xl border overflow-hidden shrink-0">
+                              <img
+                                src={brandForm.logoUrl.startsWith("/") ? `${BASE}${brandForm.logoUrl}` : brandForm.logoUrl}
+                                alt="Logo"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="space-y-1.5">
@@ -796,14 +807,25 @@ export default function Setup() {
                           رابط صورة المنتج
                           <span className="text-muted-foreground text-xs me-1">(اختياري)</span>
                         </Label>
-                        <Input
-                          id="pimage"
-                          placeholder="https://example.com/product.jpg"
-                          dir="ltr"
-                          value={productForm.imageUrl}
-                          onChange={(e) => setProductForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                          className="h-11"
-                        />
+                        <div className="flex gap-2">
+                          <Input
+                            id="pimage"
+                            placeholder="https://example.com/product.jpg"
+                            dir="ltr"
+                            value={productForm.imageUrl}
+                            onChange={(e) => setProductForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                            className="h-11 flex-1"
+                          />
+                          {productForm.imageUrl && (
+                            <div className="w-11 h-11 rounded-xl border overflow-hidden shrink-0">
+                              <img
+                                src={productForm.imageUrl.startsWith("/") ? `${BASE}${productForm.imageUrl}` : productForm.imageUrl}
+                                alt="Product"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="space-y-1.5">

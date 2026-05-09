@@ -219,7 +219,7 @@ function StorefrontPreview({ form }: { form: FormState }) {
       {/* Hero */}
       <div className="relative h-36 overflow-hidden">
         {form.coverUrl ? (
-          <img src={form.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img src={form.coverUrl.startsWith("/") ? `${BASE}${form.coverUrl}` : form.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div
             className={`absolute inset-0 bg-gradient-to-br ${gradient}`}
@@ -254,7 +254,7 @@ function StorefrontPreview({ form }: { form: FormState }) {
             <div className="shrink-0">
               {form.logoUrl ? (
                 <img
-                  src={form.logoUrl}
+                  src={form.logoUrl.startsWith("/") ? `${BASE}${form.logoUrl}` : form.logoUrl}
                   alt=""
                   className="w-12 h-12 rounded-xl border-2 border-white/30 object-cover shadow-lg"
                 />
@@ -678,7 +678,7 @@ export default function StoreSettings() {
                   <div className="flex gap-3 items-start">
                     <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-border/60 overflow-hidden shrink-0 bg-muted/30 flex items-center justify-center">
                       {form.logoUrl ? (
-                        <img src={form.logoUrl} alt="" className="w-full h-full object-cover" />
+                        <img src={form.logoUrl.startsWith("/") ? `${BASE}${form.logoUrl}` : form.logoUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <Store className="w-6 h-6 text-muted-foreground/40" />
                       )}
@@ -701,7 +701,7 @@ export default function StoreSettings() {
                   <Label>صورة الغلاف (Cover)</Label>
                   <div className="relative w-full h-24 rounded-2xl border-2 border-dashed border-border/60 overflow-hidden bg-muted/30">
                     {form.coverUrl ? (
-                      <img src={form.coverUrl} alt="" className="w-full h-full object-cover" />
+                      <img src={form.coverUrl.startsWith("/") ? `${BASE}${form.coverUrl}` : form.coverUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-muted-foreground/40">
                         <Image className="w-6 h-6" />

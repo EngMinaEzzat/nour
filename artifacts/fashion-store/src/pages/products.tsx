@@ -935,7 +935,7 @@ export default function Products() {
                 <Card className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden group">
                   <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                     <img
-                      src={p.imageUrl || "/product-fashion.png"}
+                      src={p.imageUrl ? (p.imageUrl.startsWith("/") ? `${BASE}${p.imageUrl}` : p.imageUrl) : `${BASE}/product-fashion.png`}
                       alt={p.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

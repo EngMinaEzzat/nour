@@ -226,7 +226,7 @@ export default function InventoryAlerts() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             {product.imageUrl ? (
-                              <img src={product.imageUrl} alt={product.name} className="w-9 h-9 rounded-lg object-cover shrink-0 border border-border/50" />
+                              <img src={product.imageUrl.startsWith("/") ? `${BASE}${product.imageUrl}` : product.imageUrl} alt={product.name} className="w-9 h-9 rounded-lg object-cover shrink-0 border border-border/50" />
                             ) : (
                               <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
                                 <Package className="w-4 h-4 text-muted-foreground" />

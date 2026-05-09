@@ -44,6 +44,8 @@ const SUB_COLORS: Record<string, string> = {
   canceled:  "bg-gray-100 text-gray-600 border-gray-200",
 };
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 const stagger = {
   container: { hidden: {}, show: { transition: { staggerChildren: 0.07 } } },
   item: { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } },
@@ -290,7 +292,7 @@ export default function TenantDetail() {
         className="relative rounded-3xl overflow-hidden mb-6"
       >
         {tenant.coverUrl ? (
-          <img src={tenant.coverUrl} alt={tenant.name} className="w-full h-56 object-cover" />
+          <img src={tenant.coverUrl.startsWith("/") ? `${BASE}${tenant.coverUrl}` : tenant.coverUrl} alt={tenant.name} className="w-full h-56 object-cover" />
         ) : (
           <div className="w-full h-56 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
             <ShoppingBag className="w-16 h-16 text-primary/30" />
@@ -299,7 +301,7 @@ export default function TenantDetail() {
         <div className="absolute bottom-0 start-0 end-0 bg-gradient-to-t from-black/60 to-transparent p-6">
           <div className="flex items-end gap-4">
             {tenant.logoUrl ? (
-              <img src={tenant.logoUrl} alt={tenant.name} className="w-20 h-20 rounded-2xl border-4 border-white/20 object-cover shadow-lg" />
+              <img src={tenant.logoUrl.startsWith("/") ? `${BASE}${tenant.logoUrl}` : tenant.logoUrl} alt={tenant.name} className="w-20 h-20 rounded-2xl border-4 border-white/20 object-cover shadow-lg" />
             ) : (
               <div className="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
                 {tenant.name[0]}
