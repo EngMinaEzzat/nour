@@ -1,4 +1,5 @@
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
+const FALLBACK_PRODUCT_IMAGE = `${BASE}/product-fashion-optimized.jpg`;
 
 function isLocalHost(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
@@ -15,10 +16,14 @@ export function normalizeStoredImageUrl(url?: string | null) {
       parsed.pathname.startsWith("/api/uploads/") &&
       (isLocalHost(parsed.hostname) || parsed.origin === currentOrigin)
     ) {
-      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+      return `${BASE}${parsed.pathname}${parsed.search}${parsed.hash}`;
     }
   } catch {
-    // Relative paths are already valid stored URLs.
+    // Relative paths
+  }
+
+  if (trimmed.startsWith("/")) {
+    return `${BASE}${trimmed}`;
   }
 
   return trimmed;
@@ -26,6 +31,6 @@ export function normalizeStoredImageUrl(url?: string | null) {
 
 export function productImageUrl(url?: string | null, fallback = FALLBACK_PRODUCT_IMAGE) {
   const normalized = normalizeStoredImageUrl(url);
-  if (!normalized || normalized === "/product-fashion.png") return fallback;
+  if (!normalized || normalized === `${BASE}/product-fashion.png`) return fallback;
   return normalized;
 }

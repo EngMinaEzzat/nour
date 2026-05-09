@@ -1,4 +1,5 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
+import { productImageUrl } from "@/lib/image-url";
 
 interface PreviewProps {
   section: SectionConfig;
@@ -50,10 +51,11 @@ export function SectionPreview({ section, theme, brand, selected, onClick }: Pre
       const height = section.settings.height === "short" ? 160 : section.settings.height === "medium" ? 240 : section.settings.height === "full" ? 340 : 280;
       const align = section.settings.textAlign ?? "right";
       const overlay = (section.settings.overlayOpacity ?? 40) / 100;
+      const bgImage = section.content.imageUrl ? productImageUrl(section.content.imageUrl) : null;
       return wrap(
         <div
           className="relative overflow-hidden flex items-center"
-          style={{ height, background: section.content.imageUrl ? `url(${section.content.imageUrl}) center/cover` : `linear-gradient(135deg, ${p}cc, ${sec}88)` }}
+          style={{ height, background: bgImage ? `url(${bgImage}) center/cover` : `linear-gradient(135deg, ${p}cc, ${sec}88)` }}
         >
           <div className="absolute inset-0" style={{ background: `rgba(0,0,0,${overlay})` }} />
           <div className={`relative z-10 px-8 py-6 w-full text-${align}`}>
