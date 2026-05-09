@@ -30,6 +30,7 @@ import {
   FileUp, FileDown, CheckCircle2, XCircle, UploadCloud,
 } from "lucide-react";
 import { ImageUpload, ImageUploadList } from "@/components/image-upload";
+import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
 
 const SELECT_NONE_VALUE = "__none__";
 
@@ -77,7 +78,7 @@ function variantStock(rows: VariantRow[]) {
 }
 
 function firstVariantImage(rows: VariantRow[]) {
-  return rows.flatMap((row) => row.imageUrls).find(Boolean) ?? "";
+  return rows.flatMap((row) => row.imageUrls.map(normalizeStoredImageUrl)).find(Boolean) ?? "";
 }
 
 function variantToRow(variant: ProductVariant): VariantRow {
@@ -86,7 +87,7 @@ function variantToRow(variant: ProductVariant): VariantRow {
     size: variant.size ?? "",
     color: variant.color ?? "",
     colorHex: variant.colorHex ?? "#000000",
-    imageUrls: variant.imageUrls ?? [],
+    imageUrls: (variant.imageUrls ?? []).map(normalizeStoredImageUrl),
     stock: String(variant.stock),
   };
 }
@@ -125,7 +126,7 @@ function VariantManager({ productId }: { productId: number }) {
       size: row.size || null,
       color: row.color || null,
       colorHex: row.colorHex || null,
-      imageUrls: row.imageUrls,
+      imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
       stock: parseInt(row.stock, 10) || 0,
     };
     try {
@@ -766,7 +767,7 @@ export default function Products() {
     setForm({
       name: p.name, description: p.description,
       price: String(p.price), originalPrice: p.originalPrice ? String(p.originalPrice) : "",
-      imageUrl: p.imageUrl ?? "",
+      imageUrl: normalizeStoredImageUrl(p.imageUrl),
       featured: p.featured, status: p.status,
       categoryId: p.categoryId ? String(p.categoryId) : "",
     });
@@ -786,7 +787,7 @@ export default function Products() {
     setSaving(true);
     setFormError(null);
     try {
-      const representativeImage = form.imageUrl.trim() || firstVariantImage(rowsForCreate);
+      const representativeImage = normalizeStoredImageUrl(form.imageUrl) || firstVariantImage(rowsForCreate);
       const derivedStock = editingId ? undefined : variantStock(rowsForCreate);
       const payload = {
         name: form.name.trim(),
@@ -833,7 +834,7 @@ export default function Products() {
         size: row.size || null,
         color: row.color || null,
         colorHex: row.colorHex || null,
-        imageUrls: row.imageUrls,
+        imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
         stock: parseInt(row.stock, 10) || 0,
       },
     });
@@ -944,7 +945,7 @@ export default function Products() {
                 <Card className="border-border/50 hover:shadow-md transition-all duration-300 overflow-hidden group">
                   <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                     <img
-                      src={p.imageUrl || "/product-fashion.png"}
+                      src={productImageUrl(p.imageUrl, "/product-fashion.png")}
                       alt={p.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -1079,7 +1080,7 @@ export default function Products() {
                 <ImageUpload
                   label="صورة المنتج"
                   value={form.imageUrl}
-                  onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                  onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
                 />
               </div>
               <div className="space-y-1.5">

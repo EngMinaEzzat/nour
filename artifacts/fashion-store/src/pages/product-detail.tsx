@@ -13,14 +13,9 @@ import { useState, useMemo, useEffect } from "react";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
+import { productImageUrl } from "@/lib/image-url";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
-
-function productImageUrl(url?: string | null) {
-  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
-  return url;
-}
 
 type Review = { id: number; customerName: string; rating: number; body: string | null; createdAt: string };
 type ReviewsData = { reviews: Review[]; avgRating: number | null; totalCount: number };
@@ -265,7 +260,7 @@ export default function ProductDetail() {
   const imageUrl = activeImage ?? defaultImageUrl;
   const galleryImages = [
     imageUrl,
-    ...(selectedVariant?.imageUrls ?? []).map(productImageUrl),
+    ...(selectedVariant?.imageUrls ?? []).map((url) => productImageUrl(url)),
     productImageUrl(product.imageUrl),
   ].filter((url, index, all) => url && all.indexOf(url) === index);
 

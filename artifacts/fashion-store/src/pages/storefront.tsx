@@ -32,14 +32,9 @@ import { StoreFooter } from "@/components/storefront/StoreFooter";
 import { StorefrontProductCard } from "@/components/storefront/StorefrontProductCard";
 import type { ProductCardData } from "@/components/storefront/StorefrontProductCard";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
+import { productImageUrl } from "@/lib/image-url";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
-
-function productImageUrl(url?: string | null) {
-  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
-  return url;
-}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type StoreData = StorefrontResponse;

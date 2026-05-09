@@ -4,13 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Check, Layers } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
-
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
-
-function productImageUrl(url?: string | null) {
-  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
-  return url;
-}
+import { productImageUrl } from "@/lib/image-url";
 
 interface ProductCardProps {
   product: Product & { hasVariants?: boolean };

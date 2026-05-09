@@ -4,12 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, X, Link2 } from "lucide-react";
 import { getCsrfToken } from "@workspace/api-client-react";
+import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const MAX_IMAGE_SIZE_MB = 20;
 const MAX_IMAGE_SIZE = MAX_IMAGE_SIZE_MB * 1024 * 1024;
 const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/avif,image/bmp";
 const SUPPORTED_IMAGE_FORMATS = "JPG, PNG, WebP, GIF, AVIF, BMP";
+const NORMALIZED_MIMES = new Set(["image/avif", "image/bmp"]);
 
 interface ImageUploadProps {
   value: string;
@@ -26,8 +28,9 @@ async function uploadImage(file: File) {
     throw new Error(`الصيغ المدعومة: ${SUPPORTED_IMAGE_FORMATS}. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.`);
   }
 
+  const fileToUpload = await normalizeUploadFile(file);
   const formData = new FormData();
-  formData.append("image", file);
+  formData.append("image", fileToUpload);
   const headers: Record<string, string> = {};
   const csrf = getCsrfToken();
   if (csrf) headers["x-csrf-token"] = csrf;
@@ -43,6 +46,31 @@ async function uploadImage(file: File) {
   return data.url;
 }
 
+async function normalizeUploadFile(file: File) {
+  if (!NORMALIZED_MIMES.has(file.type)) return file;
+
+  const url = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = url;
+    await image.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("تعذر تجهيز الصورة للرفع");
+    ctx.drawImage(image, 0, 0);
+
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
+    if (!blob) throw new Error("تعذر تحويل الصورة لصيغة مناسبة للموبايل");
+    const safeName = file.name.replace(/\.[^.]+$/, "") || "image";
+    return new File([blob], `${safeName}.jpg`, { type: "image/jpeg" });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 export function ImageUpload({ value, onChange, label, className }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [mode, setMode] = useState<"url" | "upload">("url");
@@ -54,7 +82,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
     setError(null);
     setUploading(true);
     try {
-      onChange(await uploadImage(file));
+      onChange(normalizeStoredImageUrl(await uploadImage(file)));
       setMode("url");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "فشل رفع الصورة");
@@ -91,7 +119,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
       {mode === "url" ? (
         <Input
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => onChange(normalizeStoredImageUrl(e.target.value))}
           placeholder="https://example.com/image.jpg"
           dir="ltr"
           className="h-10 text-sm"
@@ -139,7 +167,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
       {value && (
         <div className="relative mt-2 inline-block">
           <img
-            src={value}
+            src={productImageUrl(value)}
             alt="معاينة"
             className="h-20 w-20 object-contain rounded-xl border border-border bg-background p-1 shadow-sm"
           />
@@ -177,7 +205,7 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
     setError(null);
     try {
       const uploaded: string[] = [];
-      for (const file of files) uploaded.push(await uploadImage(file));
+      for (const file of files) uploaded.push(normalizeStoredImageUrl(await uploadImage(file)));
       onChange([...values, ...uploaded]);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "فشل رفع الصور");
@@ -189,7 +217,8 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
   function addUrl() {
     const url = urlInput.trim();
     if (!url) return;
-    if (!values.includes(url)) onChange([...values, url]);
+    const normalized = normalizeStoredImageUrl(url);
+    if (!values.includes(normalized)) onChange([...values, normalized]);
     setUrlInput("");
     setError(null);
   }
@@ -264,7 +293,7 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
             {values.map((url, i) => (
               <div key={`${url}-${i}`} className="relative">
                 <img
-                  src={url}
+                  src={productImageUrl(url)}
                   alt="معاينة"
                   className="h-20 w-20 object-contain rounded-lg border border-border bg-background p-1 shadow-sm"
                 />

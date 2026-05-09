@@ -4,13 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, Minus, Plus, Trash2, ArrowRight, PackageOpen } from "lucide-react";
-
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
-
-function productImageUrl(url?: string | null) {
-  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
-  return url;
-}
+import { productImageUrl } from "@/lib/image-url";
 
 interface CartDrawerProps {
   open: boolean;

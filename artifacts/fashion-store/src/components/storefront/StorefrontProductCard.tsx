@@ -5,15 +5,10 @@ import { ShoppingBag, Check, Layers, Heart, Star } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetProductQueryKey } from "@workspace/api-client-react";
 import { publicEntitySlug } from "@/lib/seo-slugs";
+import { productImageUrl } from "@/lib/image-url";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
-
-function productImageUrl(url?: string | null) {
-  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
-  return url;
-}
 
 export interface ProductCardData {
   id: number;

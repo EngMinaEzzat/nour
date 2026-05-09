@@ -2,14 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, ArrowLeft } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { productImageUrl } from "@/lib/image-url";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
-
-function productImageUrl(url?: string | null) {
-  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
-  return url;
-}
 
 interface Product {
   id: number;

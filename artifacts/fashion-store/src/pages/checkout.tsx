@@ -14,6 +14,7 @@ import {
   CreditCard, Banknote, Phone, MapPin, User, Mail,
   Tag, X, Check,
 } from "lucide-react";
+import { productImageUrl } from "@/lib/image-url";
 
 type PaymentMethod = "cod" | "paymob";
 
@@ -23,12 +24,6 @@ const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; desc: string; icon
 ];
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
-
-function productImageUrl(url?: string | null) {
-  if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
-  return url;
-}
 
 type CouponState = {
   input: string;
