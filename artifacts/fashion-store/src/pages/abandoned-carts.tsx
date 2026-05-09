@@ -9,6 +9,7 @@ import {
   ShoppingCart, Phone, Mail, User, Clock, Trash2, MessageCircle,
   Loader2, TrendingDown, DollarSign, AlertCircle, ExternalLink, Package,
 } from "lucide-react";
+import { productImageUrl } from "@/lib/image-url";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -192,7 +193,7 @@ export default function AbandonedCarts() {
                               {itemsList.slice(0, 3).map((item, i) => (
                                 <div key={i} className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-2 py-1">
                                   {item.imageUrl ? (
-                                    <img src={item.imageUrl} alt={item.name} className="w-5 h-5 rounded object-cover" />
+                                    <img src={productImageUrl(item.imageUrl)} alt={item.name} className="w-5 h-5 rounded object-cover" />
                                   ) : (
                                     <Package className="w-3.5 h-3.5 text-muted-foreground" />
                                   )}
