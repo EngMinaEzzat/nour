@@ -8,7 +8,8 @@ import { getCsrfToken } from "@workspace/api-client-react";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const MAX_IMAGE_SIZE_MB = 20;
 const MAX_IMAGE_SIZE = MAX_IMAGE_SIZE_MB * 1024 * 1024;
-const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
+const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/avif,image/bmp";
+const SUPPORTED_IMAGE_FORMATS = "JPG, PNG, WebP, GIF, AVIF, BMP";
 
 interface ImageUploadProps {
   value: string;
@@ -22,7 +23,7 @@ async function uploadImage(file: File) {
     throw new Error(`حجم الصورة يجب أن يكون أقل من ${MAX_IMAGE_SIZE_MB}MB`);
   }
   if (file.type && !IMAGE_ACCEPT.split(",").includes(file.type)) {
-    throw new Error("الصيغ المدعومة: JPG وPNG وWebP وGIF. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.");
+    throw new Error(`الصيغ المدعومة: ${SUPPORTED_IMAGE_FORMATS}. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.`);
   }
 
   const formData = new FormData();
@@ -127,7 +128,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
             <div className="py-3">
               <Upload className="w-7 h-7 text-muted-foreground/60 mx-auto mb-2" />
               <p className="text-sm font-medium text-foreground">اضغط أو اسحب صورة هنا</p>
-              <p className="text-xs text-muted-foreground mt-1">JPG · PNG · WebP · GIF حتى {MAX_IMAGE_SIZE_MB}MB بدون ضغط</p>
+              <p className="text-xs text-muted-foreground mt-1">{SUPPORTED_IMAGE_FORMATS} حتى {MAX_IMAGE_SIZE_MB}MB بدون ضغط</p>
             </div>
           )}
         </label>
@@ -140,7 +141,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
           <img
             src={value}
             alt="معاينة"
-            className="h-20 w-20 object-cover rounded-xl border border-border shadow-sm"
+            className="h-20 w-20 object-contain rounded-xl border border-border bg-background p-1 shadow-sm"
           />
           <button
             type="button"
@@ -164,6 +165,7 @@ interface ImageUploadListProps {
 
 export function ImageUploadList({ values, onChange, label, className }: ImageUploadListProps) {
   const [uploading, setUploading] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
@@ -182,6 +184,14 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
     } finally {
       setUploading(false);
     }
+  }
+
+  function addUrl() {
+    const url = urlInput.trim();
+    if (!url) return;
+    if (!values.includes(url)) onChange([...values, url]);
+    setUrlInput("");
+    setError(null);
   }
 
   return (
@@ -208,8 +218,33 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
             {uploading ? "جاري الرفع..." : "رفع صور"}
           </Button>
           <label htmlFor={inputId} className="text-xs text-muted-foreground cursor-pointer">
-            صور متعددة بجودة أصلية حتى {MAX_IMAGE_SIZE_MB}MB للصورة
+            {SUPPORTED_IMAGE_FORMATS} حتى {MAX_IMAGE_SIZE_MB}MB للصورة
           </label>
+        </div>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+          <Input
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addUrl();
+              }
+            }}
+            placeholder="https://example.com/image.avif"
+            dir="ltr"
+            className="h-8 text-xs"
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1.5 text-xs sm:w-auto"
+            onClick={addUrl}
+          >
+            <Link2 className="w-3 h-3" />
+            إضافة رابط
+          </Button>
         </div>
         <input
           id={inputId}
@@ -231,7 +266,7 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
                 <img
                   src={url}
                   alt="معاينة"
-                  className="h-16 w-16 object-cover rounded-lg border border-border shadow-sm"
+                  className="h-20 w-20 object-contain rounded-lg border border-border bg-background p-1 shadow-sm"
                 />
                 <button
                   type="button"

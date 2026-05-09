@@ -17,6 +17,8 @@ const ALLOWED_MIMES = new Set([
   "image/png",
   "image/webp",
   "image/gif",
+  "image/avif",
+  "image/bmp",
 ]);
 
 const MIME_TO_EXT: Record<string, string> = {
@@ -24,6 +26,8 @@ const MIME_TO_EXT: Record<string, string> = {
   "image/png": ".png",
   "image/webp": ".webp",
   "image/gif": ".gif",
+  "image/avif": ".avif",
+  "image/bmp": ".bmp",
 };
 
 // Use memory storage so we can validate MIME via magic bytes before writing to disk
@@ -48,7 +52,7 @@ router.post(
     if (!detected || !ALLOWED_MIMES.has(detected.mime)) {
       return res
         .status(415)
-        .json({ error: "نوع الملف غير مدعوم — يُقبل فقط JPG/PNG/WebP/GIF" });
+        .json({ error: "نوع الملف غير مدعوم — يُقبل فقط JPG/PNG/WebP/GIF/AVIF/BMP" });
     }
 
     // Rename to UUID + validated extension to prevent path traversal / spoofing

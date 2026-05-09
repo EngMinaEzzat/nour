@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   useListProducts, useCreateProduct, useUpdateProduct, useDeleteProduct,
   useListCategories, useListProductVariants, useCreateProductVariant,
   useUpdateProductVariant, useDeleteProductVariant,
+  type ProductVariant,
 } from "@workspace/api-client-react";
 import GuideCard from "@/components/admin/GuideCard";
 import { useAuth } from "@/hooks/use-auth";
@@ -79,6 +80,17 @@ function firstVariantImage(rows: VariantRow[]) {
   return rows.flatMap((row) => row.imageUrls).find(Boolean) ?? "";
 }
 
+function variantToRow(variant: ProductVariant): VariantRow {
+  return {
+    id: variant.id,
+    size: variant.size ?? "",
+    color: variant.color ?? "",
+    colorHex: variant.colorHex ?? "#000000",
+    imageUrls: variant.imageUrls ?? [],
+    stock: String(variant.stock),
+  };
+}
+
 /* ─── Variant Manager sub-component ─── */
 function VariantManager({ productId }: { productId: number }) {
   const { data: variants, refetch } = useListProductVariants(productId);
@@ -87,19 +99,11 @@ function VariantManager({ productId }: { productId: number }) {
   const deleteVariant = useDeleteProductVariant();
 
   const [rows, setRows] = useState<VariantRow[]>([]);
-  const [initialized, setInitialized] = useState(false);
+  const [savingRow, setSavingRow] = useState<number | null>(null);
 
-  if (!initialized && variants) {
-    setRows(variants.map((v) => ({
-      id: v.id,
-      size: v.size ?? "",
-      color: v.color ?? "",
-      colorHex: v.colorHex ?? "#000000",
-      imageUrls: v.imageUrls ?? [],
-      stock: String(v.stock),
-    })));
-    setInitialized(true);
-  }
+  useEffect(() => {
+    setRows(variants?.map(variantToRow) ?? []);
+  }, [productId, variants]);
 
   function addRow() {
     setRows((r) => [...r, newVariantRow()]);
@@ -116,6 +120,7 @@ function VariantManager({ productId }: { productId: number }) {
   async function saveRow(i: number) {
     const row = rows[i];
     if (!row) return;
+    setSavingRow(i);
     const payload = {
       size: row.size || null,
       color: row.color || null,
@@ -123,13 +128,15 @@ function VariantManager({ productId }: { productId: number }) {
       imageUrls: row.imageUrls,
       stock: parseInt(row.stock, 10) || 0,
     };
-    if (row.id) {
-      await updateVariant.mutateAsync({ id: productId, variantId: row.id, data: payload });
-    } else {
-      await createVariant.mutateAsync({ id: productId, data: payload });
+    try {
+      const saved = row.id
+        ? await updateVariant.mutateAsync({ id: productId, variantId: row.id, data: payload })
+        : await createVariant.mutateAsync({ id: productId, data: payload });
+      setRows((current) => current.map((existing, idx) => idx === i ? variantToRow(saved) : existing));
+      await refetch();
+    } finally {
+      setSavingRow(null);
     }
-    refetch();
-    setInitialized(false);
   }
 
   async function removeRow(i: number) {
@@ -137,8 +144,8 @@ function VariantManager({ productId }: { productId: number }) {
     if (!row) return;
     if (row.id) {
       await deleteVariant.mutateAsync({ id: productId, variantId: row.id });
-      refetch();
-      setInitialized(false);
+      setRows((r) => r.filter((_, idx) => idx !== i));
+      await refetch();
     } else {
       setRows((r) => r.filter((_, idx) => idx !== i));
     }
@@ -164,10 +171,10 @@ function VariantManager({ productId }: { productId: number }) {
       <div className="space-y-2">
         {rows.map((row, i) => (
           <motion.div
-            key={i}
+            key={row.id ?? `new-${i}`}
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50"
+            className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50"
           >
             {/* Size */}
             <div className="space-y-1">
@@ -239,23 +246,16 @@ function VariantManager({ productId }: { productId: number }) {
               />
             </div>
 
-            <div className="sm:col-span-3">
-              <ImageUploadList
-                label="صور المتغير"
-                values={row.imageUrls}
-                onChange={(urls) => updateRow(i, "imageUrls", urls)}
-              />
-            </div>
-
             {/* Save */}
             <Button
               type="button"
               size="icon"
               className="h-8 w-8 mt-5 bg-primary/10 hover:bg-primary/20 text-primary"
               onClick={() => saveRow(i)}
+              disabled={savingRow !== null}
               title="حفظ"
             >
-              <Check className="w-3.5 h-3.5" />
+              {savingRow === i ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
             </Button>
 
             {/* Delete */}
@@ -265,10 +265,19 @@ function VariantManager({ productId }: { productId: number }) {
               variant="ghost"
               className="h-8 w-8 mt-5 text-destructive hover:bg-destructive/10"
               onClick={() => removeRow(i)}
+              disabled={savingRow !== null}
               title="حذف"
             >
               <X className="w-3.5 h-3.5" />
             </Button>
+
+            <div className="sm:col-span-5">
+              <ImageUploadList
+                label="صور المتغير"
+                values={row.imageUrls}
+                onChange={(urls) => updateRow(i, "imageUrls", urls)}
+              />
+            </div>
           </motion.div>
         ))}
       </div>
