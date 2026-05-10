@@ -110,10 +110,25 @@ router.post("/customers", async (req, res) => {
     const existing = await db.select().from(customersTable).where(eq(customersTable.email, parsed.data.email));
     if (existing.length > 0) {
       const c = existing[0];
-      return res.status(200).json({ ...c, totalOrders: 0, totalSpent: 0, createdAt: c.createdAt.toISOString() });
+      // SECURITY: Return only id and name to prevent PII harvesting via email-based lookup.
+      // The buyer context only needs the ID for the subsequent order creation.
+      return res.status(200).json({
+        id: c.id,
+        name: c.name,
+        totalOrders: 0,
+        totalSpent: 0,
+        createdAt: c.createdAt.toISOString(),
+      });
     }
     const [customer] = await db.insert(customersTable).values(parsed.data).returning();
-    res.status(201).json({ ...customer, totalOrders: 0, totalSpent: 0, createdAt: customer.createdAt.toISOString() });
+    // SECURITY: Return only id and name to be consistent with the existing customer path.
+    res.status(201).json({
+      id: customer.id,
+      name: customer.name,
+      totalOrders: 0,
+      totalSpent: 0,
+      createdAt: customer.createdAt.toISOString(),
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل إنشاء العميل" });
