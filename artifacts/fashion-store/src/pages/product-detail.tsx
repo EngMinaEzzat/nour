@@ -28,6 +28,7 @@ function StarRow({ rating, interactive = false, onRate }: { rating: number; inte
         <button
           key={s}
           type="button"
+          aria-label={`تقييم ${s} نجوم`}
           disabled={!interactive}
           onClick={() => onRate?.(s)}
           onMouseEnter={() => interactive && setHovered(s)}
