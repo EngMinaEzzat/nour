@@ -17,6 +17,7 @@
     "@workspace/integrations-anthropic-ai": "workspace:*",
     "@workspace/integrations-gemini-ai": "workspace:*",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
     "connect-pg-simple": "^10.0.0",
     "connect-redis": "^9.0.0",
     "cookie-parser": "^1.4.7",

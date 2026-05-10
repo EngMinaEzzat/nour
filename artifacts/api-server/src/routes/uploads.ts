@@ -6,9 +6,17 @@ import os from "os";
 import { v4 as uuidv4 } from "uuid";
 import { fileTypeFromBuffer } from "file-type";
 import { requireRole } from "../middleware/require-role";
+import { isCloudinaryEnabled, uploadProductImageBuffer } from "../lib/cloudinary-upload";
 
-const uploadsDir = process.env.VERCEL ? path.join(os.tmpdir(), "uploads") : path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadsDir)) {
+const useCloudinary = isCloudinaryEnabled();
+
+const uploadsDir = !useCloudinary
+  ? process.env.VERCEL
+    ? path.join(os.tmpdir(), "uploads")
+    : path.join(process.cwd(), "uploads")
+  : "";
+
+if (!useCloudinary && uploadsDir && !fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
@@ -55,7 +63,16 @@ router.post(
         .json({ error: "نوع الملف غير مدعوم — يُقبل فقط JPG/PNG/WebP/GIF/AVIF/BMP" });
     }
 
-    // Rename to UUID + validated extension to prevent path traversal / spoofing
+    if (useCloudinary) {
+      try {
+        const { url, publicId } = await uploadProductImageBuffer(req.file.buffer);
+        return res.json({ url, filename: publicId });
+      } catch (err) {
+        req.log.error(err);
+        return res.status(502).json({ error: "فشل رفع الصورة إلى التخزين السحابي" });
+      }
+    }
+
     const ext = MIME_TO_EXT[detected.mime] ?? ".jpg";
     const filename = `${uuidv4()}${ext}`;
     const filepath = path.join(uploadsDir, filename);

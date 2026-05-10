@@ -29,7 +29,8 @@ describe("Uploads — Image Upload", () => {
       .attach("image", pngHeader, "test.png");
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("url");
-    expect(res.body.url).toMatch(/^\/api\/uploads\//);
+    const u = res.body.url as string;
+    expect(u.startsWith("/api/uploads/") || u.includes("res.cloudinary.com")).toBe(true);
     expect(res.body).toHaveProperty("filename");
   });
 
@@ -49,7 +50,8 @@ describe("Uploads — Image Upload", () => {
       .post("/api/uploads/image")
       .attach("image", bmp, "test.bmp");
     expect(res.status).toBe(200);
-    expect(res.body.url).toMatch(/^\/api\/uploads\/.+\.bmp$/);
+    const u = res.body.url as string;
+    expect(/^\/api\/uploads\/.+\.bmp$/.test(u) || u.includes("res.cloudinary.com")).toBe(true);
   });
 
   it("❌ upload without auth returns 401", async () => {
