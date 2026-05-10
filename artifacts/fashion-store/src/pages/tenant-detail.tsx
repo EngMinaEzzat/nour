@@ -19,6 +19,7 @@ import {
   ShieldCheck, ClipboardList, Plus, Zap, Save, MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
+import { productImageUrl } from "@/lib/image-url";
 
 const CATEGORY_LABELS: Record<string, string> = {
   fashion: "أزياء",
@@ -290,7 +291,7 @@ export default function TenantDetail() {
         className="relative rounded-3xl overflow-hidden mb-6"
       >
         {tenant.coverUrl ? (
-          <img src={tenant.coverUrl} alt={tenant.name} className="w-full h-56 object-cover" />
+          <img src={productImageUrl(tenant.coverUrl)} alt={tenant.name} className="w-full h-56 object-cover" />
         ) : (
           <div className="w-full h-56 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
             <ShoppingBag className="w-16 h-16 text-primary/30" />
@@ -299,7 +300,7 @@ export default function TenantDetail() {
         <div className="absolute bottom-0 start-0 end-0 bg-gradient-to-t from-black/60 to-transparent p-6">
           <div className="flex items-end gap-4">
             {tenant.logoUrl ? (
-              <img src={tenant.logoUrl} alt={tenant.name} className="w-20 h-20 rounded-2xl border-4 border-white/20 object-cover shadow-lg" />
+              <img src={productImageUrl(tenant.logoUrl)} alt={tenant.name} className="w-20 h-20 rounded-2xl border-4 border-white/20 object-cover shadow-lg" />
             ) : (
               <div className="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
                 {tenant.name[0]}
