@@ -5,12 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Upload, X, Link2 } from "lucide-react";
 import { getCsrfToken } from "@workspace/api-client-react";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
+import heic2any from "heic2any";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const MAX_IMAGE_SIZE_MB = 20;
 const MAX_IMAGE_SIZE = MAX_IMAGE_SIZE_MB * 1024 * 1024;
-const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/avif,image/bmp";
-const SUPPORTED_IMAGE_FORMATS = "JPG, PNG, WebP, GIF, AVIF, BMP";
+const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/avif,image/bmp,image/heic,image/heif";
+const SUPPORTED_IMAGE_FORMATS = "JPG, PNG, WebP, GIF, AVIF, BMP, HEIC";
 const NORMALIZED_MIMES = new Set(["image/avif", "image/bmp", "image/heic", "image/heif"]);
 
 interface ImageUploadProps {
@@ -60,7 +61,25 @@ async function uploadImage(file: File) {
 async function normalizeUploadFile(file: File) {
   // Always normalize/compress images on mobile/web to ensure they stay under Vercel limits
   // and are in a web-friendly format.
-  const url = URL.createObjectURL(file);
+  let workingFile = file;
+
+  // Convert HEIC/HEIF to JPEG if needed
+  if (file.type === "image/heic" || file.type === "image/heif" || file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif")) {
+    try {
+      const result = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.8,
+      });
+      const blob = Array.isArray(result) ? result[0] : result;
+      const safeName = file.name.replace(/\.[^.]+$/, "") || "image";
+      workingFile = new File([blob], `${safeName}.jpg`, { type: "image/jpeg" });
+    } catch (err) {
+      console.error("HEIC conversion failed:", err);
+    }
+  }
+
+  const url = URL.createObjectURL(workingFile);
   try {
     const image = new Image();
     image.decoding = "async";

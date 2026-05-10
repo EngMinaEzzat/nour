@@ -41,5 +41,13 @@ export function productImageUrl(url?: string | null, fallback = FALLBACK_PRODUCT
     return `${BASE}${normalized}`;
   }
 
+  // Handle paths that might have been stored without the /api prefix or as relative to root
+  if (normalized.startsWith("uploads/")) {
+    return `${BASE}/api/${normalized}`;
+  }
+  if (normalized.startsWith("/uploads/")) {
+    return `${BASE}/api${normalized}`;
+  }
+
   return normalized;
 }
