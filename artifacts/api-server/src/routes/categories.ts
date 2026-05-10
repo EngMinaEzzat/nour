@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { categoriesTable, productsTable, merchantsTable } from "@workspace/db";
 import { CreateCategoryBody } from "@workspace/api-zod";
-import { count, eq, or, isNull, and } from "drizzle-orm";
+import { count, eq, or, isNull, and, getTableColumns } from "drizzle-orm";
 import { requireAuth } from "../middleware/require-role";
 
 const router = Router();
@@ -22,31 +22,31 @@ router.get("/categories", async (req, res) => {
       tenantId = merchant?.tenantId ?? null;
     }
 
-    const categories = tenantId
-      ? await db
-          .select()
-          .from(categoriesTable)
-          .where(
-            or(
-              eq(categoriesTable.tenantId, tenantId),
-              isNull(categoriesTable.tenantId)
-            )
-          )
-          .orderBy(categoriesTable.name)
-      : await db.select().from(categoriesTable).orderBy(categoriesTable.name);
-
-    const withCounts = await Promise.all(
-      categories.map(async (cat) => {
-        const conditions = [eq(productsTable.categoryId, cat.id)];
-        if (tenantId) conditions.push(eq(productsTable.tenantId, tenantId));
-        const [{ total }] = await db
-          .select({ total: count() })
-          .from(productsTable)
-          .where(and(...conditions));
-        return { ...cat, productCount: total };
+    // ⚡ Bolt: Optimize categories fetch with single query (resolve N+1)
+    // Instead of fetching categories and then counting products for each in a loop,
+    // we use a LEFT JOIN with GROUP BY to fetch everything in one database roundtrip.
+    const results = await db
+      .select({
+        ...getTableColumns(categoriesTable),
+        productCount: count(productsTable.id),
       })
-    );
-    res.json(withCounts);
+      .from(categoriesTable)
+      .leftJoin(
+        productsTable,
+        and(
+          eq(productsTable.categoryId, categoriesTable.id),
+          tenantId ? eq(productsTable.tenantId, tenantId) : undefined
+        )
+      )
+      .where(
+        tenantId
+          ? or(eq(categoriesTable.tenantId, tenantId), isNull(categoriesTable.tenantId))
+          : undefined
+      )
+      .groupBy(categoriesTable.id)
+      .orderBy(categoriesTable.name);
+
+    res.json(results);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب الفئات" });
