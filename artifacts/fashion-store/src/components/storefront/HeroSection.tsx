@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ChevronDown, Sparkles } from "lucide-react";
+import { productImageUrl } from "@/lib/image-url";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -24,7 +25,7 @@ export function HeroSection({
   secondaryColor: s,
   onScrollToProducts,
 }: HeroSectionProps) {
-  const imgSrc = coverUrl || FALLBACK_HERO;
+  const imgSrc = productImageUrl(coverUrl, FALLBACK_HERO);
   const tagline =
     category === "cosmetics"
       ? "جمال حقيقي، عناية فائقة"
