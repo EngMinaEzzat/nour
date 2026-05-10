@@ -145,6 +145,7 @@ export function StorefrontProductCard({
           {/* Wishlist */}
           <button
             onClick={handleWishlist}
+            aria-label="إضافة للمفضلة"
             className="absolute top-3 start-3 w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all"
             style={{
               background: "rgba(250,247,244,0.88)",
