@@ -2,6 +2,9 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import {
   request, app, uid, createTestMerchant, cleanupTenant, createTestProduct,
 } from "./helpers.js";
+import { db } from "@workspace/db";
+import { merchantsTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 
 /**
  * Security & Authorization tests
@@ -162,5 +165,144 @@ describe("Security — Input Validation", () => {
     });
     expect(res.status).not.toBe(500);
     await cleanupTenant(m.tenantId, m.merchantId);
+  });
+});
+
+describe("Security — Data Privacy", () => {
+  it("❌ POST /api/customers does not leak PII for existing emails", async () => {
+    const email = `victim-${uid()}@example.com`;
+    const phone = "01012345678";
+    const city = "Cairo";
+
+    // 1. Create a customer
+    await request(app).post("/api/customers").send({
+      name: "Victim Customer",
+      email,
+      phone,
+      city,
+    });
+
+    // 2. Try to harvest PII by just knowing the email
+    const res = await request(app).post("/api/customers").send({
+      name: "Attacker Guess",
+      email,
+    });
+
+    expect(res.status).toBe(200);
+    // Should NOT contain phone or city
+    expect(res.body).not.toHaveProperty("phone");
+    expect(res.body).not.toHaveProperty("city");
+    // Should still contain ID and name (needed for checkout)
+    expect(res.body).toHaveProperty("id");
+    expect(res.body).toHaveProperty("name");
+  });
+
+  it("✅ POST /api/customers (new) does not return sensitive fields", async () => {
+    const email = `new-${uid()}@example.com`;
+    const res = await request(app).post("/api/customers").send({
+      name: "New Customer",
+      email,
+      phone: "01122334455",
+      city: "Giza",
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body).not.toHaveProperty("phone");
+    expect(res.body).not.toHaveProperty("city");
+    expect(res.body).toHaveProperty("id");
+    expect(res.body).toHaveProperty("name");
+  });
+});
+
+describe("Security — Tenant directory & stats privacy", () => {
+  let ctxA: Awaited<ReturnType<typeof createTestMerchant>>;
+  let ctxB: Awaited<ReturnType<typeof createTestMerchant>>;
+
+  beforeAll(async () => {
+    [ctxA, ctxB] = await Promise.all([createTestMerchant(), createTestMerchant()]);
+  });
+
+  afterAll(async () => {
+    await Promise.all([
+      cleanupTenant(ctxA.tenantId, ctxA.merchantId),
+      cleanupTenant(ctxB.tenantId, ctxB.merchantId),
+    ]);
+  });
+
+  const privateTenantKeys = ["planCode", "subscriptionStatus", "subscriptionStartedAt", "trialEndsAt", "lastAdminLoginAt"];
+
+  it("❌ GET /api/tenants does not expose billing or admin timestamps", async () => {
+    const res = await request(app).get(`/api/tenants?search=${encodeURIComponent(ctxA.slug)}`);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+    for (const key of privateTenantKeys) {
+      expect(res.body[0]).not.toHaveProperty(key);
+    }
+  });
+
+  it("❌ GET /api/tenants/:id does not expose billing or admin timestamps", async () => {
+    const res = await request(app).get(`/api/tenants/${ctxA.tenantId}`);
+    expect(res.status).toBe(200);
+    for (const key of privateTenantKeys) {
+      expect(res.body).not.toHaveProperty(key);
+    }
+  });
+
+  it("❌ GET /api/tenants/:id/stats (anonymous) does not expose plan or subscription fields", async () => {
+    const res = await request(app).get(`/api/tenants/${ctxA.tenantId}/stats`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("totalProducts");
+    expect(res.body).not.toHaveProperty("planCode");
+    expect(res.body).not.toHaveProperty("subscriptionStatus");
+    expect(res.body).not.toHaveProperty("productLimit");
+  });
+
+  it("❌ GET /api/tenants/:id/stats as another merchant does not expose plan or subscription fields", async () => {
+    const res = await ctxB.agent.get(`/api/tenants/${ctxA.tenantId}/stats`);
+    expect(res.status).toBe(200);
+    expect(res.body).not.toHaveProperty("planCode");
+    expect(res.body).not.toHaveProperty("subscriptionStatus");
+    expect(res.body).not.toHaveProperty("productLimit");
+  });
+
+  it("✅ GET /api/tenants/:id/stats for own tenant includes billing fields", async () => {
+    const res = await ctxA.agent.get(`/api/tenants/${ctxA.tenantId}/stats`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("planCode");
+    expect(res.body).toHaveProperty("subscriptionStatus");
+    expect(res.body).toHaveProperty("productLimit");
+  });
+
+  it("✅ GET /api/tenants/:id/stats as platform admin includes billing fields", async () => {
+    const adminCtx = await createTestMerchant();
+    await db.update(merchantsTable).set({ isPlatformAdmin: true }).where(eq(merchantsTable.id, adminCtx.merchantId));
+
+    const res = await adminCtx.agent.get(`/api/tenants/${ctxA.tenantId}/stats`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("planCode");
+    expect(res.body).toHaveProperty("subscriptionStatus");
+    expect(res.body).toHaveProperty("productLimit");
+
+    await cleanupTenant(adminCtx.tenantId, adminCtx.merchantId);
+  });
+
+  it("✅ PUT /api/tenants/:id/plan returns full tenant including billing fields", async () => {
+    const adminCtx = await createTestMerchant();
+    const target = await createTestMerchant();
+    await db.update(merchantsTable).set({ isPlatformAdmin: true }).where(eq(merchantsTable.id, adminCtx.merchantId));
+
+    const res = await adminCtx.agent.put(`/api/tenants/${target.tenantId}/plan`).send({
+      planCode: "pro",
+      subscriptionStatus: "active",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.planCode).toBe("pro");
+    expect(res.body.subscriptionStatus).toBe("active");
+    expect(res.body).toHaveProperty("lastAdminLoginAt");
+
+    await cleanupTenant(target.tenantId, target.merchantId);
+    await cleanupTenant(adminCtx.tenantId, adminCtx.merchantId);
   });
 });

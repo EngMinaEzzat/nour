@@ -14,10 +14,36 @@ import { getPlan } from "../lib/entitlements";
 
 const router = Router();
 
-function serializeTenant(t: Record<string, unknown>) {
-  return {
-    ...t,
+function serializeTenant(t: Record<string, unknown>, includePrivate = false) {
+  const publicData = {
+    id: t.id,
+    name: t.name,
+    slug: t.slug,
+    description: t.description,
+    logoUrl: t.logoUrl,
+    coverUrl: t.coverUrl,
+    primaryColor: t.primaryColor,
+    secondaryColor: t.secondaryColor,
+    category: t.category,
+    status: t.status,
+    city: t.city,
+    theme: t.theme,
+    faviconUrl: t.faviconUrl,
+    seoTitle: t.seoTitle,
+    seoDescription: t.seoDescription,
+    socialLinks: t.socialLinks,
+    footerContact: t.footerContact,
+    customDomain: t.customDomain,
+    customDomainVerified: t.customDomainVerified,
     createdAt: (t.createdAt as Date).toISOString(),
+  };
+
+  if (!includePrivate) return publicData;
+
+  return {
+    ...publicData,
+    planCode: t.planCode,
+    subscriptionStatus: t.subscriptionStatus,
     subscriptionStartedAt: t.subscriptionStartedAt ? (t.subscriptionStartedAt as Date).toISOString() : null,
     trialEndsAt: t.trialEndsAt ? (t.trialEndsAt as Date).toISOString() : null,
     lastAdminLoginAt: t.lastAdminLoginAt ? (t.lastAdminLoginAt as Date).toISOString() : null,
@@ -35,7 +61,7 @@ router.get("/tenants", async (req, res) => {
       ));
     }
     const tenants = await query;
-    res.json(tenants.map(serializeTenant));
+    res.json(tenants.map((t) => serializeTenant(t as unknown as Record<string, unknown>)));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب المتاجر" });
@@ -82,7 +108,7 @@ router.put("/tenants/:id", requireRole("owner", "manager"), async (req, res) => 
       .where(eq(tenantsTable.id, paramsParsed.data.id))
       .returning();
     if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
-    res.json(serializeTenant(tenant as unknown as Record<string, unknown>));
+    res.json(serializeTenant(tenant as unknown as Record<string, unknown>, true));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل تحديث بيانات المتجر" });
@@ -106,10 +132,11 @@ router.get("/tenants/:id/stats", async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: "معرّف غير صحيح" });
   const tenantId = parsed.data.id;
   try {
-    const [tenant] = await db
-      .select({ planCode: tenantsTable.planCode, subscriptionStatus: tenantsTable.subscriptionStatus })
+    const [exists] = await db
+      .select({ id: tenantsTable.id })
       .from(tenantsTable)
       .where(eq(tenantsTable.id, tenantId));
+    if (!exists) return res.status(404).json({ error: "المتجر غير موجود" });
 
     const [productCount] = await db.select({ count: count() }).from(productsTable).where(eq(productsTable.tenantId, tenantId));
     const [orderStats] = await db
@@ -129,15 +156,40 @@ router.get("/tenants/:id/stats", async (req, res) => {
       .from(ordersTable)
       .where(eq(ordersTable.tenantId, tenantId));
 
-    const plan = tenant ? getPlan(tenant.planCode) : null;
-
-    res.json({
+    const base = {
       tenantId,
       totalProducts: productCount.count,
       totalOrders: orderStats.totalOrders,
       totalRevenue: parseFloat(orderStats.totalRevenue ?? "0"),
       totalCustomers: customerRows.length,
       recentOrders: recentOrderStats.count,
+    };
+
+    const sessionMerchantId = req.session.merchantId;
+    let includeBilling = false;
+    if (sessionMerchantId) {
+      const [merchantRow] = await db
+        .select({ tenantId: merchantsTable.tenantId, isPlatformAdmin: merchantsTable.isPlatformAdmin })
+        .from(merchantsTable)
+        .where(eq(merchantsTable.id, sessionMerchantId));
+      if (merchantRow && (merchantRow.isPlatformAdmin || merchantRow.tenantId === tenantId)) {
+        includeBilling = true;
+      }
+    }
+
+    if (!includeBilling) {
+      return res.json(base);
+    }
+
+    const [tenant] = await db
+      .select({ planCode: tenantsTable.planCode, subscriptionStatus: tenantsTable.subscriptionStatus })
+      .from(tenantsTable)
+      .where(eq(tenantsTable.id, tenantId));
+
+    const plan = tenant ? getPlan(tenant.planCode) : null;
+
+    res.json({
+      ...base,
       planCode: tenant?.planCode ?? "starter",
       subscriptionStatus: tenant?.subscriptionStatus ?? "trial",
       productLimit: plan?.productLimit ?? 30,
@@ -195,7 +247,7 @@ router.put("/tenants/:id/plan", requirePlatformAdmin, async (req, res) => {
       note: note ?? null,
     });
 
-    res.json(serializeTenant(updated as unknown as Record<string, unknown>));
+    res.json(serializeTenant(updated as unknown as Record<string, unknown>, true));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل تحديث خطة المتجر" });
