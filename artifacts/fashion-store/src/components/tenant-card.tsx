@@ -4,6 +4,7 @@ import { Tenant } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, ExternalLink } from "lucide-react";
+import { productImageUrl } from "@/lib/image-url";
 
 const CATEGORY_LABELS: Record<string, string> = {
   fashion: "أزياء",
@@ -23,7 +24,7 @@ export function TenantCard({ tenant }: TenantCardProps) {
         <Link href={`/store/${tenant.slug}`} className="block">
           <div className="h-32 bg-muted relative overflow-hidden">
             <img
-              src={tenant.coverUrl || "/hero.png"}
+              src={productImageUrl(tenant.coverUrl, productImageUrl("/hero.png"))}
               alt={tenant.name}
               className="w-full h-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
             />
@@ -44,7 +45,7 @@ export function TenantCard({ tenant }: TenantCardProps) {
             <div className="h-16 w-16 rounded-2xl border-4 border-card bg-background overflow-hidden -mt-8 relative z-10 mx-auto shadow-md group-hover:shadow-lg transition-shadow">
               {tenant.logoUrl ? (
                 <img
-                  src={tenant.logoUrl}
+                  src={productImageUrl(tenant.logoUrl)}
                   alt={`${tenant.name} logo`}
                   className="w-full h-full object-cover"
                 />

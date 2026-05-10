@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { MapPin, MessageCircle, Instagram, Facebook, Twitter, ArrowUp } from "lucide-react";
+import { productImageUrl } from "@/lib/image-url";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -73,7 +74,7 @@ export function StoreFooter({
           <div className="sm:col-span-2 md:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               {logoUrl
-                ? <img src={logoUrl} alt={storeName} className="w-10 h-10 rounded-xl object-cover" />
+                ? <img src={productImageUrl(logoUrl)} alt={storeName} className="w-10 h-10 rounded-xl object-cover" />
                 : (
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg"

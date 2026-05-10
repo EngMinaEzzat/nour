@@ -1,0 +1,36 @@
+
+> @workspace/fashion-store@0.0.0 dev /app/artifacts/fashion-store
+> vite --config vite.config.ts --host 0.0.0.0
+
+
+  VITE v7.3.2  ready in 472 ms
+
+  ➜  Local:   http://localhost:5000/
+  ➜  Network: http://192.168.0.2:5000/
+12:07:50 PM [vite] http proxy error: /api/auth/me
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:07:50 PM [vite] http proxy error: /api/csrf-token
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:08:42 PM [vite] http proxy error: /api/auth/me
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:08:42 PM [vite] http proxy error: /api/csrf-token
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:08:42 PM [vite] http proxy error: /api/tenants
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+12:08:43 PM [vite] http proxy error: /api/tenants
+AggregateError [ECONNREFUSED]:
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+/app/artifacts/fashion-store:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/fashion-store@0.0.0 dev: `vite --config vite.config.ts --host 0.0.0.0`
+Exit status 143
