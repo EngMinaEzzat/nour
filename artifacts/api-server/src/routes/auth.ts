@@ -93,7 +93,8 @@ router.post("/auth/register", authLimiter, async (req, res) => {
   const parsed = RegisterMerchantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const { storeName, slug: rawSlug, email, password, category = "both", city, description } = parsed.data;
+  const { storeName, slug: rawSlug, email: rawEmail, password, category = "both", city, description } = parsed.data;
+  const email = rawEmail.toLowerCase().trim();
   const slug = normalizeSlug(rawSlug);
 
   if (!slug) return res.status(400).json({ error: "الرابط يحتوي على أحرف غير مقبولة" });
@@ -183,7 +184,8 @@ router.post("/auth/login", authLimiter, async (req, res) => {
   const parsed = LoginMerchantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const { email, password } = parsed.data;
+  const { email: rawEmail, password } = parsed.data;
+  const email = rawEmail.toLowerCase().trim();
 
   try {
     const [merchant] = await db.select().from(merchantsTable).where(eq(merchantsTable.email, email));

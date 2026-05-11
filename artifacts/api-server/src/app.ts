@@ -11,6 +11,7 @@ import path from "path";
 import fs from "fs";
 import os from "os";
 import http from "http";
+import { pool } from "@workspace/db";
 import router from "./routes";
 import seoPublicRouter from "./lib/seo-public";
 import { logger } from "./lib/logger";
@@ -45,16 +46,18 @@ function buildSessionStore(): session.Store {
     });
   }
 
-  logger.warn("REDIS_URL not set — using PostgreSQL session store");
-  return new PgStore({
-    conString: process.env.DATABASE_URL,
+  logger.warn("REDIS_URL not set — using PostgreSQL session store (shared pool)");
+  const store = new PgStore({
+    pool: pool,
     tableName: "sessions",
     createTableIfMissing: true,
   });
+  store.on("error", (err) => logger.error({ err }, "Session store error"));
+  return store;
 }
 
 const app: Express = express();
-app.set("trust proxy", 1);
+app.set("trust proxy", true);
 
 app.use(
   pinoHttp({
@@ -102,10 +105,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
+    name: "nour.sid",
     store: buildSessionStore(),
     secret: process.env.SESSION_SECRET,
     resave: true,
-    saveUninitialized: false,
+    saveUninitialized: true,
     proxy: true,
     rolling: true,
     cookie: {

@@ -24,8 +24,9 @@ export default function Login() {
     try {
       await login(email, password);
       navigate("/dashboard");
-    } catch {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+    } catch (err: any) {
+      const msg = err.data?.error || err.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+      setError(typeof msg === "string" ? msg : "البريد الإلكتروني أو كلمة المرور غير صحيحة");
     } finally {
       setIsLoading(false);
     }
