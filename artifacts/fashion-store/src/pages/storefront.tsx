@@ -12,6 +12,7 @@ import {
   Search, ShoppingBag, Check, Layers, X, LayoutDashboard,
 } from "lucide-react";
 import { Link } from "wouter";
+import { renderSections } from "@/lib/section-renderer";
 
 // ─── Storefront section components ───────────────────────────────────────────
 import { AnnouncementBar } from "@/components/storefront/AnnouncementBar";
@@ -439,123 +440,229 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
       {/* ── Hero ── */}
       <div style={{ paddingTop: barVisible ? 100 : 64 }}>
-        <HeroSection
-          storeName={store.name}
-          description={store.description}
-          coverUrl={(store as any).coverUrl}
-          category={store.category}
-          primaryColor={p}
-          secondaryColor={s}
-          onScrollToProducts={scrollToProducts}
-        />
+        {(() => {
+          const storeConfig = (store as any).storeConfig;
+          if (storeConfig && storeConfig.homepage?.sections?.length) {
+            // Use dynamic renderer from storeConfig
+            const sections = renderSections({
+              sections: storeConfig.homepage.sections,
+              products: store.products as any[],
+              categories: store.categories ?? [],
+              storeData: {
+                name: store.name,
+                slug: store.slug,
+                primaryColor: p,
+                secondaryColor: s,
+                logoUrl: (store as any).logoUrl,
+                coverUrl: (store as any).coverUrl,
+                whatsappNumber: (store as any).whatsappNumber,
+              },
+            });
+            return (
+              <>
+                {sections}
+                {/* ── All Products Section ── */}
+                <section
+                  id="products-section"
+                  className="py-16 md:py-24 px-4 sm:px-6"
+                  style={{ background: "#fff" }}
+                >
+                  <div className="max-w-7xl mx-auto">
+                    {/* Header */}
+                    <div className="flex items-center gap-4 mb-8" style={{ direction: "rtl" }}>
+                      <div>
+                        <p
+                          className="text-[11px] tracking-[0.25em] uppercase mb-1 font-medium"
+                          style={{ color: p }}
+                        >
+                          كتالوج كامل
+                        </p>
+                        <h2
+                          className="text-4xl text-stone-900"
+                          style={{ fontFamily: SERIF, fontWeight: 400 }}
+                        >
+                          جميع المنتجات
+                        </h2>
+                      </div>
+                      <div className="flex-1 h-px bg-stone-100 mx-4" />
+                      <span className="text-sm text-stone-400 shrink-0">
+                        {store.products.length} منتج
+                      </span>
+                    </div>
+
+                    {/* Category filter */}
+                    <CategoryFilter
+                      store={store}
+                      selected={selectedCategory}
+                      onSelect={handleCategorySelect}
+                      p={p}
+                    />
+
+                    {/* Grid */}
+                    <AnimatePresence mode="wait">
+                      {filtered.length === 0 ? (
+                        <motion.div
+                          key="empty"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="text-center py-24"
+                          style={{ direction: "rtl" }}
+                        >
+                          <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
+                          <p className="text-stone-400 text-sm">لا توجد منتجات في هذه الفئة</p>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="products"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+                        >
+                          {filtered.map((product) => (
+                            <StorefrontProductCard
+                              key={product.id}
+                              product={product as ProductCardData}
+                              isAdded={addedIds.has(product.id)}
+                              onAddToCart={() => handleAddToCart(product as ProductCardData)}
+                            />
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </section>
+              </>
+            );
+          }
+
+          // Default layout (backward compatibility)
+          return (
+            <>
+              <HeroSection
+                storeName={store.name}
+                description={store.description}
+                coverUrl={(store as any).coverUrl}
+                category={store.category}
+                primaryColor={p}
+                secondaryColor={s}
+                onScrollToProducts={scrollToProducts}
+              />
+            </>
+          );
+        })()}
       </div>
 
-      {/* ── Trust Strip ── */}
-      <TrustStrip primaryColor={p} />
+      {/* ── Default Sections (shown when no storeConfig) ── */}
+      {!((store as any).storeConfig?.homepage?.sections?.length) && (
+        <>
+          {/* ── Trust Strip ── */}
+          <TrustStrip primaryColor={p} />
 
-      {/* ── Category Grid ── */}
-      <CategoryGrid
-        primaryColor={p}
-        storeCategory={store.category}
-        onScrollToProducts={scrollToProducts}
-      />
-
-      {/* ── New Arrivals ── */}
-      <NewArrivalsSection
-        products={store.products as any[]}
-        categories={store.categories ?? []}
-        primaryColor={p}
-        addedIds={addedIds}
-        onAddToCart={handleAddToCart}
-        onScrollToAll={scrollToProducts}
-      />
-
-      {/* ── Promo Banners ── */}
-      <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} />
-
-      {/* ── Editorial Lookbook ── */}
-      <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} />
-
-      {/* ── Best Sellers ── */}
-      <BestSellersSection
-        products={store.products as any[]}
-        primaryColor={p}
-        addedIds={addedIds}
-        onAddToCart={handleAddToCart}
-        onScrollToAll={scrollToProducts}
-      />
-
-      {/* ── Beauty Routine (cosmetics/both stores) ── */}
-      {showBeautySection && (
-        <BeautyRoutineSection primaryColor={p} onScrollToProducts={scrollToProducts} />
-      )}
-
-      {/* ── Trending ── */}
-      <TrendingSection
-        products={store.products as any[]}
-        primaryColor={p}
-        addedIds={addedIds}
-        onAddToCart={handleAddToCart}
-      />
-
-      {/* ── UGC / Community ── */}
-      <UGCSection primaryColor={p} instagramUrl={sl.instagram ?? null} />
-
-      {/* ── Newsletter ── */}
-      <NewsletterSection primaryColor={p} storeName={store.name} />
-
-      {/* ── All Products Section ── */}
-      <section
-        id="products-section"
-        className="py-16 md:py-24 px-4 sm:px-6"
-        style={{ background: "#fff" }}
-      >
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-8" style={{ direction: "rtl" }}>
-            <div>
-              <p
-                className="text-[11px] tracking-[0.25em] uppercase mb-1 font-medium"
-                style={{ color: p }}
-              >
-                كتالوج كامل
-              </p>
-              <h2
-                className="text-4xl text-stone-900"
-                style={{ fontFamily: SERIF, fontWeight: 400 }}
-              >
-                جميع المنتجات
-              </h2>
-            </div>
-            <div className="flex-1 h-px bg-stone-100 mx-4" />
-            <span className="text-sm text-stone-400 shrink-0">
-              {store.products.length} منتج
-            </span>
-          </div>
-
-          {/* Category filter */}
-          <CategoryFilter
-            store={store}
-            selected={selectedCategory}
-            onSelect={handleCategorySelect}
-            p={p}
+          {/* ── Category Grid ── */}
+          <CategoryGrid
+            primaryColor={p}
+            storeCategory={store.category}
+            onScrollToProducts={scrollToProducts}
           />
 
-          {/* Grid */}
-          <AnimatePresence mode="wait">
-            {filtered.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-center py-24"
-                style={{ direction: "rtl" }}
-              >
-                <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
-                <p className="text-stone-400 text-sm">لا توجد منتجات في هذه الفئة</p>
-              </motion.div>
-            ) : (
+          {/* ── New Arrivals ── */}
+          <NewArrivalsSection
+            products={store.products as any[]}
+            categories={store.categories ?? []}
+            primaryColor={p}
+            addedIds={addedIds}
+            onAddToCart={handleAddToCart}
+            onScrollToAll={scrollToProducts}
+          />
+
+          {/* ── Promo Banners ── */}
+          <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} />
+
+          {/* ── Editorial Lookbook ── */}
+          <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} />
+
+          {/* ── Best Sellers ── */}
+          <BestSellersSection
+            products={store.products as any[]}
+            primaryColor={p}
+            addedIds={addedIds}
+            onAddToCart={handleAddToCart}
+            onScrollToAll={scrollToProducts}
+          />
+
+          {/* ── Beauty Routine (cosmetics/both stores) ── */}
+          {showBeautySection && (
+            <BeautyRoutineSection primaryColor={p} onScrollToProducts={scrollToProducts} />
+          )}
+
+          {/* ── Trending ── */}
+          <TrendingSection
+            products={store.products as any[]}
+            primaryColor={p}
+            addedIds={addedIds}
+            onAddToCart={handleAddToCart}
+          />
+
+          {/* ── UGC / Community ── */}
+          <UGCSection primaryColor={p} instagramUrl={sl.instagram ?? null} />
+
+          {/* ── Newsletter ── */}
+          <NewsletterSection primaryColor={p} storeName={store.name} />
+
+          {/* ── All Products Section ── */}
+          <section
+            id="products-section"
+            className="py-16 md:py-24 px-4 sm:px-6"
+            style={{ background: "#fff" }}
+          >
+            <div className="max-w-7xl mx-auto">
+              {/* Header */}
+              <div className="flex items-center gap-4 mb-8" style={{ direction: "rtl" }}>
+                <div>
+                  <p
+                    className="text-[11px] tracking-[0.25em] uppercase mb-1 font-medium"
+                    style={{ color: p }}
+                  >
+                    كتالوج كامل
+                  </p>
+                  <h2
+                    className="text-4xl text-stone-900"
+                    style={{ fontFamily: SERIF, fontWeight: 400 }}
+                  >
+                    جميع المنتجات
+                  </h2>
+                </div>
+                <div className="flex-1 h-px bg-stone-100 mx-4" />
+                <span className="text-sm text-stone-400 shrink-0">
+                  {store.products.length} منتج
+                </span>
+              </div>
+
+              {/* Category filter */}
+              <CategoryFilter
+                store={store}
+                selected={selectedCategory}
+                onSelect={handleCategorySelect}
+                p={p}
+              />
+
+              {/* Grid */}
+              <AnimatePresence mode="wait">
+                {filtered.length === 0 ? (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-center py-24"
+                    style={{ direction: "rtl" }}
+                  >
+                    <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
+                    <p className="text-stone-400 text-sm">لا توجد منتجات في هذه الفئة</p>
+                  </motion.div>
+                ) : (
               <motion.div
                 key={String(selectedCategory)}
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6"
@@ -587,6 +694,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           </AnimatePresence>
         </div>
       </section>
+        </>
+      )}
 
       {/* ── Footer ── */}
       <StoreFooter

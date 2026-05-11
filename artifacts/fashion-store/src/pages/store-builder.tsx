@@ -121,6 +121,14 @@ export default function StoreBuilder() {
         ...creds,
         body: JSON.stringify(config.business.socialLinks),
       }),
+      fetch(`${BASE}/api/tenants/${tenant.id}`, {
+        method: "PUT",
+        headers,
+        ...creds,
+        body: JSON.stringify({
+          storeConfig: JSON.stringify(config),
+        }),
+      }),
     ]);
   }
 

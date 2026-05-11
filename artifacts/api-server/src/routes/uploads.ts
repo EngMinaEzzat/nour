@@ -46,6 +46,24 @@ const upload = multer({
 
 const router = Router();
 
+router.get("/uploads/:filename", (req, res) => {
+  if (useCloudinary) {
+    return res.status(404).json({ error: "Using Cloudinary for uploads" });
+  }
+
+  const filename = req.params.filename;
+  if (!filename || /[\\/]/.test(filename)) {
+    return res.status(400).json({ error: "Invalid filename" });
+  }
+
+  const filepath = path.join(uploadsDir, filename);
+  if (!fs.existsSync(filepath)) {
+    return res.status(404).json({ error: "File not found" });
+  }
+
+  return res.sendFile(filepath);
+});
+
 router.post(
   "/uploads/image",
   requireRole("owner", "manager", "catalog_manager", "staff"),

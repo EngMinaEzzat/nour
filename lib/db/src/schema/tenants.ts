@@ -32,6 +32,7 @@ export const tenantsTable = pgTable("tenants", {
   seoDescription: text("seo_description"),
   socialLinks: text("social_links"),
   footerContact: text("footer_contact"),
+  storeConfig: text("store_config"),
   customDomain: text("custom_domain"),
   customDomainVerified: boolean("custom_domain_verified").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),

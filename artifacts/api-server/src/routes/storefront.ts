@@ -120,6 +120,13 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
       seoTitle: tenant.seoTitle ?? null,
       seoDescription: tenant.seoDescription ?? null,
       socialLinks,
+      storeConfig: (() => {
+        try {
+          return (tenant as any).storeConfig ? JSON.parse((tenant as any).storeConfig) : null;
+        } catch {
+          return null;
+        }
+      })(),
       trackingSettings: trackingSettings ?? {
         ga4MeasurementId: null,
         ga4Enabled: false,
