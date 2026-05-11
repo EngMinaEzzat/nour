@@ -76,4 +76,31 @@ router.post("/categories", requireAuth, async (req, res) => {
   }
 });
 
+router.put("/categories/:id", requireAuth, async (req, res) => {
+  const categoryId = Number(req.params.id);
+  const parsed = CreateCategoryBody.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const merchantId = req.session.merchantId!;
+  try {
+    const [merchant] = await db
+      .select({ tenantId: merchantsTable.tenantId })
+      .from(merchantsTable)
+      .where(eq(merchantsTable.id, merchantId));
+    if (!merchant) return res.status(401).json({ error: "غير مصرح" });
+
+    const [category] = await db
+      .update(categoriesTable)
+      .set(parsed.data)
+      .where(and(eq(categoriesTable.id, categoryId), eq(categoriesTable.tenantId, merchant.tenantId)))
+      .returning();
+
+    if (!category) return res.status(404).json({ error: "الفئة غير موجودة" });
+    res.json(category);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل تحديث الفئة" });
+  }
+});
+
 export default router;

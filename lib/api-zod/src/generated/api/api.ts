@@ -390,6 +390,7 @@ export const ListCategoriesResponseItem = zod.object({
   id: zod.number(),
   name: zod.string(),
   nameAr: zod.string().describe("Arabic name"),
+  image: zod.string().optional(),
   type: zod.enum(["fashion", "cosmetics"]),
   productCount: zod.number(),
 });
@@ -401,6 +402,7 @@ export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem);
 export const CreateCategoryBody = zod.object({
   name: zod.string(),
   nameAr: zod.string(),
+  image: zod.string().optional(),
   type: zod.enum(["fashion", "cosmetics"]),
 });
 

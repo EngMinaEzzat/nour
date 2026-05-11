@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGetTenant, getGetTenantQueryKey, useUpdateTenant } from "@workspace/api-client-react";
+import { useGetTenant, getGetTenantQueryKey, useUpdateTenant, useListCategories, useCreateCategory } from "@workspace/api-client-react";
 import GuideCard from "@/components/admin/GuideCard";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,7 +18,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import {
   Settings, Save, Store, MapPin, Globe, Image, Palette,
   AlertCircle, CheckCircle2, Copy, Check, ExternalLink, Eye,
-  Search, Share2, QrCode, Download, Menu, X, Loader2,
+  Search, Share2, QrCode, Download, Menu, X, Loader2, Plus, Edit2, Trash2,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -138,12 +138,125 @@ const THEMES: { id: StoreTheme; name: string; nameEn: string; desc: string; prev
 
 const SETTING_SECTIONS = [
   { id: "section-identity",  name: "هوية المتجر",          icon: Store },
+  { id: "section-categories", name: "الفئات",              icon: Palette },
   { id: "section-media",     name: "الصور والمظهر",         icon: Image },
   { id: "section-colors",    name: "الألوان",               icon: Palette },
   { id: "section-theme",     name: "قالب المتجر",           icon: Settings },
   { id: "section-seo",       name: "تحسين البحث (SEO)",     icon: Search },
   { id: "section-social",    name: "الروابط الاجتماعية",    icon: Share2 },
 ];
+
+function scrollToSection(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function CategoriesSection() {
+  const { merchant } = useAuth();
+  const { toast } = useToast();
+  const tenantId = merchant?.tenantId;
+  const { data: categories, isLoading, refetch } = useListCategories({ tenantId: tenantId! }, { query: { enabled: !!tenantId } });
+  const createMutation = useCreateCategory();
+  const [editing, setEditing] = useState<{ id?: number; name: string; nameAr: string; image: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const handleSaveCategory = async () => {
+    if (!editing || !editing.name || !editing.nameAr || !tenantId) return;
+    setSaving(true);
+    try {
+      if (editing.id) {
+        const response = await fetch(`/api/categories/${editing.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ name: editing.name, nameAr: editing.nameAr, image: editing.image, type: "fashion" }),
+        });
+        if (!response.ok) throw new Error("فشل التحديث");
+        toast({ title: "تم التحديث ✓", description: "تم تحديث الفئة بنجاح." });
+      } else {
+        await createMutation.mutateAsync({ name: editing.name, nameAr: editing.nameAr, image: editing.image || undefined, type: "fashion" });
+        toast({ title: "تم الإنشاء ✓", description: "تم إنشاء فئة جديدة." });
+      }
+      setEditing(null);
+      refetch();
+    } catch (err: any) {
+      toast({ title: "خطأ", description: err.message || "حدث خطأ أثناء الحفظ", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card className="border-border/50">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Palette className="w-4 h-4 text-primary" /> إدارة الفئات
+          </CardTitle>
+          <Button size="sm" onClick={() => setEditing({ name: "", nameAr: "", image: "" })} className="gap-1 rounded-xl">
+            <Plus className="w-3.5 h-3.5" /> فئة جديدة
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isLoading ? (
+          <div className="space-y-2">{Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-20" />)}</div>
+        ) : !categories?.length ? (
+          <div className="text-center py-8 text-muted-foreground/60">
+            <Palette className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">لم تنشئ أي فئات بعد</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {categories.map((cat) => (
+              <div key={cat.id} className="flex items-center gap-3 p-3 rounded-xl border border-border/50 hover:border-border/80 transition-colors">
+                {cat.image && <img src={cat.image} alt={cat.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-foreground">{cat.name}</p>
+                  <p className="text-xs text-muted-foreground">{cat.nameAr}</p>
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => setEditing({ id: cat.id, name: cat.name, nameAr: cat.nameAr, image: cat.image || "" })}>
+                  <Edit2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <AnimatePresence>
+          {editing && (
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="p-4 border border-primary/30 bg-primary/5 rounded-xl space-y-3 mt-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>الاسم بالإنجليزية *</Label>
+                  <Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder="Fashion" className="h-9 text-sm" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>الاسم بالعربية *</Label>
+                  <Input value={editing.nameAr} onChange={(e) => setEditing({ ...editing, nameAr: e.target.value })} placeholder="أزياء" className="h-9 text-sm" dir="rtl" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>رابط الصورة</Label>
+                <div className="flex gap-2">
+                  {editing.image && <img src={editing.image} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />}
+                  <Input value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} placeholder="https://example.com/image.jpg" dir="ltr" className="h-9 text-sm flex-1" />
+                </div>
+                <p className="text-xs text-muted-foreground">صورة مربعة 500×500 بكسل تظهر في قائمة الفئات</p>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button size="sm" variant="outline" onClick={() => setEditing(null)}>إلغاء</Button>
+                <Button size="sm" onClick={handleSaveCategory} disabled={saving || !editing.name || !editing.nameAr}>
+                  {saving ? "جارٍ الحفظ..." : "حفظ"}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </CardContent>
+    </Card>
+  );
+}
 
 function scrollToSection(id: string) {
   const el = document.getElementById(id);
@@ -663,8 +776,13 @@ export default function StoreSettings() {
             </Card>
           </motion.div>
 
+          {/* Categories section */}
+          <motion.div id="section-categories" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+            <CategoriesSection />
+          </motion.div>
+
           {/* Media section */}
-          <motion.div id="section-media" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <motion.div id="section-media" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }}>
             <Card className="border-border/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">

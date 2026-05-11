@@ -10,6 +10,7 @@ export const categoriesTable = pgTable("categories", {
   tenantId: integer("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   nameAr: text("name_ar").notNull(),
+  image: text("image"),
   type: categoryTypeEnum("type").notNull(),
 });
 
