@@ -173,13 +173,22 @@ router.post("/auth/login", authLimiter, async (req, res) => {
 
   try {
     const [merchant] = await db.select().from(merchantsTable).where(eq(merchantsTable.email, email));
-    if (!merchant) return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    if (!merchant) {
+      req.log.warn({ email }, "Login failed: Merchant not found");
+      return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    }
 
     const valid = await bcrypt.compare(password, merchant.passwordHash);
-    if (!valid) return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    if (!valid) {
+      req.log.warn({ email, merchantId: merchant.id }, "Login failed: Invalid password");
+      return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    }
 
     const [tenant] = await db.select().from(tenantsTable).where(eq(tenantsTable.id, merchant.tenantId));
-    if (!tenant) return res.status(500).json({ error: "لم يتم العثور على المتجر" });
+    if (!tenant) {
+      req.log.error({ email, merchantId: merchant.id, tenantId: merchant.tenantId }, "Login failed: Tenant record missing for merchant");
+      return res.status(500).json({ error: "لم يتم العثور على المتجر" });
+    }
 
     await db
       .update(tenantsTable)
