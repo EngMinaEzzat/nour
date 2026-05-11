@@ -11,7 +11,7 @@ export const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
   cookieName: isProd ? "__Host-psifi.x-csrf-token" : "x-csrf-token",
   cookieOptions: {
     secure: isProd,
-    sameSite: isProd ? ("none" as const) : ("lax" as const),
+    sameSite: "lax" as const,
     httpOnly: true,
     path: "/",
   },
