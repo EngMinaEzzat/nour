@@ -68,8 +68,11 @@ router.post(
         const { url, publicId } = await uploadProductImageBuffer(req.file.buffer);
         return res.json({ url, filename: publicId });
       } catch (err) {
-        req.log.error(err);
-        return res.status(502).json({ error: "فشل رفع الصورة إلى التخزين السحابي" });
+        req.log.error({ err }, "Cloudinary upload attempt failed");
+        return res.status(502).json({
+          error: "فشل رفع الصورة إلى التخزين السحابي — يرجى التأكد من صحة إعدادات CLOUDINARY_URL وصلاحية المفاتيح",
+          message: process.env.NODE_ENV !== "production" ? String(err) : undefined
+        });
       }
     }
 
