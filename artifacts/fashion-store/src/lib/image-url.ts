@@ -1,3 +1,4 @@
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
 
 function isLocalHost(hostname: string) {
@@ -11,21 +12,38 @@ export function normalizeStoredImageUrl(url?: string | null) {
   try {
     const parsed = new URL(trimmed);
     const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
+
+    const pathname = parsed.pathname;
+    const isUploadPath = pathname.startsWith("/api/uploads/") ||
+                         (BASE !== "" && pathname.startsWith(BASE + "/api/uploads/"));
+
     if (
-      parsed.pathname.startsWith("/api/uploads/") &&
+      isUploadPath &&
       (isLocalHost(parsed.hostname) || parsed.origin === currentOrigin)
     ) {
-      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+      let path = `${pathname}${parsed.search}${parsed.hash}`;
+      if (BASE !== "" && path.startsWith(BASE + "/")) {
+        path = path.substring(BASE.length);
+      }
+      return path;
     }
   } catch {
-    // Relative paths are already valid stored URLs.
+    if (BASE !== "" && trimmed.startsWith(BASE + "/")) {
+      return trimmed.substring(BASE.length);
+    }
   }
 
   return trimmed;
 }
 
 export function productImageUrl(url?: string | null, fallback = FALLBACK_PRODUCT_IMAGE) {
-  const normalized = normalizeStoredImageUrl(url);
-  if (!normalized || normalized === "/product-fashion.png") return fallback;
+  let normalized = normalizeStoredImageUrl(url);
+  if (!normalized || normalized === "/product-fashion.png") {
+    normalized = fallback;
+  }
+
+  if (normalized.startsWith("/") && !normalized.startsWith(BASE + "/")) {
+    return `${BASE}${normalized}`;
+  }
   return normalized;
 }
