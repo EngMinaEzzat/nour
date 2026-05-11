@@ -140,6 +140,13 @@ router.post("/auth/register", authLimiter, async (req, res) => {
     });
 
     req.session.merchantId = result.merchant.id;
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
     req.log.info({ tenantId: result.tenant.id, slug }, "New merchant registered");
 
     const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
@@ -187,6 +194,13 @@ router.post("/auth/login", authLimiter, async (req, res) => {
       .where(eq(tenantsTable.id, tenant.id));
 
     req.session.merchantId = merchant.id;
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
     return res.json(buildAuthResponse(merchant, tenant));
   } catch (err) {
     req.log.error(err);
