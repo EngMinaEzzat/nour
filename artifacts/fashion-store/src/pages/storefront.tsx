@@ -335,9 +335,9 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const handleAddToCart = useCallback((product: ProductCardData) => {
     if (!store) return;
     if ((product as any).hasVariants) { navigate(productHref(product)); return; }
-    addItem({ productId:product.id, tenantId:store.id, tenantSlug:store.slug, tenantName:store.name, name:product.name, price:product.price, imageUrl:productImageUrl(product.imageUrl) });
+    addItem({ productId: product.id, tenantId: product.tenantId, tenantSlug: store.slug, tenantName: product.tenantName, name: product.name, price: product.price, imageUrl: productImageUrl(product.imageUrl) });
     setAddedIds(prev => new Set(prev).add(product.id));
-    setTimeout(() => setAddedIds(prev => { const n=new Set(prev); n.delete(product.id); return n; }), 2000);
+    setTimeout(() => setAddedIds(prev => { const n = new Set(prev); n.delete(product.id); return n; }), 2000);
   }, [store, addItem, navigate, productHref]);
 
   function scrollToProducts() {
@@ -523,9 +523,15 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                           {filtered.map((product) => (
                             <StorefrontProductCard
                               key={product.id}
-                              product={product as ProductCardData}
-                              isAdded={addedIds.has(product.id)}
-                              onAddToCart={() => handleAddToCart(product as ProductCardData)}
+                              product={{
+                                ...product,
+                                tenantId: store.id,
+                                tenantName: store.name,
+                              } as ProductCardData}
+                              storeSlug={store.slug}
+                              primaryColor={p}
+                              inCart={addedIds.has(product.id)}
+                              onAdd={() => handleAddToCart({ ...product, tenantId: store.id, tenantName: store.name } as ProductCardData)}
                             />
                           ))}
                         </motion.div>
@@ -680,11 +686,15 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     transition={{ delay: Math.min(i * 0.04, 0.4), duration: 0.4 }}
                   >
                     <StorefrontProductCard
-                      product={product as any}
+                      product={{
+                        ...product,
+                        tenantId: store.id,
+                        tenantName: store.name,
+                      } as ProductCardData}
                       storeSlug={store.slug}
                       primaryColor={p}
                       inCart={addedIds.has(product.id)}
-                      onAdd={() => handleAddToCart({ ...product, tenantId: store.id, tenantName: store.name })}
+                      onAdd={() => handleAddToCart({ ...product, tenantId: store.id, tenantName: store.name } as ProductCardData)}
                       showRating={false}
                     />
                   </motion.div>

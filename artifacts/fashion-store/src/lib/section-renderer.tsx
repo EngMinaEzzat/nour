@@ -32,12 +32,13 @@ export function renderSection(props: SectionRendererProps) {
       return (
         <HeroSection
           key={section.id}
-          heading={section.content.heading}
-          subheading={section.content.subheading}
-          ctaText={section.content.ctaText}
-          imageUrl={section.content.imageUrl || storeData.coverUrl}
+          storeName={storeData.name}
+          description={section.content.body}
+          coverUrl={section.content.imageUrl || storeData.coverUrl}
+          category={undefined}
           primaryColor={storeData.primaryColor}
           secondaryColor={storeData.secondaryColor}
+          onScrollToProducts={() => document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" })}
         />
       );
 
@@ -45,8 +46,8 @@ export function renderSection(props: SectionRendererProps) {
       return (
         <CategoryGrid
           key={section.id}
-          categories={categories}
           primaryColor={storeData.primaryColor}
+          onScrollToProducts={() => document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" })}
         />
       );
 
@@ -55,8 +56,11 @@ export function renderSection(props: SectionRendererProps) {
         <NewArrivalsSection
           key={section.id}
           products={products.slice(0, section.settings.productCount || 8)}
+          categories={categories}
           primaryColor={storeData.primaryColor}
-          secondaryColor={storeData.secondaryColor}
+          addedIds={new Set()}
+          onAddToCart={() => {}}
+          onScrollToAll={() => document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" })}
         />
       );
 
@@ -66,33 +70,9 @@ export function renderSection(props: SectionRendererProps) {
           key={section.id}
           products={products.slice(0, section.settings.productCount || 4)}
           primaryColor={storeData.primaryColor}
-          secondaryColor={storeData.secondaryColor}
-        />
-      );
-
-    case "trending":
-      return (
-        <TrendingSection
-          key={section.id}
-          products={products.slice(0, section.settings.productCount || 6)}
-          primaryColor={storeData.primaryColor}
-        />
-      );
-
-    case "newsletter":
-      return (
-        <NewsletterSection
-          key={section.id}
-          primaryColor={storeData.primaryColor}
-          secondaryColor={storeData.secondaryColor}
-        />
-      );
-
-    case "trust-strip":
-      return (
-        <TrustStrip
-          key={section.id}
-          primaryColor={storeData.primaryColor}
+          addedIds={new Set()}
+          onAddToCart={() => {}}
+          onScrollToAll={() => document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" })}
         />
       );
 
@@ -101,7 +81,24 @@ export function renderSection(props: SectionRendererProps) {
         <EditorialLookbook
           key={section.id}
           primaryColor={storeData.primaryColor}
-          secondaryColor={storeData.secondaryColor}
+          onScrollToProducts={() => document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" })}
+        />
+      );
+
+    case "newsletter":
+      return (
+        <NewsletterSection
+          key={section.id}
+          primaryColor={storeData.primaryColor}
+          storeName={storeData.name}
+        />
+      );
+
+    case "trust-strip":
+      return (
+        <TrustStrip
+          key={section.id}
+          primaryColor={storeData.primaryColor}
         />
       );
 

@@ -146,16 +146,11 @@ const SETTING_SECTIONS = [
   { id: "section-social",    name: "الروابط الاجتماعية",    icon: Share2 },
 ];
 
-function scrollToSection(id: string) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
 function CategoriesSection() {
   const { merchant } = useAuth();
   const { toast } = useToast();
   const tenantId = merchant?.tenantId;
-  const { data: categories, isLoading, refetch } = useListCategories({ tenantId: tenantId! }, { query: { enabled: !!tenantId } });
+  const { data: categories, isLoading, refetch } = useListCategories();
   const createMutation = useCreateCategory();
   const [editing, setEditing] = useState<{ id?: number; name: string; nameAr: string; image: string } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -169,12 +164,12 @@ function CategoriesSection() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ name: editing.name, nameAr: editing.nameAr, image: editing.image, type: "fashion" }),
+          body: JSON.stringify({ name: editing.name, nameAr: editing.nameAr, type: "fashion" }),
         });
         if (!response.ok) throw new Error("فشل التحديث");
         toast({ title: "تم التحديث ✓", description: "تم تحديث الفئة بنجاح." });
       } else {
-        await createMutation.mutateAsync({ name: editing.name, nameAr: editing.nameAr, image: editing.image || undefined, type: "fashion" });
+        await createMutation.mutateAsync({ data: { name: editing.name, nameAr: editing.nameAr, type: "fashion" } });
         toast({ title: "تم الإنشاء ✓", description: "تم إنشاء فئة جديدة." });
       }
       setEditing(null);
@@ -210,12 +205,11 @@ function CategoriesSection() {
           <div className="space-y-2">
             {categories.map((cat) => (
               <div key={cat.id} className="flex items-center gap-3 p-3 rounded-xl border border-border/50 hover:border-border/80 transition-colors">
-                {cat.image && <img src={cat.image} alt={cat.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm text-foreground">{cat.name}</p>
                   <p className="text-xs text-muted-foreground">{cat.nameAr}</p>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => setEditing({ id: cat.id, name: cat.name, nameAr: cat.nameAr, image: cat.image || "" })}>
+                <Button size="sm" variant="ghost" onClick={() => setEditing({ id: cat.id, name: cat.name, nameAr: cat.nameAr, image: "" })}>
                   <Edit2 className="w-3.5 h-3.5" />
                 </Button>
               </div>

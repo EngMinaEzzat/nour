@@ -42,13 +42,9 @@ export default function Categories() {
               <motion.div key={cat.id} variants={stagger.item}>
                 <Link href={`/products?categoryId=${cat.id}`}>
                   <Card className="border-border/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden">
-                    {cat.image ? (
-                      <img src={cat.image} alt={cat.name} className="h-24 w-full object-cover" />
-                    ) : (
-                      <div className="h-24 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                        <Icon className="w-10 h-10 text-primary/60 group-hover:text-primary transition-colors duration-300" />
-                      </div>
-                    )}
+                    <div className="h-24 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                      <Icon className="w-10 h-10 text-primary/60 group-hover:text-primary transition-colors duration-300" />
+                    </div>
                     <CardContent className="p-5">
                       <h2 className="text-lg font-bold text-foreground mb-1">{cat.name}</h2>
                       <p className="text-sm text-muted-foreground mb-3">{cat.nameAr ?? cat.name}</p>
