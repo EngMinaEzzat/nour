@@ -1,15 +1,13 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
 import type { ProductCardData } from "@/components/storefront/StorefrontProductCard";
-import {
-  HeroSection,
-  CategoryGrid,
-  NewArrivalsSection,
-  BestSellersSection,
-  TrendingSection,
-  NewsletterSection,
-  TrustStrip,
-  EditorialLookbook,
-} from "@/components/storefront";
+import { HeroSection } from "@/components/storefront/HeroSection";
+import { CategoryGrid } from "@/components/storefront/CategoryGrid";
+import { NewArrivalsSection } from "@/components/storefront/NewArrivalsSection";
+import { BestSellersSection } from "@/components/storefront/BestSellersSection";
+import { TrendingSection } from "@/components/storefront/TrendingSection";
+import { NewsletterSection } from "@/components/storefront/NewsletterSection";
+import { TrustStrip } from "@/components/storefront/TrustStrip";
+import { EditorialLookbook } from "@/components/storefront/EditorialLookbook";
 
 export interface SectionRendererProps {
   section: SectionConfig;
