@@ -8,7 +8,7 @@ export const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
   // Use the session ID as the per-request identifier so the token is bound to the session
   getSessionIdentifier: (req: Request) =>
     (req.session?.id as string | undefined) ?? req.ip ?? "anon",
-  cookieName: isProd ? "__Host-psifi.x-csrf-token" : "x-csrf-token",
+  cookieName: "x-csrf-token",
   cookieOptions: {
     secure: isProd,
     sameSite: "lax" as const,

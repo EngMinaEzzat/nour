@@ -147,7 +147,14 @@ router.post("/auth/register", authLimiter, async (req, res) => {
       });
     });
 
-    req.log.info({ tenantId: result.tenant.id, slug }, "New merchant registered");
+    req.log.info(
+      {
+        tenantId: result.tenant.id,
+        slug,
+        sessionId: req.sessionID?.slice(0, 8),
+      },
+      "New merchant registered",
+    );
 
     const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
     const storeUrl = `${baseUrl}/store/${slug}`;
@@ -201,6 +208,14 @@ router.post("/auth/login", authLimiter, async (req, res) => {
       });
     });
 
+    req.log.info(
+      {
+        merchantId: merchant.id,
+        sessionId: req.sessionID?.slice(0, 8),
+      },
+      "Merchant logged in",
+    );
+
     return res.json(buildAuthResponse(merchant, tenant));
   } catch (err) {
     req.log.error(err);
@@ -216,6 +231,16 @@ router.post("/auth/logout", (req, res) => {
 
 router.get("/auth/me", async (req, res) => {
   const merchantId = req.session.merchantId;
+
+  req.log.info(
+    {
+      isAuthenticated: !!merchantId,
+      merchantId,
+      sessionId: req.sessionID?.slice(0, 8),
+    },
+    "Auth check (/auth/me)",
+  );
+
   if (!merchantId) return res.status(401).json({ error: "غير مسجل الدخول" });
 
   try {
