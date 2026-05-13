@@ -80,23 +80,25 @@ export function CategoryGrid({
                 transition={{ delay: i * 0.08, duration: 0.5 }}
                 whileHover={{ y: -4 }}
               >
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ background: `linear-gradient(135deg, ${p}18, ${accent}30)` }}
+                >
+                  <Sparkles className="w-12 h-12 text-stone-900/25" />
+                </div>
                 {category.imageUrl ? (
                   <img
                     src={productImageUrl(category.imageUrl)}
                     alt={label}
                     loading="lazy"
                     decoding="async"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
                     style={{ transform: "scale(1)" }}
                   />
-                ) : (
-                  <div
-                    className="absolute inset-0 flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${p}18, ${accent}30)` }}
-                  >
-                    <Sparkles className="w-12 h-12 text-stone-900/25" />
-                  </div>
-                )}
+                ) : null}
 
                 <div
                   className="absolute inset-0"

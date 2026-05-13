@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { useGetTenant } from "@workspace/api-client-react";
+import { getListCategoriesQueryKey, useGetTenant, useListCategories } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import VisualEditor from "@/components/editor/VisualEditor";
@@ -31,6 +31,9 @@ export default function StoreBuilder() {
 
   const { data: tenant, isLoading } = useGetTenant(tenantId!, {
     query: { queryKey: [`/api/tenants/${tenantId}`], enabled: !!tenantId },
+  });
+  const { data: categories = [] } = useListCategories({
+    query: { queryKey: getListCategoriesQueryKey(), enabled: !!tenantId },
   });
 
   const [mode, setMode] = useState<"wizard" | "editor" | null>(null);
@@ -171,6 +174,7 @@ export default function StoreBuilder() {
       initialConfig={storeConfig}
       storeSlug={tenant.slug}
       productCount={(tenant as any).productCount ?? 0}
+      categories={categories}
       onBack={() => navigate("/dashboard")}
       onSave={handleSave}
     />

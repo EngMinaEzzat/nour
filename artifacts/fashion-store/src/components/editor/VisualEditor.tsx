@@ -13,6 +13,7 @@ interface VisualEditorProps {
   initialConfig: StoreConfig;
   storeSlug: string;
   productCount: number;
+  categories?: Array<{ id: number; name: string; nameAr?: string; imageUrl?: string | null; productCount?: number }>;
   onBack: () => void;
   onSave: (config: StoreConfig) => Promise<void>;
 }
@@ -20,7 +21,7 @@ interface VisualEditorProps {
 const MAX_HISTORY = 30;
 
 export default function VisualEditor({
-  initialConfig, storeSlug, productCount, onBack, onSave,
+  initialConfig, storeSlug, productCount, categories = [], onBack, onSave,
 }: VisualEditorProps) {
   // ─── History-based undo/redo ────────────────────────────────────────────────
   const [history, setHistory] = useState<StoreConfig[]>([initialConfig]);
@@ -153,6 +154,7 @@ export default function VisualEditor({
         <div className="flex-1 flex flex-col overflow-hidden relative">
           <EditorCanvas
             config={config}
+            categories={categories}
             selectedId={selectedId}
             device={device}
             onSelectSection={setSelectedId}

@@ -4,11 +4,12 @@ interface PreviewProps {
   section: SectionConfig;
   theme: StoreConfig["theme"];
   brand: StoreConfig["brand"];
+  categories?: Array<{ id: number; name: string; nameAr?: string; imageUrl?: string | null; productCount?: number }>;
   selected: boolean;
   onClick: () => void;
 }
 
-export function SectionPreview({ section, theme, brand, selected, onClick }: PreviewProps) {
+export function SectionPreview({ section, theme, brand, categories = [], selected, onClick }: PreviewProps) {
   const p = theme.primaryColor;
   const sec = theme.secondaryColor;
   const r = `${theme.radius}px`;
@@ -132,12 +133,33 @@ export function SectionPreview({ section, theme, brand, selected, onClick }: Pre
     }
 
     case "categories": {
+      const previewCategories = categories.slice(0, 4);
       return wrap(
         <div className="bg-white px-6 py-8">
           <h3 className="text-center text-lg font-semibold text-stone-900 mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             {section.content.heading ?? "الأقسام"}
           </h3>
-          <div className="grid grid-cols-4 gap-3">
+          {previewCategories.length > 0 ? (
+            <div className="grid grid-cols-4 gap-3">
+              {previewCategories.map((cat, i) => (
+                <div key={cat.id} className="relative overflow-hidden bg-stone-100" style={{ borderRadius: r }}>
+                  {cat.imageUrl ? (
+                    <img src={cat.imageUrl} alt={cat.nameAr || cat.name} className="aspect-square w-full object-cover" loading="lazy" />
+                  ) : (
+                    <div className="aspect-square" style={{ background: `linear-gradient(135deg, ${p}${30 + i * 15}, ${sec}${20 + i * 10})` }} />
+                  )}
+                  <div className="absolute inset-0 flex items-end p-2 bg-gradient-to-t from-black/55 to-transparent">
+                    <span className="text-white text-[10px] font-semibold">{cat.nameAr || cat.name}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-stone-200 py-6 text-center text-xs text-stone-400">
+              أضيفي الفئات من تبويب الفئات لتظهر هنا
+            </div>
+          )}
+          <div className="hidden">
             {["أزياء", "عناية", "إكسسوار", "عطور"].map((cat, i) => (
               <div key={i} className="relative overflow-hidden" style={{ borderRadius: r }}>
                 <div className="aspect-square" style={{ background: `linear-gradient(135deg, ${p}${30 + i * 15}, ${sec}${20 + i * 10})` }} />

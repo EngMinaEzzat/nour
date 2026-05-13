@@ -4,6 +4,7 @@ import { DeviceType, StoreConfig } from "@/lib/store-config";
 
 interface EditorCanvasProps {
   config: StoreConfig;
+  categories?: Array<{ id: number; name: string; nameAr?: string; imageUrl?: string | null; productCount?: number }>;
   selectedId: string | null;
   device: DeviceType;
   onSelectSection: (id: string) => void;
@@ -23,7 +24,7 @@ const DEVICE_LABELS: Record<DeviceType, string> = {
 };
 
 export default function EditorCanvas({
-  config, selectedId, device, onSelectSection, onDeselectAll,
+  config, categories = [], selectedId, device, onSelectSection, onDeselectAll,
 }: EditorCanvasProps) {
   const width = DEVICE_WIDTHS[device];
   const isConstrained = device !== "desktop";
@@ -86,6 +87,7 @@ export default function EditorCanvas({
                 section={section}
                 theme={config.theme}
                 brand={config.brand}
+                categories={categories}
                 selected={section.id === selectedId}
                 onClick={() => onSelectSection(section.id)}
               />

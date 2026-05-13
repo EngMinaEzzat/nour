@@ -449,36 +449,34 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
   // ── Colours ──
   const publishedConfig = ((store as any).storeConfig ?? null) as PublishedStoreConfig;
-  const visualConfig = publishedConfig
-    ? createDefaultConfig({
-        brand: {
-          name: store.name,
-          category: store.category,
-          targetCustomer: "",
-          uniqueValue: store.description,
-          personality: "elegant",
-          tone: "",
-          logoUrl: ((store as any).logoUrl ?? undefined) as string | undefined,
-          coverUrl: ((store as any).coverUrl ?? undefined) as string | undefined,
-          ...(publishedConfig.brand ?? {}),
-        },
-        theme: {
-          primaryColor: ((store as any).primaryColor ?? "#8B1A35") as string,
-          secondaryColor: ((store as any).secondaryColor ?? "#c97b8b") as string,
-          fontPairing: "serif-sans",
-          buttonStyle: "pill",
-          radius: 8,
-          animationLevel: "subtle",
-          pageWidth: "contained",
-          cardShadow: "soft",
-          ...(publishedConfig.theme ?? {}),
-        },
-        homepage: publishedConfig.homepage,
-        business: publishedConfig.business,
-      })
-    : null;
-  const p = visualConfig?.theme.primaryColor ?? (store as any).primaryColor ?? "#8B1A35";
-  const s = visualConfig?.theme.secondaryColor ?? (store as any).secondaryColor ?? "#c97b8b";
+  const visualConfig = createDefaultConfig({
+    brand: {
+      name: store.name,
+      category: store.category,
+      targetCustomer: "",
+      uniqueValue: store.description,
+      personality: "elegant",
+      tone: "",
+      logoUrl: ((store as any).logoUrl ?? undefined) as string | undefined,
+      coverUrl: ((store as any).coverUrl ?? undefined) as string | undefined,
+      ...(publishedConfig?.brand ?? {}),
+    },
+    theme: {
+      primaryColor: ((store as any).primaryColor ?? "#8B1A35") as string,
+      secondaryColor: ((store as any).secondaryColor ?? "#c97b8b") as string,
+      fontPairing: "serif-sans",
+      buttonStyle: "pill",
+      radius: 8,
+      animationLevel: "subtle",
+      pageWidth: "contained",
+      cardShadow: "soft",
+      ...(publishedConfig?.theme ?? {}),
+    },
+    homepage: publishedConfig?.homepage,
+    business: publishedConfig?.business,
+  });
+  const p = visualConfig.theme.primaryColor;
+  const s = visualConfig.theme.secondaryColor;
 
   // ── Social links ──
   const sl = (() => {
@@ -489,9 +487,9 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const cartCount = items.filter(i => i.tenantId === store.id).reduce((acc, i) => acc + i.quantity, 0);
   const filtered = store.products.filter(pr => !selectedCategory || (pr as any).categoryId === selectedCategory);
   const showBeautySection = store.category === "cosmetics" || store.category === "both";
-  const editorSections = visualConfig
-    ? [...visualConfig.homepage.sections].filter((section) => section.visible).sort((a, b) => a.order - b.order)
-    : null;
+  const editorSections = [...visualConfig.homepage.sections]
+    .filter((section) => section.visible)
+    .sort((a, b) => a.order - b.order);
 
   function renderEditorSection(section: SectionConfig) {
     switch (section.type) {
@@ -591,23 +589,11 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
       {/* ── Hero ── */}
       <div style={{ paddingTop: barVisible ? 100 : 64 }}>
-        {editorSections ? (
-          editorSections.map((section) => (
-            <div key={section.id}>
-              {renderEditorSection(section)}
-            </div>
-          ))
-        ) : (
-          <HeroSection
-            storeName={store.name}
-            description={store.description}
-            coverUrl={(store as any).coverUrl}
-            category={store.category}
-            primaryColor={p}
-            secondaryColor={s}
-            onScrollToProducts={scrollToProducts}
-          />
-        )}
+        {editorSections.map((section) => (
+          <div key={section.id}>
+            {renderEditorSection(section)}
+          </div>
+        ))}
       </div>
 
       {/* ── Trust Strip ── */}
