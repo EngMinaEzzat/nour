@@ -124,10 +124,12 @@ export const CategoryType = {
 
 export interface Category {
   id: number;
+  tenantId?: number | null;
   name: string;
   /** Arabic name */
   nameAr: string;
   type: CategoryType;
+  imageUrl?: string | null;
   productCount: number;
 }
 
@@ -143,6 +145,22 @@ export interface CreateCategoryBody {
   name: string;
   nameAr: string;
   type: CreateCategoryBodyType;
+  imageUrl?: string | null;
+}
+
+export type UpdateCategoryBodyType =
+  (typeof UpdateCategoryBodyType)[keyof typeof UpdateCategoryBodyType];
+
+export const UpdateCategoryBodyType = {
+  fashion: "fashion",
+  cosmetics: "cosmetics",
+} as const;
+
+export interface UpdateCategoryBody {
+  name?: string;
+  nameAr?: string;
+  type?: UpdateCategoryBodyType;
+  imageUrl?: string | null;
 }
 
 export interface ProductVariant {
@@ -637,6 +655,10 @@ export const StorefrontResponseCategory = {
 export type StorefrontResponseCategoriesItem = {
   id: number;
   name: string;
+  nameAr: string;
+  type: CategoryType;
+  imageUrl?: string | null;
+  productCount: number;
 };
 
 export interface StorefrontResponse {

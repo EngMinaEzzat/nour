@@ -1,86 +1,34 @@
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
+import { productImageUrl } from "@/lib/image-url";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
-interface Category {
-  label: string;
-  labelEn: string;
-  image: string;
-  accent: string;
+interface StoreCategory {
+  id: number;
+  name: string;
+  nameAr?: string | null;
+  type?: string;
+  imageUrl?: string | null;
+  productCount?: number;
 }
-
-const FASHION_CATS: Category[] = [
-  {
-    label: "فساتين",
-    labelEn: "Dresses",
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80&fit=crop",
-    accent: "#c97b8b",
-  },
-  {
-    label: "توبات وبلوزات",
-    labelEn: "Tops",
-    image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=600&q=80&fit=crop",
-    accent: "#8B1A35",
-  },
-  {
-    label: "شنط وإكسسوارات",
-    labelEn: "Bags",
-    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80&fit=crop",
-    accent: "#c8963a",
-  },
-  {
-    label: "أحذية",
-    labelEn: "Shoes",
-    image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop",
-    accent: "#7a5c4a",
-  },
-];
-
-const BEAUTY_CATS: Category[] = [
-  {
-    label: "مكياج",
-    labelEn: "Makeup",
-    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80&fit=crop",
-    accent: "#c97b8b",
-  },
-  {
-    label: "عناية بالبشرة",
-    labelEn: "Skincare",
-    image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&q=80&fit=crop",
-    accent: "#8B1A35",
-  },
-  {
-    label: "عناية بالشعر",
-    labelEn: "Hair Care",
-    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80&fit=crop",
-    accent: "#c8963a",
-  },
-  {
-    label: "عطور",
-    labelEn: "Fragrance",
-    image: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=600&q=80&fit=crop",
-    accent: "#7a5c4a",
-  },
-];
 
 interface CategoryGridProps {
   primaryColor: string;
-  storeCategory?: string;
+  categories: StoreCategory[];
   onScrollToProducts: () => void;
+  onCategorySelect: (categoryId: number) => void;
 }
+
+const ACCENTS = ["#c97b8b", "#8B1A35", "#c8963a", "#6f8f72", "#7a5c4a", "#4f7c8a"];
 
 export function CategoryGrid({
   primaryColor: p,
-  storeCategory,
+  categories,
   onScrollToProducts,
+  onCategorySelect,
 }: CategoryGridProps) {
-  const cats =
-    storeCategory === "cosmetics"
-      ? BEAUTY_CATS
-      : storeCategory === "both"
-      ? [...FASHION_CATS.slice(0, 2), ...BEAUTY_CATS.slice(0, 2)]
-      : FASHION_CATS;
+  if (!categories.length) return null;
 
   return (
     <section
@@ -88,7 +36,6 @@ export function CategoryGrid({
       style={{ background: "#fff", direction: "rtl" }}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="flex items-end justify-between mb-10">
           <div>
             <p
@@ -114,68 +61,77 @@ export function CategoryGrid({
           </button>
         </div>
 
-        {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {cats.map((cat, i) => (
-            <motion.button
-              key={cat.labelEn}
-              onClick={onScrollToProducts}
-              className="relative overflow-hidden rounded-2xl group cursor-pointer text-right"
-              style={{ aspectRatio: "3/4" }}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
-              whileHover={{ y: -4 }}
-            >
-              {/* Image */}
-              <img
-                src={cat.image}
-                alt={cat.label}
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
-                style={{ transform: "scale(1)" }}
-              />
-
-              {/* Gradient overlay */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(to top, rgba(26,22,20,0.75) 0%, rgba(26,22,20,0.15) 50%, transparent 100%)",
+          {categories.map((category, i) => {
+            const label = category.nameAr || category.name;
+            const accent = ACCENTS[i % ACCENTS.length];
+            return (
+              <motion.button
+                key={category.id}
+                onClick={() => {
+                  onCategorySelect(category.id);
+                  window.requestAnimationFrame(onScrollToProducts);
                 }}
-              />
+                className="relative overflow-hidden rounded-2xl group cursor-pointer text-right bg-stone-100"
+                style={{ aspectRatio: "3/4" }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ delay: i * 0.08, duration: 0.5 }}
+                whileHover={{ y: -4 }}
+              >
+                {category.imageUrl ? (
+                  <img
+                    src={productImageUrl(category.imageUrl)}
+                    alt={label}
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
+                    style={{ transform: "scale(1)" }}
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${p}18, ${accent}30)` }}
+                  >
+                    <Sparkles className="w-12 h-12 text-stone-900/25" />
+                  </div>
+                )}
 
-              {/* Accent line */}
-              <div
-                className="absolute top-0 left-0 right-0 h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right"
-                style={{ background: cat.accent }}
-              />
-
-              {/* Text */}
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <p
-                  className="text-white/60 text-[10px] tracking-widest uppercase mb-0.5 font-medium"
-                >
-                  {cat.labelEn}
-                </p>
-                <h3
-                  className="text-white text-xl md:text-2xl"
-                  style={{ fontFamily: SERIF, fontWeight: 400 }}
-                >
-                  {cat.label}
-                </h3>
                 <div
-                  className="mt-2 flex items-center gap-1 text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ color: cat.accent }}
-                >
-                  تسوقي الآن
-                  <ArrowLeft className="w-3 h-3" />
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(26,22,20,0.76) 0%, rgba(26,22,20,0.18) 52%, transparent 100%)",
+                  }}
+                />
+
+                <div
+                  className="absolute top-0 left-0 right-0 h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-right"
+                  style={{ background: accent }}
+                />
+
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <p className="text-white/60 text-[10px] tracking-widest uppercase mb-0.5 font-medium">
+                    {category.productCount ?? 0} منتج
+                  </p>
+                  <h3
+                    className="text-white text-xl md:text-2xl"
+                    style={{ fontFamily: SERIF, fontWeight: 400 }}
+                  >
+                    {label}
+                  </h3>
+                  <div
+                    className="mt-2 flex items-center gap-1 text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ color: accent }}
+                  >
+                    تسوقي الآن
+                    <ArrowLeft className="w-3 h-3" />
+                  </div>
                 </div>
-              </div>
-            </motion.button>
-          ))}
+              </motion.button>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -38,18 +38,60 @@ describe("Categories", () => {
       name: `Category ${uid()}`,
       nameAr: "فئة اختبار",
       type: "fashion",
+      imageUrl: "/api/uploads/category-test.jpg",
     });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
     expect(res.body).toHaveProperty("productCount", 0);
+    expect(res.body).toHaveProperty("imageUrl", "/api/uploads/category-test.jpg");
     expect(res.body.tenantId).toBe(ctx.tenantId);
     categoryId = res.body.id;
+  });
+
+  it("✅ update category edits names and image", async () => {
+    const res = await ctx.agent.put(`/api/categories/${categoryId}`).send({
+      name: "Updated category",
+      nameAr: "فئة محدثة",
+      type: "cosmetics",
+      imageUrl: "/api/uploads/category-updated.jpg",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.name).toBe("Updated category");
+    expect(res.body.nameAr).toBe("فئة محدثة");
+    expect(res.body.type).toBe("cosmetics");
+    expect(res.body.imageUrl).toBe("/api/uploads/category-updated.jpg");
   });
 
   it("✅ created category appears in GET /categories list for tenant", async () => {
     const res = await ctx.agent.get("/api/categories");
     const ids = res.body.map((c: { id: number }) => c.id);
     expect(ids).toContain(categoryId);
+  });
+
+  it("✅ storefront categories are synced with category admin data", async () => {
+    const res = await request(app).get(`/api/store/${ctx.slug}`);
+    expect(res.status).toBe(200);
+
+    const category = res.body.categories.find((c: { id: number }) => c.id === categoryId);
+    expect(category).toMatchObject({
+      id: categoryId,
+      name: "Updated category",
+      nameAr: "فئة محدثة",
+      type: "cosmetics",
+      imageUrl: "/api/uploads/category-updated.jpg",
+      productCount: 0,
+    });
+  });
+
+  it("❌ merchant cannot edit another tenant's category", async () => {
+    const other = await createTestMerchant();
+    try {
+      const res = await other.agent.put(`/api/categories/${categoryId}`).send({ name: "Hijack" });
+      expect(res.status).toBe(404);
+    } finally {
+      await cleanupTenant(other.tenantId, other.merchantId);
+    }
   });
 
   it("❌ create category without auth returns 401", async () => {

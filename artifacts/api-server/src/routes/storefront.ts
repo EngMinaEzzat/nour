@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { tenantsTable, productsTable, ordersTable, categoriesTable, productVariantsTable, trackingSettingsTable } from "@workspace/db";
-import { eq, count, inArray, ilike, and } from "drizzle-orm";
+import { eq, count, inArray, ilike, and, or, isNull } from "drizzle-orm";
 import { storefrontLimiter } from "../lib/rate-limiters";
 
 const router = Router();
@@ -56,16 +56,32 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
     }
     const variantCountMap = new Map(variantCounts.map((v) => [v.productId, v.count]));
 
-    const categoryIds = [...new Set(products.map((p) => p.categoryId).filter(Boolean))] as number[];
-    let categoryRows: { id: number; name: string }[] = [];
-    if (categoryIds.length > 0) {
-      categoryRows = await db
-        .select({ id: categoriesTable.id, name: categoriesTable.name })
-        .from(categoriesTable)
-        .where(inArray(categoriesTable.id, categoryIds));
-    }
-
+    const categoryRows = await db
+      .select({
+        id: categoriesTable.id,
+        name: categoriesTable.name,
+        nameAr: categoriesTable.nameAr,
+        type: categoriesTable.type,
+        imageUrl: categoriesTable.imageUrl,
+      })
+      .from(categoriesTable)
+      .where(or(eq(categoriesTable.tenantId, tenant.id), isNull(categoriesTable.tenantId)))
+      .orderBy(categoriesTable.name);
     const categoryMap = new Map(categoryRows.map((c) => [c.id, c.name]));
+    const categoryProductCounts = await Promise.all(
+      categoryRows.map(async (category) => {
+        const [{ total }] = await db
+          .select({ total: count() })
+          .from(productsTable)
+          .where(and(
+            eq(productsTable.tenantId, tenant.id),
+            eq(productsTable.status, "active"),
+            eq(productsTable.categoryId, category.id),
+          ));
+        return { categoryId: category.id, total };
+      }),
+    );
+    const categoryProductCountMap = new Map(categoryProductCounts.map((row) => [row.categoryId, row.total]));
 
     // Parse WhatsApp number from tenant socialLinks
     let whatsappNumber: string | null = null;
@@ -135,7 +151,10 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
       products: productsWithCategory,
       totalProducts: products.length,
       totalOrders: orderStats.totalOrders,
-      categories: categoryRows,
+      categories: categoryRows.map((category) => ({
+        ...category,
+        productCount: categoryProductCountMap.get(category.id) ?? 0,
+      })),
     });
   } catch (err) {
     req.log.error(err);

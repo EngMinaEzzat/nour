@@ -388,9 +388,11 @@ export const GetTenantStatsResponse = zod.object({
  */
 export const ListCategoriesResponseItem = zod.object({
   id: zod.number(),
+  tenantId: zod.number().nullish(),
   name: zod.string(),
   nameAr: zod.string().describe("Arabic name"),
   type: zod.enum(["fashion", "cosmetics"]),
+  imageUrl: zod.string().nullish(),
   productCount: zod.number(),
 });
 export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem);
@@ -402,6 +404,14 @@ export const CreateCategoryBody = zod.object({
   name: zod.string(),
   nameAr: zod.string(),
   type: zod.enum(["fashion", "cosmetics"]),
+  imageUrl: zod.string().nullish(),
+});
+
+export const UpdateCategoryBody = zod.object({
+  name: zod.string().optional(),
+  nameAr: zod.string().optional(),
+  type: zod.enum(["fashion", "cosmetics"]).optional(),
+  imageUrl: zod.string().nullish(),
 });
 
 /**

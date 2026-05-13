@@ -11,6 +11,7 @@ export const categoriesTable = pgTable("categories", {
   name: text("name").notNull(),
   nameAr: text("name_ar").notNull(),
   type: categoryTypeEnum("type").notNull(),
+  imageUrl: text("image_url"),
 });
 
 export const insertCategorySchema = createInsertSchema(categoriesTable).omit({ id: true });

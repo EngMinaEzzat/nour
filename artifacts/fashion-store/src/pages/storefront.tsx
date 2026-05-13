@@ -456,8 +456,9 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       {/* ── Category Grid ── */}
       <CategoryGrid
         primaryColor={p}
-        storeCategory={store.category}
+        categories={store.categories ?? []}
         onScrollToProducts={scrollToProducts}
+        onCategorySelect={handleCategorySelect}
       />
 
       {/* ── New Arrivals ── */}

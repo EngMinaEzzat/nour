@@ -22,6 +22,13 @@
       "when": 1778251080000,
       "tag": "0002_variant_images_stock",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778652000000,
+      "tag": "0003_category_images",
+      "breakpoints": true
     }
   ]
 }
