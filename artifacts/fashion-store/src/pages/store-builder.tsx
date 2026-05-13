@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { useGetTenant, useUpdateTenant } from "@workspace/api-client-react";
+import { useGetTenant } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import VisualEditor from "@/components/editor/VisualEditor";
@@ -33,8 +33,6 @@ export default function StoreBuilder() {
     query: { queryKey: [`/api/tenants/${tenantId}`], enabled: !!tenantId },
   });
 
-  const updateTenant = useUpdateTenant();
-
   const [mode, setMode] = useState<"wizard" | "editor" | null>(null);
   const [storeConfig, setStoreConfig] = useState<StoreConfig | null>(null);
 
@@ -43,6 +41,7 @@ export default function StoreBuilder() {
 
     const slug = tenant.slug ?? "store";
     const saved = loadSavedConfig(slug);
+    const published = ((tenant as any).storeConfig ?? null) as Partial<StoreConfig> | null;
 
     const fromApi: Partial<StoreConfig> = {
       brand: {
@@ -77,11 +76,11 @@ export default function StoreBuilder() {
       },
     };
 
-    // Merge: API data first, then saved draft overrides (draft has priority for sections/theme)
-    const merged = createDefaultConfig({ ...fromApi, ...(saved ?? {}) });
+    // API data is the published source of truth. Local storage is only a legacy draft fallback.
+    const merged = createDefaultConfig({ ...fromApi, ...((published ?? saved) ?? {}) });
     setStoreConfig(merged);
 
-    if (saved?.homepage?.sections?.length) {
+    if ((published ?? saved)?.homepage?.sections?.length) {
       setMode("editor");
     } else {
       setMode("wizard");
@@ -101,26 +100,28 @@ export default function StoreBuilder() {
     const headers = { "Content-Type": "application/json" };
     const creds = { credentials: "include" as const };
 
-    await Promise.allSettled([
-      fetch(`${BASE}/api/store-settings/branding`, {
+    const saveJson = async (url: string, body: unknown) => {
+      const response = await fetch(url, {
         method: "PUT",
         headers,
         ...creds,
-        body: JSON.stringify({
-          name: config.brand.name,
-          description: config.brand.uniqueValue || undefined,
-          logoUrl: config.brand.logoUrl ?? null,
-          coverUrl: config.brand.coverUrl ?? null,
-          primaryColor: config.theme.primaryColor,
-          secondaryColor: config.theme.secondaryColor,
-        }),
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) throw new Error(`Save failed: ${response.status}`);
+      return response.json();
+    };
+
+    await Promise.all([
+      saveJson(`${BASE}/api/store-settings/branding`, {
+        name: config.brand.name,
+        description: config.brand.uniqueValue || undefined,
+        logoUrl: config.brand.logoUrl ?? null,
+        coverUrl: config.brand.coverUrl ?? null,
+        primaryColor: config.theme.primaryColor,
+        secondaryColor: config.theme.secondaryColor,
       }),
-      fetch(`${BASE}/api/store-settings/social`, {
-        method: "PUT",
-        headers,
-        ...creds,
-        body: JSON.stringify(config.business.socialLinks),
-      }),
+      saveJson(`${BASE}/api/store-settings/social`, config.business.socialLinks),
+      saveJson(`${BASE}/api/store-settings/layout`, { storeConfig: config }),
     ]);
   }
 

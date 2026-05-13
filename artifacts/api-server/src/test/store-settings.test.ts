@@ -66,4 +66,69 @@ describe("Store settings", () => {
     expect(storefront.body.theme).toBe("luxe");
     expect(storefront.body.trackingSettings.ga4Enabled).toBe(true);
   });
+
+  it("publishes the visual store builder layout to the live storefront", async () => {
+    const layout = {
+      brand: {
+        name: ctx.storeName,
+        category: "fashion",
+        targetCustomer: "",
+        uniqueValue: "Published editor description",
+        personality: "elegant",
+        tone: "",
+      },
+      theme: {
+        primaryColor: "#445566",
+        secondaryColor: "#ddaa77",
+        fontPairing: "serif-sans",
+        buttonStyle: "pill",
+        radius: 8,
+        animationLevel: "subtle",
+        pageWidth: "contained",
+        cardShadow: "soft",
+      },
+      homepage: {
+        sections: [
+          {
+            id: "hero-test",
+            type: "hero",
+            label: "Hero",
+            visible: true,
+            order: 1,
+            content: { heading: "Editor hero headline", subheading: "Editor hero copy" },
+            settings: {},
+          },
+          {
+            id: "hidden-cats",
+            type: "categories",
+            label: "Categories",
+            visible: false,
+            order: 2,
+            content: {},
+            settings: {},
+          },
+        ],
+      },
+      business: {
+        whatsapp: "",
+        city: "",
+        deliveryAreas: [],
+        paymentMethods: ["cod"],
+        returnPolicy: "",
+        socialLinks: {},
+      },
+    };
+
+    const saved = await ctx.agent.put("/api/store-settings/layout").send({ storeConfig: layout });
+    expect(saved.status).toBe(200);
+    expect(saved.body.storeConfig.homepage.sections).toHaveLength(2);
+
+    const settings = await ctx.agent.get("/api/store-settings");
+    expect(settings.status).toBe(200);
+    expect(settings.body.storeConfig.theme.primaryColor).toBe("#445566");
+
+    const storefront = await request(app).get(`/api/store/${ctx.slug}`);
+    expect(storefront.status).toBe(200);
+    expect(storefront.body.storeConfig.homepage.sections[0].content.heading).toBe("Editor hero headline");
+  });
 });

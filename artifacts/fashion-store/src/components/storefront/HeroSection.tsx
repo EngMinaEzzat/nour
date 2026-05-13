@@ -9,6 +9,10 @@ interface HeroSectionProps {
   storeName: string;
   description?: string | null;
   coverUrl?: string | null;
+  headline?: string | null;
+  eyebrow?: string | null;
+  ctaText?: string | null;
+  imageUrl?: string | null;
   category?: string;
   primaryColor: string;
   secondaryColor?: string;
@@ -19,13 +23,18 @@ export function HeroSection({
   storeName,
   description,
   coverUrl,
+  headline,
+  eyebrow,
+  ctaText,
+  imageUrl,
   category,
   primaryColor: p,
   secondaryColor: s,
   onScrollToProducts,
 }: HeroSectionProps) {
-  const imgSrc = coverUrl || FALLBACK_HERO;
+  const imgSrc = imageUrl || coverUrl || FALLBACK_HERO;
   const tagline =
+    eyebrow ||
     category === "cosmetics"
       ? "جمال حقيقي، عناية فائقة"
       : category === "both"
@@ -69,7 +78,7 @@ export function HeroSection({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7 }}
         >
-          {storeName}
+          {headline || storeName}
         </motion.h1>
 
         {description && (

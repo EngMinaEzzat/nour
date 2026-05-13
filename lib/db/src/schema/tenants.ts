@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -34,6 +34,7 @@ export const tenantsTable = pgTable("tenants", {
   footerContact: text("footer_contact"),
   customDomain: text("custom_domain"),
   customDomainVerified: boolean("custom_domain_verified").notNull().default(false),
+  storeConfig: jsonb("store_config"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

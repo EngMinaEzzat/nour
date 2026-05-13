@@ -33,12 +33,14 @@ import { StorefrontProductCard } from "@/components/storefront/StorefrontProduct
 import type { ProductCardData } from "@/components/storefront/StorefrontProductCard";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl } from "@/lib/image-url";
+import { createDefaultConfig, type SectionConfig, type StoreConfig } from "@/lib/store-config";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type StoreData = StorefrontResponse;
 type Product = StoreData["products"][0];
+type PublishedStoreConfig = Partial<StoreConfig> | null | undefined;
 
 function getWhatsAppNumber(store: StoreData): string | null {
   const wa = (store as any).whatsappNumber as string | undefined;
@@ -199,6 +201,57 @@ function AdminBar() {
         </motion.button>
       </Link>
     </motion.div>
+  );
+}
+
+function EditorTextSection({
+  section,
+  primaryColor,
+  onScrollToProducts,
+}: {
+  section: SectionConfig;
+  primaryColor: string;
+  onScrollToProducts: () => void;
+}) {
+  const items = (section.content.items ?? []) as Array<Record<string, string>>;
+  const heading = typeof section.content.heading === "string" ? section.content.heading : section.label;
+  const body = typeof section.content.body === "string"
+    ? section.content.body
+    : typeof section.content.subheading === "string"
+      ? section.content.subheading
+      : null;
+
+  if (section.type === "whatsapp") {
+    return (
+      <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "#faf7f4", direction: "rtl" }}>
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-4xl text-stone-900 mb-3" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
+          {body && <p className="text-stone-500 text-sm mb-6">{body}</p>}
+          <button onClick={onScrollToProducts} className="px-8 py-3 rounded-full text-white text-sm font-semibold" style={{ background: primaryColor }}>
+            {typeof section.content.ctaText === "string" ? section.content.ctaText : "تسوقي الآن"}
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: "rtl" }}>
+      <div className="max-w-4xl mx-auto text-center">
+        <h2 className="text-4xl md:text-5xl text-stone-900 mb-4" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
+        {body && <p className="text-stone-500 text-sm leading-7 max-w-2xl mx-auto mb-8">{body}</p>}
+        {items.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right">
+            {items.slice(0, 6).map((item, index) => (
+              <div key={index} className="border border-stone-100 rounded-2xl p-5 bg-[#faf7f4]">
+                <p className="font-semibold text-stone-900 mb-2">{item.title ?? item.q ?? item.name ?? ""}</p>
+                <p className="text-sm text-stone-500 leading-6">{item.text ?? item.a ?? ""}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -392,10 +445,40 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
   if (isLoading) return <LoadingSkeleton />;
   if (!store) return null;
+  const liveStore = store;
 
   // ── Colours ──
-  const p = (store as any).primaryColor ?? "#8B1A35";
-  const s = (store as any).secondaryColor ?? "#c97b8b";
+  const publishedConfig = ((store as any).storeConfig ?? null) as PublishedStoreConfig;
+  const visualConfig = publishedConfig
+    ? createDefaultConfig({
+        brand: {
+          name: store.name,
+          category: store.category,
+          targetCustomer: "",
+          uniqueValue: store.description,
+          personality: "elegant",
+          tone: "",
+          logoUrl: ((store as any).logoUrl ?? undefined) as string | undefined,
+          coverUrl: ((store as any).coverUrl ?? undefined) as string | undefined,
+          ...(publishedConfig.brand ?? {}),
+        },
+        theme: {
+          primaryColor: ((store as any).primaryColor ?? "#8B1A35") as string,
+          secondaryColor: ((store as any).secondaryColor ?? "#c97b8b") as string,
+          fontPairing: "serif-sans",
+          buttonStyle: "pill",
+          radius: 8,
+          animationLevel: "subtle",
+          pageWidth: "contained",
+          cardShadow: "soft",
+          ...(publishedConfig.theme ?? {}),
+        },
+        homepage: publishedConfig.homepage,
+        business: publishedConfig.business,
+      })
+    : null;
+  const p = visualConfig?.theme.primaryColor ?? (store as any).primaryColor ?? "#8B1A35";
+  const s = visualConfig?.theme.secondaryColor ?? (store as any).secondaryColor ?? "#c97b8b";
 
   // ── Social links ──
   const sl = (() => {
@@ -406,6 +489,75 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const cartCount = items.filter(i => i.tenantId === store.id).reduce((acc, i) => acc + i.quantity, 0);
   const filtered = store.products.filter(pr => !selectedCategory || (pr as any).categoryId === selectedCategory);
   const showBeautySection = store.category === "cosmetics" || store.category === "both";
+  const editorSections = visualConfig
+    ? [...visualConfig.homepage.sections].filter((section) => section.visible).sort((a, b) => a.order - b.order)
+    : null;
+
+  function renderEditorSection(section: SectionConfig) {
+    switch (section.type) {
+      case "hero":
+        return (
+          <HeroSection
+            storeName={liveStore.name}
+            headline={typeof section.content.heading === "string" ? section.content.heading : null}
+            description={typeof section.content.subheading === "string" ? section.content.subheading : liveStore.description}
+            coverUrl={(liveStore as any).coverUrl}
+            imageUrl={typeof section.content.imageUrl === "string" ? section.content.imageUrl : null}
+            category={liveStore.category}
+            primaryColor={p}
+            secondaryColor={s}
+            onScrollToProducts={scrollToProducts}
+          />
+        );
+      case "trust-strip":
+        return <TrustStrip primaryColor={p} />;
+      case "categories":
+        return (
+          <CategoryGrid
+            primaryColor={p}
+            categories={liveStore.categories ?? []}
+            onScrollToProducts={scrollToProducts}
+            onCategorySelect={handleCategorySelect}
+          />
+        );
+      case "new-arrivals":
+        return (
+          <NewArrivalsSection
+            products={liveStore.products as any[]}
+            categories={liveStore.categories ?? []}
+            primaryColor={p}
+            addedIds={addedIds}
+            onAddToCart={handleAddToCart}
+            onScrollToAll={scrollToProducts}
+          />
+        );
+      case "best-sellers":
+        return (
+          <BestSellersSection
+            products={liveStore.products as any[]}
+            primaryColor={p}
+            addedIds={addedIds}
+            onAddToCart={handleAddToCart}
+            onScrollToAll={scrollToProducts}
+          />
+        );
+      case "offers":
+        return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} />;
+      case "lookbook":
+        return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} />;
+      case "instagram":
+        return <UGCSection primaryColor={p} instagramUrl={sl.instagram ?? null} />;
+      case "newsletter":
+        return <NewsletterSection primaryColor={p} storeName={liveStore.name} />;
+      case "faq":
+      case "about":
+      case "testimonials":
+      case "whatsapp":
+        return <EditorTextSection section={section} primaryColor={p} onScrollToProducts={scrollToProducts} />;
+      default:
+        return null;
+    }
+  }
 
   return (
     <div style={{ background: "#faf7f4", minHeight: "100vh", direction: "rtl" }}>
@@ -439,18 +591,28 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
       {/* ── Hero ── */}
       <div style={{ paddingTop: barVisible ? 100 : 64 }}>
-        <HeroSection
-          storeName={store.name}
-          description={store.description}
-          coverUrl={(store as any).coverUrl}
-          category={store.category}
-          primaryColor={p}
-          secondaryColor={s}
-          onScrollToProducts={scrollToProducts}
-        />
+        {editorSections ? (
+          editorSections.map((section) => (
+            <div key={section.id}>
+              {renderEditorSection(section)}
+            </div>
+          ))
+        ) : (
+          <HeroSection
+            storeName={store.name}
+            description={store.description}
+            coverUrl={(store as any).coverUrl}
+            category={store.category}
+            primaryColor={p}
+            secondaryColor={s}
+            onScrollToProducts={scrollToProducts}
+          />
+        )}
       </div>
 
       {/* ── Trust Strip ── */}
+      {!editorSections && (
+      <>
       <TrustStrip primaryColor={p} />
 
       {/* ── Category Grid ── */}
@@ -504,6 +666,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
       {/* ── Newsletter ── */}
       <NewsletterSection primaryColor={p} storeName={store.name} />
+      </>
+      )}
 
       {/* ── All Products Section ── */}
       <section

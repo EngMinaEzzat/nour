@@ -29,6 +29,7 @@ router.get("/store-settings", requireRole("owner", "manager", "staff"), async (r
       footerContact: tenantsTable.footerContact,
       customDomain: tenantsTable.customDomain,
       customDomainVerified: tenantsTable.customDomainVerified,
+      storeConfig: tenantsTable.storeConfig,
     }).from(tenantsTable).where(eq(tenantsTable.id, tenantId));
 
     if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
@@ -43,6 +44,38 @@ router.get("/store-settings", requireRole("owner", "manager", "staff"), async (r
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب إعدادات المتجر" });
+  }
+});
+
+// PUT /store-settings/layout — publish the visual store builder layout
+router.put("/store-settings/layout", requireRole("owner", "manager"), async (req, res) => {
+  try {
+    const tenantId = req.merchantTenantId!;
+    const { storeConfig } = req.body as { storeConfig?: unknown };
+
+    if (!storeConfig || typeof storeConfig !== "object" || Array.isArray(storeConfig)) {
+      return res.status(400).json({ error: "storeConfig is required" });
+    }
+
+    const [updated] = await db.update(tenantsTable).set({ storeConfig })
+      .where(eq(tenantsTable.id, tenantId))
+      .returning({
+        id: tenantsTable.id,
+        storeConfig: tenantsTable.storeConfig,
+      });
+
+    await db.insert(tenantAuditEventsTable).values({
+      tenantId,
+      actorId: req.session?.merchantId,
+      actorLabel: "تاجر",
+      eventType: "tracking_updated",
+      summary: "تم تحديث تصميم واجهة المتجر",
+    }).catch(() => {});
+
+    res.json(updated);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل تحديث تصميم المتجر" });
   }
 });
 

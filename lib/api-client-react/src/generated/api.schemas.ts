@@ -53,6 +53,7 @@ export interface Tenant {
   createdAt: string;
   planCode?: string;
   subscriptionStatus?: TenantSubscriptionStatus;
+  storeConfig?: { [key: string]: unknown } | null;
 }
 
 export type CreateTenantBodyCategory =
@@ -676,6 +677,7 @@ export interface StorefrontResponse {
   totalProducts: number;
   totalOrders: number;
   categories: StorefrontResponseCategoriesItem[];
+  storeConfig?: { [key: string]: unknown } | null;
 }
 
 export interface Plan {
