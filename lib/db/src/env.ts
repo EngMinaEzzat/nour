@@ -26,6 +26,16 @@ function getEnvFileNames(): string[] {
   return names;
 }
 
+function isUsableDatabaseUrl(value: string | undefined): boolean {
+  if (!value) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "postgres:" || parsed.protocol === "postgresql:";
+  } catch {
+    return false;
+  }
+}
+
 function findEnvFile(startDir: string): string | null {
   const names = getEnvFileNames();
   let current = path.resolve(startDir);
@@ -56,7 +66,12 @@ export function loadWorkspaceEnv(): void {
 
     const key = trimmed.slice(0, separatorIndex).trim();
     const value = parseEnvValue(trimmed.slice(separatorIndex + 1));
-    if (!key || process.env[key] !== undefined) continue;
+    if (!key) continue;
+    if (process.env[key] !== undefined) {
+      if (key !== "DATABASE_URL" || isUsableDatabaseUrl(process.env[key])) {
+        continue;
+      }
+    }
 
     process.env[key] = value;
   }
