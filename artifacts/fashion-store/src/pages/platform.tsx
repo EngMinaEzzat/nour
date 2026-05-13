@@ -14,7 +14,7 @@ import {
   Search, Store, Users, TrendingUp, AlertTriangle,
   ShieldCheck, Package, ChevronLeft, BarChart2, Heart,
   Mail, ExternalLink, MapPin, Calendar, Ban, CheckCircle, Loader2,
-  CreditCard, Eye, X,
+  CreditCard, Eye, X, ShoppingBag, Banknote,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -55,6 +55,9 @@ type MerchantRow = {
   createdAt: string;
   ownerEmail: string | null;
   ownerName: string | null;
+  productCount: number;
+  orderCount: number;
+  totalRevenue: number;
 };
 
 function MerchantStatusToggle({ m, onToggled }: { m: MerchantRow; onToggled: () => void }) {
@@ -232,8 +235,12 @@ export default function Platform() {
 
   const { data: merchants = [], isLoading: merchantsLoading } = useQuery<MerchantRow[]>({
     queryKey: ["platform-merchants"],
-    queryFn: () => fetch(api("/platform/merchants"), { credentials: "include" }).then((r) => r.json()),
-    enabled: !!merchant?.isPlatformAdmin && activeTab === "merchants",
+    queryFn: async () => {
+      const response = await fetch(api("/platform/merchants"), { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to load platform stores");
+      return response.json();
+    },
+    enabled: !!merchant?.isPlatformAdmin,
   });
 
   const { data: transferRequests = [], isLoading: transfersLoading } = useQuery<any[]>({
@@ -275,6 +282,7 @@ export default function Platform() {
     return !s
       || m.storeName.toLowerCase().includes(s)
       || (m.slug ?? "").includes(s)
+      || (m.city ?? "").toLowerCase().includes(s)
       || (m.ownerEmail ?? "").toLowerCase().includes(s)
       || (m.ownerName ?? "").toLowerCase().includes(s);
   });
@@ -294,9 +302,9 @@ export default function Platform() {
         <p className="text-muted-foreground mb-6">نظرة عامة على جميع المتاجر والنشاط</p>
         <div className="flex gap-2 mb-8 flex-wrap">
           {[
-            { id: "merchants", label: "التجار",       icon: Users,       badge: null },
+            { id: "merchants", label: "المتاجر المسجلة", icon: Store,       badge: merchants.length || null },
             { id: "payments",  label: "المدفوعات",    icon: CreditCard,  badge: (transferRequests as any[]).filter((t) => t.status === "pending").length || null },
-            { id: "tenants",   label: "المتاجر",      icon: Store,       badge: null },
+            { id: "tenants",   label: "دليل المتاجر",      icon: Users,       badge: null },
             { id: "health",    label: "صحة المنصة",   icon: Heart,       badge: null },
           ].map(({ id, label, icon: Icon, badge }) => (
             <Button key={id} variant={activeTab === id ? "default" : "outline"} size="sm" className="rounded-full gap-2 relative"
@@ -382,20 +390,23 @@ export default function Platform() {
         </div>
       )}
 
-      {/* ── Merchants tab ── */}
+      {/* ── Registered stores tab ── */}
       {activeTab === "merchants" && (
         <div>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="بحث بالاسم أو الإيميل أو الرابط..."
+                placeholder="بحث بالمتجر أو المالك أو المدينة أو الرابط..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="ps-10 h-10"
               />
             </div>
-            <p className="text-sm text-muted-foreground">{filteredMerchants.length} تاجر</p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Store className="w-4 h-4" />
+              <span>{filteredMerchants.length} متجر مسجل</span>
+            </div>
           </div>
 
           <motion.div className="space-y-2" variants={stagger.container} initial="hidden" animate="show">
@@ -431,13 +442,17 @@ export default function Platform() {
                                   {PLAN_LABELS[m.planCode] ?? m.planCode}
                                 </Badge>
                               </div>
-                              {/* Row 2: email */}
-                              {m.ownerEmail && (
-                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                              {/* Row 2: owner */}
+                              {(m.ownerName || m.ownerEmail) && (
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1 min-w-0">
                                   <Mail className="w-3 h-3 shrink-0" />
-                                  <a href={`mailto:${m.ownerEmail}`} className="hover:text-foreground transition-colors truncate">
-                                    {m.ownerEmail}
-                                  </a>
+                                  {m.ownerEmail ? (
+                                    <a href={`mailto:${m.ownerEmail}`} className="hover:text-foreground transition-colors truncate">
+                                      {m.ownerName ? `${m.ownerName} · ${m.ownerEmail}` : m.ownerEmail}
+                                    </a>
+                                  ) : (
+                                    <span className="truncate">{m.ownerName}</span>
+                                  )}
                                 </div>
                               )}
                               {/* Row 3: store URL + city + date */}
@@ -464,6 +479,21 @@ export default function Platform() {
                                   <Calendar className="w-3 h-3" />{joinDate}
                                 </span>
                               </div>
+                              <div className="mt-3 grid grid-cols-3 gap-2 max-w-md">
+                                {[
+                                  { label: "منتجات", value: m.productCount, icon: Package },
+                                  { label: "طلبات", value: m.orderCount, icon: ShoppingBag },
+                                  { label: "إيراد", value: `${Number(m.totalRevenue ?? 0).toLocaleString("ar-EG")} ج.م`, icon: Banknote },
+                                ].map((metric) => (
+                                  <div key={metric.label} className="rounded-lg border border-border/50 bg-muted/30 px-2.5 py-2">
+                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                      <metric.icon className="w-3.5 h-3.5" />
+                                      <span>{metric.label}</span>
+                                    </div>
+                                    <p className="mt-1 text-sm font-bold text-foreground truncate">{metric.value}</p>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
                           {/* Actions */}
@@ -488,8 +518,8 @@ export default function Platform() {
 
           {!merchantsLoading && filteredMerchants.length === 0 && (
             <div className="text-center py-20">
-              <Users className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">لا يوجد تجار</p>
+              <Store className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground">لا توجد متاجر مسجلة تطابق البحث</p>
             </div>
           )}
         </div>

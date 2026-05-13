@@ -5,7 +5,7 @@ import {
   whatsappProvidersTable, whatsappMessageLogsTable, merchantsTable,
   billingTransferRequestsTable, billingInvoicesTable,
 } from "@workspace/db";
-import { eq, count, sql, desc, and, asc } from "drizzle-orm";
+import { eq, count, sql, desc, and, asc, sum } from "drizzle-orm";
 import { requirePlatformAdmin, invalidateSubscriptionCache } from "../middleware/require-role";
 import { getPlan } from "../lib/entitlements";
 import { sendSubscriptionSuspendedEmail } from "../lib/email.js";
@@ -303,6 +303,36 @@ router.put("/platform/merchants/:tenantId/status", requirePlatformAdmin, async (
 /* ─── Merchant list with owner email ─── */
 router.get("/platform/merchants", requirePlatformAdmin, async (req, res) => {
   try {
+    const productCounts = await db
+      .select({
+        tenantId: productsTable.tenantId,
+        productCount: count(),
+      })
+      .from(productsTable)
+      .groupBy(productsTable.tenantId);
+
+    const orderStats = await db
+      .select({
+        tenantId: ordersTable.tenantId,
+        orderCount: count(),
+        totalRevenue: sum(ordersTable.totalAmount),
+      })
+      .from(ordersTable)
+      .groupBy(ordersTable.tenantId);
+
+    const productCountByTenant = new Map(
+      productCounts.map((row) => [row.tenantId, row.productCount]),
+    );
+    const orderStatsByTenant = new Map(
+      orderStats.map((row) => [
+        row.tenantId,
+        {
+          orderCount: row.orderCount,
+          totalRevenue: Number(row.totalRevenue ?? 0),
+        },
+      ]),
+    );
+
     const rows = await db
       .select({
         tenantId: tenantsTable.id,
@@ -326,6 +356,9 @@ router.get("/platform/merchants", requirePlatformAdmin, async (req, res) => {
     res.json(
       rows.map((r) => ({
         ...r,
+        productCount: productCountByTenant.get(r.tenantId) ?? 0,
+        orderCount: orderStatsByTenant.get(r.tenantId)?.orderCount ?? 0,
+        totalRevenue: orderStatsByTenant.get(r.tenantId)?.totalRevenue ?? 0,
         createdAt: r.createdAt.toISOString(),
       })),
     );
