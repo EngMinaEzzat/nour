@@ -490,6 +490,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const editorSections = [...visualConfig.homepage.sections]
     .filter((section) => section.visible)
     .sort((a, b) => a.order - b.order);
+  const hasProductCatalogSection = visualConfig.homepage.sections.some((section) => section.type === "product-catalog");
 
   function renderEditorSection(section: SectionConfig) {
     switch (section.type) {
@@ -547,6 +548,88 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
         return <UGCSection primaryColor={p} instagramUrl={sl.instagram ?? null} />;
       case "newsletter":
         return <NewsletterSection primaryColor={p} storeName={liveStore.name} />;
+      case "product-catalog":
+        return (
+          <section
+            id="products-section"
+            className="py-16 md:py-24 px-4 sm:px-6"
+            style={{ background: "#fff" }}
+          >
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center gap-4 mb-8" style={{ direction: "rtl" }}>
+                <div>
+                  <p
+                    className="text-[11px] tracking-[0.25em] uppercase mb-1 font-medium"
+                    style={{ color: p }}
+                  >
+                    {typeof section.content.subheading === "string" ? section.content.subheading : "كتالوج كامل"}
+                  </p>
+                  <h2
+                    className="text-4xl text-stone-900"
+                    style={{ fontFamily: SERIF, fontWeight: 400 }}
+                  >
+                    {typeof section.content.heading === "string" ? section.content.heading : "جميع المنتجات"}
+                  </h2>
+                </div>
+                <div className="flex-1 h-px bg-stone-100 mx-4" />
+                <span className="text-sm text-stone-400 shrink-0">
+                  {liveStore.products.length} منتج
+                </span>
+              </div>
+
+              <CategoryFilter
+                store={liveStore}
+                selected={selectedCategory}
+                onSelect={handleCategorySelect}
+                p={p}
+              />
+
+              <AnimatePresence mode="wait">
+                {filtered.length === 0 ? (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-center py-24"
+                    style={{ direction: "rtl" }}
+                  >
+                    <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
+                    <p className="text-stone-400 text-sm">لا توجد منتجات في هذه الفئة</p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={String(selectedCategory)}
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.35 }}
+                    style={{ direction: "rtl" }}
+                  >
+                    {filtered.map((product, i) => (
+                      <motion.div
+                        key={product.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: Math.min(i * 0.04, 0.4), duration: 0.4 }}
+                      >
+                        <StorefrontProductCard
+                          product={product as any}
+                          storeSlug={liveStore.slug}
+                          primaryColor={p}
+                          inCart={addedIds.has(product.id)}
+                          onAdd={() => handleAddToCart({ ...product, tenantId: liveStore.id, tenantName: liveStore.name })}
+                          showRating={false}
+                        />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </section>
+        );
       case "faq":
       case "about":
       case "testimonials":
@@ -656,6 +739,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       )}
 
       {/* ── All Products Section ── */}
+      {!hasProductCatalogSection && (
       <section
         id="products-section"
         className="py-16 md:py-24 px-4 sm:px-6"
@@ -738,6 +822,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           </AnimatePresence>
         </div>
       </section>
+      )}
 
       {/* ── Footer ── */}
       <StoreFooter

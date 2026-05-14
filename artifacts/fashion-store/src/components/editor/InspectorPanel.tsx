@@ -311,6 +311,20 @@ function SectionFields({ section, patchContent, patchSettings }: {
         </>
       );
 
+    case "product-catalog":
+      return (
+        <>
+          <Field label="عنوان الكتالوج">
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          </Field>
+          <Field label="النص الصغير">
+            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className="text-right text-xs" />
+          </Field>
+          <ToggleField label="إظهار الأسعار" value={section.settings.showPrices ?? true} onChange={(v) => patchSettings({ showPrices: v })} />
+          <ToggleField label="زر الإضافة السريعة" value={section.settings.showQuickAdd ?? true} onChange={(v) => patchSettings({ showQuickAdd: v })} />
+        </>
+      );
+
     case "faq":
       return (
         <>

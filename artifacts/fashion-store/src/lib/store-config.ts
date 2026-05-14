@@ -12,6 +12,7 @@ export type SectionType =
   | "whatsapp"
   | "newsletter"
   | "lookbook"
+  | "product-catalog"
   | "trust-strip";
 
 export type PersonalityType =
@@ -122,6 +123,7 @@ export const SECTION_LABELS: Record<SectionType, string> = {
   "whatsapp": "تواصل عبر واتساب",
   "newsletter": "اشترك في النشرة",
   "lookbook": "لوك بوك",
+  "product-catalog": "جميع المنتجات",
   "trust-strip": "مميزات المتجر",
 };
 
@@ -138,6 +140,7 @@ export const SECTION_ICONS: Record<SectionType, string> = {
   "whatsapp": "💬",
   "newsletter": "📧",
   "lookbook": "🎨",
+  "product-catalog": "🛍️",
   "trust-strip": "✅",
 };
 
@@ -154,6 +157,7 @@ export const SECTION_DESCRIPTIONS: Record<SectionType, string> = {
   "whatsapp": "زر للتواصل المباشر عبر واتساب",
   "newsletter": "نموذج اشتراك بالبريد الإلكتروني",
   "lookbook": "معرض تحريري لصور المنتجات",
+  "product-catalog": "كتالوج المنتجات الكامل مع فلترة حسب الفئة",
   "trust-strip": "شريط يوضح مزايا التسوق معك",
 };
 
@@ -161,8 +165,48 @@ export const SECTION_DESCRIPTIONS: Record<SectionType, string> = {
 export const AVAILABLE_SECTIONS: SectionType[] = [
   "hero", "new-arrivals", "best-sellers", "categories",
   "trust-strip", "offers", "lookbook", "about",
-  "testimonials", "instagram", "newsletter", "faq", "whatsapp",
+  "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
+
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string): SectionConfig[] {
+  const existing = Array.isArray(sections) ? sections : [];
+  const seen = new Set<SectionType>();
+  const normalized: SectionConfig[] = [];
+
+  existing.forEach((section, index) => {
+    if (!AVAILABLE_SECTIONS.includes(section.type) || seen.has(section.type)) {
+      return;
+    }
+
+    seen.add(section.type);
+    normalized.push({
+      ...section,
+      id: section.id || `${section.type}-${Date.now()}-${index}`,
+      label: section.label || SECTION_LABELS[section.type],
+      visible: section.visible ?? true,
+      order: Number.isFinite(section.order) ? section.order : index,
+      content: section.content ?? {},
+      settings: section.settings ?? {},
+    });
+  });
+
+  AVAILABLE_SECTIONS.forEach((type) => {
+    if (!seen.has(type)) {
+      normalized.push({ ...createDefaultSection(type, storeName), order: normalized.length });
+    }
+  });
+
+  const shouldPreserveExistingOrder = seen.size === AVAILABLE_SECTIONS.length;
+  const orderByAvailableSections = (section: SectionConfig) => AVAILABLE_SECTIONS.indexOf(section.type);
+
+  return normalized
+    .sort((a, b) => (
+      shouldPreserveExistingOrder
+        ? a.order - b.order
+        : orderByAvailableSections(a) - orderByAvailableSections(b)
+    ))
+    .map((section, index) => ({ ...section, order: index }));
+}
 
 // ─── Default section content factory ─────────────────────────────────────────
 export function createDefaultSection(type: SectionType, storeName: string): SectionConfig {
@@ -223,6 +267,10 @@ export function createDefaultSection(type: SectionType, storeName: string): Sect
     lookbook: {
       content: { heading: "لوك بوك - إلهامي هذا الموسم" },
       settings: { columns: 3 },
+    },
+    "product-catalog": {
+      content: { heading: "جميع المنتجات", subheading: "كتالوج كامل" },
+      settings: { layout: "grid", showPrices: true, showQuickAdd: true },
     },
     "trust-strip": {
       content: { items: [
@@ -330,14 +378,7 @@ export function createDefaultConfig(partial?: Partial<StoreConfig>): StoreConfig
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: (partial?.homepage?.sections) ?? [
-        createDefaultSection("hero", name),
-        createDefaultSection("trust-strip", name),
-        createDefaultSection("new-arrivals", name),
-        createDefaultSection("categories", name),
-        createDefaultSection("about", name),
-        createDefaultSection("newsletter", name),
-      ].map((s, i) => ({ ...s, order: i })),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };
