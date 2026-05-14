@@ -6,6 +6,7 @@ import { sendPasswordResetEmail, sendWelcomeEmail, sendNewMerchantNotification }
 import { db } from "@workspace/db";
 import {
   merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable,
+  shippingZonesTable, shippingSettingsTable,
 } from "@workspace/db";
 import { RegisterMerchantBody, LoginMerchantBody } from "@workspace/api-zod";
 import { eq, and, gt, ne } from "drizzle-orm";
@@ -73,6 +74,39 @@ const DEFAULT_CATEGORIES = [
   { name: "Perfumes", nameAr: "عطور", type: "cosmetics" as const },
 ];
 
+const DEFAULT_SHIPPING_ZONES_CONFIG = [
+  {
+    governorates: ["cairo", "giza", "qalyubia"],
+    baseCost: 45,
+    deliveryDays: 2,
+  },
+  {
+    governorates: ["alexandria"],
+    baseCost: 55,
+    deliveryDays: 3,
+  },
+  {
+    governorates: ["sharqia", "dakahlia", "beheira", "kafr_el_sheikh", "gharbia", "menoufia", "damietta"],
+    baseCost: 55,
+    deliveryDays: 3,
+  },
+  {
+    governorates: ["port_said", "ismailia", "suez"],
+    baseCost: 60,
+    deliveryDays: 4,
+  },
+  {
+    governorates: ["fayoum", "beni_suef", "minya", "asyut", "sohag", "qena", "luxor", "aswan"],
+    baseCost: 70,
+    deliveryDays: 5,
+  },
+  {
+    governorates: ["red_sea", "matrouh", "north_sinai", "south_sinai", "new_valley"],
+    baseCost: 90,
+    deliveryDays: 7,
+  },
+];
+
 router.get("/auth/check-slug", async (req, res) => {
   const raw = typeof req.query.slug === "string" ? req.query.slug : "";
   const slug = normalizeSlug(raw);
@@ -135,6 +169,22 @@ router.post("/auth/register", authLimiter, async (req, res) => {
       );
 
       await tx.insert(merchantOnboardingTable).values({ tenantId: tenant.id });
+
+      await tx.insert(shippingSettingsTable).values({
+        tenantId: tenant.id,
+        defaultShippingCost: "50",
+      });
+
+      const shippingZones = DEFAULT_SHIPPING_ZONES_CONFIG.flatMap((dz) =>
+        dz.governorates.map((gov) => ({
+          tenantId: tenant.id,
+          governorate: gov,
+          shippingCost: String(dz.baseCost),
+          deliveryDays: dz.deliveryDays,
+        }))
+      );
+
+      await tx.insert(shippingZonesTable).values(shippingZones);
 
       return { tenant, merchant };
     });
