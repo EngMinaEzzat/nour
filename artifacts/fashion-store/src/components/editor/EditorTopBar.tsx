@@ -33,27 +33,27 @@ export default function EditorTopBar({
 }: EditorTopBarProps) {
   return (
     <div
-      className="h-14 bg-white border-b border-stone-200 flex items-center justify-between px-4 gap-4 shrink-0 z-20 sticky top-0"
+      className="min-h-14 bg-white border-b border-stone-200 flex flex-wrap sm:flex-nowrap items-center justify-between px-3 sm:px-4 py-2 sm:py-0 gap-2 sm:gap-4 shrink-0 z-20 sticky top-0"
       style={{ direction: "rtl" }}
     >
       {/* Left: back + store name */}
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 flex-1 sm:flex-none items-center gap-2 sm:gap-3">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 transition-colors"
+          className="flex h-9 items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 transition-colors max-w-9 sm:max-w-none overflow-hidden"
         >
           <ArrowRight className="w-4 h-4" />
           لوحة التحكم
         </button>
-        <div className="w-px h-5 bg-stone-200" />
-        <div className="flex items-center gap-2">
+        <div className="hidden sm:block w-px h-5 bg-stone-200" />
+        <div className="flex min-w-0 items-center gap-2">
           <div
             className="w-6 h-6 rounded-md text-white text-xs flex items-center justify-center font-bold"
             style={{ background: "#8B1A35" }}
           >
             {storeName?.[0]?.toUpperCase() ?? "م"}
           </div>
-          <span className="text-sm font-medium text-stone-800 max-w-[160px] truncate">{storeName}</span>
+          <span className="text-sm font-medium text-stone-800 max-w-[86px] sm:max-w-[160px] truncate">{storeName}</span>
           {isDirty && (
             <motion.span
               initial={{ opacity: 0, scale: 0.7 }}
@@ -66,7 +66,7 @@ export default function EditorTopBar({
       </div>
 
       {/* Center: device switcher */}
-      <div className="flex items-center bg-stone-100 rounded-lg p-1 gap-0.5">
+      <div className="order-3 w-full sm:order-none sm:w-auto flex items-center justify-center bg-stone-100 rounded-lg p-1 gap-0.5">
         {DEVICES.map(({ key, icon: Icon, label }) => (
           <button
             key={key}
@@ -87,7 +87,7 @@ export default function EditorTopBar({
       </div>
 
       {/* Right: undo/redo + preview + save */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         <div className="flex items-center gap-0.5">
           <button
             onClick={onUndo}
@@ -113,7 +113,7 @@ export default function EditorTopBar({
           href={`${BASE}/store/${storeSlug}`}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 px-3 py-1.5 rounded-md hover:bg-stone-100 transition-all"
+          className="flex h-9 items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 px-2 sm:px-3 rounded-md hover:bg-stone-100 transition-all max-w-9 sm:max-w-none overflow-hidden"
         >
           <Eye className="w-4 h-4" />
           معاينة
@@ -123,7 +123,7 @@ export default function EditorTopBar({
           onClick={onSave}
           disabled={saving || !isDirty}
           size="sm"
-          className={`gap-1.5 text-white h-8 px-4 transition-all ${isDirty ? "opacity-100 shadow-lg" : "opacity-50"}`}
+          className={`gap-1.5 text-white h-9 px-3 sm:px-4 transition-all max-w-10 sm:max-w-none overflow-hidden ${isDirty ? "opacity-100 shadow-lg" : "opacity-50"}`}
           style={{ background: isDirty ? "linear-gradient(135deg, #8B1A35, #c8963a)" : "#9ca3af" }}
         >
           {saving ? (
@@ -142,7 +142,7 @@ export default function EditorTopBar({
         <Button
           size="sm"
           variant="outline"
-          className="gap-1.5 h-8 px-4 border-[#8B1A35] text-[#8B1A35] hover:bg-rose-50"
+          className="hidden sm:inline-flex gap-1.5 h-8 px-4 border-[#8B1A35] text-[#8B1A35] hover:bg-rose-50"
         >
           <Globe className="w-3.5 h-3.5" />
           نشر

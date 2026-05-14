@@ -1,6 +1,6 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
 import { SECTION_ICONS, SECTION_LABELS } from "@/lib/store-config";
-import { Trash2, EyeOff, Eye, Copy } from "lucide-react";
+import { Trash2, EyeOff, Eye, Copy, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -12,12 +12,22 @@ interface InspectorPanelProps {
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onToggleVisibility: (id: string) => void;
+  variant?: "desktop" | "mobile";
+  onClose?: () => void;
 }
 
 export default function InspectorPanel({
   section, theme, onSectionChange, onThemeChange, onDelete, onDuplicate, onToggleVisibility,
+  variant = "desktop", onClose,
 }: InspectorPanelProps) {
+  const shellClass =
+    variant === "mobile"
+      ? "w-full bg-white border-t border-stone-200 flex flex-col max-h-[58vh] rounded-t-2xl shadow-2xl"
+      : "w-72 bg-white border-r border-stone-200 flex flex-col h-full";
+
   if (!section) {
+    if (variant === "mobile") return null;
+
     return (
       <div className="w-72 bg-white border-r border-stone-200 flex flex-col items-center justify-center p-8 text-center" dir="rtl">
         <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center text-2xl mb-4">👆</div>
@@ -36,15 +46,25 @@ export default function InspectorPanel({
   }
 
   return (
-    <div className="w-72 bg-white border-r border-stone-200 flex flex-col h-full" dir="rtl">
+    <div className={shellClass} dir="rtl">
       {/* Header */}
-      <div className="p-4 border-b border-stone-100">
+      <div className="p-4 border-b border-stone-100 shrink-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-xl">{SECTION_ICONS[section.type]}</span>
             <span className="text-sm font-semibold text-stone-800">{SECTION_LABELS[section.type]}</span>
           </div>
           <div className="flex items-center gap-1">
+            {variant === "mobile" && (
+              <button
+                onClick={onClose}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-500 transition-colors"
+                aria-label="إغلاق لوحة التعديل"
+                title="إغلاق"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={() => onToggleVisibility(section.id)}
               className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors"

@@ -17,10 +17,11 @@ interface EditorLeftSidebarProps {
   onConfigChange: (config: StoreConfig) => void;
   onOpenAI: () => void;
   productCount?: number;
+  className?: string;
 }
 
 export default function EditorLeftSidebar({
-  config, selectedId, onSelect, onConfigChange, onOpenAI, productCount = 0,
+  config, selectedId, onSelect, onConfigChange, onOpenAI, productCount = 0, className = "",
 }: EditorLeftSidebarProps) {
   const [tab, setTab] = useState<SidebarTab>("sections");
   const [addingSection, setAddingSection] = useState(false);
@@ -84,7 +85,7 @@ export default function EditorLeftSidebar({
   ];
 
   return (
-    <div className="w-64 bg-white border-l border-stone-200 flex flex-col h-full" dir="rtl">
+    <div className={`w-64 bg-white border-l border-stone-200 flex flex-col h-full ${className}`} dir="rtl">
       {/* Tabs */}
       <div className="flex border-b border-stone-200">
         {TABS.map(({ key, icon: Icon, label }) => (

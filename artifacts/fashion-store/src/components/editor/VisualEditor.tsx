@@ -7,7 +7,7 @@ import EditorLeftSidebar from "./EditorLeftSidebar";
 import EditorCanvas from "./EditorCanvas";
 import InspectorPanel from "./InspectorPanel";
 import StoreAssistant from "./StoreAssistant";
-import { Save } from "lucide-react";
+import { Layers3, Menu, Save, X } from "lucide-react";
 
 interface VisualEditorProps {
   initialConfig: StoreConfig;
@@ -54,11 +54,17 @@ export default function VisualEditor({
   const [device, setDevice] = useState<DeviceType>("desktop");
   const [saving, setSaving] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const [sectionsOpen, setSectionsOpen] = useState(false);
   const { toast } = useToast();
 
   const selectedSection = selectedId
     ? config.homepage.sections.find((s) => s.id === selectedId) ?? null
     : null;
+
+  function selectSection(id: string) {
+    setSelectedId(id);
+    setSectionsOpen(false);
+  }
 
   // ─── Section mutations ─────────────────────────────────────────────────────
   function updateSection(updated: SectionConfig) {
@@ -140,24 +146,44 @@ export default function VisualEditor({
       />
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Left sidebar */}
-        <EditorLeftSidebar
-          config={config}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          onConfigChange={pushConfig}
-          onOpenAI={() => setAiOpen(true)}
-          productCount={productCount}
-        />
+        {/* Section menu - desktop rail */}
+        <div className="hidden lg:flex h-full">
+          <EditorLeftSidebar
+            config={config}
+            selectedId={selectedId}
+            onSelect={selectSection}
+            onConfigChange={pushConfig}
+            onOpenAI={() => setAiOpen(true)}
+            productCount={productCount}
+          />
+        </div>
 
         {/* Center canvas */}
         <div className="flex-1 flex flex-col overflow-hidden relative">
+          <div className="lg:hidden bg-white border-b border-stone-200 px-3 py-2 flex items-center justify-between gap-2" dir="rtl">
+            <button
+              onClick={() => setSectionsOpen(true)}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-800 shadow-sm"
+              aria-label="فتح أقسام المتجر"
+              aria-expanded={sectionsOpen}
+            >
+              <Menu className="w-4 h-4" />
+              أقسام المتجر
+            </button>
+            <div className="flex min-w-0 items-center gap-2 text-xs text-stone-500">
+              <Layers3 className="w-4 h-4 shrink-0 text-[#8B1A35]" />
+              <span className="truncate">
+                {selectedSection ? `تعدلين: ${selectedSection.label}` : "اختاري جزء من المتجر للتعديل"}
+              </span>
+            </div>
+          </div>
+
           <EditorCanvas
             config={config}
             categories={categories}
             selectedId={selectedId}
             device={device}
-            onSelectSection={setSelectedId}
+            onSelectSection={selectSection}
             onDeselectAll={() => setSelectedId(null)}
           />
 
@@ -185,16 +211,93 @@ export default function VisualEditor({
           </AnimatePresence>
         </div>
 
-        {/* Right inspector panel */}
-        <InspectorPanel
-          section={selectedSection}
-          theme={config.theme}
-          onSectionChange={updateSection}
-          onThemeChange={(theme) => pushConfig({ ...config, theme })}
-          onDelete={deleteSection}
-          onDuplicate={duplicateSection}
-          onToggleVisibility={toggleVisibility}
-        />
+        {/* Inspector panel - desktop rail */}
+        <div className="hidden lg:flex h-full">
+          <InspectorPanel
+            section={selectedSection}
+            theme={config.theme}
+            onSectionChange={updateSection}
+            onThemeChange={(theme) => pushConfig({ ...config, theme })}
+            onDelete={deleteSection}
+            onDuplicate={duplicateSection}
+            onToggleVisibility={toggleVisibility}
+          />
+        </div>
+
+        {/* Section menu - mobile drawer */}
+        <AnimatePresence>
+          {sectionsOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-40 bg-black/35 lg:hidden"
+                onClick={() => setSectionsOpen(false)}
+              />
+              <motion.aside
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", stiffness: 320, damping: 34 }}
+                className="fixed inset-y-0 right-0 z-50 w-[86vw] max-w-sm bg-white shadow-2xl lg:hidden flex flex-col"
+                dir="rtl"
+                aria-label="قائمة أقسام المتجر"
+              >
+                <div className="flex items-center justify-between border-b border-stone-100 p-4">
+                  <div>
+                    <p className="text-sm font-semibold text-stone-900">اختاري جزء من القصة</p>
+                    <p className="mt-1 text-xs text-stone-500">اضغطي على القسم، هنقفل القائمة ونفتح تعديلاته مباشرة.</p>
+                  </div>
+                  <button
+                    onClick={() => setSectionsOpen(false)}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-600"
+                    aria-label="إغلاق قائمة الأقسام"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <EditorLeftSidebar
+                  config={config}
+                  selectedId={selectedId}
+                  onSelect={selectSection}
+                  onConfigChange={pushConfig}
+                  onOpenAI={() => {
+                    setSectionsOpen(false);
+                    setAiOpen(true);
+                  }}
+                  productCount={productCount}
+                  className="w-full border-l-0"
+                />
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Inspector panel - mobile bottom sheet */}
+        <AnimatePresence>
+          {selectedSection && (
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 34 }}
+              className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
+            >
+              <InspectorPanel
+                section={selectedSection}
+                theme={config.theme}
+                onSectionChange={updateSection}
+                onThemeChange={(theme) => pushConfig({ ...config, theme })}
+                onDelete={deleteSection}
+                onDuplicate={duplicateSection}
+                onToggleVisibility={toggleVisibility}
+                variant="mobile"
+                onClose={() => setSelectedId(null)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* AI assistant drawer */}
         <AnimatePresence>
