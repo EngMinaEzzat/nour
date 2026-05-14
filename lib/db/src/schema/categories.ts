@@ -14,13 +14,6 @@ export const categoriesTable = pgTable("categories", {
   imageUrl: text("image_url"),
 });
 
-export const DEFAULT_CATEGORIES = [
-  { name: "Clothing", nameAr: "ملابس", type: "fashion" as const },
-  { name: "Accessories", nameAr: "إكسسوارات", type: "fashion" as const },
-  { name: "Cosmetics", nameAr: "مستحضرات تجميل", type: "cosmetics" as const },
-  { name: "Perfumes", nameAr: "عطور", type: "cosmetics" as const },
-];
-
 export const insertCategorySchema = createInsertSchema(categoriesTable).omit({ id: true });
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categoriesTable.$inferSelect;

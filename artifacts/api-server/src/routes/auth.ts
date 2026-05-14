@@ -3,11 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import rateLimit from "express-rate-limit";
 import { sendPasswordResetEmail, sendWelcomeEmail, sendNewMerchantNotification } from "../lib/email.js";
-import { db } from "@workspace/db";
-import {
-  merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable,
-  shippingZonesTable, shippingSettingsTable, DEFAULT_CATEGORIES, DEFAULT_SHIPPING_ZONES_CONFIG,
-} from "@workspace/db";
+import { db, merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable, shippingZonesTable, shippingSettingsTable, DEFAULT_CATEGORIES, DEFAULT_SHIPPING_ZONES_CONFIG } from "@workspace/db";
 import { RegisterMerchantBody, LoginMerchantBody } from "@workspace/api-zod";
 import { eq, and, gt, ne } from "drizzle-orm";
 
