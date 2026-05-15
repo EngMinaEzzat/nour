@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { sendEmail, sendOrderConfirmationEmail } from "../lib/email.js";
+import { sendEmail, sendOrderConfirmationEmail, sendWelcomeEmail } from "../lib/email.js";
 
 const mockSend = vi.fn().mockResolvedValue({ data: { id: "mock-email-id" }, error: null });
 
@@ -17,6 +17,7 @@ vi.mock("resend", () => {
 describe("Email System", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSend.mockResolvedValue({ data: { id: "mock-email-id" }, error: null });
     process.env.RESEND_API_KEY = "test-key";
   });
 
@@ -28,7 +29,7 @@ describe("Email System", () => {
       fromName: "Custom Store",
     });
 
-    expect(result).toEqual({ id: "mock-email-id" });
+    expect(result).toEqual({ sent: true, id: "mock-email-id" });
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         from: "Custom Store <onboarding@resend.dev>",
@@ -83,13 +84,35 @@ describe("Email System", () => {
     expect(callArgs.html).toContain("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
   });
 
-  it("should return null if RESEND_API_KEY is missing", async () => {
+  it("should report when RESEND_API_KEY is missing", async () => {
     delete process.env.RESEND_API_KEY;
     const result = await sendEmail({
       to: "test@example.com",
       subject: "Fail",
       html: "...",
     });
-    expect(result).toBeNull();
+    expect(result).toEqual({ sent: false, reason: "missing_api_key" });
+  });
+
+  it("should report provider errors", async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: "Domain not verified" } });
+
+    const result = await sendEmail({
+      to: "test@example.com",
+      subject: "Fail",
+      html: "...",
+    });
+
+    expect(result).toEqual({ sent: false, reason: "provider_error" });
+  });
+
+  it("should report welcome email delivery status", async () => {
+    const result = await sendWelcomeEmail(
+      "merchant@example.com",
+      "My Boutique",
+      "https://nour.example/store/my-boutique",
+    );
+
+    expect(result).toEqual({ sent: true, id: "mock-email-id" });
   });
 });

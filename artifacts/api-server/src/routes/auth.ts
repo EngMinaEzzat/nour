@@ -170,9 +170,23 @@ router.post("/auth/register", authLimiter, async (req, res) => {
     const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
     const storeUrl = `${baseUrl}/store/${slug}`;
 
-    sendWelcomeEmail(email, storeName, storeUrl).catch((err) =>
-      req.log.warn({ err }, "Welcome email failed — non-fatal"),
-    );
+    sendWelcomeEmail(email, storeName, storeUrl)
+      .then((emailResult) => {
+        if (!emailResult.sent) {
+          req.log.warn(
+            {
+              reason: emailResult.reason,
+              recipientDomain: email.split("@")[1] ?? null,
+              from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
+            },
+            "Welcome email was not sent",
+          );
+          return;
+        }
+
+        req.log.info({ emailId: emailResult.id }, "Welcome email sent");
+      })
+      .catch((err) => req.log.warn({ err }, "Welcome email failed - non-fatal"));
 
     db.select({ email: merchantsTable.email })
       .from(merchantsTable)

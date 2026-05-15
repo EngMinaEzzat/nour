@@ -7,6 +7,9 @@ function getResend(): Resend | null {
 }
 
 const FROM_ADDRESS = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+export type EmailSendResult =
+  | { sent: true; id: string }
+  | { sent: false; reason: "missing_api_key" | "provider_error" };
 const DEFAULT_FROM_NAME = "نور";
 
 function escapeHtml(value: string): string {
@@ -24,9 +27,12 @@ export async function sendEmail(params: {
   html: string;
   fromName?: string;
   replyTo?: string;
-}): Promise<{ id: string } | null> {
+}): Promise<EmailSendResult> {
   const resend = getResend();
-  if (!resend) return null;
+  if (!resend) {
+    console.warn("[Email Warning]: RESEND_API_KEY is not configured; email was not sent");
+    return { sent: false, reason: "missing_api_key" };
+  }
 
   const from = params.fromName
     ? `${params.fromName} <${FROM_ADDRESS}>`
@@ -42,10 +48,10 @@ export async function sendEmail(params: {
 
   if (error) {
     console.error("[Email Error]:", error);
-    return null;
+    return { sent: false, reason: "provider_error" };
   }
 
-  return data;
+  return { sent: true, id: data?.id ?? "" };
 }
 
 function emailLayout(bodyHtml: string): string {
@@ -87,8 +93,8 @@ export async function sendWelcomeEmail(
   to: string,
   storeName: string,
   storeUrl: string,
-): Promise<void> {
-  await sendEmail({
+): Promise<EmailSendResult> {
+  return sendEmail({
     to,
     subject: `مرحباً بك في نور 🎉 — متجرك "${storeName}" جاهز!`,
     html: emailLayout(`
@@ -230,7 +236,7 @@ export async function sendPasswordResetEmail(
     `),
   });
 
-  return { sent: !!res };
+  return { sent: res.sent };
 }
 
 export async function sendSubscriptionReminderEmail(
