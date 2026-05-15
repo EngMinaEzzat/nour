@@ -6,7 +6,38 @@ function getResend(): Resend | null {
   return new Resend(key);
 }
 
-const FROM_ADDRESS = process.env.EMAIL_FROM ?? "نور <onboarding@resend.dev>";
+const FROM_ADDRESS = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+const DEFAULT_FROM_NAME = "نور";
+
+export async function sendEmail(params: {
+  to: string | string[];
+  subject: string;
+  html: string;
+  fromName?: string;
+  replyTo?: string;
+}): Promise<{ id: string } | null> {
+  const resend = getResend();
+  if (!resend) return null;
+
+  const from = params.fromName
+    ? `${params.fromName} <${FROM_ADDRESS}>`
+    : `${DEFAULT_FROM_NAME} <${FROM_ADDRESS}>`;
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: params.to,
+    subject: params.subject,
+    html: params.html,
+    reply_to: params.replyTo,
+  });
+
+  if (error) {
+    console.error("[Email Error]:", error);
+    return null;
+  }
+
+  return data;
+}
 
 function emailLayout(bodyHtml: string): string {
   return `<!DOCTYPE html>
@@ -48,11 +79,7 @@ export async function sendWelcomeEmail(
   storeName: string,
   storeUrl: string,
 ): Promise<void> {
-  const resend = getResend();
-  if (!resend) return;
-
-  await resend.emails.send({
-    from: FROM_ADDRESS,
+  await sendEmail({
     to,
     subject: `مرحباً بك في نور 🎉 — متجرك "${storeName}" جاهز!`,
     html: emailLayout(`
@@ -109,8 +136,7 @@ export async function sendNewMerchantNotification(
   merchantEmail: string,
   city: string | null | undefined,
 ): Promise<void> {
-  const resend = getResend();
-  if (!resend || adminEmails.length === 0) return;
+  if (adminEmails.length === 0) return;
 
   const now = new Date().toLocaleString("ar-EG", {
     timeZone: "Africa/Cairo",
@@ -118,8 +144,7 @@ export async function sendNewMerchantNotification(
     timeStyle: "short",
   });
 
-  await resend.emails.send({
-    from: FROM_ADDRESS,
+  await sendEmail({
     to: adminEmails,
     subject: `🛍️ متجر جديد انضم إلى نور — ${storeName}`,
     html: emailLayout(`
@@ -175,11 +200,7 @@ export async function sendPasswordResetEmail(
   to: string,
   resetLink: string,
 ): Promise<{ sent: boolean }> {
-  const resend = getResend();
-  if (!resend) return { sent: false };
-
-  await resend.emails.send({
-    from: FROM_ADDRESS,
+  const res = await sendEmail({
     to,
     subject: "إعادة تعيين كلمة المرور — نور",
     html: emailLayout(`
@@ -200,7 +221,7 @@ export async function sendPasswordResetEmail(
     `),
   });
 
-  return { sent: true };
+  return { sent: !!res };
 }
 
 export async function sendSubscriptionReminderEmail(
@@ -209,11 +230,7 @@ export async function sendSubscriptionReminderEmail(
   daysLeft: number,
   renewUrl: string,
 ): Promise<void> {
-  const resend = getResend();
-  if (!resend) return;
-
-  await resend.emails.send({
-    from: FROM_ADDRESS,
+  await sendEmail({
     to,
     subject: `⏰ اشتراكك في نور ينتهي خلال ${daysLeft} ${daysLeft === 1 ? "يوم" : "أيام"}`,
     html: emailLayout(`
@@ -243,11 +260,7 @@ export async function sendSubscriptionSuspendedEmail(
   storeName: string,
   reactivateUrl: string,
 ): Promise<void> {
-  const resend = getResend();
-  if (!resend) return;
-
-  await resend.emails.send({
-    from: FROM_ADDRESS,
+  await sendEmail({
     to,
     subject: `🔴 تم إيقاف متجرك مؤقتًا — ${storeName}`,
     html: emailLayout(`
@@ -265,6 +278,59 @@ export async function sendSubscriptionSuspendedEmail(
           إعادة تفعيل المتجر
         </a>
       </div>
+    `),
+  });
+}
+
+export async function sendOrderConfirmationEmail(params: {
+  to: string;
+  customerName: string;
+  orderId: number;
+  storeName: string;
+  totalAmount: number;
+  items: { name: string; quantity: number }[];
+  merchantEmail?: string;
+}): Promise<void> {
+  const itemsHtml = params.items
+    .map(
+      (item) => `
+    <tr>
+      <td style="padding:12px 0;border-bottom:1px solid #f0ebe5;">
+        <span style="font-size:14px;color:#1a1a1a;font-weight:600;">${item.name}</span>
+        <span style="font-size:13px;color:#888;margin-right:8px;">× ${item.quantity}</span>
+      </td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  await sendEmail({
+    to: params.to,
+    fromName: params.storeName,
+    replyTo: params.merchantEmail,
+    subject: `✅ تم استلام طلبك من ${params.storeName} (#${params.orderId})`,
+    html: emailLayout(`
+      <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#1a1a1a;">شكراً لطلبك! 😍</h1>
+      <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.8;">
+        مرحباً ${params.customerName}، لقد استلمنا طلبك رقم <strong>#${params.orderId}</strong> وسنقوم بتجهيزه لك في أقرب وقت.
+      </p>
+
+      <div style="background:#fdf8f5;border:1px solid #f0e8e0;border-radius:16px;padding:24px;margin:0 0 28px;">
+        <p style="margin:0 0 16px;font-size:13px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:700;">ملخص الطلب</p>
+        <table width="100%" cellpadding="0" cellspacing="0">
+          ${itemsHtml}
+          <tr>
+            <td style="padding:16px 0 0;text-align:left;">
+              <span style="font-size:14px;color:#888;margin-left:12px;">الإجمالي:</span>
+              <span style="font-size:20px;font-weight:900;color:#8b1a2e;">${params.totalAmount.toLocaleString("ar-EG")} ج.م</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="margin:0;font-size:14px;color:#666;text-align:center;">
+        إذا كان لديك أي استفسار بخصوص الطلب، يمكنك الرد مباشرة على هذا البريد.
+      </p>
     `),
   });
 }
