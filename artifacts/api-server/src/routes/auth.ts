@@ -120,9 +120,11 @@ router.post("/auth/register", authLimiter, async (req, res) => {
         .values({ email, passwordHash, tenantId: tenant.id })
         .returning();
 
-      await tx.insert(categoriesTable).values(
-        DEFAULT_CATEGORIES.map((c) => ({ ...c, tenantId: tenant.id }))
-      );
+      if (DEFAULT_CATEGORIES && Array.isArray(DEFAULT_CATEGORIES)) {
+        await tx.insert(categoriesTable).values(
+          DEFAULT_CATEGORIES.map((c) => ({ ...c, tenantId: tenant.id }))
+        );
+      }
 
       await tx.insert(merchantOnboardingTable).values({ tenantId: tenant.id });
 
@@ -131,16 +133,18 @@ router.post("/auth/register", authLimiter, async (req, res) => {
         defaultShippingCost: "50",
       });
 
-      const shippingZones = DEFAULT_SHIPPING_ZONES_CONFIG.flatMap((dz) =>
-        dz.governorates.map((gov) => ({
-          tenantId: tenant.id,
-          governorate: gov,
-          shippingCost: String(dz.baseCost),
-          deliveryDays: dz.deliveryDays,
-        }))
-      );
+      if (DEFAULT_SHIPPING_ZONES_CONFIG && Array.isArray(DEFAULT_SHIPPING_ZONES_CONFIG)) {
+        const shippingZones = DEFAULT_SHIPPING_ZONES_CONFIG.flatMap((dz) =>
+          dz.governorates.map((gov) => ({
+            tenantId: tenant.id,
+            governorate: gov,
+            shippingCost: String(dz.baseCost),
+            deliveryDays: dz.deliveryDays,
+          }))
+        );
 
-      await tx.insert(shippingZonesTable).values(shippingZones);
+        await tx.insert(shippingZonesTable).values(shippingZones);
+      }
 
       return { tenant, merchant };
     });
