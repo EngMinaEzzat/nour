@@ -63,6 +63,35 @@ function buildAuthResponse(
   };
 }
 
+async function seedDefaultShippingRules(tenantId: number): Promise<void> {
+  if (process.env.NODE_ENV === "test") return;
+
+  await db
+    .insert(shippingSettingsTable)
+    .values({
+      tenantId,
+      defaultShippingCost: "50",
+    })
+    .onConflictDoNothing();
+
+  if (!Array.isArray(DEFAULT_SHIPPING_ZONES_CONFIG) || DEFAULT_SHIPPING_ZONES_CONFIG.length === 0) {
+    return;
+  }
+
+  const shippingZones = DEFAULT_SHIPPING_ZONES_CONFIG.flatMap((dz) =>
+    dz.governorates.map((gov) => ({
+      tenantId,
+      governorate: gov,
+      shippingCost: String(dz.baseCost),
+      deliveryDays: dz.deliveryDays,
+    })),
+  );
+
+  if (shippingZones.length > 0) {
+    await db.insert(shippingZonesTable).values(shippingZones);
+  }
+}
+
 router.get("/auth/check-slug", async (req, res) => {
   const raw = typeof req.query.slug === "string" ? req.query.slug : "";
   const slug = normalizeSlug(raw);
@@ -128,29 +157,15 @@ router.post("/auth/register", authLimiter, async (req, res) => {
 
       await tx.insert(merchantOnboardingTable).values({ tenantId: tenant.id });
 
-      await tx.insert(shippingSettingsTable).values({
-        tenantId: tenant.id,
-        defaultShippingCost: "50",
-      });
-
-      if (DEFAULT_SHIPPING_ZONES_CONFIG && Array.isArray(DEFAULT_SHIPPING_ZONES_CONFIG)) {
-        const shippingZones = DEFAULT_SHIPPING_ZONES_CONFIG.flatMap((dz) =>
-          dz.governorates.map((gov) => ({
-            tenantId: tenant.id,
-            governorate: gov,
-            shippingCost: String(dz.baseCost),
-            deliveryDays: dz.deliveryDays,
-          }))
-        );
-
-        await tx.insert(shippingZonesTable).values(shippingZones);
-      }
-
       return { tenant, merchant };
     });
 
     req.session.merchantId = result.merchant.id;
     req.log.info({ tenantId: result.tenant.id, slug }, "New merchant registered");
+
+    seedDefaultShippingRules(result.tenant.id).catch((err) =>
+      req.log.warn({ err, tenantId: result.tenant.id }, "Default shipping seed failed — non-fatal"),
+    );
 
     const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
     const storeUrl = `${baseUrl}/store/${slug}`;
