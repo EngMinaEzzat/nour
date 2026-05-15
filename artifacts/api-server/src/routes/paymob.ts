@@ -279,7 +279,7 @@ router.post("/paymob/webhook", async (req, res) => {
       }).where(eq(paymentRecordsTable.id, paymentRecord?.id ?? -1)).returning({ orderId: paymentRecordsTable.orderId, tenantId: paymentRecordsTable.tenantId });
 
       if (updated.length > 0 && updated[0].orderId) {
-        await db.update(ordersTable).set({ paymentStatus: "paid" }).where(eq(ordersTable.id, updated[0].orderId!));
+        await db.update(ordersTable).set({ paymentStatus: "paid", status: "confirmed" }).where(eq(ordersTable.id, updated[0].orderId!));
         await db.insert(tenantAuditEventsTable).values({
           tenantId: updated[0].tenantId,
           actorLabel: "Paymob Webhook",
@@ -289,14 +289,16 @@ router.post("/paymob/webhook", async (req, res) => {
         }).catch(() => {});
       }
     } else {
+      req.log.info({ hasPaymentRecord: !!paymentRecord, recordId: paymentRecord?.id }, "Processing failed webhook");
       if (paymentRecord) {
         await db.transaction(async (tx) => {
-          await tx.update(paymentRecordsTable).set({
+          const res1 = await tx.update(paymentRecordsTable).set({
             status: "failed",
             providerTransactionId: transactionId,
             failureReason: body?.obj?.data?.message ?? "Payment failed",
             updatedAt: new Date(),
-          }).where(eq(paymentRecordsTable.id, paymentRecord.id));
+          }).where(eq(paymentRecordsTable.id, paymentRecord.id)).returning();
+          req.log.info({ updatedPaymentRecordCount: res1.length }, "Updated payment record to failed");
 
           if (paymentRecord.orderId) {
             await tx.update(ordersTable).set({ paymentStatus: "failed" }).where(eq(ordersTable.id, paymentRecord.orderId));

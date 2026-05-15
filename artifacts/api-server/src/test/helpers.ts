@@ -9,7 +9,7 @@ import {
   paymentWebhooksTable, paymobProvidersTable, tenantAuditEventsTable,
   staffInvitationsTable, customDomainsTable, exportJobsTable,
   aiUsageEventsTable, conversations,
-  whatsappProvidersTable, whatsappMessageLogsTable,
+  whatsappProvidersTable, whatsappMessageLogsTable, productVariantsTable
 } from "@workspace/db";
 import { eq, inArray } from "drizzle-orm";
 
@@ -105,6 +105,21 @@ export async function createTestOrder(
   return res;
 }
 
+export async function createTestProductWithVariant(
+  agent: ReturnType<typeof request.agent>,
+  opts: { productStock?: number, variantStock?: number } = {}
+) {
+  const prodRes = await createTestProduct(agent, { stock: opts.productStock ?? 10 });
+  const productId = prodRes.body.id;
+  const varRes = await agent.post(`/api/products/${productId}/variants`).send({
+    attributes: { Size: "L" },
+    sku: `TEST-SKU-${uid()}`,
+    stock: opts.variantStock ?? 5,
+    priceDifference: 0
+  });
+  return { product: prodRes, variant: varRes };
+}
+
 export async function cleanupTenant(tenantId: number, merchantId: number) {
   try {
     const orderIds = (
@@ -126,6 +141,13 @@ export async function cleanupTenant(tenantId: number, merchantId: number) {
     await db.delete(cartSessionsTable).where(eq(cartSessionsTable.tenantId, tenantId));
     await db.delete(ordersTable).where(eq(ordersTable.tenantId, tenantId));
     await db.delete(productReviewsTable).where(eq(productReviewsTable.tenantId, tenantId));
+    const productIds = (
+      await db.select({ id: productsTable.id }).from(productsTable).where(eq(productsTable.tenantId, tenantId))
+    ).map((r) => r.id);
+
+    if (productIds.length > 0) {
+      await db.delete(productVariantsTable).where(inArray(productVariantsTable.productId, productIds));
+    }
     await db.delete(productsTable).where(eq(productsTable.tenantId, tenantId));
     await db.delete(discountCodesTable).where(eq(discountCodesTable.tenantId, tenantId));
     await db.delete(billingTransferRequestsTable).where(eq(billingTransferRequestsTable.tenantId, tenantId));

@@ -8,7 +8,7 @@ import {
   tenantsTable,
 } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
-import { requireRole } from "../middleware/require-role";
+import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
 import { sendWhatsAppMessage } from "../lib/whatsapp";
 
 const router = Router();
@@ -330,7 +330,8 @@ router.post("/whatsapp/messages/send", requireRole("owner", "manager"), async (r
       .where(eq(whatsappProvidersTable.tenantId, tenantId));
 
     const isActive = provider?.status === "ACTIVE";
-    const isMockAllowed = provider?.isMockAllowed ?? false;
+    const isProd = process.env.NODE_ENV === "production";
+    const isMockAllowed = !isProd && (provider?.isMockAllowed ?? false);
 
     let logStatus: "QUEUED" | "SENT" | "FAILED" = "QUEUED";
     let errorMessage: string | null = null;
@@ -424,7 +425,7 @@ router.get("/whatsapp/messages", requireRole("owner", "manager", "staff"), async
 });
 
 /* ─── Provider delivery callback ─── */
-router.post("/whatsapp/messages/:id/callback", async (req, res) => {
+router.post("/whatsapp/messages/:id/callback", requirePlatformAdmin, async (req, res) => {
   const logId = Number(req.params.id);
   if (isNaN(logId)) return res.status(400).json({ error: "معرف غير صالح" });
 

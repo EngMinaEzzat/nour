@@ -56,26 +56,53 @@ router.post("/exports", requireRole("owner", "manager"), exportLimiter, async (r
     }).returning();
 
     let rows: Record<string, unknown>[] = [];
-    const dateFilter = (col: any) => {
-      const conds = [eq(col, tenantId)];
-      return conds;
+    const buildConditions = (tableTenantIdCol: any, tableDateCol: any) => {
+      const conds = [eq(tableTenantIdCol, tenantId)];
+      if (dateFrom) conds.push(gte(tableDateCol, new Date(dateFrom)));
+      if (dateTo) conds.push(lte(tableDateCol, new Date(dateTo)));
+      return and(...conds);
     };
 
     try {
       if (exportType === "orders") {
-        const data = await db.select().from(ordersTable).where(eq(ordersTable.tenantId, tenantId)).orderBy(desc(ordersTable.createdAt));
+        const data = await db.select().from(ordersTable).where(buildConditions(ordersTable.tenantId, ordersTable.createdAt)).orderBy(desc(ordersTable.createdAt));
         rows = data.map((o) => ({ id: o.id, status: o.status, total: o.totalAmount, payment: o.paymentMethod, customer: o.customerName, phone: o.customerPhone, governorate: o.shippingGovernorate, created: o.createdAt }));
       } else if (exportType === "products") {
-        const data = await db.select().from(productsTable).where(eq(productsTable.tenantId, tenantId));
+        const data = await db.select().from(productsTable).where(buildConditions(productsTable.tenantId, productsTable.createdAt));
         rows = data.map((p) => ({ id: p.id, name: p.name, price: p.price, stock: p.stock, status: p.status }));
       } else if (exportType === "customers") {
-        const data = await db.select().from(customersTable);
-        rows = data.map((c) => ({ id: c.id, name: c.name, phone: c.phone, email: c.email, city: c.city }));
+        const data = await db.selectDistinct({
+          id: customersTable.id,
+          name: customersTable.name,
+          phone: customersTable.phone,
+          email: customersTable.email,
+          city: customersTable.city
+        })
+        .from(customersTable)
+        .innerJoin(ordersTable, eq(ordersTable.customerId, customersTable.id))
+        .where(buildConditions(ordersTable.tenantId, ordersTable.createdAt));
+        
+        rows = data;
+      } else if (exportType === "order_items") {
+        const data = await db.select({
+          orderId: ordersTable.id,
+          productId: orderItemsTable.productId,
+          variantId: orderItemsTable.variantId,
+          quantity: orderItemsTable.quantity,
+          unitPrice: orderItemsTable.unitPrice,
+          created: ordersTable.createdAt
+        })
+        .from(orderItemsTable)
+        .innerJoin(ordersTable, eq(ordersTable.id, orderItemsTable.orderId))
+        .where(buildConditions(ordersTable.tenantId, ordersTable.createdAt))
+        .orderBy(desc(ordersTable.createdAt));
+
+        rows = data;
       } else if (exportType === "returns") {
-        const data = await db.select().from(returnCasesTable).where(eq(returnCasesTable.tenantId, tenantId));
+        const data = await db.select().from(returnCasesTable).where(buildConditions(returnCasesTable.tenantId, returnCasesTable.createdAt));
         rows = data.map((r) => ({ id: r.id, orderId: r.orderId, status: r.status, reason: r.reason, created: r.createdAt }));
       } else if (exportType === "inventory_adjustments") {
-        const data = await db.select().from(stockAdjustmentLogsTable).where(eq(stockAdjustmentLogsTable.tenantId, tenantId));
+        const data = await db.select().from(stockAdjustmentLogsTable).where(buildConditions(stockAdjustmentLogsTable.tenantId, stockAdjustmentLogsTable.createdAt));
         rows = data.map((s) => ({ id: s.id, productId: s.productId, delta: s.delta, source: s.source, reason: s.reason, created: s.createdAt }));
       }
 

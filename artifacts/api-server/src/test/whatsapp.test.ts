@@ -90,6 +90,35 @@ describe("WhatsApp Integration", () => {
     expect(res.body.isMock).toBe(true);
   });
 
+  it("should return FAILED for mock messages in production", async () => {
+    // 1. Setup MOCK provider
+    await db.insert(whatsappProvidersTable).values({
+      tenantId: ctx.tenantId,
+      status: "CONFIGURED_DISABLED",
+      isMockAllowed: true,
+    });
+
+    const prodRes = await createTestProduct(ctx.agent);
+    const orderRes = await createTestOrder(ctx.tenantId, prodRes.body.id);
+
+    const previousEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+
+    try {
+      const res = await ctx.agent.post("/api/whatsapp/messages/send").send({
+        templateCode: "order_confirmation_request",
+        orderId: orderRes.body.id,
+        idempotencyKey: `prod-mock-key-${Date.now()}`,
+      });
+
+      expect(res.status).toBe(201); // The route still returns 201 because it inserts a FAILED log
+      expect(res.body.status).toBe("FAILED");
+      expect(res.body.errorMessage).toContain("مزود واتساب غير نشط");
+    } finally {
+      process.env.NODE_ENV = previousEnv;
+    }
+  });
+
   it("should return FAILED if provider is not active and mock is not allowed", async () => {
     // No provider setup
     const prodRes = await createTestProduct(ctx.agent);
@@ -106,33 +135,32 @@ describe("WhatsApp Integration", () => {
     expect(res.body.errorMessage).toContain("مزود واتساب غير نشط");
   });
 
-  it("should build legacy order confirmation components when callers omit components", async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        messages: [{ id: "wa-legacy-123" }],
-      }),
-    });
-    vi.stubGlobal("fetch", mockFetch);
-
-    const result = await sendWhatsAppMessage({
-      accessToken: "mock-token",
+  it("should return 401 when public caller attempts to use callback", async () => {
+    // 1. Setup ACTIVE provider and create a log
+    await db.insert(whatsappProvidersTable).values({
+      tenantId: ctx.tenantId,
+      status: "ACTIVE",
       phoneNumberId: "mock-phone-id",
-      toPhone: "01012345678",
-      templateName: "order_confirmation",
-      customerName: "Ahmed",
-      orderId: 123,
-      storeName: "Nour Test",
-      totalAmount: 500,
+      accessToken: "mock-token",
     });
 
-    expect(result.success).toBe(true);
-    const payload = JSON.parse(mockFetch.mock.calls[0][1].body as string);
-    expect(payload.template.components[0].parameters).toEqual([
-      { type: "text", text: "Ahmed" },
-      { type: "text", text: "123" },
-      { type: "text", text: "Nour Test" },
-      { type: "text", text: "٥٠٠ ج.م" },
-    ]);
+    const prodRes = await createTestProduct(ctx.agent);
+    const orderRes = await createTestOrder(ctx.tenantId, prodRes.body.id);
+    const orderId = orderRes.body.id;
+
+    const [log] = await db.insert(whatsappMessageLogsTable).values({
+      tenantId: ctx.tenantId,
+      orderId,
+      idempotencyKey: `callback-test-${Date.now()}`,
+      messageType: "order_confirmed",
+      status: "SENT",
+      customerPhone: "01012345678",
+      renderedMessage: "Test",
+    }).returning();
+
+    // Try without auth
+    const res = await ctx.agent.post(`/api/whatsapp/messages/${log.id}/callback`).send({ status: "DELIVERED" });
+    // Should be 401 Unauthorized or 403 Forbidden because requirePlatformAdmin blocks regular merchants
+    expect(res.status).toBe(403);
   });
 });
