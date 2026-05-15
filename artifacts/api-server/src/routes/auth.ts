@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import rateLimit from "express-rate-limit";
 import { sendPasswordResetEmail, sendWelcomeEmail, sendNewMerchantNotification } from "../lib/email.js";
-import { db, merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable, shippingZonesTable, shippingSettingsTable, DEFAULT_CATEGORIES, DEFAULT_SHIPPING_ZONES_CONFIG } from "@workspace/db";
+import { db, merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable, shippingZonesTable, shippingSettingsTable, DEFAULT_CATEGORIES, DEFAULT_SHIPPING_ZONES_CONFIG, ordersTable, paymentRecordsTable, paymentWebhooksTable, productsTable, productVariantsTable } from "@workspace/db";
 import { RegisterMerchantBody, LoginMerchantBody } from "@workspace/api-zod";
 import { eq, and, gt, ne } from "drizzle-orm";
 
@@ -380,9 +380,17 @@ router.delete("/auth/self-destruct", async (req, res) => {
       return res.status(403).json({ error: "مالك المتجر فقط يمكنه حذف الحساب" });
     }
 
-    // Deleting the tenant will cascade delete the merchant, products, orders, etc.
-    // because of 'onDelete: cascade' in the foreign key definitions.
-    await db.delete(tenantsTable).where(eq(tenantsTable.id, merchant.tenantId));
+    const tId = merchant.tenantId;
+
+    // Explicitly delete child records to avoid Postgres foreign key constraint errors
+    await db.delete(paymentRecordsTable).where(eq(paymentRecordsTable.tenantId, tId));
+    await db.delete(paymentWebhooksTable).where(eq(paymentWebhooksTable.tenantId, tId));
+    await db.delete(ordersTable).where(eq(ordersTable.tenantId, tId));
+    await db.delete(productsTable).where(eq(productsTable.tenantId, tId));
+    await db.delete(categoriesTable).where(eq(categoriesTable.tenantId, tId));
+    
+    // Finally delete the tenant (which cascades to merchants, settings, etc.)
+    await db.delete(tenantsTable).where(eq(tenantsTable.id, tId));
 
     req.session.destroy(() => {
       res.status(204).send();
