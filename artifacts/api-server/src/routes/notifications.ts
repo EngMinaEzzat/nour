@@ -48,10 +48,12 @@ router.post("/notifications/whatsapp", requireAuth, async (req, res) => {
     if (whatsapp.isConfigured()) {
       const result = await whatsapp.sendWhatsAppMessage({
         toPhone: customerPhone,
+        templateName: "order_confirmation",
         customerName: order.customerName ?? "عزيزنا",
         orderId: order.id,
         storeName: order.storeName ?? "نور",
         totalAmount: parseFloat(order.totalAmount as string),
+        components: [] as any, // Not used if using legacy params in my updated helper
       });
       return res.json({
         configured: true,

@@ -107,8 +107,8 @@ export function buildReturnExchangeMessage(params: {
 /* ─── Core send function (used by whatsapp route with logging) ─── */
 
 export async function sendWhatsAppMessage(params: {
-  accessToken: string;
-  phoneNumberId: string;
+  accessToken?: string;
+  phoneNumberId?: string;
   toPhone: string;
   templateName: string;
   languageCode?: string;
@@ -116,15 +116,43 @@ export async function sendWhatsAppMessage(params: {
     type: "body" | "header" | "button";
     parameters: Array<{ type: "text"; text: string }>;
   }>;
+  // Legacy params for backward compatibility in some routes
+  customerName?: string;
+  orderId?: number;
+  storeName?: string;
+  totalAmount?: number;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const token = params.accessToken || ACCESS_TOKEN;
+  const phoneId = params.phoneNumberId || PHONE_NUMBER_ID;
+
+  if (!token || !phoneId) {
+    return { success: false, error: "WhatsApp API not configured" };
+  }
+
   const to = normalizePhone(params.toPhone);
 
+  // If using legacy params, build the components automatically for 'order_confirmation'
+  let components = params.components;
+  if (!components && params.templateName === "order_confirmation" && params.customerName) {
+    components = [
+      {
+        type: "body",
+        parameters: [
+          { type: "text", text: params.customerName },
+          { type: "text", text: String(params.orderId) },
+          { type: "text", text: params.storeName ?? "نور" },
+          { type: "text", text: `${params.totalAmount?.toLocaleString("ar-EG")} ج.م` },
+        ],
+      },
+    ];
+  }
+
   try {
-    const res = await fetch(`${WA_BASE}/${params.phoneNumberId}/messages`, {
+    const res = await fetch(`${WA_BASE}/${phoneId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${params.accessToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",
@@ -133,7 +161,7 @@ export async function sendWhatsAppMessage(params: {
         template: {
           name: params.templateName,
           language: { code: params.languageCode ?? "ar" },
-          components: params.components,
+          components,
         },
       }),
     });
@@ -152,19 +180,26 @@ export async function sendWhatsAppMessage(params: {
 
 /* ─── Generic text message send (used for automation rules) ─── */
 export async function sendWhatsAppText(params: {
-  accessToken: string;
-  phoneNumberId: string;
+  accessToken?: string;
+  phoneNumberId?: string;
   toPhone: string;
   text: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const token = params.accessToken || ACCESS_TOKEN;
+  const phoneId = params.phoneNumberId || PHONE_NUMBER_ID;
+
+  if (!token || !phoneId) {
+    return { success: false, error: "WhatsApp API not configured" };
+  }
+
   const to = normalizePhone(params.toPhone);
 
   try {
-    const res = await fetch(`${WA_BASE}/${params.phoneNumberId}/messages`, {
+    const res = await fetch(`${WA_BASE}/${phoneId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${params.accessToken}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",

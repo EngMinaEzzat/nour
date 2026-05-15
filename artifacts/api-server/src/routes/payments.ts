@@ -117,10 +117,12 @@ router.post("/payments/paymob/webhook", async (req, res) => {
       if (order?.customerPhone && whatsapp.isConfigured()) {
         await whatsapp.sendWhatsAppMessage({
           toPhone: order.customerPhone,
+          templateName: "order_confirmation",
           customerName: order.customerName ?? "عميلنا",
           orderId: order.id,
           storeName: order.storeName ?? "نور",
           totalAmount: parseFloat(order.totalAmount as string),
+          components: [] as any,
         });
       }
     }
