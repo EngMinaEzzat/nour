@@ -55,7 +55,7 @@ describe("Email System", () => {
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         from: "My Boutique <onboarding@resend.dev>",
-        reply_to: "owner@boutique.com",
+        replyTo: "owner@boutique.com",
         subject: expect.stringContaining("#101"),
       })
     );
@@ -64,6 +64,23 @@ describe("Email System", () => {
     expect(callArgs.html).toContain("Dress");
     expect(callArgs.html).toContain("Shoes");
     expect(callArgs.html).toContain("٥٠٠");
+  });
+
+  it("should escape user-controlled order email fields", async () => {
+    await sendOrderConfirmationEmail({
+      to: "customer@example.com",
+      customerName: "<script>alert(1)</script>",
+      orderId: 102,
+      storeName: "My Boutique",
+      totalAmount: 100,
+      items: [{ name: `<img src=x onerror="alert(1)">`, quantity: 1 }],
+    });
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).not.toContain("<script>");
+    expect(callArgs.html).not.toContain("<img src=x");
+    expect(callArgs.html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(callArgs.html).toContain("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
   });
 
   it("should return null if RESEND_API_KEY is missing", async () => {

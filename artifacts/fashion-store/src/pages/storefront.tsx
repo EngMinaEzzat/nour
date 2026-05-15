@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useLocation } from "wouter";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { motion, AnimatePresence } from "framer-motion";
@@ -464,6 +464,14 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   }
 
   // ── Error state ──
+  const selectedCategoryIds = useMemo(() => {
+    if (!store || !selectedCategory) return null;
+    const childIds = store.categories
+      ?.filter((category) => category.parentId === selectedCategory)
+      .map((category) => category.id) ?? [];
+    return new Set([selectedCategory, ...childIds]);
+  }, [store?.categories, selectedCategory]);
+
   if (error) {
     return (
       <div
@@ -537,7 +545,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   })();
 
   const cartCount = items.filter(i => i.tenantId === store.id).reduce((acc, i) => acc + i.quantity, 0);
-  const filtered = store.products.filter(pr => !selectedCategory || (pr as any).categoryId === selectedCategory);
+  const filtered = store.products.filter(pr => !selectedCategoryIds || selectedCategoryIds.has((pr as any).categoryId));
   const showBeautySection = store.category === "cosmetics" || store.category === "both";
   const editorSections = [...visualConfig.homepage.sections]
     .filter((section) => section.visible)

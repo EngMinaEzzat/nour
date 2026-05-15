@@ -9,6 +9,15 @@ function getResend(): Resend | null {
 const FROM_ADDRESS = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
 const DEFAULT_FROM_NAME = "نور";
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function sendEmail(params: {
   to: string | string[];
   subject: string;
@@ -291,12 +300,13 @@ export async function sendOrderConfirmationEmail(params: {
   items: { name: string; quantity: number }[];
   merchantEmail?: string;
 }): Promise<void> {
+  const customerName = escapeHtml(params.customerName);
   const itemsHtml = params.items
     .map(
       (item) => `
     <tr>
       <td style="padding:12px 0;border-bottom:1px solid #f0ebe5;">
-        <span style="font-size:14px;color:#1a1a1a;font-weight:600;">${item.name}</span>
+        <span style="font-size:14px;color:#1a1a1a;font-weight:600;">${escapeHtml(item.name)}</span>
         <span style="font-size:13px;color:#888;margin-right:8px;">× ${item.quantity}</span>
       </td>
     </tr>
@@ -312,7 +322,7 @@ export async function sendOrderConfirmationEmail(params: {
     html: emailLayout(`
       <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#1a1a1a;">شكراً لطلبك! 😍</h1>
       <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.8;">
-        مرحباً ${params.customerName}، لقد استلمنا طلبك رقم <strong>#${params.orderId}</strong> وسنقوم بتجهيزه لك في أقرب وقت.
+        مرحباً ${customerName}، لقد استلمنا طلبك رقم <strong>#${params.orderId}</strong> وسنقوم بتجهيزه لك في أقرب وقت.
       </p>
 
       <div style="background:#fdf8f5;border:1px solid #f0e8e0;border-radius:16px;padding:24px;margin:0 0 28px;">

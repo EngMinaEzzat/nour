@@ -112,7 +112,7 @@ export async function sendWhatsAppMessage(params: {
   toPhone: string;
   templateName: string;
   languageCode?: string;
-  components: Array<{
+  components?: Array<{
     type: "body" | "header" | "button";
     parameters: Array<{ type: "text"; text: string }>;
   }>;
@@ -133,7 +133,7 @@ export async function sendWhatsAppMessage(params: {
 
   // If using legacy params, build the components automatically for 'order_confirmation'
   let components = params.components;
-  if (!components && params.templateName === "order_confirmation" && params.customerName) {
+  if ((!components || components.length === 0) && params.templateName === "order_confirmation" && params.customerName) {
     components = [
       {
         type: "body",

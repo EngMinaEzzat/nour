@@ -53,7 +53,6 @@ router.post("/notifications/whatsapp", requireAuth, async (req, res) => {
         orderId: order.id,
         storeName: order.storeName ?? "نور",
         totalAmount: parseFloat(order.totalAmount as string),
-        components: [] as any, // Not used if using legacy params in my updated helper
       });
       return res.json({
         configured: true,

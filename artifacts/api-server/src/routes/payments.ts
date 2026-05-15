@@ -122,7 +122,6 @@ router.post("/payments/paymob/webhook", async (req, res) => {
           orderId: order.id,
           storeName: order.storeName ?? "نور",
           totalAmount: parseFloat(order.totalAmount as string),
-          components: [] as any,
         });
       }
     }

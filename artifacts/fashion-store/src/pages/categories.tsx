@@ -116,7 +116,7 @@ function CategoryForm({
 
   // Potential parents are those that are NOT the current category itself (if editing)
   // and preferably those that don't already have a parent (to keep it 2 levels deep, though the schema supports more)
-  const availableParents = categories.filter(c => !category || c.id !== category.id);
+  const availableParents = categories.filter(c => !c.parentId && (!category || c.id !== category.id));
 
   return (
     <div className="space-y-4" dir="rtl">

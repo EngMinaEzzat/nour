@@ -7,6 +7,58 @@ import { requireAuth } from "../middleware/require-role";
 
 const router = Router();
 
+async function validateParentCategory(params: {
+  tenantId: number;
+  parentId: number | null | undefined;
+  categoryId?: number;
+}): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
+  const { tenantId, parentId, categoryId } = params;
+  if (parentId == null) return { ok: true };
+
+  if (categoryId !== undefined && parentId === categoryId) {
+    return { ok: false, status: 400, error: "Category cannot be its own parent" };
+  }
+
+  let currentParentId: number | null = parentId;
+  const seen = new Set<number>();
+
+  while (currentParentId != null) {
+    if (seen.has(currentParentId)) {
+      return { ok: false, status: 400, error: "Category parent chain contains a cycle" };
+    }
+    seen.add(currentParentId);
+
+    const [parent] = await db
+      .select({
+        id: categoriesTable.id,
+        tenantId: categoriesTable.tenantId,
+        parentId: categoriesTable.parentId,
+      })
+      .from(categoriesTable)
+      .where(eq(categoriesTable.id, currentParentId));
+
+    if (!parent) {
+      return { ok: false, status: 400, error: "Parent category does not exist" };
+    }
+
+    if (parent.tenantId !== null && parent.tenantId !== tenantId) {
+      return { ok: false, status: 400, error: "Parent category belongs to another tenant" };
+    }
+
+    if (parent.parentId !== null) {
+      return { ok: false, status: 400, error: "Parent category must be a top-level category" };
+    }
+
+    if (categoryId !== undefined && parent.id === categoryId) {
+      return { ok: false, status: 400, error: "Category cannot be nested under itself" };
+    }
+
+    currentParentId = parent.parentId;
+  }
+
+  return { ok: true };
+}
+
 router.get("/categories", async (req, res) => {
   try {
     const tenantIdParam = req.query.tenantId ? Number(req.query.tenantId) : null;
@@ -65,6 +117,14 @@ router.post("/categories", requireAuth, async (req, res) => {
       .where(eq(merchantsTable.id, merchantId));
     if (!merchant) return res.status(401).json({ error: "غير مصرح" });
 
+    const parentValidation = await validateParentCategory({
+      tenantId: merchant.tenantId,
+      parentId: parsed.data.parentId,
+    });
+    if (!parentValidation.ok) {
+      return res.status(parentValidation.status).json({ error: parentValidation.error });
+    }
+
     const [category] = await db
       .insert(categoriesTable)
       .values({ ...parsed.data, tenantId: merchant.tenantId })
@@ -102,6 +162,17 @@ router.put("/categories/:id", requireAuth, async (req, res) => {
       return res.status(400).json({ error: "لا توجد تغييرات للحفظ" });
     }
 
+    if (parsed.data.parentId !== undefined) {
+      const parentValidation = await validateParentCategory({
+        tenantId: merchant.tenantId,
+        parentId: parsed.data.parentId,
+        categoryId,
+      });
+      if (!parentValidation.ok) {
+        return res.status(parentValidation.status).json({ error: parentValidation.error });
+      }
+    }
+
     const [category] = await db
       .update(categoriesTable)
       .set(updateData)
@@ -119,6 +190,32 @@ router.put("/categories/:id", requireAuth, async (req, res) => {
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل تحديث الفئة" });
+  }
+});
+
+router.delete("/categories/:id", requireAuth, async (req, res) => {
+  const categoryId = Number(req.params.id);
+  if (Number.isNaN(categoryId)) return res.status(400).json({ error: "Invalid category id" });
+
+  const merchantId = req.session.merchantId!;
+  try {
+    const [merchant] = await db
+      .select({ tenantId: merchantsTable.tenantId })
+      .from(merchantsTable)
+      .where(eq(merchantsTable.id, merchantId));
+    if (!merchant) return res.status(401).json({ error: "Unauthorized" });
+
+    const [deleted] = await db
+      .delete(categoriesTable)
+      .where(and(eq(categoriesTable.id, categoryId), eq(categoriesTable.tenantId, merchant.tenantId)))
+      .returning({ id: categoriesTable.id });
+
+    if (!deleted) return res.status(404).json({ error: "Category not found or cannot be deleted" });
+
+    res.status(204).send();
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to delete category" });
   }
 });
 

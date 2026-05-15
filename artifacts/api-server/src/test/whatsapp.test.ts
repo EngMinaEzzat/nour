@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { createTestMerchant, createTestProduct, createTestOrder, cleanupTenant, app } from "./helpers.js";
 import { db, whatsappProvidersTable, whatsappMessageLogsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { sendWhatsAppMessage } from "../lib/whatsapp.js";
 
 describe("WhatsApp Integration", () => {
   let ctx: any;
@@ -103,5 +104,35 @@ describe("WhatsApp Integration", () => {
     expect(res.status).toBe(201); // The route still returns 201 because it inserts a FAILED log
     expect(res.body.status).toBe("FAILED");
     expect(res.body.errorMessage).toContain("مزود واتساب غير نشط");
+  });
+
+  it("should build legacy order confirmation components when callers omit components", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        messages: [{ id: "wa-legacy-123" }],
+      }),
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const result = await sendWhatsAppMessage({
+      accessToken: "mock-token",
+      phoneNumberId: "mock-phone-id",
+      toPhone: "01012345678",
+      templateName: "order_confirmation",
+      customerName: "Ahmed",
+      orderId: 123,
+      storeName: "Nour Test",
+      totalAmount: 500,
+    });
+
+    expect(result.success).toBe(true);
+    const payload = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+    expect(payload.template.components[0].parameters).toEqual([
+      { type: "text", text: "Ahmed" },
+      { type: "text", text: "123" },
+      { type: "text", text: "Nour Test" },
+      { type: "text", text: "٥٠٠ ج.م" },
+    ]);
   });
 });
