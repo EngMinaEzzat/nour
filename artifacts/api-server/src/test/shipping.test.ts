@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from "vitest";
 import {
   createTestMerchant, createTestProduct, createTestOrder, cleanupTenant, unauthAgent
 } from "./helpers.js";
+import { db, ordersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 
 describe("Bosta Integration", () => {
   let ctx1: Awaited<ReturnType<typeof createTestMerchant>>;
@@ -30,6 +32,10 @@ describe("Bosta Integration", () => {
   afterAll(async () => {
     await cleanupTenant(ctx1.tenantId, ctx1.merchantId);
     await cleanupTenant(ctx2.tenantId, ctx2.merchantId);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it("returns 401 if unauthenticated", async () => {
@@ -73,14 +79,10 @@ describe("Bosta Integration", () => {
       const res1 = await ctx1.agent.post("/api/shipping/bosta/create").send({ orderId: orderId1 });
       expect(res1.status).toBe(500); // Because fetch fails with the mock key
 
-      // Let's manually set the order bosta details to simulate a successful first request
-      const { db } = await import("@workspace/db");
-      const { ordersTable } = await import("@workspace/db");
-      const { eq } = await import("drizzle-orm");
-      
       await db.update(ordersTable).set({
         bostaShipmentId: "mock_bosta_id_123",
-        trackingNumber: "MOCK_TRACK_123"
+        bostaShipmentStatus: "created",
+        trackingNumber: "MOCK_TRACK_123",
       }).where(eq(ordersTable.id, orderId1));
 
       // Now call create again, it should return the existing shipment and 200
@@ -89,6 +91,40 @@ describe("Bosta Integration", () => {
       expect(res2.body.configured).toBe(true);
       expect(res2.body.shipmentId).toBe("mock_bosta_id_123");
       expect(res2.body.trackingNumber).toBe("MOCK_TRACK_123");
+    } finally {
+      process.env.BOSTA_API_KEY = previous;
+    }
+  });
+
+  it("claims shipment creation atomically so concurrent retries call Bosta once", async () => {
+    const product = await createTestProduct(ctx1.agent);
+    const order = await createTestOrder(ctx1.tenantId, product.body.id);
+    const previous = process.env.BOSTA_API_KEY;
+    process.env.BOSTA_API_KEY = "test_bosta_key";
+
+    const mockFetch = vi.fn(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return {
+        ok: true,
+        json: async () => ({ _id: "ship_concurrent_1", trackingNumber: "TRK_CONCURRENT_1" }),
+      } as any;
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    try {
+      const [res1, res2] = await Promise.all([
+        ctx1.agent.post("/api/shipping/bosta/create").send({ orderId: order.body.id }),
+        ctx1.agent.post("/api/shipping/bosta/create").send({ orderId: order.body.id }),
+      ]);
+
+      expect([200, 409]).toContain(res1.status);
+      expect([200, 409]).toContain(res2.status);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+
+      const [updatedOrder] = await db.select().from(ordersTable).where(eq(ordersTable.id, order.body.id));
+      expect(updatedOrder.bostaShipmentId).toBe("ship_concurrent_1");
+      expect(updatedOrder.trackingNumber).toBe("TRK_CONCURRENT_1");
+      expect(updatedOrder.bostaShipmentStatus).toBe("created");
     } finally {
       process.env.BOSTA_API_KEY = previous;
     }

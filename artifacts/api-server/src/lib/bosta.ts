@@ -1,5 +1,4 @@
 const BOSTA_BASE = "https://app.bosta.co/api/v2";
-const API_KEY = process.env.BOSTA_API_KEY ?? "BOSTA_API_KEY_PLACEHOLDER";
 
 export function isConfigured(): boolean {
   return !!process.env.BOSTA_API_KEY;
@@ -8,7 +7,7 @@ export function isConfigured(): boolean {
 function headers() {
   return {
     "Content-Type": "application/json",
-    Authorization: API_KEY,
+    Authorization: process.env.BOSTA_API_KEY ?? "BOSTA_API_KEY_PLACEHOLDER",
   };
 }
 

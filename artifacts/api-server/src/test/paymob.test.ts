@@ -1,9 +1,42 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { db, paymobProvidersTable, ordersTable, paymentRecordsTable, paymentWebhooksTable, productsTable, productVariantsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import crypto from "crypto";
 import {
   createTestMerchant, createTestProduct, createTestOrder, cleanupTenant, createTestProductWithVariant
 } from "./helpers.js";
+
+async function csrfToken(agent: Awaited<ReturnType<typeof createTestMerchant>>["agent"]): Promise<string> {
+  const res = await agent.get("/api/csrf-token");
+  return res.body.csrfToken;
+}
+
+function paymobHmac(payload: { obj: Record<string, any> }, secret: string): string {
+  const obj = payload.obj;
+  const fields = [
+    String(obj.amount_cents ?? ""),
+    String(obj.created_at ?? ""),
+    String(obj.currency ?? ""),
+    String(obj.error_occured ?? ""),
+    String(obj.has_parent_transaction ?? ""),
+    String(obj.id ?? ""),
+    String(obj.integration_id ?? ""),
+    String(obj.is_3d_secure ?? ""),
+    String(obj.is_auth ?? ""),
+    String(obj.is_capture ?? ""),
+    String(obj.is_refunded ?? ""),
+    String(obj.is_standalone_payment ?? ""),
+    String(obj.is_voided ?? ""),
+    String(obj.order?.id ?? ""),
+    String(obj.owner ?? ""),
+    String(obj.pending ?? ""),
+    String(obj.source_data?.pan ?? ""),
+    String(obj.source_data?.sub_type ?? ""),
+    String(obj.source_data?.type ?? ""),
+    String(obj.success ?? ""),
+  ].join("");
+  return crypto.createHmac("sha512", secret).update(fields).digest("hex");
+}
 
 describe("Paymob production safety", () => {
   let ctx: Awaited<ReturnType<typeof createTestMerchant>>;
@@ -46,7 +79,8 @@ describe("Paymob production safety", () => {
     delete process.env.PAYMOB_IFRAME_ID;
 
     try {
-      const res = await ctx.agent.post("/api/paymob/initiate").send({ orderId: order.body.id });
+      const token = await csrfToken(ctx.agent);
+      const res = await ctx.agent.post("/api/paymob/initiate").set("x-csrf-token", token).send({ orderId: order.body.id });
       expect(res.status).toBe(503);
     } finally {
       process.env.NODE_ENV = previous.nodeEnv;
@@ -104,40 +138,18 @@ describe("Paymob production safety", () => {
     it("accepts valid HMAC signature and processes webhook", async () => {
       process.env.NODE_ENV = "production";
       process.env.PAYMOB_HMAC_SECRET = "test-secret";
+      const transactionId = 200000 + Math.floor(Math.random() * 100000);
+      const providerOrderId = 300000 + Math.floor(Math.random() * 100000);
       
       const payload = {
         obj: {
-          id: 123456,
+          id: transactionId,
           success: true,
-          order: { id: 789, merchant_order_id: "NOUR-999" }
+          order: { id: providerOrderId, merchant_order_id: "NOUR-999" }
         }
       };
 
-      // Construct HMAC
-      const crypto = require("crypto");
-      const fields = [
-        "", // amount_cents
-        "", // created_at
-        "", // currency
-        "", // error_occured
-        "", // has_parent_transaction
-        "123456", // id
-        "", // integration_id
-        "", // is_3d_secure
-        "", // is_auth
-        "", // is_capture
-        "", // is_refunded
-        "", // is_standalone_payment
-        "", // is_voided
-        "789", // order.id
-        "", // owner
-        "", // pending
-        "", // source_data.pan
-        "", // source_data.sub_type
-        "", // source_data.type
-        "true", // success
-      ].join("");
-      const validHmac = crypto.createHmac("sha512", "test-secret").update(fields).digest("hex");
+      const validHmac = paymobHmac(payload, "test-secret");
 
       const res = await ctx.agent.post(`/api/paymob/webhook?hmac=${validHmac}`).send(payload);
       expect(res.status).toBe(200);
@@ -211,18 +223,12 @@ describe("Paymob production safety", () => {
       // Create a product with a variant
       const pv = await createTestProductWithVariant(ctx.agent, { productStock: 10, variantStock: 5 });
       
-      let [prodBefore] = await db.select().from(productsTable).where(eq(productsTable.id, pv.product.body.id));
-      console.log("prodBefore order", prodBefore.stock);
-
       // Order with quantity 2
       const order = await createTestOrder(ctx.tenantId, pv.product.body.id, { 
         paymentMethod: "paymob", 
         items: [{ productId: pv.product.body.id, variantId: pv.variant.body.id, quantity: 2 }]
       });
       const failOrderId = order.body.id;
-
-      let [prodAfter] = await db.select().from(productsTable).where(eq(productsTable.id, pv.product.body.id));
-      console.log("prodAfter order", prodAfter.stock);
 
       // The order creation deducts stock.
       // So product stock should be 10 - 2 = 8.
@@ -266,6 +272,93 @@ describe("Paymob production safety", () => {
 
       const [vr] = await db.select().from(productVariantsTable).where(eq(productVariantsTable.id, pv.variant.body.id));
       expect(vr.stock).toBe(5); // 3 + 2 = 5
+
+      const secondPayload = {
+        obj: {
+          id: transactionId + 1,
+          success: false,
+          order: { id: providerOrderId, merchant_order_id: `NOUR-${failOrderId}` }
+        }
+      };
+
+      const duplicateFailure = await ctx.agent.post("/api/paymob/webhook").send(secondPayload);
+      expect(duplicateFailure.status).toBe(200);
+
+      const [prodAfterDuplicate] = await db.select().from(productsTable).where(eq(productsTable.id, pv.product.body.id));
+      expect(prodAfterDuplicate.stock).toBe(5);
+
+      const [variantAfterDuplicate] = await db.select().from(productVariantsTable).where(eq(productVariantsTable.id, pv.variant.body.id));
+      expect(variantAfterDuplicate.stock).toBe(5);
+    });
+
+    it.each([
+      ["error_occured", { error_occured: true }],
+      ["is_voided", { is_voided: true }],
+      ["is_refunded", { is_refunded: true }],
+    ])("does not confirm payment when Paymob success is true but %s is set", async (_name, flags) => {
+      const order = await createTestOrder(ctx.tenantId, productId, { paymentMethod: "paymob" });
+      const guardedOrderId = order.body.id;
+      const transactionId = 300000 + Math.floor(Math.random() * 100000);
+      const providerOrderId = `paymob_order_guard_${transactionId}`;
+
+      await db.insert(paymentRecordsTable).values({
+        tenantId: ctx.tenantId,
+        orderId: guardedOrderId,
+        idempotencyKey: `paymob-init-${ctx.tenantId}-${guardedOrderId}`,
+        amount: "100",
+        status: "pending",
+        providerOrderId,
+        expiresAt: new Date(Date.now() + 100000)
+      });
+
+      const res = await ctx.agent.post("/api/paymob/webhook").send({
+        obj: {
+          id: transactionId,
+          success: true,
+          pending: false,
+          ...flags,
+          order: { id: providerOrderId, merchant_order_id: `NOUR-${guardedOrderId}` }
+        }
+      });
+
+      expect(res.status).toBe(200);
+      const [guardedOrder] = await db.select().from(ordersTable).where(eq(ordersTable.id, guardedOrderId));
+      expect(guardedOrder.paymentStatus).not.toBe("paid");
+      expect(guardedOrder.status).not.toBe("confirmed");
+    });
+
+    it("leaves pending Paymob webhook state unchanged", async () => {
+      const order = await createTestOrder(ctx.tenantId, productId, { paymentMethod: "paymob" });
+      const pendingOrderId = order.body.id;
+      const transactionId = 400000 + Math.floor(Math.random() * 100000);
+      const providerOrderId = `paymob_order_pending_${transactionId}`;
+
+      const [record] = await db.insert(paymentRecordsTable).values({
+        tenantId: ctx.tenantId,
+        orderId: pendingOrderId,
+        idempotencyKey: `paymob-init-${ctx.tenantId}-${pendingOrderId}`,
+        amount: "100",
+        status: "pending",
+        providerOrderId,
+        expiresAt: new Date(Date.now() + 100000)
+      }).returning();
+
+      const res = await ctx.agent.post("/api/paymob/webhook").send({
+        obj: {
+          id: transactionId,
+          success: true,
+          pending: true,
+          order: { id: providerOrderId, merchant_order_id: `NOUR-${pendingOrderId}` }
+        }
+      });
+
+      expect(res.status).toBe(200);
+      const [pendingRecord] = await db.select().from(paymentRecordsTable).where(eq(paymentRecordsTable.id, record.id));
+      expect(pendingRecord.status).toBe("pending");
+
+      const [pendingOrder] = await db.select().from(ordersTable).where(eq(ordersTable.id, pendingOrderId));
+      expect(pendingOrder.paymentStatus).toBe("pending");
+      expect(pendingOrder.status).not.toBe("confirmed");
     });
   });
 

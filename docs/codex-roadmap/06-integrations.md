@@ -44,6 +44,18 @@ Current uncommitted files from that patch:
 - `artifacts/api-server/src/routes/auth.ts`
 - `artifacts/api-server/src/test/email.test.ts`
 
+Post-review merge-readiness patch applied on `phase_6`:
+
+- Removed the broad `/api/whatsapp/messages/` CSRF exemption now that the callback is a platform-admin session route.
+- Made production CSRF checks read `NODE_ENV` at request time so tests that simulate production exercise the real middleware.
+- Tightened Paymob webhook state classification:
+  - paid only when `success=true`, not pending, not error, not voided, and not refunded.
+  - pending callbacks are logged but do not mutate local payment/order/stock state.
+  - failed callbacks restore stock only if the payment record transitions from `initiated`/`pending` to `failed`.
+- Added Bosta shipment creation claim state on orders (`bosta_shipment_status`) so concurrent retries do not create duplicate provider shipments.
+- Fixed Bosta API-key handling so runtime env changes are honored by the helper.
+- Added regression tests for production CSRF, duplicate failed Paymob webhooks, Paymob void/refund/error/pending payloads, and concurrent Bosta creation.
+
 Do not reintroduce the `self-destruct` endpoint. A real account deletion feature must be a separate product task with confirmation, audit logging, transactionality, and tests.
 
 ## What Is Already Done
@@ -111,9 +123,9 @@ Files:
 
 Known gaps:
 
-- `POST /whatsapp/messages/:id/callback` is public and only takes a log id plus status. It does not verify a webhook secret/signature and does not prove tenant/provider ownership. This is not production-safe.
+- `POST /whatsapp/messages/:id/callback` is no longer public; it is platform-admin protected and no longer CSRF-exempt. A real Meta webhook callback with signature/secret verification remains deferred.
 - WhatsApp access tokens are stored in plaintext. At minimum, mark this as a security debt; ideally encrypt provider secrets before storage.
-- `isMockAllowed` exists in DB and tests, but production fail-closed behavior should be explicitly tested.
+- `isMockAllowed` exists in DB and production fail-closed behavior is covered by tests.
 - Template management is hard-coded in source. That is okay for pilot if templates are fixed, but the doc/UI should not imply merchants can manage real Meta templates yet.
 - Opt-in/consent is not implemented. Do not automate marketing/follow-up messages until consent state exists.
 
@@ -150,11 +162,11 @@ Files:
 
 Known gaps:
 
-- Production CSRF exemption must be proven for the actual mounted route. The Paymob router is mounted under `/api`, and the public webhook path is `/api/paymob/webhook`. `artifacts/api-server/src/lib/csrf.ts` must include this exact path, and a production-mode test must prove the request reaches HMAC validation rather than failing CSRF first.
-- HMAC tests are insufficient. Add tests for missing HMAC, invalid HMAC, valid HMAC, duplicate replay, and production missing secret.
+- Production CSRF exemption is now narrow to `/api/paymob/webhook` and production-mode tests prove the request reaches HMAC validation.
+- HMAC tests now cover missing HMAC, invalid HMAC, valid HMAC, duplicate replay, and production missing secret.
 - Webhook tenant trust must be reviewed. A webhook can currently find records by Paymob provider order id or merchant order id. Ensure it never updates another tenant's order/payment by ambiguous ids.
-- Payment success path updates order `paymentStatus` but does not clearly move order `status` to `confirmed`. Decide expected behavior and test it.
-- Failed-payment stock restore must be covered by a DB-backed regression test including variant stock.
+- Payment success path moves Paymob orders to `confirmed` and is covered by tests.
+- Failed-payment stock restore is covered by DB-backed product and variant stock regression tests, including duplicate failed callbacks with different transaction ids.
 - Paymob provider secrets are stored as hash/secret fields, but live API key handling should be reviewed. If a tenant-specific API key is needed for live calls, do not store only an irreversible hash. If platform-level Paymob credentials are intended, remove/clarify tenant API key fields.
 - Paymob webhook event log stores limited fields. Add raw payload hash/summary and error details if support needs diagnostics, but do not store full sensitive payloads blindly.
 
@@ -197,16 +209,16 @@ Files:
 - `artifacts/api-server/src/lib/bosta.ts`
 - generated API client files under `lib/api-client-react/src/generated`
 
-Known gaps and likely blockers:
+Known gaps:
 
-- `POST /shipping/bosta/create` uses `requireAuth`, but it does not scope the order lookup by `req.merchantTenantId`. It selects by `orderId` only. This is a cross-tenant shipment creation risk and must be fixed before merge.
-- Bosta create currently accepts `customerPhone` from the request body instead of deriving it from the tenant-scoped order/customer data. Derive phone from order/customer unless an explicit override is required and authorized.
+- `POST /shipping/bosta/create` is tenant-scoped through `requireRole` and order lookup by `tenantId`.
+- Bosta create derives the customer phone from the tenant-scoped order first, with request override retained for existing UI compatibility.
 - No Bosta shipment table/event log exists. The order row stores `bostaShipmentId` and `trackingNumber`, but provider attempts/errors are not auditable.
-- No idempotency key for Bosta create. Repeated clicks can create duplicate shipments.
+- Repeated and concurrent Bosta creates are guarded by existing shipment fields plus `orders.bosta_shipment_status`; a full idempotency/event table remains a Phase 7 improvement.
 - No Bosta webhook route for delivery status updates.
 - No signature/secret verification for logistics callbacks because callbacks do not exist yet.
 - No manual fallback/admin retry path besides editing order state manually.
-- No tests found for Bosta route tenant isolation, provider not configured, provider failure, duplicate create, or tracking behavior.
+- Tests cover unauthenticated access, cross-tenant isolation, unconfigured provider, provider failure, existing-shipment idempotency, and concurrent create.
 
 ### Exports
 

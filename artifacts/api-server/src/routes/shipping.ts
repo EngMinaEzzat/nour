@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { ordersTable, customersTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import * as bosta from "../lib/bosta";
 import { requireRole } from "../middleware/require-role";
 
@@ -35,6 +35,7 @@ router.post("/shipping/bosta/create", requireRole("owner", "manager", "staff"), 
         customerName: customersTable.name,
         customerPhone: ordersTable.customerPhone,
         bostaShipmentId: ordersTable.bostaShipmentId,
+        bostaShipmentStatus: ordersTable.bostaShipmentStatus,
         trackingNumber: ordersTable.trackingNumber,
       })
       .from(ordersTable)
@@ -51,30 +52,98 @@ router.post("/shipping/bosta/create", requireRole("owner", "manager", "staff"), 
         trackingNumber: row.trackingNumber,
       });
     }
+    if (row.bostaShipmentStatus === "creating") {
+      return res.status(409).json({ error: "جاري إنشاء الشحنة بالفعل، حاول مرة أخرى بعد لحظات" });
+    }
 
     const phoneToUse = overridePhone || row.customerPhone;
     if (!phoneToUse) return res.status(400).json({ error: "customerPhone مطلوب" });
 
-    const nameParts = (row.customerName ?? "Customer User").split(" ");
-    const result = await bosta.createDelivery({
-      orderId: row.id,
-      orderTotal: parseFloat(row.totalAmount as string),
-      paymentMethod: row.paymentMethod as "cod" | "paymob",
-      customerFirstName: nameParts[0] ?? "Customer",
-      customerLastName: nameParts.slice(1).join(" ") || "User",
-      customerPhone: phoneToUse,
-      dropOffAddress: row.shippingAddress ?? "Cairo",
-      dropOffCity: dropOffCity ?? "Cairo",
-    });
+    const [claim] = await db
+      .update(ordersTable)
+      .set({ bostaShipmentStatus: "creating" })
+      .where(and(
+        eq(ordersTable.id, orderId),
+        eq(ordersTable.tenantId, tenantId),
+        isNull(ordersTable.bostaShipmentId),
+        isNull(ordersTable.trackingNumber),
+        isNull(ordersTable.bostaShipmentStatus),
+      ))
+      .returning({
+        id: ordersTable.id,
+      });
 
-    await db.update(ordersTable)
+    if (!claim) {
+      const [latest] = await db
+        .select({
+          bostaShipmentId: ordersTable.bostaShipmentId,
+          bostaShipmentStatus: ordersTable.bostaShipmentStatus,
+          trackingNumber: ordersTable.trackingNumber,
+        })
+        .from(ordersTable)
+        .where(and(eq(ordersTable.id, orderId), eq(ordersTable.tenantId, tenantId)));
+
+      if (latest?.bostaShipmentId && latest.trackingNumber) {
+        return res.json({
+          configured: true,
+          shipmentId: latest.bostaShipmentId,
+          trackingNumber: latest.trackingNumber,
+        });
+      }
+
+      return res.status(409).json({ error: "جاري إنشاء الشحنة بالفعل، حاول مرة أخرى بعد لحظات" });
+    }
+
+    const nameParts = (row.customerName ?? "Customer User").split(" ");
+    let result: Awaited<ReturnType<typeof bosta.createDelivery>>;
+    try {
+      result = await bosta.createDelivery({
+        orderId: row.id,
+        orderTotal: parseFloat(row.totalAmount as string),
+        paymentMethod: row.paymentMethod as "cod" | "paymob",
+        customerFirstName: nameParts[0] ?? "Customer",
+        customerLastName: nameParts.slice(1).join(" ") || "User",
+        customerPhone: phoneToUse,
+        dropOffAddress: row.shippingAddress ?? "Cairo",
+        dropOffCity: dropOffCity ?? "Cairo",
+      });
+    } catch (err) {
+      await db.update(ordersTable)
+        .set({ bostaShipmentStatus: null })
+        .where(and(
+          eq(ordersTable.id, orderId),
+          eq(ordersTable.tenantId, tenantId),
+          eq(ordersTable.bostaShipmentStatus, "creating"),
+        ))
+        .catch(() => {});
+      throw err;
+    }
+
+    const persisted = await db.update(ordersTable)
       .set({
         bostaShipmentId: result.shipmentId,
         trackingNumber: result.trackingNumber,
+        bostaShipmentStatus: "created",
         customerPhone: phoneToUse,
         status: "shipped",
       })
-      .where(eq(ordersTable.id, orderId));
+      .where(and(
+        eq(ordersTable.id, orderId),
+        eq(ordersTable.tenantId, tenantId),
+        eq(ordersTable.bostaShipmentStatus, "creating"),
+      ))
+      .returning({ id: ordersTable.id });
+
+    if (persisted.length === 0) {
+      req.log.error({
+        event: "bosta_persist_failure_after_provider_success",
+        orderId,
+        tenantId,
+        bostaShipmentId: result.shipmentId,
+        trackingNumber: result.trackingNumber,
+      }, "Bosta shipment was created but local order update was not persisted");
+      return res.status(500).json({ error: "حدث خطأ أثناء حفظ بيانات الشحنة" });
+    }
 
     req.log.info({
       event: "bosta_create_success",

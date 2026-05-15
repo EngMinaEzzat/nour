@@ -122,10 +122,9 @@ app.use("/api/uploads", express.static(uploadsDir));
 // CSRF protection — applies to all state-mutating requests in production.
 // In development the double-submit cookie pattern can't bind reliably across
 // the dev proxy, so we skip the check. Production always enforces it.
-// Webhook endpoints that use HMAC validation (Paymob, WhatsApp callbacks) are exempt.
-const isDev = process.env.NODE_ENV !== "production";
+// Webhook endpoints that use provider HMAC validation are exempt.
 const csrfMiddleware: RequestHandler = (req, res, next) => {
-  if (isDev) return next();
+  if (process.env.NODE_ENV !== "production") return next();
   if (isCsrfExempt(req.path)) return next();
   return doubleCsrfProtection(req, res, next);
 };

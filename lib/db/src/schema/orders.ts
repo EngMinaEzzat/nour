@@ -36,6 +36,7 @@ export const ordersTable = pgTable(
     paymobOrderId: text("paymob_order_id"),
     paymobTransactionId: text("paymob_transaction_id"),
     bostaShipmentId: text("bosta_shipment_id"),
+    bostaShipmentStatus: text("bosta_shipment_status"),
     trackingNumber: text("tracking_number"),
     customerName: text("customer_name"),
     shippingGovernorate: text("shipping_governorate"),

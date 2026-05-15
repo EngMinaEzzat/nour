@@ -5,13 +5,38 @@ import {
   ordersTable, tenantsTable, tenantAuditEventsTable, orderItemsTable, customersTable, productsTable, productVariantsTable,
 } from "@workspace/db";
 import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
-import { eq, and, desc, lt, isNull, sql } from "drizzle-orm";
+import { eq, and, desc, lt, sql, inArray } from "drizzle-orm";
 import { initPayment, isConfigured as isPlatformPaymobConfigured } from "../lib/paymob";
 import crypto from "crypto";
 
 const router = Router();
 
 const PLAN_ALLOWS_PAYMOB = ["growth", "pro"];
+const MUTABLE_PAYMENT_STATUSES = ["initiated", "pending"] as const;
+
+function asPaymobBoolean(value: unknown): boolean {
+  return value === true || value === "true" || value === 1 || value === "1";
+}
+
+function isPaymobPaidPayload(obj: Record<string, unknown>): boolean {
+  return (
+    asPaymobBoolean(obj.success) &&
+    !asPaymobBoolean(obj.pending) &&
+    !asPaymobBoolean(obj.error_occured) &&
+    !asPaymobBoolean(obj.is_voided) &&
+    !asPaymobBoolean(obj.is_refunded)
+  );
+}
+
+function isPaymobFailedPayload(obj: Record<string, unknown>): boolean {
+  if (asPaymobBoolean(obj.pending)) return false;
+  return (
+    !asPaymobBoolean(obj.success) ||
+    asPaymobBoolean(obj.error_occured) ||
+    asPaymobBoolean(obj.is_voided) ||
+    asPaymobBoolean(obj.is_refunded)
+  );
+}
 
 // GET /paymob/status
 router.get("/paymob/status", requireRole("owner", "manager", "staff"), async (req, res) => {
@@ -240,6 +265,9 @@ router.post("/paymob/webhook", async (req, res) => {
     }
 
     const transactionId = String(body?.obj?.id ?? body?.transaction_id ?? "unknown");
+    const obj = (body?.obj ?? body ?? {}) as Record<string, unknown>;
+    const isPaid = isPaymobPaidPayload(obj);
+    const isFailed = isPaymobFailedPayload(obj);
     const success = String(body?.obj?.success ?? body?.success ?? "false");
     const idempotencyKey = `paymob-wh-${transactionId}`;
 
@@ -269,14 +297,16 @@ router.post("/paymob/webhook", async (req, res) => {
       processedAt: new Date(),
     });
 
-    if (success === "true") {
-      const paymentToken = body?.obj?.payment_key_claims?.extra?.payment_token ?? null;
+    if (isPaid) {
       const updated = await db.update(paymentRecordsTable).set({
         status: "paid",
         providerTransactionId: transactionId,
         paidAt: new Date(),
         updatedAt: new Date(),
-      }).where(eq(paymentRecordsTable.id, paymentRecord?.id ?? -1)).returning({ orderId: paymentRecordsTable.orderId, tenantId: paymentRecordsTable.tenantId });
+      }).where(and(
+        eq(paymentRecordsTable.id, paymentRecord?.id ?? -1),
+        inArray(paymentRecordsTable.status, MUTABLE_PAYMENT_STATUSES),
+      )).returning({ orderId: paymentRecordsTable.orderId, tenantId: paymentRecordsTable.tenantId });
 
       if (updated.length > 0 && updated[0].orderId) {
         await db.update(ordersTable).set({ paymentStatus: "paid", status: "confirmed" }).where(eq(ordersTable.id, updated[0].orderId!));
@@ -288,17 +318,24 @@ router.post("/paymob/webhook", async (req, res) => {
           metadata: JSON.stringify({ transactionId, orderId: updated[0].orderId }),
         }).catch(() => {});
       }
-    } else {
+    } else if (isFailed) {
       req.log.info({ hasPaymentRecord: !!paymentRecord, recordId: paymentRecord?.id }, "Processing failed webhook");
       if (paymentRecord) {
         await db.transaction(async (tx) => {
-          const res1 = await tx.update(paymentRecordsTable).set({
+          const updatedPaymentRecords = await tx.update(paymentRecordsTable).set({
             status: "failed",
             providerTransactionId: transactionId,
             failureReason: body?.obj?.data?.message ?? "Payment failed",
             updatedAt: new Date(),
-          }).where(eq(paymentRecordsTable.id, paymentRecord.id)).returning();
-          req.log.info({ updatedPaymentRecordCount: res1.length }, "Updated payment record to failed");
+          }).where(and(
+            eq(paymentRecordsTable.id, paymentRecord.id),
+            inArray(paymentRecordsTable.status, MUTABLE_PAYMENT_STATUSES),
+          )).returning();
+          req.log.info({ updatedPaymentRecordCount: updatedPaymentRecords.length }, "Updated payment record to failed");
+
+          if (updatedPaymentRecords.length === 0) {
+            return;
+          }
 
           if (paymentRecord.orderId) {
             await tx.update(ordersTable).set({ paymentStatus: "failed" }).where(eq(ordersTable.id, paymentRecord.orderId));
@@ -321,6 +358,8 @@ router.post("/paymob/webhook", async (req, res) => {
           }
         });
       }
+    } else {
+      req.log.info({ transactionId }, "Paymob webhook is pending — no local state mutation");
     }
 
     res.json({ received: true });

@@ -1,8 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { createTestMerchant, createTestProduct, createTestOrder, cleanupTenant, app } from "./helpers.js";
-import { db, whatsappProvidersTable, whatsappMessageLogsTable } from "@workspace/db";
+import { db, merchantsTable, whatsappProvidersTable, whatsappMessageLogsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { sendWhatsAppMessage } from "../lib/whatsapp.js";
+
+async function csrfToken(agent: Awaited<ReturnType<typeof createTestMerchant>>["agent"]): Promise<string> {
+  const res = await agent.get("/api/csrf-token");
+  return res.body.csrfToken;
+}
 
 describe("WhatsApp Integration", () => {
   let ctx: any;
@@ -105,7 +110,8 @@ describe("WhatsApp Integration", () => {
     process.env.NODE_ENV = "production";
 
     try {
-      const res = await ctx.agent.post("/api/whatsapp/messages/send").send({
+      const token = await csrfToken(ctx.agent);
+      const res = await ctx.agent.post("/api/whatsapp/messages/send").set("x-csrf-token", token).send({
         templateCode: "order_confirmation_request",
         orderId: orderRes.body.id,
         idempotencyKey: `prod-mock-key-${Date.now()}`,
@@ -162,5 +168,37 @@ describe("WhatsApp Integration", () => {
     const res = await ctx.agent.post(`/api/whatsapp/messages/${log.id}/callback`).send({ status: "DELIVERED" });
     // Should be 401 Unauthorized or 403 Forbidden because requirePlatformAdmin blocks regular merchants
     expect(res.status).toBe(403);
+  });
+
+  it("requires CSRF for platform-admin WhatsApp callback in production", async () => {
+    await db.update(merchantsTable)
+      .set({ isPlatformAdmin: true })
+      .where(eq(merchantsTable.id, ctx.merchantId));
+
+    const prodRes = await createTestProduct(ctx.agent);
+    const orderRes = await createTestOrder(ctx.tenantId, prodRes.body.id);
+
+    const [log] = await db.insert(whatsappMessageLogsTable).values({
+      tenantId: ctx.tenantId,
+      orderId: orderRes.body.id,
+      idempotencyKey: `callback-csrf-${Date.now()}`,
+      messageType: "order_confirmed",
+      status: "SENT",
+      customerPhone: "01012345678",
+      renderedMessage: "Test",
+    }).returning();
+
+    const previousEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+
+    try {
+      const res = await ctx.agent.post(`/api/whatsapp/messages/${log.id}/callback`).send({ status: "DELIVERED" });
+      expect(res.status).toBe(403);
+
+      const [unchanged] = await db.select().from(whatsappMessageLogsTable).where(eq(whatsappMessageLogsTable.id, log.id));
+      expect(unchanged.status).toBe("SENT");
+    } finally {
+      process.env.NODE_ENV = previousEnv;
+    }
   });
 });
