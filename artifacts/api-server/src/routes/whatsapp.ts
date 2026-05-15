@@ -9,6 +9,7 @@ import {
 } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
+import { sendWhatsAppMessage } from "../lib/whatsapp";
 
 const router = Router();
 
@@ -319,7 +320,12 @@ router.post("/whatsapp/messages/send", requireRole("owner", "manager"), async (r
     const rendered = renderTemplate(templateCode, vars);
 
     const [provider] = await db
-      .select({ status: whatsappProvidersTable.status, isMockAllowed: whatsappProvidersTable.isMockAllowed })
+      .select({
+        status: whatsappProvidersTable.status,
+        isMockAllowed: whatsappProvidersTable.isMockAllowed,
+        phoneNumberId: whatsappProvidersTable.phoneNumberId,
+        accessToken: whatsappProvidersTable.accessToken,
+      })
       .from(whatsappProvidersTable)
       .where(eq(whatsappProvidersTable.tenantId, tenantId));
 
@@ -328,14 +334,37 @@ router.post("/whatsapp/messages/send", requireRole("owner", "manager"), async (r
 
     let logStatus: "QUEUED" | "SENT" | "FAILED" = "QUEUED";
     let errorMessage: string | null = null;
+    let providerMessageId: string | null = null;
 
     if (!isActive && !isMockAllowed) {
       logStatus = "FAILED";
       errorMessage = "مزود واتساب غير نشط. يرجى تفعيل المزود أولاً.";
     } else if (isMockAllowed && !isActive) {
       logStatus = "SENT";
-    } else if (isActive) {
-      logStatus = "QUEUED";
+    } else if (isActive && provider?.accessToken && provider?.phoneNumberId) {
+      const result = await sendWhatsAppMessage({
+        accessToken: provider.accessToken,
+        phoneNumberId: provider.phoneNumberId,
+        toPhone: order.customerPhone,
+        templateName: templateCode,
+        components: [
+          {
+            type: "body",
+            parameters: TEMPLATES[templateCode].variables.map((v) => ({
+              type: "text",
+              text: vars[v] ?? "",
+            })),
+          },
+        ],
+      });
+
+      if (result.success) {
+        logStatus = "SENT";
+        providerMessageId = result.messageId ?? null;
+      } else {
+        logStatus = "FAILED";
+        errorMessage = result.error ?? "فشل الإرسال عبر API";
+      }
     }
 
     const [log] = await db
@@ -343,12 +372,13 @@ router.post("/whatsapp/messages/send", requireRole("owner", "manager"), async (r
       .values({
         tenantId,
         orderId,
-        messageType: templateCode as "order_confirmation_request" | "order_confirmed" | "order_dispatched" | "delivery_followup" | "cancellation_notice" | "return_exchange_followup",
+        messageType: templateCode as any,
         status: logStatus,
         customerPhone: order.customerPhone,
         idempotencyKey,
         renderedMessage: rendered,
         errorMessage,
+        providerMessageId,
       })
       .returning();
 
