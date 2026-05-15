@@ -36,8 +36,8 @@ export const paymobProvidersTable = pgTable("paymob_providers", {
 
 export const paymentRecordsTable = pgTable("payment_records", {
   id: serial("id").primaryKey(),
-  tenantId: integer("tenant_id").notNull().references(() => tenantsTable.id),
-  orderId: integer("order_id").references(() => ordersTable.id),
+  tenantId: integer("tenant_id").notNull().references(() => tenantsTable.id, { onDelete: "cascade" }),
+  orderId: integer("order_id").references(() => ordersTable.id, { onDelete: "cascade" }),
   idempotencyKey: text("idempotency_key").notNull().unique(),
   provider: text("provider").notNull().default("paymob"),
   providerOrderId: text("provider_order_id"),
@@ -56,7 +56,7 @@ export const paymentRecordsTable = pgTable("payment_records", {
 
 export const paymentWebhooksTable = pgTable("payment_webhooks", {
   id: serial("id").primaryKey(),
-  tenantId: integer("tenant_id").references(() => tenantsTable.id),
+  tenantId: integer("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   provider: text("provider").notNull().default("paymob"),
   idempotencyKey: text("idempotency_key").notNull().unique(),
   eventType: text("event_type"),

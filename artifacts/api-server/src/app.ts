@@ -21,7 +21,7 @@ if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET environment variable is required");
 }
 if (process.env.NODE_ENV === "production") {
-  const missing = ["DATABASE_URL"].filter((key) => !process.env[key]);
+  const missing = ["DATABASE_URL", "RESEND_API_KEY"].filter((key) => !process.env[key]);
   if (missing.length > 0) {
     throw new Error(`Missing required production environment variables: ${missing.join(", ")}`);
   }

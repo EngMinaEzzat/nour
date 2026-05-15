@@ -170,32 +170,44 @@ router.post("/auth/register", authLimiter, async (req, res) => {
     const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
     const storeUrl = `${baseUrl}/store/${slug}`;
 
-    sendWelcomeEmail(email, storeName, storeUrl)
-      .then((emailResult) => {
-        if (!emailResult.sent) {
+    // Await emails in parallel to ensure completion on Vercel before the function terminates
+    try {
+      const [emailResult, adminNotifyResult] = await Promise.allSettled([
+        sendWelcomeEmail(email, storeName, storeUrl),
+        db
+          .select({ email: merchantsTable.email })
+          .from(merchantsTable)
+          .where(and(eq(merchantsTable.isPlatformAdmin, true), ne(merchantsTable.email, email)))
+          .then((admins) => {
+            const adminEmails = admins.map((a) => a.email);
+            return sendNewMerchantNotification(adminEmails, storeName, storeUrl, email, city ?? null);
+          }),
+      ]);
+
+      if (emailResult.status === "fulfilled") {
+        const res = emailResult.value;
+        if (res.sent) {
+          req.log.info({ emailId: res.id }, "Welcome email sent");
+        } else {
           req.log.warn(
             {
-              reason: emailResult.reason,
+              reason: res.reason,
               recipientDomain: email.split("@")[1] ?? null,
               from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
             },
             "Welcome email was not sent",
           );
-          return;
         }
+      } else {
+        req.log.warn({ err: emailResult.reason }, "Welcome email failed — non-fatal");
+      }
 
-        req.log.info({ emailId: emailResult.id }, "Welcome email sent");
-      })
-      .catch((err) => req.log.warn({ err }, "Welcome email failed - non-fatal"));
-
-    db.select({ email: merchantsTable.email })
-      .from(merchantsTable)
-      .where(and(eq(merchantsTable.isPlatformAdmin, true), ne(merchantsTable.email, email)))
-      .then((admins) => {
-        const adminEmails = admins.map((a) => a.email);
-        return sendNewMerchantNotification(adminEmails, storeName, storeUrl, email, city ?? null);
-      })
-      .catch((err) => req.log.warn({ err }, "Admin notification email failed — non-fatal"));
+      if (adminNotifyResult.status === "rejected") {
+        req.log.warn({ err: adminNotifyResult.reason }, "Admin notification email failed — non-fatal");
+      }
+    } catch (err) {
+      req.log.warn({ err }, "Email processing failed — non-fatal");
+    }
 
     return res.status(201).json(buildAuthResponse(result.merchant, result.tenant));
   } catch (err) {
@@ -349,6 +361,35 @@ router.post("/auth/reset-password", async (req, res) => {
   } catch (err) {
     req.log.error(err);
     return res.status(500).json({ error: "حدث خطأ، حاول مرة أخرى" });
+  }
+});
+
+/* ─── Self-destruct — allows owner to delete their store + account for testing ─── */
+router.delete("/auth/self-destruct", async (req, res) => {
+  const merchantId = req.session.merchantId;
+  if (!merchantId) return res.status(401).json({ error: "غير مسجل الدخول" });
+
+  try {
+    const [merchant] = await db
+      .select({ id: merchantsTable.id, tenantId: merchantsTable.tenantId, role: merchantsTable.role })
+      .from(merchantsTable)
+      .where(eq(merchantsTable.id, merchantId));
+
+    if (!merchant) return res.status(401).json({ error: "الجلسة غير صالحة" });
+    if (merchant.role !== "owner") {
+      return res.status(403).json({ error: "مالك المتجر فقط يمكنه حذف الحساب" });
+    }
+
+    // Deleting the tenant will cascade delete the merchant, products, orders, etc.
+    // because of 'onDelete: cascade' in the foreign key definitions.
+    await db.delete(tenantsTable).where(eq(tenantsTable.id, merchant.tenantId));
+
+    req.session.destroy(() => {
+      res.status(204).send();
+    });
+  } catch (err) {
+    req.log.error(err);
+    return res.status(500).json({ error: "حدث خطأ أثناء حذف المتجر" });
   }
 });
 

@@ -22,7 +22,7 @@ export const ordersTable = pgTable(
   "orders",
   {
     id: serial("id").primaryKey(),
-    tenantId: integer("tenant_id").notNull().references(() => tenantsTable.id),
+    tenantId: integer("tenant_id").notNull().references(() => tenantsTable.id, { onDelete: "cascade" }),
     customerId: integer("customer_id").notNull().references(() => customersTable.id),
     status: orderStatusEnum("status").notNull().default("pending"),
     totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),

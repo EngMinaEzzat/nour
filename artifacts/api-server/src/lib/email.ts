@@ -7,6 +7,13 @@ function getResend(): Resend | null {
 }
 
 const FROM_ADDRESS = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+if (process.env.NODE_ENV === "production" && !process.env.EMAIL_FROM) {
+  console.warn(
+    "[Email Warning]: EMAIL_FROM is not set. Defaulting to 'onboarding@resend.dev', " +
+    "which only allows sending emails to your own account email. " +
+    "Please configure a verified domain in Resend and set EMAIL_FROM."
+  );
+}
 export type EmailSendResult =
   | { sent: true; id: string }
   | { sent: false; reason: "missing_api_key" | "provider_error" };
