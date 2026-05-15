@@ -53,7 +53,6 @@ export interface Tenant {
   createdAt: string;
   planCode?: string;
   subscriptionStatus?: TenantSubscriptionStatus;
-  storeConfig?: { [key: string]: unknown } | null;
 }
 
 export type CreateTenantBodyCategory =
@@ -125,10 +124,11 @@ export const CategoryType = {
 
 export interface Category {
   id: number;
-  tenantId?: number | null;
   name: string;
   /** Arabic name */
   nameAr: string;
+  /** ID of the parent category */
+  parentId?: number | null;
   type: CategoryType;
   imageUrl?: string | null;
   productCount: number;
@@ -145,6 +145,7 @@ export const CreateCategoryBodyType = {
 export interface CreateCategoryBody {
   name: string;
   nameAr: string;
+  parentId?: number | null;
   type: CreateCategoryBodyType;
   imageUrl?: string | null;
 }
@@ -160,6 +161,7 @@ export const UpdateCategoryBodyType = {
 export interface UpdateCategoryBody {
   name?: string;
   nameAr?: string;
+  parentId?: number | null;
   type?: UpdateCategoryBodyType;
   imageUrl?: string | null;
 }
@@ -656,10 +658,6 @@ export const StorefrontResponseCategory = {
 export type StorefrontResponseCategoriesItem = {
   id: number;
   name: string;
-  nameAr: string;
-  type: CategoryType;
-  imageUrl?: string | null;
-  productCount: number;
 };
 
 export interface StorefrontResponse {
@@ -677,7 +675,6 @@ export interface StorefrontResponse {
   totalProducts: number;
   totalOrders: number;
   categories: StorefrontResponseCategoriesItem[];
-  storeConfig?: { [key: string]: unknown } | null;
 }
 
 export interface Plan {

@@ -7,32 +7,32 @@ export const DEFAULT_CATEGORIES = [
 
 export const DEFAULT_SHIPPING_ZONES_CONFIG = [
   {
-    governorates: ["cairo", "giza", "qalyubia"],
+    governorates: ["القاهرة", "الجيزة", "القليوبية"],
     baseCost: 45,
     deliveryDays: 2,
   },
   {
-    governorates: ["alexandria"],
+    governorates: ["الإسكندرية"],
     baseCost: 55,
     deliveryDays: 3,
   },
   {
-    governorates: ["sharqia", "dakahlia", "beheira", "kafr_el_sheikh", "gharbia", "menoufia", "damietta"],
+    governorates: ["الشرقية", "الدقهلية", "البحيرة", "كفر الشيخ", "الغربية", "المنوفية", "دمياط"],
     baseCost: 55,
     deliveryDays: 3,
   },
   {
-    governorates: ["port_said", "ismailia", "suez"],
+    governorates: ["بورسعيد", "الإسماعيلية", "السويس"],
     baseCost: 60,
     deliveryDays: 4,
   },
   {
-    governorates: ["fayoum", "beni_suef", "minya", "asyut", "sohag", "qena", "luxor", "aswan"],
+    governorates: ["الفيوم", "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان"],
     baseCost: 70,
     deliveryDays: 5,
   },
   {
-    governorates: ["red_sea", "matrouh", "north_sinai", "south_sinai", "new_valley"],
+    governorates: ["البحر الأحمر", "مطروح", "شمال سيناء", "جنوب سيناء", "الوادي الجديد"],
     baseCost: 90,
     deliveryDays: 7,
   },

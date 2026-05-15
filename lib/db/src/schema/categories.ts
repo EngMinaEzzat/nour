@@ -8,6 +8,7 @@ export const categoryTypeEnum = pgEnum("category_type", ["fashion", "cosmetics"]
 export const categoriesTable = pgTable("categories", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
+  parentId: integer("parent_id").references((): any => categoriesTable.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   nameAr: text("name_ar").notNull(),
   type: categoryTypeEnum("type").notNull(),

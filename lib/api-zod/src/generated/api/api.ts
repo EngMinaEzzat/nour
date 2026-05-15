@@ -147,15 +147,10 @@ export const GetStorefrontResponse = zod.object({
   ),
   totalProducts: zod.number(),
   totalOrders: zod.number(),
-  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
   categories: zod.array(
     zod.object({
       id: zod.number(),
       name: zod.string(),
-      nameAr: zod.string().optional(),
-      type: zod.enum(["fashion", "cosmetics"]).optional(),
-      imageUrl: zod.string().nullish(),
-      productCount: zod.number().optional(),
     }),
   ),
 });
@@ -270,7 +265,6 @@ export const ListTenantsResponseItem = zod.object({
   subscriptionStatus: zod
     .enum(["trial", "active", "past_due", "suspended", "canceled"])
     .optional(),
-  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
 });
 export const ListTenantsResponse = zod.array(ListTenantsResponseItem);
 
@@ -320,7 +314,6 @@ export const GetTenantResponse = zod.object({
   subscriptionStatus: zod
     .enum(["trial", "active", "past_due", "suspended", "canceled"])
     .optional(),
-  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
 });
 
 /**
@@ -365,7 +358,6 @@ export const UpdateTenantResponse = zod.object({
   subscriptionStatus: zod
     .enum(["trial", "active", "past_due", "suspended", "canceled"])
     .optional(),
-  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
 });
 
 /**
@@ -396,9 +388,9 @@ export const GetTenantStatsResponse = zod.object({
  */
 export const ListCategoriesResponseItem = zod.object({
   id: zod.number(),
-  tenantId: zod.number().nullish(),
   name: zod.string(),
   nameAr: zod.string().describe("Arabic name"),
+  parentId: zod.number().nullish().describe("ID of the parent category"),
   type: zod.enum(["fashion", "cosmetics"]),
   imageUrl: zod.string().nullish(),
   productCount: zod.number(),
@@ -411,15 +403,41 @@ export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem);
 export const CreateCategoryBody = zod.object({
   name: zod.string(),
   nameAr: zod.string(),
+  parentId: zod.number().nullish(),
   type: zod.enum(["fashion", "cosmetics"]),
   imageUrl: zod.string().nullish(),
+});
+
+/**
+ * @summary Update a category
+ */
+export const UpdateCategoryParams = zod.object({
+  id: zod.coerce.number(),
 });
 
 export const UpdateCategoryBody = zod.object({
   name: zod.string().optional(),
   nameAr: zod.string().optional(),
+  parentId: zod.number().nullish(),
   type: zod.enum(["fashion", "cosmetics"]).optional(),
   imageUrl: zod.string().nullish(),
+});
+
+export const UpdateCategoryResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  nameAr: zod.string().describe("Arabic name"),
+  parentId: zod.number().nullish().describe("ID of the parent category"),
+  type: zod.enum(["fashion", "cosmetics"]),
+  imageUrl: zod.string().nullish(),
+  productCount: zod.number(),
+});
+
+/**
+ * @summary Delete a category
+ */
+export const DeleteCategoryParams = zod.object({
+  id: zod.coerce.number(),
 });
 
 /**

@@ -95,6 +95,7 @@ router.put("/categories/:id", requireAuth, async (req, res) => {
     if (parsed.data.name !== undefined) updateData.name = parsed.data.name;
     if (parsed.data.nameAr !== undefined) updateData.nameAr = parsed.data.nameAr;
     if (parsed.data.type !== undefined) updateData.type = parsed.data.type;
+    if (parsed.data.parentId !== undefined) updateData.parentId = parsed.data.parentId;
     if ("imageUrl" in req.body) updateData.imageUrl = parsed.data.imageUrl ?? null;
 
     if (Object.keys(updateData).length === 0) {

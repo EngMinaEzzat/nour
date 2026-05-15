@@ -460,6 +460,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/Category"
 
+  /categories/{id}:
+    put:
+      operationId: updateCategory
+      tags: [categories]
+      summary: Update a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCategoryBody"
+      responses:
+        "200":
+          description: Updated category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteCategory
+      tags: [categories]
+      summary: Delete a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
   /products:
     get:
       operationId: listProducts
@@ -1228,9 +1268,16 @@ components:
         nameAr:
           type: string
           description: Arabic name
+        parentId:
+          type: integer
+          nullable: true
+          description: ID of the parent category
         type:
           type: string
           enum: [fashion, cosmetics]
+        imageUrl:
+          type: string
+          nullable: true
         productCount:
           type: integer
       required: [id, name, nameAr, type, productCount]
@@ -1242,10 +1289,33 @@ components:
           type: string
         nameAr:
           type: string
+        parentId:
+          type: integer
+          nullable: true
         type:
           type: string
           enum: [fashion, cosmetics]
+        imageUrl:
+          type: string
+          nullable: true
       required: [name, nameAr, type]
+
+    UpdateCategoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        parentId:
+          type: integer
+          nullable: true
+        type:
+          type: string
+          enum: [fashion, cosmetics]
+        imageUrl:
+          type: string
+          nullable: true
 
     ProductVariant:
       type: object

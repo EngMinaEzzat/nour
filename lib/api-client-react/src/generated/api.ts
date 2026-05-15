@@ -60,8 +60,8 @@ import type {
   Tenant,
   TenantStats,
   TrackingInfo,
-  UpdateOrderBody,
   UpdateCategoryBody,
+  UpdateOrderBody,
   UpdateProductBody,
   UpdateProductVariantBody,
   UpdateStaffRoleBody,
@@ -1988,7 +1988,7 @@ export const updateCategory = async (
 };
 
 export const getUpdateCategoryMutationOptions = <
-  TError = ErrorType<unknown>,
+  TError = ErrorType<void>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -2017,7 +2017,7 @@ export const getUpdateCategoryMutationOptions = <
     Awaited<ReturnType<typeof updateCategory>>,
     { id: number; data: BodyType<UpdateCategoryBody> }
   > = (props) => {
-    const { id, data } = props;
+    const { id, data } = props ?? {};
 
     return updateCategory(id, data, requestOptions);
   };
@@ -2029,13 +2029,13 @@ export type UpdateCategoryMutationResult = NonNullable<
   Awaited<ReturnType<typeof updateCategory>>
 >;
 export type UpdateCategoryMutationBody = BodyType<UpdateCategoryBody>;
-export type UpdateCategoryMutationError = ErrorType<unknown>;
+export type UpdateCategoryMutationError = ErrorType<void>;
 
 /**
  * @summary Update a category
  */
 export const useUpdateCategory = <
-  TError = ErrorType<unknown>,
+  TError = ErrorType<void>,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -2052,6 +2052,90 @@ export const useUpdateCategory = <
   TContext
 > => {
   return useMutation(getUpdateCategoryMutationOptions(options));
+};
+
+/**
+ * @summary Delete a category
+ */
+export const getDeleteCategoryUrl = (id: number) => {
+  return `/api/categories/${id}`;
+};
+
+export const deleteCategory = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteCategoryUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCategory>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteCategory>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteCategory>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteCategory(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteCategory>>
+>;
+
+export type DeleteCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a category
+ */
+export const useDeleteCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCategory>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteCategory>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteCategoryMutationOptions(options));
 };
 
 /**
