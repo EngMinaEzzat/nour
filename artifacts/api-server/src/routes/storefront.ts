@@ -22,7 +22,17 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
     // Build product conditions — always scope to tenant, optionally filter by name/category
     const conditions = [eq(productsTable.tenantId, tenant.id), eq(productsTable.status, "active")];
     if (searchQ) conditions.push(ilike(productsTable.name, `%${searchQ}%`));
-    if (categoryIdQ) conditions.push(eq(productsTable.categoryId, categoryIdQ));
+    
+    if (categoryIdQ) {
+      // Find all subcategories if this is a parent
+      const subcategories = await db
+        .select({ id: categoriesTable.id })
+        .from(categoriesTable)
+        .where(eq(categoriesTable.parentId, categoryIdQ));
+      
+      const categoryIds = [categoryIdQ, ...subcategories.map(s => s.id)];
+      conditions.push(inArray(productsTable.categoryId, categoryIds));
+    }
 
     const products = await db
       .select({
@@ -61,6 +71,7 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
         id: categoriesTable.id,
         name: categoriesTable.name,
         nameAr: categoriesTable.nameAr,
+        parentId: categoriesTable.parentId,
         type: categoriesTable.type,
         imageUrl: categoriesTable.imageUrl,
       })

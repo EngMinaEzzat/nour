@@ -50,6 +50,7 @@ type CategoryFormState = {
   nameAr: string;
   type: "fashion" | "cosmetics";
   imageUrl: string;
+  parentId: number | null;
 };
 
 const EMPTY_FORM: CategoryFormState = {
@@ -57,14 +58,17 @@ const EMPTY_FORM: CategoryFormState = {
   nameAr: "",
   type: "fashion",
   imageUrl: "",
+  parentId: null,
 };
 
 function CategoryForm({
   category,
   onSaved,
+  categories = [],
 }: {
   category?: Category;
   onSaved: () => void;
+  categories?: Category[];
 }) {
   const queryClient = useQueryClient();
   const createCategory = useCreateCategory();
@@ -81,6 +85,7 @@ function CategoryForm({
       nameAr: category.nameAr,
       type: category.type,
       imageUrl: category.imageUrl ?? "",
+      parentId: category.parentId ?? null,
     });
   }, [category]);
 
@@ -95,6 +100,7 @@ function CategoryForm({
       nameAr: form.nameAr.trim(),
       type: form.type as CreateCategoryBodyType,
       imageUrl: form.imageUrl.trim() || null,
+      parentId: form.parentId,
     };
 
     if (category) {
@@ -107,6 +113,10 @@ function CategoryForm({
     await queryClient.invalidateQueries({ queryKey: getListCategoriesQueryKey() });
     onSaved();
   }
+
+  // Potential parents are those that are NOT the current category itself (if editing)
+  // and preferably those that don't already have a parent (to keep it 2 levels deep, though the schema supports more)
+  const availableParents = categories.filter(c => !category || c.id !== category.id);
 
   return (
     <div className="space-y-4" dir="rtl">
@@ -132,20 +142,40 @@ function CategoryForm({
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label>النوع</Label>
-        <Select
-          value={form.type}
-          onValueChange={(value) => setForm((current) => ({ ...current, type: value as CategoryFormState["type"] }))}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="fashion">أزياء</SelectItem>
-            <SelectItem value="cosmetics">تجميل</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label>النوع</Label>
+          <Select
+            value={form.type}
+            onValueChange={(value) => setForm((current) => ({ ...current, type: value as CategoryFormState["type"] }))}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fashion">أزياء</SelectItem>
+              <SelectItem value="cosmetics">تجميل</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>الفئة الأم (اختياري)</Label>
+          <Select
+            value={form.parentId?.toString() ?? "none"}
+            onValueChange={(value) => setForm((current) => ({ ...current, parentId: value === "none" ? null : Number(value) }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="فئة رئيسية" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">بدون (فئة رئيسية)</SelectItem>
+              {availableParents.map(p => (
+                <SelectItem key={p.id} value={p.id.toString()}>{p.nameAr}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <ImageUpload
@@ -196,7 +226,7 @@ export default function Categories() {
               <DialogHeader>
                 <DialogTitle>إضافة فئة جديدة</DialogTitle>
               </DialogHeader>
-              <CategoryForm onSaved={() => setCreateOpen(false)} />
+              <CategoryForm categories={categories} onSaved={() => setCreateOpen(false)} />
             </DialogContent>
           </Dialog>
         )}
@@ -243,6 +273,11 @@ export default function Categories() {
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mb-4">{cat.productCount} منتج</p>
+                    {cat.parentId && (
+                      <Badge variant="outline" className="mb-4 text-[10px] font-normal">
+                        فرعية من: {categories.find(p => p.id === cat.parentId)?.nameAr ?? "..."}
+                      </Badge>
+                    )}
                     <div className="flex items-center gap-2">
                       <Button asChild size="sm" variant="outline" className="flex-1 gap-1.5">
                         <Link href={`/products?categoryId=${cat.id}`}>
@@ -276,7 +311,7 @@ export default function Categories() {
           <DialogHeader>
             <DialogTitle>تعديل الفئة</DialogTitle>
           </DialogHeader>
-          {editing && <CategoryForm category={editing} onSaved={() => setEditing(null)} />}
+          {editing && <CategoryForm categories={categories} category={editing} onSaved={() => setEditing(null)} />}
         </DialogContent>
       </Dialog>
     </div>

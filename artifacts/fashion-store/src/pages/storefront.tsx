@@ -92,23 +92,23 @@ function CategoryFilter({
   onSelect: (id: number | null) => void;
   p: string;
 }) {
-  if (!store.categories || store.categories.length <= 1) return null;
-  const cats = [
-    { id: null, name: `الكل (${store.products.length})` },
-    ...store.categories.map(c => ({
-      id: c.id,
-      name: `${c.name} (${store.products.filter(pr => (pr as any).categoryId === c.id).length})`,
-    })),
-  ];
+  if (!store.categories || store.categories.length === 0) return null;
+
+  const selectedCategory = store.categories.find(c => c.id === selected);
+  const activeParentId = selectedCategory?.parentId ?? (selectedCategory ? selectedCategory.id : null);
+
+  const parents = store.categories.filter(c => !c.parentId);
+  const children = activeParentId ? store.categories.filter(c => c.parentId === activeParentId) : [];
+
   return (
-    <div className="flex gap-2 mb-8 flex-wrap">
-      {cats.map(cat => (
+    <div className="space-y-4 mb-8">
+      {/* Top Level Categories */}
+      <div className="flex gap-2 flex-wrap">
         <button
-          key={String(cat.id)}
-          onClick={() => onSelect(cat.id as any)}
+          onClick={() => onSelect(null)}
           className="shrink-0 px-5 py-2 rounded-full text-xs font-semibold transition-all"
           style={
-            selected === cat.id
+            selected === null
               ? { background: p, color: "#fff" }
               : {
                   background: "#fff",
@@ -117,9 +117,61 @@ function CategoryFilter({
                 }
           }
         >
-          {cat.name}
+          الكل
         </button>
-      ))}
+        {parents.map(cat => {
+          const isParentSelected = selected === cat.id || (selectedCategory?.parentId === cat.id);
+          return (
+            <button
+              key={cat.id}
+              onClick={() => onSelect(cat.id)}
+              className="shrink-0 px-5 py-2 rounded-full text-xs font-semibold transition-all"
+              style={
+                isParentSelected
+                  ? { background: p, color: "#fff" }
+                  : {
+                      background: "#fff",
+                      color: "#7a6060",
+                      border: "1px solid rgba(122,96,96,0.2)",
+                    }
+              }
+            >
+              {cat.name}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Subcategories (if a parent is selected) */}
+      <AnimatePresence>
+        {children.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex gap-2 flex-wrap ps-4 border-r-2 border-primary/20"
+          >
+            {children.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => onSelect(cat.id)}
+                className="shrink-0 px-4 py-1.5 rounded-full text-[11px] font-medium transition-all"
+                style={
+                  selected === cat.id
+                    ? { background: p, color: "#fff" }
+                    : {
+                        background: "rgba(122,96,96,0.05)",
+                        color: "#7a6060",
+                        border: "1px solid rgba(122,96,96,0.1)",
+                      }
+                }
+              >
+                {cat.name}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

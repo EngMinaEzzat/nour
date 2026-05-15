@@ -658,6 +658,7 @@ export const StorefrontResponseCategory = {
 export type StorefrontResponseCategoriesItem = {
   id: number;
   name: string;
+  parentId?: number | null;
 };
 
 export interface StorefrontResponse {

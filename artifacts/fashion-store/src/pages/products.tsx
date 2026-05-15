@@ -1072,7 +1072,20 @@ export default function Products() {
                   <SelectTrigger><SelectValue placeholder="اختر فئة..." /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value={SELECT_NONE_VALUE}>— بدون فئة —</SelectItem>
-                    {categories?.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                    {categories?.filter(c => !c.parentId).map((parent) => (
+                      <div key={parent.id}>
+                        <SelectItem value={String(parent.id)} className="font-semibold">
+                          {parent.nameAr}
+                        </SelectItem>
+                        {categories
+                          ?.filter((child) => child.parentId === parent.id)
+                          .map((child) => (
+                            <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
+                              — {child.nameAr}
+                            </SelectItem>
+                          ))}
+                      </div>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

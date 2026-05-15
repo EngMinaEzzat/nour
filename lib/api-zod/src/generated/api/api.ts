@@ -151,6 +151,7 @@ export const GetStorefrontResponse = zod.object({
     zod.object({
       id: zod.number(),
       name: zod.string(),
+      parentId: zod.number().nullish(),
     }),
   ),
 });

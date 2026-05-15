@@ -2094,6 +2094,9 @@ components:
                 type: integer
               name:
                 type: string
+              parentId:
+                type: integer
+                nullable: true
             required: [id, name]
       required: [id, name, slug, description, category, status, createdAt, products, totalProducts, totalOrders, categories]
 
