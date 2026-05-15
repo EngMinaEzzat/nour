@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import rateLimit from "express-rate-limit";
 import { sendPasswordResetEmail, sendWelcomeEmail, sendNewMerchantNotification } from "../lib/email.js";
-import { db, merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable, shippingZonesTable, shippingSettingsTable, DEFAULT_CATEGORIES, DEFAULT_SHIPPING_ZONES_CONFIG, ordersTable, paymentRecordsTable, paymentWebhooksTable, productsTable, productVariantsTable } from "@workspace/db";
+import { db, merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable, shippingZonesTable, shippingSettingsTable, DEFAULT_CATEGORIES, DEFAULT_SHIPPING_ZONES_CONFIG } from "@workspace/db";
 import { RegisterMerchantBody, LoginMerchantBody } from "@workspace/api-zod";
 import { eq, and, gt, ne } from "drizzle-orm";
 
@@ -20,6 +20,11 @@ const authLimiter = rateLimit({
 });
 
 const RESERVED_SLUGS = ["admin", "api", "www", "app", "nour", "support", "help", "store", "login", "register"];
+const configuredEmailTimeoutMs = Number(process.env.AUTH_EMAIL_TIMEOUT_MS ?? 3000);
+const EMAIL_DELIVERY_TIMEOUT_MS =
+  Number.isFinite(configuredEmailTimeoutMs) && configuredEmailTimeoutMs > 0
+    ? configuredEmailTimeoutMs
+    : 3000;
 
 function normalizeSlug(raw: string): string {
   return raw
@@ -29,6 +34,17 @@ function normalizeSlug(raw: string): string {
     .replace(/[^a-z0-9-]/g, "")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeout = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timeout) clearTimeout(timeout);
+  });
 }
 
 function buildAuthResponse(
@@ -170,18 +186,22 @@ router.post("/auth/register", authLimiter, async (req, res) => {
     const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
     const storeUrl = `${baseUrl}/store/${slug}`;
 
-    // Await emails in parallel to ensure completion on Vercel before the function terminates
+    // Wait briefly for Vercel delivery, but never let email latency block signup.
     try {
       const [emailResult, adminNotifyResult] = await Promise.allSettled([
-        sendWelcomeEmail(email, storeName, storeUrl),
-        db
-          .select({ email: merchantsTable.email })
-          .from(merchantsTable)
-          .where(and(eq(merchantsTable.isPlatformAdmin, true), ne(merchantsTable.email, email)))
-          .then((admins) => {
-            const adminEmails = admins.map((a) => a.email);
-            return sendNewMerchantNotification(adminEmails, storeName, storeUrl, email, city ?? null);
-          }),
+        withTimeout(sendWelcomeEmail(email, storeName, storeUrl), EMAIL_DELIVERY_TIMEOUT_MS, "Welcome email"),
+        withTimeout(
+          db
+            .select({ email: merchantsTable.email })
+            .from(merchantsTable)
+            .where(and(eq(merchantsTable.isPlatformAdmin, true), ne(merchantsTable.email, email)))
+            .then((admins) => {
+              const adminEmails = admins.map((a) => a.email);
+              return sendNewMerchantNotification(adminEmails, storeName, storeUrl, email, city ?? null);
+            }),
+          EMAIL_DELIVERY_TIMEOUT_MS,
+          "Admin notification email",
+        ),
       ]);
 
       if (emailResult.status === "fulfilled") {
@@ -361,43 +381,6 @@ router.post("/auth/reset-password", async (req, res) => {
   } catch (err) {
     req.log.error(err);
     return res.status(500).json({ error: "حدث خطأ، حاول مرة أخرى" });
-  }
-});
-
-/* ─── Self-destruct — allows owner to delete their store + account for testing ─── */
-router.delete("/auth/self-destruct", async (req, res) => {
-  const merchantId = req.session.merchantId;
-  if (!merchantId) return res.status(401).json({ error: "غير مسجل الدخول" });
-
-  try {
-    const [merchant] = await db
-      .select({ id: merchantsTable.id, tenantId: merchantsTable.tenantId, role: merchantsTable.role })
-      .from(merchantsTable)
-      .where(eq(merchantsTable.id, merchantId));
-
-    if (!merchant) return res.status(401).json({ error: "الجلسة غير صالحة" });
-    if (merchant.role !== "owner") {
-      return res.status(403).json({ error: "مالك المتجر فقط يمكنه حذف الحساب" });
-    }
-
-    const tId = merchant.tenantId;
-
-    // Explicitly delete child records to avoid Postgres foreign key constraint errors
-    await db.delete(paymentRecordsTable).where(eq(paymentRecordsTable.tenantId, tId));
-    await db.delete(paymentWebhooksTable).where(eq(paymentWebhooksTable.tenantId, tId));
-    await db.delete(ordersTable).where(eq(ordersTable.tenantId, tId));
-    await db.delete(productsTable).where(eq(productsTable.tenantId, tId));
-    await db.delete(categoriesTable).where(eq(categoriesTable.tenantId, tId));
-    
-    // Finally delete the tenant (which cascades to merchants, settings, etc.)
-    await db.delete(tenantsTable).where(eq(tenantsTable.id, tId));
-
-    req.session.destroy(() => {
-      res.status(204).send();
-    });
-  } catch (err) {
-    req.log.error(err);
-    return res.status(500).json({ error: "حدث خطأ أثناء حذف المتجر" });
   }
 });
 

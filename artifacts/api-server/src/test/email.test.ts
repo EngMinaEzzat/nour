@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { sendEmail, sendOrderConfirmationEmail, sendWelcomeEmail } from "../lib/email.js";
+import { sendEmail, sendNewMerchantNotification, sendOrderConfirmationEmail, sendWelcomeEmail } from "../lib/email.js";
 
 const mockSend = vi.fn().mockResolvedValue({ data: { id: "mock-email-id" }, error: null });
 
@@ -114,5 +114,38 @@ describe("Email System", () => {
     );
 
     expect(result).toEqual({ sent: true, id: "mock-email-id" });
+  });
+
+  it("should escape user-controlled welcome email fields", async () => {
+    await sendWelcomeEmail(
+      "merchant@example.com",
+      `<img src=x onerror="alert(1)">`,
+      `https://nour.example/store/bad?x="><script>alert(1)</script>`,
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).not.toContain("<script>");
+    expect(callArgs.html).not.toContain("<img src=x");
+    expect(callArgs.html).toContain("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
+    expect(callArgs.html).toContain("&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;");
+  });
+
+  it("should escape user-controlled admin notification fields", async () => {
+    await sendNewMerchantNotification(
+      ["admin@example.com"],
+      `<script>alert(1)</script>`,
+      `https://nour.example/store/bad?x="><img src=x onerror="alert(1)">`,
+      `<owner@example.com>`,
+      `<b>Cairo</b>`,
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).not.toContain("<script>");
+    expect(callArgs.html).not.toContain("<img src=x");
+    expect(callArgs.html).not.toContain("<owner@example.com>");
+    expect(callArgs.html).not.toContain("<b>Cairo</b>");
+    expect(callArgs.html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(callArgs.html).toContain("&lt;owner@example.com&gt;");
+    expect(callArgs.html).toContain("&lt;b&gt;Cairo&lt;/b&gt;");
   });
 });

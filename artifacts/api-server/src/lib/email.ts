@@ -101,26 +101,29 @@ export async function sendWelcomeEmail(
   storeName: string,
   storeUrl: string,
 ): Promise<EmailSendResult> {
+  const safeStoreName = escapeHtml(storeName);
+  const safeStoreUrl = escapeHtml(storeUrl);
+
   return sendEmail({
     to,
     subject: `مرحباً بك في نور 🎉 — متجرك "${storeName}" جاهز!`,
     html: emailLayout(`
       <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#1a1a1a;">أهلاً وسهلاً! 🎉</h1>
       <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.8;">
-        تم إنشاء متجرك <strong style="color:#8b1a2e;">${storeName}</strong> بنجاح على منصة نور.
+        تم إنشاء متجرك <strong style="color:#8b1a2e;">${safeStoreName}</strong> بنجاح على منصة نور.
         يمكنك الآن مشاركة رابط متجرك مع عملائك والبدء في البيع فوراً.
       </p>
 
       <div style="background:#fdf8f5;border:1px solid #f0e8e0;border-radius:16px;padding:20px 24px;margin:0 0 28px;">
         <p style="margin:0 0 8px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:1px;">رابط متجرك</p>
-        <a href="${storeUrl}"
+        <a href="${safeStoreUrl}"
            style="font-size:17px;font-weight:700;color:#8b1a2e;text-decoration:none;word-break:break-all;">
-          ${storeUrl}
+          ${safeStoreUrl}
         </a>
       </div>
 
       <div style="text-align:center;margin:0 0 32px;">
-        <a href="${storeUrl}"
+        <a href="${safeStoreUrl}"
            style="display:inline-block;background:#8b1a2e;color:#fff;text-decoration:none;padding:14px 40px;border-radius:14px;font-size:16px;font-weight:700;">
           زيارة متجري الآن ←
         </a>
@@ -160,6 +163,11 @@ export async function sendNewMerchantNotification(
 ): Promise<void> {
   if (adminEmails.length === 0) return;
 
+  const safeStoreName = escapeHtml(storeName);
+  const safeStoreUrl = escapeHtml(storeUrl);
+  const safeMerchantEmail = escapeHtml(merchantEmail);
+  const safeCity = escapeHtml(city ?? "غير محددة");
+
   const now = new Date().toLocaleString("ar-EG", {
     timeZone: "Africa/Cairo",
     dateStyle: "full",
@@ -179,25 +187,25 @@ export async function sendNewMerchantNotification(
         <tr>
           <td style="padding:14px 20px;border-bottom:1px solid #f0e8e0;">
             <span style="font-size:12px;color:#999;display:block;margin-bottom:2px;">اسم المتجر</span>
-            <span style="font-size:16px;font-weight:700;color:#1a1a1a;">${storeName}</span>
+            <span style="font-size:16px;font-weight:700;color:#1a1a1a;">${safeStoreName}</span>
           </td>
         </tr>
         <tr>
           <td style="padding:14px 20px;border-bottom:1px solid #f0e8e0;">
             <span style="font-size:12px;color:#999;display:block;margin-bottom:2px;">رابط المتجر</span>
-            <a href="${storeUrl}" style="font-size:14px;color:#8b1a2e;text-decoration:none;">${storeUrl}</a>
+            <a href="${safeStoreUrl}" style="font-size:14px;color:#8b1a2e;text-decoration:none;">${safeStoreUrl}</a>
           </td>
         </tr>
         <tr>
           <td style="padding:14px 20px;border-bottom:1px solid #f0e8e0;">
             <span style="font-size:12px;color:#999;display:block;margin-bottom:2px;">البريد الإلكتروني</span>
-            <span style="font-size:14px;color:#444;">${merchantEmail}</span>
+            <span style="font-size:14px;color:#444;">${safeMerchantEmail}</span>
           </td>
         </tr>
         <tr>
           <td style="padding:14px 20px;border-bottom:1px solid #f0e8e0;">
             <span style="font-size:12px;color:#999;display:block;margin-bottom:2px;">المدينة</span>
-            <span style="font-size:14px;color:#444;">${city ?? "غير محددة"}</span>
+            <span style="font-size:14px;color:#444;">${safeCity}</span>
           </td>
         </tr>
         <tr>
@@ -209,7 +217,7 @@ export async function sendNewMerchantNotification(
       </table>
 
       <div style="text-align:center;margin:28px 0 0;">
-        <a href="${storeUrl}"
+        <a href="${safeStoreUrl}"
            style="display:inline-block;background:#8b1a2e;color:#fff;text-decoration:none;padding:12px 32px;border-radius:12px;font-size:15px;font-weight:700;">
           عرض المتجر ←
         </a>
