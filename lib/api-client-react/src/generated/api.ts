@@ -39,6 +39,7 @@ import type {
   InitPaymobPaymentBody,
   InitPaymobPaymentResponse,
   InviteStaffBody,
+  ListOrdersResponse,
   ListOrdersParams,
   ListProductsParams,
   LoginBody,
@@ -3348,8 +3349,8 @@ export const getListOrdersUrl = (params?: ListOrdersParams) => {
 export const listOrders = async (
   params?: ListOrdersParams,
   options?: RequestInit,
-): Promise<Order[]> => {
-  return customFetch<Order[]>(getListOrdersUrl(params), {
+): Promise<ListOrdersResponse> => {
+  return customFetch<ListOrdersResponse>(getListOrdersUrl(params), {
     ...options,
     method: "GET",
   });

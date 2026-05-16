@@ -792,15 +792,33 @@ paths:
           required: false
           schema:
             type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursorDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: cursorId
+          in: query
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
-          description: List of orders
+          description: Paginated list of orders
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Order"
+                $ref: "#/components/schemas/ListOrdersResponse"
     post:
       operationId: createOrder
       tags: [orders]
@@ -892,7 +910,13 @@ paths:
               properties:
                 step:
                   type: string
-                  enum: [homepage_message, shipping_setup, integrations_review, launch_review]
+                  enum:
+                    [
+                      homepage_message,
+                      shipping_setup,
+                      integrations_review,
+                      launch_review,
+                    ]
                 done:
                   type: boolean
               required: [step, done]
@@ -1260,7 +1284,15 @@ components:
         recentOrders:
           type: integer
           description: Orders in the last 30 days
-      required: [tenantId, totalProducts, totalOrders, totalRevenue, totalCustomers, recentOrders]
+      required:
+        [
+          tenantId,
+          totalProducts,
+          totalOrders,
+          totalRevenue,
+          totalCustomers,
+          recentOrders,
+        ]
 
     Category:
       type: object
@@ -1427,7 +1459,20 @@ components:
         createdAt:
           type: string
           format: date-time
-      required: [id, tenantId, tenantName, name, description, price, stock, featured, status, orderCount, createdAt]
+      required:
+        [
+          id,
+          tenantId,
+          tenantName,
+          name,
+          description,
+          price,
+          stock,
+          featured,
+          status,
+          orderCount,
+          createdAt,
+        ]
 
     CreateProductBody:
       type: object
@@ -1581,7 +1626,17 @@ components:
           type: string
         status:
           type: string
-          enum: [pending, awaiting_confirmation, confirmed, dispatched, shipped, delivered, cancelled, returned]
+          enum:
+            [
+              pending,
+              awaiting_confirmation,
+              confirmed,
+              dispatched,
+              shipped,
+              delivered,
+              cancelled,
+              returned,
+            ]
         totalAmount:
           type: number
         shippingCost:
@@ -1621,7 +1676,40 @@ components:
         createdAt:
           type: string
           format: date-time
-      required: [id, tenantId, tenantName, customerId, customerName, status, totalAmount, paymentMethod, paymentStatus, items, createdAt]
+      required:
+        [
+          id,
+          tenantId,
+          tenantName,
+          customerId,
+          customerName,
+          status,
+          totalAmount,
+          paymentMethod,
+          paymentStatus,
+          items,
+          createdAt,
+        ]
+
+    ListOrdersResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        hasMore:
+          type: boolean
+        nextCursor:
+          type: object
+          nullable: true
+          properties:
+            cursorDate:
+              type: string
+            cursorId:
+              type: integer
+          required: [cursorDate, cursorId]
+      required: [data, hasMore]
 
     CreateOrderBody:
       type: object
@@ -1662,7 +1750,17 @@ components:
       properties:
         status:
           type: string
-          enum: [pending, awaiting_confirmation, confirmed, dispatched, shipped, delivered, cancelled, returned]
+          enum:
+            [
+              pending,
+              awaiting_confirmation,
+              confirmed,
+              dispatched,
+              shipped,
+              delivered,
+              cancelled,
+              returned,
+            ]
         paymentStatus:
           type: string
           enum: [pending, paid, failed]
@@ -1813,7 +1911,19 @@ components:
               count:
                 type: integer
             required: [category, count]
-      required: [totalTenants, activeTenants, totalProducts, totalOrders, totalRevenue, totalCustomers, pendingOrders, ordersThisMonth, revenueThisMonth, categoryBreakdown]
+      required:
+        [
+          totalTenants,
+          activeTenants,
+          totalProducts,
+          totalOrders,
+          totalRevenue,
+          totalCustomers,
+          pendingOrders,
+          ordersThisMonth,
+          revenueThisMonth,
+          categoryBreakdown,
+        ]
 
     MerchantAnalytics:
       type: object
@@ -1887,7 +1997,20 @@ components:
                 type: string
                 format: date-time
             required: [id, totalAmount, status, paymentMethod, createdAt]
-      required: [totalRevenue, totalOrders, avgOrderValue, totalCustomers, pendingOrders, revenueThisMonth, ordersThisMonth, orderStatusBreakdown, salesByDay, topProducts, recentOrders]
+      required:
+        [
+          totalRevenue,
+          totalOrders,
+          avgOrderValue,
+          totalCustomers,
+          pendingOrders,
+          revenueThisMonth,
+          ordersThisMonth,
+          orderStatusBreakdown,
+          salesByDay,
+          topProducts,
+          recentOrders,
+        ]
 
     ActivityItem:
       type: object
@@ -1896,7 +2019,14 @@ components:
           type: integer
         type:
           type: string
-          enum: [new_order, new_tenant, new_customer, order_shipped, order_delivered]
+          enum:
+            [
+              new_order,
+              new_tenant,
+              new_customer,
+              order_shipped,
+              order_delivered,
+            ]
         message:
           type: string
         tenantName:
@@ -2025,7 +2155,21 @@ components:
         subscriptionStatus:
           type: string
           enum: [trial, active, past_due, suspended, canceled]
-      required: [merchantId, email, role, tenantId, storeName, slug, category, status, description, isPlatformAdmin, planCode, subscriptionStatus]
+      required:
+        [
+          merchantId,
+          email,
+          role,
+          tenantId,
+          storeName,
+          slug,
+          category,
+          status,
+          description,
+          isPlatformAdmin,
+          planCode,
+          subscriptionStatus,
+        ]
 
     StorefrontProduct:
       type: object
@@ -2119,7 +2263,20 @@ components:
           type: object
           nullable: true
           additionalProperties: true
-      required: [id, name, slug, description, category, status, createdAt, products, totalProducts, totalOrders, categories]
+      required:
+        [
+          id,
+          name,
+          slug,
+          description,
+          category,
+          status,
+          createdAt,
+          products,
+          totalProducts,
+          totalOrders,
+          categories,
+        ]
 
     Plan:
       type: object
@@ -2152,7 +2309,18 @@ components:
           type: boolean
         isActive:
           type: boolean
-      required: [code, name, nameAr, descriptionAr, priceEgp, productLimit, monthlyOrderLimit, staffSeatLimit, isActive]
+      required:
+        [
+          code,
+          name,
+          nameAr,
+          descriptionAr,
+          priceEgp,
+          productLimit,
+          monthlyOrderLimit,
+          staffSeatLimit,
+          isActive,
+        ]
 
     EntitlementStatus:
       type: object
@@ -2184,7 +2352,16 @@ components:
           type: boolean
         atMonthlyOrderLimit:
           type: boolean
-      required: [planCode, subscriptionStatus, plan, usage, atProductLimit, nearProductLimit, atStaffLimit]
+      required:
+        [
+          planCode,
+          subscriptionStatus,
+          plan,
+          usage,
+          atProductLimit,
+          nearProductLimit,
+          atStaffLimit,
+        ]
 
     ContactAttempt:
       type: object
@@ -2289,4 +2466,15 @@ components:
             notStarted:
               type: integer
           required: [complete, partial, notStarted]
-      required: [totalTenants, activeTenants, trialTenants, suspendedTenants, tenantsWithNoProducts, tenantsWithNoOrders, tenantsNearProductLimit, planBreakdown, onboardingCompletion]
+      required:
+        [
+          totalTenants,
+          activeTenants,
+          trialTenants,
+          suspendedTenants,
+          tenantsWithNoProducts,
+          tenantsWithNoOrders,
+          tenantsNearProductLimit,
+          planBreakdown,
+          onboardingCompletion,
+        ]

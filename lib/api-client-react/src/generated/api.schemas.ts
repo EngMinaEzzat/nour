@@ -354,6 +354,15 @@ export interface Order {
   createdAt: string;
 }
 
+export interface ListOrdersResponse {
+  data: Order[];
+  hasMore: boolean;
+  nextCursor?: {
+    cursorDate: string;
+    cursorId: number;
+  } | null;
+}
+
 export type CreateOrderBodyPaymentMethod =
   (typeof CreateOrderBodyPaymentMethod)[keyof typeof CreateOrderBodyPaymentMethod];
 
@@ -846,6 +855,10 @@ export type ListProductsParams = {
 export type ListOrdersParams = {
   tenantId?: number;
   status?: string;
+  search?: string;
+  limit?: number;
+  cursorDate?: string;
+  cursorId?: number;
 };
 
 export type PatchOnboardingBodyStep =

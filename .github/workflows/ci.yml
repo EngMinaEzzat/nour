@@ -9,7 +9,25 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: nour_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U user -d nour_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://user:pass@localhost:5432/nour_test
+      SESSION_SECRET: test-ci-secret-key-123
+      RESEND_API_KEY: test_resend_key
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -18,7 +36,7 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 8
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -34,17 +52,18 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Apply DB Migrations
+        run: pnpm --filter @workspace/db run migrate
+
       - name: DB Schema Check
         run: pnpm --filter @workspace/db run check
-        env:
-          DATABASE_URL: postgres://user:pass@localhost:5432/nour_test # Or use a real ephemeral DB
 
       - name: Run API Tests
         run: pnpm -r --if-present test
         env:
           NODE_ENV: test
           NOUR_TEST_DATABASE_OK: "true"
-          
+
       - name: Operational Smoke Test (Build check)
         run: |
           pnpm --filter @workspace/api-server run start &
@@ -52,5 +71,4 @@ jobs:
           node scripts/smoke.mjs --base-url http://localhost:8080
         env:
           PORT: 8080
-          SESSION_SECRET: test-ci-secret-key-123
           NODE_ENV: production

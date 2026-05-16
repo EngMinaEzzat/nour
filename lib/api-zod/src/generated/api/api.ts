@@ -750,6 +750,10 @@ export const GetCustomerResponse = zod.object({
 export const ListOrdersQueryParams = zod.object({
   tenantId: zod.coerce.number().optional(),
   status: zod.coerce.string().optional(),
+  search: zod.coerce.string().optional(),
+  limit: zod.coerce.number().optional(),
+  cursorDate: zod.coerce.string().optional(),
+  cursorId: zod.coerce.number().optional(),
 });
 
 export const ListOrdersResponseItem = zod.object({
@@ -803,7 +807,16 @@ export const ListOrdersResponseItem = zod.object({
     .optional(),
   createdAt: zod.coerce.date(),
 });
-export const ListOrdersResponse = zod.array(ListOrdersResponseItem);
+export const ListOrdersResponse = zod.object({
+  data: zod.array(ListOrdersResponseItem),
+  hasMore: zod.boolean(),
+  nextCursor: zod
+    .object({
+      cursorDate: zod.string(),
+      cursorId: zod.number(),
+    })
+    .nullish(),
+});
 
 /**
  * @summary Create a new order

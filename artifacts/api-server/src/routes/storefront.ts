@@ -1,44 +1,55 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { tenantsTable, productsTable, ordersTable, categoriesTable, productVariantsTable, trackingSettingsTable } from "@workspace/db";
-import { eq, count, inArray, ilike, and, or, isNull } from "drizzle-orm";
-import { storefrontLimiter } from "../lib/rate-limiters";
+import {
+  categoriesTable,
+  ordersTable,
+  productsTable,
+  productVariantsTable,
+  tenantsTable,
+  trackingSettingsTable,
+} from "@workspace/db";
+import { and, count, eq, ilike, inArray, isNull, or } from "drizzle-orm";
 import { cache } from "../lib/cache.js";
+import { storefrontLimiter } from "../lib/rate-limiters";
 
 const router = Router();
 
 router.get("/store/:slug", storefrontLimiter, async (req, res) => {
   const slug = String(req.params.slug);
   const searchQ = (req.query.search as string | undefined)?.trim() ?? null;
-  const categoryIdQ = req.query.categoryId ? Number(req.query.categoryId) : null;
-
-  const cacheKey = `tenant:by-slug:${slug}:storefront:q=${searchQ ?? ""}:c=${categoryIdQ ?? ""}`;
+  const categoryIdQ = req.query.categoryId
+    ? Number(req.query.categoryId)
+    : null;
 
   try {
+    const [tenant] = await db
+      .select()
+      .from(tenantsTable)
+      .where(
+        and(eq(tenantsTable.slug, slug), eq(tenantsTable.status, "active")),
+      );
+
+    if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
+
+    const cacheKey = `tenant:${tenant.id}:storefront:slug=${slug}:q=${searchQ ?? ""}:c=${categoryIdQ ?? ""}`;
     const cached = await cache.get(cacheKey);
     if (cached) {
       return res.json(JSON.parse(cached));
     }
 
-    const [tenant] = await db
-      .select()
-      .from(tenantsTable)
-      .where(and(eq(tenantsTable.slug, slug), eq(tenantsTable.status, "active")));
-
-    if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
-
-    // Build product conditions — always scope to tenant, optionally filter by name/category
-    const conditions = [eq(productsTable.tenantId, tenant.id), eq(productsTable.status, "active")];
+    const conditions = [
+      eq(productsTable.tenantId, tenant.id),
+      eq(productsTable.status, "active"),
+    ];
     if (searchQ) conditions.push(ilike(productsTable.name, `%${searchQ}%`));
 
     if (categoryIdQ) {
-      // Find all subcategories if this is a parent
       const subcategories = await db
         .select({ id: categoriesTable.id })
         .from(categoriesTable)
         .where(eq(categoriesTable.parentId, categoryIdQ));
 
-      const categoryIds = [categoryIdQ, ...subcategories.map(s => s.id)];
+      const categoryIds = [categoryIdQ, ...subcategories.map((s) => s.id)];
       conditions.push(inArray(productsTable.categoryId, categoryIds));
     }
 
@@ -59,8 +70,6 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
       .orderBy(productsTable.createdAt);
 
     const productIds = products.map((p) => p.id);
-
-    // Count variants per product to determine which products require variant selection
     let variantCounts: { productId: number; count: number }[] = [];
     if (productIds.length > 0) {
       variantCounts = await db
@@ -72,7 +81,9 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
         .where(inArray(productVariantsTable.productId, productIds))
         .groupBy(productVariantsTable.productId);
     }
-    const variantCountMap = new Map(variantCounts.map((v) => [v.productId, v.count]));
+    const variantCountMap = new Map(
+      variantCounts.map((v) => [v.productId, v.count]),
+    );
 
     const categoryRows = await db
       .select({
@@ -84,22 +95,30 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
         imageUrl: categoriesTable.imageUrl,
       })
       .from(categoriesTable)
-      .where(or(eq(categoriesTable.tenantId, tenant.id), isNull(categoriesTable.tenantId)))
+      .where(
+        or(
+          eq(categoriesTable.tenantId, tenant.id),
+          isNull(categoriesTable.tenantId),
+        ),
+      )
       .orderBy(categoriesTable.name);
     const categoryMap = new Map(categoryRows.map((c) => [c.id, c.name]));
-    
+
     const categoryProductCounts = await db
       .select({ categoryId: productsTable.categoryId, total: count() })
       .from(productsTable)
-      .where(and(
-        eq(productsTable.tenantId, tenant.id),
-        eq(productsTable.status, "active"),
-      ))
+      .where(
+        and(
+          eq(productsTable.tenantId, tenant.id),
+          eq(productsTable.status, "active"),
+        ),
+      )
       .groupBy(productsTable.categoryId);
 
-    const categoryProductCountMap = new Map(categoryProductCounts.map((row) => [row.categoryId, row.total]));
+    const categoryProductCountMap = new Map(
+      categoryProductCounts.map((row) => [row.categoryId, row.total]),
+    );
 
-    // Parse WhatsApp number from tenant socialLinks
     let whatsappNumber: string | null = null;
     let socialLinks: Record<string, string> = {};
     try {
@@ -110,8 +129,12 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
     const productsWithCategory = products.map((p) => ({
       ...p,
       price: parseFloat(String(p.price)),
-      originalPrice: p.originalPrice ? parseFloat(String(p.originalPrice)) : null,
-      categoryName: p.categoryId ? (categoryMap.get(p.categoryId) ?? null) : null,
+      originalPrice: p.originalPrice
+        ? parseFloat(String(p.originalPrice))
+        : null,
+      categoryName: p.categoryId
+        ? (categoryMap.get(p.categoryId) ?? null)
+        : null,
       hasVariants: (variantCountMap.get(p.id) ?? 0) > 0,
       variantCount: variantCountMap.get(p.id) ?? 0,
     }));

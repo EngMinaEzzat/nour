@@ -1,4 +1,3 @@
-ALTER TABLE "orders" ADD COLUMN "bosta_shipment_status" text;--> statement-breakpoint
 CREATE INDEX "idx_tenants_slug" ON "tenants" USING btree ("slug");--> statement-breakpoint
 CREATE INDEX "idx_categories_tenant_id" ON "categories" USING btree ("tenant_id");--> statement-breakpoint
 CREATE INDEX "idx_categories_parent_id" ON "categories" USING btree ("parent_id");--> statement-breakpoint

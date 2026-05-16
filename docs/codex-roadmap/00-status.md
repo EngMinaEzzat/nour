@@ -8,7 +8,7 @@ Base project: `C:\proj\nour`.
 
 Foundation decision: continue hardening `C:\proj\nour`; Phase 1 did not prove a rewrite or Next.js/NestJS migration is required.
 
-Current phase: Phase 5, AI Hardening, implementation complete and focused AI hardening tests pass against the configured `.env.test` database.
+Current phase: Phase 7, Scale and Compliance, implementation complete and focused scale/compliance tests pass against the configured `.env.test` database.
 
 ## Phase Status
 
@@ -18,7 +18,7 @@ Current phase: Phase 5, AI Hardening, implementation complete and focused AI har
 - Phase 4: Complete - refreshed foundation report written at `docs/codex-roadmap/foundation-report.md`; local install/typecheck/build/tests/Drizzle check/API health smoke pass, but status remains NEEDS WORK due to payment webhook/env/test-safety and product/variant ownership gaps.
 - Phase 5: Complete - AI routes are authenticated/tenant-scoped, provider access is server-side with explicit mock gating, usage events and migration were added, plan-aware rate limits/input limits are in place, and focused AI hardening tests pass.
 - Phase 6: Complete - Paymob webhook CSRF/HMAC/idempotency fixed, payment state changes are stock-safe, WhatsApp admin callback is CSRF-protected, Paymob/WhatsApp mocks are rejected in production, Bosta tenant isolation/idempotency is enforced, and export endpoints are tenant-scoped with date filtering.
-- Phase 7: Not started.
+- Phase 7: Complete - scale/compliance work added queue-backed exports, privacy request execution/export flows, tenant cache invalidation, observability/compliance docs, generated API contract updates, and CI coverage with Postgres-backed tests.
 
 ## Session Notes
 
@@ -47,6 +47,7 @@ Current phase: Phase 5, AI Hardening, implementation complete and focused AI har
 - 2026-05-08: Documented temporary shared-database test mode in `docs/codex-roadmap/testing-database.md` and added `.env.test.example`. Local tests may use `NOUR_TEST_DATABASE_OK=true` while the configured database has no real merchant/customer/order/payment data; before production, move tests to a dedicated test/staging database and remove the override.
 - 2026-05-15: Phase 6 Integrations implementation completed. Added webhook idempotency and state changes testing, including order status updates upon successful Paymob transactions and stock restoration on failure. Hardened WhatsApp callback by securing it with platform admin roles. Mock sending functionality in production is strictly forbidden and tested. Enforced Bosta API tenant isolation by securely sourcing records and limiting updates. Addressed export tenant data safety, strictly scoping customer extractions. Event logging to DB deferred to Phase 7 in favor of explicit request route logging. Verification passed: Paymob, WhatsApp, Bosta (shipping), and Exports specific test files run smoothly against local test database.
 - 2026-05-15: Post-review Phase 6 hardening addressed merge blockers: removed WhatsApp callback CSRF exemption, made production CSRF checks runtime-sensitive for tests, added Paymob strict paid/failed/pending classification, made failed payment stock restoration conditional on a mutable payment-record transition, added a Bosta shipment creation claim via `orders.bosta_shipment_status`, and added regression coverage for production CSRF, duplicate failed webhooks, pending/void/refund/error Paymob payloads, and concurrent Bosta create.
+- 2026-05-16: Post-review Phase 7 hardening addressed merge blockers before merge: privacy exports/execution now prove tenant-owned orders before exposing or redacting customer data, duplicate Bosta shipment migration DDL was removed, order listing generated clients now match the cursor response contract, synchronous CSV exports remain backward-compatible while `async: true` uses background jobs/downloads, storefront cache keys match tenant invalidation, product create/update/delete invalidate tenant storefront cache, CI provisions Postgres and required env for tests/smoke, and focused regression coverage was added for privacy isolation, CSV export behavior, worker exports, and cache invalidation. Verification passed: `pnpm run typecheck` and `pnpm --filter @workspace/api-server exec vitest run src/test/orders.test.ts src/test/privacy.test.ts src/test/jobs.test.ts src/test/cache.test.ts src/test/exports.test.ts src/test/health.test.ts --fileParallelism=false` (6 files, 51 tests).
 
 ## Active Blockers
 

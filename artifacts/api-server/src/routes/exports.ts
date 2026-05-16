@@ -1,17 +1,20 @@
+import fs from "node:fs/promises";
 import { Router } from "express";
-import { db } from "@workspace/db";
-import {
-  exportJobsTable, ordersTable, orderItemsTable, productsTable,
-  customersTable, stockAdjustmentLogsTable, returnCasesTable,
-} from "@workspace/db";
-import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
-import { eq, and, gte, lte, desc } from "drizzle-orm";
-import crypto from "crypto";
+import { backgroundJobsTable, db, exportJobsTable } from "@workspace/db";
+import { desc, eq } from "drizzle-orm";
+import crypto from "node:crypto";
 import { exportLimiter } from "../lib/rate-limiters";
+import { requirePlatformAdmin, requireRole } from "../middleware/require-role";
+import {
+  buildExportRows,
+  getExportFilePath,
+  toCsv,
+  type ExportType,
+} from "../lib/export-csv.js";
 
 const router = Router();
 
-const TYPE_LABELS: Record<string, string> = {
+const TYPE_LABELS: Record<ExportType, string> = {
   orders: "الطلبات",
   order_items: "عناصر الطلبات",
   products: "المنتجات",
@@ -20,76 +23,193 @@ const TYPE_LABELS: Record<string, string> = {
   returns: "المرتجعات",
 };
 
-function toCsv(rows: Record<string, unknown>[]): string {
-  if (!rows.length) return "";
-  const headers = Object.keys(rows[0]);
-  const escape = (v: unknown) => {
-    const s = String(v ?? "");
-    return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g, '""')}"` : s;
-  };
-  return [headers.join(","), ...rows.map((r) => headers.map((h) => escape(r[h])).join(","))].join("\n");
+function isValidExportType(value: unknown): value is ExportType {
+  return typeof value === "string" && value in TYPE_LABELS;
 }
 
-// POST /exports — create export job and run synchronously (small tenants)
-router.post("/exports", requireRole("owner", "manager"), exportLimiter, async (req, res) => {
-  try {
-    const tenantId = req.merchantTenantId!;
-    const merchantId = req.session?.merchantId;
-    const { exportType, dateFrom, dateTo } = req.body;
+function safeDate(value: unknown) {
+  if (!value || typeof value !== "string") return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
 
-    const VALID_TYPES = Object.keys(TYPE_LABELS);
-    if (!VALID_TYPES.includes(exportType)) return res.status(400).json({ error: "نوع التصدير غير صالح" });
+function publicJob(job: typeof exportJobsTable.$inferSelect) {
+  const { downloadToken: _downloadToken, ...safe } = job;
+  return safe;
+}
 
-    const downloadToken = crypto.randomBytes(24).toString("hex");
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+router.post(
+  "/exports",
+  requireRole("owner", "manager"),
+  exportLimiter,
+  async (req, res) => {
+    try {
+      const tenantId = req.merchantTenantId!;
+      const merchantId = req.session?.merchantId;
+      const { exportType } = req.body;
+      const dateFrom = safeDate(req.body.dateFrom);
+      const dateTo = safeDate(req.body.dateTo);
+      const asyncExport = req.body.async === true;
 
-    const [job] = await db.insert(exportJobsTable).values({
-      tenantId,
-      requestedBy: merchantId,
-      exportType,
-      status: "queued",
-      dateFrom: dateFrom ? new Date(dateFrom) : undefined,
-      dateTo: dateTo ? new Date(dateTo) : undefined,
-      downloadToken,
-      expiresAt,
-      startedAt: new Date(),
-    }).returning();
+      if (!isValidExportType(exportType)) {
+        return res.status(400).json({ error: "نوع التصدير غير صالح" });
+      }
 
-    const { backgroundJobsTable } = await import("@workspace/db");
-    await db.insert(backgroundJobsTable).values({
-      tenantId,
-      jobType: "export.csv",
-      payload: { exportJobId: job.id },
-      idempotencyKey: `export-${job.id}-${crypto.randomBytes(4).toString("hex")}`
-    });
+      const downloadToken = crypto.randomBytes(24).toString("hex");
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    res.status(202).json({ message: "تم وضع طلب التصدير في قائمة الانتظار", jobId: job.id });
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "فشل التصدير" });
-  }
-});
+      if (asyncExport) {
+        const [job] = await db
+          .insert(exportJobsTable)
+          .values({
+            tenantId,
+            requestedBy: merchantId,
+            exportType,
+            status: "queued",
+            dateFrom,
+            dateTo,
+            downloadToken,
+            expiresAt,
+          })
+          .returning();
 
-// GET /exports — list export jobs
-router.get("/exports", requireRole("owner", "manager", "staff"), async (req, res) => {
-  try {
-    const tenantId = req.merchantTenantId!;
-    const jobs = await db.select().from(exportJobsTable)
-      .where(eq(exportJobsTable.tenantId, tenantId))
-      .orderBy(desc(exportJobsTable.createdAt))
-      .limit(30);
-    res.json(jobs.map((j) => ({ ...j, downloadToken: undefined })));
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "فشل جلب سجلات التصدير" });
-  }
-});
+        await db.insert(backgroundJobsTable).values({
+          tenantId,
+          jobType: "export.csv",
+          payload: { exportJobId: job.id },
+          idempotencyKey: `export-${job.id}`,
+        });
 
-// GET /exports/platform — platform admin sees all export jobs
+        return res.status(202).json({
+          message: "تم وضع طلب التصدير في قائمة الانتظار",
+          jobId: job.id,
+          downloadUrl: `/api/exports/${job.id}/download`,
+        });
+      }
+
+      const [job] = await db
+        .insert(exportJobsTable)
+        .values({
+          tenantId,
+          requestedBy: merchantId,
+          exportType,
+          status: "processing",
+          dateFrom,
+          dateTo,
+          downloadToken,
+          expiresAt,
+          startedAt: new Date(),
+        })
+        .returning();
+
+      try {
+        const rows = await buildExportRows({
+          tenantId,
+          exportType,
+          dateFrom,
+          dateTo,
+        });
+        await db
+          .update(exportJobsTable)
+          .set({
+            status: "complete",
+            rowCount: rows.length,
+            completedAt: new Date(),
+          })
+          .where(eq(exportJobsTable.id, job.id));
+
+        const csv = toCsv(rows);
+        res.set("Content-Type", "text/csv; charset=utf-8");
+        res.set(
+          "Content-Disposition",
+          `attachment; filename="${exportType}-${tenantId}-${Date.now()}.csv"`,
+        );
+        return res.send(csv);
+      } catch (innerErr) {
+        await db
+          .update(exportJobsTable)
+          .set({
+            status: "failed",
+            errorMessage: String(innerErr),
+            completedAt: new Date(),
+          })
+          .where(eq(exportJobsTable.id, job.id));
+        throw innerErr;
+      }
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "فشل التصدير" });
+    }
+  },
+);
+
+router.get(
+  "/exports",
+  requireRole("owner", "manager", "staff"),
+  async (req, res) => {
+    try {
+      const tenantId = req.merchantTenantId!;
+      const jobs = await db
+        .select()
+        .from(exportJobsTable)
+        .where(eq(exportJobsTable.tenantId, tenantId))
+        .orderBy(desc(exportJobsTable.createdAt))
+        .limit(30);
+      res.json(jobs.map(publicJob));
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "فشل جلب سجلات التصدير" });
+    }
+  },
+);
+
+router.get(
+  "/exports/:id/download",
+  requireRole("owner", "manager", "staff"),
+  async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0)
+      return res.status(400).json({ error: "معرف التصدير غير صالح" });
+
+    try {
+      const [job] = await db
+        .select()
+        .from(exportJobsTable)
+        .where(eq(exportJobsTable.id, id));
+
+      if (!job || job.tenantId !== req.merchantTenantId) {
+        return res.status(404).json({ error: "ملف التصدير غير موجود" });
+      }
+      if (job.status !== "complete" || !job.downloadToken) {
+        return res.status(409).json({ error: "ملف التصدير غير جاهز بعد" });
+      }
+      if (job.expiresAt && job.expiresAt.getTime() < Date.now()) {
+        return res.status(410).json({ error: "انتهت صلاحية ملف التصدير" });
+      }
+
+      const filePath = getExportFilePath(job.id, job.downloadToken);
+      const csv = await fs.readFile(filePath, "utf8");
+      res.set("Content-Type", "text/csv; charset=utf-8");
+      res.set(
+        "Content-Disposition",
+        `attachment; filename="${job.exportType}-${job.tenantId}-${job.id}.csv"`,
+      );
+      return res.send(csv);
+    } catch (err) {
+      req.log.error(err);
+      res.status(404).json({ error: "ملف التصدير غير موجود" });
+    }
+  },
+);
+
 router.get("/exports/platform", requirePlatformAdmin, async (req, res) => {
   try {
-    const jobs = await db.select().from(exportJobsTable).orderBy(desc(exportJobsTable.createdAt)).limit(100);
-    res.json(jobs.map((j) => ({ ...j, downloadToken: undefined })));
+    const jobs = await db
+      .select()
+      .from(exportJobsTable)
+      .orderBy(desc(exportJobsTable.createdAt))
+      .limit(100);
+    res.json(jobs.map(publicJob));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل" });
