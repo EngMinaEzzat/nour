@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEO-OASIS | Glow Grid Storefront</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wght@700;800&amp;family=Space+Grotesk:wght@500;700&amp;family=Spline+Sans:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#cec6ad",
+                        "surface-bright": "#3a3939",
+                        "secondary-fixed-dim": "#b4d400",
+                        "on-primary-container": "#d4d9ff",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#0046fa",
+                        "secondary-container": "#cdf200",
+                        "on-secondary-fixed-variant": "#3f4c00",
+                        "inverse-on-surface": "#313030",
+                        "secondary": "#ffffff",
+                        "outline": "#8e8fa3",
+                        "on-primary-fixed": "#001257",
+                        "on-surface-variant": "#c4c5da",
+                        "tertiary-fixed-dim": "#cec6ad",
+                        "surface-container-high": "#2a2a2a",
+                        "background": "#131313",
+                        "on-tertiary-fixed": "#1f1c0b",
+                        "on-error": "#690005",
+                        "secondary-fixed": "#cdf200",
+                        "surface-tint": "#b9c3ff",
+                        "on-surface": "#e5e2e1",
+                        "surface-container": "#201f1f",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "primary-container": "#0047ff",
+                        "error": "#ffb4ab",
+                        "on-secondary": "#2b3400",
+                        "surface": "#131313",
+                        "surface-dim": "#131313",
+                        "primary-fixed": "#dde1ff",
+                        "on-secondary-container": "#5a6b00",
+                        "primary": "#b9c3ff",
+                        "on-primary-fixed-variant": "#0033c0",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary-container": "#e4dbc1",
+                        "on-tertiary": "#35301e",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#66604b",
+                        "outline-variant": "#434657",
+                        "tertiary-fixed": "#ebe2c8",
+                        "on-primary": "#00228a",
+                        "on-tertiary-fixed-variant": "#4c4733",
+                        "inverse-surface": "#e5e2e1",
+                        "on-secondary-fixed": "#181e00",
+                        "primary-fixed-dim": "#b9c3ff",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "stack-lg": "48px",
+                        "stack-sm": "8px",
+                        "gutter": "16px",
+                        "stack-md": "24px",
+                        "margin-desktop": "40px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["splineSans"],
+                        "body-md": ["splineSans"],
+                        "display-lg-mobile": ["anybody"],
+                        "display-lg": ["anybody"],
+                        "headline-lg-mobile": ["anybody"],
+                        "headline-lg": ["anybody"],
+                        "label-bold": ["spaceGrotesk"],
+                        "label-sm": ["spaceGrotesk"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "label-bold": ["14px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface/40 backdrop-blur-xl dark:bg-surface-container/40 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 docked full-width top-0 sticky z-50 border-b border-white/10 shadow-[0px_10px_30px_rgba(185,195,255,0.15)]">
+<div class="font-anybody font-extrabold text-headline-lg tracking-tighter text-secondary-fixed dark:text-secondary-fixed-dim">
+            NEO-OASIS
+        </div>
+<nav class="hidden md:flex gap-gutter items-center">
+<a class="text-on-surface-variant hover:text-secondary-fixed transition-colors font-label-bold text-label-bold px-4 py-2 hover:bg-white/5 transition-all duration-300 scale-95 active:scale-90 rounded-full" href="#">Drops</a>
+<a class="text-secondary-fixed font-bold border-b-2 border-secondary-fixed pb-1 font-label-bold text-label-bold px-4 hover:bg-white/5 transition-all duration-300 scale-95 active:scale-90 rounded-full" href="#">Beauty</a>
+<a class="text-on-surface-variant hover:text-secondary-fixed transition-colors font-label-bold text-label-bold px-4 py-2 hover:bg-white/5 transition-all duration-300 scale-95 active:scale-90 rounded-full" href="#">Apparel</a>
+</nav>
+<div class="flex gap-stack-sm items-center">
+<button class="text-primary dark:text-primary-fixed hover:bg-white/5 transition-all duration-300 p-2 scale-95 active:scale-90 transition-transform rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="text-primary dark:text-primary-fixed hover:bg-white/5 transition-all duration-300 p-2 scale-95 active:scale-90 transition-transform rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-surface-variant ml-2">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzRz8F7kANqlihR00O7-zfn4RB7a3e8vihsGIuL-BTcwetPf7l_jP3iOjLWRLsG0YEV0paCBRFI2tZGheQl2NbX0hAvb2Vc6bZdqvR5ZcwoB4ECEYUR9V6z7R_Y15hip-9FxMdqUTRsFrUH9gVKjCfs7wV0b8ksjChGlOti2p0X6Nh-i5pvAxEKt4YGX6UgNj1YtpDpMGcOUsTDCcNNZgCGVo4i9Q57-JcIS8fZaCsx5z2X1wrBHUyNeneF4Pe5HnGjOX0Q5DuXuXP"/>
+</div>
+</div>
+</header>
+<!-- Trending Ticker -->
+<div class="w-full bg-secondary-fixed text-on-secondary-fixed py-2 overflow-hidden flex whitespace-nowrap border-b border-on-secondary-fixed/10">
+<div class="font-label-bold text-label-bold px-margin-mobile flex gap-stack-lg tracking-widest">
+<span>TRENDING NOW: GLOW SERUM</span>
+<span>✦</span>
+<span>RESTOCKED: LIQUID BLAZE</span>
+<span>✦</span>
+<span>NEW DROP: DUNE PALETTE</span>
+<span>✦</span>
+<span>TRENDING NOW: GLOW SERUM</span>
+<span class="hidden md:inline">✦</span>
+<span class="hidden md:inline">RESTOCKED: LIQUID BLAZE</span>
+</div>
+</div>
+<!-- Hero Section -->
+<section class="relative w-full h-[870px] min-h-[600px] flex items-end justify-start px-margin-mobile md:px-margin-desktop pb-stack-lg mb-stack-lg overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover z-0" data-alt="A striking close-up fashion portrait of a model with glowing, dewy skin and vibrant, highly pigmented geometric eye makeup in neon mint and deep electric blue. The model is set against a harsh, sun-drenched concrete backdrop, reflecting a high-contrast, edgy streetwear aesthetic. The lighting is bright and directional, casting strong, graphic shadows that emphasize the glassmorphic, tech-forward vibe of the overall composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAm5qSPJNgLbrnX5jBFEyV922bpYNVZj0g3mdxs7c8pqWUrirKErYa4T1YZsBihFM2dPyZJNXYdVTOhv8Hki7EsZvwmOJBelYdYs4hkzsJ1NReMS0WH3wb21azQzK6DTYXa-XaxWL7Dbcr4DvTe2NGfwq4vk6Dpfojkmr2C_Fl-sFFtY1MYmj5sVO551_aYm2heEjvax4nRZcK4Kq9UUVssTr_05cc1BTcBx9Y_fh06RAGcCws6aKsaiU1Pn-O-rON2nQ2G6DMdEx6"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent z-0"></div>
+<div class="relative z-10 w-full md:max-w-xl bg-surface/40 backdrop-blur-2xl border border-primary-fixed/20 p-stack-md rounded-xl shadow-[0px_10px_40px_rgba(0,71,255,0.2)] ml-0 md:ml-margin-desktop">
+<div class="absolute top-0 left-0 w-full h-1 bg-secondary-fixed rounded-t-xl"></div>
+<span class="inline-block bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm px-3 py-1 rounded-full mb-stack-md tracking-wider">
+                THE DROP
+            </span>
+<h1 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-secondary mb-stack-sm leading-tight">
+                NEO-GLOW<br/>ELIXIR
+            </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mb-stack-lg max-w-sm">
+                High-vibe pigment meets pure desert hydration. Experience the ultimate glass-skin finish designed for the digital native.
+            </p>
+<div class="flex gap-gutter items-center">
+<button class="bg-primary-container text-secondary font-label-bold text-label-bold px-8 py-3 rounded-full hover:bg-inverse-primary transition-colors duration-300 shadow-[0px_0px_20px_rgba(0,71,255,0.4)]">
+                    SHOP THE LOOK
+                </button>
+<div class="flex -space-x-3">
+<img alt="Social proof user" class="w-10 h-10 rounded-full border-2 border-surface object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBeb80A1QNOyB9mqreoCt-bdk-cgyzmI2FBPFkSshCPKdgxU5afB_HpOPofD7qGlBh7XFpwp3Pa2cOi9fO3zBj4nqu-_zN3_nVmi-BKAI5OFekCfbyqke2BjT22tdp6kQ7spcfzyJ2gW5JxzxgVGkZpvFKHBptK0MMlgaexbTBV_d7hdSVJNwV393IhBlLmHpIjMjaVamjNrt6YoN4SsStEE4Sdje3mLYCILEmP3TksIeu4FvbjIyToZ4llQj7i5nRIOEeVElTGk_x"/>
+<img alt="Social proof user" class="w-10 h-10 rounded-full border-2 border-surface object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqLHBt7cc2d5REEDTv2ScCGlHMbFlq16uH_TydjBCz84CmPDHBVT2TMfRJbMy2CPASD1l6c9Qcxhda5et5KTWYOEBcZkzfphxYlhctR9z21hT4DuJyN_izyUwf_V_wyBRwhzqJzvlRKNkb-i6zxn8adcuHN66-11Y8g6IObaJ3Bet67werMBx6h9g--_6sji9_NBJUwvk448XJH7hR0HFTDhW302FP6YhyWeX10PRGBgHzk-3K0Wh5DmY2SNHCnHvNSqRZoMk4qLHc"/>
+<div class="w-10 h-10 rounded-full border-2 border-surface bg-surface-container flex items-center justify-center font-label-sm text-label-sm text-secondary-fixed">
+                        +2k
+                    </div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid (Glow Grid) -->
+<section class="px-margin-mobile md:px-margin-desktop py-stack-lg max-w-screen-2xl mx-auto">
+<div class="mb-stack-md flex justify-between items-end border-b border-surface-variant pb-stack-sm">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-secondary">THE GLOW GRID</h2>
+<a class="font-label-bold text-label-bold text-primary hover:text-primary-fixed transition-colors flex items-center gap-2" href="#">
+                VIEW ALL <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter auto-rows-[320px]">
+<!-- Bento Item 1: Large Featured -->
+<div class="md:col-span-8 row-span-2 relative rounded-2xl overflow-hidden group border border-surface-variant bg-surface-container">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A stylized product shot of a sleek cosmetics palette featuring sand and earthy tones, resting on an abstract, jagged neo-mint colored digital pedestal. The lighting is harsh and dramatic, mimicking bright sunlight against dark shadows, typical of a high-end streetwear aesthetic. The scene is framed symmetrically within a subtle glassmorphic overlay to give a sense of digital depth and modern luxury." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqR1TeWipo09oi8WD8Y8zHCgmy_LEtex9SYG5jYUP2f6xo0NqIagtMF_XkW_KTTcYHoUysBp2PWPE5ckz-sysl9j_mChBffUDspyo7gFrYj35jnEqbc4A5pIWGx3dxIi8QhSEXWP-JxyBGrJsueDGOkQxjOq2voN3Vx6rZRF1E9tpCnYNZf8PRiLlHiEUqXEuYf1JEk7r3931R2Q9onas0ayqZU0XzX2TU77cMo2C0BFKOllqHAIRzN6E0ApqVjDgnlMH_vYRP7ySY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent"></div>
+<div class="absolute top-stack-md left-stack-md flex gap-2">
+<span class="bg-surface/60 backdrop-blur-md text-secondary border border-white/20 font-label-sm text-label-sm px-3 py-1 rounded-full">LIMITED</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full p-stack-lg">
+<h3 class="font-display-lg-mobile text-display-lg-mobile text-secondary mb-2">SAND DUNE PALETTE</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-6 max-w-md">Earthy tones infused with electric pigments. Engineered for everyday structural definition.</p>
+<button class="bg-transparent border border-secondary-fixed text-secondary-fixed hover:bg-secondary-fixed hover:text-on-secondary-fixed font-label-bold text-label-bold px-6 py-2 rounded-full transition-all duration-300">
+                        EXPLORE SHADES
+                    </button>
+</div>
+</div>
+<!-- Bento Item 2: Color Block -->
+<div class="md:col-span-4 row-span-1 bg-tertiary text-on-tertiary rounded-2xl p-stack-md flex flex-col justify-between shadow-[0px_10px_30px_rgba(206,198,173,0.1)] relative overflow-hidden group">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-secondary-fixed rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
+<div class="flex justify-between items-start relative z-10">
+<span class="font-label-bold text-label-bold uppercase tracking-widest bg-on-tertiary text-tertiary px-2 py-1 rounded-sm text-[10px]">PIGMENT</span>
+<span class="material-symbols-outlined">bolt</span>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile mb-2">LIQUID<br/>BLAZE</h3>
+<div class="w-full h-1 bg-on-tertiary/20 rounded-full mb-4">
+<div class="w-3/4 h-full bg-on-tertiary rounded-full"></div>
+</div>
+<a class="inline-flex items-center gap-2 font-label-bold text-label-bold border-b-2 border-on-tertiary pb-1 hover:pr-2 transition-all" href="#">
+                        ADD TO BAG <span class="material-symbols-outlined text-[16px]">shopping_cart</span>
+</a>
+</div>
+</div>
+<!-- Bento Item 3: Glassmorphic Texture -->
+<div class="md:col-span-4 row-span-1 bg-surface-container rounded-2xl p-stack-md relative overflow-hidden border border-surface-variant group">
+<img class="absolute top-0 right-0 w-2/3 h-full object-cover opacity-60 mix-blend-luminosity group-hover:mix-blend-normal group-hover:scale-105 transition-all duration-700" data-alt="A close-up macro shot of a rich, glossy lip balm texture smeared across a sleek black glass surface. The lip balm has a vibrant, deep electric blue tint that catches the light, creating intense highlights and a tactile, liquid feel. The overall aesthetic is dark, moody, and highly saturated, fitting perfectly into a modern, high-contrast cosmetics brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMryNzN-cJC-CP4cBycABlY0CJifJwOJ7iCKQeU35vheATX_oYk61Vgv1jtt4jWqjPF_Y9Rd7nWVzwzNJKLsujxCT8e4ChXzbUupTVgNX-YtxqsfiXj3xB3Xap2jq5F8TTKCwYog-4-laolnC3C-WDzjmUC3yhuPYA7oYTD3vK5XSlU_xnLmJ_w7sw052armFvy8n6QcetJtlA9i0fr31q9v4xEVF5tqBCG9SpLf4Z-OmWwv3hsFgMzROpNxt2cn6RVD1rlKedBHwg"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface-container via-surface-container/80 to-transparent z-0"></div>
+<div class="relative z-10 flex flex-col justify-between h-full">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 bg-secondary-fixed rounded-full animate-pulse"></div>
+<span class="text-secondary-fixed font-label-sm text-label-sm tracking-widest">LIVE DROP</span>
+</div>
+<div>
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-secondary mb-1">GLASS BALM</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Hyper-reflective finish.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-background w-full relative mt-stack-lg border-t border-surface-variant grid grid-cols-1 md:grid-cols-12 gap-gutter px-margin-mobile md:px-margin-desktop py-stack-lg max-w-7xl mx-auto flat no shadows">
+<div class="md:col-span-4 flex flex-col items-start gap-stack-md">
+<div class="font-anybody font-black text-headline-lg text-primary">
+                NEO-OASIS
+            </div>
+<p class="font-body-md text-body-md md:text-body-lg text-secondary-fixed">
+                © 2024 NEO-OASIS DIGITAL. ALL RIGHTS RESERVED.
+            </p>
+</div>
+<div class="md:col-span-8 flex flex-wrap gap-x-stack-lg gap-y-stack-md md:justify-end">
+<a class="font-body-md text-body-md md:text-body-lg text-primary underline hover:translate-x-1 transition-transform transition-all duration-300 block" href="#">Community Hub</a>
+<a class="font-body-md text-body-md md:text-body-lg text-on-surface-variant hover:text-secondary-fixed hover:translate-x-1 transition-transform transition-all duration-300 block" href="#">Join the Squad</a>
+<a class="font-body-md text-body-md md:text-body-lg text-on-surface-variant hover:text-secondary-fixed hover:translate-x-1 transition-transform transition-all duration-300 block" href="#">Privacy</a>
+<a class="font-body-md text-body-md md:text-body-lg text-on-surface-variant hover:text-secondary-fixed hover:translate-x-1 transition-transform transition-all duration-300 block" href="#">Terms</a>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface/60 backdrop-blur-2xl dark:bg-surface-container-low/60 docked full-width bottom-0 fixed z-50 rounded-t-xl border-t border-white/5 shadow-[0px_-10px_40px_rgba(0,0,0,0.5)] fixed bottom-0 left-0 w-full flex justify-around items-center py-3 px-6 md:hidden">
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full px-4 py-1 animate-pulse-subtle font-label-sm text-label-sm hover:text-primary transition-all active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">home</span>
+<span>Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">bolt</span>
+<span>Drops</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all active:scale-90 transition-all duration-200 relative" href="#">
+<div class="absolute top-0 right-1 w-2 h-2 bg-secondary-fixed rounded-full"></div>
+<span class="material-symbols-outlined text-[24px] mb-1">videocam</span>
+<span>Live</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">person</span>
+<span>Profile</span>
+</a>
+</nav>
+</body></html>

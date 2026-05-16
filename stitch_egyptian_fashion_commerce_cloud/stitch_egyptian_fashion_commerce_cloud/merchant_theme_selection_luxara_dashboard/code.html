@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Merchant Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#775a19",
+                    "on-primary-fixed-variant": "#065043",
+                    "on-secondary-fixed": "#261900",
+                    "surface-tint": "#29695b",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f6f3f2",
+                    "on-primary-container": "#7ebdac",
+                    "secondary-fixed-dim": "#e9c176",
+                    "tertiary-container": "#434533",
+                    "outline": "#707975",
+                    "inverse-on-surface": "#f3f0f0",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#00201a",
+                    "tertiary-fixed-dim": "#c8c8b0",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "surface-variant": "#e4e2e1",
+                    "inverse-primary": "#94d3c1",
+                    "on-tertiary-fixed-variant": "#474836",
+                    "outline-variant": "#bfc9c4",
+                    "secondary-fixed": "#ffdea5",
+                    "primary": "#00342b",
+                    "on-surface-variant": "#3f4945",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "surface-container-highest": "#e4e2e1",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#e4e4cc",
+                    "on-secondary-container": "#785a1a",
+                    "background": "#fbf9f8",
+                    "on-tertiary-fixed": "#1b1d0e",
+                    "primary-container": "#004d40",
+                    "tertiary": "#2d2f1e",
+                    "inverse-surface": "#303030",
+                    "surface": "#fbf9f8",
+                    "error": "#ba1a1a",
+                    "surface-container": "#f0eded",
+                    "surface-bright": "#fbf9f8",
+                    "on-tertiary-container": "#b1b29b",
+                    "surface-container-high": "#eae8e7",
+                    "secondary-container": "#fed488",
+                    "on-background": "#1b1c1c",
+                    "primary-fixed-dim": "#94d3c1",
+                    "on-surface": "#1b1c1c",
+                    "primary-fixed": "#afefdd"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "container-max": "1440px",
+                    "margin-tablet": "32px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Playfair Display"],
+                    "display-lg": ["Playfair Display"],
+                    "headline-lg": ["Playfair Display"],
+                    "body-lg": ["Montserrat"],
+                    "label-caps": ["Montserrat"],
+                    "body-sm": ["Montserrat"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "body-md": ["Montserrat"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md flex min-h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen flex flex-col z-50 bg-primary border-r border-outline-variant/10 shadow-sm shadow-primary/10 w-64 duration-300 ease-out">
+<div class="p-6 pb-8 border-b border-outline-variant/10">
+<h1 class="font-headline-md text-headline-md text-on-primary">Luxor Couture</h1>
+<p class="font-label-caps text-label-caps text-secondary-fixed-dim mt-2">Enterprise Partner</p>
+</div>
+<div class="p-6">
+<button class="w-full bg-secondary text-on-secondary-fixed font-label-caps text-label-caps py-3 px-4 rounded-DEFAULT flex items-center justify-center gap-2 hover:bg-secondary-fixed transition-colors">
+<span class="material-symbols-outlined">add</span>
+                New Collection
+            </button>
+</div>
+<ul class="flex-1 flex flex-col pt-4 overflow-y-auto">
+<li>
+<a class="flex items-center gap-4 text-on-primary/70 py-4 px-6 hover:bg-primary-container/10 hover:text-on-primary transition-all font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 text-on-primary/70 py-4 px-6 hover:bg-primary-container/10 hover:text-on-primary transition-all font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                    Inventory
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 text-on-primary/70 py-4 px-6 hover:bg-primary-container/10 hover:text-on-primary transition-all font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">shopping_bag</span>
+                    Orders
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 text-on-primary/70 py-4 px-6 hover:bg-primary-container/10 hover:text-on-primary transition-all font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+                    Analytics
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 text-on-primary border-l-4 border-secondary bg-primary-container/20 py-4 px-6 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined fill">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+<div class="mt-auto border-t border-outline-variant/10 pt-4 pb-6">
+<a class="flex items-center gap-4 text-on-primary/70 py-3 px-6 hover:bg-primary-container/10 hover:text-on-primary transition-all font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+                Support
+            </a>
+<a class="flex items-center gap-4 text-on-primary/70 py-3 px-6 hover:bg-primary-container/10 hover:text-on-primary transition-all font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Sign Out
+            </a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col ml-64 h-screen">
+<!-- TopNavBar -->
+<header class="bg-surface sticky top-0 z-40 flat no shadows transition-all duration-200 ease-in-out border-b border-surface-variant/50">
+<div class="flex justify-between items-center h-20 px-margin-desktop w-full max-w-container-max mx-auto">
+<!-- Search Bar (on_left) -->
+<div class="flex-1 flex items-center max-w-md">
+<div class="relative w-full flex items-center border-b-2 border-outline-variant focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-outline absolute left-0 pb-1">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 pl-8 pb-2 font-body-sm text-body-sm text-on-surface placeholder:text-outline-variant" placeholder="Search operations..." type="text"/>
+</div>
+</div>
+<!-- Brand Anchor -->
+<div class="absolute left-1/2 transform -translate-x-1/2">
+<span class="font-display-lg text-headline-md text-primary tracking-tight">Aethelgard Merchant</span>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<button class="flex items-center gap-3 text-on-surface-variant hover:text-secondary transition-colors group">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant group-hover:border-secondary transition-colors">
+<img alt="Merchant Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a confident female retail executive with warm lighting, set against a blurred, minimalist corporate office background. The color palette leans towards neutral off-whites and deep teals, embodying a high-end, sophisticated business persona suited for a luxury platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWKrQL37_OURsWQ1J73mlbqu56hufnsjgF1_VqVmtw_Hm3BXUDLmE7_092lzUE61fxosysW-mZNVul1rA6nrymgHrIeY93xRvyWKdSd6wLtWqNAJqju4dem57S2K9McXUMhULDe74Ni8HwWVu5KmX4yIVN9_87J440m5lP35hiz2HiNaSxurX4B4ygHc3BDZ61hwi3nQt2ilO9GmP5TYub2hNm_svYfx_-9sJYjPEPwDU2uqAzPCbp0vIMZAggcAJzMIwF99E0n-8n"/>
+</div>
+<span class="font-label-caps text-label-caps">Profile</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Canvas Area -->
+<main class="flex-1 overflow-y-auto bg-background p-margin-desktop">
+<div class="max-w-container-max mx-auto">
+<!-- Page Header -->
+<div class="mb-12">
+<h2 class="font-display-lg text-display-lg text-primary">Settings</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Manage your storefront identity, operational preferences, and security protocols.</p>
+</div>
+<!-- Tabs -->
+<nav class="flex border-b border-surface-variant mb-12 gap-8">
+<a class="pb-4 font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors border-b-2 border-transparent" href="#">PROFILE</a>
+<a class="pb-4 font-label-caps text-label-caps text-primary border-b-2 border-secondary font-bold" href="#">STOREFRONT IDENTITY</a>
+<a class="pb-4 font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors border-b-2 border-transparent" href="#">PAYMENTS</a>
+<a class="pb-4 font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors border-b-2 border-transparent" href="#">SECURITY</a>
+</nav>
+<!-- Storefront Identity Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Branding Column -->
+<div class="md:col-span-4 flex flex-col gap-6">
+<!-- Logo Upload Card -->
+<div class="bg-surface-container-lowest rounded-lg p-8 shadow-sm">
+<h3 class="font-headline-md text-headline-md text-primary mb-6">Brand Mark</h3>
+<div class="border-2 border-dashed border-outline-variant hover:border-primary transition-colors rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer group bg-surface-container-low">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 group-hover:bg-primary-container/10 transition-colors">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" style="font-size: 32px;">cloud_upload</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-2">Drag and drop your logo</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">SVG, PNG, or JPG (max. 5MB)</p>
+<button class="border border-secondary text-primary font-label-caps text-label-caps px-6 py-2 rounded-DEFAULT hover:bg-secondary/5 transition-colors">
+                                    BROWSE FILES
+                                </button>
+</div>
+<div class="mt-6 flex items-center gap-4">
+<div class="w-12 h-12 rounded-DEFAULT bg-primary flex items-center justify-center shadow-sm">
+<span class="font-headline-md text-headline-md text-on-primary">LC</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-semibold">Current Logo</p>
+<p class="font-body-sm text-body-sm text-outline">luxor_mark_v2.svg</p>
+</div>
+</div>
+</div>
+<!-- Color Palette Card -->
+<div class="bg-surface-container-lowest rounded-lg p-8 shadow-sm">
+<h3 class="font-headline-md text-headline-md text-primary mb-6">Brand Colors</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">These colors will inform buttons, links, and accents across your storefront.</p>
+<div class="space-y-6">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">PRIMARY BRAND COLOR</label>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary border border-outline-variant shadow-sm flex-shrink-0"></div>
+<div class="flex-1 relative">
+<input class="w-full bg-transparent border-b-2 border-on-surface-variant focus:border-primary py-2 font-body-md text-body-md text-on-surface outline-none transition-colors" type="text" value="#00342B"/>
+</div>
+</div>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">ACCENT COLOR</label>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary border border-outline-variant shadow-sm flex-shrink-0"></div>
+<div class="flex-1 relative">
+<input class="w-full bg-transparent border-b-2 border-on-surface-variant focus:border-primary py-2 font-body-md text-body-md text-on-surface outline-none transition-colors" type="text" value="#775A19"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Theme Selector Column -->
+<div class="md:col-span-8">
+<div class="bg-surface-container-lowest rounded-lg p-8 border-t border-secondary shadow-sm h-full">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">Theme Gallery</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Select a curated design system framework to dictate the architectural feel of your digital boutique.</p>
+</div>
+<button class="text-secondary hover:text-primary transition-colors font-label-caps text-label-caps flex items-center gap-2">
+                                    VIEW ALL <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+<!-- Active Theme Card -->
+<div class="group relative rounded-lg overflow-hidden border-2 border-primary">
+<div class="absolute top-4 left-4 z-10">
+<span class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-label-caps px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined fill" style="font-size: 14px;">check_circle</span> ACTIVE
+                                        </span>
+</div>
+<div class="aspect-[4/3] bg-surface-variant relative overflow-hidden"><div class="absolute inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+<button class="bg-surface-container-lowest text-primary font-label-caps text-label-caps px-6 py-3 rounded-DEFAULT hover:shadow-lg transition-all transform translate-y-4 group-hover:translate-y-0">
+        PREVIEW THEME
+    </button>
+</div>
+<img alt="New-Vintage Souq Theme Preview" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A sophisticated digital rendering of a modern minimalist e-commerce interface focusing on fashion. The design features a sand-colored background with deep teal and desert gold accents. A sleek, high-aspect ratio image carousel displays haute couture, overlayed with elegant Playfair Display typography. The overall mood is luxurious, serene, and structurally sound." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAU9N53w_MD9DcMQ8PIi9TbBJdGwNvsGgPoNrILEiz6fcsEJHqF9wMyzFW3b_DZsDEiObCuQmlKW_wN8yzXkkNIfbC64DbFAW-ntbkl7l8YcQpCgLv6qO4wDksTXzVGK1QOAC-5FfzsREwIcDw-T4Xk0g6JtQr7dZZD6o-BygT4a-OlJJ3R-s-17Gwmf8CqMXAn2WcqiZ46RHBXTkut3ocpNYRqC05_ke9hwsoNOkBE1mn1xSYlM3_92Sc7v85tYdsBFTZpG9W4QvDL"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-80"></div>
+<div class="absolute bottom-0 left-0 p-6 w-full">
+<h4 class="font-headline-lg text-headline-lg text-on-primary mb-1">New-Vintage Souq</h4>
+<p class="font-body-sm text-body-sm text-on-primary/80 line-clamp-2">A harmonious blend of brutalist spacing and organic textures. Perfect for heritage brands transitioning to digital.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 flex justify-between items-center border-t border-outline-variant/20">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Version 2.4.1</span>
+<button class="text-secondary font-label-caps text-label-caps hover:text-primary transition-colors">CUSTOMIZE</button>
+</div>
+</div>
+<!-- Inactive Theme Card -->
+<div class="group relative rounded-lg overflow-hidden border border-outline-variant hover:border-secondary transition-colors bg-surface-container-lowest">
+<div class="aspect-[4/3] bg-surface-variant relative overflow-hidden">
+<img alt="Digital Oasis Theme Preview" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" data-alt="A clean, luminous architectural space featuring pristine white walls, vast windows, and minimal structural lines. The aesthetic reflects a 'Digital Oasis' design theme, prioritizing immense negative space, sharp geometric precision, and an airy, light-mode palette. The lighting is diffused and bright, creating a stark, modern corporate feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPwSBXIb23trbZWjefvDZO2B3KueOJ_1ExI5xBNl9PYbSTXHj1cxc3-322q9PYbCPAskH6jKlS4bUwJU-AsMMNzS-BNvF06VeD1DnNwYlGxipbHMQF42KF5aMGDDhwAnrgX1-d3m2NH9jZshsTLMVqxgX2tRKxUWaT37nKbiTRAKk3LWXhqPreTVwyBN3_TcJTDpbG3mnjwBFZYUSseRmgb7yUVRQEZqSbUEYTEnXyrwlRI0bKd9X-f3yfm0mJAv27A-1e-h5SfZpd"/>
+<div class="absolute inset-0 bg-gradient-to-t from-tertiary/60 to-transparent opacity-60"></div>
+<!-- Overlay Action on Hover -->
+<div class="absolute inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<button class="bg-surface-container-lowest text-primary font-label-caps text-label-caps px-6 py-3 rounded-DEFAULT hover:shadow-lg transition-all transform translate-y-4 group-hover:translate-y-0">
+                                                PREVIEW THEME
+                                            </button>
+</div>
+<div class="absolute bottom-0 left-0 p-6 w-full pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
+<h4 class="font-headline-lg text-headline-lg text-on-primary mb-1">Digital Oasis</h4>
+<p class="font-body-sm text-body-sm text-on-primary/80 line-clamp-2">Vibrant, high-energy, and social-media-ready.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 flex justify-between items-center border-t border-outline-variant/20">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Version 1.2.0</span>
+<button class="text-secondary font-label-caps text-label-caps hover:text-primary transition-colors">CUSTOMIZE</button>
+</div></div><div class="group relative rounded-lg overflow-hidden border border-outline-variant hover:border-secondary transition-colors bg-surface-container-lowest flex flex-col">
+<div class="aspect-[4/3] bg-surface-variant relative overflow-hidden">
+<img alt="Architectural Minimal Theme Preview" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90" data-alt="A high-end architectural interior with sharp clean lines, polished stone surfaces, and dramatic lighting. The space is vast and uncluttered, emphasizing silent luxury and structural perfection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAU9N53w_MD9DcMQ8PIi9TbBJdGwNvsGgPoNrILEiz6fcsEJHqF9wMyzFW3b_DZsDEiObCuQmlKW_wN8yzXkkNIfbC64DbFAW-ntbkl7l8YcQpCgLv6qO4wDksTXzVGK1QOAC-5FfzsREwIcDw-T4Xk0g6JtQr7dZZD6o-BygT4a-OlJJ3R-s-17Gwmf8CqMXAn2WcqiZ46RHBXTkut3ocpNYRqC05_ke9hwsoNOkBE1mn1xSYlM3_92Sc7v85tYdsBFTZpG9W4QvDL"/>
+<div class="absolute inset-0 bg-gradient-to-t from-tertiary/60 to-transparent opacity-60"></div>
+<div class="absolute inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<button class="bg-surface-container-lowest text-primary font-label-caps text-label-caps px-6 py-3 rounded-DEFAULT hover:shadow-lg transition-all transform translate-y-4 group-hover:translate-y-0">
+                PREVIEW THEME
+            </button>
+</div>
+<div class="absolute bottom-0 left-0 p-6 w-full pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
+<h4 class="font-headline-lg text-headline-lg text-on-primary mb-1">Architectural Minimal</h4>
+<p class="font-body-sm text-body-sm text-on-primary/80 line-clamp-2">Strict grids, extreme whitespace, and structural elegance.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 flex justify-between items-center border-t border-outline-variant/20 mt-auto">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Version 1.0.5</span>
+<button class="text-secondary font-label-caps text-label-caps hover:text-primary transition-colors">CUSTOMIZE</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

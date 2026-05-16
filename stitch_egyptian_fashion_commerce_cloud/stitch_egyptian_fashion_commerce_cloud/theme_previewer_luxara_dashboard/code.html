@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Theme Previewer - Luxara Merchant Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-container": "#fed488",
+                      "surface-tint": "#29695b",
+                      "surface-container-low": "#f6f3f2",
+                      "inverse-surface": "#303030",
+                      "secondary": "#775a19",
+                      "primary": "#00342b",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed-variant": "#065043",
+                      "on-secondary-container": "#785a1a",
+                      "tertiary-fixed-dim": "#c8c8b0",
+                      "on-surface": "#1b1c1c",
+                      "on-surface-variant": "#3f4945",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#fbf9f8",
+                      "tertiary-fixed": "#e4e4cc",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#b1b29b",
+                      "on-secondary-fixed": "#261900",
+                      "secondary-fixed-dim": "#e9c176",
+                      "background": "#fbf9f8",
+                      "primary-container": "#004d40",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#434533",
+                      "on-secondary-fixed-variant": "#5d4201",
+                      "surface-container": "#f0eded",
+                      "secondary-fixed": "#ffdea5",
+                      "surface-dim": "#dcd9d9",
+                      "tertiary": "#2d2f1e",
+                      "surface-container-highest": "#e4e2e1",
+                      "on-primary-container": "#7ebdac",
+                      "outline-variant": "#bfc9c4",
+                      "on-secondary": "#ffffff",
+                      "primary-fixed-dim": "#94d3c1",
+                      "on-tertiary-fixed": "#1b1d0e",
+                      "surface-container-high": "#eae8e7",
+                      "surface": "#fbf9f8",
+                      "on-primary-fixed": "#00201a",
+                      "on-tertiary-fixed-variant": "#474836",
+                      "on-error-container": "#93000a",
+                      "primary-fixed": "#afefdd",
+                      "inverse-on-surface": "#f3f0f0",
+                      "outline": "#707975",
+                      "surface-variant": "#e4e2e1",
+                      "inverse-primary": "#94d3c1",
+                      "on-background": "#1b1c1c",
+                      "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "unit": "8px",
+                      "gutter": "24px",
+                      "margin-desktop": "64px",
+                      "container-max": "1440px",
+                      "margin-mobile": "16px",
+                      "margin-tablet": "32px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "Montserrat"
+                      ],
+                      "body-sm": [
+                              "Montserrat"
+                      ],
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Montserrat"
+                      ],
+                      "body-md": [
+                              "Montserrat"
+                      ],
+                      "headline-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "60px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-primary dark:bg-surface-container-lowest fixed left-0 top-0 h-screen flex-col pt-8 pb-4 w-64 border-r border-primary-container dark:border-surface-container-highest shadow-xl shadow-primary/10 z-20">
+<!-- Brand/Header -->
+<div class="px-gutter mb-8">
+<h1 class="font-display-lg text-headline-md text-on-primary dark:text-primary tracking-tight">Global Retail</h1>
+<p class="font-label-caps text-label-caps text-on-primary/70 dark:text-on-surface-variant mt-2">Enterprise Tier</p>
+</div>
+<!-- Navigation Links -->
+<ul class="flex flex-col flex-grow w-full font-label-caps text-label-caps">
+<li>
+<a class="text-on-primary/70 dark:text-on-surface-variant flex items-center gap-unit px-4 py-3 hover:text-on-primary hover:bg-primary-container/10 dark:hover:bg-surface-container-high transition-all" href="#">
+<span aria-hidden="true" class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="bg-primary-container/20 text-secondary-container dark:bg-secondary-container/10 border-l-4 border-secondary-container dark:border-secondary flex items-center gap-unit px-4 py-3 active opacity-80 scale-95 transition-all" href="#">
+<span aria-hidden="true" class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">palette</span>
+                    Theme Gallery
+                </a>
+</li>
+<li>
+<a class="text-on-primary/70 dark:text-on-surface-variant flex items-center gap-unit px-4 py-3 hover:text-on-primary hover:bg-primary-container/10 dark:hover:bg-surface-container-high transition-all" href="#">
+<span aria-hidden="true" class="material-symbols-outlined">storefront</span>
+                    Storefront
+                </a>
+</li>
+<li>
+<a class="text-on-primary/70 dark:text-on-surface-variant flex items-center gap-unit px-4 py-3 hover:text-on-primary hover:bg-primary-container/10 dark:hover:bg-surface-container-high transition-all" href="#">
+<span aria-hidden="true" class="material-symbols-outlined">insights</span>
+                    Analytics
+                </a>
+</li>
+<li>
+<a class="text-on-primary/70 dark:text-on-surface-variant flex items-center gap-unit px-4 py-3 hover:text-on-primary hover:bg-primary-container/10 dark:hover:bg-surface-container-high transition-all" href="#">
+<span aria-hidden="true" class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+<!-- Footer Actions -->
+<div class="mt-auto flex flex-col w-full font-label-caps text-label-caps border-t border-primary-container/50 pt-4">
+<a class="text-on-primary/70 dark:text-on-surface-variant flex items-center gap-unit px-4 py-3 hover:text-on-primary hover:bg-primary-container/10 dark:hover:bg-surface-container-high transition-all" href="#">
+<span aria-hidden="true" class="material-symbols-outlined">help</span>
+                Support
+            </a>
+<a class="text-on-primary/70 dark:text-on-surface-variant flex items-center gap-unit px-4 py-3 hover:text-on-primary hover:bg-primary-container/10 dark:hover:bg-surface-container-high transition-all" href="#">
+<span aria-hidden="true" class="material-symbols-outlined">logout</span>
+                Sign Out
+            </a>
+<div class="px-4 py-4 w-full">
+<button class="w-full bg-secondary text-on-secondary border border-secondary font-label-caps text-label-caps py-3 rounded-lg hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm shadow-primary/5">Upgrade Plan</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow md:ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-container-low docked full-width top-0 shadow-sm shadow-primary/5 z-10 sticky">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-20 max-w-container-max mx-auto">
+<!-- Brand / Left Side -->
+<div class="flex items-center gap-gutter">
+<h2 class="font-display-lg text-headline-md text-primary dark:text-primary-fixed-dim tracking-tight">Merchant Luxe</h2>
+</div>
+<!-- Actions / Right Side -->
+<div class="flex items-center gap-unit">
+<button aria-label="monitor" class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 rounded-full">
+<span class="material-symbols-outlined">monitor</span>
+</button>
+<button aria-label="smartphone" class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 rounded-full">
+<span class="material-symbols-outlined">smartphone</span>
+</button>
+<button aria-label="notifications" class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors duration-200 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="ml-4 bg-primary text-on-primary font-label-caps text-label-caps px-6 py-2.5 rounded-DEFAULT hover:border-b-2 hover:border-secondary transition-all">Apply Theme</button>
+<div class="ml-4 w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+<img alt="Executive Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a confident executive wearing a tailored dark blazer, set against a bright, modern office background. The lighting is soft and flattering, creating a high-end corporate aesthetic consistent with the deep teal and desert gold elegant branding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwqMMBYxcuMfGZiHe7OMP4eWa2raVsb_AJzXpaA1Cqot8pzMjtYrh7h1qe9vNIxuteXP2OrcwFfcMLAWrl3YOwuaquHqwna3Gl8Iln5OFENjPSEaYPFW_8V8GzfMNpiAh-vvK2Ol6lGXJfOn-oxi0Q50fminATAkmh5dJ7QcJpa-jemwKuGXBrv1epVErGTJy4eTKmXn3WVJvIj4ntuZ2FfeOy8CW4iGSjUZvq2CrAusgpQ3K51uF9nNJPWmJ2092ZNk3UNwBqrplZ"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas Body -->
+<div class="flex-grow p-margin-mobile md:p-gutter max-w-container-max mx-auto w-full flex flex-col lg:flex-row gap-gutter">
+<!-- Left Pane: Theme Selector -->
+<aside class="w-full lg:w-[320px] flex-shrink-0 flex flex-col gap-unit">
+<div class="mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Theme Library</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Select a stylistic foundation for your storefront.</p>
+</div>
+<!-- Theme Cards -->
+<div class="space-y-4">
+<!-- Selected Theme -->
+<button class="w-full text-left bg-surface-container-lowest rounded-lg overflow-hidden border border-secondary shadow-lg shadow-primary/10 relative transition-transform hover:-translate-y-1">
+<div class="absolute top-2 right-2 bg-secondary text-on-secondary font-label-caps text-[10px] px-2 py-1 rounded-DEFAULT z-10">SELECTED</div>
+<div class="h-32 w-full bg-surface-container relative">
+<img alt="New-Vintage Souq Theme Thumbnail" class="w-full h-full object-cover opacity-80" data-alt="A stylized digital mockup of a high-end vintage marketplace. The visual features warm, sepia-toned lighting, textured stone backgrounds, and elegant serif typography arranged asymmetrically. The aesthetic blends ancient architectural motifs with modern minimalist layouts, heavily utilizing desert gold accents over off-white canvas spaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRS59gc8HzsKqdhgzeJCCOPd0a01wliRBGHq6F1f8xKeE9yPQJp6P34SRpK_GT3oClx8LhTTPNevV5ciXRZR_aqcUyuPesKMALjHbI3G8uIGhifuXjqr5QkQpTPPsgWk3FyVrbIZHpwya1KNQlov5Pj6Eg13sBZeDGCHyT5CaXxuMGX7qVyYZq2pls5JHyC2QIHxVmzTwPzlVb_Q1UmEah7Zzy_15GdSY5OLk2rB3kv9afDZhT3DcrFwCMO-Jz4W8AhHZLC6p6G1cr"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+</div>
+<div class="p-4 bg-surface-container-lowest">
+<h4 class="font-label-caps text-label-caps text-primary">New-Vintage Souq</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Heritage warmth meets modern editorial layouts.</p>
+</div>
+</button>
+<!-- Unselected Theme 1 -->
+<button class="w-full text-left bg-surface-container-lowest rounded-lg overflow-hidden border border-outline-variant shadow-sm shadow-primary/5 transition-transform hover:-translate-y-1 hover:border-secondary/50">
+<div class="h-32 w-full bg-surface-container relative">
+<img alt="Digital Oasis Theme Thumbnail" class="w-full h-full object-cover opacity-80" data-alt="A clean, futuristic digital UI concept emphasizing lush, deep teal colors and stark white empty space. The composition includes floating glass-like panels over a fluid, abstract liquid background. Lighting is cool and diffused, creating a serene, high-tech sanctuary mood consistent with luxury cosmetic branding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoRq5OZ9iCU18y8-edNGEH-5_6FdLTUq9ApNATtVBhqzo_A7nFDsHYqFqLsS609Siy4Y4MAa-x7j-3zkJCvHTwDCJVzok1okfiMKV76GQDKmldvXYLsZ6TW3WFd-pDFvQ3pbpO7HYRiQcrRPYuKKgXg5vVVYXhUN5a0B6_By6ec-c2vnadYktLTdSp2w24kLFphIrOpIE50m-G8X1Xnlyi5uF3cqXuLcS7Eij8XIc18shvqR4aBsBw6wfKixqaK6ycpp0qFF96oTEw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 to-transparent"></div>
+</div>
+<div class="p-4 bg-surface-container-lowest">
+<h4 class="font-label-caps text-label-caps text-on-surface">Digital Oasis</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Crisp, fluid, and focused on product clarity.</p>
+</div>
+</button>
+<!-- Unselected Theme 2 -->
+<button class="w-full text-left bg-surface-container-lowest rounded-lg overflow-hidden border border-outline-variant shadow-sm shadow-primary/5 transition-transform hover:-translate-y-1 hover:border-secondary/50">
+<div class="h-32 w-full bg-surface-container relative">
+<img alt="Architectural Minimal Theme Thumbnail" class="w-full h-full object-cover opacity-80" data-alt="A stark, ultra-minimalist layout design featuring sharp geometric lines, vast amounts of off-white negative space, and rigid grid structures. The visual incorporates raw concrete textures subtly blended with polished gold line-art. The mood is highly authoritative, structural, and silent, echoing modern luxury gallery spaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbEESN5PoHly6Wb6qeGT9fMeBs04cPM0KhFsY_3tnWKTa8Fbgdyy2Pb5AdELbCApSIDU1_y0MdRd2bDzqB62EX7pYStURFEBfoB6TH331ioovA2yKb7iSfMnoFuzAlhin1G0eaBJ4FBbwNgiF_zmKS2kV2XoArFVknKZGlkkJk1pIDR2MpHYDyldBXlPhn9hLTAzSnsfS0PAUNCtVF7ZXon9u6-cE7ItO_TWF0WFY-OlVXcoZB3tnTV2JUijRKbKyoXnBdRDpvC4tM"/>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 to-transparent"></div>
+</div>
+<div class="p-4 bg-surface-container-lowest">
+<h4 class="font-label-caps text-label-caps text-on-surface">Architectural Minimal</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Structural permanence with vast negative space.</p>
+</div>
+</button>
+</div>
+</aside>
+<!-- Right Pane: Live Preview -->
+<section class="flex-grow flex flex-col bg-surface-container-high rounded-xl border border-outline-variant overflow-hidden shadow-lg shadow-primary/5">
+<!-- Preview Header/Controls -->
+<div class="h-14 bg-surface border-b border-outline-variant flex justify-between items-center px-4 shrink-0">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-error/50"></div>
+<div class="w-3 h-3 rounded-full bg-secondary-container/50"></div>
+<div class="w-3 h-3 rounded-full bg-primary-fixed-dim/50"></div>
+</div>
+<div class="flex items-center bg-surface-container-highest rounded-full p-1">
+<button class="px-4 py-1 rounded-full bg-surface shadow-sm text-primary font-label-caps text-[10px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">monitor</span> Desktop
+                         </button>
+<button class="px-4 py-1 rounded-full text-on-surface-variant font-label-caps text-[10px] flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">smartphone</span> Mobile
+                         </button>
+</div>
+<div class="w-16"></div> <!-- Spacer for balance -->
+</div>
+<!-- The Live Preview Canvas (Mockup of Storefront) -->
+<div class="flex-grow bg-surface-container-lowest overflow-y-auto relative w-full flex justify-center">
+<!-- Simulating a Desktop Viewport width inside the container -->
+<div class="w-full max-w-[1024px] bg-background min-h-full shadow-2xl shadow-primary/10">
+<!-- Mock Storefront Header -->
+<header class="py-6 px-12 border-b border-primary/10 flex justify-between items-center bg-surface-container-lowest sticky top-0 z-10">
+<h1 class="font-display-lg text-headline-md text-primary tracking-tight">Silence Skincare</h1>
+<nav class="flex gap-8 font-label-caps text-label-caps text-on-surface">
+<span class="border-b-2 border-secondary pb-1">Shop</span>
+<span class="hover:text-primary transition-colors cursor-pointer">Rituals</span>
+<span class="hover:text-primary transition-colors cursor-pointer">About</span>
+</nav>
+</header>
+<!-- Mock Storefront Hero -->
+<section class="h-[500px] relative flex items-center px-12">
+<div class="absolute inset-0 z-0">
+<img alt="Hero Background" class="w-full h-full object-cover" data-alt="A minimalist, high-end product photography shot of luxury skincare bottles resting on rough, sandy stone pedestals. The background is a soft, warm off-white (Sand). Lighting is dramatic with sharp shadows, creating a sophisticated 'desert elegance' aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvZSHqFZtgDbdfx4uUW0ySeMO6Sw2JUt30zsIsdfhI03S8jUyg_VC7eysfJyUY5z9MaNZ4T6_5KE_czrMARNjG1vnJAVTnGPOPX7ZK3HKgFYovhQlBRpjQzJ8O0vouc7KF_j2PR-gOGUmUXNRg4iwQ6TaHD95onTu_ujXeldfN6bq4gnWnzy5sMwdxPom1alfXMDMjHqhNXGqJJBkPCmM3-hZgfTuv94vZwpRAU-WkpX4Jj-uB9mp-Mw4LecTnLWdg_e_aW2hUgPj9"/>
+<div class="absolute inset-0 bg-background/30 backdrop-blur-[2px]"></div>
+</div>
+<div class="relative z-10 max-w-md bg-surface-container-lowest/90 p-8 rounded-lg border border-primary/10 shadow-xl shadow-primary/5">
+<p class="font-label-caps text-label-caps text-secondary mb-4 tracking-[0.2em]">The Golden Hour Collection</p>
+<h2 class="font-display-lg text-headline-lg text-primary leading-tight mb-6">Desert Botanical Hydration.</h2>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-8 py-3 rounded-DEFAULT hover:border-b-2 hover:border-secondary transition-all">Explore Collection</button>
+</div>
+</section>
+<!-- Mock Storefront Bento Grid -->
+<section class="py-16 px-12">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="col-span-2 bg-surface-container rounded-lg p-8 flex flex-col justify-between h-80 relative overflow-hidden group">
+<div class="relative z-10">
+<h3 class="font-display-lg text-headline-md text-primary mb-2">Restorative Serums</h3>
+<span class="font-label-caps text-label-caps text-secondary">View Range →</span>
+</div>
+<img alt="Serums" class="absolute right-0 bottom-0 w-1/2 h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Close-up macro photography of amber-colored glass dropper bottles containing skincare serum, positioned against a stark white background. Deep teal shadows pool beneath the bottles, emphasizing the rich, liquid luxury of the product. The aesthetic is clean, medical, and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDExxAgVZPYU3IiADdHOWb_-nKIXhcCBCfPna40ORbiULekfaAGqxwsYBH82A0r0JomMdwunQ0wwxrsNhS8pxoBuyhUU6O_MuuneUizwIlCEJPAKYTeBR7JfM3TwQeZNW4YfRK08MlJXJ1UczvfDcgLlsql2BSZdeJoNIiTTiUXD3MU4O3Z9CUxHZ_iLomfjYGqksM7X6F6_uB2Qn95KAwyrRf1M_3LAHQOCw670geDH0c7efEgHa2RxOTdjHT_xqcM08KxCUPw_LN"/>
+</div>
+<div class="bg-primary text-on-primary rounded-lg p-8 flex flex-col justify-center h-80">
+<h3 class="font-display-lg text-headline-md mb-4">"The texture is absolute perfection."</h3>
+<p class="font-label-caps text-label-caps text-secondary-container opacity-80">- Vogue Beauty</p>
+</div>
+</div>
+</section>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

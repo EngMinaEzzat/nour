@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LuxEgypt Enterprise - Product Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#474836",
+                        "surface-container-low": "#f6f3f2",
+                        "surface": "#fbf9f8",
+                        "primary-fixed-dim": "#94d3c1",
+                        "secondary-container": "#fed488",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#eae8e7",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#303030",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-primary-container": "#7ebdac",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e4e2e1",
+                        "on-surface": "#1b1c1c",
+                        "on-error-container": "#93000a",
+                        "secondary": "#775a19",
+                        "secondary-fixed-dim": "#e9c176",
+                        "primary-fixed": "#afefdd",
+                        "on-surface-variant": "#3f4945",
+                        "secondary-fixed": "#ffdea5",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbf9f8",
+                        "background": "#fbf9f8",
+                        "inverse-on-surface": "#f3f0f0",
+                        "on-secondary-fixed": "#261900",
+                        "on-primary-fixed-variant": "#065043",
+                        "tertiary": "#2d2f1e",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1b1c1c",
+                        "outline-variant": "#bfc9c4",
+                        "tertiary-container": "#434533",
+                        "on-tertiary-fixed": "#1b1d0e",
+                        "surface-tint": "#29695b",
+                        "primary": "#00342b",
+                        "surface-dim": "#dcd9d9",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#94d3c1",
+                        "tertiary-fixed": "#e4e4cc",
+                        "surface-container": "#f0eded",
+                        "on-primary-fixed": "#00201a",
+                        "on-tertiary-container": "#b1b29b",
+                        "primary-container": "#004d40",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#785a1a",
+                        "tertiary-fixed-dim": "#c8c8b0",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "outline": "#707975"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "unit": "8px",
+                        "margin-tablet": "32px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Montserrat"],
+                        "body-sm": ["Montserrat"],
+                        "body-md": ["Montserrat"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "body-lg": ["Montserrat"],
+                        "display-lg": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-50 bg-surface/95 backdrop-blur-md border-b border-surface-container-highest shadow-sm shadow-primary/5">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">LuxEgypt Enterprise</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md font-label-caps text-label-caps hover:bg-surface-container-low active:scale-95 duration-200 px-3 py-2 rounded-lg" href="#">Directory</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md font-label-caps text-label-caps hover:bg-surface-container-low active:scale-95 duration-200 px-3 py-2 rounded-lg" href="#">Reports</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md font-label-caps text-label-caps hover:bg-surface-container-low active:scale-95 duration-200 px-3 py-2 rounded-lg" href="#">Global Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-low transition-colors text-primary">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-low transition-colors text-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-low transition-colors text-primary">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<button class="bg-primary text-on-primary font-body-sm text-body-sm font-bold px-6 py-2 rounded-lg hover:bg-primary-container transition-colors shadow-sm shadow-primary/20 border-b-2 border-secondary hover:border-b-4 hover:mb-[-2px] hidden md:block">
+                    Create Campaign
+                </button>
+<img alt="Brand Manager" class="w-10 h-10 rounded-full border border-surface-container-highest cursor-pointer object-cover" data-alt="A professional headshot of a stylish executive woman with dark hair, looking confidently at the camera. She is wearing a modern tailored blazer in deep teal. The lighting is soft and flattering, typical of high-end corporate portraiture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARC1bx5uuHUVXwB5ET5xIse1DFRjXTAmCRg6VGf542wQU5WYGsT4B8fJGu1dyDwbT9uc0qF-adAB5K62GiglEIfCvwvOQNJQvs6AbA6vCKZ3KlZ7BFm0O7IzgYDLXjRfQ0Ja6tRDk5TIwYCQRlRfqlxeN7lTlJMYAsVpYanBWPqge9fY27EnGclWTpxaSxVipyxMB2Ea0LsTN3hydxohJtiEGAx2LanpwKZF0qCA-Jzw0Y8PygaghuqOizvmNC4qmX4S1QLc0BEK-T"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-20 grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Breadcrumbs (Spans full width) -->
+<div class="col-span-1 md:col-span-12 mb-8">
+<nav aria-label="Breadcrumb" class="flex text-on-surface-variant font-label-caps text-label-caps">
+<ol class="inline-flex items-center space-x-1 md:space-x-3">
+<li class="inline-flex items-center">
+<a class="hover:text-primary transition-colors" href="#">Directory</a>
+</li>
+<li>
+<div class="flex items-center">
+<span class="material-symbols-outlined mx-1 text-sm">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Skincare</a>
+</div>
+</li>
+<li aria-current="page">
+<div class="flex items-center">
+<span class="material-symbols-outlined mx-1 text-sm">chevron_right</span>
+<span class="text-primary font-bold">Nile Lotus Illuminating Oil</span>
+</div>
+</li>
+</ol>
+</nav>
+</div>
+<!-- Image Gallery (Bento Grid) -->
+<div class="col-span-1 md:col-span-7 grid grid-cols-2 gap-4 auto-rows-[200px] md:auto-rows-[300px]">
+<div class="col-span-2 row-span-2 relative rounded-lg overflow-hidden border border-surface-container-highest shadow-sm shadow-primary/5 bg-surface-container-lowest">
+<img alt="Main Product Image" class="absolute inset-0 w-full h-full object-cover" data-alt="A high-end macro photograph of a sleek, frosted glass dropper bottle of facial oil resting on smooth, pale desert sand. The golden liquid inside glows warmly under soft, directional studio lighting. Elegant shadows are cast across the textured surface, embodying a luxurious 'Modern Egyptian Elegance' aesthetic with warm gold and soft neutral tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe1aGfIT-n7hcurLcpBo0q0Hx3-32eWkzWNkMwIujD30nH-sBjAt3HpA-O8GzfngadsMCP7kP1We16jDEXqAeBWTTd2i8fpC2bmSBsXh8Pg1lX37bVdF87WggSpuQCXf_ab-WjbiRQwUtnreKryv8rRMHS9vObmn5Vi6BGoMQG5PMsXeyhL8_ERHIxijj664C2pZMfJW7h_gyQBQlBHi-0ZV-TRbEWUc-YxoVvJIRkalN6ZFJaoayyROiUFPs1ppNH6qqF5sIlNyVJ"/>
+<button class="absolute top-4 right-4 w-10 h-10 bg-surface/80 backdrop-blur-md rounded-full flex items-center justify-center text-primary hover:text-secondary hover:bg-surface transition-all shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</div>
+<div class="col-span-1 relative rounded-lg overflow-hidden border border-surface-container-highest bg-surface-container-lowest">
+<img alt="Texture Shot" class="absolute inset-0 w-full h-full object-cover" data-alt="A close-up abstract macro shot of shimmering golden facial oil being squeezed from a glass dropper. The lighting is pristine and highly focused, highlighting the viscous texture and reflective qualities of the organic serum against a clean, off-white background. The mood is clinical yet opulent." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuLPhvrLlpDds2Z0U1gQn6Jl9Y5iWE2A9qnOc6lNiOVFiAdrCykk_ZzBF6QDHqx7uKI9TcEjC0MIkCqEMyUBN2L1fVsf-WhIFluIr_WJyRk5yEfElCvbSHuWLEkmepV1T3cj4vXpt7GbvbNEpExVMb5u2hdHtcjrAi9Nw3lJTYoXF9hQLI6VV7Af-UYeQelD82MVR0lTAhL-LEy95-Zr2ladkNEcEC1nDQjkjzSbGg9y5meUFBDsgL8oFj7vuDKYGWM4bltM8PCgTi"/>
+</div>
+<div class="col-span-1 relative rounded-lg overflow-hidden border border-surface-container-highest bg-surface-container-lowest">
+<img alt="Ingredient Shot" class="absolute inset-0 w-full h-full object-cover" data-alt="A beautifully styled flat lay featuring raw botanical ingredients: delicate dried lotus petals and rich amber-colored seeds scattered elegantly on a smooth, pale stone slab. The composition is minimalist and spacious, utilizing a color palette of deep teal shadows and warm desert gold highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZP2LcNyZGFSPR5elT3eXZ2uxajETgyGIYU8DVCyiZSXZd3lJZi_VpbAR9PQHMTiGNne5aqdljtRbbV7gXsA_7mUsrv2oc2L57YMNnhIay70OgCPhAtqV7AhKtzFY6kjdc_Q2c5jvVz1RHlFH_y-mYLErgRgdlfaVxyC34alsJurUsEXwHgcq3xPBh4Mx3oWdzqWQ92UinzT2G9Nct6TrEZvih4gBlumDGdM7tKANaaHNdNXtHxlCVWC4ivOUp51Vytay_z7GpuNxO"/>
+</div>
+</div>
+<!-- Product Info & Actions -->
+<div class="col-span-1 md:col-span-5 flex flex-col pt-4 md:pl-8">
+<span class="inline-block px-3 py-1 bg-surface-container border border-secondary text-secondary font-label-caps text-label-caps rounded-full self-start mb-4">Bestseller</span>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg font-semibold text-primary mb-2">Nile Lotus Illuminating Oil</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-6">A potent, golden elixir infused with rare botanical extracts designed to restore absolute radiance and deeply nourish the skin barrier.</p>
+<div class="font-display-lg text-display-lg text-primary mb-8 border-b border-surface-container-highest pb-6">
+                $185.00
+            </div>
+<!-- Size Selector -->
+<div class="mb-8">
+<div class="flex justify-between items-end mb-4">
+<label class="font-label-caps text-label-caps text-on-surface">Select Size</label>
+<a class="font-body-sm text-body-sm text-secondary hover:underline underline-offset-4 decoration-secondary/50" href="#">Size Guide</a>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<button class="py-3 border border-secondary bg-secondary/5 text-primary font-body-md text-body-md font-semibold rounded-lg shadow-sm">
+                        30 ML
+                    </button>
+<button class="py-3 border border-surface-container-highest bg-surface text-on-surface-variant font-body-md text-body-md rounded-lg hover:border-outline hover:text-primary transition-colors">
+                        50 ML
+                    </button>
+<button class="py-3 border border-surface-container-highest bg-surface text-on-surface-variant font-body-md text-body-md rounded-lg hover:border-outline hover:text-primary transition-colors relative overflow-hidden group">
+                        100 ML
+                        <div class="absolute -right-6 top-2 bg-surface-container-high text-on-surface-variant text-[10px] uppercase font-bold py-1 px-8 rotate-45 group-hover:bg-outline/20 transition-colors">Value</div>
+</button>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-4 mb-12">
+<button class="w-full bg-primary text-on-primary font-body-md text-body-md font-semibold py-4 rounded-lg shadow-sm shadow-primary/20 border-b-2 border-secondary hover:bg-primary-container transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined">shopping_bag</span>
+                    Add to Bag
+                </button>
+<button class="w-full bg-transparent text-primary font-body-md text-body-md font-semibold py-4 rounded-lg border border-secondary hover:bg-secondary/5 transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined">bookmark</span>
+                    Save to Wishlist
+                </button>
+</div>
+<!-- Accordion Details -->
+<div class="border-t border-surface-container-highest">
+<details class="group py-4 border-b border-surface-container-highest" open="">
+<summary class="flex justify-between items-center cursor-pointer font-headline-md text-headline-md text-primary list-none [&amp;::-webkit-details-marker]:hidden">
+                        Description
+                        <span class="material-symbols-outlined transform group-open:rotate-180 transition-transform duration-300">expand_more</span>
+</summary>
+<div class="mt-4 font-body-md text-body-md text-on-surface-variant leading-relaxed">
+<p>Sourced ethically from the banks of the Nile, this lightweight, fast-absorbing oil delivers an immediate luminous finish. Rich in antioxidants and essential fatty acids, it locks in moisture while balancing sebum production, leaving the complexion smooth, plump, and undeniably radiant.</p>
+</div>
+</details>
+<details class="group py-4 border-b border-surface-container-highest">
+<summary class="flex justify-between items-center cursor-pointer font-headline-md text-headline-md text-primary list-none [&amp;::-webkit-details-marker]:hidden">
+                        Key Ingredients
+                        <span class="material-symbols-outlined transform group-open:rotate-180 transition-transform duration-300">expand_more</span>
+</summary>
+<div class="mt-4 font-body-md text-body-md text-on-surface-variant leading-relaxed">
+<ul class="list-disc pl-5 space-y-2">
+<li><strong>Blue Lotus Extract:</strong> Balances skin tone and provides deep hydration.</li>
+<li><strong>Desert Date Oil:</strong> Rich in Omega 6 and 9 to fortify the skin barrier.</li>
+<li><strong>Squalane:</strong> Plant-derived moisture that mimics natural skin oils.</li>
+</ul>
+</div>
+</details>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe border-t border-secondary/10 bg-surface/90 backdrop-blur-lg shadow-[0_-4px_16px_rgba(0,77,64,0.08)] rounded-t-full">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-secondary-container/10 scale-110 duration-300" href="#">
+<span class="material-symbols-outlined mb-1">Barcode</span>
+<span class="font-label-caps text-[10px] font-bold uppercase">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-secondary-container/10 scale-110 duration-300" href="#">
+<span class="material-symbols-outlined mb-1">auto_awesome</span>
+<span class="font-label-caps text-[10px] font-bold uppercase">Collections</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-secondary-container/10 scale-110 duration-300 relative" href="#">
+<span class="material-symbols-outlined mb-1">shopping_bag</span>
+<span class="font-label-caps text-[10px] font-bold uppercase">Cart</span>
+<span class="absolute top-0 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-secondary-container/10 scale-110 duration-300" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-[10px] font-bold uppercase">Account</span>
+</a>
+</nav>
+</body></html>

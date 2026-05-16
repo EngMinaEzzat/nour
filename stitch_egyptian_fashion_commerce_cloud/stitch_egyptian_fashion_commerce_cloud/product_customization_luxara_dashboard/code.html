@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Product Customization - Luxor Couture</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#bfc9c4",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#eae8e7",
+                        "surface-variant": "#e4e2e1",
+                        "surface": "#fbf9f8",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-primary-fixed-variant": "#065043",
+                        "outline": "#707975",
+                        "on-tertiary-fixed-variant": "#474836",
+                        "primary-fixed": "#afefdd",
+                        "on-secondary-container": "#785a1a",
+                        "on-tertiary-container": "#b1b29b",
+                        "tertiary-container": "#434533",
+                        "on-tertiary-fixed": "#1b1d0e",
+                        "background": "#fbf9f8",
+                        "error": "#ba1a1a",
+                        "tertiary": "#2d2f1e",
+                        "secondary-fixed-dim": "#e9c176",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1b1c1c",
+                        "secondary": "#775a19",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f6f3f2",
+                        "secondary-container": "#fed488",
+                        "tertiary-fixed": "#e4e4cc",
+                        "surface-dim": "#dcd9d9",
+                        "surface-container": "#f0eded",
+                        "on-primary-fixed": "#00201a",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#004d40",
+                        "inverse-on-surface": "#f3f0f0",
+                        "primary": "#00342b",
+                        "on-surface": "#1b1c1c",
+                        "surface-bright": "#fbf9f8",
+                        "on-secondary-fixed": "#261900",
+                        "primary-fixed-dim": "#94d3c1",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#303030",
+                        "surface-tint": "#29695b",
+                        "tertiary-fixed-dim": "#c8c8b0",
+                        "inverse-primary": "#94d3c1",
+                        "on-primary-container": "#7ebdac",
+                        "secondary-fixed": "#ffdea5",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#3f4945"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "container-max": "1440px",
+                        "margin-tablet": "32px",
+                        "unit": "8px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Montserrat"],
+                        "headline-lg": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "body-sm": ["Montserrat"],
+                        "body-md": ["Montserrat"],
+                        "body-lg": ["Montserrat"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-lg-mobile": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased h-screen overflow-hidden flex flex-col md:flex-row">
+<!-- Suppressed SideNavBar logic applied: This is a linear/transactional settings flow. Navigation shell hidden to prioritize canvas. -->
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+<!-- Header -->
+<header class="h-20 bg-surface border-b border-outline-variant/20 flex items-center justify-between px-margin-mobile md:px-margin-desktop shrink-0 z-10 shadow-sm shadow-primary/5">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div>
+<nav class="flex items-center gap-2 font-body-sm text-on-surface-variant mb-1">
+<a class="hover:text-primary transition-colors" href="#">Settings</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Theme</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface">Product Customization</span>
+</nav>
+<h1 class="font-headline-md text-headline-md text-primary">Edit Product Template</h1>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="font-label-caps text-label-caps px-6 py-3 border border-secondary text-primary rounded-DEFAULT hover:border-b-[3px] transition-all duration-200">
+                    Discard
+                </button>
+<button class="font-label-caps text-label-caps px-6 py-3 bg-primary text-on-primary rounded-DEFAULT hover:border-b-[3px] border-secondary transition-all duration-200 shadow-sm shadow-primary/10">
+                    Save Changes
+                </button>
+</div>
+</header>
+<!-- Editor Workspace -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Sidebar Configuration Panel -->
+<aside class="w-80 lg:w-96 bg-surface-container-lowest border-r border-outline-variant/20 flex flex-col h-full overflow-y-auto shrink-0 shadow-[4px_0_16px_rgba(0,77,64,0.02)] z-10">
+<div class="p-6 border-b border-outline-variant/10">
+<h2 class="font-headline-md text-headline-md text-primary mb-2">Configuration</h2>
+<p class="font-body-sm text-on-surface-variant">Adjust layout and visual settings for the product detail page.</p>
+</div>
+<!-- Sections -->
+<div class="flex-1 p-6 space-y-8">
+<!-- Layout Section -->
+<section>
+<h3 class="font-label-caps text-label-caps text-primary border-b border-outline-variant/20 pb-2 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">view_quilt</span>
+                            Layout
+                        </h3>
+<div class="space-y-6">
+<div>
+<label class="font-body-sm text-on-surface block mb-3">Gallery Style</label>
+<div class="grid grid-cols-2 gap-3">
+<label class="cursor-pointer relative">
+<input checked="" class="peer sr-only" name="gallery_style" type="radio"/>
+<div class="p-4 border border-outline-variant/50 rounded-lg text-center peer-checked:border-secondary peer-checked:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-outline peer-checked:text-secondary mb-2 block text-3xl">view_day</span>
+<span class="font-body-sm block">Stacked</span>
+</div>
+</label>
+<label class="cursor-pointer relative">
+<input class="peer sr-only" name="gallery_style" type="radio"/>
+<div class="p-4 border border-outline-variant/50 rounded-lg text-center peer-checked:border-secondary peer-checked:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-outline peer-checked:text-secondary mb-2 block text-3xl">view_carousel</span>
+<span class="font-body-sm block">Carousel</span>
+</div>
+</label>
+</div>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-outline-variant/10">
+<span class="font-body-sm text-on-surface">Show Breadcrumbs</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Media Section -->
+<section>
+<h3 class="font-label-caps text-label-caps text-primary border-b border-outline-variant/20 pb-2 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">photo_library</span>
+                            Media
+                        </h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between py-2 border-b border-outline-variant/10">
+<span class="font-body-sm text-on-surface">Enable Image Zoom</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<label class="font-body-sm text-on-surface block mb-3">Aspect Ratio</label>
+<select class="w-full bg-surface-container-low border-b-2 border-outline focus:border-primary text-on-surface font-body-sm py-2 px-3 rounded-t-DEFAULT appearance-none focus:outline-none transition-colors">
+<option value="auto">Auto (Original)</option>
+<option value="square">Square (1:1)</option>
+<option selected="" value="portrait">Portrait (3:4)</option>
+<option value="landscape">Landscape (4:3)</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Typography Section -->
+<section>
+<h3 class="font-label-caps text-label-caps text-primary border-b border-outline-variant/20 pb-2 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">title</span>
+                            Typography &amp; Brand
+                        </h3>
+<div class="space-y-6">
+<div>
+<label class="font-body-sm text-on-surface block mb-3">Accent Color</label>
+<div class="flex gap-3">
+<button class="w-8 h-8 rounded-full bg-primary border-2 border-white ring-2 ring-primary transition-all"></button>
+<button class="w-8 h-8 rounded-full bg-secondary border-2 border-transparent hover:border-white hover:ring-2 hover:ring-secondary transition-all"></button>
+<button class="w-8 h-8 rounded-full bg-tertiary border-2 border-transparent hover:border-white hover:ring-2 hover:ring-tertiary transition-all"></button>
+<button class="w-8 h-8 rounded-full bg-surface-variant border-2 border-transparent hover:border-white hover:ring-2 hover:ring-surface-variant flex items-center justify-center transition-all">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">add</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</aside>
+<!-- Right Preview Area -->
+<section class="flex-1 bg-surface-container-low relative flex flex-col h-full overflow-hidden">
+<!-- Preview Toolbar -->
+<div class="h-14 bg-surface-container-lowest border-b border-outline-variant/10 flex items-center justify-center gap-4 shrink-0 shadow-sm shadow-primary/5 z-10">
+<div class="bg-surface-container-high rounded-full p-1 flex">
+<button class="px-4 py-1.5 rounded-full bg-surface-container-lowest shadow-sm text-primary font-body-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">desktop_windows</span>
+                            Desktop
+                        </button>
+<button class="px-4 py-1.5 rounded-full text-on-surface-variant hover:text-primary font-body-sm flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]">smartphone</span>
+                            Mobile
+                        </button>
+</div>
+</div>
+<!-- Live Preview Canvas -->
+<div class="flex-1 overflow-y-auto p-8 flex justify-center custom-scrollbar">
+<div class="bg-surface-container-lowest w-full max-w-[1000px] shadow-[0_16px_32px_rgba(0,77,64,0.08)] rounded-xl border border-outline-variant/5 overflow-hidden flex flex-col min-h-full">
+<!-- Simulated PDP Content -->
+<div class="p-8 grid grid-cols-1 md:grid-cols-12 gap-12">
+<!-- Image Gallery (Simulated Stacked) -->
+<div class="md:col-span-6 space-y-6">
+<div class="aspect-[3/4] bg-surface-container-low rounded-lg overflow-hidden relative">
+<img alt="A luxurious glass bottle of facial serum resting on a minimalist stone pedestal. Soft, warm natural light filters into the sleek, modern Egyptian elegance setting, casting delicate shadows. The color palette emphasizes rich deep teal backgrounds with a golden amber liquid glowing inside the bottle." class="w-full h-full object-cover" data-alt="A luxurious glass bottle of facial serum resting on a minimalist stone pedestal. Soft, warm natural light filters into the sleek, modern Egyptian elegance setting, casting delicate shadows. The color palette emphasizes rich deep teal backgrounds with a golden amber liquid glowing inside the bottle." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLD3PJm45ip32ylmYfxFpSn8rS57FtCoTuZdUiCazBg9ulydsa6x3U6ZKq0Qd50NLS30rCEimswAx5XKA3zxi727mq_CfeZgD1sZXLwNV7aIxHwtp5aOgN22N1DYgNlroN94ectUatPFpfZdo-skx1OLEiVyI-jz7RvwUunAdiHLv0I8H5neVdF5QIaRZ8dJ2ZsDgyRqIPWnklMuBs_VRUKETtk45HA_wIU24Djat4qXxzlzvkkI4pdi1yfcSid1vY8UFbBh9-ks9d"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/90 text-primary font-label-caps text-label-caps px-3 py-1 rounded-full border border-secondary/20">Bestseller</span>
+</div>
+</div>
+<div class="aspect-[3/4] bg-surface-container-low rounded-lg overflow-hidden hidden md:block">
+<img alt="A close-up shot of the golden amber serum liquid being dispensed from a glass dropper. The background is a sophisticated, blurred deep teal, highlighting the pristine clarity and luxurious texture of the skincare product in a minimalist studio environment." class="w-full h-full object-cover" data-alt="A close-up shot of the golden amber serum liquid being dispensed from a glass dropper. The background is a sophisticated, blurred deep teal, highlighting the pristine clarity and luxurious texture of the skincare product in a minimalist studio environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxdGEuSaEkttq7xNpLhczSTvHq0NuyYXcRg1DgvC4JmATNqGPxAEhENV5ngtjnTpjBFsN94HAzdfiJAB51xrW0UqtDDC-VCkYr_gpiIsxT75D16GYTTHY__LN3Bpcoknpv6xNkyOvvsXm_nIkRg-3QNFU52Sy1ruXd8bj6sdnATJxtcLxBptP7iVGzaVX-HgRkzfocSt8ZeaY3osVYTilpVSUHluJxtoLb0_1HF3qebdlw_3z9q08ZRklITx4dvw3dOG_mQcM-lJq6"/>
+</div>
+</div>
+<!-- Product Details -->
+<div class="md:col-span-6 flex flex-col pt-4">
+<nav class="text-on-surface-variant font-body-sm mb-6">
+                                    Skincare / Serums / Anti-Aging
+                                </nav>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-2">Nile Gold Radiance Elixir</h1>
+<p class="font-body-lg text-on-surface-variant mb-6">$185.00 USD</p>
+<div class="prose prose-sm text-on-surface mb-8 border-t border-b border-outline-variant/10 py-6">
+<p class="font-body-md leading-relaxed">A potent, luxurious serum infused with botanical extracts inspired by ancient Egyptian beauty rituals. Formulated to deeply hydrate, firm, and illuminate the complexion.</p>
+</div>
+<div class="space-y-6 mb-8">
+<div>
+<span class="font-label-caps text-label-caps text-primary block mb-3">Size</span>
+<div class="flex gap-3">
+<button class="px-4 py-2 border border-secondary text-primary font-body-sm rounded-DEFAULT bg-surface-container-low">30ml</button>
+<button class="px-4 py-2 border border-outline-variant text-on-surface-variant font-body-sm rounded-DEFAULT hover:border-primary transition-colors">50ml</button>
+</div>
+</div>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary font-label-caps text-label-caps rounded-DEFAULT hover:border-b-[3px] border-secondary transition-all duration-200 shadow-sm shadow-primary/10 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">shopping_bag</span>
+                                    Add to Cart
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

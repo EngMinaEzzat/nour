@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Delta Weaves - Heritage Craft</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Playfair+Display:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#474836",
+                        "on-primary-container": "#7ebdac",
+                        "surface-variant": "#e4e2e1",
+                        "surface-tint": "#29695b",
+                        "inverse-on-surface": "#f3f0f0",
+                        "tertiary-fixed-dim": "#c8c8b0",
+                        "surface-dim": "#dcd9d9",
+                        "on-primary-fixed-variant": "#065043",
+                        "surface-container-high": "#eae8e7",
+                        "tertiary-container": "#434533",
+                        "on-surface": "#1b1c1c",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f6f3f2",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#2d2f1e",
+                        "surface": "#fbf9f8",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#e9c176",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#fed488",
+                        "secondary": "#775a19",
+                        "primary": "#00342b",
+                        "outline-variant": "#bfc9c4",
+                        "on-secondary-container": "#785a1a",
+                        "surface-container": "#f0eded",
+                        "primary-fixed": "#afefdd",
+                        "primary-container": "#004d40",
+                        "on-primary-fixed": "#00201a",
+                        "on-background": "#1b1c1c",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#e4e4cc",
+                        "surface-bright": "#fbf9f8",
+                        "secondary-fixed": "#ffdea5",
+                        "on-secondary-fixed": "#261900",
+                        "surface-container-highest": "#e4e2e1",
+                        "outline": "#707975",
+                        "inverse-surface": "#303030",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#94d3c1",
+                        "on-tertiary-fixed": "#1b1d0e",
+                        "primary-fixed-dim": "#94d3c1",
+                        "background": "#fbf9f8",
+                        "on-surface-variant": "#3f4945",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#b1b29b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "16px",
+                        "margin-tablet": "32px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Playfair Display"],
+                        "body-sm": ["Montserrat"],
+                        "body-md": ["Montserrat"],
+                        "label-caps": ["Montserrat"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "body-lg": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface-container docked full-width top-0 sticky z-50 border-b border-outline-variant/30 flat no shadows flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto w-full">
+<!-- Mobile Menu Icon (Hidden on Desktop) -->
+<button class="md:hidden text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Brand Logo -->
+<div class="text-headline-lg font-headline-lg font-bold text-primary dark:text-primary-fixed">
+            Luxara
+        </div>
+<!-- Desktop Navigation -->
+<div class="hidden md:flex gap-gutter items-center">
+<a class="text-primary font-bold border-b-2 border-secondary pb-1" href="#">Shop</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50" href="#">Collections</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50" href="#">Editorial</a>
+<a class="text-on-surface-variant font-label-caps text-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50" href="#">About</a>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4 text-primary dark:text-primary-fixed-dim">
+<button class="hover:text-secondary transition-colors duration-300">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:text-secondary transition-colors duration-300">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<a class="hidden md:block text-label-caps font-label-caps hover:text-secondary transition-colors duration-300" href="#">Account</a>
+<!-- Optional Avatar could go here if provided in user context -->
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-margin-desktop space-y-margin-desktop">
+<!-- Hero Section -->
+<section class="relative w-full h-[614px] min-h-[400px] flex items-center justify-center rounded-DEFAULT overflow-hidden bg-surface-container-low">
+<img alt="Hero Image" class="absolute inset-0 w-full h-full object-cover opacity-80" data-alt="A beautifully styled interior shot of a rustic artisan living room. Warm natural sunlight streams in, illuminating handmade terracotta pottery resting on a rough-hewn wooden table. Handwoven, richly textured earth-toned textiles in terracotta, sand, and ochre drape elegantly over a neutral linen sofa. The overarching mood is one of grounded, modern Egyptian elegance, emphasizing authentic, sustainable craftsmanship within a luxurious but earthy setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzLrKaQV4N413cokCFyj37qPq_1VnYqWl1MtoP-yzTAgDLK0SppgkE1R9Q6NSOyxg3YakZR4SxiWlgaIuHQZMFvX73nsWgWTE_c9WhA3GGJHe3Danyfe2F6RZpqnaK5sAzOYEXv9R6sgg9xmTfb8anjoG77RULtBsNXV6X4oD9OSUBy8KBaxMKmecLF1kJwXciNVzr9yepodYuGFtNC30uhd8AMCxl8G2dJ2-Y9ih0jRVuaxuwoTTB07FVRr6tf_kD10BPNFEfFtiQ"/>
+<div class="absolute inset-0 bg-primary/20"></div> <!-- Subtle overlay -->
+<div class="relative z-10 text-center max-w-2xl px-6 bg-surface/80 p-8 rounded-lg backdrop-blur-sm border border-secondary/20 shadow-sm">
+<h1 class="text-display-lg font-display-lg text-primary mb-4">Delta Weaves</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant mb-8">Authentic Egyptian Craftsmanship. Woven with heritage, molded by earth.</p>
+<button class="bg-primary text-on-primary text-label-caps font-label-caps px-8 py-3 rounded-DEFAULT hover:bg-primary-container transition-colors duration-300 border-b-2 border-secondary border-opacity-0 hover:border-opacity-100">
+                    Explore the Collection
+                </button>
+</div>
+</section>
+<!-- Product Grid (3 Column) -->
+<section class="space-y-8">
+<div class="flex justify-between items-end border-b border-outline-variant/30 pb-4">
+<h2 class="text-headline-lg font-headline-lg text-primary">New Arrivals</h2>
+<a class="text-label-caps font-label-caps text-secondary hover:text-primary transition-colors" href="#">View All</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Product Card 1 -->
+<div class="bg-surface rounded-lg overflow-hidden shadow-[rgba(0,77,64,0.08)_0px_4px_16px_0px] border-t border-secondary/20 group hover:shadow-[rgba(0,77,64,0.12)_0px_8px_24px_0px] transition-shadow duration-300">
+<div class="relative aspect-[4/5] overflow-hidden bg-surface-container">
+<img alt="Product 1" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A close-up studio shot of a beautifully hand-thrown terracotta vase. The vase features subtle, organic imperfections highlighting its artisanal origins. It is set against a seamless, soft sand-colored background in soft, diffused lighting that emphasizes the rich, earthy ochre and burnt sienna tones of the clay. The visual style embodies refined corporate minimalism mixed with rustic authenticity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdRD22QYj9yjJ91dQqdoGVa_CDLVJQrfnq-FzjcQETvogpJ5tAGhoN6M5K1QjQOv-JuObz1pEGskNoeqZGidhq1P6q121J0hSZNR_B-cWoEVnzCybPakI7M0ecY_m1lAGQe8GdI0nxKy_B9VN9XH3btKt19hQKp9DTHenYpicSlWrAqsOpHBETR-TM1dBaWEYPwP-PuhAU75wXqqa7ajIVVDtJ3S9HLH_xnPynHBA4xMfSDXTqugHUUK3_ql17Wkq504yXoEPhOwvx"/>
+</div>
+<div class="p-4 bg-surface">
+<p class="text-label-caps font-label-caps text-secondary mb-1">Pottery</p>
+<h3 class="text-body-lg font-body-lg text-primary mb-2">Nubian Terracotta Vase</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">$145.00</p>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="bg-surface rounded-lg overflow-hidden shadow-[rgba(0,77,64,0.08)_0px_4px_16px_0px] border-t border-secondary/20 group hover:shadow-[rgba(0,77,64,0.12)_0px_8px_24px_0px] transition-shadow duration-300">
+<div class="relative aspect-[4/5] overflow-hidden bg-surface-container">
+<img alt="Product 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A beautifully folded stack of handwoven linen textiles resting on a smooth wooden stool. The fabrics display intricate, geometric Delta weaving patterns in muted shades of sand, deep teal, and subtle gold. The lighting is soft and natural, casting gentle shadows that highlight the rich texture and high-quality sustainable materials. The aesthetic represents modern Egyptian elegance and artisanal luxury." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq-zV2WG8HCWI3JbWBbochtEpD4Mjo1yV2SBetUCYjJ6uyhkrZ6VzxWBbcnxO1X9VCYjBpN8_2CaOxkd4pYHXoqKXne2ZJ37vwGXB0byTfukGyornHgdFOsQhQ6X-rgeuKJHR9lBArsi3MH_19r-4oHnxMrYTSIOMPTnPs5MrfrU2MhKMEAdbFCfeuwLO7W43j7pZr00o94HhqP4HraCxj7JbrNKFKyU4-z-AQ5jkDlwxoK5OFREQ0x_SZkCORJjbFME_sHXNDysqp"/>
+</div>
+<div class="p-4 bg-surface">
+<p class="text-label-caps font-label-caps text-secondary mb-1">Textiles</p>
+<h3 class="text-body-lg font-body-lg text-primary mb-2">Delta Weave Linen Throw</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">$220.00</p>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="bg-surface rounded-lg overflow-hidden shadow-[rgba(0,77,64,0.08)_0px_4px_16px_0px] border-t border-secondary/20 group hover:shadow-[rgba(0,77,64,0.12)_0px_8px_24px_0px] transition-shadow duration-300">
+<div class="relative aspect-[4/5] overflow-hidden bg-surface-container">
+<img alt="Product 3" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A stylized arrangement of handcrafted ceramic bowls and plates in varying sizes. They feature a unique, dual-tone glaze combining a matte sandy finish on the outside with a glossy, deep teal interior. They are arranged asymmetrically on a minimalist white marble surface under bright, clean studio lighting. The image conveys premium quality, sustainability, and sophisticated rustic charm." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_ZqsAlrsgd5X_0TmFwR8rN1Fu86OgAkVk9aMtMl9MDQHyO1R7GMvtHfnuNMN8q6JmwGJI5Ru0r1KVv2gFlnCoUMUXmhEv6tBXwUUNcgDJyL1evsV-LxVgYpKRvaAAbVjWL-cz3JG-c0U01UHcIEIq336brHIbEvjgck1Ot6490nyb11nL9pYMBE8QsqAG3mPtlUGs0Y0x-o-QNV-mT3CMn8OdmCKULewIpwTUNDDJ2yaTDzBLc7wpQISz86_T4qUz5raTOqW4Cqxz"/>
+</div>
+<div class="p-4 bg-surface">
+<p class="text-label-caps font-label-caps text-secondary mb-1">Tableware</p>
+<h3 class="text-body-lg font-body-lg text-primary mb-2">Oasis Glaze Dining Set</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">$310.00</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Storytelling Block: Meet the Artisan (Bento-ish asymmetric) -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/20">
+<div class="md:col-span-5 h-full min-h-[400px] relative">
+<img alt="Artisan at work" class="absolute inset-0 w-full h-full object-cover" data-alt="An atmospheric portrait of an artisan carefully shaping clay on a traditional pottery wheel in a sunlit, dusty workshop. The artisan's hands are covered in wet earth, demonstrating deep focus and skill. The background features shelves filled with raw and fired terracotta pieces. The color palette focuses on deep earthy tones, capturing a sense of heritage, dedication, and the authentic creation process." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZhNg8dLTxXUMvtsljJfwlLAGC851e5EDa5TMAu0To6tlZYs0OnCvdUy9ca07TNv9_BA_4EtEgRRPBhtJX1vbriiDzYA92vDM-1tfiU135xqsGjXc9oUHybjdF5C2iNUW0j7SNjLRiLVZIYYFXkkgY8xSXM2de1Kj6cl8RBIjgbasije0HFvcteemvnd5rvlMKWCZ7rgnt_o02bXQIx-DC1m3z_vmYdlcu8SbX56D9HbdBGXnCltSfNqaej1XBkJoB2sXDwWlN-_lW"/>
+</div>
+<div class="md:col-span-7 p-8 md:p-12 space-y-6">
+<span class="inline-block px-3 py-1 bg-surface rounded-full border border-secondary text-secondary text-label-caps font-label-caps shadow-sm">Meet the Artisan</span>
+<h2 class="text-headline-lg font-headline-lg text-primary">Master of the Loom &amp; Kiln</h2>
+<p class="text-body-md font-body-md text-on-surface-variant leading-relaxed">
+                    At the heart of Delta Weaves is a commitment to preserving generations of Egyptian craftsmanship. Our master artisans blend traditional techniques with modern, sustainable practices. Every thread is spun, and every vessel is shaped with an unwavering dedication to quality, reflecting the rich, earthy tones of our heritage.
+                </p>
+<div class="flex gap-4 pt-4 border-t border-outline-variant/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">eco</span>
+<span class="text-body-sm font-body-sm text-on-surface">Sustainable Materials</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">handshake</span>
+<span class="text-body-sm font-body-sm text-on-surface">Fair Trade</span>
+</div>
+</div>
+<button class="mt-4 border border-secondary text-secondary text-label-caps font-label-caps px-6 py-2 rounded-DEFAULT hover:bg-secondary/10 transition-colors duration-300">
+                    Read Our Story
+                </button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-tertiary-container w-full py-12 flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop gap-gutter flat no shadows">
+<div class="text-headline-md font-headline-md text-primary dark:text-primary-fixed mb-6 md:mb-0">
+            Luxara
+        </div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 text-label-caps font-label-caps hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 text-label-caps font-label-caps hover:text-secondary transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 text-label-caps font-label-caps hover:text-secondary transition-colors" href="#">Sustainability</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 text-label-caps font-label-caps hover:text-secondary transition-colors" href="#">Contact</a>
+</div>
+<div class="text-on-surface dark:text-on-tertiary-container text-body-sm font-body-sm mt-6 md:mt-0 text-center md:text-right">
+            © 2024 Luxara Modern Egyptian Elegance. All rights rights reserved.
+        </div>
+</footer>
+</body></html>

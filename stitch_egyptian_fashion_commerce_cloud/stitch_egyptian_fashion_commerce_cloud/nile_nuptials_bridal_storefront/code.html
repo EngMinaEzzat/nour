@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nile Nuptials - Modern Bridal Couture</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#474836",
+                        "on-primary-container": "#7ebdac",
+                        "surface-variant": "#e4e2e1",
+                        "surface-tint": "#29695b",
+                        "inverse-on-surface": "#f3f0f0",
+                        "tertiary-fixed-dim": "#c8c8b0",
+                        "surface-dim": "#dcd9d9",
+                        "on-primary-fixed-variant": "#065043",
+                        "surface-container-high": "#eae8e7",
+                        "tertiary-container": "#434533",
+                        "on-surface": "#1b1c1c",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f6f3f2",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#2d2f1e",
+                        "surface": "#fbf9f8",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#e9c176",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#fed488",
+                        "secondary": "#775a19",
+                        "primary": "#00342b",
+                        "outline-variant": "#bfc9c4",
+                        "on-secondary-container": "#785a1a",
+                        "surface-container": "#f0eded",
+                        "primary-fixed": "#afefdd",
+                        "primary-container": "#004d40",
+                        "on-primary-fixed": "#00201a",
+                        "on-background": "#1b1c1c",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#e4e4cc",
+                        "surface-bright": "#fbf9f8",
+                        "secondary-fixed": "#ffdea5",
+                        "on-secondary-fixed": "#261900",
+                        "surface-container-highest": "#e4e2e1",
+                        "outline": "#707975",
+                        "inverse-surface": "#303030",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#94d3c1",
+                        "on-tertiary-fixed": "#1b1d0e",
+                        "primary-fixed-dim": "#94d3c1",
+                        "background": "#fbf9f8",
+                        "on-surface-variant": "#3f4945",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#b1b29b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "16px",
+                        "margin-tablet": "32px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Playfair Display"],
+                        "body-sm": ["Montserrat"],
+                        "body-md": ["Montserrat"],
+                        "label-caps": ["Montserrat"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "body-lg": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar Shared Component -->
+<header class="bg-surface dark:bg-surface-container docked full-width top-0 sticky z-50 border-b border-outline-variant/30 flat no shadows flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto w-full">
+<!-- Logo -->
+<div class="text-headline-lg font-headline-lg font-bold text-primary dark:text-primary-fixed">
+            Luxara
+        </div>
+<!-- Desktop Navigation -->
+<nav class="hidden md:flex gap-gutter items-center">
+<a class="text-primary font-bold border-b-2 border-secondary pb-1 text-label-caps font-label-caps" href="#">Shop</a>
+<a class="text-on-surface-variant font-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50 pb-1" href="#">Collections</a>
+<a class="text-on-surface-variant font-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50 pb-1" href="#">Editorial</a>
+<a class="text-on-surface-variant font-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50 pb-1" href="#">About</a>
+</nav>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<button class="hidden md:block text-label-caps font-label-caps text-on-surface hover:text-secondary transition-colors">Account</button>
+<div class="flex gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary transition-colors" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<main class="flex-grow flex flex-col w-full">
+<!-- Hero Section -->
+<section class="relative w-full h-[819px] min-h-[600px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Ethereal bridal dress" class="w-full h-full object-cover opacity-80" data-alt="A stunning, ethereal bridal gown displayed in a bright, sun-drenched minimalist atelier. The dress features delicate lace detailing and flows elegantly against a backdrop of soft ivory and champagne tones. Natural light streams through large windows, creating a dreamy, high-key lighting aesthetic that perfectly matches the 'Modern Egyptian Elegance' brand style. The mood is romantic, luxurious, and pristine, highlighting the exquisite craftsmanship of the couture piece." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdELIJB6hnOjlyWva5oxAZGfIIBDM_VBTHRhHUm18VJRX_dhYy9lnyXWBXa5rMtUt1FO5X-aGal__gLQyQBnV9MSMTZXhC3BwsyPRnr3SUfAk2_0lvqlSTtn2gHfhZS-Ic1L4LS854XuGuP7hamKEwW6FwCD_X6HJ-GnaIviuJCECB-TaUiv4TeAExenDhXpy0HJ9wd-1azKnMwlH8_DxF0AZfblcUr1vUY1ZL7aZp5grpXAjo3dLnmQQv-6YqcXVbK66kFJc5WlXI"/>
+<div class="absolute inset-0 bg-surface/40 backdrop-blur-[2px]"></div>
+</div>
+<div class="relative z-10 text-center px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto flex flex-col items-center">
+<p class="text-label-caps font-label-caps text-primary tracking-widest mb-6 uppercase">Introducing</p>
+<h1 class="text-display-lg font-display-lg text-primary mb-8 tracking-tight">Nile Nuptials</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10 leading-relaxed">
+                    A curated collection of modern bridal couture, where ancient grace meets contemporary high fashion. Discover your perfect silhouette bathed in ivory and desert gold.
+                </p>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-DEFAULT text-label-caps font-label-caps tracking-wider hover:bg-secondary transition-colors border-b-2 border-transparent hover:border-secondary-fixed shadow-md shadow-[rgba(0,77,64,0.08)]">
+                    Book an Appointment
+                </button>
+</div>
+</section>
+<!-- Lookbook Section -->
+<section class="py-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full">
+<div class="text-center mb-16">
+<h2 class="text-headline-lg font-headline-lg text-primary mb-4">The Collection</h2>
+<div class="w-16 h-[1px] bg-secondary mx-auto"></div>
+</div>
+<!-- Bento Grid Layout for Lookbook -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter auto-rows-[300px] md:auto-rows-[400px]">
+<!-- Large Featured Image -->
+<div class="md:col-span-8 row-span-1 relative group overflow-hidden rounded-lg shadow-md shadow-[rgba(0,77,64,0.08)]">
+<img alt="Bridal detail shot" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A close-up, high-fashion editorial shot of intricate beading and lace on a modern bridal gown. The lighting is soft and diffused, emphasizing the texture and luxurious quality of the fabric. The color palette features warm off-whites, champagne, and subtle touches of desert gold, aligning perfectly with the overarching corporate minimalism and elegance of the brand. The composition is asymmetrical, drawing the eye to the exquisite detailing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJH3ib-Ck77-brfgxgCnRwUq6t-v89EAid369Bj-C01K02vq0OjENU8AuvNkySs1tvAsOMpWaULwzK8GLZxrCbD-47nAWB52_F9OxreCi6VtmixdfX0xq9KDzv3iluRNd23BPGB3_wudC5bjbRuKepGRPlY8FM9JgTuhl9AbcvajtkhTHFL8u-aera8nege-VG9-xfxqDaoin-7GBIsd3wIgDA2IEoEwwuNtaOatzT5VRlhzor7T7K8UAlkCh9saVSyOoi0qJCMpPN"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+<h3 class="text-headline-md font-headline-md text-on-primary mb-2">The Alexandria Silhouette</h3>
+<p class="text-body-sm font-body-sm text-surface-variant">Silk crepe and hand-embroidered pearls.</p>
+</div>
+</div>
+<!-- Secondary Image -->
+<div class="md:col-span-4 row-span-1 relative group overflow-hidden rounded-lg shadow-md shadow-[rgba(0,77,64,0.08)] border-t border-secondary">
+<img alt="Bridal accessories" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A still-life composition of high-end bridal accessories resting on a textured sandstone surface. The arrangement includes delicate gold jewelry, a sheer tulle veil, and a minimalist ivory clutch. The scene is lit with warm, ambient studio lighting that casts soft, diffused shadows, creating a pristine and sophisticated atmosphere. The visual style is clean, uncluttered, and perfectly reflects the brand's 'Desert Gold' and 'Deep Teal' premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSnP71SvOBwmD9Ux1y0jjWIeEETVj-P703244szeOyICFvOfvZH_oBbmUHyC3ljY137zJKoa0Y3rXXW8Yg9aImTCQyqk4oGnoesLXdd0RkidYTl73OML5fdIjXJyco3HbZ8HE5JQ3O4KxGnr_l581nCcvwXbZP1PXMxklDgZrv5eCmCEwBLEQJkumRt0Q4Yk788DI9GTijhYX08KYQFYmOZgrrJqbvY9uDNn9S1k0mCcZM62L7-Jz_AbL2Bb3IiXAPX8OtKdUEZPtV"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+<h3 class="text-headline-md font-headline-md text-on-primary mb-2">Curated Accents</h3>
+<p class="text-body-sm font-body-sm text-surface-variant">Elevate your ensemble.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Shared Component -->
+<footer class="bg-surface-container dark:bg-tertiary-container w-full py-12 bg-surface-container-low dark:bg-tertiary-container flat no shadows flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop gap-gutter mt-auto">
+<div class="text-headline-md font-headline-md text-primary dark:text-primary-fixed mb-6 md:mb-0">
+            Luxara
+        </div>
+<div class="flex flex-wrap justify-center gap-6 mb-6 md:mb-0">
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 hover:text-secondary transition-colors text-label-caps font-label-caps" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 hover:text-secondary transition-colors text-label-caps font-label-caps" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 hover:text-secondary transition-colors text-label-caps font-label-caps" href="#">Sustainability</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 hover:text-secondary transition-colors text-label-caps font-label-caps" href="#">Contact</a>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface dark:text-on-tertiary-container text-center md:text-right">
+            © 2024 Luxara Modern Egyptian Elegance. All rights rights reserved.
+        </div>
+</footer>
+</body></html>

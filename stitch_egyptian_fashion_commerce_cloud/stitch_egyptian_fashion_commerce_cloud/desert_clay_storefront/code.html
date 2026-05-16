@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Desert Clay - Artisanal Pottery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Work+Sans:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed-variant": "#76320f",
+                      "tertiary": "#794200",
+                      "surface-bright": "#fff8f3",
+                      "background": "#fff8f3",
+                      "inverse-on-surface": "#feefdb",
+                      "on-secondary-fixed": "#131f00",
+                      "secondary-fixed": "#d2eca2",
+                      "on-error": "#ffffff",
+                      "secondary": "#50652a",
+                      "on-surface-variant": "#54433c",
+                      "primary-fixed": "#ffdbcd",
+                      "secondary-fixed-dim": "#b6d088",
+                      "error-container": "#ffdad6",
+                      "surface-variant": "#efe0cd",
+                      "on-error-container": "#93000a",
+                      "on-surface": "#221a0f",
+                      "inverse-surface": "#372f22",
+                      "on-secondary": "#ffffff",
+                      "surface-container-highest": "#efe0cd",
+                      "on-primary-container": "#ffe1d6",
+                      "secondary-container": "#cfe99f",
+                      "error": "#ba1a1a",
+                      "surface-container-high": "#f5e6d3",
+                      "on-tertiary-fixed-variant": "#6c3a00",
+                      "surface-container-low": "#fff2e2",
+                      "surface": "#fff8f3",
+                      "primary-fixed-dim": "#ffb596",
+                      "on-secondary-fixed-variant": "#394d14",
+                      "tertiary-fixed-dim": "#ffb877",
+                      "outline": "#87736b",
+                      "on-tertiary-container": "#ffe3cd",
+                      "primary-container": "#a0522d",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#546a2e",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-primary": "#ffb596",
+                      "surface-container": "#fbecd9",
+                      "on-primary-fixed": "#360f00",
+                      "tertiary-fixed": "#ffdcc1",
+                      "primary": "#823b18",
+                      "surface-tint": "#944925",
+                      "surface-dim": "#e6d8c5",
+                      "on-tertiary-fixed": "#2e1600",
+                      "tertiary-container": "#975915",
+                      "outline-variant": "#dac1b8",
+                      "on-primary": "#ffffff",
+                      "on-background": "#221a0f"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "section-gap": "80px",
+                      "margin-desktop": "64px",
+                      "unit": "4px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": [
+                              "Libre Caslon Text"
+                      ],
+                      "body-lg": [
+                              "Work Sans"
+                      ],
+                      "display-lg": [
+                              "Libre Caslon Text"
+                      ],
+                      "headline-sm": [
+                              "Libre Caslon Text"
+                      ],
+                      "label-caps": [
+                              "Work Sans"
+                      ],
+                      "body-md": [
+                              "Work Sans"
+                      ],
+                      "headline-md": [
+                              "Libre Caslon Text"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .texture-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+        .clay-shadow {
+            box-shadow: 0 8px 24px -4px rgba(45, 41, 38, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<div class="texture-overlay"></div>
+<!-- TopNavBar -->
+<header class="bg-background dark:bg-background docked full-width top-0 border-b border-outline-variant/30 bg-surface-bright/80 backdrop-blur-md flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 w-full z-40 hidden md:flex sticky">
+<div class="flex items-center gap-8">
+<a class="font-display-lg text-display-lg text-primary dark:text-primary-fixed-dim tracking-tight italic" href="#">New-Vintage Souq</a>
+<nav class="hidden lg:flex gap-6">
+<a class="font-headline-sm text-headline-sm text-on-surface-variant dark:text-surface-variant hover:text-tertiary transition-colors duration-300" href="#">Apothecary</a>
+<a class="font-headline-sm text-headline-sm text-on-surface-variant dark:text-surface-variant hover:text-tertiary transition-colors duration-300" href="#">Textiles</a>
+<a class="font-headline-sm text-headline-sm text-on-surface-variant dark:text-surface-variant hover:text-tertiary transition-colors duration-300" href="#">Leather</a>
+<a class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed-dim border-b-2 border-primary pb-1 hover:text-tertiary transition-colors duration-300" href="#">Pottery</a>
+<a class="font-headline-sm text-headline-sm text-on-surface-variant dark:text-surface-variant hover:text-tertiary transition-colors duration-300" href="#">Spices</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-primary dark:text-primary-fixed-dim hover:text-tertiary transition-colors duration-300">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="text-primary dark:text-primary-fixed-dim hover:text-tertiary transition-colors duration-300">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col w-full max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop pb-section-gap pt-8 md:pt-16">
+<!-- Hero Section - Minimalist & Architectural -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-section-gap items-center relative">
+<div class="col-span-1 md:col-span-5 z-10 md:pr-12">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-6">The Form of Earth.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-md">
+                    Explore our curated collection of artisanal pottery. Raw clay colors, elegant silhouettes, and matte textures born from the kiln.
+                </p>
+<a class="inline-flex items-center justify-center bg-primary text-on-primary px-8 py-4 font-label-caps text-label-caps uppercase tracking-widest hover:bg-tertiary transition-colors border border-transparent" href="#collection">
+                    View Collection
+                </a>
+</div>
+<div class="col-span-1 md:col-span-7 relative h-[614px] md:h-[819px] w-full bg-surface-container-low overflow-hidden rounded-sm">
+<img alt="Hero Pottery" class="w-full h-full object-cover mix-blend-multiply opacity-90" data-alt="A large, minimalist artisanal clay vase resting on a raw wooden pedestal in a sunlit, earthy room. The vase has a matte terracotta finish with subtle imperfections. The lighting casts dramatic, soft shadows against a plain plaster wall. The overall aesthetic is wabi-sabi, earthy, and quiet luxury." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCExymdk_WPTmob1FeiZe6uUnux8n3EWq9Is3kvUgc2lB7GbMLLBIIiB75qyOodgcpFsTiXoYirm_VES4XajBEq-lXO6zTgUmpTudIyjDIPxMonGBwtfyCByDOL6_nmnTwb3Rp_gq0jA_HLF6D7DQ2llxPjcwIo5hfnNJmT7ZgJdbrK9M_TYtqiHRlI-O4zjXhG_h_65soGs4AHXE-dXzCix6hNYTKw1VRKroMcX9HkCR8ti_2xhZc5-JUfm39rlxmNcPg_qzNcEzn6"/>
+</div>
+</section>
+<!-- Curated Asymmetry Gallery -->
+<section class="mb-section-gap" id="collection">
+<div class="flex items-baseline justify-between mb-12 border-b border-outline-variant/30 pb-4">
+<h2 class="font-headline-md text-headline-md text-primary">The Kiln Collection</h2>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Curated Forms</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-y-16 gap-x-gutter">
+<!-- Product 1: Spans left -->
+<div class="md:col-span-7 group cursor-pointer relative">
+<div class="aspect-[4/3] bg-surface-container overflow-hidden rounded-sm mb-6 relative">
+<img alt="Ceramic Bowls" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="A collection of handmade ceramic bowls stacked slightly askew. They feature muted earth tones—sand, sage, and pale terracotta. They rest on a coarse linen cloth in a bright, minimalist setting with natural daylight creating soft contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGBipU8LZtjcSYW1ffRgLMUs5fQIfTSJjBgEWyYYxivhP4BDufbaEy3qWPvNzWUmzq1EMvIRu4TfIZlA82SkKVJUGNCwJOqXzRtC_dESjKMe_8LyvaDXYO1eGNxTbfHSBKDuTp4Mpi1_03MrZ44a-QgfsLP8dXnB7voxwsAmGPEMNheNBfgFHn816so89zl3JgTZI_goelCHmR5lM4wumSHIu5RoNMSd-hFblmehA_B9ljhiQnQdpUKWjFgyGrVPRDJfIBmbix8rIq"/>
+<div class="absolute top-4 left-4 bg-surface-variant/80 backdrop-blur-sm px-3 py-1 font-label-caps text-label-caps text-on-surface rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">sell</span> Unica
+                        </div>
+</div>
+<div class="flex justify-between items-start pl-4 md:pl-12 border-l border-outline-variant">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-2 group-hover:text-tertiary transition-colors">Terracotta Vessels</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs">Unglazed exterior, smooth interior finish.</p>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">£145</span>
+</div>
+</div>
+<!-- Spacer for offset -->
+<div class="hidden md:block md:col-span-1"></div>
+<!-- Product 2: Spans right, vertically offset -->
+<div class="md:col-span-4 md:mt-32 group cursor-pointer">
+<div class="aspect-[3/4] bg-surface-container-high overflow-hidden rounded-sm mb-6">
+<img alt="Pitcher" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="A tall, slender black matte ceramic pitcher on a minimalist stone block. The background is a stark, off-white wall. The lighting is moody and architectural, emphasizing the dramatic silhouette and the rough texture of the clay." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUeoeHp7j0RzzgGp2UXogKmTVLcsj6fLaX-lPVQ7kPmRkAeHwr3rPQWxk2Q4q4GZimU1heWYPA8DjSuomxmm5nx8oIPgC-2ss3GzAsKol_8MMeEbcCnF_4p8WPxi0TsKWISbcl_UO0hVKqLeD-QIVUPcZbpQ2eBldWChhAK3FTlxcHo0c9bIEdtZnVpApNz6DU-qxoNEoOHkre_Ym-UZull9jyfYnqkF4y-euyKWW1n_PShNlvE89L0KyDw9-AR8PgrZISFv4i323O"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-2 group-hover:text-tertiary transition-colors">Obsidian Pitcher</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Matte black grogged clay.</p>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">£85</span>
+</div>
+</div>
+<!-- Product 3: Centered, wide -->
+<div class="md:col-span-8 md:col-start-3 mt-8 md:mt-16 group cursor-pointer">
+<div class="aspect-[16/9] bg-surface-dim overflow-hidden rounded-sm mb-6">
+<img alt="Platter" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="A wide, shallow ceramic platter filled with lemons, sitting on a rustic wooden table. The platter is a pale, speckled sand color with a subtle, uneven rim demonstrating its handmade origin. The scene evokes a warm, Mediterranean, earthy lifestyle." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbExmd0D4vMKMTuyQ7Lzl2dZP12cG51k4eYcwV2ARUA9EgdimeI7U54vg_Y9B7RWb0VxyFOvHh1-jFjQYHg8No0zzBTl7EZPdZHgnDc9vGgzy5S0HETxUrV-PgfBjY5QVMFzapD8ND3aUDbmQ2KXUXz4eYVBfv2oVEwEoqFt8I3shATYj8u_1do-ZbeYWs9LpNOPqbLoZkj9y0NOfHW3HARI5jIAmA7IiNhnByjw3w11TZv5WgImGkLAf9kPQZMJkFengpdJWseMeN"/>
+</div>
+<div class="flex flex-col items-center text-center">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-2 group-hover:text-tertiary transition-colors">Sandstone Platter</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md mb-4">A generous center piece showing the maker's hand.</p>
+<span class="font-body-lg text-body-lg text-on-surface">£210</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface w-full mt-section-gap border-t border-outline-variant flex flex-col md:flex-row justify-between items-center py-12 px-margin-mobile md:px-margin-desktop z-10 relative">
+<div class="font-display-lg text-primary mb-6 md:mb-0">
+<span class="text-[32px] italic">NVS</span>
+</div>
+<div class="flex flex-wrap justify-center gap-6 mb-6 md:mb-0">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="#">Provenance</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="#">Craftsmen</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="#">Shipping</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="#">Privacy</a>
+</div>
+<div class="font-body-md text-body-md text-on-surface dark:text-inverse-on-surface text-center md:text-right">
+            © 2024 New-Vintage Souq. Handcrafted in Cairo.
+        </div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface-container-low dark:bg-surface-container-lowest fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-low/95 backdrop-blur-lg border-t border-outline-variant/20 shadow-[0_-4px_12px_rgba(45,41,38,0.08)] fixed bottom-0 left-0 flex justify-around items-center py-3 px-4 md:hidden">
+<a class="flex flex-col items-center justify-center text-primary bg-secondary-container/30 rounded-full px-4 py-1 hover:text-primary scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">explore</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">auto_awesome</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Curated</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">shopping_basket</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Cart</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">favorite</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary" href="#">
+<span class="material-symbols-outlined text-[24px] mb-1">person_pin</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Me</span>
+</a>
+</nav>
+</body></html>

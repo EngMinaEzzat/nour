@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Luxara - Neo-Cairo Fashion Revolution</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wght@700;800&amp;family=Space+Grotesk:wght@500;700&amp;family=Spline+Sans:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#ffffff",
+                      "on-secondary": "#2b3400",
+                      "surface-container-low": "#1c1b1b",
+                      "secondary-container": "#cdf200",
+                      "tertiary-fixed": "#ebe2c8",
+                      "on-primary": "#00228a",
+                      "error-container": "#93000a",
+                      "on-background": "#e5e2e1",
+                      "on-secondary-fixed": "#181e00",
+                      "surface-bright": "#3a3939",
+                      "surface-tint": "#b9c3ff",
+                      "primary-fixed-dim": "#b9c3ff",
+                      "on-error": "#690005",
+                      "inverse-surface": "#e5e2e1",
+                      "on-primary-container": "#d4d9ff",
+                      "tertiary-fixed-dim": "#cec6ad",
+                      "inverse-primary": "#0046fa",
+                      "on-tertiary": "#35301e",
+                      "on-surface-variant": "#c4c5da",
+                      "secondary-fixed": "#cdf200",
+                      "surface-container": "#201f1f",
+                      "on-primary-fixed": "#001257",
+                      "surface-dim": "#131313",
+                      "on-error-container": "#ffdad6",
+                      "inverse-on-surface": "#313030",
+                      "primary-container": "#0047ff",
+                      "on-surface": "#e5e2e1",
+                      "primary": "#b9c3ff",
+                      "surface-variant": "#353534",
+                      "surface": "#131313",
+                      "surface-container-highest": "#353534",
+                      "outline-variant": "#434657",
+                      "surface-container-lowest": "#0e0e0e",
+                      "surface-container-high": "#2a2a2a",
+                      "on-tertiary-container": "#e4dbc1",
+                      "tertiary-container": "#66604b",
+                      "on-tertiary-fixed": "#1f1c0b",
+                      "background": "#131313",
+                      "tertiary": "#cec6ad",
+                      "secondary-fixed-dim": "#b4d400",
+                      "error": "#ffb4ab",
+                      "on-secondary-fixed-variant": "#3f4c00",
+                      "on-primary-fixed-variant": "#0033c0",
+                      "primary-fixed": "#dde1ff",
+                      "outline": "#8e8fa3",
+                      "on-tertiary-fixed-variant": "#4c4733",
+                      "on-secondary-container": "#5a6b00"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "40px",
+                      "gutter": "16px",
+                      "stack-lg": "48px",
+                      "unit": "4px",
+                      "margin-mobile": "20px",
+                      "stack-sm": "8px",
+                      "stack-md": "24px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": ["anybody"],
+                      "label-sm": ["spaceGrotesk"],
+                      "display-lg": ["anybody"],
+                      "body-md": ["splineSans"],
+                      "headline-lg": ["anybody"],
+                      "headline-lg-mobile": ["anybody"],
+                      "label-bold": ["spaceGrotesk"],
+                      "body-lg": ["splineSans"]
+              },
+              "fontSize": {
+                      "display-lg-mobile": ["40px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                      "label-sm": ["12px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                      "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                      "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "label-bold": ["14px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "1.5", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background-color: rgba(53, 53, 52, 0.4); /* surface-variant equivalent with opacity */
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(196, 197, 218, 0.15); /* outline-variant hint */
+        }
+        .neon-glow {
+            box-shadow: 0px 10px 30px rgba(0, 71, 255, 0.3); /* primary-container based glow */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TopNavBar Component -->
+<header class="bg-surface dark:bg-surface-dim shadow-sm dark:shadow-none transition-all duration-200 ease-in-out fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop py-4 max-w-[1440px] mx-auto docked full-width">
+<div class="flex items-center gap-8">
+<a class="font-display-lg text-headline-md text-primary dark:text-primary-fixed tracking-tight" href="#">LUXARA</a>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="font-body-md text-body-md text-primary dark:text-primary-fixed font-bold border-b-2 border-secondary-fixed-dim pb-1 transition-all duration-200 ease-in-out" href="#">Platform</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300 transition-all duration-200 ease-in-out" href="#">Merchants</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300 transition-all duration-200 ease-in-out" href="#">Logistics</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300 transition-all duration-200 ease-in-out" href="#">Pricing</a>
+</nav>
+</div>
+<div class="hidden md:flex items-center gap-4">
+<button class="font-label-bold text-label-bold text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300">Login</button>
+<button class="bg-primary-container text-on-primary-container font-label-bold text-label-bold px-6 py-3 rounded-full hover:bg-inverse-primary hover:text-secondary transition-colors duration-300 neon-glow">Get Started</button>
+</div>
+<button class="md:hidden text-primary dark:text-primary-fixed">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="pt-[80px]">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex flex-col justify-end px-margin-mobile md:px-margin-desktop pb-stack-lg">
+<!-- Background Image -->
+<div class="absolute inset-0 z-0 overflow-hidden">
+<img alt="Hero Background" class="w-full h-full object-cover object-center opacity-80 mix-blend-luminosity" data-alt="A striking, high-fashion editorial photograph of an edgy fashion model standing in a hyper-futuristic, neon-lit reimagining of Cairo at night. The urban setting blends ancient Egyptian architectural motifs with towering glass skyscrapers and holographic advertisements. The lighting is dominated by vibrant electric blues and harsh, high-contrast shadows, creating a moody, cyberpunk aesthetic. The model wears avant-garde streetwear featuring luminescent fabrics. The overall style is a 'Digital Oasis'—a fusion of gritty urban textures and hyper-saturated digital glow." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATlBlzMP-9pfZ0l-gaDSQq2abpjJ4YiCksNKtXu_QsH1Rt6qEiOVt3xZRbICBbOcxYM5jTqPiBrJBzQW1Z2ZCMbT3gv7aI_cdESQ9l9XNM9h8QYoMylHBj04nkj9o58CZpUUh7s4CO_zNIq9UIABRQpoViF9xayH8jUhSaRGWMVCToplFSDjsbQCfT5wv9o9dNArBTrtkLSn2vgY4uMvKeYgBGAtSsuebu62yXgPsT9GR59xw3Vj0a3NXOrn8ixNLd6IEcBCJ6u0QE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
+</div>
+<!-- Content -->
+<div class="relative z-10 max-w-[1440px] w-full mx-auto grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="md:col-span-8 lg:col-span-9">
+<div class="inline-flex items-center gap-2 mb-stack-sm bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">electric_bolt</span>
+                        New Drop Live
+                    </div>
+<h1 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-secondary mb-stack-md leading-tight max-w-[800px]">
+                        Fueling the Neo-Cairo Fashion Revolution.
+                    </h1>
+</div>
+<!-- Floating CTA Glass Card -->
+<div class="md:col-span-4 lg:col-span-3 flex items-end">
+<div class="glass-panel p-6 rounded-2xl w-full">
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Gain exclusive access to high-velocity streetwear drops curated from local artisans and global heavyweights.</p>
+<div class="flex flex-col gap-4">
+<button class="w-full bg-primary-container text-on-primary-container font-label-bold text-label-bold py-4 rounded-xl flex justify-center items-center gap-2 neon-glow transition-all hover:scale-[1.02]">
+                                Explore The Drop
+                                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="w-full glass-panel border-secondary-fixed text-secondary-fixed font-label-bold text-label-bold py-4 rounded-xl hover:bg-secondary-fixed/10 transition-colors">
+                                Join Revolution
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- The Drops (Bento Grid Layout) -->
+<section class="py-stack-lg px-margin-mobile md:px-margin-desktop max-w-[1440px] mx-auto">
+<div class="flex justify-between items-end mb-stack-md">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-secondary">Latest Intelligence</h2>
+<a class="font-label-bold text-label-bold text-primary-fixed-dim hover:text-secondary-fixed transition-colors flex items-center gap-1" href="#">
+                    View All <span class="material-symbols-outlined text-[18px]">east</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter h-auto md:h-[600px]">
+<!-- Main Feature (Spans 8 cols) -->
+<div class="md:col-span-8 relative rounded-3xl overflow-hidden group h-[400px] md:h-full">
+<img alt="Main Feature" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A dynamic low-angle shot of a model wearing an oversized, metallic silver puffer jacket and reflective visors, standing against a massive concrete pillar in an underground parking garage. The scene is lit by stark, cool fluorescent lights and a striking electric blue neon sign reflecting off the jacket. The gritty, industrial backdrop contrasts with the highly futuristic, luxury streetwear, capturing a raw, rebellious Neo-Cairo street culture vibe. Dark mode aesthetic with high contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf0C0k4gxzJpHDJCjBDtwuQCYAez4XRcroCVoEX8FsA-h_2ix-XMJoB2QrZtCO7wze6HtG0sWIrGXQ3OPPQngikczwFpCnSQh7EKq1aqynrEwHFNSazThwVSnDYC7r85G2JU-blI7dPoU3uo4fEO_cXNg5wE7_VrPWpqP5wZWVMs4k4RC9NnGTXnHyQ7bYkpSQ29xvrtC5rkQ1dm-cSr4wQ3It8u9bbJnRfXsW2kXGxsx9vL9h_aF6T_H8FFbfWHtHu-UTRDFu5gW_"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent"></div>
+<div class="absolute inset-0 p-6 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full font-label-sm text-label-sm">Vol. 04</span>
+<div class="glass-panel w-10 h-10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 0;">bookmark</span>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-2xl md:w-2/3 backdrop-blur-3xl">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-secondary mb-2">The Chrome Ascendance Collection</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Merging traditional silhouettes with hyper-reflective textiles built for the nocturnal urban explorer.</p>
+</div>
+</div>
+</div>
+<!-- Secondary Features (Stack of 2 on the right) -->
+<div class="md:col-span-4 flex flex-col gap-gutter h-full">
+<!-- Top Small Card -->
+<div class="flex-1 relative rounded-3xl overflow-hidden group min-h-[250px]">
+<img alt="Sneaker Detail" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A close-up product shot of an exclusive, limited-edition futuristic sneaker resting on a rough, sun-drenched concrete slab. The sneaker features glowing electric blue accents and translucent glass-like materials. The background is a soft, blurred cyberpunk cityscape at night, illuminated by neon mint and deep midnight blue lights. The mood is high-energy and exclusive, capturing the essence of a highly anticipated streetwear drop in a Neo-Cairo setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBnnJA1Pgq_z1fh48x6k_JUBUS6dTEyiKiDbvEN3TUrX3rZIyFp5Ia2NLL8yc81uTEUaF_g5gUdv-qQYUiPwfqVmvp_5mKdMWLf4c2lybqowqMg8kYR50C4fCEKpqFju7p5stPViyHMAGNky8ibcGY9Z2gDMUxHkxc__RB25LXVwZdWIdRwu1BTNL42dF48OOfX6OOgoK95U7tR_-hgsmfotw1n1c50tIjLeE0hO-IWw8TH7UaH0z3b4FgyL98fi2jxayUtbWIDYaV"/>
+<div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+<div class="absolute inset-0 p-6 flex flex-col justify-end">
+<span class="text-secondary-fixed font-label-bold text-label-bold mb-1">Footwear / Drop 22</span>
+<h4 class="font-body-lg text-body-lg text-secondary font-bold">Aero-Strider V2</h4>
+</div>
+</div>
+<!-- Bottom Small Card (Text heavy / Audio visualizer vibe) -->
+<div class="flex-1 glass-panel rounded-3xl p-6 flex flex-col justify-between min-h-[250px] relative overflow-hidden border-t-2 border-primary-container">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-container to-secondary-fixed"></div>
+<div>
+<div class="flex items-center gap-2 mb-4 text-primary-fixed-dim">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">mic</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Podcast Live</span>
+</div>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-secondary mb-2 leading-tight">Sound of the Underground</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Interview with the architects behind Cairo's rising tech-wear scene.</p>
+</div>
+<button class="self-start glass-panel rounded-full w-12 h-12 flex items-center justify-center hover:bg-primary-container hover:text-on-primary-container transition-colors neon-glow">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Component -->
+<footer class="bg-tertiary dark:bg-black w-full px-margin-desktop py-gutter flex flex-col md:flex-row justify-between items-center max-w-[1440px] mx-auto border-t border-tertiary-container mt-stack-lg">
+<div class="mb-4 md:mb-0">
+<p class="font-body-sm text-body-sm text-secondary-fixed-dim dark:text-secondary-fixed-dim">© 2024 Luxara Egypt. Modern Elegance, Local Power.</p>
+</div>
+<nav class="flex flex-wrap justify-center gap-4">
+<a class="font-body-sm text-body-sm text-on-tertiary-container hover:text-surface-bright transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-tertiary-container hover:text-surface-bright transition-colors" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-on-tertiary-container hover:text-surface-bright transition-colors" href="#">Merchant Agreement</a>
+<a class="font-body-sm text-body-sm text-on-tertiary-container hover:text-surface-bright transition-colors" href="#">Arabic Support</a>
+</nav>
+</footer>
+</body></html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cairo Street Collective - Streetwear &amp; Youth</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed-variant": "#474836",
+                    "on-primary-container": "#7ebdac",
+                    "surface-variant": "#e4e2e1",
+                    "surface-tint": "#29695b",
+                    "inverse-on-surface": "#f3f0f0",
+                    "tertiary-fixed-dim": "#c8c8b0",
+                    "surface-dim": "#dcd9d9",
+                    "on-primary-fixed-variant": "#065043",
+                    "surface-container-high": "#eae8e7",
+                    "tertiary-container": "#434533",
+                    "on-surface": "#1b1c1c",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#f6f3f2",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#2d2f1e",
+                    "surface": "#fbf9f8",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#e9c176",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#fed488",
+                    "secondary": "#775a19",
+                    "primary": "#00342b",
+                    "outline-variant": "#bfc9c4",
+                    "on-secondary-container": "#785a1a",
+                    "surface-container": "#f0eded",
+                    "primary-fixed": "#afefdd",
+                    "primary-container": "#004d40",
+                    "on-primary-fixed": "#00201a",
+                    "on-background": "#1b1c1c",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#e4e4cc",
+                    "surface-bright": "#fbf9f8",
+                    "secondary-fixed": "#ffdea5",
+                    "on-secondary-fixed": "#261900",
+                    "surface-container-highest": "#e4e2e1",
+                    "outline": "#707975",
+                    "inverse-surface": "#303030",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#94d3c1",
+                    "on-tertiary-fixed": "#1b1d0e",
+                    "primary-fixed-dim": "#94d3c1",
+                    "background": "#fbf9f8",
+                    "on-surface-variant": "#3f4945",
+                    "on-error": "#ffffff",
+                    "on-tertiary-container": "#b1b29b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "margin-mobile": "16px",
+                    "margin-tablet": "32px",
+                    "gutter": "24px",
+                    "margin-desktop": "64px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Playfair Display"
+                    ],
+                    "body-sm": [
+                            "Montserrat"
+                    ],
+                    "body-md": [
+                            "Montserrat"
+                    ],
+                    "label-caps": [
+                            "Montserrat"
+                    ],
+                    "headline-lg-mobile": [
+                            "Playfair Display"
+                    ],
+                    "headline-lg": [
+                            "Playfair Display"
+                    ],
+                    "display-lg": [
+                            "Playfair Display"
+                    ],
+                    "body-lg": [
+                            "Montserrat"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "60px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+        },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for brutalist feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fbf9f8; 
+            border-left: 1px solid #1b1c1c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1b1c1c; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #775a19; 
+        }
+        
+        /* Brutalist utility classes */
+        .brutalist-border {
+            border: 2px solid #1b1c1c;
+        }
+        .brutalist-shadow {
+            box-shadow: 4px 4px 0px 0px #1b1c1c;
+        }
+        .brutalist-shadow-hover:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px 0px #1b1c1c;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        /* Override display font for brutalist theme - using Montserrat for bold raw feel instead of Playfair */
+        .font-brutalist-display {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-surface-container docked full-width top-0 sticky z-50 border-b border-outline-variant/30 flat no shadows flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto w-full brutalist-border border-x-0 border-t-0 border-b-2">
+<div class="flex items-center gap-6">
+<a class="text-headline-lg font-headline-lg font-bold text-primary dark:text-primary-fixed font-brutalist-display tracking-tighter" href="#">CAIRO STREET</a>
+<div class="hidden md:flex items-center gap-6 ml-8">
+<a class="text-primary font-bold border-b-2 border-secondary pb-1 text-label-caps font-label-caps tracking-widest uppercase" href="#">Shop</a>
+<a class="text-on-surface-variant font-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50 uppercase" href="#">Collections</a>
+<a class="text-on-surface-variant font-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50 uppercase" href="#">Editorial</a>
+<a class="text-on-surface-variant font-label-caps hover:text-secondary transition-colors duration-300 hover:border-b-2 hover:border-secondary/50 uppercase" href="#">About</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button aria-label="notifications" class="text-on-surface-variant hover:text-secondary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button aria-label="shopping_bag" class="text-on-surface-variant hover:text-secondary transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</button>
+<a class="hidden md:flex items-center justify-center px-4 py-2 bg-on-background text-background font-label-caps text-label-caps brutalist-shadow brutalist-shadow-hover uppercase tracking-widest ml-4" href="#">
+                Account
+            </a>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-on-background ml-2">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</nav>
+<main class="w-full max-w-container-max mx-auto">
+<!-- Hero Section -->
+<section class="w-full border-b-2 border-on-background relative overflow-hidden bg-surface-container-low min-h-[819px] flex flex-col md:flex-row">
+<!-- Left Text Area -->
+<div class="w-full md:w-1/2 p-margin-mobile md:p-margin-desktop flex flex-col justify-center z-10 bg-background/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none border-r-2 border-on-background">
+<div class="inline-block bg-secondary text-on-secondary px-3 py-1 mb-6 font-label-caps text-label-caps w-max brutalist-border brutalist-shadow transform -rotate-2">
+                    SEASON 04
+                </div>
+<h1 class="font-brutalist-display text-[64px] md:text-[96px] leading-none mb-6 text-on-background tracking-tighter">
+                    RAW<br/>EGYPTIAN<br/>YOUTH.
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md mb-8 border-l-4 border-secondary pl-4">
+                    The intersection of brutalist architecture and modern streetwear. Forged in Cairo, worn globally.
+                </p>
+<div class="flex flex-wrap gap-4">
+<a class="bg-primary text-on-primary px-8 py-4 font-label-caps text-label-caps uppercase tracking-widest brutalist-border brutalist-shadow brutalist-shadow-hover" href="#">
+                        Shop Collection
+                    </a>
+<a class="bg-background text-on-background px-8 py-4 font-label-caps text-label-caps uppercase tracking-widest brutalist-border brutalist-shadow brutalist-shadow-hover" href="#">
+                        View Editorial
+                    </a>
+</div>
+</div>
+<!-- Right Image Area -->
+<div class="w-full md:w-1/2 absolute md:relative top-0 left-0 h-full -z-10 md:z-0">
+<img alt="Streetwear model against concrete wall" class="w-full h-full object-cover filter grayscale contrast-125" data-alt="A gritty, high-contrast black and white street photography shot of a young Egyptian model wearing oversized, avant-garde streetwear. The setting is against a raw, brutalist concrete wall with sharp geometric shadows. The lighting is harsh and directional, emphasizing the texture of the fabric and the concrete. The mood is rebellious, energetic, and urban, capturing the essence of modern Cairo youth culture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAClSwPqvAxSoCS-DODt-aIbe6UbHpLT_Fhfecdb2n0lvRXCHgj7YjDpmy1G1Sz-u-fNltfejbd3G25PDiPZU3eOgeIFwYl9yb04aQGqGQW1rHRWh1rGlwqgtnaZkgyGBI2EGpmhPfnRX12R8Efg5lgt1w2RfGCm7oBbilfDCAb8p_ooSJ9KCqb3jfWHaB3s7J2TZ28ysDrgeRvaXal09ehJBcAmifjSbFl9oksj3Dh3a6VY6nG-Sh5t8QytZX7qQWYx3eOhfnYm1S_"/>
+<!-- Neon accent overlay -->
+<div class="absolute bottom-margin-desktop right-margin-desktop bg-[#afefdd] w-32 h-32 mix-blend-multiply opacity-80 blur-xl"></div>
+</div>
+</section>
+<!-- Marquee Ticker -->
+<div class="w-full border-b-2 border-on-background bg-secondary text-on-secondary py-3 overflow-hidden flex whitespace-nowrap">
+<div class="animate-marquee font-label-caps text-label-caps uppercase tracking-[0.2em] flex items-center gap-8">
+<span>CAIRO STREET COLLECTIVE</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="close">close</span>
+<span>NEW ARRIVALS EVERY FRIDAY</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="close">close</span>
+<span>NO RESTOCKS</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="close">close</span>
+<span>CAIRO STREET COLLECTIVE</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="close">close</span>
+<span>NEW ARRIVALS EVERY FRIDAY</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="close">close</span>
+<span>NO RESTOCKS</span>
+</div>
+</div>
+<!-- Filterable Categories -->
+<section class="py-margin-desktop px-margin-mobile md:px-margin-desktop bg-surface">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b-2 border-on-background pb-4">
+<h2 class="font-brutalist-display text-[48px] leading-none m-0">GEAR.</h2>
+<div class="flex flex-wrap gap-2">
+<button class="bg-on-background text-background px-4 py-2 font-label-caps text-label-caps uppercase brutalist-border">All</button>
+<button class="bg-background text-on-background px-4 py-2 font-label-caps text-label-caps uppercase brutalist-border hover:bg-surface-variant transition-colors">Tees</button>
+<button class="bg-background text-on-background px-4 py-2 font-label-caps text-label-caps uppercase brutalist-border hover:bg-surface-variant transition-colors">Hoodies</button>
+<button class="bg-background text-on-background px-4 py-2 font-label-caps text-label-caps uppercase brutalist-border hover:bg-surface-variant transition-colors">Bottoms</button>
+<button class="bg-background text-on-background px-4 py-2 font-label-caps text-label-caps uppercase brutalist-border hover:bg-surface-variant transition-colors">Accessories</button>
+</div>
+</div>
+<!-- Bento Grid Products -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<!-- Large Item -->
+<div class="md:col-span-2 md:row-span-2 group cursor-pointer">
+<div class="relative w-full aspect-[4/5] bg-surface-container brutalist-border overflow-hidden">
+<img alt="Graphic Hoodie" class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A stylized product shot of an oversized black streetwear hoodie with bold, white geometric Egyptian hieroglyph-inspired graphics on the back. The garment is laid flat on a textured concrete surface. The lighting is bright and even, creating a minimalist, catalog-style presentation but with a raw, industrial edge. The overall aesthetic is clean but edgy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvqB7TYeXnhY2EO3rGfPMJAxLMLySB-2eyFICdZOTTUZzX2ePoVS2w3UpRjnSMFjJFh9oD7f5RakkgvHot1_mpvFthe2Mrn4S4wSXVqNYQaMEKBzUKNaBraDU0Zy6-KZQFZ5rzD8gTeiTpuRkVGV8RaBzHOJe5paXeBoXqALabjnxXekjW8k5Jkk45GVESNoNJBjX1VUdq5W2W81ZW4oNYcTQe9TPdhw3egzBFUkX3Ckka5r7MQhs8eq21Ie58FZSmjI5I4-tEY0H8"/>
+<div class="absolute top-4 left-4 bg-background text-on-background px-3 py-1 font-label-caps text-label-caps brutalist-border">
+                            NEW
+                        </div>
+</div>
+<div class="mt-4 flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-headline-md font-bold uppercase">Concrete Graphic Hoodie</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Heavyweight French Terry</p>
+</div>
+<span class="font-label-caps text-label-caps brutalist-border px-2 py-1 bg-secondary text-on-secondary">EGP 2,400</span>
+</div>
+</div>
+<!-- Standard Items -->
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-square bg-surface-container brutalist-border overflow-hidden">
+<img alt="Essential Tee" class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A close-up shot of a white heavy-cotton t-shirt featuring a subtle, embroidered logo in deep teal on the chest. The fabric texture is highly visible, emphasizing quality and weight. The background is a stark, off-white studio setting, providing a minimalist and premium feel. The lighting is soft but directional, highlighting the drape of the fabric." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-j2HO6JH8FGByIB-VCGueHlFEFNDJmffxJyitoAIjZ2VODr2k9F9proNHcxPL9Lef550rrVpT-z07emgdrBqj2xcaHC4p1TZrMO4cv1kzh3Ah48R2m7XjAfQl1PWUN6wBWTIVa8f23W9RHWkB-4lLTE3khuVnEzZL_zeQINny35cFqoi9ixd3SQjOCgR40H6xpbCNOe5V5zLIsvoB-RcVbs04JnNquKbRC-LlxPAhne6sQh5DgLUc_CNyhy-l1P4hhvhAMnnc1ZA6"/>
+</div>
+<div class="mt-4 flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[18px] leading-tight font-bold uppercase">Essential Heavy Tee</h3>
+</div>
+<span class="font-label-caps text-label-caps brutalist-border px-2 py-1 bg-surface-variant">EGP 950</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-square bg-surface-container brutalist-border overflow-hidden">
+<img alt="Cargo Pants" class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A product shot of wide-leg, utilitarian cargo pants in a dark grey color. The pants feature multiple oversized pockets and adjustable straps at the hem. They are styled on a mannequin against a stark, high-contrast white background. The image has a raw, slightly grainy texture, typical of underground streetwear lookbooks." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQHLSu7mirXjQdjP27fCu-Jpd5942502_C5VN82jdKfCJmzBXDLaymHdCRLabsZ3sAQ-HGc1-qhfG7PjXIRSD_siiuYkUN5fgQrkJHI4LsCk1FIPSO9w84G3okvXTqwD3W9RW82LmYpL1nsvmdlggB5E4Qnd_9apjK6RXm0y_yLEBtyuwcxBwWpvfQi2Zl31qHAMIbLy6OkiKl4uyeqdsUPVtWYibeGUgSXak4dQ_yTUfCuO3uETIA7UA0SAsmiXEDZ3Y2vAgcWp5X"/>
+</div>
+<div class="mt-4 flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[18px] leading-tight font-bold uppercase">Utility Cargo Pt. 2</h3>
+</div>
+<span class="font-label-caps text-label-caps brutalist-border px-2 py-1 bg-surface-variant">EGP 1,800</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-square bg-surface-container brutalist-border overflow-hidden bg-primary">
+<!-- Text based product for variety -->
+<div class="w-full h-full flex items-center justify-center p-6 text-center">
+<span class="font-brutalist-display text-[32px] text-primary-fixed leading-none">LIMITED<br/>EDITION<br/>ACCESSORIES</span>
+</div>
+</div>
+<div class="mt-4 flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[18px] leading-tight font-bold uppercase">View All Hardware</h3>
+</div>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="relative w-full aspect-square bg-surface-container brutalist-border overflow-hidden">
+<img alt="Tactical Bag" class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A detailed shot of a black canvas messenger bag with heavy-duty metal buckles and a thick nylon strap. The bag has a minimalist, tactical design. It is photographed on a rough, grey concrete floor with sharp, angular lighting casting deep shadows. The aesthetic is industrial and functional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3pkd2Xv4YssG5Nwt6lSaM6MckS0n2LCEHKtgoyNgoz1gmWdWNpC7TRHdk6FxFP235wyUKsJ_rNr7K0EdzN97cyXCl4mXg1DMRc58hQa1qexFOocxx7YR1dd36O3298entuFErhCl5u-Lch_dl15mkaewaJLGgamgtk1aWd2wVpjWm_vvHKWpzhzxn8Om3EI3vP-bFzWEGdVdh_WY6_seAOuDXWtkGfgTnCb8yZZatmjGRSkWtxPzk-X7cHVsemrWlGWlrNf1ux_5A"/>
+</div>
+<div class="mt-4 flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[18px] leading-tight font-bold uppercase">Tactical Messenger</h3>
+</div>
+<span class="font-label-caps text-label-caps brutalist-border px-2 py-1 bg-surface-variant">EGP 1,200</span>
+</div>
+</div>
+</div>
+<div class="mt-16 flex justify-center">
+<a class="bg-background text-on-background px-12 py-4 font-label-caps text-label-caps uppercase tracking-widest brutalist-border brutalist-shadow brutalist-shadow-hover flex items-center gap-2" href="#">
+                    LOAD MORE <span class="material-symbols-outlined" data-icon="south">south</span>
+</a>
+</div>
+</section>
+<!-- Seen in the Streets (Social Feed) -->
+<section class="py-margin-desktop bg-primary text-on-primary border-y-2 border-on-background relative overflow-hidden">
+<!-- Background texture -->
+<div class="absolute inset-0 opacity-5" style="background-image: repeating-linear-gradient(45deg, #ffffff 25%, transparent 25%, transparent 75%, #ffffff 75%, #ffffff), repeating-linear-gradient(45deg, #ffffff 25%, transparent 25%, transparent 75%, #ffffff 75%, #ffffff); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
+<div class="px-margin-mobile md:px-margin-desktop relative z-10">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b-2 border-primary-fixed/30 pb-4">
+<div>
+<h2 class="font-brutalist-display text-[48px] leading-none m-0 text-primary-fixed">SEEN IN THE STREETS.</h2>
+<p class="font-body-md mt-2 text-primary-fixed-dim">Tag @cairostreet or #CSC to be featured.</p>
+</div>
+<a class="bg-transparent text-primary-fixed border-2 border-primary-fixed px-6 py-3 font-label-caps text-label-caps uppercase hover:bg-primary-fixed hover:text-primary transition-colors" href="#">
+                        Follow Us
+                    </a>
+</div>
+<!-- Asymmetric Masonry-style layout for feed -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-gutter auto-rows-[200px] md:auto-rows-[300px]">
+<!-- Item 1 (Tall) -->
+<div class="col-span-2 row-span-2 border-2 border-primary-fixed relative group overflow-hidden bg-on-background">
+<img alt="Street Style 1" class="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-300" data-alt="An urban portrait of a young person sitting on some concrete steps, wearing layered streetwear featuring an oversized jacket and chunky sneakers. The lighting suggests dusk or night time with some artificial city lights in the background. The mood is candid and raw, typical of a street-style fashion blog post." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzNzLv8_SIjtwiuyE52Hp5S6JZyFWigdw0X5hi0g36dTUidqrWo8V6Icbl5_jhYF0AySoBJBRrPhdVN7ZoazIbV_Tp57u3nF7f34hcrt4_Wjmh-K1pykO9bvycWs-wr8GaQDmIx8eox4r_dbM75mS-3Jdq2J79Sqx9m6WcEzrCiz23xcggI8lqPH3j52f0eHVaF3J82_IsP5pTORMS5yENKXwgE5qe6M_3R86mk17XTR3xAiz2HKKv411xGcp-_PLPJQ4LHKbJvrg8"/>
+<div class="absolute bottom-4 left-4 bg-background text-on-background px-3 py-1 font-label-caps text-[10px] brutalist-border flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="alternate_email">alternate_email</span>
+                            yousefx
+                        </div>
+</div>
+<!-- Item 2 (Square) -->
+<div class="border-2 border-primary-fixed relative group overflow-hidden bg-on-background">
+<img alt="Street Style 2" class="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-300" data-alt="A close-up street style shot focusing on a pair of hype sneakers and the hem of wide-leg trousers. The subject is standing on a textured asphalt surface. The image is high contrast with deep shadows, emphasizing the details and materials of the footwear." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZIFjwk9twJTGXQT3rBbigKFTJG5mSA3mdHTIjlFk3giVLtnfe6KdObv5TdPKzZR3Q-Ikua6W1zPkmweCI0gIjn_67iL1f32kr4thRHvoeiPbpKPkCtjhgRmGfPtxDj0YNbYL0aniQkTPIoTX4P5VZzC0-MlV6FWRzOz_pNWwUdHDv4LVQu6CV5I4ktprZEX_Rd77WJ0jHXNuJ5SJ6aoW404ZoueE5X2xWKccq2cWhmcywPP8zeZwOzdXGWum0kmnxQ21732UyT-D8"/>
+<div class="absolute bottom-4 left-4 bg-background text-on-background px-3 py-1 font-label-caps text-[10px] brutalist-border flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="alternate_email">alternate_email</span>
+                            kareemsnkrs
+                        </div>
+</div>
+<!-- Item 3 (Square) -->
+<div class="border-2 border-primary-fixed relative group overflow-hidden bg-on-background">
+<div class="w-full h-full flex flex-col justify-center items-center p-6 text-center bg-primary-fixed text-primary">
+<p class="font-headline-md font-bold text-[20px] mb-4">"The fit and structure is unlike anything else coming out of the region."</p>
+<p class="font-label-caps text-[10px] uppercase">@fashion_archives</p>
+</div>
+</div>
+<!-- Item 4 (Wide) -->
+<div class="col-span-2 border-2 border-primary-fixed relative group overflow-hidden bg-on-background">
+<img alt="Street Style 3" class="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-300" data-alt="A wide shot of a group of three friends walking down an urban alleyway, all wearing coordinated but distinct streetwear outfits from the same collection. The background features distressed brick and metal fire escapes. The style is raw, energetic, and captures youth culture in a gritty city environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUOm-PJSWXekPpzfZYc9VCSVujT2CPvcIeHi5KMvKRj0gAN5P-RydOVUxZwcG8ebMYH3oioARdrHy51ONklH4Ngqro4zgJNP8ds1o3_DKATUBuK8mLn5F1Ju0In7gBmTOQUR-uMZizGmBTQlMhsCzh-x8si9F-rkeqLmh444EYGYCBz_VgiNM_c1FPE6MmBPK33pge4Dp2FFAbtJwioxEA9gcokfqTYp6AHdrz7Vs4xz0yJ1d172w32LyowzTPjxl5hh4BDKLW-ZTv"/>
+<div class="absolute bottom-4 left-4 bg-background text-on-background px-3 py-1 font-label-caps text-[10px] brutalist-border flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="alternate_email">alternate_email</span>
+                            cairo_creators
+                        </div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container dark:bg-tertiary-container text-on-surface dark:text-on-tertiary-container w-full py-12 flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop gap-gutter border-t-2 border-on-background brutalist-border border-x-0 border-b-0">
+<div class="text-headline-md font-headline-md text-primary dark:text-primary-fixed font-brutalist-display tracking-tighter">
+            CAIRO STREET
+        </div>
+<div class="flex flex-wrap justify-center gap-6 md:gap-8">
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 text-label-caps font-label-caps hover:text-secondary transition-colors uppercase" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 text-label-caps font-label-caps hover:text-secondary transition-colors uppercase" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 text-label-caps font-label-caps hover:text-secondary transition-colors uppercase" href="#">Sustainability</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-container/80 text-label-caps font-label-caps hover:text-secondary transition-colors uppercase" href="#">Contact</a>
+</div>
+<div class="text-body-sm font-body-sm text-center md:text-right">
+            © 2024 Luxara Modern Egyptian Elegance. All rights rights reserved.
+        </div>
+</footer>
+</body></html>

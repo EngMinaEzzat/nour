@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AL-QAHIRA - Objects</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @font-face {
+            font-family: 'Metropolis';
+            src: url('https://fonts.cdnfonts.com/s/14352/Metropolis-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Metropolis';
+            src: url('https://fonts.cdnfonts.com/s/14352/Metropolis-Medium.woff') format('woff');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Metropolis';
+            src: url('https://fonts.cdnfonts.com/s/14352/Metropolis-SemiBold.woff') format('woff');
+            font-weight: 600;
+            font-style: normal;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-container": "#858383",
+                      "secondary-fixed-dim": "#c9c6c3",
+                      "surface-bright": "#f9f9f7",
+                      "tertiary": "#000000",
+                      "outline": "#747878",
+                      "secondary": "#605e5c",
+                      "secondary-container": "#e6e2df",
+                      "on-secondary-fixed-variant": "#484645",
+                      "inverse-on-surface": "#f1f1ef",
+                      "inverse-primary": "#c8c6c5",
+                      "on-error-container": "#93000a",
+                      "background": "#f9f9f7",
+                      "tertiary-fixed-dim": "#c7c6c6",
+                      "surface-container-high": "#e8e8e6",
+                      "on-surface-variant": "#444748",
+                      "on-primary-fixed": "#1c1b1b",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-low": "#f4f4f2",
+                      "surface-tint": "#5f5e5e",
+                      "on-surface": "#1a1c1b",
+                      "surface-container": "#eeeeec",
+                      "secondary-fixed": "#e6e2df",
+                      "on-tertiary-fixed": "#1b1c1c",
+                      "on-error": "#ffffff",
+                      "primary-fixed": "#e5e2e1",
+                      "on-secondary-container": "#666462",
+                      "surface-dim": "#dadad8",
+                      "primary-container": "#1c1b1b",
+                      "error": "#ba1a1a",
+                      "on-secondary": "#ffffff",
+                      "surface": "#f9f9f7",
+                      "surface-variant": "#e2e3e1",
+                      "on-tertiary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-container": "#848484",
+                      "surface-container-highest": "#e2e3e1",
+                      "primary": "#000000",
+                      "on-primary-fixed-variant": "#474646",
+                      "tertiary-fixed": "#e3e2e2",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#464747",
+                      "outline-variant": "#c4c7c7",
+                      "tertiary-container": "#1b1c1c",
+                      "primary-fixed-dim": "#c8c6c5",
+                      "on-background": "#1a1c1b",
+                      "on-secondary-fixed": "#1c1b1a",
+                      "inverse-surface": "#2f3130"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "20px",
+                      "hairline": "1px",
+                      "gutter": "24px",
+                      "unit": "8px",
+                      "margin-desktop": "80px",
+                      "container-max": "1440px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Metropolis"
+                      ],
+                      "label-caps": [
+                              "Metropolis"
+                      ],
+                      "display-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Metropolis"
+                      ],
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "headline-sm": [
+                              "Playfair Display"
+                      ],
+                      "functional-sm": [
+                              "Metropolis"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.15em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "64px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "functional-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-lowest text-primary dark:text-on-primary-fixed font-label-caps text-label-caps uppercase tracking-widest docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows transition-all duration-500 ease-in-out fixed z-50">
+<div class="flex justify-between items-center h-16 w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<nav class="hidden md:flex space-x-8">
+<a class="text-primary border-b border-primary pb-1 hover:opacity-70 transition-opacity" href="#">Objects</a>
+<a class="text-secondary hover:text-primary transition-colors duration-300 hover:opacity-70" href="#">Archive</a>
+<a class="text-secondary hover:text-primary transition-colors duration-300 hover:opacity-70" href="#">Studio</a>
+</nav>
+<a class="font-headline-md text-headline-md tracking-tighter text-primary dark:text-on-primary-fixed hover:opacity-70 transition-opacity" href="#">
+                AL-QAHIRA
+            </a>
+<div class="flex items-center space-x-6">
+<button aria-label="search" class="hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button aria-label="shopping_bag" class="hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</button>
+<button aria-label="person" class="hover:opacity-70 transition-opacity hidden md:block">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-[160px] pb-[160px] max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative">
+<!-- Architectural Grid Lines (Visual only) -->
+<div class="absolute inset-0 pointer-events-none hidden md:grid grid-cols-12 gap-gutter px-margin-desktop opacity-10">
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+<div class="border-r border-tertiary"></div>
+</div>
+<!-- Asymmetric Hero Grid -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter min-h-[819px] items-center relative z-10">
+<!-- Text Content -->
+<div class="md:col-span-4 md:col-start-2 flex flex-col justify-center space-y-12 pr-8">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary leading-tight">
+                    Structured<br/>Silence.
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">
+                    A study in form and restraint. The new Objects collection explores the intersection of brutalist architecture and textile manipulation. 
+                </p>
+<a class="inline-flex items-center space-x-4 border-b border-primary pb-2 w-max hover:opacity-70 transition-opacity group" href="#">
+<span class="font-label-caps text-label-caps text-primary">Explore the Form</span>
+<span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" data-icon="arrow_right_alt">arrow_right_alt</span>
+</a>
+</div>
+<!-- Single Editorial Image -->
+<div class="md:col-span-6 md:col-start-7 h-[600px] md:h-[800px] relative border border-outline-variant">
+<img alt="Editorial fashion photography featuring a model in a stark, minimalist environment." class="w-full h-full object-cover" data-alt="A striking editorial fashion photograph of a model standing against a raw concrete wall in a stark, sunlit brutalist interior. The model wears a heavily structured, oversized linen garment in a muted bone color, featuring sharp architectural folds. The lighting is high-contrast, casting deep, dramatic shadows that emphasize the geometry of the clothing and the room. The overall aesthetic is 'Quiet Luxury', utilizing a strict palette of bone, charcoal, and natural stone textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkI6UCtC1vHHsyNezwrK4dWe8PSC0uvf5wAxEsHQyU4kfDoxT7RP2oQ0rJ0wvL7PPlEBoJXoCREsChXu6OZjZm_eSuOjwvXNif3FucVoF_4tUQPEk8gh3bIrxmz6WWgEOS_uF3ig3zLa-LIYYITCKlV-6usagggN4fh-MDzZZ2rwc2-s021LWXpgYOEsx3ec9XuZZ2YRody2FyLp3-NiX2Dmpy8x2Bzk9G8xhOEt8uGZOwkSzOmwQ--nIc--dTpRZQgfqAzboPjUr8"/>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface-container-lowest text-secondary dark:text-secondary-fixed-dim font-functional-sm text-functional-sm full-width bottom-0 border-t border-outline-variant dark:border-outline flat no shadows opacity-80 hover:opacity-100 grid grid-cols-1 md:grid-cols-4 gap-gutter py-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto transition-opacity">
+<div class="col-span-1 md:col-span-2">
+<p class="font-label-caps text-label-caps text-primary mb-4">AL-QAHIRA</p>
+<p>© 2024 AL-QAHIRA. ALL RIGHTS RESERVED.</p>
+</div>
+<div class="col-span-1 md:col-span-2 flex flex-wrap gap-8 md:justify-end">
+<a class="text-secondary-fixed-dim hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="text-secondary-fixed-dim hover:text-primary transition-colors" href="#">Terms</a>
+<a class="text-secondary-fixed-dim hover:text-primary transition-colors" href="#">Stockists</a>
+<a class="text-secondary-fixed-dim hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+</footer>
+</body></html>

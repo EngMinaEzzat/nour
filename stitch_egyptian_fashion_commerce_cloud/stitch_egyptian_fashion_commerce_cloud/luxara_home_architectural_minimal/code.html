@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Luxara - The Architecture of Modern Commerce</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Metropolis:wght@400;500;600&amp;family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .material-symbols-outlined {
+                font-family: 'Material Symbols Outlined';
+                font-weight: normal;
+                font-style: normal;
+                font-size: 24px;
+                line-height: 1;
+                letter-spacing: normal;
+                text-transform: none;
+                display: inline-block;
+                white-space: nowrap;
+                word-wrap: normal;
+                direction: ltr;
+                -webkit-font-smoothing: antialiased;
+            }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-background": "#1a1c1b",
+                        "secondary": "#605e5c",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f4f4f2",
+                        "secondary-container": "#e6e2df",
+                        "tertiary-fixed": "#e3e2e2",
+                        "surface-container": "#eeeeec",
+                        "on-primary-fixed": "#1c1b1b",
+                        "surface-dim": "#dadad8",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f1f1ef",
+                        "primary-container": "#1c1b1b",
+                        "on-surface": "#1a1c1b",
+                        "primary": "#000000",
+                        "on-secondary-fixed": "#1c1b1a",
+                        "surface-bright": "#f9f9f7",
+                        "surface-tint": "#5f5e5e",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2f3130",
+                        "on-primary-container": "#858383",
+                        "tertiary-fixed-dim": "#c7c6c6",
+                        "inverse-primary": "#c8c6c5",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#444748",
+                        "secondary-fixed": "#e6e2df",
+                        "outline-variant": "#c4c7c7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e8e8e6",
+                        "surface-variant": "#e2e3e1",
+                        "surface": "#f9f9f7",
+                        "surface-container-highest": "#e2e3e1",
+                        "on-primary-fixed-variant": "#474646",
+                        "primary-fixed": "#e5e2e1",
+                        "outline": "#747878",
+                        "on-tertiary-fixed-variant": "#464747",
+                        "on-secondary-container": "#666462",
+                        "on-tertiary-container": "#848484",
+                        "tertiary-container": "#1b1c1c",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "background": "#f9f9f7",
+                        "tertiary": "#000000",
+                        "secondary-fixed-dim": "#c9c6c3",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#484645"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "container-max": "1440px",
+                        "unit": "8px",
+                        "margin-desktop": "80px",
+                        "gutter": "24px",
+                        "hairline": "1px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": [
+                            "Playfair Display"
+                        ],
+                        "body-lg": [
+                            "Metropolis"
+                        ],
+                        "headline-md": [
+                            "Playfair Display"
+                        ],
+                        "label-caps": [
+                            "Metropolis"
+                        ],
+                        "display-lg": [
+                            "Playfair Display"
+                        ],
+                        "body-md": [
+                            "Metropolis"
+                        ],
+                        "functional-sm": [
+                            "Metropolis"
+                        ],
+                        "display-lg-mobile": [
+                            "Playfair Display"
+                        ]
+                    },
+                    "fontSize": {
+                        "headline-sm": [
+                            "24px",
+                            {
+                                "lineHeight": "1.2",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "body-lg": [
+                            "18px",
+                            {
+                                "lineHeight": "1.6",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "headline-md": [
+                            "32px",
+                            {
+                                "lineHeight": "1.2",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "label-caps": [
+                            "12px",
+                            {
+                                "lineHeight": "1",
+                                "letterSpacing": "0.15em",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "display-lg": [
+                            "64px",
+                            {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "body-md": [
+                            "16px",
+                            {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "functional-sm": [
+                            "13px",
+                            {
+                                "lineHeight": "1.4",
+                                "fontWeight": "500"
+                            }
+                        ],
+                        "display-lg-mobile": [
+                            "40px",
+                            {
+                                "lineHeight": "1.1",
+                                "fontWeight": "400"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-dim docked full-width top-0 shadow-sm dark:shadow-none transition-all duration-200 ease-in-out fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto border-b-hairline border-outline-variant">
+<div class="flex items-center gap-8">
+<a class="font-display-lg text-headline-md text-primary dark:text-primary-fixed tracking-tight hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300" href="#">LUXARA</a>
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-label-caps text-label-caps text-primary dark:text-primary-fixed font-bold border-b-2 border-secondary-fixed-dim pb-1 transition-colors duration-300" href="#">Platform</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300" href="#">Merchants</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300" href="#">Logistics</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300" href="#">Pricing</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:block font-label-caps text-label-caps text-on-surface-variant dark:text-outline-variant hover:text-secondary dark:hover:text-secondary-fixed-dim transition-colors duration-300">Login</button>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 hover:bg-secondary transition-colors duration-300 border-hairline border-primary">Get Started</button>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<main class="pt-[100px] md:pt-[120px]">
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-24 border-b-hairline border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="col-span-1 md:col-span-6 flex flex-col justify-center gap-8 pr-0 md:pr-12">
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary leading-tight">The Architecture of Modern Commerce.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">A foundational platform designed with structural integrity and hushed authority. We build the silent infrastructure that powers high-end retail, prioritizing clarity, permanence, and mathematical precision.</p>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-8 py-4 hover:bg-secondary transition-colors duration-300 border-hairline border-primary w-full sm:w-auto text-center">EXPLORE PLATFORM</button>
+<button class="bg-transparent text-primary font-label-caps text-label-caps px-8 py-4 hover:bg-surface-variant transition-colors duration-300 border-hairline border-outline-variant w-full sm:w-auto text-center">CONTACT SALES</button>
+</div>
+</div>
+<div class="col-span-1 md:col-span-6 mt-12 md:mt-0 relative h-[500px] md:h-[700px] border-hairline border-outline-variant overflow-hidden bg-surface-variant">
+<img alt="Architectural Minimalist Fashion" class="w-full h-full object-cover filter grayscale contrast-125 object-center" data-alt="A striking, high-contrast black and white architectural photograph of a modern, brutalist concrete structure with severe geometric lines and vast, empty white space. The composition emphasizes mathematical precision and structural integrity, evoking a sense of quiet luxury and hushed authority. The lighting is stark and directional, creating deep charcoal shadows that contrast sharply with pristine bone-white highlights. The mood is serene, permanent, and highly disciplined, perfectly embodying an exclusive, high-end design ethos." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvByPzHMvtxK-7U6iV0tSSe7CO_zi7vBxGVRFf1BZxo0Fwbm3ckfRJ8155riSfz9avATxH6hbT58no7rZkazfggnFsQvv4VfIKatKX1Iluavl-3JmeOGhIsaFGaKJZAkl2fgcB6-_P1piQuaLcpPa90TW4acDJRiKNMXMt-SMwTDilK0-vsmCZxNZIcwoZCfkJm0JHrijhd9JH6jJSwkwfd-rhd1rlwc5vRuXyZq--mDKoITV8pA97k7s0QrB_f3bFVaJgmvDEplK4"/>
+</div>
+</div>
+</section>
+<!-- Feature Grid (Bento Style) -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-24 border-b-hairline border-outline-variant">
+<div class="mb-16">
+<h2 class="font-headline-md text-headline-md text-primary mb-4">Structural Pillars</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Every component is crafted to sit perfectly within the larger framework, ensuring absolute stability for global merchant operations.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 grid-rows-auto gap-gutter">
+<!-- Feature 1: Large Span -->
+<div class="col-span-1 md:col-span-8 border-hairline border-outline-variant p-8 md:p-12 flex flex-col justify-between min-h-[400px] bg-surface-bright relative group overflow-hidden">
+<div class="z-10 relative">
+<span class="material-symbols-outlined text-primary mb-6" data-icon="account_balance">account_balance</span>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-4">Financial Infrastructure</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">Robust, ledger-based transaction management with zero tolerance for ambiguity. Designed like a vault, operating smoothly under immense scale.</p>
+</div>
+<div class="z-10 relative mt-12">
+<a class="font-label-caps text-label-caps text-primary border-b-hairline border-primary pb-1 inline-block hover:text-secondary transition-colors" href="#">VIEW LEDGER SPECS</a>
+</div>
+<div class="absolute right-0 bottom-0 w-1/2 h-[80%] bg-surface-variant opacity-20 transform translate-x-1/4 translate-y-1/4 rounded-tl-full"></div>
+</div>
+<!-- Feature 2: Small Span -->
+<div class="col-span-1 md:col-span-4 border-hairline border-outline-variant p-8 md:p-12 flex flex-col justify-between min-h-[400px] bg-surface">
+<div>
+<span class="material-symbols-outlined text-primary mb-6" data-icon="inventory_2">inventory_2</span>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-4">Inventory Matrices</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Multi-nodal stock allocation using algorithmic precision to minimize holding costs.</p>
+</div>
+</div>
+<!-- Feature 3: Small Span -->
+<div class="col-span-1 md:col-span-4 border-hairline border-outline-variant p-8 md:p-12 flex flex-col justify-between min-h-[400px] bg-surface">
+<div>
+<span class="material-symbols-outlined text-primary mb-6" data-icon="hub">hub</span>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-4">Logistics Routing</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Optimized supply chain pathways reflecting the brutal efficiency of modern transport grids.</p>
+</div>
+</div>
+<!-- Feature 4: Large Span Image Focus -->
+<div class="col-span-1 md:col-span-8 border-hairline border-outline-variant relative min-h-[400px] overflow-hidden group">
+<img alt="Abstract Grid Layout" class="w-full h-full object-cover filter grayscale contrast-125 object-center absolute inset-0 transition-transform duration-700 group-hover:scale-105" data-alt="A minimalist, monochromatic close-up of a perfectly aligned grid of luxury packaging boxes resting on a polished, dark grey concrete surface. The scene is illuminated by soft, diffuse natural light from a single source, casting subtle, elongated shadows that emphasize the strict mathematical layout and physical materiality of the objects. The color palette is restricted to shades of bone, soft grey, and deep ebony, reflecting a disciplined, architectural approach to product display. The overall mood is cold, precise, and sophisticated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnBhkopgEbaonqu0bikUhUlTysJbeFZ_FnUCNY4mS1M7VvuiCQlU995YSSmV6LJS3wwQuJYAtbllC7cGUCP4i_y35eUGcvxZxKLJP1E3QsOnxjgkLC48tp00l31_qG_0C_HZglJste6oFQ-KNgkD7jWKsMf-bbB24IPlAjZu4f3UcyKjgkPGSFSntJdBI6XTT-0mujLuvsA0OTx7OZC8WeVnP95XM_DEYvHMHjUx5EYVaRAjm1v6QtIXrLBxzF7PggED0rVf4fgzM2"/>
+<div class="absolute inset-0 bg-primary/40 flex flex-col justify-end p-8 md:p-12">
+<h3 class="font-headline-sm text-headline-sm text-on-primary mb-2">Merchant Experience</h3>
+<p class="font-body-md text-body-md text-surface-variant">A refined interface that respects the user's attention, prioritizing data density over decorative noise.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Data Visualization Abstract Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-24 border-b-hairline border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter items-center">
+<div class="pr-0 md:pr-16 order-2 md:order-1">
+<h2 class="font-headline-md text-headline-md text-primary mb-6">Metrics as Material</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8">We treat data not as abstract numbers, but as physical material to be shaped and understood. Our analytical tools are drafted like architectural plans—providing clear, undeniable insights into merchant performance across global corridors.</p>
+<div class="space-y-6">
+<div class="border-b-hairline border-outline-variant pb-4">
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-caps text-label-caps text-primary">Transaction Volume</span>
+<span class="font-functional-sm text-functional-sm text-on-surface-variant">99.9% Uptime</span>
+</div>
+</div>
+<div class="border-b-hairline border-outline-variant pb-4">
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-caps text-label-caps text-primary">Global Nodes Active</span>
+<span class="font-functional-sm text-functional-sm text-on-surface-variant">1,204</span>
+</div>
+</div>
+<div class="border-b-hairline border-outline-variant pb-4">
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-caps text-label-caps text-primary">System Latency</span>
+<span class="font-functional-sm text-functional-sm text-on-surface-variant">&lt; 12ms</span>
+</div>
+</div>
+</div>
+</div>
+<div class="order-1 md:order-2 bg-surface p-8 border-hairline border-outline-variant min-h-[500px] flex items-center justify-center relative mb-12 md:mb-0">
+<!-- Abstract representation of data -->
+<div class="absolute inset-0 grid grid-cols-6 grid-rows-6 gap-0 opacity-10">
+<!-- Generating grid lines -->
+<div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-b-hairline border-primary"></div>
+<div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-b-hairline border-primary"></div>
+<div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary bg-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary bg-primary"></div><div class="border-b-hairline border-primary"></div>
+<div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary bg-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-b-hairline border-primary"></div>
+<div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-r-hairline border-b-hairline border-primary bg-primary"></div><div class="border-r-hairline border-b-hairline border-primary"></div><div class="border-b-hairline border-primary"></div>
+<div class="border-r-hairline border-primary"></div><div class="border-r-hairline border-primary"></div><div class="border-r-hairline border-primary"></div><div class="border-r-hairline border-primary"></div><div class="border-r-hairline border-primary"></div><div></div>
+</div>
+<div class="z-10 text-center">
+<span class="font-display-lg text-display-lg text-primary block">2.4B</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant tracking-widest mt-2 block">ANNUAL VOLUME (USD)</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-tertiary dark:bg-black full-width border-t border-tertiary-container flat no shadows w-full px-margin-mobile md:px-margin-desktop py-gutter flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto">
+<div class="mb-6 md:mb-0">
+<span class="font-display-lg text-headline-md text-secondary-fixed-dim">LUXARA</span>
+<p class="font-body-sm text-body-sm text-on-tertiary-container mt-2">© 2024 Luxara Egypt. Modern Elegance, Local Power.</p>
+</div>
+<nav class="flex flex-wrap justify-center md:justify-end gap-6">
+<a class="font-body-sm text-body-sm text-on-tertiary-container hover:text-surface-bright transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-tertiary-container hover:text-surface-bright transition-colors" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-on-tertiary-container hover:text-surface-bright transition-colors" href="#">Merchant Agreement</a>
+<a class="font-body-sm text-body-sm text-on-tertiary-container hover:text-surface-bright transition-colors" href="#">Arabic Support</a>
+</nav>
+</footer>
+</body></html>

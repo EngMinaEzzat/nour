@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Oasis Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Work+Sans:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d2eca2",
+                        "on-error": "#ffffff",
+                        "secondary": "#50652a",
+                        "secondary-fixed-dim": "#b6d088",
+                        "primary-fixed": "#ffdbcd",
+                        "on-surface-variant": "#54433c",
+                        "on-primary-fixed-variant": "#76320f",
+                        "tertiary": "#794200",
+                        "surface-bright": "#fff8f3",
+                        "background": "#fff8f3",
+                        "on-secondary-fixed": "#131f00",
+                        "inverse-on-surface": "#feefdb",
+                        "secondary-container": "#cfe99f",
+                        "surface-container-high": "#f5e6d3",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#6c3a00",
+                        "surface": "#fff8f3",
+                        "primary-fixed-dim": "#ffb596",
+                        "surface-container-low": "#fff2e2",
+                        "surface-variant": "#efe0cd",
+                        "on-surface": "#221a0f",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#372f22",
+                        "surface-container-highest": "#efe0cd",
+                        "on-primary-container": "#ffe1d6",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#ffdcc1",
+                        "surface-container": "#fbecd9",
+                        "on-primary-fixed": "#360f00",
+                        "inverse-primary": "#ffb596",
+                        "surface-dim": "#e6d8c5",
+                        "surface-tint": "#944925",
+                        "primary": "#823b18",
+                        "outline": "#87736b",
+                        "tertiary-fixed-dim": "#ffb877",
+                        "on-secondary-fixed-variant": "#394d14",
+                        "primary-container": "#a0522d",
+                        "on-tertiary-container": "#ffe3cd",
+                        "on-secondary-container": "#546a2e",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#dac1b8",
+                        "on-primary": "#ffffff",
+                        "on-background": "#221a0f",
+                        "on-tertiary-fixed": "#2e1600",
+                        "tertiary-container": "#975915"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "section-gap": "80px",
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "gutter": "24px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Libre Caslon Text"],
+                        "display-lg-mobile": ["Libre Caslon Text"],
+                        "body-lg": ["Work Sans"],
+                        "body-md": ["Work Sans"],
+                        "headline-md": ["Libre Caslon Text"],
+                        "label-caps": ["Work Sans"],
+                        "headline-sm": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "display-lg-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "headline-sm": ["24px", { "lineHeight": "1.3", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="docked full-width top-0 border-b border-outline-variant/30 bg-surface-bright/80 backdrop-blur-md sticky z-50">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 w-full">
+<div class="hidden md:flex space-x-8">
+<a class="text-on-surface-variant hover:text-tertiary transition-colors duration-300 font-label-caps text-label-caps uppercase tracking-widest" href="#">Apothecary</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors duration-300 font-label-caps text-label-caps uppercase tracking-widest" href="#">Textiles</a>
+<a class="text-primary border-b-2 border-primary pb-1 font-label-caps text-label-caps uppercase tracking-widest" href="#">Leather</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors duration-300 font-label-caps text-label-caps uppercase tracking-widest" href="#">Pottery</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors duration-300 font-label-caps text-label-caps uppercase tracking-widest" href="#">Spices</a>
+</div>
+<a class="font-display-lg text-display-lg text-primary tracking-tight italic" href="#">New-Vintage Souq</a>
+<div class="flex items-center space-x-6 text-primary">
+<button class="hover:text-tertiary transition-colors duration-300">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="hover:text-tertiary transition-colors duration-300">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</div>
+</nav>
+<div class="flex flex-1">
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden lg:flex flex-col h-full py-8 border-r border-outline-variant/40 bg-surface-container w-80 left-0 sticky top-20 z-40" style="height: calc(100vh - 5rem);">
+<div class="px-8 mb-10 flex flex-col items-center">
+<div class="w-24 h-24 rounded-full bg-surface-variant mb-4 flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-4xl text-primary">local_florist</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-primary">The Souq</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 text-center">Artisanal Provenance</p>
+</div>
+<nav class="flex-1 flex flex-col space-y-2">
+<a class="text-on-surface-variant py-3 pl-8 hover:bg-surface-variant/40 transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">Pill</span>
+<span class="font-label-caps text-label-caps tracking-widest uppercase">The Apothecary</span>
+</a>
+<a class="text-on-surface-variant py-3 pl-8 hover:bg-surface-variant/40 transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">texture</span>
+<span class="font-label-caps text-label-caps tracking-widest uppercase">The Loom</span>
+</a>
+<a class="text-primary font-bold bg-surface-bright/50 rounded-l-full ml-4 pl-4 py-3 flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="font-label-caps text-label-caps tracking-widest uppercase">The Tannery</span>
+</a>
+<a class="text-on-surface-variant py-3 pl-8 hover:bg-surface-variant/40 transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">format_paint</span>
+<span class="font-label-caps text-label-caps tracking-widest uppercase">The Kiln</span>
+</a>
+<a class="text-on-surface-variant py-3 pl-8 hover:bg-surface-variant/40 transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">grain</span>
+<span class="font-label-caps text-label-caps tracking-widest uppercase">The Spice Merchant</span>
+</a>
+</nav>
+<div class="px-8 mt-auto">
+<button class="w-full py-3 border border-primary text-primary font-label-caps text-label-caps uppercase tracking-widest hover:bg-primary/5 transition-colors">
+                    View All Collections
+                </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-[1440px] mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-20">
+<!-- Hero Section -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-section-gap items-center">
+<div class="md:col-span-5 md:col-start-2 flex flex-col justify-center order-2 md:order-1 mt-8 md:mt-0">
+<p class="font-label-caps text-label-caps text-primary tracking-widest uppercase mb-4">The Oasis Atelier</p>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-6">Feminine Craft,<br/>Heritage Leather.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-md">Discover slowly crafted leather sandals and woven accessories. Delicate brass accents meet rugged textures in our new boutique collection designed for the modern muse.</p>
+<button class="self-start bg-primary text-on-primary px-8 py-4 font-label-caps text-label-caps uppercase tracking-widest hover:bg-primary/90 transition-colors border border-primary">
+                        Explore Collection
+                    </button>
+</div>
+<div class="md:col-span-6 order-1 md:order-2">
+<div class="aspect-[4/5] bg-surface-variant border border-outline-variant/30 relative overflow-hidden" data-alt="A softly lit, high-fashion editorial shot of handcrafted tan leather sandals with delicate brass buckles, resting on a textured linen surface next to a woven raffia bag. The lighting is warm and natural, casting gentle shadows that highlight the artisanal grain of the leather. The overall aesthetic is 'Tactile Heritage Modernism', utilizing earthy tones like sand, terracotta, and soft olive. The mood is feminine, slow-fashion, and elegant." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAwdgLRwWaiMlrrwJwg8V8nootwmoHvKYfYrLkPTphTeBaLpa9Yi0xWAdz29z9PD_kXyILQwH50VywoxMUrCOHS3BryrrNdWAfGFaHWZw3ALPN5o0b1eXWjWQ6gvmMW9pdH3WfD3fwE4fCmtInduD-TjlammyL0DeC-AVtiF-x0J-d6nukd0JJT2OLlnQvVUlmd2caf-2IHScJjQxswd1CnIPKw3zfpTUif0Jm-x6ofeRDJHCoInMbA-Ya5T-leN7nHe5pnIhF_AsW6'); background-size: cover; background-position: center;">
+<!-- Provenance Seal Overlay -->
+<div class="absolute bottom-6 right-6 w-24 h-24 rounded-full border border-outline bg-surface-bright/90 backdrop-blur-sm flex items-center justify-center p-2 text-center shadow-[0_-4px_12px_rgba(45,41,38,0.08)]">
+<span class="font-headline-sm text-[10px] uppercase tracking-widest text-primary leading-tight">Authentic<br/>Artisan<br/>Craft</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Curated Collection - Asymmetric Bento -->
+<section class="mb-section-gap">
+<div class="flex items-baseline justify-between mb-12">
+<h2 class="font-headline-md text-headline-md text-on-surface">Curated Pieces</h2>
+<a class="font-label-caps text-label-caps text-primary uppercase tracking-widest hover:underline" href="#">View All</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Large Feature Card -->
+<div class="md:col-span-7 bg-surface-container-low border border-outline-variant/20 p-6 flex flex-col group cursor-pointer hover:bg-surface-variant/30 transition-colors">
+<div class="aspect-[4/3] bg-surface-dim mb-6 overflow-hidden" data-alt="A close-up view of a beautifully woven tote bag made of natural fibers, paired with a small, handcrafted leather pouch featuring brass rivet details. The items are arranged asymmetrically against a rough stone background, emphasizing 'Tactile Heritage Modernism'. Warm, diffused sunlight creates soft highlights on the brass and deepens the leather tones. The scene feels curated, nostalgic, and deeply connected to earthy materials." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDIKAcmNOeVHZSRTJ4y8Z2Rx3vcFAVTlQZ8hvFwYK9CTLwGN-6uGaYe7vKxExWfls-owdFvmKgmRvYXn6Hr5GQcW3gWYcMEbjyQZHnLwgkahkYYe0mszqz75Ct9PZPTA-RALhaA-WGYswIVQPEOosXmrIcDVChOez8C0ycwILwmX55EaD04UOvW4gH_1JrhmwFzCxCC4yf7iPn40LUsXlelhXVby45fYptZIu77Lg_sQWF0blSWTIauTdYoDdJfHdZxX5G-IhGKvVcJ'); background-size: cover; background-position: center;"></div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">The Medina Woven Tote</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Raffia &amp; Calfskin Leather</p>
+</div>
+<span class="font-body-lg text-body-lg text-primary">$185</span>
+</div>
+</div>
+<!-- Stacked Smaller Cards -->
+<div class="md:col-span-5 flex flex-col gap-gutter">
+<div class="flex-1 bg-surface-container-low border border-outline-variant/20 p-6 flex flex-col justify-end relative overflow-hidden group cursor-pointer" data-alt="A pair of elegant, minimalist leather strappy sandals laid out on soft, textured sand. The design is modern but grounded in heritage craftsmanship, featuring thin leather ties and small brass aglets. The color palette revolves around warm terracotta and pale linen shades. The lighting suggests late afternoon in a desert oasis, soft and inviting, embodying a sophisticated storyteller vibe." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBle9ncDa-DbjYC4PquKotwjWRbYFWnxDp_zYjcH_vbGAIaWGTTdnxKuZBzvPNOsCTyVcYk0o4aRg1n8m-WaaDOKnBP7KKEL9zKmEyRFngUamKl5-XHTnCR_8V8ktgzq2RUyoXH98ilvpU7hUDBRGdRZ26_lCT965p-8GTKUSdo8JknTszZg3usdPyEw1e_2knRLNRGd7lK4wbWPP9fVp4gzZaRIGlV1RUSVr_Buo1p9yMQSkHjQ5IV3kuzeQ2QW9k6sxKw_D0ABE4t'); background-size: cover; background-position: center;">
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 to-transparent"></div>
+<div class="relative z-10 text-inverse-on-surface">
+<h3 class="font-headline-sm text-headline-sm mb-1">Dune Lace-Up Sandals</h3>
+<div class="flex justify-between items-center">
+<p class="font-body-md text-body-md opacity-80">Supple Suede</p>
+<span class="font-body-lg text-body-lg">$140</span>
+</div>
+</div>
+</div>
+<div class="flex-1 bg-surface-container p-6 flex items-center justify-between group cursor-pointer hover:bg-surface-variant transition-colors border border-outline-variant/30">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Heritage Brass Cuff</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Hand-hammered detail</p>
+<span class="inline-block mt-4 px-3 py-1 bg-secondary-container text-on-secondary-container font-label-caps text-label-caps rounded-full text-[10px]">New Arrival</span>
+</div>
+<div class="w-24 h-24 bg-surface-bright rounded-full flex items-center justify-center border border-outline/20 overflow-hidden" data-alt="A macro shot of a hand-hammered brass cuff bracelet resting on a piece of raw, unbleached linen fabric. The focus is sharp on the uneven, artisanal texture of the metal, reflecting warm, dim light. The surrounding area is softly blurred. The overall aesthetic is rustic yet delicate, capturing the essence of slow fashion and ancient craftsmanship." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCQ1p0IEs52vk3yIghlU04RbmJrLyc59cr0yDpDhXfdZKR2nYPYXiUloxyOJSJdzzJAMsN8OViUFaC2uZqlDPwqhLRtogAW-8gNXhHaVrHtuKaNw7-moUwyndFHRAzYhszzleZzER0Ee0A7yesvoPkdkl8587qVfqSNgB5pIfmGQy4K8i6Yy_iCmgzDYqbR_MZ5k3KbHv_RCpKb9cKHBdjzofOfihiB0_kdEkCGmH1FVvi0K4NOtFy-QpKqYLJGr4MAINNauzZ7D1S9'); background-size: cover; background-position: center;"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-low/95 backdrop-blur-lg border-t border-outline-variant/20 shadow-[0_-4px_12px_rgba(45,41,38,0.08)]">
+<div class="flex justify-around items-center py-3 px-4">
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary">
+<span class="material-symbols-outlined mb-1">explore</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Explore</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary bg-secondary-container/30 rounded-full px-4 py-1 scale-90 duration-200">
+<span class="material-symbols-outlined mb-1">auto_awesome</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Curated</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary">
+<span class="material-symbols-outlined mb-1">shopping_basket</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Cart</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary">
+<span class="material-symbols-outlined mb-1">favorite</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Saved</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary">
+<span class="material-symbols-outlined mb-1">person_pin</span>
+<span class="font-label-caps text-[10px] uppercase tracking-widest">Me</span>
+</button>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="w-full mt-section-gap bg-surface-container-highest border-t border-outline-variant pb-20 md:pb-0">
+<div class="flex flex-col md:flex-row justify-between items-center py-12 px-margin-mobile md:px-margin-desktop w-full max-w-[1440px] mx-auto gap-8 md:gap-0">
+<div class="font-display-lg text-primary text-center md:text-left">
+                The Oasis Atelier
+            </div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-on-surface-variant hover:text-tertiary transition-colors font-body-md text-body-md" href="#">Provenance</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors font-body-md text-body-md" href="#">Craftsmen</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors font-body-md text-body-md" href="#">Shipping</a>
+<a class="text-on-surface-variant hover:text-tertiary transition-colors font-body-md text-body-md" href="#">Privacy</a>
+</div>
+<div class="text-on-surface font-body-md text-body-md text-center md:text-right">
+                © 2024 New-Vintage Souq. Handcrafted in Cairo.
+            </div>
+</div>
+</footer>
+</body></html>

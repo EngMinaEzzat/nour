@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NOON | Luxury Fragrance House</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Metropolis:wght@400;500;600&amp;family=Playfair+Display:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#858383",
+                    "secondary-fixed-dim": "#c9c6c3",
+                    "surface-bright": "#f9f9f7",
+                    "tertiary": "#000000",
+                    "outline": "#747878",
+                    "secondary": "#605e5c",
+                    "secondary-container": "#e6e2df",
+                    "on-secondary-fixed-variant": "#484645",
+                    "inverse-on-surface": "#f1f1ef",
+                    "inverse-primary": "#c8c6c5",
+                    "on-error-container": "#93000a",
+                    "background": "#f9f9f7",
+                    "tertiary-fixed-dim": "#c7c6c6",
+                    "surface-container-high": "#e8e8e6",
+                    "on-surface-variant": "#444748",
+                    "on-primary-fixed": "#1c1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f4f4f2",
+                    "surface-tint": "#5f5e5e",
+                    "on-surface": "#1a1c1b",
+                    "surface-container": "#eeeeec",
+                    "secondary-fixed": "#e6e2df",
+                    "on-tertiary-fixed": "#1b1c1c",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#e5e2e1",
+                    "on-secondary-container": "#666462",
+                    "surface-dim": "#dadad8",
+                    "primary-container": "#1c1b1b",
+                    "error": "#ba1a1a",
+                    "on-secondary": "#ffffff",
+                    "surface": "#f9f9f7",
+                    "surface-variant": "#e2e3e1",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#848484",
+                    "surface-container-highest": "#e2e3e1",
+                    "primary": "#000000",
+                    "on-primary-fixed-variant": "#474646",
+                    "tertiary-fixed": "#e3e2e2",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#464747",
+                    "outline-variant": "#c4c7c7",
+                    "tertiary-container": "#1b1c1c",
+                    "primary-fixed-dim": "#c8c6c5",
+                    "on-background": "#1a1c1b",
+                    "on-secondary-fixed": "#1c1b1a",
+                    "inverse-surface": "#2f3130"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "20px",
+                    "hairline": "1px",
+                    "gutter": "24px",
+                    "unit": "8px",
+                    "margin-desktop": "80px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Metropolis"
+                    ],
+                    "label-caps": [
+                            "Metropolis"
+                    ],
+                    "display-lg-mobile": [
+                            "Playfair Display"
+                    ],
+                    "body-lg": [
+                            "Metropolis"
+                    ],
+                    "display-lg": [
+                            "Playfair Display"
+                    ],
+                    "headline-sm": [
+                            "Playfair Display"
+                    ],
+                    "functional-sm": [
+                            "Metropolis"
+                    ],
+                    "headline-md": [
+                            "Playfair Display"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.15em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "40px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "letterSpacing": "0.01em",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg": [
+                            "64px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-sm": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "functional-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-md": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #FAF9F6; /* Bone Level 0 */
+        }
+        .hairline-b { border-bottom: 1px solid #747878; }
+        .hairline-t { border-top: 1px solid #747878; }
+        .hairline-r { border-right: 1px solid #747878; }
+        .hairline-l { border-left: 1px solid #747878; }
+        .hairline-all { border: 1px solid #747878; }
+    </style>
+</head>
+<body class="text-on-background font-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-outline-variant w-full z-50">
+<div class="flex justify-between items-center h-16 w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Navigation Links (Left) -->
+<nav class="hidden md:flex gap-gutter items-center">
+<a class="font-label-caps text-label-caps text-primary border-b border-primary pb-1" href="#">Collections</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors duration-300" href="#">Objects</a>
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors duration-300" href="#">Archive</a>
+</nav>
+<!-- Mobile Menu Icon (Left) -->
+<button class="md:hidden text-primary hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+<!-- Brand Logo (Center) -->
+<div class="absolute left-1/2 transform -translate-x-1/2">
+<a class="font-headline-md text-headline-md tracking-tighter text-primary" href="#">AL-QAHIRA</a>
+</div>
+<!-- Trailing Icons (Right) -->
+<div class="flex gap-unit items-center">
+<button class="text-primary hover:opacity-70 transition-opacity p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+</button>
+<button class="text-primary hover:opacity-70 transition-opacity p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_bag</span>
+</button>
+<button class="hidden md:block text-primary hover:opacity-70 transition-opacity p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center w-full max-w-container-max mx-auto">
+<!-- Hero Product Section (Centered, Symmetrical) -->
+<section class="w-full px-margin-mobile md:px-margin-desktop py-[160px] flex flex-col items-center text-center hairline-b">
+<!-- Hero Image -->
+<div class="w-full max-w-[600px] aspect-[4/5] bg-surface-container-high hairline-all mb-12 relative overflow-hidden group">
+<img alt="NOON Hero Fragrance" class="w-full h-full object-cover grayscale opacity-90 transition-transform duration-700 group-hover:scale-105" data-alt="A minimalist product shot of a luxury perfume bottle resting on a raw concrete pedestal. The lighting is soft and diffuse, creating a stark contrast between the heavy black glass of the bottle and the bone-white background. The scene is architectural and brutalist, emphasizing shape and void without any distracting props or colors. The mood is hushed, expensive, and monolithic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtv24WMJFkfjeilwr4cs3eDnZaugyeXdkPrRmVW1C4VYIVQlbr1fl-gKkcvqbYDIV1VvgavKPlsZ9rnZ8chCGsOiOE3TAV_29EnrjoqR-bNWRUdWTkZ6UnyM7o1XNzxdVRdUF7Egq0qEhM0SoIXIIHkJxX13DDPADTegls2HA9h2MBrowV95oY3435KJXmHYmRxsSqIyfwUfE0d74rsEk8bOsqO9puaVuKzWGnI_GmvK8lDxbrNpsgOItKPVIrhUImhyuP2_lpPssH"/>
+</div>
+<!-- Poetic Description -->
+<div class="max-w-[800px] flex flex-col items-center space-y-8">
+<h1 class="font-display-lg-mobile md:font-display-lg text-primary text-center leading-tight">
+                    Midnight Oudh.<br/>A Study in Shadow.
+                </h1>
+<p class="font-body-lg text-on-surface-variant text-center max-w-[600px]">
+                    An architectural extraction of rare resins. Stripped of all ornamental sweetness, it leaves only the raw structure of smoke, petrified wood, and absolute darkness. Designed for the void.
+                </p>
+<!-- Primary Button -->
+<button class="bg-tertiary text-on-primary font-label-caps text-label-caps px-12 py-4 rounded-none hover:bg-surface-container-lowest hover:text-tertiary hairline-all transition-colors duration-300 mt-8">
+                    ACQUIRE - $340
+                </button>
+</div>
+</section>
+<!-- Product Grid (Tight, Repetitive) -->
+<section class="w-full grid grid-cols-2 md:grid-cols-4 gap-0 border-l border-outline-variant">
+<!-- Product 1 -->
+<div class="group border-r border-b border-outline-variant flex flex-col cursor-pointer bg-surface hover:bg-surface-container-low transition-colors duration-500">
+<div class="aspect-square w-full relative overflow-hidden p-8">
+<img alt="Concrete Petals" class="w-full h-full object-cover grayscale mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity duration-500" data-alt="A repetitive, tight grid of perfume bottles. A single black rectangular perfume bottle against a stark white background. Minimalist, brutalist lighting. No shadows, only stark contrasts in black and white." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-a7DIyvcD6ssK1kYmuX1OH08uE9nbKNkNPPNnL-HB3W4NzbMRp6T6uw2ZLTcTYrDMx_R71562Bh_kjw5PdMKCr9R09pnjEGPaStk-nQszPEsr1j6u_EAcsfNoVNUCkBvcxIf9NIUyfpfeiu1KFDSXTm4Zmh0yX4XC_VULCUHThVMUpjSrcmvsBHXIcR_SQgztlmOzVvMLSTOWweVXkJt7NDdMVV8JHWXoxMm3gbLnwM7UIZFqmXoExQc0HezfcfDarE85Z6KRKgv3"/>
+</div>
+<div class="p-6 hairline-t flex flex-col items-center text-center space-y-2">
+<h3 class="font-headline-sm text-primary">Concrete Petals</h3>
+<span class="font-label-caps text-secondary">EAU DE PARFUM / 50ML</span>
+<span class="font-functional-sm text-primary pt-2">$280</span>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="group border-r border-b border-outline-variant flex flex-col cursor-pointer bg-surface hover:bg-surface-container-low transition-colors duration-500">
+<div class="aspect-square w-full relative overflow-hidden p-8">
+<img alt="Vetiver Brut" class="w-full h-full object-cover grayscale mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity duration-500" data-alt="A repetitive, tight grid of perfume bottles. A single black rectangular perfume bottle against a stark white background. Minimalist, brutalist lighting. No shadows, only stark contrasts in black and white." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaTvGGWNik_At-ZJXgvMCMcIeuE-7NQfIjQwWqmr6Qt8zG5uX6kx2JOeAdNQOer9YR_2weAdHWo9wRM8XV_v_fMdCd7W7MW4Wx98sDTadDY-43j7J80UbZgIifSyLNK51_XrUjFyyUrQRMzSoj75OckzaFI2haXLVrUolZw5Z-3r518APwgFnVfu97V4MPtr_YJh_zSdelEg6SLv9n07hPWZdLzJw9DIFtaClu2ord5zcVVFHM0eCuzmXXttI4-jHuZQ_AV1aOWjR0"/>
+</div>
+<div class="p-6 hairline-t flex flex-col items-center text-center space-y-2">
+<h3 class="font-headline-sm text-primary">Vetiver Brut</h3>
+<span class="font-label-caps text-secondary">EAU DE PARFUM / 50ML</span>
+<span class="font-functional-sm text-primary pt-2">$280</span>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="group border-r border-b border-outline-variant flex flex-col cursor-pointer bg-surface hover:bg-surface-container-low transition-colors duration-500">
+<div class="aspect-square w-full relative overflow-hidden p-8">
+<img alt="Smoked Ash" class="w-full h-full object-cover grayscale mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity duration-500" data-alt="A repetitive, tight grid of perfume bottles. A single black rectangular perfume bottle against a stark white background. Minimalist, brutalist lighting. No shadows, only stark contrasts in black and white." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAe5FYSc5wm09YjZDFqjCOOChDWi6YOxDkguVqHz-eMMIiBE_iB9p5w9IpJCkaEui_VVF3Xsjg82m9J82GuDMgXb1DSks8yPUzPN988iV-jT0U467SK3jGXztdsfFHx8fMjkKqAdXvpv-J0_WNO8eVTKQVGiUE0EdjqKQ9jAVHinnJkU5OG7BKmny2bP_wLBC2QXjlnlgtMhin1SwNCHqWvo3sHNEN2JHPWUQZEFED6-4NP5FU1PIEsjsKxAFqXr29vy8ZIn3_sfhtO"/>
+</div>
+<div class="p-6 hairline-t flex flex-col items-center text-center space-y-2">
+<h3 class="font-headline-sm text-primary">Smoked Ash</h3>
+<span class="font-label-caps text-secondary">EXTRAIT / 50ML</span>
+<span class="font-functional-sm text-primary pt-2">$320</span>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="group border-r border-b border-outline-variant flex flex-col cursor-pointer bg-surface hover:bg-surface-container-low transition-colors duration-500">
+<div class="aspect-square w-full relative overflow-hidden p-8">
+<img alt="Monolith" class="w-full h-full object-cover grayscale mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity duration-500" data-alt="A repetitive, tight grid of perfume bottles. A single black rectangular perfume bottle against a stark white background. Minimalist, brutalist lighting. No shadows, only stark contrasts in black and white." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD37luWaCvyUHD8A007eVHOhMr_wtDtKm-N8KolVn1Aopt6qG7wThParTfHirIzGOd_n-gOcd5xq0vXn7G6HF0U4rkEncYYhMeg7VvlSTKVweri6F8dPoPurM6C926ur4zhwal0symiIxKSs4z5Dq3BFYPq4khTiZFMCWD5ZO98lJAPlvPcAXDfObu22u5qc0Ly5q4BlQ8ficXtMCvpOUd77nKFbbNeEftPpvaw_ML1Oz7oKmmTqE5-JEiQlywFYy7YUoAeh-ck9jFv"/>
+</div>
+<div class="p-6 hairline-t flex flex-col items-center text-center space-y-2">
+<h3 class="font-headline-sm text-primary">Monolith</h3>
+<span class="font-label-caps text-secondary">EAU DE PARFUM / 50ML</span>
+<span class="font-functional-sm text-primary pt-2">$280</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface border-t border-outline-variant w-full mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter py-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Brand Column -->
+<div class="flex flex-col space-y-4 col-span-1 md:col-span-2">
+<span class="font-label-caps text-label-caps text-primary">AL-QAHIRA</span>
+<p class="font-functional-sm text-secondary max-w-[300px]">Architectural fragrance for the modern ascetic. Crafted in silence.</p>
+</div>
+<!-- Links Column -->
+<div class="flex flex-col space-y-4">
+<span class="font-label-caps text-label-caps text-primary mb-2">Legal</span>
+<a class="font-functional-sm text-secondary hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Privacy</a>
+<a class="font-functional-sm text-secondary hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Terms</a>
+</div>
+<!-- Links Column -->
+<div class="flex flex-col space-y-4">
+<span class="font-label-caps text-label-caps text-primary mb-2">Connect</span>
+<a class="font-functional-sm text-secondary hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Stockists</a>
+<a class="font-functional-sm text-secondary hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#">Contact</a>
+</div>
+<!-- Copyright Row -->
+<div class="col-span-1 md:col-span-4 mt-12 pt-8 hairline-t flex justify-between items-center">
+<span class="font-functional-sm text-secondary-fixed-dim">© 2024 AL-QAHIRA. ALL RIGHTS RESERVED.</span>
+</div>
+</div>
+</footer>
+</body></html>
