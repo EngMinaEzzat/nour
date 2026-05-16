@@ -26,8 +26,12 @@ function saveConfig(slug: string, config: StoreConfig) {
 
 export default function StoreBuilder() {
   const { merchant } = useAuth();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const tenantId = (merchant as any)?.tenantId as number | undefined;
+  const queryString = location.includes("?")
+    ? location.split("?")[1]
+    : (typeof window !== "undefined" ? window.location.search.slice(1) : "");
+  const startInEditor = new URLSearchParams(queryString).get("mode") === "editor";
 
   const { data: tenant, isLoading } = useGetTenant(tenantId!, {
     query: { queryKey: [`/api/tenants/${tenantId}`], enabled: !!tenantId },
@@ -79,16 +83,40 @@ export default function StoreBuilder() {
       },
     };
 
+    const source = (published ?? saved) ?? {};
+
     // API data is the published source of truth. Local storage is only a legacy draft fallback.
-    const merged = createDefaultConfig({ ...fromApi, ...((published ?? saved) ?? {}) });
+    // Merge nested values so older saved configs cannot hide current branding assets.
+    const merged = createDefaultConfig({
+      ...fromApi,
+      ...source,
+      brand: {
+        ...fromApi.brand,
+        ...(source.brand ?? {}),
+        logoUrl: source.brand?.logoUrl ?? fromApi.brand?.logoUrl,
+        coverUrl: source.brand?.coverUrl ?? fromApi.brand?.coverUrl,
+      } as StoreConfig["brand"],
+      theme: {
+        ...fromApi.theme,
+        ...(source.theme ?? {}),
+      } as StoreConfig["theme"],
+      business: {
+        ...fromApi.business,
+        ...(source.business ?? {}),
+        socialLinks: {
+          ...fromApi.business?.socialLinks,
+          ...(source.business?.socialLinks ?? {}),
+        },
+      } as StoreConfig["business"],
+    });
     setStoreConfig(merged);
 
-    if ((published ?? saved)?.homepage?.sections?.length) {
+    if (startInEditor || source.homepage?.sections?.length) {
       setMode("editor");
     } else {
       setMode("wizard");
     }
-  }, [tenant]);
+  }, [tenant, startInEditor]);
 
   async function handleSave(config: StoreConfig) {
     if (!tenant) return;

@@ -1,4 +1,5 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
+import { normalizeStoredImageUrl } from "@/lib/image-url";
 
 interface PreviewProps {
   section: SectionConfig;
@@ -51,10 +52,16 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
       const height = section.settings.height === "short" ? 160 : section.settings.height === "medium" ? 240 : section.settings.height === "full" ? 340 : 280;
       const align = section.settings.textAlign ?? "right";
       const overlay = (section.settings.overlayOpacity ?? 40) / 100;
+      const heroImageUrl = normalizeStoredImageUrl(section.content.imageUrl) || normalizeStoredImageUrl(brand.coverUrl);
       return wrap(
         <div
           className="relative overflow-hidden flex items-center"
-          style={{ height, background: section.content.imageUrl ? `url(${section.content.imageUrl}) center/cover` : `linear-gradient(135deg, ${p}cc, ${sec}88)` }}
+          style={{
+            height,
+            backgroundImage: heroImageUrl ? `url("${heroImageUrl}")` : `linear-gradient(135deg, ${p}cc, ${sec}88)`,
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+          }}
         >
           <div className="absolute inset-0" style={{ background: `rgba(0,0,0,${overlay})` }} />
           <div className={`relative z-10 px-8 py-6 w-full text-${align}`}>

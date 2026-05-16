@@ -87,7 +87,7 @@ export default function Register() {
         city: form.city || undefined,
         description: form.description,
       });
-      navigate("/setup");
+      navigate("/store-builder?mode=editor");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       if (msg.includes("اسم المتجر") || msg.includes("الرابط")) {
