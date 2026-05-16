@@ -1,3 +1,4 @@
+const BASE = (import.meta.env?.BASE_URL ?? "/").replace(/\/$/, "");
 const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
 
 function isLocalHost(hostname: string) {
@@ -7,6 +8,11 @@ function isLocalHost(hostname: string) {
 export function normalizeStoredImageUrl(url?: string | null) {
   const trimmed = url?.trim() ?? "";
   if (!trimmed) return "";
+
+  // Strip BASE prefix if it exists to store canonical relative path
+  if (BASE && trimmed.startsWith(BASE + "/")) {
+    return trimmed.slice(BASE.length);
+  }
 
   try {
     const parsed = new URL(trimmed);
@@ -26,6 +32,11 @@ export function normalizeStoredImageUrl(url?: string | null) {
 
 export function productImageUrl(url?: string | null, fallback = FALLBACK_PRODUCT_IMAGE) {
   const normalized = normalizeStoredImageUrl(url);
-  if (!normalized || normalized === "/product-fashion.png") return fallback;
-  return normalized;
+  const target = (!normalized || normalized === "/product-fashion.png") ? fallback : normalized;
+
+  if (target.startsWith("/") && !target.startsWith(BASE + "/")) {
+    return `${BASE}${target}`;
+  }
+
+  return target;
 }
