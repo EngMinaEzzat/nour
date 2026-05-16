@@ -18,6 +18,7 @@ import {
   TrendingUp, ShoppingCart, Users, Package, ArrowUpRight,
   Clock, ChevronLeft, Store, BarChart2, CheckCircle2,
   Circle, ChevronDown, ChevronUp, Rocket, Zap, AlertTriangle,
+  Wand2, Truck, CreditCard, Eye,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -60,6 +61,64 @@ const SUB_STATUS: Record<string, { label: string; color: string }> = {
   past_due:  { label: "متأخر",   color: "bg-orange-100 text-orange-700 border-orange-200" },
   suspended: { label: "موقوف",   color: "bg-red-100 text-red-700 border-red-200" },
   canceled:  { label: "ملغي",    color: "bg-gray-100 text-gray-600 border-gray-200" },
+};
+
+const MANUAL_ONBOARDING_STEPS = ["homepage_message", "shipping_setup", "integrations_review", "launch_review"] as const;
+
+const ONBOARDING_STORY: Record<string, {
+  chapter: string;
+  story: string;
+  href: string;
+  action: string;
+  doneAction?: string;
+  icon: React.ElementType;
+}> = {
+  store_identity: {
+    chapter: "الفصل 1: أول انطباع",
+    story: "العميلة تدخل متجرك وتبحث عن إشارة ثقة: اسم واضح، وصف مطمئن، وشكل يشبه علامتك.",
+    href: "/store-settings#section-identity",
+    action: "تعديل الهوية",
+    icon: Store,
+  },
+  homepage_message: {
+    chapter: "الفصل 2: واجهة تحكي القصة",
+    story: "قبل أن تتصفح العميلة المنتجات، تحتاج جملة وصورة تقولان لها: هذا المتجر مصمم لك.",
+    href: "/store-builder?mode=editor",
+    action: "تخصيص الواجهة",
+    doneAction: "اعتمدت الواجهة",
+    icon: Wand2,
+  },
+  first_product: {
+    chapter: "الفصل 3: أول قطعة تخطف العين",
+    story: "المتجر لا يبدأ حقا إلا عندما ترى العميلة منتجا بصورة وسعر ومخزون واضح.",
+    href: "/products",
+    action: "إضافة منتج",
+    icon: Package,
+  },
+  shipping_setup: {
+    chapter: "الفصل 4: الوصول للباب",
+    story: "بعد الإعجاب بالمنتج، العميلة تسأل: هيوصل امتى وبكام؟ اجعلي الإجابة جاهزة.",
+    href: "/shipping-rules",
+    action: "ضبط الشحن",
+    doneAction: "راجعت الشحن",
+    icon: Truck,
+  },
+  integrations_review: {
+    chapter: "الفصل 5: لحظة الدفع",
+    story: "في آخر خطوة، العميلة تحتاج طريقة دفع واضحة ومطمئنة، خصوصا مع الدفع عند الاستلام.",
+    href: "/billing",
+    action: "مراجعة الدفع",
+    doneAction: "راجعت الدفع",
+    icon: CreditCard,
+  },
+  launch_review: {
+    chapter: "الفصل 6: تجربة العميلة كاملة",
+    story: "افتحي المتجر كأنك عميلة جديدة: الواجهة، المنتج، الشحن، والدفع يجب أن يشعروا كرحلة واحدة.",
+    href: "/store-builder?mode=editor",
+    action: "معاينة وتهذيب",
+    doneAction: "جاهزة للإطلاق",
+    icon: Eye,
+  },
 };
 
 function KPICard({
@@ -210,8 +269,7 @@ function OnboardingChecklist() {
   const pct = Math.round((completedCount / totalCount) * 100);
 
   async function markDone(stepKey: string) {
-    const manualSteps = ["homepage_message", "shipping_setup", "integrations_review", "launch_review"];
-    if (!manualSteps.includes(stepKey)) return;
+    if (!MANUAL_ONBOARDING_STEPS.includes(stepKey as (typeof MANUAL_ONBOARDING_STEPS)[number])) return;
     await patch.mutateAsync({ data: { step: stepKey as "homepage_message" | "shipping_setup" | "integrations_review" | "launch_review", done: true } });
     refetch();
   }
@@ -226,9 +284,9 @@ function OnboardingChecklist() {
                 <Rocket className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-base">أكمل إعداد متجرك</CardTitle>
+                <CardTitle className="text-base">رحلة أول عميلة في متجرك</CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {completedCount} من {totalCount} خطوات مكتملة
+                  ابنِ التجربة كقصة: من أول نظرة إلى أول طلب. {completedCount} من {totalCount} فصول مكتملة
                 </p>
               </div>
             </div>
@@ -237,9 +295,9 @@ function OnboardingChecklist() {
                 {pct}%
               </Badge>
               <Button size="sm" className="rounded-xl gap-1.5 h-8 text-xs" asChild>
-                <Link href="/setup">
+                <Link href="/store-builder?mode=editor">
                   <Rocket className="w-3.5 h-3.5" />
-                  متابعة الإعداد
+                  تحسين المتجر
                 </Link>
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCollapsed((c) => !c)}>
@@ -266,48 +324,72 @@ function OnboardingChecklist() {
               transition={{ duration: 0.25 }}
             >
               <CardContent className="pt-0 pb-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                  {steps.map((step, i) => (
-                    <motion.div
-                      key={step.key}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                    >
-                      <Link href={step.href}>
-                        <div
-                          className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 hover:shadow-sm group ${
-                            step.done
-                              ? "border-green-200 bg-green-50/50 dark:border-green-800/30 dark:bg-green-900/10"
-                              : "border-border/50 bg-background/60 hover:border-primary/30 hover:bg-primary/5"
-                          }`}
-                          onClick={async (e) => {
-                            const manualSteps = ["homepage_message", "shipping_setup", "integrations_review", "launch_review"];
-                            if (!step.done && manualSteps.includes(step.key)) {
-                              e.preventDefault();
-                              await markDone(step.key);
-                            }
-                          }}
-                        >
-                          <div className="mt-0.5 shrink-0">
-                            {step.done ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-                            ) : (
-                              <Circle className="w-5 h-5 text-muted-foreground/40 group-hover:text-primary/60 transition-colors" />
-                            )}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  {steps.map((step, i) => {
+                    const meta = ONBOARDING_STORY[step.key] ?? {
+                      chapter: step.label,
+                      story: step.description,
+                      href: step.href,
+                      action: "تعديل",
+                      icon: Circle,
+                    };
+                    const Icon = meta.icon;
+                    const canMarkDone = MANUAL_ONBOARDING_STEPS.includes(step.key as (typeof MANUAL_ONBOARDING_STEPS)[number]);
+
+                    return (
+                      <motion.div
+                        key={step.key}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className={`flex h-full flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 hover:shadow-sm ${
+                          step.done
+                            ? "border-green-200 bg-green-50/60 dark:border-green-800/30 dark:bg-green-900/10"
+                            : "border-border/50 bg-background/75 hover:border-primary/30"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${step.done ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary"}`}>
+                            {step.done ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-semibold leading-tight ${step.done ? "text-green-700 dark:text-green-400 line-through opacity-70" : "text-foreground"}`}>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[11px] font-semibold text-primary/80">{meta.chapter}</p>
+                            <p className={`mt-1 text-sm font-semibold leading-tight ${step.done ? "text-green-700 dark:text-green-400" : "text-foreground"}`}>
                               {step.label}
                             </p>
-                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
-                              {step.description}
+                            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                              {meta.story}
                             </p>
                           </div>
                         </div>
-                      </Link>
-                    </motion.div>
-                  ))}
+                        <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
+                          <Button size="sm" className="h-8 rounded-xl gap-1.5 text-xs" asChild>
+                            <Link href={meta.href}>
+                              {meta.action}
+                              <ChevronLeft className="h-3.5 w-3.5" />
+                            </Link>
+                          </Button>
+                          {canMarkDone && !step.done && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-8 rounded-xl text-xs"
+                              disabled={patch.isPending}
+                              onClick={() => markDone(step.key)}
+                            >
+                              {meta.doneAction ?? "تمت المراجعة"}
+                            </Button>
+                          )}
+                          {step.done && (
+                            <span className="inline-flex h-8 items-center rounded-xl bg-green-100 px-2.5 text-xs font-medium text-green-700">
+                              مكتمل
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </motion.div>

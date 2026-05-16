@@ -69,14 +69,14 @@ router.get("/onboarding", requireAuth, async (req, res) => {
         label: "هوية المتجر",
         description: "أضف شعار متجرك وألوانه ووصفه التعريفي",
         done: storeIdentityDone,
-        href: "/store-settings",
+        href: "/store-settings#section-identity",
       },
       {
         key: "homepage_message",
         label: "رسالة الصفحة الرئيسية",
         description: "خصّص رسالة الترحيب التي يراها عملاؤك أول ما يفتحون متجرك",
         done: record.homepageMessageDone,
-        href: "/store-settings",
+        href: "/store-builder?mode=editor",
       },
       {
         key: "first_product",
@@ -90,21 +90,21 @@ router.get("/onboarding", requireAuth, async (req, res) => {
         label: "إعداد الشحن والتوصيل",
         description: "راجع خيارات التوصيل وتكلفة الشحن للمحافظات",
         done: record.shippingSetupDone,
-        href: "/store-settings",
+        href: "/shipping-rules",
       },
       {
         key: "integrations_review",
         label: "مراجعة وسائل الدفع",
         description: "الدفع عند الاستلام جاهز — راجع حالة وسائل الدفع الأخرى",
         done: record.integrationsReviewDone,
-        href: "/store-settings",
+        href: "/billing",
       },
       {
         key: "launch_review",
         label: "مراجعة الإطلاق",
         description: "اعرض متجرك بعيون عميلك وتأكد أن كل شيء جاهز",
         done: record.launchReviewDone,
-        href: tenant ? `/store/${tenant.slug}` : "/",
+        href: tenant ? `/store/${tenant.slug}` : "/store-builder?mode=editor",
       },
     ];
 
