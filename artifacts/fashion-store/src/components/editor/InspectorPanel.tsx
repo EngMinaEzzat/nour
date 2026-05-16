@@ -1,8 +1,9 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
 import { SECTION_ICONS, SECTION_LABELS } from "@/lib/store-config";
-import { Trash2, EyeOff, Eye, Copy, X } from "lucide-react";
+import { Trash2, EyeOff, Eye, Copy, X, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Link } from "wouter";
 
 interface InspectorPanelProps {
   section: SectionConfig | null;
@@ -15,6 +16,78 @@ interface InspectorPanelProps {
   variant?: "desktop" | "mobile";
   onClose?: () => void;
 }
+
+const SECTION_RELATED_ACTIONS: Partial<Record<SectionConfig["type"], {
+  href: string;
+  label: string;
+  description: string;
+}>> = {
+  hero: {
+    href: "/store-settings#section-media",
+    label: "تعديل صور وهوية المتجر",
+    description: "غيّري الشعار، صورة الغلاف، الاسم، والوصف الذي يغذي أول انطباع في الواجهة.",
+  },
+  "new-arrivals": {
+    href: "/products",
+    label: "إدارة المنتجات الجديدة",
+    description: "أضيفي المنتجات والصور والمخزون حتى يظهر هذا القسم بمحتوى حقيقي.",
+  },
+  "best-sellers": {
+    href: "/products",
+    label: "إدارة المنتجات والمبيعات",
+    description: "راجعي المنتجات المميزة والمخزون حتى يعرض القسم أفضل القطع بثقة.",
+  },
+  categories: {
+    href: "/categories",
+    label: "إدارة الفئات",
+    description: "أضيفي صور الفئات، رتبيها، واربطي المنتجات بها من صفحة الفئات.",
+  },
+  offers: {
+    href: "/discounts",
+    label: "إدارة أكواد الخصم",
+    description: "أنشئي العروض والكوبونات التي تدعم بانرات الخصومات في المتجر.",
+  },
+  testimonials: {
+    href: "/reviews",
+    label: "إدارة التقييمات",
+    description: "راجعي تقييمات العملاء قبل إبرازها كدليل ثقة على الواجهة.",
+  },
+  about: {
+    href: "/store-settings#section-identity",
+    label: "تحديث قصة وهوية المتجر",
+    description: "عدّلي وصف المتجر والمدينة والفئة حتى تحكي القصة من مصدر واحد.",
+  },
+  instagram: {
+    href: "/store-settings#section-social",
+    label: "ربط الحسابات الاجتماعية",
+    description: "أضيفي روابط إنستجرام وفيسبوك وتيك توك التي تظهر مع هذا القسم.",
+  },
+  lookbook: {
+    href: "/products",
+    label: "تجهيز صور المنتجات",
+    description: "ارفعي صورا قوية للمنتجات حتى يصبح اللوك بوك أكثر إقناعا.",
+  },
+  "product-catalog": {
+    href: "/products",
+    label: "إدارة الكتالوج",
+    description: "تحكمي في المنتجات، الأسعار، الصور، الحالات، والمخزون من صفحة المنتجات.",
+  },
+  whatsapp: {
+    href: "/store-settings#section-social",
+    label: "تحديث واتساب وبيانات التواصل",
+    description: "أضيفي رقم واتساب وروابط التواصل التي يحتاجها العملاء قبل الطلب.",
+  },
+  newsletter: {
+    href: "/customers",
+    label: "إدارة العملاء",
+    description: "راجعي قاعدة العملاء التي ستستفيد من النشرات والعروض لاحقا.",
+  },
+  "trust-strip": {
+    href: "/shipping-rules",
+    label: "ضبط وعود الشحن",
+    description: "راجعي تكلفة الشحن ومدة التوصيل حتى تكون وعود الثقة دقيقة.",
+  },
+};
 
 export default function InspectorPanel({
   section, theme, onSectionChange, onThemeChange, onDelete, onDuplicate, onToggleVisibility,
@@ -95,6 +168,7 @@ export default function InspectorPanel({
 
       {/* Fields */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <RelatedSectionAction section={section} />
         <SectionFields section={section} patchContent={patchContent} patchSettings={patchSettings} theme={theme} onThemeChange={onThemeChange} />
       </div>
     </div>
@@ -108,6 +182,25 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
       <label className="block text-xs font-medium text-stone-600 mb-1">{label}</label>
       {hint && <p className="text-[11px] text-stone-400 mb-1.5">{hint}</p>}
       {children}
+    </div>
+  );
+}
+
+function RelatedSectionAction({ section }: { section: SectionConfig }) {
+  const action = SECTION_RELATED_ACTIONS[section.type];
+  if (!action) return null;
+
+  return (
+    <div className="rounded-xl border border-[#8B1A35]/15 bg-[#8B1A35]/5 p-3">
+      <p className="text-xs font-semibold text-stone-800">إجراءات مرتبطة</p>
+      <p className="mt-1 text-[11px] leading-relaxed text-stone-500">{action.description}</p>
+      <Link
+        href={action.href}
+        className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-[#8B1A35] shadow-sm ring-1 ring-[#8B1A35]/15 transition-colors hover:bg-[#8B1A35]/10"
+      >
+        {action.label}
+        <ExternalLink className="h-3.5 w-3.5" />
+      </Link>
     </div>
   );
 }
@@ -351,7 +444,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
           <Field label="عنوان القسم">
             <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
           </Field>
-          <p className="text-xs text-stone-400">لتعديل الأسئلة والأجوبة، انتقلي لصفحة إعدادات المتجر.</p>
+          <p className="text-xs leading-relaxed text-stone-400">المحرر الحالي يتحكم في ظهور هذا القسم وعنوانه. تحرير تفاصيل الأسئلة داخل القسم سيحتاج للوحة تحرير موسعة.</p>
         </>
       );
 
@@ -388,7 +481,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
 
     case "trust-strip":
       return (
-        <p className="text-xs text-stone-400">شريط المميزات يعرض مزايا متجرك. يمكنك تعديل النصوص من إعدادات المتجر.</p>
+        <p className="text-xs leading-relaxed text-stone-400">شريط المميزات يعرض وعود الثقة مثل الشحن والإرجاع والجودة. راجعي الإجراء المرتبط أعلاه لضبط البيانات التي تدعم هذه الوعود.</p>
       );
 
     default:
