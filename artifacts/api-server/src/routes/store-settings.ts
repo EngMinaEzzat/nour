@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { tenantsTable, tenantAuditEventsTable } from "@workspace/db";
 import { requireRole } from "../middleware/require-role";
 import { eq } from "drizzle-orm";
+import { cache } from "../lib/cache.js";
 
 const router = Router();
 
@@ -159,6 +160,7 @@ router.put("/store-settings/social", requireRole("owner", "manager"), async (req
       summary: "تم تحديث الروابط الاجتماعية ومعلومات التواصل",
     }).catch(() => {});
 
+    await cache.invalidateTenant(tenantId);
     res.json(updated);
   } catch (err) {
     req.log.error(err);

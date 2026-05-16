@@ -41,7 +41,9 @@ export const productVariantsTable = pgTable("product_variants", {
   imageUrls: text("image_urls").notNull().default("[]"),
   stock: integer("stock").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_product_variants_product_id").on(table.productId)
+]);
 
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true, orderCount: true });
 export const insertProductVariantSchema = createInsertSchema(productVariantsTable).omit({ id: true, createdAt: true });

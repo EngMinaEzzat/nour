@@ -16,7 +16,7 @@ import {
   UpdateOrderParams,
   ListOrdersQueryParams,
 } from "@workspace/api-zod";
-import { eq, and, sql, desc, inArray, count } from "drizzle-orm";
+import { eq, and, sql, desc, inArray, count, ilike, or } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { buildOrderConfirmationMessage, buildDispatchedMessage, buildCancelledMessage, buildDeliveryFollowUpMessage, buildReturnExchangeMessage, buildShippingUpdateMessage, buildWhatsAppLink } from "../lib/whatsapp.js";
 
@@ -236,18 +236,40 @@ async function fireAutomationRules(params: {
 router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res) => {
   const parsed = ListOrdersQueryParams.safeParse(req.query);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
-  const { status } = parsed.data;
-  const search = req.query.search as string | undefined;
+  const status = parsed.data.status as any;
+  const search = (req.query.search as string | undefined)?.trim();
+  const limitCount = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
+  const cursorDate = req.query.cursorDate ? new Date(String(req.query.cursorDate)) : null;
+  const cursorId = req.query.cursorId ? Number(req.query.cursorId) : null;
 
-  // Tenant isolation: authenticated merchant sessions are always scoped to their tenant
   const effectiveTenantId = req.merchantTenantId!;
 
-  const conditions = [];
-  conditions.push(eq(ordersTable.tenantId, effectiveTenantId));
-  if (status) conditions.push(sql`${ordersTable.status} = ${status}`);
+  const conditions = [eq(ordersTable.tenantId, effectiveTenantId)];
+  if (status) conditions.push(eq(ordersTable.status, status));
+
+  if (search) {
+    const isNumber = /^\d+$/.test(search) && search.length <= 9;
+    const searchConditions = [];
+    if (isNumber) searchConditions.push(eq(ordersTable.id, Number(search)));
+    searchConditions.push(ilike(customersTable.name, `%${search}%`));
+    searchConditions.push(ilike(ordersTable.customerPhone, `%${search}%`));
+    searchConditions.push(ilike(ordersTable.publicCode, `%${search}%`));
+    searchConditions.push(ilike(ordersTable.trackingNumber, `%${search}%`));
+    
+    conditions.push(or(...searchConditions)!);
+  }
+
+  if (cursorDate && cursorId) {
+    conditions.push(
+      or(
+        sql`${ordersTable.createdAt} < ${cursorDate}`,
+        and(eq(ordersTable.createdAt, cursorDate), sql`${ordersTable.id} < ${cursorId}`)
+      )!
+    );
+  }
 
   try {
-    const query = db
+    const orderRows = await db
       .select({
         id: ordersTable.id,
         tenantId: ordersTable.tenantId,
@@ -269,49 +291,57 @@ router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res)
       .from(ordersTable)
       .leftJoin(tenantsTable, eq(ordersTable.tenantId, tenantsTable.id))
       .leftJoin(customersTable, eq(ordersTable.customerId, customersTable.id))
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(ordersTable.createdAt));
+      .where(and(...conditions))
+      .orderBy(desc(ordersTable.createdAt), desc(ordersTable.id))
+      .limit(limitCount + 1);
 
-    const orderRows = await query;
+    const hasMore = orderRows.length > limitCount;
+    const results = hasMore ? orderRows.slice(0, limitCount) : orderRows;
 
-    let filtered = orderRows;
-    if (search) {
-      const lower = search.toLowerCase();
-      filtered = orderRows.filter((o) =>
-        String(o.id).includes(lower) ||
-        (o.customerName ?? "").toLowerCase().includes(lower) ||
-        (o.customerPhone ?? "").includes(lower)
-      );
+    let itemsMap = new Map<number, any[]>();
+    if (results.length > 0) {
+      const orderIds = results.map(o => o.id);
+      const allItems = await db
+        .select({
+          id: orderItemsTable.id,
+          orderId: orderItemsTable.orderId,
+          productId: orderItemsTable.productId,
+          productName: productsTable.name,
+          quantity: orderItemsTable.quantity,
+          unitPrice: orderItemsTable.unitPrice,
+          totalPrice: orderItemsTable.totalPrice,
+        })
+        .from(orderItemsTable)
+        .leftJoin(productsTable, eq(orderItemsTable.productId, productsTable.id))
+        .where(inArray(orderItemsTable.orderId, orderIds));
+        
+      for (const item of allItems) {
+        const arr = itemsMap.get(item.orderId!) ?? [];
+        arr.push({
+          ...item,
+          unitPrice: parseFloat(item.unitPrice as string),
+          totalPrice: parseFloat(item.totalPrice as string),
+        });
+        itemsMap.set(item.orderId!, arr);
+      }
     }
 
-    const result = await Promise.all(
-      filtered.map(async (order) => {
-        const items = await db
-          .select({
-            id: orderItemsTable.id,
-            productId: orderItemsTable.productId,
-            productName: productsTable.name,
-            quantity: orderItemsTable.quantity,
-            unitPrice: orderItemsTable.unitPrice,
-            totalPrice: orderItemsTable.totalPrice,
-          })
-          .from(orderItemsTable)
-          .leftJoin(productsTable, eq(orderItemsTable.productId, productsTable.id))
-          .where(eq(orderItemsTable.orderId, order.id));
-        return {
-          ...order,
-          totalAmount: parseFloat(order.totalAmount as string),
-          shippingCost: parseFloat((order.shippingCost ?? "0") as string),
-          createdAt: order.createdAt.toISOString(),
-          items: items.map((item) => ({
-            ...item,
-            unitPrice: parseFloat(item.unitPrice as string),
-            totalPrice: parseFloat(item.totalPrice as string),
-          })),
-        };
-      })
-    );
-    res.json(result);
+    const jsonResults = results.map(order => ({
+      ...order,
+      totalAmount: parseFloat(order.totalAmount as string),
+      shippingCost: parseFloat((order.shippingCost ?? "0") as string),
+      createdAt: order.createdAt.toISOString(),
+      items: itemsMap.get(order.id) ?? [],
+    }));
+
+    res.json({
+      data: jsonResults,
+      hasMore,
+      nextCursor: hasMore ? {
+        cursorDate: jsonResults[jsonResults.length - 1].createdAt,
+        cursorId: jsonResults[jsonResults.length - 1].id
+      } : null
+    });
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب الطلبات" });
@@ -452,6 +482,15 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
         .from(customersTable)
         .where(eq(customersTable.id, parsed.data.customerId));
       if (!customer) throw new CheckoutHttpError(400, "بيانات العميل غير موجودة");
+
+      // Update marketing consent if provided
+      if (parsed.data.marketingConsent !== undefined) {
+        await tx.update(customersTable).set({
+          marketingConsent: parsed.data.marketingConsent,
+          marketingConsentSource: "checkout",
+          marketingConsentAt: new Date(),
+        }).where(eq(customersTable.id, parsed.data.customerId));
+      }
 
       const itemsWithPrices = await Promise.all(
         checkoutItems.map(async (item) => {

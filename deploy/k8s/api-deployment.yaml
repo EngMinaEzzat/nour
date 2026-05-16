@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nour-api
+  labels:
+    app: nour-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nour-api
+  template:
+    metadata:
+      labels:
+        app: nour-api
+    spec:
+      containers:
+      - name: api
+        image: nour:latest
+        imagePullPolicy: IfNotPresent
+        command: ["pnpm", "--filter", "@workspace/api-server", "run", "start"]
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: nour-config
+        - secretRef:
+            name: nour-secrets
+        livenessProbe:
+          httpGet:
+            path: /api/healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /api/readyz
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10

@@ -4,6 +4,7 @@ import { categoriesTable, productsTable, merchantsTable } from "@workspace/db";
 import { CreateCategoryBody, UpdateCategoryBody } from "@workspace/api-zod";
 import { count, eq, or, isNull, and } from "drizzle-orm";
 import { requireAuth } from "../middleware/require-role";
+import { cache } from "../lib/cache.js";
 
 const router = Router();
 
@@ -129,6 +130,8 @@ router.post("/categories", requireAuth, async (req, res) => {
       .insert(categoriesTable)
       .values({ ...parsed.data, tenantId: merchant.tenantId })
       .returning();
+    
+    await cache.invalidateTenant(merchant.tenantId);
     res.status(201).json({ ...category, productCount: 0 });
   } catch (err) {
     req.log.error(err);
@@ -186,6 +189,7 @@ router.put("/categories/:id", requireAuth, async (req, res) => {
       .from(productsTable)
       .where(and(eq(productsTable.categoryId, category.id), eq(productsTable.tenantId, merchant.tenantId)));
 
+    await cache.invalidateTenant(merchant.tenantId);
     res.json({ ...category, productCount: total });
   } catch (err) {
     req.log.error(err);
@@ -212,6 +216,7 @@ router.delete("/categories/:id", requireAuth, async (req, res) => {
 
     if (!deleted) return res.status(404).json({ error: "Category not found or cannot be deleted" });
 
+    await cache.invalidateTenant(merchant.tenantId);
     res.status(204).send();
   } catch (err) {
     req.log.error(err);

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nour-worker
+  labels:
+    app: nour-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nour-worker
+  template:
+    metadata:
+      labels:
+        app: nour-worker
+    spec:
+      containers:
+      - name: worker
+        image: nour:latest
+        imagePullPolicy: IfNotPresent
+        command: ["pnpm", "--filter", "@workspace/api-server", "run", "jobs:work"]
+        envFrom:
+        - configMapRef:
+            name: nour-config
+        - secretRef:
+            name: nour-secrets

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nour-api
+spec:
+  selector:
+    app: nour-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

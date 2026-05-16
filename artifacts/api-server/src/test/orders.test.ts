@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { db, customersTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import {
   request, app, uid, createTestMerchant, createTestProduct,
   createTestOrder, createTestCustomer, cleanupTenant,
@@ -49,25 +51,67 @@ describe("Orders", () => {
   it("✅ list orders with tenantId returns array for that tenant", async () => {
     const res = await ctx.agent.get(`/api/orders?tenantId=${ctx.tenantId}`);
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    const ids = res.body.map((o: { id: number }) => o.id);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    const ids = res.body.data.map((o: { id: number }) => o.id);
     expect(ids).toContain(orderId);
   });
 
   it("✅ authenticated GET /orders scopes to session tenant automatically", async () => {
     const res = await ctx.agent.get("/api/orders");
     expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    const ids = res.body.map((o: { id: number }) => o.id);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    const ids = res.body.data.map((o: { id: number }) => o.id);
     expect(ids).toContain(orderId);
   });
 
   it("✅ list orders — filter by status=pending returns only pending orders", async () => {
     const res = await ctx.agent.get("/api/orders?status=pending");
     expect(res.status).toBe(200);
-    res.body.forEach((o: { status: string }) => {
+    res.body.data.forEach((o: { status: string }) => {
       expect(o.status).toBe("pending");
     });
+  });
+
+  it("✅ list orders — pagination works with limit", async () => {
+    // Create multiple orders to test pagination
+    const o1 = await createTestOrder(ctx.tenantId, productId);
+    const o2 = await createTestOrder(ctx.tenantId, productId);
+    
+    const res = await ctx.agent.get("/api/orders?limit=1");
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBe(1);
+    expect(res.body.hasMore).toBe(true);
+    expect(res.body.nextCursor).toBeDefined();
+    expect(res.body.nextCursor.cursorDate).toBeDefined();
+    expect(res.body.nextCursor.cursorId).toBeDefined();
+  });
+
+  it("✅ list orders — search by customer phone works", async () => {
+    const cust = await createTestCustomer();
+    const phone = cust.body.phone;
+    await request(app).post("/api/orders").send({
+      tenantId: ctx.tenantId,
+      customerId: cust.body.id,
+      customerPhone: phone,
+      paymentMethod: "cod",
+      marketingConsent: true,
+      items: [{ productId, quantity: 1 }],
+    });
+
+    const res = await ctx.agent.get(`/api/orders?search=${phone}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    res.body.data.forEach((o: any) => {
+      // order phone is stored normalised
+      expect(o.customerPhone).toBe("+201012345678");
+    });
+
+    // Check marketing consent is saved
+    const [dbCustomer] = await db.select().from(customersTable).where(eq(customersTable.id, cust.body.id));
+    expect(dbCustomer.marketingConsent).toBe(true);
+    expect(dbCustomer.marketingConsentSource).toBe("checkout");
+    expect(dbCustomer.marketingConsentAt).not.toBeNull();
   });
 
   it("✅ GET /orders/:id returns full order with items and statusHistory (public route)", async () => {

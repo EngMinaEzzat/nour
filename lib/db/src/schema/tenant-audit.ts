@@ -18,9 +18,17 @@ export const auditEventTypeEnum = pgEnum("audit_event_type", [
   "staff_invitation_accepted",
   "staff_invitation_revoked",
   "export_requested",
+  "export_completed",
+  "export_failed",
   "support_note_added",
   "paymob_configured",
   "tracking_updated",
+  "privacy_request_created",
+  "customer_pseudonymized",
+  "customer_data_exported",
+  "product_deleted",
+  "variant_stock_changed",
+  "order_status_changed"
 ]);
 
 export const tenantAuditEventsTable = pgTable("tenant_audit_events", {

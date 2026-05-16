@@ -1,0 +1,17 @@
+# Development
+node_modules
+.pnpm-store
+dist
+coverage
+.replit-artifact
+.vercel
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.test.example
+
+# OS
+.DS_Store
+Thumbs.db

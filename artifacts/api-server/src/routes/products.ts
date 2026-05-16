@@ -12,6 +12,8 @@ import {
 import { eq, and, ilike, desc, count, isNull, or } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { getPlan, isAtLimit } from "../lib/entitlements";
+import { cache } from "../lib/cache.js";
+import { recordAuditEvent } from "../lib/audit.js";
 
 const router = Router();
 
@@ -414,6 +416,8 @@ router.post("/products/:id/variants", requireRole("owner", "manager", "staff"), 
       })
       .returning();
     await syncProductVariantSummary(productId);
+    await cache.invalidateTenant(req.merchantTenantId!);
+
     res.status(201).json(formatVariant(variant as Record<string, unknown>));
   } catch (err) {
     req.log.error(err);
@@ -438,6 +442,9 @@ router.put("/products/:id/variants/:variantId", requireRole("owner", "manager", 
     if (existingProduct.tenantId !== req.merchantTenantId) {
       return res.status(403).json({ error: "لا يمكنك تعديل متغيرات منتج متجر آخر" });
     }
+    
+    const [existingVariant] = await db.select().from(productVariantsTable).where(eq(productVariantsTable.id, variantId));
+    
     if (stock !== undefined && (typeof stock !== "number" || stock < 0)) {
       return res.status(400).json({ error: "لا يمكن أن يكون المخزون سالباً" });
     }
@@ -454,6 +461,20 @@ router.put("/products/:id/variants/:variantId", requireRole("owner", "manager", 
       .returning();
     if (!variant) return res.status(404).json({ error: "المتغير غير موجود" });
     await syncProductVariantSummary(productId);
+    
+    if (stock !== undefined && existingVariant && existingVariant.stock !== stock) {
+      await recordAuditEvent({
+        tenantId: req.merchantTenantId!,
+        actorId: req.session.merchantId,
+        actorLabel: "تاجر",
+        eventType: "variant_stock_changed",
+        summary: `تم تعديل مخزون المتغير #${variant.id} للمنتج #${productId}`,
+        metadata: { variantId: variant.id, oldStock: existingVariant.stock, newStock: stock },
+        log: req.log,
+      });
+    }
+    
+    await cache.invalidateTenant(req.merchantTenantId!);
     res.json(formatVariant(variant as Record<string, unknown>));
   } catch (err) {
     req.log.error(err);
@@ -479,6 +500,7 @@ router.delete("/products/:id/variants/:variantId", requireRole("owner", "manager
       .delete(productVariantsTable)
       .where(and(eq(productVariantsTable.id, variantId), eq(productVariantsTable.productId, productId)));
     await syncProductVariantSummary(productId);
+    await cache.invalidateTenant(req.merchantTenantId!);
     res.status(204).send();
   } catch (err) {
     req.log.error(err);

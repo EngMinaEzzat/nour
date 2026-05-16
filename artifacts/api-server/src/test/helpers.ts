@@ -9,7 +9,7 @@ import {
   paymentWebhooksTable, paymobProvidersTable, tenantAuditEventsTable,
   staffInvitationsTable, customDomainsTable, exportJobsTable,
   aiUsageEventsTable, conversations,
-  whatsappProvidersTable, whatsappMessageLogsTable, productVariantsTable
+  whatsappProvidersTable, whatsappMessageLogsTable, productVariantsTable, privacyRequestsTable
 } from "@workspace/db";
 import { eq, inArray } from "drizzle-orm";
 
@@ -139,6 +139,7 @@ export async function cleanupTenant(tenantId: number, merchantId: number) {
     await db.delete(paymentWebhooksTable).where(eq(paymentWebhooksTable.tenantId, tenantId));
     await db.delete(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, tenantId));
     await db.delete(cartSessionsTable).where(eq(cartSessionsTable.tenantId, tenantId));
+    await db.delete(privacyRequestsTable).where(eq(privacyRequestsTable.tenantId, tenantId));
     await db.delete(ordersTable).where(eq(ordersTable.tenantId, tenantId));
     await db.delete(productReviewsTable).where(eq(productReviewsTable.tenantId, tenantId));
     const productIds = (

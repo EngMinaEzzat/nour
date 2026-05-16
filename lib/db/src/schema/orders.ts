@@ -50,7 +50,10 @@ export const ordersTable = pgTable(
     index("idx_orders_tenant_created_at").on(table.tenantId, table.createdAt),
     // High-traffic: order filtering by status per tenant
     index("idx_orders_tenant_status").on(table.tenantId, table.status),
+    index("idx_orders_tenant_status_created_at").on(table.tenantId, table.status, table.createdAt),
     uniqueIndex("idx_orders_public_code").on(table.publicCode),
+    index("idx_orders_paymob_id").on(table.paymobOrderId),
+    index("idx_orders_bosta_id").on(table.bostaShipmentId),
   ],
 );
 
@@ -62,7 +65,9 @@ export const orderItemsTable = pgTable("order_items", {
   quantity: integer("quantity").notNull(),
   unitPrice: numeric("unit_price", { precision: 10, scale: 2 }).notNull(),
   totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
-});
+}, (table) => [
+  index("idx_order_items_order_id").on(table.orderId)
+]);
 
 export const orderStatusHistoryTable = pgTable("order_status_history", {
   id: serial("id").primaryKey(),

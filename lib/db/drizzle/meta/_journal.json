@@ -57,6 +57,41 @@
       "when": 1778868000000,
       "tag": "0007_bosta_shipment_status",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1778870634822,
+      "tag": "0008_confused_captain_midlands",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1778948640440,
+      "tag": "0009_cheerful_scream",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778950176692,
+      "tag": "0010_smart_surge",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1778950774578,
+      "tag": "0011_shocking_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1778951425871,
+      "tag": "0012_broken_elektra",
+      "breakpoints": true
     }
   ]
 }

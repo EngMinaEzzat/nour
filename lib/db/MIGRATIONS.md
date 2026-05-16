@@ -41,3 +41,11 @@ DROP INDEX IF EXISTS idx_orders_public_code;
 ALTER TABLE orders DROP COLUMN IF EXISTS tracking_token;
 ALTER TABLE orders DROP COLUMN IF EXISTS public_code;
 ```
+
+## Migration Strategy (Production)
+
+Migrations should be carefully applied during deployment.
+
+1. **When to run migrations**: Run migrations before starting the application, ideally via a dedicated init-container in Kubernetes, or a pre-deployment step in your CI/CD pipeline (e.g., using `pnpm --filter @workspace/db run migrate`). 
+2. **Rollback Limitations**: Drizzle does not auto-generate "down" migrations. Reverting a destructive migration requires either restoring from a database backup or writing a manual reverse-migration script.
+3. **Safety**: Never run destructive migrations (like dropping tables or columns) without a confirmed database backup and explicit operator approval. Review the SQL output of `drizzle-kit generate` before committing.

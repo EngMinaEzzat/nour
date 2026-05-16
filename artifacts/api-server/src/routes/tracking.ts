@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { trackingSettingsTable, tenantAuditEventsTable } from "@workspace/db";
 import { requireRole } from "../middleware/require-role";
 import { eq } from "drizzle-orm";
+import { cache } from "../lib/cache.js";
 
 const router = Router();
 
@@ -88,6 +89,7 @@ router.put("/tracking/settings", requireRole("owner", "manager"), async (req, re
       summary: "تم تحديث إعدادات التتبع",
     }).catch(() => {});
 
+    await cache.invalidateTenant(tenantId);
     res.json(record);
   } catch (err) {
     req.log.error(err);

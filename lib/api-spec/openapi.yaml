@@ -1639,6 +1639,9 @@ components:
         paymentMethod:
           type: string
           enum: [cod, paymob]
+        marketingConsent:
+          type: boolean
+          description: Whether the user consented to marketing
         items:
           type: array
           items:

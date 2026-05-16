@@ -30,3 +30,5 @@ export * from "./facebook-connections";
 export * from "./password-reset-tokens";
 export * from "./billing-transfer-requests";
 export * from "./ai-usage-events";
+export * from "./background-jobs";
+export * from "./privacy-requests";

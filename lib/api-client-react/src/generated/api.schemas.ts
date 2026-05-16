@@ -37,6 +37,8 @@ export const TenantSubscriptionStatus = {
   canceled: "canceled",
 } as const;
 
+export type TenantStoreConfig = { [key: string]: unknown } | null;
+
 export interface Tenant {
   id: number;
   name: string;
@@ -53,7 +55,7 @@ export interface Tenant {
   createdAt: string;
   planCode?: string;
   subscriptionStatus?: TenantSubscriptionStatus;
-  storeConfig?: { [key: string]: unknown } | null;
+  storeConfig?: TenantStoreConfig;
 }
 
 export type CreateTenantBodyCategory =
@@ -372,6 +374,8 @@ export interface CreateOrderBody {
   shippingAddress?: string | null;
   customerPhone?: string | null;
   paymentMethod?: CreateOrderBodyPaymentMethod;
+  /** Whether the user consented to marketing */
+  marketingConsent?: boolean;
   items: CreateOrderBodyItemsItem[];
 }
 
@@ -656,15 +660,25 @@ export const StorefrontResponseCategory = {
   both: "both",
 } as const;
 
+export type StorefrontResponseCategoriesItemType =
+  (typeof StorefrontResponseCategoriesItemType)[keyof typeof StorefrontResponseCategoriesItemType];
+
+export const StorefrontResponseCategoriesItemType = {
+  fashion: "fashion",
+  cosmetics: "cosmetics",
+} as const;
+
 export type StorefrontResponseCategoriesItem = {
   id: number;
   name: string;
   nameAr?: string;
   parentId?: number | null;
-  type?: CategoryType;
+  type?: StorefrontResponseCategoriesItemType;
   imageUrl?: string | null;
   productCount?: number;
 };
+
+export type StorefrontResponseStoreConfig = { [key: string]: unknown } | null;
 
 export interface StorefrontResponse {
   id: number;
@@ -681,7 +695,7 @@ export interface StorefrontResponse {
   totalProducts: number;
   totalOrders: number;
   categories: StorefrontResponseCategoriesItem[];
-  storeConfig?: { [key: string]: unknown } | null;
+  storeConfig?: StorefrontResponseStoreConfig;
 }
 
 export interface Plan {

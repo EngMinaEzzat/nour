@@ -147,7 +147,6 @@ export const GetStorefrontResponse = zod.object({
   ),
   totalProducts: zod.number(),
   totalOrders: zod.number(),
-  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
   categories: zod.array(
     zod.object({
       id: zod.number(),
@@ -159,6 +158,7 @@ export const GetStorefrontResponse = zod.object({
       productCount: zod.number().optional(),
     }),
   ),
+  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
 });
 
 /**
@@ -814,6 +814,10 @@ export const CreateOrderBody = zod.object({
   shippingAddress: zod.string().nullish(),
   customerPhone: zod.string().nullish(),
   paymentMethod: zod.enum(["cod", "paymob"]).optional(),
+  marketingConsent: zod
+    .boolean()
+    .optional()
+    .describe("Whether the user consented to marketing"),
   items: zod.array(
     zod.object({
       productId: zod.number(),

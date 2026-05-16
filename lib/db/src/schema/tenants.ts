@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -36,7 +36,9 @@ export const tenantsTable = pgTable("tenants", {
   customDomainVerified: boolean("custom_domain_verified").notNull().default(false),
   storeConfig: jsonb("store_config"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_tenants_slug").on(table.slug)
+]);
 
 export const insertTenantSchema = createInsertSchema(tenantsTable).omit({ id: true, createdAt: true });
 export type InsertTenant = z.infer<typeof insertTenantSchema>;
