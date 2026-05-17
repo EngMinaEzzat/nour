@@ -59,7 +59,7 @@ const PRESET_SECONDARY_COLORS = [
   { name: "رمادي أنيق",   hex: "#64748b" },
 ];
 
-type StoreTheme = "classic"|"luxe"|"minimal"|"vibrant"|"boutique"|"elegant"|"royal"|"magazine"|"retro"|"pastel"|"neon"|"street"|"summer"|"nature"|"glass"|"craft"|"sporty"|"heritage"|"salon"|"bold";
+type StoreTheme = "classic"|"luxe"|"minimal"|"vibrant"|"boutique"|"elegant"|"royal"|"magazine"|"retro"|"pastel"|"neon"|"street"|"summer"|"nature"|"glass"|"craft"|"sporty"|"heritage"|"salon"|"bold"|"glow-grid";
 
 type FormState = {
   name: string;
@@ -133,6 +133,10 @@ const THEMES: { id: StoreTheme; name: string; nameEn: string; desc: string; prev
   },
   { id:"bold",     name:"جريء",    nameEn:"Bold",     desc:"تقسيم افتتاحي ضخم، 2 أعمدة كبيرة، مؤثر",
     preview:(p,s)=>(<div className="w-full h-full rounded-lg overflow-hidden bg-white"><div className="absolute top-0 left-0 right-0 flex h-14 border-b border-gray-100"><div className="flex-1 p-2 flex flex-col justify-center"><div className="h-5 w-4/5 mb-0.5" style={{background:p}}/><div className="h-1.5 w-1/2 rounded bg-black/15"/></div><div className="w-14 shrink-0" style={{background:`${s||p}33`}}/></div><div className="absolute bottom-0 left-0 right-0 grid grid-cols-2 gap-0.5 p-0.5 top-14">{[...Array(2)].map((_,i)=><div key={i} className="aspect-[4/5] bg-gray-50"/>)}</div></div>),
+  },
+
+  { id:"glow-grid",  name:"توهج الشبكة", nameEn:"Glow Grid",  desc:"مظهر داكن حديث، شبكة نابضة بالحياة",
+    preview:(p,s)=>(<div className="w-full h-full rounded-lg overflow-hidden" style={{background:"#131313"}}><div className="absolute inset-0 flex flex-col justify-end"><div className="p-2 flex items-end gap-1.5"><div className="w-5 h-5 rounded-lg bg-white/30"/><div className="h-2 w-1/2 rounded bg-white/60"/></div><div className="grid grid-cols-4 gap-0.5 p-0.5 bg-black/10">{[...Array(4)].map((_,i)=><div key={i} className="aspect-[3/4] bg-white/25 rounded-lg"/>)}</div></div></div>),
   },
 ];
 
