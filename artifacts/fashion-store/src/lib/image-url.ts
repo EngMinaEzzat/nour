@@ -1,4 +1,6 @@
-const FALLBACK_PRODUCT_IMAGE = "/product-fashion-optimized.jpg";
+function getBase() {
+  return (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+}
 
 function isLocalHost(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
@@ -24,8 +26,18 @@ export function normalizeStoredImageUrl(url?: string | null) {
   return trimmed;
 }
 
-export function productImageUrl(url?: string | null, fallback = FALLBACK_PRODUCT_IMAGE) {
+export function productImageUrl(url?: string | null, fallback?: string) {
+  const base = getBase();
+  const defaultFallback = `${base}/product-fashion-optimized.jpg`;
+  const finalFallback = fallback || defaultFallback;
+
   const normalized = normalizeStoredImageUrl(url);
-  if (!normalized || normalized === "/product-fashion.png") return fallback;
+  if (!normalized || normalized === "/product-fashion.png") return finalFallback;
+
+  // If it's a relative path (starts with /) and doesn't already start with base, prepend it.
+  if (normalized.startsWith("/") && (base === "" || !normalized.startsWith(base + "/"))) {
+    return `${base}${normalized}`;
+  }
+
   return normalized;
 }
