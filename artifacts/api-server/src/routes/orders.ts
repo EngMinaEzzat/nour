@@ -18,6 +18,7 @@ import {
 } from "@workspace/api-zod";
 import { eq, and, sql, desc, inArray, count, ilike, or } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
+import { cache } from "../lib/cache.js";
 import { buildOrderConfirmationMessage, buildDispatchedMessage, buildCancelledMessage, buildDeliveryFollowUpMessage, buildReturnExchangeMessage, buildShippingUpdateMessage, buildWhatsAppLink } from "../lib/whatsapp.js";
 
 const router = Router();
@@ -628,6 +629,7 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
       return order;
     });
 
+    await cache.invalidateTenant(orderTenantId!);
     const fullOrder = await fetchOrderWithItems(createdOrder.id);
     res.status(201).json(fullOrder);
   } catch (err) {
@@ -775,6 +777,7 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
       }).catch((err) => req.log.warn({ err }, "Automation fire failed silently"));
     }
 
+    await cache.invalidateTenant(existing.tenantId!);
     const order = await fetchOrderWithItems(paramsParsed.data.id);
     if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
     res.json(order);

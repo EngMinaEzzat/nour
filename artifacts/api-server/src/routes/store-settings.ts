@@ -73,6 +73,7 @@ router.put("/store-settings/layout", requireRole("owner", "manager"), async (req
       summary: "تم تحديث تصميم واجهة المتجر",
     }).catch(() => {});
 
+    await cache.invalidateTenant(tenantId);
     res.json(updated);
   } catch (err) {
     req.log.error(err);
@@ -111,6 +112,7 @@ router.put("/store-settings/branding", requireRole("owner", "manager"), async (r
       theme: tenantsTable.theme,
     });
 
+    await cache.invalidateTenant(tenantId);
     res.json(updated);
   } catch (err) {
     req.log.error(err);
@@ -132,6 +134,7 @@ router.put("/store-settings/seo", requireRole("owner", "manager"), async (req, r
       seoDescription: seoDescription ?? null,
     }).where(eq(tenantsTable.id, tenantId)).returning({ id: tenantsTable.id, seoTitle: tenantsTable.seoTitle, seoDescription: tenantsTable.seoDescription });
 
+    await cache.invalidateTenant(tenantId);
     res.json(updated);
   } catch (err) {
     req.log.error(err);

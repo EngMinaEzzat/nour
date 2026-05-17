@@ -59,7 +59,7 @@ describe("Security — Tenant Isolation", () => {
     expect(res1.status).toBe(200);
     expect(res2.status).toBe(200);
     // All orders from ctx2 must belong to ctx2's tenant
-    const ctx2Orders = res2.body as Array<{ tenantId: number }>;
+    const ctx2Orders = res2.body.data as Array<{ tenantId: number }>;
     for (const order of ctx2Orders) {
       expect(order.tenantId).toBe(ctx2.tenantId);
     }
