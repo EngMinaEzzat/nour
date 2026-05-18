@@ -104,29 +104,23 @@ export default function EditorTopBar({
           href={`${BASE}/store/${storeSlug}`}
           target="_blank"
           rel="noreferrer"
-          className="flex h-9 items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 px-2 sm:px-3 rounded-md hover:bg-stone-100 transition-all max-w-9 sm:max-w-none overflow-hidden"
+          title="معاينة"
+          className="flex h-9 w-9 items-center justify-center text-stone-500 hover:text-stone-800 rounded-md hover:bg-stone-100 transition-all shrink-0"
         >
           <Eye className="w-4 h-4" />
-          معاينة
         </a>
 
         <Button
           onClick={onSave}
           disabled={saving || !isDirty}
-          size="sm"
-          className={`gap-1.5 text-white h-9 px-3 sm:px-4 transition-all max-w-10 sm:max-w-none overflow-hidden ${isDirty ? "opacity-100 shadow-lg" : "opacity-50"}`}
+          title={saving ? "جاري الحفظ..." : (isDirty ? "حفظ التغييرات" : "محفوظ")}
+          className={`h-9 w-9 p-0 flex items-center justify-center shrink-0 transition-all text-white ${isDirty ? "opacity-100 shadow-lg" : "opacity-50"}`}
           style={{ background: isDirty ? "linear-gradient(135deg, #8B1A35, #c8963a)" : "#9ca3af" }}
         >
           {saving ? (
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              جاري الحفظ
-            </span>
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
-            <span className="flex items-center gap-1.5">
-              <Save className="w-3.5 h-3.5" />
-              {isDirty ? "حفظ التغييرات" : "محفوظ"}
-            </span>
+            <Save className="w-4 h-4" />
           )}
         </Button>
 
