@@ -141,7 +141,6 @@ export default function VisualEditor({
         onSave={handleSave}
         saving={saving}
         isDirty={isDirty}
-        onBack={onBack}
       />
 
       <div className="flex-1 flex overflow-hidden">
