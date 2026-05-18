@@ -203,7 +203,6 @@ export default function StoreBuilder() {
       storeSlug={tenant.slug}
       productCount={(tenant as any).productCount ?? 0}
       categories={categories}
-      onBack={() => navigate("/dashboard")}
       onSave={handleSave}
     />
   );

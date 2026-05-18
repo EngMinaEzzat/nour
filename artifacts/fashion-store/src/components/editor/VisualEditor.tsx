@@ -14,14 +14,13 @@ interface VisualEditorProps {
   storeSlug: string;
   productCount: number;
   categories?: Array<{ id: number; name: string; nameAr?: string; imageUrl?: string | null; productCount?: number }>;
-  onBack: () => void;
   onSave: (config: StoreConfig) => Promise<void>;
 }
 
 const MAX_HISTORY = 30;
 
 export default function VisualEditor({
-  initialConfig, storeSlug, productCount, categories = [], onBack, onSave,
+  initialConfig, storeSlug, productCount, categories = [], onSave,
 }: VisualEditorProps) {
   // ─── History-based undo/redo ────────────────────────────────────────────────
   const [history, setHistory] = useState<StoreConfig[]>([initialConfig]);

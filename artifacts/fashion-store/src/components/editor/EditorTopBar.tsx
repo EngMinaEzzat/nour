@@ -15,7 +15,6 @@ interface EditorTopBarProps {
   onSave: () => void;
   saving: boolean;
   isDirty: boolean;
-  onBack: () => void;
 }
 
 const DEVICES: { key: DeviceType; icon: React.ElementType; label: string }[] = [
@@ -29,23 +28,15 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 export default function EditorTopBar({
   storeName, storeSlug, device, onDeviceChange,
   canUndo, canRedo, onUndo, onRedo,
-  onSave, saving, isDirty, onBack,
+  onSave, saving, isDirty,
 }: EditorTopBarProps) {
   return (
     <div
       className="min-h-14 bg-white border-b border-stone-200 flex flex-wrap sm:flex-nowrap items-center justify-between px-3 sm:px-4 py-2 sm:py-0 gap-2 sm:gap-4 shrink-0 z-20 sticky top-0"
       style={{ direction: "rtl" }}
     >
-      {/* Left: back + store name */}
+      {/* Left: store name */}
       <div className="flex min-w-0 flex-1 sm:flex-none items-center gap-2 sm:gap-3">
-        <button
-          onClick={onBack}
-          className="flex h-9 items-center gap-1.5 text-sm text-stone-500 hover:text-stone-800 transition-colors max-w-9 sm:max-w-none overflow-hidden"
-        >
-          <ArrowRight className="w-4 h-4" />
-          لوحة التحكم
-        </button>
-        <div className="hidden sm:block w-px h-5 bg-stone-200" />
         <div className="flex min-w-0 items-center gap-2">
           <div
             className="w-6 h-6 rounded-md text-white text-xs flex items-center justify-center font-bold"
