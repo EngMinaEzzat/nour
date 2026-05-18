@@ -512,7 +512,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   // ── Custom Themes Override ──
   const storeThemeId = ((store as any).theme as string) || "classic";
   if (storeThemeId === "glow-grid") {
-    return <GlowGridStorefront store={store} />;
+    return <GlowGridStorefront store={store} products={store.products || []} categories={store.categories || []} />;
   }
 
   // ── Colours ──
