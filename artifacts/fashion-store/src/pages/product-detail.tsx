@@ -259,7 +259,7 @@ export default function ProductDetail() {
   const defaultImageUrl = productImageUrl(selectedVariant?.imageUrls?.[0] ?? product.imageUrl);
   const imageUrl = activeImage ?? defaultImageUrl;
   const galleryImages = [
-    imageUrl,
+    defaultImageUrl,
     ...(selectedVariant?.imageUrls ?? []).map((url) => productImageUrl(url)),
     productImageUrl(product.imageUrl),
   ].filter((url, index, all) => url && all.indexOf(url) === index);

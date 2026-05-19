@@ -153,6 +153,10 @@ router.post("/auth/register", authLimiter, async (req, res) => {
           slug,
           description,
           category: category as "fashion" | "cosmetics" | "both",
+          theme: category === "cosmetics" ? "cosmetics" : "classic",
+          coverUrl: category === "cosmetics" ? "/product-cosmetics.png" : null,
+          primaryColor: category === "cosmetics" ? "#DDA7A5" : null,
+          secondaryColor: category === "cosmetics" ? "#8A5A58" : null,
           status: "active",
           city: city ?? null,
           subscriptionStatus: "trial",
@@ -232,7 +236,8 @@ router.post("/auth/register", authLimiter, async (req, res) => {
     return res.status(201).json(buildAuthResponse(result.merchant, result.tenant));
   } catch (err) {
     req.log.error(err);
-    return res.status(500).json({ error: "حدث خطأ أثناء التسجيل" });
+    console.error("REGISTER ERROR:", err);
+    return res.status(500).json({ error: "حدث خطأ أثناء التسجيل", details: err instanceof Error ? err.message : String(err) });
   }
 });
 
