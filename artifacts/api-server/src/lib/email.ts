@@ -159,14 +159,14 @@ export async function sendNewMerchantNotification(
   storeName: string,
   storeUrl: string,
   merchantEmail: string,
-  city: string | null | undefined,
+  phone: string | null | undefined,
 ): Promise<void> {
   if (adminEmails.length === 0) return;
 
   const safeStoreName = escapeHtml(storeName);
   const safeStoreUrl = escapeHtml(storeUrl);
   const safeMerchantEmail = escapeHtml(merchantEmail);
-  const safeCity = escapeHtml(city ?? "غير محددة");
+  const safePhone = escapeHtml(phone ?? "غير محدد");
 
   const now = new Date().toLocaleString("ar-EG", {
     timeZone: "Africa/Cairo",
@@ -204,8 +204,8 @@ export async function sendNewMerchantNotification(
         </tr>
         <tr>
           <td style="padding:14px 20px;border-bottom:1px solid #f0e8e0;">
-            <span style="font-size:12px;color:#999;display:block;margin-bottom:2px;">المدينة</span>
-            <span style="font-size:14px;color:#444;">${safeCity}</span>
+            <span style="font-size:12px;color:#999;display:block;margin-bottom:2px;">رقم الهاتف</span>
+            <span style="font-size:14px;color:#444;">${safePhone}</span>
           </td>
         </tr>
         <tr>

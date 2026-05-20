@@ -29,7 +29,7 @@ export default function Register() {
     slug: "",
     email: "",
     password: "",
-    city: "",
+    phone: "",
     description: "",
   });
 
@@ -84,7 +84,7 @@ export default function Register() {
         slug: form.slug || form.storeName.toLowerCase().replace(/\s+/g, "-"),
         email: form.email,
         password: form.password,
-        city: form.city || undefined,
+        phone: form.phone,
         description: form.description,
       });
       navigate("/store-builder?mode=editor");
@@ -206,13 +206,15 @@ export default function Register() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="city">المدينة</Label>
+                <Label htmlFor="phone">رقم الهاتف</Label>
                 <Input
-                  id="city"
-                  placeholder="القاهرة"
-                  value={form.city}
-                  onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+                  id="phone"
+                  placeholder="01xxxxxxxxx"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  required
                   className="h-11"
+                  dir="ltr"
                 />
               </div>
 

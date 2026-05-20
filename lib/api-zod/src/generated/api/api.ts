@@ -174,7 +174,7 @@ export const RegisterMerchantBody = zod.object({
   category: zod
     .enum(["fashion", "cosmetics", "both"])
     .default(registerMerchantBodyCategoryDefault),
-  city: zod.string().nullish(),
+  phone: zod.string(),
   description: zod.string(),
 });
 
@@ -756,59 +756,60 @@ export const ListOrdersQueryParams = zod.object({
   cursorId: zod.coerce.number().optional(),
 });
 
-export const ListOrdersResponseItem = zod.object({
-  id: zod.number(),
-  tenantId: zod.number(),
-  tenantName: zod.string(),
-  customerId: zod.number(),
-  customerName: zod.string(),
-  status: zod.enum([
-    "pending",
-    "awaiting_confirmation",
-    "confirmed",
-    "dispatched",
-    "shipped",
-    "delivered",
-    "cancelled",
-    "returned",
-  ]),
-  totalAmount: zod.number(),
-  shippingCost: zod.number().optional(),
-  shippingAddress: zod.string().nullish(),
-  customerPhone: zod.string().nullish(),
-  paymentMethod: zod.enum(["cod", "paymob"]),
-  paymentStatus: zod.enum(["pending", "paid", "failed"]),
-  paymobOrderId: zod.string().nullish(),
-  paymobTransactionId: zod.string().nullish(),
-  bostaShipmentId: zod.string().nullish(),
-  trackingNumber: zod.string().nullish(),
-  items: zod.array(
+export const ListOrdersResponse = zod.object({
+  data: zod.array(
     zod.object({
       id: zod.number(),
-      productId: zod.number(),
-      variantId: zod.number().nullish(),
-      productName: zod.string(),
-      quantity: zod.number(),
-      unitPrice: zod.number(),
-      totalPrice: zod.number(),
+      tenantId: zod.number(),
+      tenantName: zod.string(),
+      customerId: zod.number(),
+      customerName: zod.string(),
+      status: zod.enum([
+        "pending",
+        "awaiting_confirmation",
+        "confirmed",
+        "dispatched",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "returned",
+      ]),
+      totalAmount: zod.number(),
+      shippingCost: zod.number().optional(),
+      shippingAddress: zod.string().nullish(),
+      customerPhone: zod.string().nullish(),
+      paymentMethod: zod.enum(["cod", "paymob"]),
+      paymentStatus: zod.enum(["pending", "paid", "failed"]),
+      paymobOrderId: zod.string().nullish(),
+      paymobTransactionId: zod.string().nullish(),
+      bostaShipmentId: zod.string().nullish(),
+      trackingNumber: zod.string().nullish(),
+      items: zod.array(
+        zod.object({
+          id: zod.number(),
+          productId: zod.number(),
+          variantId: zod.number().nullish(),
+          productName: zod.string(),
+          quantity: zod.number(),
+          unitPrice: zod.number(),
+          totalPrice: zod.number(),
+        }),
+      ),
+      statusHistory: zod
+        .array(
+          zod.object({
+            id: zod.number(),
+            orderId: zod.number(),
+            fromStatus: zod.string().nullish(),
+            toStatus: zod.string(),
+            note: zod.string().nullish(),
+            createdAt: zod.coerce.date(),
+          }),
+        )
+        .optional(),
+      createdAt: zod.coerce.date(),
     }),
   ),
-  statusHistory: zod
-    .array(
-      zod.object({
-        id: zod.number(),
-        orderId: zod.number(),
-        fromStatus: zod.string().nullish(),
-        toStatus: zod.string(),
-        note: zod.string().nullish(),
-        createdAt: zod.coerce.date(),
-      }),
-    )
-    .optional(),
-  createdAt: zod.coerce.date(),
-});
-export const ListOrdersResponse = zod.object({
-  data: zod.array(ListOrdersResponseItem),
   hasMore: zod.boolean(),
   nextCursor: zod
     .object({

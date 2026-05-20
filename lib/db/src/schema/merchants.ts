@@ -8,6 +8,7 @@ export const merchantRoleEnum = pgEnum("merchant_role", ["owner", "manager", "st
 export const merchantsTable = pgTable("merchants", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
+  phone: text("phone"),
   passwordHash: text("password_hash").notNull(),
   tenantId: integer("tenant_id").notNull().references(() => tenantsTable.id, { onDelete: "cascade" }),
   role: merchantRoleEnum("role").notNull().default("owner"),

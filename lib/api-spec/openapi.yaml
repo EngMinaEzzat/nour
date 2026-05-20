@@ -2055,12 +2055,11 @@ components:
           type: string
           enum: [fashion, cosmetics, both]
           default: both
-        city:
+        phone:
           type: string
-          nullable: true
         description:
           type: string
-      required: [storeName, slug, email, password, description]
+      required: [storeName, slug, email, password, phone, description]
 
     LoginBody:
       type: object

@@ -13,7 +13,7 @@ interface AuthContextValue {
     slug: string;
     email: string;
     password: string;
-    city?: string;
+    phone: string;
     description: string;
   }) => Promise<AuthResponse>;
   logout: () => Promise<void>;
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     slug: string;
     email: string;
     password: string;
-    city?: string;
+    phone: string;
     description: string;
   }): Promise<AuthResponse> {
     const result = await registerMutation.mutateAsync({ data: { category: "fashion", ...data } });

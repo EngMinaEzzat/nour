@@ -128,7 +128,7 @@ router.post("/auth/register", authLimiter, async (req, res) => {
   const parsed = RegisterMerchantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const { storeName, slug: rawSlug, email, password, category = "both", city, description } = parsed.data;
+  const { storeName, slug: rawSlug, email, password, category = "both", phone, description } = parsed.data;
   const slug = normalizeSlug(rawSlug);
 
   if (!slug) return res.status(400).json({ error: "الرابط يحتوي على أحرف غير مقبولة" });
@@ -158,7 +158,6 @@ router.post("/auth/register", authLimiter, async (req, res) => {
           primaryColor: category === "cosmetics" ? "#DDA7A5" : null,
           secondaryColor: category === "cosmetics" ? "#8A5A58" : null,
           status: "active",
-          city: city ?? null,
           subscriptionStatus: "trial",
           trialEndsAt,
         })
@@ -166,7 +165,7 @@ router.post("/auth/register", authLimiter, async (req, res) => {
 
       const [merchant] = await tx
         .insert(merchantsTable)
-        .values({ email, passwordHash, tenantId: tenant.id })
+        .values({ email, phone, passwordHash, tenantId: tenant.id })
         .returning();
 
       if (DEFAULT_CATEGORIES && Array.isArray(DEFAULT_CATEGORIES)) {
@@ -201,7 +200,7 @@ router.post("/auth/register", authLimiter, async (req, res) => {
             .where(and(eq(merchantsTable.isPlatformAdmin, true), ne(merchantsTable.email, email)))
             .then((admins) => {
               const adminEmails = admins.map((a) => a.email);
-              return sendNewMerchantNotification(adminEmails, storeName, storeUrl, email, city ?? null);
+              return sendNewMerchantNotification(adminEmails, storeName, storeUrl, email, phone ?? null);
             }),
           EMAIL_DELIVERY_TIMEOUT_MS,
           "Admin notification email",

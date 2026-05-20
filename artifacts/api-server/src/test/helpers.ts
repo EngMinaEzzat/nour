@@ -41,6 +41,7 @@ export async function createTestMerchant(opts?: { slug?: string }): Promise<Test
     email,
     password: "TestPass123!",
     category: "fashion",
+    phone: "01000000000",
     description: "Auto-generated test store for automated testing",
   });
 

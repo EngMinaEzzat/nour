@@ -354,13 +354,15 @@ export interface Order {
   createdAt: string;
 }
 
+export type ListOrdersResponseNextCursor = {
+  cursorDate: string;
+  cursorId: number;
+} | null;
+
 export interface ListOrdersResponse {
   data: Order[];
   hasMore: boolean;
-  nextCursor?: {
-    cursorDate: string;
-    cursorId: number;
-  } | null;
+  nextCursor?: ListOrdersResponseNextCursor;
 }
 
 export type CreateOrderBodyPaymentMethod =
@@ -571,7 +573,7 @@ export interface RegisterBody {
   email: string;
   password: string;
   category?: RegisterBodyCategory;
-  city?: string | null;
+  phone: string;
   description: string;
 }
 

@@ -70,14 +70,14 @@ describe("Auth — Registration", () => {
     const slug = `dupslug${id}`;
     const r1 = await request(app).post("/api/auth/register").send({
       storeName: `Store A ${id}`, slug, email: `dsa.${id}@nourtest.invalid`,
-      password: "TestPass123!", category: "fashion", description: "Test",
+      password: "TestPass123!", category: "fashion", phone: "01000000000", description: "Test",
     });
     expect(r1.status).toBe(201);
     registrations.push({ tenantId: r1.body.tenantId, merchantId: r1.body.merchantId });
 
     const r2 = await request(app).post("/api/auth/register").send({
       storeName: `Store B ${id}`, slug, email: `dsb.${id}@nourtest.invalid`,
-      password: "TestPass123!", category: "fashion", description: "Test",
+      password: "TestPass123!", category: "fashion", phone: "01000000000", description: "Test",
     });
     expect(r2.status).toBe(409);
     expect(r2.body.error).toMatch(/رابط|slug/i);
@@ -88,7 +88,7 @@ describe("Auth — Registration", () => {
     const res = await request(app).post("/api/auth/register").send({
       storeName: `Admin Store ${id}`, slug: "admin",
       email: `reserved.${id}@nourtest.invalid`,
-      password: "TestPass123!", category: "fashion", description: "Test",
+      password: "TestPass123!", category: "fashion", phone: "01000000000", description: "Test",
     });
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/محجوز|reserved/i);
@@ -106,7 +106,7 @@ describe("Auth — Registration", () => {
     const res = await request(app).post("/api/auth/register").send({
       storeName: `Bad Slug ${id}`, slug: "!!!###",
       email: `badslug.${id}@nourtest.invalid`,
-      password: "TestPass123!", category: "fashion", description: "Test",
+      password: "TestPass123!", category: "fashion", phone: "01000000000", description: "Test",
     });
     expect(res.status).toBe(400);
   });
