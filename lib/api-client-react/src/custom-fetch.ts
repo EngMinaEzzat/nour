@@ -18,6 +18,7 @@ const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 let _baseUrl: string | null = null;
 let _authTokenGetter: AuthTokenGetter | null = null;
 let _csrfToken: string | null = null;
+let _csrfTokenPromise: Promise<void> | null = null;
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
@@ -41,18 +42,23 @@ export function getCsrfToken(): string | null {
  * Fetch a fresh CSRF token from the server and store it.
  * Call once on app startup before any state-mutating requests.
  */
-export async function fetchAndSetCsrfToken(baseUrl?: string): Promise<void> {
-  try {
-    const url = baseUrl ? `${baseUrl}/api/csrf-token` : "/api/csrf-token";
-    const res = await fetch(url, { credentials: "include" });
-    if (res.ok) {
-      const data = (await res.json()) as { csrfToken?: string };
-      if (data.csrfToken) _csrfToken = data.csrfToken;
-    }
-  } catch {
-    // Non-fatal: CSRF protection gracefully degrades in environments
-    // where the endpoint is unavailable (e.g. SSR, tests).
+export function fetchAndSetCsrfToken(baseUrl?: string): Promise<void> {
+  if (!_csrfTokenPromise) {
+    _csrfTokenPromise = (async () => {
+      try {
+        const url = baseUrl ? `${baseUrl}/api/csrf-token` : "/api/csrf-token";
+        const res = await fetch(url, { credentials: "include" });
+        if (res.ok) {
+          const data = (await res.json()) as { csrfToken?: string };
+          if (data.csrfToken) _csrfToken = data.csrfToken;
+        }
+      } catch {
+        // Non-fatal: CSRF protection gracefully degrades in environments
+        // where the endpoint is unavailable (e.g. SSR, tests).
+      }
+    })();
   }
+  return _csrfTokenPromise;
 }
 
 /**
@@ -393,6 +399,11 @@ export async function customFetch<T = unknown>(
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
     }
+  }
+
+  // Ensure CSRF token fetch is complete before sending a state-mutating request
+  if (MUTATING_METHODS.has(method) && !_csrfToken && _csrfTokenPromise) {
+    await _csrfTokenPromise;
   }
 
   // Attach CSRF token on all state-mutating requests (browser sessions).
