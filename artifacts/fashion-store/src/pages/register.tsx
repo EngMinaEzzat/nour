@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Eye, EyeOff, Sparkles, CheckCircle2, XCircle } from "lucide-react";
 
 type SlugStatus = "idle" | "checking" | "available" | "taken" | "invalid" | "error";
@@ -24,13 +25,20 @@ export default function Register() {
   const [duplicateEmail, setDuplicateEmail] = useState(false);
   const [slugStatus, setSlugStatus] = useState<SlugStatus>("idle");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    storeName: string;
+    slug: string;
+    email: string;
+    password: string;
+    phone: string;
+    category: "fashion" | "cosmetics" | "both";
+  }>({
     storeName: "",
     slug: "",
     email: "",
     password: "",
     phone: "",
-    description: "",
+    category: "both",
   });
 
   function handleStoreNameChange(name: string) {
@@ -85,7 +93,7 @@ export default function Register() {
         email: form.email,
         password: form.password,
         phone: form.phone.trim(),
-        description: form.description,
+        category: form.category,
       });
       navigate("/store-builder?mode=editor");
     } catch (err: unknown) {
@@ -195,14 +203,20 @@ export default function Register() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="description">وصف المتجر</Label>
-                <Input
-                  id="description"
-                  placeholder="متجر متخصص في الأزياء المحتشمة..."
-                  {...field("description")}
-                  required
-                  className="h-11"
-                />
+                <Label htmlFor="category">ماذا يبيع المتجر؟</Label>
+                <Select
+                  value={form.category}
+                  onValueChange={(val: "fashion" | "cosmetics" | "both") => setForm(f => ({ ...f, category: val }))}
+                >
+                  <SelectTrigger id="category" className="h-11">
+                    <SelectValue placeholder="اختر الفئة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fashion">أزياء وملابس</SelectItem>
+                    <SelectItem value="cosmetics">مستحضرات تجميل وعناية</SelectItem>
+                    <SelectItem value="both">أزياء ومستحضرات تجميل</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="col-span-2 space-y-1.5">

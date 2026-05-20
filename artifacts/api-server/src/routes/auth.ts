@@ -128,7 +128,7 @@ router.post("/auth/register", authLimiter, async (req, res) => {
   const parsed = RegisterMerchantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const { storeName, slug: rawSlug, email, password, category = "both", phone, description } = parsed.data;
+  const { storeName, slug: rawSlug, email, password, category = "both", phone, description = "" } = parsed.data;
   const slug = normalizeSlug(rawSlug);
 
   if (!slug) return res.status(400).json({ error: "الرابط يحتوي على أحرف غير مقبولة" });

@@ -185,7 +185,7 @@ export const RegisterMerchantBody = zod.object({
     .min(registerMerchantBodyPhoneMin)
     .max(registerMerchantBodyPhoneMax)
     .regex(registerMerchantBodyPhoneRegExp),
-  description: zod.string(),
+  description: zod.string().optional(),
 });
 
 /**
