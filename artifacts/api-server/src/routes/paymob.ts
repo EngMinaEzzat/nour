@@ -255,7 +255,10 @@ router.post("/paymob/webhook", async (req, res) => {
       ].join("");
 
       const computed = crypto.createHmac("sha512", platformHmacSecret).update(fields).digest("hex");
-      if (computed !== hmac) {
+      const computedBuf = Buffer.from(computed);
+      const hmacBuf = Buffer.from(String(hmac));
+
+      if (computedBuf.length !== hmacBuf.length || !crypto.timingSafeEqual(computedBuf, hmacBuf)) {
         req.log.warn({ transactionId: obj.id }, "Paymob webhook HMAC mismatch — rejected");
         return res.status(401).json({ error: "HMAC verification failed" });
       }

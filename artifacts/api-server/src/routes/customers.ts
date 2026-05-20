@@ -19,7 +19,7 @@ async function getCodScore(customerId: number, tenantId: number) {
         eq(ordersTable.customerId, customerId),
         eq(ordersTable.tenantId, tenantId),
         eq(ordersTable.paymentMethod, "cod"),
-        sql`${ordersTable.status}::text = ANY(ARRAY[${sql.raw(CONFIRMED_STATUSES.map((s) => `'${s}'`).join(","))}]::text[])`
+        inArray(ordersTable.status, CONFIRMED_STATUSES as any)
       )
     );
   const [failed] = await db
@@ -30,7 +30,7 @@ async function getCodScore(customerId: number, tenantId: number) {
         eq(ordersTable.customerId, customerId),
         eq(ordersTable.tenantId, tenantId),
         eq(ordersTable.paymentMethod, "cod"),
-        sql`${ordersTable.status}::text = ANY(ARRAY[${sql.raw(FAILED_STATUSES.map((s) => `'${s}'`).join(","))}]::text[])`
+        inArray(ordersTable.status, FAILED_STATUSES as any)
       )
     );
   const [total] = await db
