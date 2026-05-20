@@ -62,7 +62,7 @@ export default function OnboardingWizard({ initial, onComplete }: OnboardingWiza
     if (exists) {
       patch({ homepage: { sections: config.homepage.sections.filter((s) => s.type !== type) } });
     } else {
-      const newSection = createDefaultSection(type, config.brand.name);
+      const newSection = createDefaultSection(type, config.brand.name, config.brand.category);
       newSection.order = config.homepage.sections.length;
       patch({ homepage: { sections: [...config.homepage.sections, newSection] } });
     }

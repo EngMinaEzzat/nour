@@ -1,5 +1,13 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useGetMe, useLoginMerchant, useLogoutMerchant, useRegisterMerchant, AuthResponse } from "@workspace/api-client-react";
+import {
+  useGetMe,
+  useLoginMerchant,
+  useLogoutMerchant,
+  useRegisterMerchant,
+  AuthResponse,
+  fetchAndSetCsrfToken,
+  setCsrfToken,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetMeQueryKey } from "@workspace/api-client-react";
 
@@ -57,6 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function logout(): Promise<void> {
     await logoutMutation.mutateAsync();
+    setCsrfToken(null);
+    await fetchAndSetCsrfToken(undefined, { force: true });
     queryClient.setQueryData(getGetMeQueryKey(), null);
     queryClient.clear();
   }

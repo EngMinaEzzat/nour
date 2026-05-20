@@ -386,11 +386,12 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
 // ─── Default store config ─────────────────────────────────────────────────────
 export function createDefaultConfig(partial?: Partial<StoreConfig>): StoreConfig {
   const name = partial?.brand?.name ?? "متجري";
+  const category = partial?.brand?.category ?? "fashion";
   return {
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };

@@ -7,6 +7,9 @@ export type ErrorType<T = unknown> = ApiError<T>;
 export type BodyType<T> = T;
 
 export type AuthTokenGetter = () => Promise<string | null> | string | null;
+export type CsrfTokenFetchOptions = {
+  force?: boolean;
+};
 
 const NO_BODY_STATUS = new Set([204, 205, 304]);
 const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
@@ -28,6 +31,9 @@ const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
  */
 export function setCsrfToken(token: string | null): void {
   _csrfToken = token;
+  if (token === null) {
+    _csrfTokenPromise = null;
+  }
 }
 
 /**
@@ -42,7 +48,15 @@ export function getCsrfToken(): string | null {
  * Fetch a fresh CSRF token from the server and store it.
  * Call once on app startup before any state-mutating requests.
  */
-export function fetchAndSetCsrfToken(baseUrl?: string): Promise<void> {
+export function fetchAndSetCsrfToken(
+  baseUrl?: string,
+  options: CsrfTokenFetchOptions = {},
+): Promise<void> {
+  if (options.force) {
+    _csrfToken = null;
+    _csrfTokenPromise = null;
+  }
+
   if (!_csrfTokenPromise) {
     _csrfTokenPromise = (async () => {
       try {
@@ -56,7 +70,9 @@ export function fetchAndSetCsrfToken(baseUrl?: string): Promise<void> {
         // Non-fatal: CSRF protection gracefully degrades in environments
         // where the endpoint is unavailable (e.g. SSR, tests).
       }
-    })();
+    })().finally(() => {
+      _csrfTokenPromise = null;
+    });
   }
   return _csrfTokenPromise;
 }
@@ -401,9 +417,9 @@ export async function customFetch<T = unknown>(
     }
   }
 
-  // Ensure CSRF token fetch is complete before sending a state-mutating request
-  if (MUTATING_METHODS.has(method) && !_csrfToken && _csrfTokenPromise) {
-    await _csrfTokenPromise;
+  // Ensure CSRF token fetch is complete before sending a state-mutating request.
+  if (MUTATING_METHODS.has(method) && !_csrfToken) {
+    await (_csrfTokenPromise ?? fetchAndSetCsrfToken(_baseUrl ?? undefined));
   }
 
   // Attach CSRF token on all state-mutating requests (browser sessions).
