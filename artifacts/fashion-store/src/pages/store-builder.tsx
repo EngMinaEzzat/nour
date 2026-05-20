@@ -50,26 +50,31 @@ export default function StoreBuilder() {
     const saved = loadSavedConfig(slug);
     const published = ((tenant as any).storeConfig ?? null) as Partial<StoreConfig> | null;
 
+    const isCosmetics = tenant.category === "cosmetics";
+
     const fromApi: Partial<StoreConfig> = {
       brand: {
         name: tenant.name ?? "",
         category: tenant.category ?? "fashion",
         targetCustomer: "",
         uniqueValue: tenant.description ?? "",
-        personality: "elegant",
+        personality: isCosmetics ? "friendly" : "elegant",
         tone: "",
         logoUrl: (tenant as any).logoUrl ?? undefined,
         coverUrl: (tenant as any).coverUrl ?? undefined,
       },
       theme: {
-        primaryColor: (tenant as any).primaryColor ?? "#8B1A35",
-        secondaryColor: (tenant as any).secondaryColor ?? "#c8963a",
-        fontPairing: "serif-sans",
-        buttonStyle: "pill",
-        radius: 8,
+        primaryColor: (tenant as any).primaryColor ?? (isCosmetics ? "#DDA7A5" : "#8B1A35"),
+        secondaryColor: (tenant as any).secondaryColor ?? (isCosmetics ? "#8A5A58" : "#c8963a"),
+        fontPairing: isCosmetics ? "sans-sans" : "serif-sans",
+        buttonStyle: isCosmetics ? "rounded" : "pill",
+        radius: isCosmetics ? 12 : 8,
         animationLevel: "subtle",
         pageWidth: "contained",
         cardShadow: "soft",
+      },
+      homepage: {
+        sections: [], // Will fall back to defaults or saved config
       },
       business: {
         whatsapp: (tenant as any).whatsappNumber ?? "",
