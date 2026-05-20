@@ -573,6 +573,11 @@ export interface RegisterBody {
   email: string;
   password: string;
   category?: RegisterBodyCategory;
+  /**
+   * @minLength 8
+   * @maxLength 20
+   * @pattern ^\+?[0-9][0-9\s-]{7,19}$
+   */
   phone: string;
   description: string;
 }

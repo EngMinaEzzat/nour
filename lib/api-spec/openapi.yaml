@@ -2057,6 +2057,9 @@ components:
           default: both
         phone:
           type: string
+          minLength: 8
+          maxLength: 20
+          pattern: '^\+?[0-9][0-9\s-]{7,19}$'
         description:
           type: string
       required: [storeName, slug, email, password, phone, description]

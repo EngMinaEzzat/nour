@@ -84,7 +84,7 @@ export default function Register() {
         slug: form.slug || form.storeName.toLowerCase().replace(/\s+/g, "-"),
         email: form.email,
         password: form.password,
-        phone: form.phone,
+        phone: form.phone.trim(),
         description: form.description,
       });
       navigate("/store-builder?mode=editor");
@@ -209,10 +209,14 @@ export default function Register() {
                 <Label htmlFor="phone">رقم الهاتف</Label>
                 <Input
                   id="phone"
+                  type="tel"
                   placeholder="01xxxxxxxxx"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                   required
+                  minLength={8}
+                  maxLength={20}
+                  pattern="^\+?[0-9][0-9\s-]{7,19}$"
                   className="h-11"
                   dir="ltr"
                 />

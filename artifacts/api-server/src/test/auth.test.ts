@@ -16,6 +16,7 @@ describe("Auth — Registration", () => {
       email: `reg.${id}@nourtest.invalid`,
       password: "TestPass123!",
       category: "fashion",
+      phone: "01000000000",
       description: "Test store description",
     });
     expect(res.status).toBe(201);
@@ -39,6 +40,7 @@ describe("Auth — Registration", () => {
       email: `slug.${id}@nourtest.invalid`,
       password: "TestPass123!",
       category: "fashion",
+      phone: "01000000000",
       description: "Slug normalisation test",
     });
     expect(res.status).toBe(201);
@@ -54,6 +56,7 @@ describe("Auth — Registration", () => {
       email: `duptest.${id}@nourtest.invalid`,
       password: "TestPass123!",
       category: "fashion",
+      phone: "01000000000",
       description: "Test",
     };
     const r1 = await request(app).post("/api/auth/register").send(body);
@@ -97,6 +100,16 @@ describe("Auth — Registration", () => {
   it("❌ missing required fields returns 400", async () => {
     const res = await request(app).post("/api/auth/register").send({
       email: `incomplete.${uid()}@nourtest.invalid`,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("❌ invalid phone returns 400", async () => {
+    const id = uid();
+    const res = await request(app).post("/api/auth/register").send({
+      storeName: `Bad Phone ${id}`, slug: `badphone${id}`,
+      email: `badphone.${id}@nourtest.invalid`,
+      password: "TestPass123!", category: "fashion", phone: "not-a-phone", description: "Test",
     });
     expect(res.status).toBe(400);
   });
