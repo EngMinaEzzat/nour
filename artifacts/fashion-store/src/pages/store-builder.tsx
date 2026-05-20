@@ -5,7 +5,7 @@ import { getListCategoriesQueryKey, useGetTenant, useListCategories } from "@wor
 import { Skeleton } from "@/components/ui/skeleton";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import VisualEditor from "@/components/editor/VisualEditor";
-import { StoreConfig, createDefaultConfig } from "@/lib/store-config";
+import { StoreConfig, createDefaultConfig, normalizeHomepageSections } from "@/lib/store-config";
 
 const STORAGE_KEY = (slug: string) => `nour_store_config_${slug}`;
 
@@ -74,7 +74,7 @@ export default function StoreBuilder() {
         cardShadow: "soft",
       },
       homepage: {
-        sections: [], // Will fall back to defaults or saved config
+        sections: normalizeHomepageSections(undefined, tenant.name ?? "متجري", tenant.category ?? "fashion"),
       },
       business: {
         whatsapp: (tenant as any).whatsappNumber ?? "",

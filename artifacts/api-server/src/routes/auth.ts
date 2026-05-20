@@ -169,9 +169,12 @@ router.post("/auth/register", authLimiter, async (req, res) => {
         .returning();
 
       if (DEFAULT_CATEGORIES && Array.isArray(DEFAULT_CATEGORIES)) {
-        await tx.insert(categoriesTable).values(
-          DEFAULT_CATEGORIES.map((c) => ({ ...c, tenantId: tenant.id }))
-        );
+        const categoriesToInsert = DEFAULT_CATEGORIES.filter((c) => category === "both" || c.type === category);
+        if (categoriesToInsert.length > 0) {
+          await tx.insert(categoriesTable).values(
+            categoriesToInsert.map((c) => ({ ...c, tenantId: tenant.id }))
+          );
+        }
       }
 
       await tx.insert(merchantOnboardingTable).values({ tenantId: tenant.id });

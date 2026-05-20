@@ -168,7 +168,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion"): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -192,7 +192,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category), order: normalized.length });
     }
   });
 
@@ -209,11 +209,18 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion"): SectionConfig {
   const id = `${type}-${Date.now()}`;
+  const isCosmetics = category === "cosmetics";
+  
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
-      content: { heading: `اكتشفي أحدث تشكيلة من ${storeName}`, subheading: "أزياء راقية بأسعار تناسبك", ctaText: "تسوقي الآن", ctaLink: "#products" },
+      content: { 
+        heading: isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, 
+        subheading: isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك", 
+        ctaText: "تسوقي الآن", 
+        ctaLink: "#products" 
+      },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
     "new-arrivals": {
@@ -241,7 +248,12 @@ export function createDefaultSection(type: SectionType, storeName: string): Sect
       settings: {},
     },
     about: {
-      content: { heading: `قصة ${storeName}`, body: "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار." },
+      content: { 
+        heading: `قصة ${storeName}`, 
+        body: isCosmetics 
+          ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
+          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار." 
+      },
       settings: { layout: "with-image" },
     },
     instagram: {
