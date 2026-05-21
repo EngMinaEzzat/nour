@@ -26,6 +26,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
   function wrap(children: React.ReactNode) {
     return (
       <div
+        id={`section-${section.id}`}
         className={wrapClass}
         style={{ border: borderStyle, borderRadius: 4 }}
         onClick={onClick}

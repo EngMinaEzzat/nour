@@ -16,7 +16,7 @@ interface ReadinessChecklistProps {
 }
 
 export default function ReadinessChecklist({ config, productCount }: ReadinessChecklistProps) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const items: ChecklistItem[] = [
     {

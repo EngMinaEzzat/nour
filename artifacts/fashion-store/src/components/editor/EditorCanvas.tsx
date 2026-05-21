@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { SectionPreview } from "./SectionPreview";
 import { DeviceType, StoreConfig } from "@/lib/store-config";
@@ -32,6 +33,15 @@ export default function EditorCanvas({
   const visibleSections = [...config.homepage.sections]
     .sort((a, b) => a.order - b.order)
     .filter((s) => s.visible);
+
+  useEffect(() => {
+    if (selectedId) {
+      const el = document.getElementById(`section-${selectedId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [selectedId]);
 
   return (
     <div
