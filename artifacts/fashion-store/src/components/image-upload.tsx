@@ -173,6 +173,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
           />
           <button
             type="button"
+            aria-label="إزالة الصورة"
             className="absolute -top-1.5 -end-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center hover:opacity-90 transition-opacity"
             onClick={() => onChange("")}
           >
@@ -299,6 +300,7 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
                 />
                 <button
                   type="button"
+                  aria-label="إزالة الصورة"
                   className="absolute -top-1.5 -end-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center hover:opacity-90 transition-opacity"
                   onClick={() => onChange(values.filter((_, index) => index !== i))}
                 >
