@@ -7,36 +7,43 @@ const router = Router();
 
 router.get("/dashboard/summary", async (req, res) => {
   try {
-    const [tenantStats] = await db
-      .select({ total: count(), active: sql<number>`count(*) filter (where ${tenantsTable.status} = 'active')` })
-      .from(tenantsTable);
-
-    const [productStats] = await db.select({ total: count() }).from(productsTable);
-    const [customerStats] = await db.select({ total: count() }).from(customersTable);
-
-    const [orderStats] = await db
-      .select({
-        total: count(),
-        totalRevenue: sum(ordersTable.totalAmount),
-        pending: sql<number>`count(*) filter (where ${ordersTable.status} = 'pending')`,
-      })
-      .from(ordersTable);
-
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const [monthlyStats] = await db
-      .select({
-        ordersThisMonth: count(),
-        revenueThisMonth: sum(ordersTable.totalAmount),
-      })
-      .from(ordersTable)
-      .where(sql`${ordersTable.createdAt} >= ${startOfMonth}`);
-
-    const fashionCount = await db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "fashion"));
-    const cosmeticsCount = await db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "cosmetics"));
-    const bothCount = await db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "both"));
+    const [
+      [tenantStats],
+      [productStats],
+      [customerStats],
+      [orderStats],
+      [monthlyStats],
+      fashionCount,
+      cosmeticsCount,
+      bothCount
+    ] = await Promise.all([
+      db
+        .select({ total: count(), active: sql<number>`count(*) filter (where ${tenantsTable.status} = 'active')` })
+        .from(tenantsTable),
+      db.select({ total: count() }).from(productsTable),
+      db.select({ total: count() }).from(customersTable),
+      db
+        .select({
+          total: count(),
+          totalRevenue: sum(ordersTable.totalAmount),
+          pending: sql<number>`count(*) filter (where ${ordersTable.status} = 'pending')`,
+        })
+        .from(ordersTable),
+      db
+        .select({
+          ordersThisMonth: count(),
+          revenueThisMonth: sum(ordersTable.totalAmount),
+        })
+        .from(ordersTable)
+        .where(sql`${ordersTable.createdAt} >= ${startOfMonth}`),
+      db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "fashion")),
+      db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "cosmetics")),
+      db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "both")),
+    ]);
 
     res.json({
       totalTenants: tenantStats.total,
@@ -62,24 +69,25 @@ router.get("/dashboard/summary", async (req, res) => {
 
 router.get("/dashboard/activity", async (req, res) => {
   try {
-    const recentOrders = await db
-      .select({
-        id: ordersTable.id,
-        tenantName: tenantsTable.name,
-        amount: ordersTable.totalAmount,
-        status: ordersTable.status,
-        createdAt: ordersTable.createdAt,
-      })
-      .from(ordersTable)
-      .leftJoin(tenantsTable, eq(ordersTable.tenantId, tenantsTable.id))
-      .orderBy(sql`${ordersTable.createdAt} DESC`)
-      .limit(5);
-
-    const recentTenants = await db
-      .select({ id: tenantsTable.id, name: tenantsTable.name, createdAt: tenantsTable.createdAt })
-      .from(tenantsTable)
-      .orderBy(sql`${tenantsTable.createdAt} DESC`)
-      .limit(3);
+    const [recentOrders, recentTenants] = await Promise.all([
+      db
+        .select({
+          id: ordersTable.id,
+          tenantName: tenantsTable.name,
+          amount: ordersTable.totalAmount,
+          status: ordersTable.status,
+          createdAt: ordersTable.createdAt,
+        })
+        .from(ordersTable)
+        .leftJoin(tenantsTable, eq(ordersTable.tenantId, tenantsTable.id))
+        .orderBy(sql`${ordersTable.createdAt} DESC`)
+        .limit(5),
+      db
+        .select({ id: tenantsTable.id, name: tenantsTable.name, createdAt: tenantsTable.createdAt })
+        .from(tenantsTable)
+        .orderBy(sql`${tenantsTable.createdAt} DESC`)
+        .limit(3),
+    ]);
 
     const activity = [
       ...recentOrders.map((order, i) => ({
@@ -119,77 +127,78 @@ router.get("/dashboard/merchant-analytics", async (req, res) => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    /* KPIs */
-    const [kpi] = await db
-      .select({
-        totalRevenue: sum(ordersTable.totalAmount),
-        totalOrders: count(),
-        pendingOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'pending')`,
-        confirmedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'confirmed')`,
-        shippedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'shipped')`,
-        deliveredOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'delivered')`,
-        cancelledOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'cancelled')`,
-      })
-      .from(ordersTable)
-      .where(eq(ordersTable.tenantId, tenantId));
-
-    const [monthKpi] = await db
-      .select({
-        revenueThisMonth: sum(ordersTable.totalAmount),
-        ordersThisMonth: count(),
-      })
-      .from(ordersTable)
-      .where(and(eq(ordersTable.tenantId, tenantId), gte(ordersTable.createdAt, startOfMonth)));
-
-    const [customerCount] = await db
-      .select({ total: sql<number>`count(distinct ${ordersTable.customerId})` })
-      .from(ordersTable)
-      .where(eq(ordersTable.tenantId, tenantId));
-
-    /* Sales by day — last 30 days */
-    const salesByDay = await db.execute(sql`
-      SELECT
-        TO_CHAR(created_at, 'MM/DD') AS day,
-        TO_CHAR(created_at, 'YYYY-MM-DD') AS date,
-        COALESCE(SUM(total_amount::numeric), 0)::float AS revenue,
-        COUNT(*)::int AS orders
-      FROM orders
-      WHERE tenant_id = ${tenantId}
-        AND created_at >= ${thirtyDaysAgo}
-        AND status != 'cancelled'
-      GROUP BY TO_CHAR(created_at, 'MM/DD'), TO_CHAR(created_at, 'YYYY-MM-DD')
-      ORDER BY date ASC
-    `);
-
-    /* Top 5 products by revenue */
-    const topProducts = await db.execute(sql`
-      SELECT
-        p.name,
-        COALESCE(SUM(oi.total_price::numeric), 0)::float AS revenue,
-        SUM(oi.quantity)::int AS quantity
-      FROM order_items oi
-      JOIN products p ON oi.product_id = p.id
-      JOIN orders o ON oi.order_id = o.id
-      WHERE o.tenant_id = ${tenantId}
-        AND o.status != 'cancelled'
-      GROUP BY p.id, p.name
-      ORDER BY revenue DESC
-      LIMIT 5
-    `);
-
-    /* Recent orders */
-    const recentOrders = await db
-      .select({
-        id: ordersTable.id,
-        totalAmount: ordersTable.totalAmount,
-        status: ordersTable.status,
-        paymentMethod: ordersTable.paymentMethod,
-        createdAt: ordersTable.createdAt,
-      })
-      .from(ordersTable)
-      .where(eq(ordersTable.tenantId, tenantId))
-      .orderBy(sql`${ordersTable.createdAt} DESC`)
-      .limit(5);
+    /* Fetch all concurrently */
+    const [
+      [kpi],
+      [monthKpi],
+      [customerCount],
+      salesByDay,
+      topProducts,
+      recentOrders
+    ] = await Promise.all([
+      db
+        .select({
+          totalRevenue: sum(ordersTable.totalAmount),
+          totalOrders: count(),
+          pendingOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'pending')`,
+          confirmedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'confirmed')`,
+          shippedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'shipped')`,
+          deliveredOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'delivered')`,
+          cancelledOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'cancelled')`,
+        })
+        .from(ordersTable)
+        .where(eq(ordersTable.tenantId, tenantId)),
+      db
+        .select({
+          revenueThisMonth: sum(ordersTable.totalAmount),
+          ordersThisMonth: count(),
+        })
+        .from(ordersTable)
+        .where(and(eq(ordersTable.tenantId, tenantId), gte(ordersTable.createdAt, startOfMonth))),
+      db
+        .select({ total: sql<number>`count(distinct ${ordersTable.customerId})` })
+        .from(ordersTable)
+        .where(eq(ordersTable.tenantId, tenantId)),
+      db.execute(sql`
+        SELECT
+          TO_CHAR(created_at, 'MM/DD') AS day,
+          TO_CHAR(created_at, 'YYYY-MM-DD') AS date,
+          COALESCE(SUM(total_amount::numeric), 0)::float AS revenue,
+          COUNT(*)::int AS orders
+        FROM orders
+        WHERE tenant_id = ${tenantId}
+          AND created_at >= ${thirtyDaysAgo}
+          AND status != 'cancelled'
+        GROUP BY TO_CHAR(created_at, 'MM/DD'), TO_CHAR(created_at, 'YYYY-MM-DD')
+        ORDER BY date ASC
+      `),
+      db.execute(sql`
+        SELECT
+          p.name,
+          COALESCE(SUM(oi.total_price::numeric), 0)::float AS revenue,
+          SUM(oi.quantity)::int AS quantity
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.id
+        JOIN orders o ON oi.order_id = o.id
+        WHERE o.tenant_id = ${tenantId}
+          AND o.status != 'cancelled'
+        GROUP BY p.id, p.name
+        ORDER BY revenue DESC
+        LIMIT 5
+      `),
+      db
+        .select({
+          id: ordersTable.id,
+          totalAmount: ordersTable.totalAmount,
+          status: ordersTable.status,
+          paymentMethod: ordersTable.paymentMethod,
+          createdAt: ordersTable.createdAt,
+        })
+        .from(ordersTable)
+        .where(eq(ordersTable.tenantId, tenantId))
+        .orderBy(sql`${ordersTable.createdAt} DESC`)
+        .limit(5)
+    ]);
 
     const totalRev = parseFloat(kpi.totalRevenue ?? "0");
     const totalOrd = kpi.totalOrders ?? 0;
