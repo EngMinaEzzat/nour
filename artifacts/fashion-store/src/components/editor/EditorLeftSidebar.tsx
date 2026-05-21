@@ -18,28 +18,18 @@ interface EditorLeftSidebarProps {
   onConfigChange: (config: StoreConfig) => void;
   onOpenAI: () => void;
   productCount?: number;
+  gender?: MerchantGender;
   className?: string;
 }
 
 export default function EditorLeftSidebar({
-  config, selectedId, onSelect, onConfigChange, onOpenAI, productCount = 0, className = "",
+  config, selectedId, onSelect, onConfigChange, onOpenAI, productCount = 0, gender = "female", className = "",
 }: EditorLeftSidebarProps) {
   const [tab, setTab] = useState<SidebarTab>("sections");
   const [addingSection, setAddingSection] = useState(false);
   const [sidebarHintDismissed, setSidebarHintDismissed] = useState(() => {
     try { return localStorage.getItem("nour_sidebar_hint_seen") === "1"; } catch { return false; }
   });
-
-  // Load gender for gender-aware text
-  const gender: MerchantGender = (() => {
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key?.startsWith("nour_gender_")) return localStorage.getItem(key) === "male" ? "male" : "female";
-      }
-      return "female";
-    } catch { return "female"; }
-  })();
 
   function dismissSidebarHint() {
     setSidebarHintDismissed(true);

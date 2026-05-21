@@ -158,6 +158,7 @@ export default function VisualEditor({
             onConfigChange={pushConfig}
             onOpenAI={() => setAiOpen(true)}
             productCount={productCount}
+            gender={gender}
           />
         </div>
 
@@ -270,6 +271,7 @@ export default function VisualEditor({
                     setAiOpen(true);
                   }}
                   productCount={productCount}
+                  gender={gender}
                   className="w-full border-l-0"
                 />
               </motion.aside>

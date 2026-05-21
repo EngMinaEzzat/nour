@@ -18,7 +18,7 @@ async function checkSlugAvailability(slug: string): Promise<{ available: boolean
 
 export default function Register() {
   const [, navigate] = useLocation();
-  const { register, login } = useAuth();
+  const { register } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -98,10 +98,6 @@ export default function Register() {
         phone: form.phone.trim(),
         category: form.category,
       });
-      
-      // Auto-login after registration
-      await login(form.email, form.password);
-
       // Persist gender locally for the editor UI language
       try { localStorage.setItem(`nour_gender_${slug}`, form.gender); } catch {}
       navigate("/store-builder?mode=editor");
