@@ -10,7 +10,6 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [resetLink, setResetLink] = useState("");
   const [emailSent, setEmailSent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -28,11 +27,8 @@ export default function ForgotPassword() {
         setError(data.error || "حدث خطأ، حاول مرة أخرى");
         return;
       }
-      if (data.emailSent) {
-        setEmailSent(true);
-      } else {
-        setResetLink(data.resetLink ?? "");
-      }
+      // Always show the generic success message if the request was successful
+      setEmailSent(true);
     } catch {
       setError("حدث خطأ في الاتصال، حاول مرة أخرى");
     } finally {
@@ -79,27 +75,6 @@ export default function ForgotPassword() {
                   تحقق من صندوق الوارد وربما مجلد الرسائل غير المرغوب فيها.
                 </p>
                 <p className="text-xs text-muted-foreground">الرابط صالح لمدة ساعة واحدة.</p>
-              </motion.div>
-            ) : resetLink ? (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center space-y-4"
-              >
-                <div className="flex justify-center">
-                  <CheckCircle2 className="w-14 h-14 text-green-500" />
-                </div>
-                <h2 className="text-lg font-semibold">رابط إعادة التعيين جاهز</h2>
-                <p className="text-sm text-muted-foreground">
-                  لم يتم تفعيل البريد الإلكتروني بعد. انقر على الرابط أدناه لإعادة تعيين كلمة المرور:
-                </p>
-                <a
-                  href={resetLink}
-                  className="flex items-center justify-center w-full bg-primary text-primary-foreground rounded-2xl h-12 font-medium text-sm hover:bg-primary/90 transition-colors"
-                >
-                  إعادة تعيين كلمة المرور
-                </a>
               </motion.div>
             ) : (
               <motion.form
