@@ -7,6 +7,7 @@ import {
   AVAILABLE_SECTIONS, createDefaultSection,
 } from "@/lib/store-config";
 import ReadinessChecklist from "./ReadinessChecklist";
+import type { MerchantGender } from "./WelcomeOverlay";
 
 type SidebarTab = "sections" | "theme" | "ai";
 
@@ -25,6 +26,25 @@ export default function EditorLeftSidebar({
 }: EditorLeftSidebarProps) {
   const [tab, setTab] = useState<SidebarTab>("sections");
   const [addingSection, setAddingSection] = useState(false);
+  const [sidebarHintDismissed, setSidebarHintDismissed] = useState(() => {
+    try { return localStorage.getItem("nour_sidebar_hint_seen") === "1"; } catch { return false; }
+  });
+
+  // Load gender for gender-aware text
+  const gender: MerchantGender = (() => {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("nour_gender_")) return localStorage.getItem(key) === "male" ? "male" : "female";
+      }
+      return "female";
+    } catch { return "female"; }
+  })();
+
+  function dismissSidebarHint() {
+    setSidebarHintDismissed(true);
+    try { localStorage.setItem("nour_sidebar_hint_seen", "1"); } catch {}
+  }
 
   const sections = [...config.homepage.sections].sort((a, b) => a.order - b.order);
 
@@ -103,6 +123,25 @@ export default function EditorLeftSidebar({
       {tab === "sections" && (
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
+
+            {/* First-visit hint banner */}
+            {!sidebarHintDismissed && (
+              <div className="mx-2 mt-2 p-3 rounded-xl bg-blue-50 border border-blue-100 relative">
+                <button
+                  onClick={dismissSidebarHint}
+                  className="absolute top-1.5 left-1.5 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-100 text-blue-400 hover:text-blue-600 transition-colors"
+                  aria-label="إغلاق"
+                >
+                  ×
+                </button>
+                <p className="text-xs text-blue-700 leading-relaxed pr-1">
+                  👋 {gender === "female"
+                    ? "اضغطي على أي قسم لتعديله، أو استخدمي أزرار الأسهم لتغيير ترتيبه"
+                    : "اضغط على أي قسم لتعديله، أو استخدم أزرار الأسهم لتغيير ترتيبه"}
+                </p>
+              </div>
+            )}
+
             <div className="p-2 space-y-1">
               {sections.map((section, idx) => {
                 const isSelected = section.id === selectedId;
@@ -179,8 +218,8 @@ export default function EditorLeftSidebar({
               dir="rtl"
             >
               <div className="p-4 border-b border-stone-100">
-                <p className="font-medium text-stone-800">اختاري قسماً لإضافته</p>
-                <p className="text-xs text-stone-400 mt-0.5">انقري على أي قسم لإضافته للصفحة</p>
+                <p className="font-medium text-stone-800">{gender === "female" ? "اختاري قسماً لإضافته" : "اختار قسماً لإضافته"}</p>
+                <p className="text-xs text-stone-400 mt-0.5">{gender === "female" ? "انقري على أي قسم لإضافته للصفحة" : "انقر على أي قسم لإضافته للصفحة"}</p>
               </div>
               <div className="p-2 space-y-1">
                 {AVAILABLE_SECTIONS.map((type) => (

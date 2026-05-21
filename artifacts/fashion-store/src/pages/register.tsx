@@ -32,6 +32,7 @@ export default function Register() {
     password: string;
     phone: string;
     category: "fashion" | "cosmetics" | "both";
+    gender: "female" | "male";
   }>({
     storeName: "",
     slug: "",
@@ -39,6 +40,7 @@ export default function Register() {
     password: "",
     phone: "",
     category: "both",
+    gender: "female",
   });
 
   function handleStoreNameChange(name: string) {
@@ -87,14 +89,17 @@ export default function Register() {
     setError("");
     setIsLoading(true);
     try {
+      const slug = form.slug || form.storeName.toLowerCase().replace(/\s+/g, "-");
       await register({
         storeName: form.storeName,
-        slug: form.slug || form.storeName.toLowerCase().replace(/\s+/g, "-"),
+        slug,
         email: form.email,
         password: form.password,
         phone: form.phone.trim(),
         category: form.category,
       });
+      // Persist gender locally for the editor UI language
+      try { localStorage.setItem(`nour_gender_${slug}`, form.gender); } catch {}
       navigate("/store-builder?mode=editor");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
@@ -217,6 +222,30 @@ export default function Register() {
                     <SelectItem value="both">أزياء ومستحضرات تجميل</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <Label>كيف تحب نخاطبك؟</Label>
+                <div className="flex gap-2">
+                  {(["female", "male"] as const).map((g) => {
+                    const isActive = form.gender === g;
+                    return (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, gender: g }))}
+                        className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
+                          isActive
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-border text-muted-foreground hover:border-primary/40"
+                        }`}
+                      >
+                        {g === "female" ? "👩 أنثى" : "👨 ذكر"}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-muted-foreground">عشان نكلمك باللغة المناسبة في المتجر</p>
               </div>
 
               <div className="col-span-2 space-y-1.5">

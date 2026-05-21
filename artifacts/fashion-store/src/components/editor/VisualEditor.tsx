@@ -7,6 +7,7 @@ import EditorLeftSidebar from "./EditorLeftSidebar";
 import EditorCanvas from "./EditorCanvas";
 import InspectorPanel from "./InspectorPanel";
 import StoreAssistant from "./StoreAssistant";
+import WelcomeOverlay, { type MerchantGender } from "./WelcomeOverlay";
 import { Layers3, Menu, Save, X } from "lucide-react";
 
 interface VisualEditorProps {
@@ -15,12 +16,15 @@ interface VisualEditorProps {
   productCount: number;
   categories?: Array<{ id: number; name: string; nameAr?: string; imageUrl?: string | null; productCount?: number }>;
   onSave: (config: StoreConfig) => Promise<void>;
+  isFirstVisit?: boolean;
+  gender?: MerchantGender;
 }
 
 const MAX_HISTORY = 30;
 
 export default function VisualEditor({
   initialConfig, storeSlug, productCount, categories = [], onSave,
+  isFirstVisit = false, gender = "female",
 }: VisualEditorProps) {
   // ─── History-based undo/redo ────────────────────────────────────────────────
   const [history, setHistory] = useState<StoreConfig[]>([initialConfig]);
@@ -54,6 +58,7 @@ export default function VisualEditor({
   const [saving, setSaving] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(isFirstVisit);
   const { toast } = useToast();
 
   const selectedSection = selectedId
@@ -301,6 +306,19 @@ export default function VisualEditor({
         <AnimatePresence>
           {aiOpen && (
             <StoreAssistant onClose={() => setAiOpen(false)} />
+          )}
+        </AnimatePresence>
+
+        {/* Welcome overlay for first-time merchants */}
+        <AnimatePresence>
+          {showWelcome && (
+            <WelcomeOverlay
+              storeName={config.brand.name}
+              storeSlug={storeSlug}
+              gender={gender}
+              onDismiss={() => setShowWelcome(false)}
+              onOpenAssistant={() => setAiOpen(true)}
+            />
           )}
         </AnimatePresence>
       </div>

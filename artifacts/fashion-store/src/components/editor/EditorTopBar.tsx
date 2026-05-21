@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Monitor, Tablet, Smartphone, Undo2, Redo2, Eye, Globe, ArrowRight, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeviceType } from "@/lib/store-config";
@@ -30,6 +31,19 @@ export default function EditorTopBar({
   canUndo, canRedo, onUndo, onRedo,
   onSave, saving, isDirty,
 }: EditorTopBarProps) {
+  const [saveHintDismissed, setSaveHintDismissed] = useState(() => {
+    try { return localStorage.getItem("nour_save_hint_seen") === "1"; } catch { return false; }
+  });
+
+  function handleSave() {
+    onSave();
+    // Dismiss save hint after first save
+    if (!saveHintDismissed) {
+      setSaveHintDismissed(true);
+      try { localStorage.setItem("nour_save_hint_seen", "1"); } catch {}
+    }
+  }
+
   return (
     <div
       className="min-h-14 bg-white border-b border-stone-200 flex flex-wrap sm:flex-nowrap items-center justify-between px-3 sm:px-4 py-2 sm:py-0 gap-2 sm:gap-4 shrink-0 z-20 sticky top-0"
@@ -110,19 +124,38 @@ export default function EditorTopBar({
           <Eye className="w-4 h-4" />
         </a>
 
-        <Button
-          onClick={onSave}
-          disabled={saving || !isDirty}
-          title={saving ? "جاري الحفظ..." : (isDirty ? "حفظ التغييرات" : "محفوظ")}
-          className={`h-9 w-9 p-0 flex items-center justify-center shrink-0 transition-all text-white ${isDirty ? "opacity-100 shadow-lg" : "opacity-50"}`}
-          style={{ background: isDirty ? "linear-gradient(135deg, #8B1A35, #c8963a)" : "#9ca3af" }}
-        >
-          {saving ? (
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
-            <Save className="w-4 h-4" />
-          )}
-        </Button>
+        {/* Save button with first-visit hint */}
+        <div className="relative">
+          <Button
+            onClick={handleSave}
+            disabled={saving || !isDirty}
+            title={saving ? "جاري الحفظ..." : (isDirty ? "حفظ التغييرات" : "محفوظ")}
+            className={`h-9 w-9 p-0 flex items-center justify-center shrink-0 transition-all text-white ${isDirty ? "opacity-100 shadow-lg" : "opacity-50"}`}
+            style={{ background: isDirty ? "linear-gradient(135deg, #8B1A35, #c8963a)" : "#9ca3af" }}
+          >
+            {saving ? (
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+          </Button>
+
+          {/* First-visit save hint tooltip */}
+          <AnimatePresence>
+            {!saveHintDismissed && isDirty && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-stone-800 text-white text-[11px] px-3 py-2 rounded-xl whitespace-nowrap shadow-lg z-30"
+              >
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-stone-800 rotate-45" />
+                💾 اضغط هنا لحفظ التعديلات
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse mr-1.5" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         <Button
           size="sm"
@@ -136,3 +169,4 @@ export default function EditorTopBar({
     </div>
   );
 }
+

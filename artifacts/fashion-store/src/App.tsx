@@ -46,7 +46,6 @@ const Discounts = lazy(() => import("@/pages/discounts"));
 const Reviews = lazy(() => import("@/pages/reviews"));
 const AbandonedCarts = lazy(() => import("@/pages/abandoned-carts"));
 const InventoryAlerts = lazy(() => import("@/pages/inventory-alerts"));
-const Setup = lazy(() => import("@/pages/setup"));
 const FacebookModerator = lazy(() => import("@/pages/facebook-moderator"));
 const Affiliates = lazy(() => import("@/pages/affiliates"));
 const OrderTrack = lazy(() => import("@/pages/order-track"));
@@ -163,7 +162,6 @@ function Router() {
         {/* Auth routes — no layout */}
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
-        <Route path="/setup" component={Setup} />
         <Route path="/accept-invite" component={AcceptInvite} />
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/reset-password" component={ResetPassword} />

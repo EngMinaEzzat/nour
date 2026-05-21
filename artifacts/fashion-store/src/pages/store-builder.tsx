@@ -3,9 +3,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { getListCategoriesQueryKey, useGetTenant, useListCategories } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
 import VisualEditor from "@/components/editor/VisualEditor";
 import { StoreConfig, createDefaultConfig, normalizeHomepageSections } from "@/lib/store-config";
+import type { MerchantGender } from "@/components/editor/WelcomeOverlay";
 
 const STORAGE_KEY = (slug: string) => `nour_store_config_${slug}`;
 
@@ -24,14 +24,19 @@ function saveConfig(slug: string, config: StoreConfig) {
   } catch {}
 }
 
+function loadGender(slug: string): MerchantGender {
+  try {
+    const val = localStorage.getItem(`nour_gender_${slug}`);
+    return val === "male" ? "male" : "female";
+  } catch {
+    return "female";
+  }
+}
+
 export default function StoreBuilder() {
   const { merchant } = useAuth();
-  const [location, navigate] = useLocation();
+  const [location] = useLocation();
   const tenantId = (merchant as any)?.tenantId as number | undefined;
-  const queryString = location.includes("?")
-    ? location.split("?")[1]
-    : (typeof window !== "undefined" ? window.location.search.slice(1) : "");
-  const startInEditor = new URLSearchParams(queryString).get("mode") === "editor";
 
   const { data: tenant, isLoading } = useGetTenant(tenantId!, {
     query: { queryKey: [`/api/tenants/${tenantId}`], enabled: !!tenantId },
@@ -40,8 +45,9 @@ export default function StoreBuilder() {
     query: { queryKey: getListCategoriesQueryKey(), enabled: !!tenantId },
   });
 
-  const [mode, setMode] = useState<"wizard" | "editor" | null>(null);
   const [storeConfig, setStoreConfig] = useState<StoreConfig | null>(null);
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [gender, setGender] = useState<MerchantGender>("female");
 
   useEffect(() => {
     if (!tenant) return;
@@ -116,12 +122,16 @@ export default function StoreBuilder() {
     });
     setStoreConfig(merged);
 
-    if (startInEditor || source.homepage?.sections?.length) {
-      setMode("editor");
-    } else {
-      setMode("wizard");
-    }
-  }, [tenant, startInEditor]);
+    // Detect first visit: no published config and no local draft
+    const hasExistingConfig = !!(published || saved);
+    const welcomeSeen = (() => {
+      try { return localStorage.getItem(`nour_welcome_seen_${slug}`) === "1"; } catch { return false; }
+    })();
+    setIsFirstVisit(!hasExistingConfig && !welcomeSeen);
+
+    // Load gender preference
+    setGender(loadGender(slug));
+  }, [tenant]);
 
   async function handleSave(config: StoreConfig) {
     if (!tenant) return;
@@ -161,13 +171,7 @@ export default function StoreBuilder() {
     ]);
   }
 
-  function handleWizardComplete(config: StoreConfig) {
-    setStoreConfig(config);
-    setMode("editor");
-    if (tenant?.slug) saveConfig(tenant.slug, config);
-  }
-
-  if (isLoading || !mode || !storeConfig) {
+  if (isLoading || !storeConfig) {
     return (
       <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir="rtl">
         <div className="text-center space-y-4">
@@ -187,18 +191,9 @@ export default function StoreBuilder() {
       <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir="rtl">
         <div className="text-center">
           <p className="text-stone-600 mb-4">لا يوجد متجر مرتبط بحسابك.</p>
-          <a href="/setup" className="text-[#8B1A35] underline text-sm">أنشئ متجرك أولاً</a>
+          <a href="/register" className="text-[#8B1A35] underline text-sm">أنشئ متجرك أولاً</a>
         </div>
       </div>
-    );
-  }
-
-  if (mode === "wizard") {
-    return (
-      <OnboardingWizard
-        initial={storeConfig}
-        onComplete={handleWizardComplete}
-      />
     );
   }
 
@@ -209,6 +204,8 @@ export default function StoreBuilder() {
       productCount={(tenant as any).productCount ?? 0}
       categories={categories}
       onSave={handleSave}
+      isFirstVisit={isFirstVisit}
+      gender={gender}
     />
   );
 }
