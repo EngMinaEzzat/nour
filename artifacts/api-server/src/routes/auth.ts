@@ -354,7 +354,8 @@ router.post("/auth/forgot-password", async (req, res) => {
       return res.json({ ok: true, emailSent: true });
     }
 
-    return res.json({ ok: true, emailSent: false, resetLink });
+    // SECURITY: Do not leak the reset link in the API response when email delivery fails.
+    return res.json({ ok: true, emailSent: false });
   } catch (err) {
     req.log.error(err);
     return res.status(500).json({ error: "حدث خطأ، حاول مرة أخرى" });
