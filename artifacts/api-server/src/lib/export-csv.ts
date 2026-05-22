@@ -188,7 +188,7 @@ export function toCsv(rows: Record<string, unknown>[]): string {
   const escape = (v: unknown) => {
     let s = String(v ?? "");
     // Prevent CSV Injection (Formula Injection)
-    if (/^[=\-+\@]/.test(s)) {
+    if (/^\s*[=\-+\@]/.test(s)) {
       s = "'" + s;
     }
     return s.includes(",") || s.includes('"') || s.includes("\n")

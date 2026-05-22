@@ -20,6 +20,7 @@ const requiresSsl =
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: requiresSsl ? { rejectUnauthorized: false } : undefined,
+  max: process.env.DB_POOL_MAX ? parseInt(process.env.DB_POOL_MAX) : 20, // Increased default pool size for concurrent queries
 });
 export const db = drizzle(pool, { schema });
 
