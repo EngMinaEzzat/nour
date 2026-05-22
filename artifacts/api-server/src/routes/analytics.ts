@@ -26,28 +26,101 @@ router.get("/analytics/merchant", requireRole("owner", "manager", "staff"), asyn
       lte(ordersTable.createdAt, to),
     ];
 
-    /* ── Order KPIs ── */
-    const [kpi] = await db
-      .select({
-        totalOrders: count(),
-        grossRevenue: sum(ordersTable.totalAmount),
-        pendingOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'pending')`,
-        awaitingOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'awaiting_confirmation')`,
-        confirmedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'confirmed')`,
-        dispatchedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'dispatched')`,
-        deliveredOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'delivered')`,
-        cancelledOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'cancelled')`,
-        returnedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'returned')`,
-        deliveredRevenue: sql<string>`COALESCE(SUM(total_amount::numeric) filter (where ${ordersTable.status} = 'delivered'), 0)`,
-      })
-      .from(ordersTable)
-      .where(and(...conditions));
+    /* ── Fetch Analytics Concurrently ── */
+    const [
+      [kpi],
+      repeatResult,
+      salesByDay,
+      topProducts,
+      [tenantRow],
+      [returnStats]
+    ] = await Promise.all([
+      /* ── Order KPIs ── */
+      db.select({
+          totalOrders: count(),
+          grossRevenue: sum(ordersTable.totalAmount),
+          pendingOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'pending')`,
+          awaitingOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'awaiting_confirmation')`,
+          confirmedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'confirmed')`,
+          dispatchedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'dispatched')`,
+          deliveredOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'delivered')`,
+          cancelledOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'cancelled')`,
+          returnedOrders: sql<number>`count(*) filter (where ${ordersTable.status} = 'returned')`,
+          deliveredRevenue: sql<string>`COALESCE(SUM(total_amount::numeric) filter (where ${ordersTable.status} = 'delivered'), 0)`,
+        })
+        .from(ordersTable)
+        .where(and(...conditions)),
 
-    const totalOrders = kpi.totalOrders ?? 0;
-    const grossRev = parseFloat(kpi.grossRevenue ?? "0");
-    const deliveredRev = parseFloat(kpi.deliveredRevenue ?? "0");
-    const cancelledCount = Number(kpi.cancelledOrders ?? 0);
-    const returnedCount = Number(kpi.returnedOrders ?? 0);
+      /* ── Repeat customers (phone used in >1 delivered order in this tenant) ── */
+      db.execute(sql`
+        SELECT COUNT(DISTINCT customer_phone)::int AS repeat_count
+        FROM (
+          SELECT customer_phone, COUNT(*) AS cnt
+          FROM orders
+          WHERE tenant_id = ${tenantId}
+            AND status IN ('delivered', 'confirmed', 'dispatched')
+            AND customer_phone IS NOT NULL
+          GROUP BY customer_phone
+          HAVING COUNT(*) > 1
+        ) sub
+      `),
+
+      /* ── Sales by day ── */
+      db.execute(sql`
+        SELECT
+          TO_CHAR(created_at, 'MM/DD') AS day,
+          TO_CHAR(created_at, 'YYYY-MM-DD') AS date,
+          COALESCE(SUM(total_amount::numeric) FILTER (WHERE status NOT IN ('cancelled','returned')), 0)::float AS revenue,
+          COUNT(*)::int AS orders
+        FROM orders
+        WHERE tenant_id = ${tenantId}
+          AND created_at >= ${from}
+          AND created_at <= ${to}
+        GROUP BY TO_CHAR(created_at, 'MM/DD'), TO_CHAR(created_at, 'YYYY-MM-DD')
+        ORDER BY date ASC
+      `),
+
+      /* ── Top products ── */
+      db.execute(sql`
+        SELECT
+          p.id,
+          p.name,
+          p.stock,
+          p.low_stock_threshold,
+          COALESCE(SUM(oi.total_price::numeric), 0)::float AS revenue,
+          SUM(oi.quantity)::int AS units_sold
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.id
+        JOIN orders o ON oi.order_id = o.id
+        WHERE o.tenant_id = ${tenantId}
+          AND o.created_at >= ${from}
+          AND o.created_at <= ${to}
+          AND o.status NOT IN ('cancelled','returned')
+        GROUP BY p.id, p.name, p.stock, p.low_stock_threshold
+        ORDER BY revenue DESC
+        LIMIT 10
+      `),
+
+      /* ── Tenant Row (for low-stock threshold) ── */
+      db.select({ lowStockThreshold: tenantsTable.lowStockThreshold })
+        .from(tenantsTable)
+        .where(eq(tenantsTable.id, tenantId)),
+
+      /* ── Return cases count in period ── */
+      db.select({ total: count() })
+        .from(returnCasesTable)
+        .where(and(
+          eq(returnCasesTable.tenantId, tenantId),
+          gte(returnCasesTable.createdAt, from),
+          lte(returnCasesTable.createdAt, to),
+        ))
+    ]);
+
+    const totalOrders = kpi?.totalOrders ?? 0;
+    const grossRev = parseFloat(kpi?.grossRevenue ?? "0");
+    const deliveredRev = parseFloat(kpi?.deliveredRevenue ?? "0");
+    const cancelledCount = Number(kpi?.cancelledOrders ?? 0);
+    const returnedCount = Number(kpi?.returnedOrders ?? 0);
 
     const netRevenue = deliveredRev;
     const cancellationRate = totalOrders > 0
@@ -58,64 +131,11 @@ router.get("/analytics/merchant", requireRole("owner", "manager", "staff"), asyn
       : 0;
     const avgOrderValue = totalOrders > 0 ? Math.round(grossRev / totalOrders) : 0;
 
-    /* ── Repeat customers (phone used in >1 delivered order in this tenant) ── */
-    const repeatResult = await db.execute(sql`
-      SELECT COUNT(DISTINCT customer_phone)::int AS repeat_count
-      FROM (
-        SELECT customer_phone, COUNT(*) AS cnt
-        FROM orders
-        WHERE tenant_id = ${tenantId}
-          AND status IN ('delivered', 'confirmed', 'dispatched')
-          AND customer_phone IS NOT NULL
-        GROUP BY customer_phone
-        HAVING COUNT(*) > 1
-      ) sub
-    `);
     const repeatCustomerCount = Number((repeatResult.rows[0] as { repeat_count: number })?.repeat_count ?? 0);
 
-    /* ── Sales by day ── */
-    const salesByDay = await db.execute(sql`
-      SELECT
-        TO_CHAR(created_at, 'MM/DD') AS day,
-        TO_CHAR(created_at, 'YYYY-MM-DD') AS date,
-        COALESCE(SUM(total_amount::numeric) FILTER (WHERE status NOT IN ('cancelled','returned')), 0)::float AS revenue,
-        COUNT(*)::int AS orders
-      FROM orders
-      WHERE tenant_id = ${tenantId}
-        AND created_at >= ${from}
-        AND created_at <= ${to}
-      GROUP BY TO_CHAR(created_at, 'MM/DD'), TO_CHAR(created_at, 'YYYY-MM-DD')
-      ORDER BY date ASC
-    `);
-
-    /* ── Top products ── */
-    const topProducts = await db.execute(sql`
-      SELECT
-        p.id,
-        p.name,
-        p.stock,
-        p.low_stock_threshold,
-        COALESCE(SUM(oi.total_price::numeric), 0)::float AS revenue,
-        SUM(oi.quantity)::int AS units_sold
-      FROM order_items oi
-      JOIN products p ON oi.product_id = p.id
-      JOIN orders o ON oi.order_id = o.id
-      WHERE o.tenant_id = ${tenantId}
-        AND o.created_at >= ${from}
-        AND o.created_at <= ${to}
-        AND o.status NOT IN ('cancelled','returned')
-      GROUP BY p.id, p.name, p.stock, p.low_stock_threshold
-      ORDER BY revenue DESC
-      LIMIT 10
-    `);
-
-    /* ── Low-stock products ── */
-    const [tenantRow] = await db
-      .select({ lowStockThreshold: tenantsTable.lowStockThreshold })
-      .from(tenantsTable)
-      .where(eq(tenantsTable.id, tenantId));
     const tenantThreshold = tenantRow?.lowStockThreshold ?? 5;
 
+    /* ── Low-stock products (depends on tenantThreshold) ── */
     const lowStockProducts = await db.execute(sql`
       SELECT
         id,
@@ -131,16 +151,6 @@ router.get("/analytics/merchant", requireRole("owner", "manager", "staff"), asyn
       ORDER BY stock ASC
       LIMIT 20
     `);
-
-    /* ── Return cases count in period ── */
-    const [returnStats] = await db
-      .select({ total: count() })
-      .from(returnCasesTable)
-      .where(and(
-        eq(returnCasesTable.tenantId, tenantId),
-        gte(returnCasesTable.createdAt, from),
-        lte(returnCasesTable.createdAt, to),
-      ));
 
     res.json({
       period: { from: from.toISOString(), to: to.toISOString() },
