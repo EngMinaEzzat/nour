@@ -60,6 +60,7 @@ export default function GuideCard({
             </div>
             <button
               onClick={dismiss}
+              aria-label="إغلاق التوجيه"
               className="text-stone-400 hover:text-stone-600 transition-colors shrink-0 mt-0.5"
             >
               <X className="w-3.5 h-3.5" />
