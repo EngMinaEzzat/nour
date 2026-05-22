@@ -10,6 +10,7 @@ import {
   ArrowLeft, CheckCircle2, Zap, Globe, ShieldCheck, Sparkles,
   ChevronLeft, Star,
 } from "lucide-react";
+import { getBaseDomain } from "@/lib/utils";
 
 /* ─── animated counter ─── */
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
@@ -125,7 +126,7 @@ export default function Home() {
                 </div>
                 <div className="flex-1 mx-4">
                   <div className="bg-background rounded-md px-3 py-1 text-xs text-muted-foreground border border-border/40 w-fit mx-auto" dir="ltr">
-                    nour.eg/store/boutique-loaloa
+                    boutique-loaloa.{getBaseDomain()}
                   </div>
                 </div>
               </div>

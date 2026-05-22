@@ -360,8 +360,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     ? initialCanonicalMatches
       ? initialPublicPage.canonical
       : selectedCategoryMeta
-      ? `/store/${store.slug}/category/${publicEntitySlug(selectedCategoryMeta.id, selectedCategoryMeta.name)}`
-      : `/store/${store.slug}`
+      ? `/category/${publicEntitySlug(selectedCategoryMeta.id, selectedCategoryMeta.name)}`
+      : `/`
     : null;
   const storefrontCanonicalUrl = storefrontCanonicalPath
     ? /^https?:\/\//i.test(storefrontCanonicalPath)
@@ -371,7 +371,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const storeCanonicalUrl = store
     ? initialPublicPage?.page === "store" && initialPublicPage.canonical
       ? initialPublicPage.canonical
-      : `${window.location.origin}/store/${store.slug}`
+      : `${window.location.origin}/`
     : null;
 
   // SEO meta
@@ -443,9 +443,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const productHref = useCallback((product: Pick<ProductCardData, "id" | "name">) => {
     if (!store) return `/products/${product.id}`;
     const slugPart = publicEntitySlug(product.id, product.name);
-    const isStoreRoot = overrideSlug && typeof window !== "undefined" && !window.location.pathname.startsWith("/store/");
-    return isStoreRoot ? `/product/${slugPart}` : `/store/${store.slug}/product/${slugPart}`;
-  }, [store, overrideSlug]);
+    return `/product/${slugPart}`;
+  }, [store]);
 
   const handleAddToCart = useCallback((product: ProductCardData) => {
     if (!store) return;
@@ -462,15 +461,13 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   function handleCategorySelect(categoryId: number | null) {
     setSelectedCategory(categoryId);
     if (!store) return;
-    const isStoreRoot = overrideSlug && typeof window !== "undefined" && !window.location.pathname.startsWith("/store/");
     if (!categoryId) {
-      navigate(isStoreRoot ? "/" : `/store/${store.slug}`);
+      navigate("/");
       return;
     }
     const category = store.categories?.find((c) => c.id === categoryId);
     if (category) {
-      const href = `${isStoreRoot ? "" : `/store/${store.slug}`}/category/${publicEntitySlug(category.id, category.name)}`;
-      navigate(href);
+      navigate(`/category/${publicEntitySlug(category.id, category.name)}`);
     }
   }
 

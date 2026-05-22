@@ -11,6 +11,7 @@ import { fetchAndSetCsrfToken } from "@workspace/api-client-react";
 import { useTranslation } from "react-i18next";
 
 import Storefront from "@/pages/storefront";
+import { getBaseDomain } from "@/lib/utils";
 
 const Home = lazy(() => import("@/pages/home"));
 const Login = lazy(() => import("@/pages/login"));
@@ -75,24 +76,20 @@ function PageFallback() {
 // ─── Subdomain detection ──────────────────────────────────────────────────────
 // Returns the store slug ONLY when hostname is exactly {slug}.nour.eg.
 // Returns null for everything else (localhost, Replit preview domains, nour.eg itself).
-function getSubdomainSlug(): string | null {
+export function getSubdomainSlug(): string | null {
   if (typeof window === "undefined") return null;
   const initialPublicPage = (
     window as typeof window & {
       __NOUR_INITIAL_PUBLIC_PAGE__?: { slug?: string };
     }
   ).__NOUR_INITIAL_PUBLIC_PAGE__;
-  if (
-    initialPublicPage?.slug &&
-    !window.location.pathname.startsWith("/store/")
-  ) {
+  if (initialPublicPage?.slug) {
     return initialPublicPage.slug;
   }
 
   const hostname = window.location.hostname;
-  // Must end with .nour.eg and have exactly one subdomain label before it
-  // e.g. "boutique.nour.eg" → "boutique"
-  const PLATFORM_DOMAIN = "nour.eg";
+  const PLATFORM_DOMAIN = getBaseDomain();
+  
   if (!hostname.endsWith(`.${PLATFORM_DOMAIN}`)) return null;
   const sub = hostname.slice(0, hostname.length - PLATFORM_DOMAIN.length - 1);
   // Reject empty, multi-level, or reserved prefixes
@@ -107,7 +104,7 @@ function getSubdomainSlug(): string | null {
   return sub;
 }
 
-function isReadOnlyPublicRoute(subdomainSlug: string | null): boolean {
+export function isReadOnlyPublicRoute(subdomainSlug: string | null): boolean {
   if (typeof window === "undefined") return false;
   const path = window.location.pathname;
   const initialPublicPage = (
@@ -122,11 +119,12 @@ function isReadOnlyPublicRoute(subdomainSlug: string | null): boolean {
     subdomainSlug &&
     (path === "/" ||
       path.startsWith("/product/") ||
-      path.startsWith("/category/"))
+      path.startsWith("/category/") ||
+      path.startsWith("/order-track/"))
   ) {
     return true;
   }
-  return path.startsWith("/store/") && !path.includes("/checkout");
+  return false;
 }
 
 // ─── Storefront-only routing (used on {slug}.nour.eg subdomains) ─────────────
@@ -167,19 +165,7 @@ function Router() {
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/reset-password" component={ResetPassword} />
 
-        {/* Standalone storefront routes — no dashboard chrome */}
-        <Route
-          path="/store/:slug/product/:productSlug"
-          component={ProductDetail}
-        />
-        <Route
-          path="/store/:slug/category/:categorySlug"
-          component={Storefront}
-        />
-        <Route path="/store/:slug" component={Storefront} />
-        <Route path="/checkout" component={Checkout} />
-        <Route path="/order-confirmation" component={OrderConfirmation} />
-        <Route path="/order-track/:orderId" component={OrderTrack} />
+        {/* Standalone storefront routes are now solely handled by StorefrontRouter via subdomains */}
 
         {/* All other routes render inside the dashboard Layout */}
         <Route>

@@ -99,9 +99,9 @@ export default function ProductDetail() {
   const productPublicSlug = product ? publicEntitySlug(product.id, product.name) : null;
   const productCanonicalPath = initialPublicPage?.page === "product" && initialPublicPage.canonical
     ? initialPublicPage.canonical
-    : productTenantSlug && productPublicSlug
-    ? `/store/${productTenantSlug}/product/${productPublicSlug}`
-    : `/products/${product?.id ?? productId}`;
+    : productPublicSlug
+    ? `/product/${productPublicSlug}`
+    : `/product/${product?.id ?? productId}`;
   const productCanonicalUrl = /^https?:\/\//i.test(productCanonicalPath)
     ? productCanonicalPath
     : `${window.location.origin}${productCanonicalPath}`;
@@ -257,7 +257,7 @@ export default function ProductDetail() {
 
   const discountPercent = product.originalPrice && product.originalPrice > product.price
     ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
-  const backHref = productTenantSlug ? `/store/${productTenantSlug}` : "/products";
+  const backHref = "/";
   const defaultImageUrl = productImageUrl(selectedVariant?.imageUrls?.[0] ?? product.imageUrl);
   const imageUrl = activeImage ?? defaultImageUrl;
   const galleryImages = [

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
+import { getBaseDomain, getStoreUrl } from "@/lib/utils";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -342,7 +343,7 @@ function SeoSection({ tenantId }: { tenantId: number }) {
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-400 mb-2 font-medium">{t("settings.seo.previewTitle")}</p>
             <p className="text-blue-700 text-sm font-medium line-clamp-1">{seoTitle || t("settings.identity.fallbackName")}</p>
-            <p className="text-green-700 text-xs mb-1" dir="ltr" style={{ textAlign: i18n.dir() === "rtl" ? "right" : "left" }}>{data?.slug ? `${data.slug}.nour.eg` : "store.nour.eg"}</p>
+            <p className="text-green-700 text-xs mb-1" dir="ltr" style={{ textAlign: i18n.dir() === "rtl" ? "right" : "left" }}>{data?.slug ? `${data.slug}.${getBaseDomain()}` : `store.${getBaseDomain()}`}</p>
             <p className="text-gray-600 text-xs line-clamp-2">{seoDescription || t("settings.identity.fallbackDesc")}</p>
           </div>
         )}
@@ -480,7 +481,7 @@ export default function StoreSettings() {
 
   function copySlug() {
     if (!tenant?.slug) return;
-    navigator.clipboard.writeText(`${tenant.slug}.nour.eg`);
+    navigator.clipboard.writeText(getStoreUrl(tenant.slug));
     setCopiedSlug(true);
     setTimeout(() => setCopiedSlug(false), 2000);
   }
@@ -537,9 +538,9 @@ export default function StoreSettings() {
                 className="h-11 w-11 rounded-full shadow-lg border-border/60 bg-background/95 backdrop-blur-sm hover:border-primary/40"
                 asChild
               >
-                <Link href={`/store/${tenant.slug}`} target="_blank">
+                <a href={getStoreUrl(tenant.slug)} target="_blank" rel="noopener noreferrer">
                   <Eye className="w-4 h-4" />
-                </Link>
+                </a>
               </Button>
             </TooltipTrigger>
             <TooltipContent side={i18n.dir() === 'rtl' ? 'right' : 'left'}>{t("settings.header.previewStore")}</TooltipContent>
@@ -610,7 +611,7 @@ export default function StoreSettings() {
                   <div className="flex items-center gap-2">
                     <div className="flex-1 flex items-center bg-muted/50 border border-border/50 rounded-xl px-3 py-2 text-sm text-muted-foreground overflow-hidden" dir="ltr">
                       <span className="font-medium text-foreground truncate">{tenant.slug}</span>
-                      <span className="text-muted-foreground/60 shrink-0 text-xs">.nour.eg</span>
+                      <span className="text-muted-foreground/60 shrink-0 text-xs">.{getBaseDomain()}</span>
                     </div>
                     <Button
                       variant="outline"

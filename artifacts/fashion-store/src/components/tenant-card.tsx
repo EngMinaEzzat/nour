@@ -1,5 +1,5 @@
-import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { getStoreUrl } from "@/lib/utils";
 import { Tenant } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ export function TenantCard({ tenant }: TenantCardProps) {
     <motion.div whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300 }} dir={i18n.dir()}>
       <Card className="overflow-hidden cursor-pointer border border-border/50 bg-card group h-full flex flex-col hover:shadow-lg transition-shadow duration-300">
         {/* Cover */}
-        <Link href={`/store/${tenant.slug}`} className="block">
+        <a href={getStoreUrl(tenant.slug)} className="block">
           <div className="h-32 bg-muted relative overflow-hidden">
             <img
               src={tenant.coverUrl || "/hero.png"}
@@ -32,11 +32,11 @@ export function TenantCard({ tenant }: TenantCardProps) {
               </span>
             </div>
           </div>
-        </Link>
+        </a>
 
         <CardContent className="p-4 pt-0 relative flex-1 flex flex-col">
           {/* Logo */}
-          <Link href={`/store/${tenant.slug}`} className="block">
+          <a href={getStoreUrl(tenant.slug)} className="block">
             <div className="h-16 w-16 rounded-2xl border-4 border-card bg-background overflow-hidden -mt-8 relative z-10 mx-auto shadow-md group-hover:shadow-lg transition-shadow">
               {tenant.logoUrl ? (
                 <img
@@ -50,15 +50,15 @@ export function TenantCard({ tenant }: TenantCardProps) {
                 </div>
               )}
             </div>
-          </Link>
+          </a>
 
           {/* Info */}
           <div className="text-center mt-3 flex-1">
-            <Link href={`/store/${tenant.slug}`}>
+            <a href={getStoreUrl(tenant.slug)}>
               <h3 className="font-bold text-lg text-foreground hover:text-primary transition-colors">
                 {tenant.name}
               </h3>
-            </Link>
+            </a>
             {tenant.city && (
               <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 gap-1">
                 <MapPin className="w-3 h-3" /> {tenant.city}

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { getStoreUrl } from "@/lib/utils";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -188,9 +189,9 @@ export default function OrderTrack() {
                   <p className="font-semibold text-sm">{order.tenantName}</p>
                 </div>
                 <Button asChild size="sm" variant="outline">
-                  <Link href={`/store/${order.tenantName?.toLowerCase()}`}>
+                  <a href={getStoreUrl(order.tenantName?.toLowerCase() ?? "")}>
                     {t("storefront.orderTrack.visitStore", "زيارة المتجر")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-3.5 h-3.5 mr-1" /> : <ArrowRight className="w-3.5 h-3.5 ml-1" />}
-                  </Link>
+                  </a>
                 </Button>
               </CardContent>
             </Card>

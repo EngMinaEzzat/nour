@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { getGetProductQueryKey } from "@workspace/api-client-react";
 import { publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl } from "@/lib/image-url";
+import { getStoreUrl } from "@/lib/utils";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -67,8 +68,8 @@ export function StorefrontProductCard({
       : "aspect-[3/4]";
 
   const productHref = storeSlug
-    ? `/store/${storeSlug}/product/${publicEntitySlug(product.id, product.name)}`
-    : `/products/${product.id}`;
+    ? `${getStoreUrl(storeSlug)}/product/${publicEntitySlug(product.id, product.name)}`
+    : `/product/${publicEntitySlug(product.id, product.name)}`;
   const imageUrl = productImageUrl(product.imageUrl);
 
   function prefetchProduct() {
@@ -100,15 +101,9 @@ export function StorefrontProductCard({
     setWishlisted(w => !w);
   }
 
-  return (
-    <div
-      className="group flex flex-col"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Image */}
-      <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
-        <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-stone-100`}>
+
+  const imageContent = (
+    <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-stone-100`}>
           <img
             src={imageUrl}
             alt={product.name}
@@ -199,8 +194,25 @@ export function StorefrontProductCard({
               )}
             </AnimatePresence>
           )}
-        </div>
-      </Link>
+    </div>
+  );
+
+  return (
+    <div
+      className="group flex flex-col"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Image */}
+      {storeSlug ? (
+        <a href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+          {imageContent}
+        </a>
+      ) : (
+        <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+          {imageContent}
+        </Link>
+      )}
 
       {/* Info */}
       <div className="mt-3 px-0.5" style={{ direction: i18n.dir() }}>
@@ -209,14 +221,25 @@ export function StorefrontProductCard({
             {product.categoryName}
           </p>
         )}
-        <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
-          <h3
-            className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
-            style={{ fontFamily: SERIF, fontWeight: 400 }}
-          >
-            {product.name}
-          </h3>
-        </Link>
+        {storeSlug ? (
+          <a href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+            <h3
+              className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
+              style={{ fontFamily: SERIF, fontWeight: 400 }}
+            >
+              {product.name}
+            </h3>
+          </a>
+        ) : (
+          <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+            <h3
+              className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
+              style={{ fontFamily: SERIF, fontWeight: 400 }}
+            >
+              {product.name}
+            </h3>
+          </Link>
+        )}
 
         {showRating && (
           <div className="flex items-center gap-1 mt-1 mb-1.5">

@@ -4,6 +4,7 @@ import { Monitor, Tablet, Smartphone, Undo2, Redo2, Eye, Globe, ArrowRight, Save
 import { Button } from "@/components/ui/button";
 import { DeviceType } from "@/lib/store-config";
 import { useTranslation } from "react-i18next";
+import { getStoreUrl } from "@/lib/utils";
 
 interface EditorTopBarProps {
   storeName: string;
@@ -117,7 +118,7 @@ export default function EditorTopBar({
         <div className="w-px h-5 bg-stone-200" />
 
         <a
-          href={`${BASE}/store/${storeSlug}`}
+          href={getStoreUrl(storeSlug)}
           target="_blank"
           rel="noreferrer"
           title={t("editorTopBar.tooltips.preview")}

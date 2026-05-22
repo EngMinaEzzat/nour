@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { getBaseDomain } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -170,23 +171,22 @@ export default function Register() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="slug">
+                <Label htmlFor="slug" className="flex items-center gap-1">
                   {t("auth.register.storeSlug")}
-                  <span className="text-muted-foreground text-xs me-2">nour.eg/store/</span>
                 </Label>
-                <div className="relative">
+                <div className="relative flex items-center" dir="ltr">
                   <Input
                     id="slug"
                     placeholder={t("auth.register.storeSlugPlaceholder")}
                     value={form.slug}
                     onChange={(e) => handleSlugChange(e.target.value)}
                     required
-                    className={`h-11 pe-10 transition-colors ${
+                    className={`h-11 pe-10 text-right transition-colors ${
                       slugStatus === "available" ? "border-green-500 focus-visible:ring-green-400" :
                       slugStatus === "taken" || slugStatus === "invalid" ? "border-destructive focus-visible:ring-destructive" : ""
                     }`}
-                    dir="ltr"
                   />
+                  <span className="text-muted-foreground text-sm ms-2 font-mono">.{getBaseDomain()}</span>
                   {slugStatus !== "idle" && (
                     <span className={`absolute inset-y-0 end-3 flex items-center ${slugHint?.color}`}>
                       {slugHint?.icon}

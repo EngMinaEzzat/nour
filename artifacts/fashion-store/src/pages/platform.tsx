@@ -23,6 +23,7 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { getStoreUrl } from "@/lib/utils";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -419,7 +420,7 @@ export default function Platform() {
               ))
               : filteredMerchants.map((m) => {
                 const sub = SUB_STATUS[m.subscriptionStatus ?? "trial"] ?? SUB_STATUS.trial;
-                const storeUrl = `${BASE}/store/${m.slug}`;
+                const storeUrl = getStoreUrl(m.slug);
                 const joinDate = new Date(m.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", {
                   year: "numeric", month: "long", day: "numeric",
                 });

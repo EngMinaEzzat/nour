@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslation } from "react-i18next";
+import { getStoreUrl } from "@/lib/utils";
 
 function getMerchantNav(merchant: { slug?: string; role?: string; isPlatformAdmin?: boolean } | null) {
   const base = [
@@ -41,7 +42,7 @@ function getMerchantNav(merchant: { slug?: string; role?: string; isPlatformAdmi
     { name: "layout.inventoryAlerts", href: "/inventory-alerts", icon: AlertTriangle },
     { name: "layout.facebookModerator", href: "/facebook-moderator", icon: Facebook },
     { name: "layout.growth", href: "/growth", icon: TrendingUp },
-    ...(merchant?.slug ? [{ name: "layout.myStore", href: `/store/${merchant.slug}`, icon: Store }] : []),
+    ...(merchant?.slug ? [{ name: "layout.myStore", href: getStoreUrl(merchant.slug), icon: Store, external: true }] : []),
   ];
 
   if (merchant?.isPlatformAdmin) {
@@ -124,17 +125,8 @@ export function Layout({ children }: { children: ReactNode }) {
                     {merchantNav.map((item) => {
                       const active = isActive(item.href);
                       const Icon = item.icon;
-                      return (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          onClick={() => setMobileOpen(false)}
-                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                            active
-                              ? "bg-primary text-primary-foreground"
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                          }`}
-                        >
+                      const navItemContent = (
+                        <>
                           <Icon className="h-4 w-4" />
                           {t(item.name)}
                           {item.name === "layout.myStore" && (
@@ -143,6 +135,31 @@ export function Layout({ children }: { children: ReactNode }) {
                           {item.name === "platform.title" && (
                             <Badge className="ms-auto text-[10px] px-1.5 py-0 bg-primary/20 text-primary border-primary/30">Admin</Badge>
                           )}
+                        </>
+                      );
+                      const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`;
+
+                      return item.external ? (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className={className}
+                        >
+                          {navItemContent}
+                        </a>
+                      ) : (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className={className}
+                        >
+                          {navItemContent}
                         </Link>
                       );
                     })}
