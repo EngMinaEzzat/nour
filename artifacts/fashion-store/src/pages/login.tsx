@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff, Store } from "lucide-react";
 
 export default function Login() {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { login } = useAuth();
   const prefilled = new URLSearchParams(window.location.search).get("email") ?? "";
@@ -25,7 +27,7 @@ export default function Login() {
       await login(email, password);
       navigate("/dashboard");
     } catch {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      setError(t("auth.login.invalid"));
     } finally {
       setIsLoading(false);
     }
@@ -41,10 +43,10 @@ export default function Login() {
       >
         <div className="text-center mb-10">
           <Link href="/">
-            <span className="text-4xl font-bold text-primary cursor-pointer">نور</span>
+            <span className="text-4xl font-bold text-primary cursor-pointer">{t("common.appName")}</span>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground mt-4">تسجيل الدخول</h1>
-          <p className="text-muted-foreground mt-2 text-sm">أدر متجرك من لوحة التحكم</p>
+          <h1 className="text-2xl font-bold text-foreground mt-4">{t("auth.login.title")}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">{t("auth.login.subtitle")}</p>
         </div>
 
         <motion.div
@@ -55,11 +57,11 @@ export default function Login() {
         >
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <Label htmlFor="email">البريد الإلكتروني</Label>
+              <Label htmlFor="email">{t("auth.login.email")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="example@nour.eg"
+                placeholder={t("common.placeholder.email")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -70,12 +72,12 @@ export default function Login() {
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">كلمة المرور</Label>
+                <Label htmlFor="password">{t("auth.login.password")}</Label>
                 <Link
                   href={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ""}`}
                   className="text-xs text-primary hover:underline"
                 >
-                  نسيت كلمة المرور؟
+                  {t("auth.login.forgotPassword")}
                 </Link>
               </div>
               <div className="relative">
@@ -115,18 +117,18 @@ export default function Login() {
               disabled={isLoading}
             >
               {isLoading ? (
-                <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> جارٍ تسجيل الدخول...</>
+                <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> {t("auth.login.loggingIn")}</>
               ) : (
-                <><Store className="w-4 h-4 ms-2" /> تسجيل الدخول</>
+                <><Store className="w-4 h-4 ms-2" /> {t("auth.login.title")}</>
               )}
             </Button>
           </form>
         </motion.div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          ليس لديك حساب؟{" "}
+          {t("auth.login.noAccount")} {" "}
           <Link href="/register" className="text-primary font-semibold hover:underline">
-            سجّل متجرك الآن
+            {t("auth.login.registerNow")}
           </Link>
         </p>
       </motion.div>

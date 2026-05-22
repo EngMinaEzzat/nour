@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Mail, Check, Sparkles } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
@@ -10,6 +11,7 @@ interface NewsletterSectionProps {
 }
 
 export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSectionProps) {
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
       className="py-16 md:py-24 px-4 sm:px-6"
       style={{
         background: "linear-gradient(135deg, #1a1614 0%, #2a1f1a 100%)",
-        direction: "rtl",
+        direction: i18n.dir(),
       }}
     >
       {/* Top golden accent */}
@@ -65,20 +67,20 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
             className="text-[11px] tracking-[0.3em] uppercase mb-3 font-medium"
             style={{ color: "#c8963a" }}
           >
-            نشرتنا البريدية
+            {t("storefront.home.newsletter.eyebrow", "نشرتنا البريدية")}
           </p>
 
           <h2
             className="text-4xl md:text-5xl text-white mb-4"
             style={{ fontFamily: SERIF, fontWeight: 400 }}
           >
-            كوني أول من يعرف
+            {t("storefront.home.newsletter.title", "كوني أول من يعرف")}
             <br />
-            <span style={{ color: "#f5d6a0", fontStyle: "italic" }}>الوصولات الجديدة</span>
+            <span style={{ color: "#f5d6a0", fontStyle: "italic" }}>{t("storefront.home.newsletter.subtitle", "الوصولات الجديدة")}</span>
           </h2>
 
           <p className="text-white/50 text-sm mb-8 leading-relaxed max-w-sm mx-auto">
-            اشتركي في نشرة {storeName} واستمتعي بعروض حصرية وأحدث الموضات مباشرةً على بريدك
+            {t("storefront.home.newsletter.desc", `اشتركي في نشرة ${storeName} واستمتعي بعروض حصرية وأحدث الموضات مباشرةً على بريدك`, { storeName })}
           </p>
 
           <AnimatePresence mode="wait">
@@ -97,10 +99,10 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
                   <Check className="w-6 h-6 text-green-400" />
                 </div>
                 <p className="text-white font-semibold text-lg" style={{ fontFamily: SERIF }}>
-                  تم الاشتراك بنجاح!
+                  {t("storefront.home.newsletter.successTitle", "تم الاشتراك بنجاح!")}
                 </p>
                 <p className="text-white/50 text-sm">
-                  يسعدنا انضمامك لمجتمع {storeName} ✨
+                  {t("storefront.home.newsletter.successDesc", `يسعدنا انضمامك لمجتمع ${storeName} ✨`, { storeName })}
                 </p>
               </motion.div>
             ) : (
@@ -116,12 +118,12 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="بريدك الإلكتروني"
+                  placeholder={t("storefront.home.newsletter.emailPlaceholder", "بريدك الإلكتروني")}
                   required
                   className="flex-1 px-5 py-3.5 rounded-full text-sm outline-none text-stone-900 placeholder:text-stone-400"
                   style={{
                     background: "rgba(250,247,244,0.95)",
-                    direction: "rtl",
+                    direction: "ltr",
                   }}
                 />
                 <motion.button
@@ -141,7 +143,7 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
                   ) : (
                     <>
                       <Sparkles className="w-3.5 h-3.5" />
-                      اشتركي الآن
+                      {t("storefront.home.newsletter.subscribe", "اشتركي الآن")}
                     </>
                   )}
                 </motion.button>
@@ -150,7 +152,7 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
           </AnimatePresence>
 
           <p className="text-white/25 text-[11px] mt-5">
-            يمكنك إلغاء الاشتراك في أي وقت • لا بريد مزعج أبداً
+            {t("storefront.home.newsletter.disclaimer", "يمكنك إلغاء الاشتراك في أي وقت • لا بريد مزعج أبداً")}
           </p>
         </motion.div>
       </div>

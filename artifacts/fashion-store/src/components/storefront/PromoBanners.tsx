@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Tag, Truck } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft, ArrowRight, Tag, Truck } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -9,10 +10,11 @@ interface PromoBannersProps {
 }
 
 export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBannersProps) {
+  const { t, i18n } = useTranslation();
   return (
     <section
       className="py-10 px-4 sm:px-6"
-      style={{ background: "#fff", direction: "rtl" }}
+      style={{ background: "#fff", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Promo 1 — discount */}
@@ -48,19 +50,19 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBanne
             </div>
             <div>
               <p className="text-white/70 text-[11px] tracking-widest uppercase mb-1 font-medium">
-                عروض حصرية
+                {t("storefront.home.promos.exclusiveOffers", "عروض حصرية")}
               </p>
               <h3
                 className="text-white text-3xl mb-2"
                 style={{ fontFamily: SERIF, fontWeight: 400 }}
               >
-                خصم يصل إلى
+                {t("storefront.home.promos.discountUpTo", "خصم يصل إلى")}
                 <br />
                 <span className="text-5xl font-bold">40%</span>
               </h3>
-              <p className="text-white/80 text-sm">على تشكيلات مختارة — لفترة محدودة</p>
+              <p className="text-white/80 text-sm">{t("storefront.home.promos.discountDesc", "على تشكيلات مختارة — لفترة محدودة")}</p>
               <div className="mt-5 flex items-center gap-2 text-white font-semibold text-sm group-hover:gap-3 transition-all">
-                تسوقي الآن <ArrowLeft className="w-4 h-4" />
+                {t("storefront.hero.shopNow", "تسوقي الآن")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </div>
             </div>
           </div>
@@ -102,15 +104,15 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBanne
                 className="text-[11px] tracking-widest uppercase mb-1 font-medium"
                 style={{ color: "#c8963a" }}
               >
-                توصيل مجاني
+                {t("storefront.home.promos.freeShipping", "توصيل مجاني")}
               </p>
               <h3
                 className="text-white text-3xl mb-2"
                 style={{ fontFamily: SERIF, fontWeight: 400 }}
               >
-                شحن مجاني
+                {t("storefront.home.promos.freeShippingText", "شحن مجاني")}
                 <br />
-                <span style={{ color: "#c8963a" }}>لكل طلب فوق</span>
+                <span style={{ color: "#c8963a" }}>{t("storefront.home.promos.forOrdersOver", "لكل طلب فوق")}</span>
               </h3>
               <p className="text-white/50 text-sm">
                 <span
@@ -119,13 +121,13 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBanne
                 >
                   999
                 </span>
-                {" "}ج.م
+                {" "}{i18n.language === "ar" ? "ج.م" : "EGP"}
               </p>
               <div
                 className="mt-5 flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all"
                 style={{ color: "#c8963a" }}
               >
-                اطلبي الآن <ArrowLeft className="w-4 h-4" />
+                {t("storefront.home.promos.orderNow", "اطلبي الآن")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </div>
             </div>
           </div>

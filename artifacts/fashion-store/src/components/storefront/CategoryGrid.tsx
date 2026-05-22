@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { productImageUrl } from "@/lib/image-url";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
@@ -28,12 +29,13 @@ export function CategoryGrid({
   onScrollToProducts,
   onCategorySelect,
 }: CategoryGridProps) {
+  const { t, i18n } = useTranslation();
   if (!categories.length) return null;
 
   return (
     <section
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#fff", direction: "rtl" }}
+      style={{ background: "#fff", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-10">
@@ -42,13 +44,13 @@ export function CategoryGrid({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              تسوقي بالفئة
+              {t("storefront.home.categories.eyebrow", "تسوقي بالفئة")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              اكتشفي مجموعتنا
+              {t("storefront.home.categories.title", "اكتشفي مجموعتنا")}
             </h2>
           </div>
           <button
@@ -56,8 +58,8 @@ export function CategoryGrid({
             className="hidden md:flex items-center gap-2 text-sm font-medium transition-all hover:gap-3"
             style={{ color: p }}
           >
-            كل المنتجات
-            <ArrowLeft className="w-4 h-4" />
+            {t("storefront.home.allProducts", "كل المنتجات")}
+            {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
 
@@ -72,7 +74,7 @@ export function CategoryGrid({
                   onCategorySelect(category.id);
                   window.requestAnimationFrame(onScrollToProducts);
                 }}
-                className="relative overflow-hidden rounded-2xl group cursor-pointer text-right bg-stone-100"
+                className={`relative overflow-hidden rounded-2xl group cursor-pointer ${i18n.dir() === "rtl" ? "text-right" : "text-left"} bg-stone-100`}
                 style={{ aspectRatio: "3/4" }}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -115,7 +117,7 @@ export function CategoryGrid({
 
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <p className="text-white/60 text-[10px] tracking-widest uppercase mb-0.5 font-medium">
-                    {category.productCount ?? 0} منتج
+                    {category.productCount ?? 0} {t("storefront.home.categories.productsCount", "منتج")}
                   </p>
                   <h3
                     className="text-white text-xl md:text-2xl"
@@ -127,8 +129,8 @@ export function CategoryGrid({
                     className="mt-2 flex items-center gap-1 text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{ color: accent }}
                   >
-                    تسوقي الآن
-                    <ArrowLeft className="w-3 h-3" />
+                    {t("storefront.hero.shopNow", "تسوقي الآن")}
+                    {i18n.dir() === "rtl" ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
                   </div>
                 </div>
               </motion.button>

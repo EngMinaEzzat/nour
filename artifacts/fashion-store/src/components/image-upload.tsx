@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Upload, X, Link2 } from "lucide-react";
 import { getCsrfToken } from "@workspace/api-client-react";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
+import { t } from "i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const MAX_IMAGE_SIZE_MB = 20;
@@ -16,16 +17,18 @@ const NORMALIZED_MIMES = new Set(["image/avif", "image/bmp"]);
 interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
+
   label?: string;
   className?: string;
 }
 
 async function uploadImage(file: File) {
+  const { t } = await import("i18next");
   if (file.size > MAX_IMAGE_SIZE) {
-    throw new Error(`حجم الصورة يجب أن يكون أقل من ${MAX_IMAGE_SIZE_MB}MB`);
+    throw new Error(t("imageUpload.errorSize", { max: MAX_IMAGE_SIZE_MB }));
   }
   if (file.type && !IMAGE_ACCEPT.split(",").includes(file.type)) {
-    throw new Error(`الصيغ المدعومة: ${SUPPORTED_IMAGE_FORMATS}. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.`);
+    throw new Error(t("imageUpload.errorFormat", { formats: SUPPORTED_IMAGE_FORMATS }));
   }
 
   const fileToUpload = await normalizeUploadFile(file);
@@ -42,7 +45,7 @@ async function uploadImage(file: File) {
     body: formData,
   });
   const data = await res.json() as { url?: string; error?: string };
-  if (!res.ok || !data.url) throw new Error(data.error ?? "فشل رفع الصورة");
+  if (!res.ok || !data.url) throw new Error(data.error ?? t("imageUpload.errorGeneric"));
   return data.url;
 }
 
@@ -72,6 +75,7 @@ async function normalizeUploadFile(file: File) {
 }
 
 export function ImageUpload({ value, onChange, label, className }: ImageUploadProps) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [mode, setMode] = useState<"url" | "upload">("url");
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +89,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
       onChange(normalizeStoredImageUrl(await uploadImage(file)));
       setMode("url");
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "فشل رفع الصورة");
+      setError(e instanceof Error ? e.message : t("imageUpload.errorGeneric"));
     } finally {
       setUploading(false);
     }
@@ -103,7 +107,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
           className="rounded-full gap-1.5 h-7 text-xs px-3"
           onClick={() => setMode("url")}
         >
-          <Link2 className="w-3 h-3" /> رابط URL
+          <Link2 className="w-3 h-3" /> {t("imageUpload.url")}
         </Button>
         <Button
           type="button"
@@ -112,7 +116,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
           className="rounded-full gap-1.5 h-7 text-xs px-3"
           onClick={() => setMode("upload")}
         >
-          <Upload className="w-3 h-3" /> رفع صورة
+          <Upload className="w-3 h-3" /> {t("imageUpload.upload")}
         </Button>
       </div>
 
@@ -120,7 +124,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
         <Input
           value={value}
           onChange={(e) => onChange(normalizeStoredImageUrl(e.target.value))}
-          placeholder="https://example.com/image.jpg"
+          placeholder={t("imageUpload.urlPlaceholder")}
           dir="ltr"
           className="h-10 text-sm"
         />
@@ -150,13 +154,13 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
           {uploading ? (
             <div className="py-3">
               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground">جاري رفع الصورة...</p>
+              <p className="text-xs text-muted-foreground">{t("imageUpload.uploading")}</p>
             </div>
           ) : (
             <div className="py-3">
               <Upload className="w-7 h-7 text-muted-foreground/60 mx-auto mb-2" />
-              <p className="text-sm font-medium text-foreground">اضغط أو اسحب صورة هنا</p>
-              <p className="text-xs text-muted-foreground mt-1">{SUPPORTED_IMAGE_FORMATS} حتى {MAX_IMAGE_SIZE_MB}MB بدون ضغط</p>
+              <p className="text-sm font-medium text-foreground">{t("imageUpload.dropHere")}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t("imageUpload.supported", { formats: SUPPORTED_IMAGE_FORMATS, max: MAX_IMAGE_SIZE_MB })}</p>
             </div>
           )}
         </label>
@@ -192,6 +196,7 @@ interface ImageUploadListProps {
 }
 
 export function ImageUploadList({ values, onChange, label, className }: ImageUploadListProps) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -208,7 +213,7 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
       for (const file of files) uploaded.push(normalizeStoredImageUrl(await uploadImage(file)));
       onChange([...values, ...uploaded]);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "فشل رفع الصور");
+      setError(e instanceof Error ? e.message : t("imageUpload.errorGeneric"));
     } finally {
       setUploading(false);
     }
@@ -244,10 +249,10 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
             disabled={uploading}
           >
             <Upload className="w-3 h-3" />
-            {uploading ? "جاري الرفع..." : "رفع صور"}
+            {uploading ? t("imageUpload.uploading") : t("imageUpload.upload")}
           </Button>
           <label htmlFor={inputId} className="text-xs text-muted-foreground cursor-pointer">
-            {SUPPORTED_IMAGE_FORMATS} حتى {MAX_IMAGE_SIZE_MB}MB للصورة
+            {t("imageUpload.supported", { formats: SUPPORTED_IMAGE_FORMATS, max: MAX_IMAGE_SIZE_MB })}
           </label>
         </div>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
@@ -260,9 +265,9 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
                 addUrl();
               }
             }}
-            placeholder="https://example.com/image.avif"
+            placeholder={t("imageUpload.urlPlaceholder")}
             dir="ltr"
-            className="h-8 text-xs"
+            className="h-8 text-xs sm:w-auto"
           />
           <Button
             type="button"
@@ -272,7 +277,7 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
             onClick={addUrl}
           >
             <Link2 className="w-3 h-3" />
-            إضافة رابط
+            {t("imageUpload.url")}
           </Button>
         </div>
         <input

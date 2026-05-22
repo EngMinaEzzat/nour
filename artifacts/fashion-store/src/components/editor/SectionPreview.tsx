@@ -1,5 +1,6 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
 import { normalizeStoredImageUrl } from "@/lib/image-url";
+import { useTranslation } from "react-i18next";
 
 const FALLBACK_HERO = "/hero-optimized.jpg";
 
@@ -13,6 +14,7 @@ interface PreviewProps {
 }
 
 export function SectionPreview({ section, theme, brand, categories = [], selected, onClick }: PreviewProps) {
+  const { t, i18n } = useTranslation();
   const p = theme.primaryColor;
   const sec = theme.secondaryColor;
   const r = `${theme.radius}px`;
@@ -41,8 +43,8 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
           </div>
         )}
         {!selected && (
-          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-stone-600 text-[10px] px-2 py-0.5 rounded-md shadow-sm border border-stone-200">
-            تعديل
+          <div className={`absolute top-2 ${i18n.dir() === "rtl" ? "right-2" : "left-2"} z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-stone-600 text-[10px] px-2 py-0.5 rounded-md shadow-sm border border-stone-200`}>
+            {t("sectionPreview.edit")}
           </div>
         )}
         {children}
@@ -72,21 +74,21 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
               {brand.name}
             </p>
             <h2 className="text-white text-xl font-bold mb-2 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              {section.content.heading ?? "العنوان الرئيسي"}
+              {section.content.heading ?? t("sectionPreview.defaults.heroHeading")}
             </h2>
-            <p className="text-white/80 text-xs mb-4">{section.content.subheading ?? "النص التوضيحي"}</p>
-            <div className={`flex gap-2 ${align === "center" ? "justify-center" : align === "left" ? "justify-end" : "justify-start"}`}>
+            <p className="text-white/80 text-xs mb-4">{section.content.subheading ?? t("sectionPreview.defaults.heroSubheading")}</p>
+            <div className={`flex gap-2 ${align === "center" ? "justify-center" : align === "left" ? (i18n.dir() === "rtl" ? "justify-end" : "justify-start") : (i18n.dir() === "rtl" ? "justify-start" : "justify-end")}`}>
               <span
                 className="text-white text-xs px-4 py-1.5 font-medium"
                 style={{ background: p, borderRadius: theme.buttonStyle === "pill" ? 999 : theme.buttonStyle === "rounded" ? 6 : 0 }}
               >
-                {section.content.ctaText ?? "تسوقي الآن"}
+                {section.content.ctaText ?? t("sectionPreview.defaults.heroCta")}
               </span>
               <span
                 className="text-white text-xs px-4 py-1.5 font-medium border border-white/60"
                 style={{ borderRadius: theme.buttonStyle === "pill" ? 999 : theme.buttonStyle === "rounded" ? 6 : 0 }}
               >
-                وصل حديثاً
+                {t("sectionPreview.defaults.heroNewArrival")}
               </span>
             </div>
           </div>
@@ -120,7 +122,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
         <div className="bg-[#faf7f4] px-6 py-8">
           <div className="text-center mb-6">
             <p className="text-[10px] tracking-widest uppercase mb-1" style={{ color: p }}>
-              {section.type === "new-arrivals" ? "NEW" : "POPULAR"}
+              {section.type === "new-arrivals" ? t("sectionPreview.defaults.newArrivalTag") : t("sectionPreview.defaults.popularTag")}
             </p>
             <h3 className="text-lg font-semibold text-stone-900" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               {section.content.heading}
@@ -148,17 +150,17 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
           <div className="flex items-center gap-3 mb-5">
             <div>
               <p className="text-[10px] tracking-widest uppercase mb-1" style={{ color: p }}>
-                {section.content.subheading ?? "CATALOG"}
+                {section.content.subheading ?? t("sectionPreview.defaults.catalogTag")}
               </p>
               <h3 className="text-lg font-semibold text-stone-900" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                {section.content.heading ?? "جميع المنتجات"}
+                {section.content.heading ?? t("sectionPreview.defaults.catalogHeading")}
               </h3>
             </div>
             <div className="flex-1 h-px bg-stone-100" />
-            <span className="text-[10px] text-stone-400">منتجات المتجر</span>
+            <span className="text-[10px] text-stone-400">{t("sectionPreview.defaults.catalogProducts")}</span>
           </div>
           <div className="flex gap-2 mb-4">
-            {["الكل", "أزياء", "جمال", "عطور"].map((label, i) => (
+            {(t("sectionPreview.defaults.catalogFilters", { returnObjects: true }) as string[]).map((label, i) => (
               <span key={label} className="text-[10px] px-3 py-1 rounded-full border" style={{ borderColor: i === 0 ? p : "#e7e5e4", color: i === 0 ? p : "#78716c" }}>
                 {label}
               </span>
@@ -184,7 +186,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
       return wrap(
         <div className="bg-white px-6 py-8">
           <h3 className="text-center text-lg font-semibold text-stone-900 mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-            {section.content.heading ?? "الأقسام"}
+            {section.content.heading ?? t("sectionPreview.defaults.categoriesHeading")}
           </h3>
           {previewCategories.length > 0 ? (
             <div className="grid grid-cols-4 gap-3">
@@ -196,18 +198,18 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
                     <div className="aspect-square" style={{ background: `linear-gradient(135deg, ${p}${30 + i * 15}, ${sec}${20 + i * 10})` }} />
                   )}
                   <div className="absolute inset-0 flex items-end p-2 bg-gradient-to-t from-black/55 to-transparent">
-                    <span className="text-white text-[10px] font-semibold">{cat.nameAr || cat.name}</span>
+                    <span className="text-white text-[10px] font-semibold">{i18n.language === 'ar' ? (cat.nameAr || cat.name) : cat.name}</span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-stone-200 py-6 text-center text-xs text-stone-400">
-              أضيفي الفئات من تبويب الفئات لتظهر هنا
+              {t("sectionPreview.defaults.categoriesEmpty")}
             </div>
           )}
           <div className="hidden">
-            {["أزياء", "عناية", "إكسسوار", "عطور"].map((cat, i) => (
+            {(t("sectionPreview.defaults.categoriesDummy", { returnObjects: true }) as string[]).map((cat, i) => (
               <div key={i} className="relative overflow-hidden" style={{ borderRadius: r }}>
                 <div className="aspect-square" style={{ background: `linear-gradient(135deg, ${p}${30 + i * 15}, ${sec}${20 + i * 10})` }} />
                 <div className="absolute inset-0 flex items-end p-2">
@@ -249,14 +251,14 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
         <div className="px-6 py-8 text-center text-white relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${p}, ${sec})` }}>
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 0%, transparent 50%), radial-gradient(circle at 80% 50%, white 0%, transparent 50%)" }} />
           <p className="text-2xl font-bold mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-            {section.content.heading ?? "خصم 30%"}
+            {section.content.heading ?? t("sectionPreview.defaults.offersHeading")}
           </p>
           <p className="text-xs opacity-80 mb-4">{section.content.subheading}</p>
           <span
-            className="bg-white text-xs px-4 py-1.5 font-semibold"
+            className="bg-white text-xs px-4 py-1.5 font-semibold inline-block"
             style={{ color: p, borderRadius: theme.buttonStyle === "pill" ? 999 : theme.buttonStyle === "rounded" ? 6 : 0 }}
           >
-            {section.content.ctaText ?? "احصلي على العرض"}
+            {section.content.ctaText ?? t("sectionPreview.defaults.offersCta")}
           </span>
         </div>
       );
@@ -268,7 +270,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
           <div className="grid grid-cols-2 gap-6 items-center">
             <div className="aspect-[4/3] rounded-xl bg-stone-100" style={{ background: `${p}18` }} />
             <div>
-              <p className="text-[10px] tracking-widest uppercase mb-2" style={{ color: p }}>قصتنا</p>
+              <p className="text-[10px] tracking-widest uppercase mb-2" style={{ color: p }}>{t("sectionPreview.defaults.aboutTag")}</p>
               <h3 className="text-lg font-semibold text-stone-900 mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 {section.content.heading}
               </h3>
@@ -294,7 +296,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
               className="h-8 px-4 text-xs text-white flex items-center font-medium"
               style={{ background: p, borderRadius: theme.buttonStyle === "pill" ? 999 : theme.buttonStyle === "rounded" ? 6 : 0 }}
             >
-              اشتركي
+              {t("sectionPreview.defaults.newsletterCta")}
             </span>
           </div>
         </div>
@@ -331,7 +333,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
           </h3>
           <p className="text-xs text-stone-400 mb-4">{section.content.subheading}</p>
           <span className="bg-green-500 text-white text-xs px-5 py-2 rounded-full font-medium inline-block">
-            {section.content.ctaText ?? "تواصلي عبر واتساب"}
+            {section.content.ctaText ?? t("sectionPreview.defaults.whatsappCta")}
           </span>
         </div>
       );
@@ -361,7 +363,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
     default:
       return wrap(
         <div className="bg-stone-50 px-6 py-8 text-center">
-          <p className="text-sm text-stone-500">{section.label}</p>
+          <p className="text-sm text-stone-500">{t(`sections.${section.type}`)}</p>
         </div>
       );
   }

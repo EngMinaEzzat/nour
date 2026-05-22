@@ -10,6 +10,7 @@ import {
   useUpdateCategory,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { ImageUpload } from "@/components/image-upload";
 import { useAuth } from "@/hooks/use-auth";
 import { productImageUrl } from "@/lib/image-url";
@@ -40,11 +41,6 @@ const stagger = {
   item: { hidden: { opacity: 0, scale: 0.96 }, show: { opacity: 1, scale: 1, transition: { duration: 0.25 } } },
 };
 
-const TYPE_LABELS: Record<string, string> = {
-  fashion: "أزياء",
-  cosmetics: "تجميل",
-};
-
 type CategoryFormState = {
   name: string;
   nameAr: string;
@@ -70,6 +66,7 @@ function CategoryForm({
   onSaved: () => void;
   categories?: Category[];
 }) {
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
@@ -119,24 +116,25 @@ function CategoryForm({
   const availableParents = categories.filter(c => !c.parentId && (!category || c.id !== category.id));
 
   return (
-    <div className="space-y-4" dir="rtl">
+    <div className="space-y-4" dir={i18n.dir()}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label htmlFor="category-name-ar">الاسم العربي</Label>
+          <Label htmlFor="category-name-ar">{t("categories.form.nameArLabel")}</Label>
           <Input
             id="category-name-ar"
             value={form.nameAr}
             onChange={(event) => setForm((current) => ({ ...current, nameAr: event.target.value }))}
-            placeholder="فساتين"
+            placeholder={t("categories.form.nameArPlaceholder")}
+            dir={i18n.language === "ar" ? "rtl" : "auto"}
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="category-name">الاسم الداخلي</Label>
+          <Label htmlFor="category-name">{t("categories.form.nameLabel")}</Label>
           <Input
             id="category-name"
             value={form.name}
             onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-            placeholder="Dresses"
+            placeholder={t("categories.form.namePlaceholder")}
             dir="ltr"
           />
         </div>
@@ -144,7 +142,7 @@ function CategoryForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label>النوع</Label>
+          <Label>{t("categories.form.typeLabel")}</Label>
           <Select
             value={form.type}
             onValueChange={(value) => setForm((current) => ({ ...current, type: value as CategoryFormState["type"] }))}
@@ -153,25 +151,25 @@ function CategoryForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="fashion">أزياء</SelectItem>
-              <SelectItem value="cosmetics">تجميل</SelectItem>
+              <SelectItem value="fashion">{t("categories.types.fashion")}</SelectItem>
+              <SelectItem value="cosmetics">{t("categories.types.cosmetics")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-1.5">
-          <Label>الفئة الأم (اختياري)</Label>
+          <Label>{t("categories.form.parentLabel")}</Label>
           <Select
             value={form.parentId?.toString() ?? "none"}
             onValueChange={(value) => setForm((current) => ({ ...current, parentId: value === "none" ? null : Number(value) }))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="فئة رئيسية" />
+              <SelectValue placeholder={t("categories.form.parentPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">بدون (فئة رئيسية)</SelectItem>
+              <SelectItem value="none">{t("categories.form.parentNone")}</SelectItem>
               {availableParents.map(p => (
-                <SelectItem key={p.id} value={p.id.toString()}>{p.nameAr}</SelectItem>
+                <SelectItem key={p.id} value={p.id.toString()}>{i18n.language === "ar" ? p.nameAr : p.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -179,27 +177,28 @@ function CategoryForm({
       </div>
 
       <ImageUpload
-        label="صورة الفئة"
+        label={t("categories.form.imageLabel")}
         value={form.imageUrl}
         onChange={(imageUrl) => setForm((current) => ({ ...current, imageUrl }))}
       />
 
       <Button className="w-full gap-2" onClick={handleSave} disabled={!canSave}>
         {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : category ? <Edit className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-        {category ? "حفظ التعديلات" : "إضافة الفئة"}
+        {category ? t("categories.form.btnEdit") : t("categories.form.btnAdd")}
       </Button>
     </div>
   );
 }
 
 export default function Categories() {
+  const { t, i18n } = useTranslation();
   const { data: categories, isLoading } = useListCategories();
   const { isAuthenticated } = useAuth();
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -209,9 +208,9 @@ export default function Categories() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <Tags className="w-6 h-6 text-primary" />
-            <h1 className="text-3xl font-bold">الفئات</h1>
+            <h1 className="text-3xl font-bold">{t("categories.page.title")}</h1>
           </div>
-          <p className="text-muted-foreground">إدارة فئات المنتجات التي تظهر في المتجر</p>
+          <p className="text-muted-foreground">{t("categories.page.subtitle")}</p>
         </div>
 
         {isAuthenticated && (
@@ -219,12 +218,12 @@ export default function Categories() {
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
-                إضافة فئة
+                {t("categories.page.btnAdd")}
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent dir={i18n.dir()}>
               <DialogHeader>
-                <DialogTitle>إضافة فئة جديدة</DialogTitle>
+                <DialogTitle>{t("categories.page.addTitle")}</DialogTitle>
               </DialogHeader>
               <CategoryForm categories={categories} onSaved={() => setCreateOpen(false)} />
             </DialogContent>
@@ -265,30 +264,32 @@ export default function Categories() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="min-w-0">
-                        <h2 className="text-lg font-bold text-foreground truncate">{cat.nameAr}</h2>
-                        <p className="text-sm text-muted-foreground truncate" dir="ltr">{cat.name}</p>
+                        <h2 className="text-lg font-bold text-foreground truncate">{i18n.language === "ar" ? cat.nameAr : cat.name}</h2>
+                        {i18n.language === "ar" && (
+                          <p className="text-sm text-muted-foreground truncate" dir="ltr">{cat.name}</p>
+                        )}
                       </div>
                       <Badge variant="secondary" className="text-xs shrink-0">
-                        {TYPE_LABELS[cat.type] ?? cat.type}
+                        {t(`categories.types.${cat.type}`) ?? cat.type}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-4">{cat.productCount} منتج</p>
+                    <p className="text-xs text-muted-foreground mb-4">{cat.productCount} {t("categories.card.productCount")}</p>
                     {cat.parentId && (
                       <Badge variant="outline" className="mb-4 text-[10px] font-normal">
-                        فرعية من: {categories.find(p => p.id === cat.parentId)?.nameAr ?? "..."}
+                        {t("categories.card.subOf")} {categories.find(p => p.id === cat.parentId)?.[i18n.language === "ar" ? "nameAr" : "name"] ?? "..."}
                       </Badge>
                     )}
                     <div className="flex items-center gap-2">
                       <Button asChild size="sm" variant="outline" className="flex-1 gap-1.5">
                         <Link href={`/products?categoryId=${cat.id}`}>
                           <Eye className="w-3.5 h-3.5" />
-                          المنتجات
+                          {t("categories.card.btnProducts")}
                         </Link>
                       </Button>
                       {canEdit && (
                         <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setEditing(cat)}>
                           <Edit className="w-3.5 h-3.5" />
-                          تعديل
+                          {t("categories.card.btnEdit")}
                         </Button>
                       )}
                     </div>
@@ -302,14 +303,14 @@ export default function Categories() {
       {!isLoading && categories?.length === 0 && (
         <div className="text-center py-24">
           <Tags className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-          <p className="text-muted-foreground">لا توجد فئات بعد</p>
+          <p className="text-muted-foreground">{t("categories.page.empty")}</p>
         </div>
       )}
 
       <Dialog open={!!editing} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent>
+        <DialogContent dir={i18n.dir()}>
           <DialogHeader>
-            <DialogTitle>تعديل الفئة</DialogTitle>
+            <DialogTitle>{t("categories.page.editTitle")}</DialogTitle>
           </DialogHeader>
           {editing && <CategoryForm categories={categories} category={editing} onSaved={() => setEditing(null)} />}
         </DialogContent>

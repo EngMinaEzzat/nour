@@ -31,29 +31,30 @@ import {
 } from "lucide-react";
 import { ImageUpload, ImageUploadList } from "@/components/image-upload";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
+import { useTranslation } from "react-i18next";
 
 const SELECT_NONE_VALUE = "__none__";
 
-const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "فري سايز", "مقاس واحد"];
+const SIZES = ["xs", "s", "m", "l", "xl", "xxl", "free", "one"];
 const PRESET_COLORS = [
-  { name: "أسود", hex: "#1a1a1a" },
-  { name: "أبيض", hex: "#ffffff" },
-  { name: "أحمر", hex: "#ef4444" },
-  { name: "وردي", hex: "#ec4899" },
-  { name: "بنفسجي", hex: "#8b5cf6" },
-  { name: "أزرق", hex: "#3b82f6" },
-  { name: "أخضر", hex: "#22c55e" },
-  { name: "بيج", hex: "#d4a574" },
-  { name: "كحلي", hex: "#1e3a5f" },
-  { name: "رمادي", hex: "#6b7280" },
-  { name: "ذهبي", hex: "#f59e0b" },
-  { name: "بني", hex: "#92400e" },
+  { key: "black", hex: "#1a1a1a" },
+  { key: "white", hex: "#ffffff" },
+  { key: "red", hex: "#ef4444" },
+  { key: "pink", hex: "#ec4899" },
+  { key: "purple", hex: "#8b5cf6" },
+  { key: "blue", hex: "#3b82f6" },
+  { key: "green", hex: "#22c55e" },
+  { key: "beige", hex: "#d4a574" },
+  { key: "navy", hex: "#1e3a5f" },
+  { key: "gray", hex: "#6b7280" },
+  { key: "gold", hex: "#f59e0b" },
+  { key: "brown", hex: "#92400e" },
 ];
 
-const STATUS_MAP = {
-  active: { label: "نشط", color: "bg-green-100 text-green-700 border-green-200" },
-  out_of_stock: { label: "نفذ", color: "bg-red-100 text-red-700 border-red-200" },
-  hidden: { label: "مخفي", color: "bg-gray-100 text-gray-700 border-gray-200" },
+const STATUS_COLORS: Record<string, string> = {
+  active: "bg-green-100 text-green-700 border-green-200",
+  out_of_stock: "bg-red-100 text-red-700 border-red-200",
+  hidden: "bg-gray-100 text-gray-700 border-gray-200",
 };
 
 type ProductForm = {
@@ -94,6 +95,7 @@ function variantToRow(variant: ProductVariant): VariantRow {
 
 /* ─── Variant Manager sub-component ─── */
 function VariantManager({ productId }: { productId: number }) {
+  const { t } = useTranslation();
   const { data: variants, refetch } = useListProductVariants(productId);
   const createVariant = useCreateProductVariant();
   const updateVariant = useUpdateProductVariant();
@@ -156,16 +158,16 @@ function VariantManager({ productId }: { productId: number }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <Label className="flex items-center gap-1.5 text-sm font-semibold">
-          <Layers className="w-3.5 h-3.5 text-primary" /> المقاسات والألوان
+          <Layers className="w-3.5 h-3.5 text-primary" /> {t("products.variants.title")}
         </Label>
         <Button type="button" size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={addRow}>
-          <Plus className="w-3 h-3" /> إضافة متغيّر
+          <Plus className="w-3 h-3" /> {t("products.variants.addBtn")}
         </Button>
       </div>
 
       {rows.length === 0 && (
         <p className="text-xs text-muted-foreground text-center py-3 border border-dashed border-border rounded-xl">
-          لا يوجد متغيرات — اضغط "إضافة متغيّر" لإضافة مقاس أو لون
+          {t("products.variants.empty")}
         </p>
       )}
 
@@ -179,7 +181,7 @@ function VariantManager({ productId }: { productId: number }) {
           >
             {/* Size */}
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">المقاس</Label>
+              <Label className="text-[10px] text-muted-foreground">{t("products.variants.size")}</Label>
               <Select
                 value={row.size || SELECT_NONE_VALUE}
                 onValueChange={(v) =>
@@ -187,24 +189,24 @@ function VariantManager({ productId }: { productId: number }) {
                 }
               >
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="اختر..." />
+                  <SelectValue placeholder="اختاري..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={SELECT_NONE_VALUE}>— بدون —</SelectItem>
-                  {SIZES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  <SelectItem value={SELECT_NONE_VALUE}>{t("products.variants.sizeNone")}</SelectItem>
+                  {SIZES.map((s) => <SelectItem key={s} value={s}>{t(`products.sizes.${s}`) || s}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
             {/* Color */}
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">اللون</Label>
+              <Label className="text-[10px] text-muted-foreground">{t("products.variants.color")}</Label>
               <div className="flex gap-1">
                 <div className="relative flex-1">
                   <Input
                     value={row.color}
                     onChange={(e) => updateRow(i, "color", e.target.value)}
-                    placeholder="اسم اللون"
+                    placeholder={t("products.variants.colorPlaceholder")}
                     className="h-8 text-xs ps-7"
                   />
                   <div
@@ -214,18 +216,18 @@ function VariantManager({ productId }: { productId: number }) {
                 </div>
                 <div className="relative">
                   <Select onValueChange={(v) => {
-                    const preset = PRESET_COLORS.find((c) => c.name === v);
-                    if (preset) setPresetColor(i, preset.name, preset.hex);
+                    const preset = PRESET_COLORS.find((c) => c.key === v);
+                    if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
                   }}>
                     <SelectTrigger className="h-8 w-8 p-0 border-border/50">
                       <Palette className="w-3 h-3 mx-auto text-muted-foreground" />
                     </SelectTrigger>
                     <SelectContent>
                       {PRESET_COLORS.map((c) => (
-                        <SelectItem key={c.name} value={c.name}>
+                        <SelectItem key={c.key} value={c.key}>
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: c.hex }} />
-                            {c.name}
+                            {t(`products.colors.${c.key}`)}
                           </div>
                         </SelectItem>
                       ))}
@@ -237,7 +239,7 @@ function VariantManager({ productId }: { productId: number }) {
 
             {/* Stock */}
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">الكمية</Label>
+              <Label className="text-[10px] text-muted-foreground">{t("products.variants.stock")}</Label>
               <Input
                 type="number"
                 min="0"
@@ -254,7 +256,7 @@ function VariantManager({ productId }: { productId: number }) {
               className="h-8 w-8 mt-5 bg-primary/10 hover:bg-primary/20 text-primary"
               onClick={() => saveRow(i)}
               disabled={savingRow !== null}
-              title="حفظ"
+              title={t("products.variants.btnSave")}
             >
               {savingRow === i ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
             </Button>
@@ -267,14 +269,14 @@ function VariantManager({ productId }: { productId: number }) {
               className="h-8 w-8 mt-5 text-destructive hover:bg-destructive/10"
               onClick={() => removeRow(i)}
               disabled={savingRow !== null}
-              title="حذف"
+              title={t("products.variants.btnDelete")}
             >
               <X className="w-3.5 h-3.5" />
             </Button>
 
             <div className="sm:col-span-5">
               <ImageUploadList
-                label="صور المتغير"
+                label={t("products.variants.images")}
                 values={row.imageUrls}
                 onChange={(urls) => updateRow(i, "imageUrls", urls)}
               />
@@ -293,6 +295,7 @@ function DraftVariantManager({
   rows: VariantRow[];
   onChange: (rows: VariantRow[]) => void;
 }) {
+  const { t } = useTranslation();
   function updateRow(i: number, field: keyof VariantRow, value: string | string[]) {
     onChange(rows.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
   }
@@ -305,45 +308,45 @@ function DraftVariantManager({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <Label className="flex items-center gap-1.5 text-sm font-semibold">
-          <Layers className="w-3.5 h-3.5 text-primary" /> المتغيرات والكمية
+          <Layers className="w-3.5 h-3.5 text-primary" /> {t("products.variants.draftTitle")}
         </Label>
         <Button type="button" size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => onChange([...rows, newVariantRow()])}>
-          <Plus className="w-3 h-3" /> إضافة متغير
+          <Plus className="w-3 h-3" /> {t("products.variants.addBtn")}
         </Button>
       </div>
       <div className="space-y-2">
         {rows.map((row, i) => (
           <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50">
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">المقاس</Label>
+              <Label className="text-[10px] text-muted-foreground">{t("products.variants.size")}</Label>
               <Select value={row.size || SELECT_NONE_VALUE} onValueChange={(v) => updateRow(i, "size", v === SELECT_NONE_VALUE ? "" : v)}>
                 <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="اختاري..." /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={SELECT_NONE_VALUE}>بدون</SelectItem>
-                  {SIZES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  <SelectItem value={SELECT_NONE_VALUE}>{t("products.variants.sizeNone")}</SelectItem>
+                  {SIZES.map((s) => <SelectItem key={s} value={s}>{t(`products.sizes.${s}`) || s}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">اللون</Label>
+              <Label className="text-[10px] text-muted-foreground">{t("products.variants.color")}</Label>
               <div className="flex gap-1">
                 <div className="relative flex-1">
-                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder="اسم اللون" className="h-8 text-xs ps-7" />
+                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder={t("products.variants.colorPlaceholder")} className="h-8 text-xs ps-7" />
                   <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50" style={{ backgroundColor: row.colorHex || "#000" }} />
                 </div>
                 <Select onValueChange={(v) => {
-                  const preset = PRESET_COLORS.find((c) => c.name === v);
-                  if (preset) setPresetColor(i, preset.name, preset.hex);
+                  const preset = PRESET_COLORS.find((c) => c.key === v);
+                  if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
                 }}>
                   <SelectTrigger className="h-8 w-8 p-0 border-border/50">
                     <Palette className="w-3 h-3 mx-auto text-muted-foreground" />
                   </SelectTrigger>
                   <SelectContent>
                     {PRESET_COLORS.map((c) => (
-                      <SelectItem key={c.name} value={c.name}>
+                      <SelectItem key={c.key} value={c.key}>
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: c.hex }} />
-                          {c.name}
+                          {t(`products.colors.${c.key}`)}
                         </div>
                       </SelectItem>
                     ))}
@@ -352,7 +355,7 @@ function DraftVariantManager({
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">الكمية</Label>
+              <Label className="text-[10px] text-muted-foreground">{t("products.variants.stock")}</Label>
               <Input type="number" min="0" value={row.stock} onChange={(e) => updateRow(i, "stock", e.target.value)} className="h-8 text-xs w-20" />
             </div>
             <Button
@@ -366,12 +369,12 @@ function DraftVariantManager({
               <X className="w-3.5 h-3.5" />
             </Button>
             <div className="sm:col-span-4">
-              <ImageUploadList label="صور المتغير" values={row.imageUrls} onChange={(urls) => updateRow(i, "imageUrls", urls)} />
+              <ImageUploadList label={t("products.variants.images")} values={row.imageUrls} onChange={(urls) => updateRow(i, "imageUrls", urls)} />
             </div>
           </div>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">إجمالي المخزون المحسوب من المتغيرات: {variantStock(rows)}</p>
+      <p className="text-xs text-muted-foreground">{t("products.variants.draftStockMsg")} {variantStock(rows)}</p>
     </div>
   );
 }
@@ -401,7 +404,7 @@ type CsvRow = {
   _error?: string;
 };
 
-function parseCsv(text: string): CsvRow[] {
+function parseCsv(text: string, t: any): CsvRow[] {
   const lines = text.trim().split(/\r?\n/).filter(Boolean);
   if (lines.length < 2) return [];
   const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
@@ -418,7 +421,7 @@ function parseCsv(text: string): CsvRow[] {
       rawStatus === "out_of_stock" ? "out_of_stock" : rawStatus === "hidden" ? "hidden" : "active";
     const featured = get("featured").toLowerCase() === "true" || get("featured") === "1";
     const name = get("name");
-    const error = !name ? "الاسم مطلوب" : isNaN(price) || price <= 0 ? "السعر غير صالح" : undefined;
+    const error = !name ? t("products.csv.errors.nameReq", "الاسم مطلوب") : isNaN(price) || price <= 0 ? t("products.csv.errors.priceInv", "السعر غير صالح") : undefined;
     return {
       name, description: get("description"),
       price: isNaN(price) ? 0 : price,
@@ -439,6 +442,7 @@ function CsvImportDialog({
 }: {
   open: boolean; onClose: () => void; tenantId?: number; onImported: () => void;
 }) {
+  const { t, i18n } = useTranslation();
   const createProduct = useCreateProduct();
   const fileRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<CsvRow[]>([]);
@@ -459,7 +463,7 @@ function CsvImportDialog({
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      setRows(parseCsv(text));
+      setRows(parseCsv(text, t));
       setStatus("idle");
       setResults([]);
       setProgress(0);
@@ -519,11 +523,11 @@ function CsvImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0" style={{ direction: "rtl" }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0" dir={i18n.dir()}>
         <DialogHeader className="px-6 py-4 border-b border-border/40 shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base">
             <FileUp className="w-4 h-4 text-primary" />
-            استيراد منتجات من CSV
+            {t("products.csv.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -532,14 +536,14 @@ function CsvImportDialog({
           {/* Template download */}
           <div className="flex items-center justify-between bg-muted/40 rounded-xl px-4 py-3 border border-border/40">
             <div>
-              <p className="text-sm font-medium">نموذج CSV</p>
+              <p className="text-sm font-medium">{t("products.csv.templateTitle")}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                حمّل النموذج واملأه بمنتجاتك — الأعمدة: name, description, price, originalPrice, imageUrl, stock, featured, status
+                {t("products.csv.templateDesc")}
               </p>
             </div>
             <Button variant="outline" size="sm" className="gap-1.5 shrink-0" onClick={downloadCsvTemplate}>
               <FileDown className="w-3.5 h-3.5" />
-              تحميل النموذج
+              {t("products.csv.btnDownload")}
             </Button>
           </div>
 
@@ -556,8 +560,8 @@ function CsvImportDialog({
             >
               <UploadCloud className={`w-8 h-8 ${dragOver ? "text-primary" : "text-muted-foreground"}`} />
               <div className="text-center">
-                <p className="text-sm font-medium">اسحب ملف CSV هنا أو انقر للاختيار</p>
-                <p className="text-xs text-muted-foreground mt-1">يدعم ملفات .csv فقط</p>
+                <p className="text-sm font-medium">{t("products.csv.dropzoneTitle")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("products.csv.dropzoneDesc")}</p>
               </div>
               <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={onFileChange} />
             </div>
@@ -568,20 +572,20 @@ function CsvImportDialog({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-sm">
-                  <span className="font-medium">{rows.length} صف في الملف</span>
+                  <span className="font-medium">{rows.length} {t("products.csv.fileRows")}</span>
                   {validRows.length > 0 && (
                     <Badge className="bg-green-100 text-green-700 border-green-200 text-[11px]">
-                      <CheckCircle2 className="w-3 h-3 me-1" /> {validRows.length} صالح
+                      <CheckCircle2 className="w-3 h-3 me-1" /> {validRows.length} {t("products.csv.valid")}
                     </Badge>
                   )}
                   {invalidRows.length > 0 && (
                     <Badge className="bg-red-100 text-red-700 border-red-200 text-[11px]">
-                      <XCircle className="w-3 h-3 me-1" /> {invalidRows.length} خطأ
+                      <XCircle className="w-3 h-3 me-1" /> {invalidRows.length} {t("products.csv.invalid")}
                     </Badge>
                   )}
                 </div>
                 <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={reset}>
-                  <X className="w-3 h-3" /> تغيير الملف
+                  <X className="w-3 h-3" /> {t("products.csv.btnChangeFile")}
                 </Button>
               </div>
 
@@ -590,12 +594,12 @@ function CsvImportDialog({
                   <table className="w-full text-xs">
                     <thead className="bg-muted/60 sticky top-0">
                       <tr>
-                        <th className="text-right px-3 py-2 font-medium text-muted-foreground w-6">#</th>
-                        <th className="text-right px-3 py-2 font-medium">الاسم</th>
-                        <th className="text-right px-3 py-2 font-medium">السعر</th>
-                        <th className="text-right px-3 py-2 font-medium">الكمية</th>
-                        <th className="text-right px-3 py-2 font-medium">الحالة</th>
-                        <th className="text-right px-3 py-2 font-medium w-20">ملاحظة</th>
+                        <th className="text-start px-3 py-2 font-medium text-muted-foreground w-6">{t("products.csv.colNum")}</th>
+                        <th className="text-start px-3 py-2 font-medium">{t("products.csv.colName")}</th>
+                        <th className="text-start px-3 py-2 font-medium">{t("products.csv.colPrice")}</th>
+                        <th className="text-start px-3 py-2 font-medium">{t("products.csv.colStock")}</th>
+                        <th className="text-start px-3 py-2 font-medium">{t("products.csv.colStatus")}</th>
+                        <th className="text-start px-3 py-2 font-medium w-20">{t("products.csv.colNote")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -603,9 +607,9 @@ function CsvImportDialog({
                         <tr key={i} className={`border-t border-border/30 ${row._error ? "bg-red-50/50" : "hover:bg-muted/20"}`}>
                           <td className="px-3 py-1.5 text-muted-foreground">{i + 1}</td>
                           <td className="px-3 py-1.5 font-medium max-w-[160px] truncate">{row.name || <span className="text-red-500">—</span>}</td>
-                          <td className="px-3 py-1.5">{row.price > 0 ? `${row.price} ج.م` : <span className="text-red-500">—</span>}</td>
+                          <td className="px-3 py-1.5">{row.price > 0 ? `${row.price} ${i18n.language === "ar" ? "ج.م" : "EGP"}` : <span className="text-red-500">—</span>}</td>
                           <td className="px-3 py-1.5">{row.stock}</td>
-                          <td className="px-3 py-1.5">{row.status === "active" ? "نشط" : row.status === "out_of_stock" ? "نفذ" : "مخفي"}</td>
+                          <td className="px-3 py-1.5">{t(`products.status.${row.status}`) || row.status}</td>
                           <td className="px-3 py-1.5">
                             {row._error
                               ? <span className="text-red-500 flex items-center gap-1"><XCircle className="w-3 h-3" />{row._error}</span>
@@ -626,7 +630,7 @@ function CsvImportDialog({
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  جارٍ الاستيراد...
+                  {t("products.csv.importing")}
                 </span>
                 <span className="text-muted-foreground">{progress} / {validRows.length}</span>
               </div>
@@ -644,10 +648,12 @@ function CsvImportDialog({
             <div className="rounded-xl border border-border/40 bg-muted/30 p-4 flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
               <div className="text-sm">
-                <p className="font-semibold mb-1">اكتمل الاستيراد</p>
+                <p className="font-semibold mb-1">{t("products.csv.doneTitle")}</p>
                 <p className="text-muted-foreground">
-                  تم استيراد <strong className="text-foreground">{doneOk}</strong> منتج بنجاح
-                  {doneErr > 0 && <span className="text-red-500"> · فشل {doneErr}</span>}
+                  {t("products.csv.doneMsg", { count: doneOk }).split("{{count}}").map((part, i) => (
+                    i === 1 ? <strong key={i} className="text-foreground">{doneOk}</strong> : part
+                  ))}
+                  {doneErr > 0 && <span className="text-red-500">{t("products.csv.doneFail", { count: doneErr })}</span>}
                 </p>
               </div>
             </div>
@@ -656,7 +662,7 @@ function CsvImportDialog({
 
         <DialogFooter className="px-6 py-4 border-t border-border/40 shrink-0 gap-2">
           <Button variant="outline" onClick={handleClose}>
-            {status === "done" ? "إغلاق" : "إلغاء"}
+            {status === "done" ? t("products.csv.btnClose") : t("products.csv.btnCancel")}
           </Button>
           {status !== "done" && rows.length > 0 && validRows.length > 0 && (
             <Button
@@ -665,8 +671,8 @@ function CsvImportDialog({
               className="gap-2"
             >
               {status === "importing"
-                ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> جارٍ الاستيراد...</>
-                : <><FileUp className="w-3.5 h-3.5" /> استيراد {validRows.length} منتج</>}
+                ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t("products.csv.importing")}</>
+                : <><FileUp className="w-3.5 h-3.5" /> {t("products.csv.btnImport", { count: validRows.length })}</>}
             </Button>
           )}
         </DialogFooter>
@@ -677,6 +683,7 @@ function CsvImportDialog({
 
 /* ─── Main Products Page ─── */
 export default function Products() {
+  const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const tenantId = merchant?.tenantId;
 
@@ -781,7 +788,7 @@ export default function Products() {
     if (!tenantId) return;
     const rowsForCreate = draftVariants.length ? draftVariants : [newVariantRow()];
     if (!editingId && rowsForCreate.length === 0) {
-      setFormError("يجب إضافة متغير واحد على الأقل للمنتج.");
+      setFormError(t("products.form.saveError"));
       return;
     }
     setSaving(true);
@@ -841,43 +848,51 @@ export default function Products() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-8 gap-4 flex-wrap"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10"
       >
         <div>
-          <div className="flex items-center gap-3 mb-1">
-            <Package className="w-6 h-6 text-primary" />
-            <h1 className="text-3xl font-bold">المنتجات</h1>
-          </div>
-          <p className="text-muted-foreground text-sm">إدارة منتجات متجرك — الأسعار والمخزون والمقاسات</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("products.title")}</h1>
+          <p className="text-muted-foreground mt-2">{t("products.subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2 rounded-xl" onClick={() => setCsvImportOpen(true)}>
-            <FileUp className="w-4 h-4" /> استيراد CSV
+          <div className="relative flex-1 sm:w-80">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder={t("products.searchPlaceholder")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="ps-10 bg-background h-10 rounded-xl"
+            />
+          </div>
+          <Button onClick={() => setCsvImportOpen(true)} variant="secondary" className="gap-2 h-10 rounded-xl shadow-sm">
+            <FileUp className="w-4 h-4" />
+            <span className="hidden sm:inline">{t("products.btnImport")}</span>
           </Button>
-          <Button className="gap-2 rounded-xl" onClick={openCreate}>
-            <Plus className="w-4 h-4" /> منتج جديد
+          <Button onClick={openCreate} className="gap-2 h-10 rounded-xl shadow-sm">
+            <Plus className="w-4 h-4" />
+            {t("products.btnAdd")}
           </Button>
         </div>
       </motion.div>
 
       <GuideCard
         storageKey="products"
-        title="كيف تضيف وتدير منتجاتك؟"
-        description='انقر «منتج جديد» لإضافة منتج. أضف صورة وسعراً واضحاً لزيادة المبيعات. يمكنك أيضاً استيراد كميات كبيرة عبر ملف CSV.'
+        title={t("products.guide.title")}
+        description={t("products.guide.description")}
         steps={[
-          { icon: "📸", title: "أضف صورة جذابة", desc: "الصورة هي أهم عامل في قرار الشراء — استخدم صوراً واضحة بخلفية بيضاء أو محايدة." },
-          { icon: "💰", title: "سعر تنافسي", desc: "أضف السعر الأصلي مع سعر الخصم ليشعر العميل بالصفقة الجيدة." },
-          { icon: "📦", title: "راقب المخزون", desc: "حدّث المخزون دائماً — المنتجات «نفذ» تضر بتجربة العميل." },
-          { icon: "⭐", title: "منتجات مميزة", desc: "علّم أفضل منتجاتك كـ«مميز» لتظهر في أعلى المتجر." },
+          { icon: "📸", title: t("products.guide.step1.title"), desc: t("products.guide.step1.desc") },
+          { icon: "💰", title: t("products.guide.step2.title"), desc: t("products.guide.step2.desc") },
+          { icon: "📦", title: t("products.guide.step3.title"), desc: t("products.guide.step3.desc") },
+          { icon: "⭐", title: t("products.guide.step4.title"), desc: t("products.guide.step4.desc") },
         ]}
         tips={[
-          "استخدم الاستيراد عبر CSV لإضافة أكثر من 10 منتجات دفعة واحدة.",
-          "اكتب وصفاً تفصيلياً يذكر المقاسات والمواد والعناية بالمنتج.",
-          "أضف المنتجات إلى تصنيفات لتسهيل التنقل في المتجر.",
+          t("products.guide.tip1"),
+          t("products.guide.tip2"),
+          t("products.guide.tip3"),
         ]}
         variant="guide"
       />
@@ -896,10 +911,10 @@ export default function Products() {
       {/* Stats summary */}
       {!isLoading && products && (
         <div className="flex gap-4 mb-6 text-sm text-muted-foreground flex-wrap">
-          <span>{products.length} منتج إجمالي</span>
-          <span className="text-green-600">{products.filter((p) => p.status === "active").length} نشط</span>
-          <span className="text-red-500">{products.filter((p) => p.status === "out_of_stock").length} نفذ</span>
-          <span className="text-gray-500">{products.filter((p) => p.featured).length} مميّز</span>
+          <span>{products.length} {t("products.columns.name")} إجمالي</span>
+          <span className="text-green-600">{products.filter((p) => p.status === "active").length} {t("products.status.active")}</span>
+          <span className="text-red-500">{products.filter((p) => p.status === "out_of_stock").length} {t("products.status.out_of_stock")}</span>
+          <span className="text-gray-500">{products.filter((p) => p.featured).length} {t("products.form.featured").split("(")[0]}</span>
         </div>
       )}
 
@@ -918,11 +933,11 @@ export default function Products() {
         <div className="text-center py-24">
           <Package className="w-14 h-14 text-muted-foreground mx-auto mb-4 opacity-30" />
           <p className="text-muted-foreground font-medium mb-2">
-            {search ? "لا توجد منتجات تطابق البحث" : "لا توجد منتجات بعد"}
+            {search ? t("products.emptySearch") : t("products.emptyState.title")}
           </p>
           {!search && (
             <Button className="mt-4 gap-2" onClick={openCreate}>
-              <Plus className="w-4 h-4" /> أضف أول منتج
+              <Plus className="w-4 h-4" /> {t("products.btnAdd")}
             </Button>
           )}
         </div>
@@ -934,7 +949,7 @@ export default function Products() {
           variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
         >
           {filtered?.map((p) => {
-            const statusInfo = STATUS_MAP[p.status];
+            const statusInfo = STATUS_COLORS[p.status] || STATUS_COLORS.active;
             const discount = p.originalPrice && p.originalPrice > p.price
               ? Math.round((1 - p.price / p.originalPrice) * 100) : 0;
             return (
@@ -951,12 +966,12 @@ export default function Products() {
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                     <div className="absolute top-2 start-2 flex gap-1.5 flex-wrap">
-                      <Badge className={`text-[10px] border px-2 py-0.5 ${statusInfo.color}`}>
-                        {statusInfo.label}
+                      <Badge className={`text-[10px] border px-2 py-0.5 ${statusInfo}`}>
+                        {t(`products.status.${p.status}`) || p.status}
                       </Badge>
                       {p.featured && (
                         <Badge className="text-[10px] bg-amber-100 text-amber-700 border-amber-200 px-2 py-0.5">
-                          <Star className="w-2.5 h-2.5 me-0.5 fill-amber-500 text-amber-500" /> مميّز
+                          <Star className="w-2.5 h-2.5 me-0.5 fill-amber-500 text-amber-500" /> {t("products.form.featured").split("(")[0]}
                         </Badge>
                       )}
                       {discount > 0 && (
@@ -972,14 +987,14 @@ export default function Products() {
                         className="h-8 gap-1.5 shadow-lg text-xs"
                         onClick={() => openEdit(p)}
                       >
-                        <Pencil className="w-3 h-3" /> تعديل
+                        <Pencil className="w-3 h-3" /> {t("products.form.btnSave").replace("جارٍ ", "")}
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
                         className="h-8 gap-1 shadow-lg text-xs bg-white/90 hover:bg-amber-50 border-amber-300 text-amber-700"
                         onClick={(e) => { e.stopPropagation(); openPricingAdvisor(p); }}
-                        title="استشارة السعر بالذكاء الاصطناعي"
+                        title={t("products.pricing.btn")}
                       >
                         <Sparkles className="w-3 h-3" />
                       </Button>
@@ -997,17 +1012,17 @@ export default function Products() {
                     <p className="font-semibold text-sm text-foreground line-clamp-1 mb-1">{p.name}</p>
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-primary font-bold">{Number(p.price).toLocaleString("ar-EG")} ج.م</span>
+                        <span className="text-primary font-bold">{Number(p.price).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>
                         {p.originalPrice && p.originalPrice > p.price && (
                           <span className="text-xs text-muted-foreground line-through ms-1.5">
-                            {Number(p.originalPrice).toLocaleString("ar-EG")}
+                            {Number(p.originalPrice).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5">
                         {p.stock === 0 ? (
                           <span className="text-[10px] font-medium text-red-600 flex items-center gap-0.5">
-                            <AlertTriangle className="w-3 h-3" /> نفد
+                            <AlertTriangle className="w-3 h-3" /> {t("products.status.out_of_stock")}
                           </span>
                         ) : p.stock <= 5 ? (
                           <span className="text-[10px] font-medium text-orange-600 flex items-center gap-0.5">
@@ -1016,7 +1031,7 @@ export default function Products() {
                         ) : (
                           <span className="text-xs text-muted-foreground">{p.stock}</span>
                         )}
-                        <span className="text-xs text-muted-foreground">قطعة</span>
+                        <span className="text-xs text-muted-foreground">{t("products.variants.stock")}</span>
                       </div>
                     </div>
                     {p.categoryName && (
@@ -1035,7 +1050,7 @@ export default function Products() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">
-              {editingId ? "تعديل المنتج" : "منتج جديد"}
+              {editingId ? t("products.form.editTitle") : t("products.form.addTitle")}
             </DialogTitle>
           </DialogHeader>
 
@@ -1043,23 +1058,23 @@ export default function Products() {
             {/* Basic info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2 space-y-1.5">
-                <Label>اسم المنتج *</Label>
-                <Input value={form.name} onChange={field("name")} placeholder="فستان أنيق..." />
+                <Label>{t("products.form.name")} *</Label>
+                <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} />
               </div>
               <div className="sm:col-span-2 space-y-1.5">
-                <Label>الوصف *</Label>
-                <Textarea value={form.description} onChange={field("description")} placeholder="وصف المنتج..." rows={3} className="resize-none" />
+                <Label>{t("products.form.description")} *</Label>
+                <Textarea value={form.description} onChange={field("description")} placeholder={t("products.form.descriptionPlaceholder")} rows={3} className="resize-none" />
               </div>
               <div className="space-y-1.5">
-                <Label>السعر (ج.م) *</Label>
-                <Input type="number" value={form.price} onChange={field("price")} placeholder="299" />
+                <Label>{t("products.form.price")} *</Label>
+                <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} />
               </div>
               <div className="space-y-1.5">
-                <Label>السعر قبل الخصم (اختياري)</Label>
-                <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder="399" />
+                <Label>{t("products.form.originalPrice")}</Label>
+                <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} />
               </div>
               <div className="space-y-1.5">
-                <Label>الفئة</Label>
+                <Label>{t("products.form.category").split(" ")[0]}</Label>
                 <Select
                   value={form.categoryId || SELECT_NONE_VALUE}
                   onValueChange={(v) =>
@@ -1069,19 +1084,19 @@ export default function Products() {
                     }))
                   }
                 >
-                  <SelectTrigger><SelectValue placeholder="اختر فئة..." /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="اختاري..." /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={SELECT_NONE_VALUE}>— بدون فئة —</SelectItem>
+                    <SelectItem value={SELECT_NONE_VALUE}>{t("products.form.noCategory")}</SelectItem>
                     {categories?.filter(c => !c.parentId).map((parent) => (
                       <div key={parent.id}>
                         <SelectItem value={String(parent.id)} className="font-semibold">
-                          {parent.nameAr}
+                          {i18n.language === "en" ? parent.name : parent.nameAr}
                         </SelectItem>
                         {categories
                           ?.filter((child) => child.parentId === parent.id)
                           .map((child) => (
                             <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
-                              — {child.nameAr}
+                              — {i18n.language === "en" ? child.name : child.nameAr}
                             </SelectItem>
                           ))}
                       </div>
@@ -1091,28 +1106,28 @@ export default function Products() {
               </div>
               <div className="sm:col-span-2">
                 <ImageUpload
-                  label="صورة المنتج"
+                  label={t("products.form.image")}
                   value={form.imageUrl}
                   onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>الحالة</Label>
+                <Label>{t("products.form.status")}</Label>
                 <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as ProductForm["status"] }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">نشط</SelectItem>
-                    <SelectItem value="out_of_stock">نفذت الكمية</SelectItem>
-                    <SelectItem value="hidden">مخفي</SelectItem>
+                    <SelectItem value="active">{t("products.status.active")}</SelectItem>
+                    <SelectItem value="out_of_stock">{t("products.status.out_of_stock")}</SelectItem>
+                    <SelectItem value="hidden">{t("products.status.hidden")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3">
                 <div>
                   <Label className="flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 text-amber-500" /> منتج مميّز
+                    <Star className="w-3.5 h-3.5 text-amber-500" /> {t("products.form.featured").split("(")[0]}
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">يظهر في القسم المميز</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t("products.form.featured").split("(")[1]?.replace(")", "")}</p>
                 </div>
                 <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
               </div>
@@ -1130,9 +1145,9 @@ export default function Products() {
 
             {/* Save basic info first before showing variants */}
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>إغلاق</Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
               <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
-                {saving ? "جارٍ الحفظ..." : editingId ? "حفظ التغييرات" : "إنشاء المنتج"}
+                {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
               </Button>
             </DialogFooter>
 
@@ -1158,19 +1173,19 @@ export default function Products() {
 
       {/* ─── Delete confirm ─── */}
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent dir={i18n.dir()}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-destructive" /> تأكيد الحذف
+              <AlertCircle className="w-5 h-5 text-destructive" /> {t("products.delete.title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف جميع متغيراته أيضاً. لا يمكن التراجع عن هذا الإجراء.
+              {t("products.delete.desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel>{t("products.delete.btnCancel")}</AlertDialogCancel>
             <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={handleDelete}>
-              حذف
+              {t("products.delete.btnConfirm").replace("نعم، ", "")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1186,11 +1201,11 @@ export default function Products() {
 
       {/* ─── AI Pricing Advisor Dialog ─── */}
       <Dialog open={!!pricingProduct} onOpenChange={(o) => { if (!o) { setPricingProduct(null); setPricingAdvice(null); } }}>
-        <DialogContent className="max-w-lg" dir="rtl">
+        <DialogContent className="max-w-lg" dir={i18n.dir()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base">
               <Sparkles className="w-5 h-5 text-amber-500" />
-              مستشار التسعير الذكي
+              {t("products.pricing.title")}
               {pricingProduct && (
                 <span className="text-muted-foreground font-normal text-sm">— {pricingProduct.name}</span>
               )}
@@ -1199,7 +1214,7 @@ export default function Products() {
 
           {/* Model selector */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>النموذج:</span>
+            <span>{i18n.language === "en" ? "Model:" : "النموذج:"}</span>
             {(["claude", "gemini"] as const).map((m) => (
               <button
                 key={m}
@@ -1209,7 +1224,7 @@ export default function Products() {
                 }}
                 className={`px-2.5 py-1 rounded-lg border transition-all ${pricingModel === m ? "border-primary bg-primary/5 text-primary font-medium" : "border-border hover:border-primary/40"}`}
               >
-                {m === "claude" ? "Claude" : "Gemini"}
+                {m === "claude" ? t("products.pricing.claude").split(" ")[1] : t("products.pricing.gemini").split(" ")[1]}
               </button>
             ))}
             {pricingProduct && !pricingLoading && (
@@ -1217,7 +1232,7 @@ export default function Products() {
                 onClick={() => fetchPricingAdvice(pricingProduct, pricingModel)}
                 className="ms-auto px-2.5 py-1 rounded-lg border border-border hover:border-primary/40 transition-all"
               >
-                إعادة التحليل
+                {i18n.language === "ar" ? "إعادة التحليل" : "Re-Analyze"}
               </button>
             )}
           </div>
@@ -1225,11 +1240,11 @@ export default function Products() {
           {/* Product snapshot */}
           {pricingProduct && (
             <div className="bg-muted/40 rounded-xl p-3 text-sm flex flex-wrap gap-x-4 gap-y-1">
-              <span><span className="text-muted-foreground">السعر: </span><strong>{pricingProduct.price.toLocaleString("ar-EG")} ج.م</strong></span>
-              {pricingProduct.originalPrice && <span><span className="text-muted-foreground">قبل الخصم: </span>{Number(pricingProduct.originalPrice).toLocaleString("ar-EG")} ج.م</span>}
-              <span><span className="text-muted-foreground">المخزون: </span>{pricingProduct.stock} قطعة</span>
-              <span><span className="text-muted-foreground">الطلبات: </span>{pricingProduct.orderCount}</span>
-              {pricingProduct.categoryName && <span><span className="text-muted-foreground">الفئة: </span>{pricingProduct.categoryName}</span>}
+              <span><span className="text-muted-foreground">{t("products.columns.price")}: </span><strong>{pricingProduct.price.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</strong></span>
+              {pricingProduct.originalPrice && <span><span className="text-muted-foreground">{t("products.form.originalPrice").split(" ")[0]}: </span>{Number(pricingProduct.originalPrice).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
+              <span><span className="text-muted-foreground">{t("products.columns.stock")}: </span>{pricingProduct.stock} {i18n.language === "ar" ? "قطعة" : "pcs"}</span>
+              <span><span className="text-muted-foreground">{i18n.language === "ar" ? "الطلبات" : "Orders"}: </span>{pricingProduct.orderCount}</span>
+              {pricingProduct.categoryName && <span><span className="text-muted-foreground">{t("products.form.category").split(" ")[0]}: </span>{pricingProduct.categoryName}</span>}
             </div>
           )}
 
@@ -1238,7 +1253,7 @@ export default function Products() {
             {pricingLoading ? (
               <div className="flex flex-col items-center justify-center gap-3 py-10 text-muted-foreground">
                 <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
-                <p className="text-sm">جارٍ تحليل السعر...</p>
+                <p className="text-sm">{t("products.pricing.loading")}</p>
               </div>
             ) : pricingAdvice ? (
               <div className="text-sm leading-7 whitespace-pre-wrap bg-amber-50/50 border border-amber-100 rounded-xl p-4">
@@ -1249,7 +1264,7 @@ export default function Products() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => { setPricingProduct(null); setPricingAdvice(null); }}>
-              إغلاق
+              {t("products.csv.btnClose")}
             </Button>
           </DialogFooter>
         </DialogContent>

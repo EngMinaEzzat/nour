@@ -8,17 +8,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertCircle, Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
 
-const ROLE_LABELS: Record<string, string> = {
-  owner: "مالك",
-  manager: "مدير",
-  staff: "موظف",
-  catalog_manager: "مدير كتالوج",
-  order_operator: "موظف طلبات",
-  marketing_analyst: "محلل تسويق",
+const ROLE_KEYS: Record<string, string> = {
+  owner: "roles.owner",
+  manager: "roles.manager",
+  staff: "roles.staff",
+  catalog_manager: "roles.catalog_manager",
+  order_operator: "roles.order_operator",
+  marketing_analyst: "roles.marketing_analyst",
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -42,6 +43,7 @@ type Stage = "loading" | "preview" | "form" | "success" | "error";
 export default function AcceptInvite() {
   const [, navigate] = useLocation();
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
+  const { t, i18n } = useTranslation();
 
   const [stage, setStage] = useState<Stage>("loading");
   const [preview, setPreview] = useState<InvitePreview | null>(null);
@@ -56,26 +58,26 @@ export default function AcceptInvite() {
 
   useEffect(() => {
     if (!token) {
-      setLoadError("رابط الدعوة غير صالح — لا يوجد token.");
+      setLoadError(t("auth.acceptInvite.tokenMissing"));
       setStage("error");
       return;
     }
     fetch(api(`/staff/invitations/preview/${token}`))
       .then(async (r) => {
         const d = await r.json();
-        if (!r.ok) throw new Error(d.error ?? "الدعوة غير موجودة");
+        if (!r.ok) throw new Error(d.error ?? t("auth.acceptInvite.inviteNotFound"));
         return d as InvitePreview;
       })
       .then((d) => { setPreview(d); setStage("preview"); })
       .catch((e) => { setLoadError(e.message); setStage("error"); });
-  }, [token]);
+  }, [token, t]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError("");
-    if (!name.trim()) return setFormError("الاسم مطلوب");
-    if (password.length < 8) return setFormError("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
-    if (password !== confirmPassword) return setFormError("كلمتا المرور غير متطابقتين");
+    if (!name.trim()) return setFormError(t("auth.acceptInvite.nameRequired"));
+    if (password.length < 8) return setFormError(t("auth.acceptInvite.pwTooShort"));
+    if (password !== confirmPassword) return setFormError(t("auth.acceptInvite.pwMismatch"));
 
     setSubmitting(true);
     try {
@@ -85,7 +87,7 @@ export default function AcceptInvite() {
         body: JSON.stringify({ name: name.trim(), password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "فشل قبول الدعوة");
+      if (!res.ok) throw new Error(data.error ?? t("auth.acceptInvite.acceptFailed"));
       setStage("success");
     } catch (e: unknown) {
       setFormError((e as Error).message);
@@ -95,7 +97,7 @@ export default function AcceptInvite() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4" dir="rtl">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
       <motion.div
         className="w-full max-w-md"
         initial={{ opacity: 0, y: 20 }}
@@ -104,8 +106,8 @@ export default function AcceptInvite() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary font-cairo">نـور</h1>
-          <p className="text-muted-foreground mt-1 text-sm">منصة نور للتجارة الإلكترونية المصرية</p>
+          <h1 className="text-3xl font-bold text-primary font-cairo">{t("common.appName")}</h1>
+          <p className="text-muted-foreground mt-1 text-sm">{t("common.appSubtitle")}</p>
         </div>
 
         {/* Loading */}
@@ -114,7 +116,9 @@ export default function AcceptInvite() {
             <CardContent className="flex items-center justify-center py-16">
               <div className="text-center">
                 <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
-                <p className="text-muted-foreground text-sm">جارٍ تحميل تفاصيل الدعوة...</p>
+                <p className="text-muted-foreground text-sm">
+                  {i18n.language === "ar" ? "جارٍ تحميل تفاصيل الدعوة..." : "Loading invite details..."}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -125,10 +129,10 @@ export default function AcceptInvite() {
           <Card className="border-destructive/30">
             <CardContent className="py-10 text-center">
               <AlertCircle className="w-10 h-10 text-destructive mx-auto mb-3" />
-              <h2 className="text-lg font-bold mb-2">الدعوة غير صالحة</h2>
+              <h2 className="text-lg font-bold mb-2">{t("auth.acceptInvite.inviteNotFound")}</h2>
               <p className="text-muted-foreground text-sm mb-6">{loadError}</p>
               <Button asChild variant="outline" className="rounded-full">
-                <Link href="/login">الذهاب إلى تسجيل الدخول</Link>
+                <Link href="/login">{t("common.buttons.backToLogin")}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -141,38 +145,43 @@ export default function AcceptInvite() {
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                 <UserPlus className="w-8 h-8 text-primary" />
               </div>
-              <CardTitle className="text-xl">دعوة للانضمام إلى متجر</CardTitle>
+              <CardTitle className="text-xl">{t("auth.acceptInvite.title")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="bg-muted/50 rounded-xl p-4 space-y-3">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">المتجر</span>
+                  <span className="text-muted-foreground">{t("auth.acceptInvite.store")}</span>
                   <span className="font-semibold">{preview.tenantName}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">البريد الإلكتروني</span>
+                  <span className="text-muted-foreground">{t("auth.acceptInvite.email")}</span>
                   <span className="font-mono text-xs">{preview.invitedEmail}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">الدور</span>
+                  <span className="text-muted-foreground">{t("auth.acceptInvite.role")}</span>
                   <Badge className={`text-xs border-0 ${ROLE_COLORS[preview.role] ?? "bg-gray-100 text-gray-700"}`}>
-                    {ROLE_LABELS[preview.role] ?? preview.role}
+                    {t(ROLE_KEYS[preview.role] ?? `roles.${preview.role}`)}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">صلاحية حتى</span>
-                  <span className="text-xs">{new Date(preview.expiresAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}</span>
+                  <span className="text-muted-foreground">{t("auth.acceptInvite.expiresAt")}</span>
+                  <span className="text-xs">
+                    {new Date(preview.expiresAt).toLocaleDateString(
+                      i18n.language === "ar" ? "ar-EG" : "en-US",
+                      { year: "numeric", month: "long", day: "numeric" }
+                    )}
+                  </span>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground text-center">
-                ستنضم إلى متجر <strong>{preview.tenantName}</strong> بدور <strong>{ROLE_LABELS[preview.role] ?? preview.role}</strong>
+                {t("auth.acceptInvite.invitedTo")} <strong>{preview.tenantName}</strong> {t("auth.acceptInvite.asRole")} <strong>{t(ROLE_KEYS[preview.role] ?? `roles.${preview.role}`)}</strong>
               </p>
               <Button className="w-full rounded-xl gap-2" onClick={() => setStage("form")}>
-                <UserPlus className="w-4 h-4" /> قبول الدعوة وإنشاء حسابي
+                <UserPlus className="w-4 h-4" /> {t("common.buttons.acceptAndCreate")}
               </Button>
               <p className="text-xs text-center text-muted-foreground">
-                لديك حساب بالفعل؟{" "}
-                <Link href="/login" className="text-primary underline">سجّل دخولك</Link>
+                {t("auth.acceptInvite.hasAccount")}{" "}
+                <Link href="/login" className="text-primary underline">{t("auth.acceptInvite.loginNow")}</Link>
               </p>
             </CardContent>
           </Card>
@@ -183,33 +192,35 @@ export default function AcceptInvite() {
           <Card className="border-border/50 shadow-md">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-primary" /> إنشاء حسابك في {preview.tenantName}
+                <UserPlus className="w-5 h-5 text-primary" /> {t("auth.acceptInvite.createAccount")} {preview.tenantName}
               </CardTitle>
-              <p className="text-xs text-muted-foreground">ستنضم كـ <strong>{ROLE_LABELS[preview.role] ?? preview.role}</strong> على البريد {preview.invitedEmail}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("auth.acceptInvite.joinAs")} <strong>{t(ROLE_KEYS[preview.role] ?? `roles.${preview.role}`)}</strong> {t("auth.acceptInvite.onEmail")} {preview.invitedEmail}
+              </p>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="name">الاسم الكامل *</Label>
+                  <Label htmlFor="name">{t("auth.acceptInvite.fullName")}</Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="محمد أحمد"
+                    placeholder={t("common.placeholder.fullName") || "محمد أحمد"}
                     className="h-11"
                     autoFocus
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="password">كلمة المرور *</Label>
+                  <Label htmlFor="password">{t("auth.acceptInvite.password")}</Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPw ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="8 أحرف على الأقل"
+                      placeholder={t("common.placeholder.password") || "8 أحرف على الأقل"}
                       className="h-11 pe-10"
                       dir="ltr"
                     />
@@ -224,13 +235,13 @@ export default function AcceptInvite() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirm">تأكيد كلمة المرور *</Label>
+                  <Label htmlFor="confirm">{t("auth.acceptInvite.confirmPassword")}</Label>
                   <Input
                     id="confirm"
                     type={showPw ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="أعِد كتابة كلمة المرور"
+                    placeholder={t("common.placeholder.confirmPassword") || "أعِد كتابة كلمة المرور"}
                     className="h-11"
                     dir="ltr"
                   />
@@ -244,9 +255,9 @@ export default function AcceptInvite() {
 
                 <Button type="submit" className="w-full h-11 rounded-xl gap-2" disabled={submitting}>
                   {submitting ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> جارٍ إنشاء الحساب...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> {t("auth.acceptInvite.creatingAccount")}</>
                   ) : (
-                    <><CheckCircle2 className="w-4 h-4" /> إنشاء الحساب والانضمام</>
+                    <><CheckCircle2 className="w-4 h-4" /> {t("common.buttons.createAndJoin")}</>
                   )}
                 </Button>
               </form>
@@ -262,13 +273,12 @@ export default function AcceptInvite() {
                 <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-xl font-bold mb-2">مرحباً بك في {preview.tenantName}! 🎉</h2>
+                <h2 className="text-xl font-bold mb-2">{t("auth.acceptInvite.successTitle")} {preview.tenantName}! 🎉</h2>
                 <p className="text-muted-foreground text-sm mb-6">
-                  تم إنشاء حسابك بنجاح بدور <strong>{ROLE_LABELS[preview.role] ?? preview.role}</strong>.
-                  يمكنك الآن تسجيل الدخول والبدء في العمل.
+                  {t("auth.acceptInvite.successDesc")} <strong>{t(ROLE_KEYS[preview.role] ?? `roles.${preview.role}`)}</strong>{t("auth.acceptInvite.successDescSuffix")}
                 </p>
                 <Button className="w-full rounded-xl" onClick={() => navigate("/login")}>
-                  تسجيل الدخول الآن
+                  {t("auth.acceptInvite.loginCta")}
                 </Button>
               </CardContent>
             </Card>

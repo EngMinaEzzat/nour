@@ -1,40 +1,8 @@
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
-
-const PANELS = [
-  {
-    image:
-      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&crop=faces",
-    tag: "أزياء • Fashion",
-    headline: "الجمال\nالمصري",
-    sub: "تشكيلة حصرية مستوحاة من التراث",
-    span: "col-span-2 md:col-span-1 row-span-2",
-    textPos: "bottom-8 start-6",
-    imgClass: "object-center",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&fit=crop&crop=faces",
-    tag: "ربيع 2025",
-    headline: "ألوان\nالربيع",
-    sub: "درجات ناعمة لإطلالة مثالية",
-    span: "col-span-2 md:col-span-1",
-    textPos: "bottom-5 start-5",
-    imgClass: "object-top",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fit=crop&crop=faces",
-    tag: "جمال • Beauty",
-    headline: "سحر\nالتجميل",
-    sub: "منتجات عناية فائقة الجودة",
-    span: "col-span-2 md:col-span-1",
-    textPos: "bottom-5 start-5",
-    imgClass: "object-top",
-  },
-];
 
 interface EditorialLookbookProps {
   primaryColor: string;
@@ -45,10 +13,45 @@ export function EditorialLookbook({
   primaryColor: p,
   onScrollToProducts,
 }: EditorialLookbookProps) {
+  const { t, i18n } = useTranslation();
+
+  const PANELS = [
+    {
+      image:
+        "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&crop=faces",
+      tag: t("storefront.home.lookbook.panel1.tag", "أزياء • Fashion"),
+      headline: t("storefront.home.lookbook.panel1.title", "الجمال\nالمصري"),
+      sub: t("storefront.home.lookbook.panel1.desc", "تشكيلة حصرية مستوحاة من التراث"),
+      span: "col-span-2 md:col-span-1 row-span-2",
+      textPos: i18n.dir() === "rtl" ? "bottom-8 start-6" : "bottom-8 left-6",
+      imgClass: "object-center",
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&fit=crop&crop=faces",
+      tag: t("storefront.home.lookbook.panel2.tag", "ربيع 2025"),
+      headline: t("storefront.home.lookbook.panel2.title", "ألوان\nالربيع"),
+      sub: t("storefront.home.lookbook.panel2.desc", "درجات ناعمة لإطلالة مثالية"),
+      span: "col-span-2 md:col-span-1",
+      textPos: i18n.dir() === "rtl" ? "bottom-5 start-5" : "bottom-5 left-5",
+      imgClass: "object-top",
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fit=crop&crop=faces",
+      tag: t("storefront.home.lookbook.panel3.tag", "جمال • Beauty"),
+      headline: t("storefront.home.lookbook.panel3.title", "سحر\nالتجميل"),
+      sub: t("storefront.home.lookbook.panel3.desc", "منتجات عناية فائقة الجودة"),
+      span: "col-span-2 md:col-span-1",
+      textPos: i18n.dir() === "rtl" ? "bottom-5 start-5" : "bottom-5 left-5",
+      imgClass: "object-top",
+    },
+  ];
+
   return (
     <section
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#fff", direction: "rtl" }}
+      style={{ background: "#fff", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -58,15 +61,15 @@ export function EditorialLookbook({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              إلهامنا
+              {t("storefront.home.lookbook.eyebrow", "إلهامنا")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              لوك بوك
+              {t("storefront.home.lookbook.title1", "لوك بوك")}
               <br />
-              <span style={{ color: p, fontStyle: "italic" }}>الموسم</span>
+              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.lookbook.title2", "الموسم")}</span>
             </h2>
           </div>
           <button
@@ -74,8 +77,8 @@ export function EditorialLookbook({
             className="hidden md:flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
             style={{ color: p }}
           >
-            اكتشفي الكولكشن
-            <ArrowLeft className="w-4 h-4" />
+            {t("storefront.home.lookbook.discover", "اكتشفي الكولكشن")}
+            {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
 
@@ -112,7 +115,7 @@ export function EditorialLookbook({
 
               {/* Hover accent */}
               <div
-                className="absolute top-0 start-0 end-0 h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-start"
+                className={`absolute top-0 start-0 end-0 h-0.5 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ${i18n.dir() === "rtl" ? "origin-start" : "origin-start"}`}
                 style={{ background: p }}
               />
 
@@ -134,7 +137,7 @@ export function EditorialLookbook({
                   className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{ color: "#f5d6a0" }}
                 >
-                  تسوقي الآن <ArrowLeft className="w-3 h-3" />
+                  {t("storefront.hero.shopNow", "تسوقي الآن")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
                 </div>
               </div>
             </motion.div>

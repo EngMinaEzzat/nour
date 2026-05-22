@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { getListCategoriesQueryKey, useGetTenant, useListCategories } from "@workspace/api-client-react";
@@ -34,6 +35,7 @@ function loadGender(slug: string): MerchantGender {
 }
 
 export default function StoreBuilder() {
+  const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const [location] = useLocation();
   const tenantId = (merchant as any)?.tenantId as number | undefined;
@@ -173,10 +175,10 @@ export default function StoreBuilder() {
 
   if (isLoading || !storeConfig) {
     return (
-      <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir={i18n.dir()}>
         <div className="text-center space-y-4">
           <div className="w-12 h-12 rounded-2xl mx-auto animate-pulse" style={{ background: "#8B1A35" }} />
-          <p className="text-stone-500 text-sm">جاري تحميل متجرك...</p>
+          <p className="text-stone-500 text-sm">{t("storeBuilder.loading")}</p>
           <div className="space-y-2 w-64">
             <Skeleton className="h-3 w-full rounded" />
             <Skeleton className="h-3 w-3/4 rounded" />
@@ -188,10 +190,10 @@ export default function StoreBuilder() {
 
   if (!tenant) {
     return (
-      <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir={i18n.dir()}>
         <div className="text-center">
-          <p className="text-stone-600 mb-4">لا يوجد متجر مرتبط بحسابك.</p>
-          <a href="/register" className="text-[#8B1A35] underline text-sm">أنشئ متجرك أولاً</a>
+          <p className="text-stone-600 mb-4">{t("storeBuilder.noStore")}</p>
+          <a href="/register" className="text-[#8B1A35] underline text-sm">{t("storeBuilder.createFirst")}</a>
         </div>
       </div>
     );

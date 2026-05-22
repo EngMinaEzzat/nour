@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import { useListTenants, getListTenantsQueryKey, useGetPlatformStats, getGetPlatformStatsQueryKey } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,18 +27,12 @@ import { Textarea } from "@/components/ui/textarea";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
 
-const SUB_STATUS: Record<string, { label: string; color: string }> = {
-  trial:     { label: "تجريبي",     color: "bg-blue-100 text-blue-700 border-blue-200" },
-  active:    { label: "نشط",        color: "bg-green-100 text-green-700 border-green-200" },
-  past_due:  { label: "متأخر",      color: "bg-orange-100 text-orange-700 border-orange-200" },
-  suspended: { label: "موقوف",      color: "bg-red-100 text-red-700 border-red-200" },
-  canceled:  { label: "ملغي",       color: "bg-gray-100 text-gray-600 border-gray-200" },
-};
-
-const PLAN_LABELS: Record<string, string> = {
-  starter: "ستارتر",
-  growth:  "جروث",
-  pro:     "برو",
+const SUB_STATUS: Record<string, { labelKey: string; color: string }> = {
+  trial:     { labelKey: "status.trial",     color: "bg-blue-100 text-blue-700 border-blue-200" },
+  active:    { labelKey: "status.active",    color: "bg-green-100 text-green-700 border-green-200" },
+  past_due:  { labelKey: "status.past_due",  color: "bg-orange-100 text-orange-700 border-orange-200" },
+  suspended: { labelKey: "status.suspended", color: "bg-red-100 text-red-700 border-red-200" },
+  canceled:  { labelKey: "status.canceled",  color: "bg-gray-100 text-gray-600 border-gray-200" },
 };
 
 const stagger = {
@@ -61,10 +56,11 @@ type MerchantRow = {
 };
 
 function MerchantStatusToggle({ m, onToggled }: { m: MerchantRow; onToggled: () => void }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useLocalState(false);
   const isSuspended = m.subscriptionStatus === "suspended";
   const action = isSuspended ? "activate" : "suspend";
-  const label = isSuspended ? "إعادة تفعيل" : "إيقاف مؤقت";
+  const label = isSuspended ? t("platform.toggleStatus.reactivateBtn") : t("platform.toggleStatus.suspendBtn");
   const Icon = isSuspended ? CheckCircle : Ban;
   const btnClass = isSuspended
     ? "text-green-600 hover:text-green-700 hover:bg-green-50"
@@ -95,15 +91,15 @@ function MerchantStatusToggle({ m, onToggled }: { m: MerchantRow; onToggled: () 
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{isSuspended ? "إعادة تفعيل المتجر" : "إيقاف المتجر مؤقتًا"}</AlertDialogTitle>
+          <AlertDialogTitle>{isSuspended ? t("platform.toggleStatus.reactivateTitle") : t("platform.toggleStatus.suspendTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
             {isSuspended
-              ? `سيتم إعادة تفعيل متجر "${m.storeName}" فورًا وإرسال بريد للتاجر.`
-              : `سيتم إيقاف متجر "${m.storeName}" مؤقتًا وإرسال بريد تنبيه للتاجر. البيانات ستظل محفوظة.`}
+              ? t("platform.toggleStatus.reactivateDesc", { storeName: m.storeName })
+              : t("platform.toggleStatus.suspendDesc", { storeName: m.storeName })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>إلغاء</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.buttons.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             className={isSuspended ? "bg-green-600 hover:bg-green-700" : "bg-destructive hover:bg-destructive/90"}
@@ -116,22 +112,23 @@ function MerchantStatusToggle({ m, onToggled }: { m: MerchantRow; onToggled: () 
   );
 }
 
-const TRANSFER_STATUS: Record<string, { label: string; color: string }> = {
-  pending:  { label: "قيد المراجعة", color: "bg-amber-100 text-amber-700 border-amber-200" },
-  approved: { label: "مقبول",        color: "bg-green-100 text-green-700 border-green-200" },
-  rejected: { label: "مرفوض",        color: "bg-red-100 text-red-700 border-red-200" },
+const TRANSFER_STATUS: Record<string, { labelKey: string; color: string }> = {
+  pending:  { labelKey: "status.pending",  color: "bg-amber-100 text-amber-700 border-amber-200" },
+  approved: { labelKey: "status.approved", color: "bg-green-100 text-green-700 border-green-200" },
+  rejected: { labelKey: "status.rejected", color: "bg-red-100 text-red-700 border-red-200" },
 };
 
-function TransferRequestCard({ t, onAction }: { t: any; onAction: () => void }) {
+function TransferRequestCard({ request, onAction }: { request: any; onAction: () => void }) {
+  const { t, i18n } = useTranslation();
   const [rejectNote, setRejectNote] = useLocalState("");
   const [loading, setLoading] = useLocalState<"approve" | "reject" | null>(null);
-  const s = TRANSFER_STATUS[t.status] ?? TRANSFER_STATUS.pending;
-  const isPending = t.status === "pending";
+  const s = TRANSFER_STATUS[request.status] ?? TRANSFER_STATUS.pending;
+  const isPending = request.status === "pending";
 
   const act = async (action: "approve" | "reject") => {
     setLoading(action);
     try {
-      await fetch(api(`/platform/transfer-requests/${t.id}/${action}`), {
+      await fetch(api(`/platform/transfer-requests/${request.id}/${action}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -149,23 +146,23 @@ function TransferRequestCard({ t, onAction }: { t: any; onAction: () => void }) 
         <div className="flex items-start justify-between gap-4 mb-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="font-semibold">{t.storeName ?? `متجر #${t.tenantId}`}</span>
-              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${s.color}`}>{s.label}</Badge>
+              <span className="font-semibold">{request.storeName ?? `${t("layout.myStore")} #${request.tenantId}`}</span>
+              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${s.color}`}>{t(s.labelKey)}</Badge>
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">
-                {PLAN_LABELS[t.planCode] ?? t.planCode} — {Number(t.amount).toLocaleString("ar-EG")} ج.م
+                {t(`plans.${request.planCode}`, { defaultValue: request.planCode })} — {Number(request.amount).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {t("common.currency")}
               </Badge>
             </div>
             <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-              {t.ownerEmail && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{t.ownerEmail}</span>}
-              <span>مرجع: <span className="font-mono font-medium text-foreground">{t.referenceNumber}</span></span>
-              <span>{new Date(t.createdAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" })}</span>
+              {request.ownerEmail && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{request.ownerEmail}</span>}
+              <span>{t("platform.paymentsSection.reference")} <span className="font-mono font-medium text-foreground">{request.referenceNumber}</span></span>
+              <span>{new Date(request.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
             </div>
-            {t.adminNote && <p className="mt-1 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">ملاحظة: {t.adminNote}</p>}
+            {request.adminNote && <p className="mt-1 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">{t("platform.paymentsSection.note")} {request.adminNote}</p>}
           </div>
-          {t.receiptImageUrl && (
-            <a href={t.receiptImageUrl} target="_blank" rel="noopener noreferrer"
+          {request.receiptImageUrl && (
+            <a href={request.receiptImageUrl} target="_blank" rel="noopener noreferrer"
               className="shrink-0 flex items-center gap-1 text-xs text-primary hover:underline">
-              <Eye className="w-3.5 h-3.5" /> الإيصال
+              <Eye className="w-3.5 h-3.5" /> {t("platform.paymentsSection.receipt")}
             </a>
           )}
         </div>
@@ -176,19 +173,22 @@ function TransferRequestCard({ t, onAction }: { t: any; onAction: () => void }) 
               <AlertDialogTrigger asChild>
                 <Button size="sm" className="gap-1.5 bg-green-600 hover:bg-green-700 text-white" disabled={!!loading}>
                   {loading === "approve" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                  قبول وتفعيل
+                  {t("common.buttons.acceptAndActivate")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>تأكيد قبول الدفعة</AlertDialogTitle>
+                  <AlertDialogTitle>{t("platform.paymentsSection.confirmApprove")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    سيتم تفعيل اشتراك متجر <strong>{t.storeName}</strong> على خطة <strong>{PLAN_LABELS[t.planCode]}</strong> وإنشاء فاتورة مدفوعة تلقائيًا.
+                    {t("platform.paymentsSection.confirmApproveDesc", {
+                      storeName: request.storeName || `${t("layout.myStore")} #${request.tenantId}`,
+                      plan: t(`plans.${request.planCode}`, { defaultValue: request.planCode })
+                    })}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => act("approve")} className="bg-green-600 hover:bg-green-700">قبول</AlertDialogAction>
+                  <AlertDialogCancel>{t("common.buttons.cancel")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => act("approve")} className="bg-green-600 hover:bg-green-700">{t("common.buttons.confirm")}</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -197,25 +197,25 @@ function TransferRequestCard({ t, onAction }: { t: any; onAction: () => void }) 
               <AlertDialogTrigger asChild>
                 <Button size="sm" variant="outline" className="gap-1.5 text-red-600 border-red-200 hover:bg-red-50" disabled={!!loading}>
                   {loading === "reject" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
-                  رفض
+                  {t("common.buttons.reject")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>رفض طلب التحويل</AlertDialogTitle>
-                  <AlertDialogDescription>سيتم إعلام التاجر بالرفض. يمكنك إضافة ملاحظة توضيحية.</AlertDialogDescription>
+                  <AlertDialogTitle>{t("platform.paymentsSection.rejectTitle")}</AlertDialogTitle>
+                  <AlertDialogDescription>{t("platform.paymentsSection.rejectDesc")}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="px-6 pb-2">
                   <Textarea
-                    placeholder="سبب الرفض (اختياري)..."
+                    placeholder={t("platform.paymentsSection.rejectReasonPlaceholder")}
                     value={rejectNote}
                     onChange={(e) => setRejectNote(e.target.value)}
                     className="text-sm"
                   />
                 </div>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => act("reject")} className="bg-destructive hover:bg-destructive/90">رفض</AlertDialogAction>
+                  <AlertDialogCancel>{t("common.buttons.cancel")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => act("reject")} className="bg-destructive hover:bg-destructive/90">{t("common.buttons.reject")}</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -227,6 +227,7 @@ function TransferRequestCard({ t, onAction }: { t: any; onAction: () => void }) 
 }
 
 export default function Platform() {
+  const { t, i18n } = useTranslation();
   const [, navigate] = useLocation();
   const { merchant, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState("");
@@ -263,16 +264,16 @@ export default function Platform() {
   });
 
   if (authLoading) {
-    return <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">جارٍ التحقق...</div>;
+    return <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">{t("platform.verifyLoading")}</div>;
   }
 
   if (!merchant?.isPlatformAdmin) {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
         <ShieldCheck className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-30" />
-        <p className="text-xl font-bold mb-2">وصول محظور</p>
-        <p className="text-muted-foreground mb-6">هذه الصفحة متاحة للمشغلين فقط</p>
-        <Button asChild><Link href="/dashboard">العودة للوحة التحكم</Link></Button>
+        <p className="text-xl font-bold mb-2">{t("platform.restricted")}</p>
+        <p className="text-muted-foreground mb-6">{t("platform.restrictedDesc")}</p>
+        <Button asChild><Link href="/dashboard">{t("platform.backToDashboard")}</Link></Button>
       </div>
     );
   }
@@ -287,9 +288,9 @@ export default function Platform() {
       || (m.ownerName ?? "").toLowerCase().includes(s);
   });
 
-  const filteredTenants = tenants?.filter((t) => {
+  const filteredTenants = tenants?.filter((tenant) => {
     const s = search.toLowerCase();
-    return !s || t.name.toLowerCase().includes(s) || (t.slug ?? "").includes(s);
+    return !s || tenant.name.toLowerCase().includes(s) || (tenant.slug ?? "").includes(s);
   }) ?? [];
 
   return (
@@ -297,15 +298,15 @@ export default function Platform() {
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center gap-3 mb-1">
           <ShieldCheck className="w-6 h-6 text-primary" />
-          <h1 className="text-3xl font-bold">لوحة المشغّل</h1>
+          <h1 className="text-3xl font-bold">{t("platform.title")}</h1>
         </div>
-        <p className="text-muted-foreground mb-6">نظرة عامة على جميع المتاجر والنشاط</p>
+        <p className="text-muted-foreground mb-6">{t("platform.subtitle")}</p>
         <div className="flex gap-2 mb-8 flex-wrap">
           {[
-            { id: "merchants", label: "المتاجر المسجلة", icon: Store,       badge: merchants.length || null },
-            { id: "payments",  label: "المدفوعات",    icon: CreditCard,  badge: (transferRequests as any[]).filter((t) => t.status === "pending").length || null },
-            { id: "tenants",   label: "دليل المتاجر",      icon: Users,       badge: null },
-            { id: "health",    label: "صحة المنصة",   icon: Heart,       badge: null },
+            { id: "merchants", label: t("platform.tabs.merchants"), icon: Store,       badge: merchants.length || null },
+            { id: "payments",  label: t("platform.tabs.payments"),    icon: CreditCard,  badge: (transferRequests as any[]).filter((req) => req.status === "pending").length || null },
+            { id: "tenants",   label: t("platform.tabs.tenants"),      icon: Users,       badge: null },
+            { id: "health",    label: t("platform.tabs.health"),   icon: Heart,       badge: null },
           ].map(({ id, label, icon: Icon, badge }) => (
             <Button key={id} variant={activeTab === id ? "default" : "outline"} size="sm" className="rounded-full gap-2 relative"
               onClick={() => { setSearch(""); setActiveTab(id as typeof activeTab); }}>
@@ -319,10 +320,10 @@ export default function Platform() {
       {/* Stats cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "إجمالي المتاجر",    value: stats?.totalTenants,            icon: Store,         color: "bg-blue-500" },
-          { label: "متاجر نشطة",         value: stats?.activeTenants,           icon: TrendingUp,    color: "bg-green-500" },
-          { label: "متاجر تجريبية",      value: stats?.trialTenants,            icon: Users,         color: "bg-violet-500" },
-          { label: "قريبة من الحد",      value: stats?.tenantsNearProductLimit, icon: AlertTriangle, color: "bg-orange-500" },
+          { label: t("platform.stats.totalStores"),    value: stats?.totalTenants,            icon: Store,         color: "bg-blue-500" },
+          { label: t("platform.stats.activeStores"),         value: stats?.activeTenants,           icon: TrendingUp,    color: "bg-green-500" },
+          { label: t("platform.stats.trialStores"),      value: stats?.trialTenants,            icon: Users,         color: "bg-violet-500" },
+          { label: t("platform.stats.nearLimit"),      value: stats?.tenantsNearProductLimit, icon: AlertTriangle, color: "bg-orange-500" },
         ].map((s) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="border-border/50">
@@ -352,14 +353,14 @@ export default function Platform() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <BarChart2 className="w-4 h-4 text-primary" /> اكتمال الإعداد
+                <BarChart2 className="w-4 h-4 text-primary" /> {t("platform.cards.onboarding")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {[
-                { label: "مكتمل", count: stats.onboardingCompletion.complete,   color: "bg-green-500" },
-                { label: "جزئي",  count: stats.onboardingCompletion.partial,    color: "bg-yellow-500" },
-                { label: "لم يبدأ", count: stats.onboardingCompletion.notStarted, color: "bg-red-400" },
+                { label: t("platform.cards.onboardingRows.complete"), count: stats.onboardingCompletion.complete,   color: "bg-green-500" },
+                { label: t("platform.cards.onboardingRows.partial"),  count: stats.onboardingCompletion.partial,    color: "bg-yellow-500" },
+                { label: t("platform.cards.onboardingRows.notStarted"), count: stats.onboardingCompletion.notStarted, color: "bg-red-400" },
               ].map((row) => (
                 <div key={row.label} className="flex items-center gap-3 text-sm">
                   <div className={`w-2.5 h-2.5 rounded-full ${row.color}`} />
@@ -372,18 +373,18 @@ export default function Platform() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Package className="w-4 h-4 text-primary" /> توزيع الخطط
+                <Package className="w-4 h-4 text-primary" /> {t("platform.cards.plans")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {stats.planBreakdown.map((p) => (
                 <div key={p.planCode} className="flex items-center gap-3 text-sm">
-                  <span className="text-muted-foreground flex-1">{PLAN_LABELS[p.planCode] ?? p.planCode}</span>
-                  <span className="font-bold">{p.count} متجر</span>
+                  <span className="text-muted-foreground flex-1">{t(`plans.${p.planCode}`, { defaultValue: p.planCode })}</span>
+                  <span className="font-bold">{p.count} {t("platform.storesCount")}</span>
                 </div>
               ))}
               {stats.planBreakdown.length === 0 && (
-                <p className="text-muted-foreground text-xs">لا توجد بيانات</p>
+                <p className="text-muted-foreground text-xs">{t("platform.noHealth")}</p>
               )}
             </CardContent>
           </Card>
@@ -397,7 +398,7 @@ export default function Platform() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="بحث بالمتجر أو المالك أو المدينة أو الرابط..."
+                placeholder={t("platform.search")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="ps-10 h-10"
@@ -405,7 +406,7 @@ export default function Platform() {
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Store className="w-4 h-4" />
-              <span>{filteredMerchants.length} متجر مسجل</span>
+              <span>{filteredMerchants.length} {t("platform.storesCount")}</span>
             </div>
           </div>
 
@@ -419,7 +420,7 @@ export default function Platform() {
               : filteredMerchants.map((m) => {
                 const sub = SUB_STATUS[m.subscriptionStatus ?? "trial"] ?? SUB_STATUS.trial;
                 const storeUrl = `${BASE}/store/${m.slug}`;
-                const joinDate = new Date(m.createdAt).toLocaleDateString("ar-EG", {
+                const joinDate = new Date(m.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", {
                   year: "numeric", month: "long", day: "numeric",
                 });
                 return (
@@ -436,10 +437,10 @@ export default function Platform() {
                               <div className="flex items-center gap-2 flex-wrap mb-1">
                                 <span className="font-semibold text-foreground">{m.storeName}</span>
                                 <Badge className={`text-[10px] px-1.5 py-0 border shrink-0 ${sub.color}`}>
-                                  {sub.label}
+                                  {t(sub.labelKey)}
                                 </Badge>
                                 <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground shrink-0">
-                                  {PLAN_LABELS[m.planCode] ?? m.planCode}
+                                  {t(`plans.${m.planCode}`, { defaultValue: m.planCode })}
                                 </Badge>
                               </div>
                               {/* Row 2: owner */}
@@ -481,9 +482,9 @@ export default function Platform() {
                               </div>
                               <div className="mt-3 grid grid-cols-3 gap-2 max-w-md">
                                 {[
-                                  { label: "منتجات", value: m.productCount, icon: Package },
-                                  { label: "طلبات", value: m.orderCount, icon: ShoppingBag },
-                                  { label: "إيراد", value: `${Number(m.totalRevenue ?? 0).toLocaleString("ar-EG")} ج.م`, icon: Banknote },
+                                  { label: t("platform.metrics.products"), value: m.productCount, icon: Package },
+                                  { label: t("platform.metrics.orders"), value: m.orderCount, icon: ShoppingBag },
+                                  { label: t("platform.metrics.revenue"), value: `${Number(m.totalRevenue ?? 0).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} ${t("common.currency")}`, icon: Banknote },
                                 ].map((metric) => (
                                   <div key={metric.label} className="rounded-lg border border-border/50 bg-muted/30 px-2.5 py-2">
                                     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -519,7 +520,7 @@ export default function Platform() {
           {!merchantsLoading && filteredMerchants.length === 0 && (
             <div className="text-center py-20">
               <Store className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">لا توجد متاجر مسجلة تطابق البحث</p>
+              <p className="text-muted-foreground">{t("platform.noStores")}</p>
             </div>
           )}
         </div>
@@ -531,20 +532,20 @@ export default function Platform() {
           {/* Bank transfer requests */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <p className="text-sm font-medium">طلبات التحويل البنكي</p>
+              <p className="text-sm font-medium">{t("platform.paymentsSection.bankTransfers")}</p>
               <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                {(transferRequests as any[]).filter((t) => t.status === "pending").length} قيد المراجعة
+                {t("status.pending")} ({(transferRequests as any[]).filter((req) => req.status === "pending").length})
               </Badge>
             </div>
             <motion.div className="space-y-3" variants={stagger.container} initial="hidden" animate="show">
               {transfersLoading
                 ? Array(4).fill(0).map((_, i) => <motion.div key={i} variants={stagger.item}><Skeleton className="h-28 rounded-xl" /></motion.div>)
                 : (transferRequests as any[]).length === 0
-                  ? <div className="text-center py-20"><CreditCard className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" /><p className="text-muted-foreground">لا توجد طلبات بعد</p></div>
-                  : (transferRequests as any[]).map((t: any) => (
-                    <motion.div key={t.id} variants={stagger.item}>
+                  ? <div className="text-center py-20"><CreditCard className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" /><p className="text-muted-foreground">{t("platform.paymentsSection.noRequests")}</p></div>
+                  : (transferRequests as any[]).map((req: any) => (
+                    <motion.div key={req.id} variants={stagger.item}>
                       <TransferRequestCard
-                        t={t}
+                        request={req}
                         onAction={() => queryClient.invalidateQueries({ queryKey: ["platform-transfer-requests"] })}
                       />
                     </motion.div>
@@ -557,20 +558,19 @@ export default function Platform() {
           <div className="border-t border-border/50 pt-6">
             <div className="flex items-center gap-2 mb-3">
               <CreditCard className="w-4 h-4 text-muted-foreground" />
-              <p className="text-sm font-medium">تسوية مدفوعات Paymob</p>
+              <p className="text-sm font-medium">{t("platform.paymentsSection.paymobReconciliation")}</p>
               <Badge variant="secondary" className="text-[10px]">reconciliation</Badge>
             </div>
             <Card className="border-border/50">
               <CardContent className="p-4 space-y-3">
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  يتم تخزين جميع معاملات Paymob في جدول <code className="bg-muted px-1 rounded text-[11px]">payment_records</code>.
-                  يمكن مراجعة المدفوعات المعلقة أو الفاشلة وتسويتها مع كشف حساب Paymob الشهري.
+                  {t("platform.paymentsSection.paymobReconciliationDesc")}
                 </p>
                 <div className="grid grid-cols-3 gap-3 text-center">
                   {[
-                    { label: "مكتملة", color: "text-green-600", key: "captured" },
-                    { label: "معلقة", color: "text-yellow-600", key: "pending" },
-                    { label: "فاشلة", color: "text-red-500", key: "failed" },
+                    { label: t("platform.paymentsSection.paymobCompleted"), color: "text-green-600", key: "captured" },
+                    { label: t("platform.paymentsSection.paymobPending"), color: "text-yellow-600", key: "pending" },
+                    { label: t("platform.paymentsSection.paymobFailed"), color: "text-red-500", key: "failed" },
                   ].map((s) => (
                     <div key={s.key} className="rounded-lg bg-muted/50 p-3">
                       <p className={`text-lg font-bold ${s.color}`}>—</p>
@@ -579,7 +579,7 @@ export default function Platform() {
                   ))}
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  للاستعلام المباشر: <code className="bg-muted px-1 rounded">SELECT * FROM payment_records ORDER BY created_at DESC</code>
+                  {t("platform.paymentsSection.queryLabel")} <code className="bg-muted px-1 rounded">SELECT * FROM payment_records ORDER BY created_at DESC</code>
                 </p>
               </CardContent>
             </Card>
@@ -594,13 +594,13 @@ export default function Platform() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="بحث بالاسم أو الرابط..."
+                placeholder={t("platform.searchTenants")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="ps-10 h-10"
               />
             </div>
-            <p className="text-sm text-muted-foreground">{filteredTenants.length} متجر</p>
+            <p className="text-sm text-muted-foreground">{filteredTenants.length} {t("platform.storesCount")}</p>
           </div>
 
           <motion.div className="space-y-2" variants={stagger.container} initial="hidden" animate="show">
@@ -628,13 +628,13 @@ export default function Platform() {
                                   {tenant.slug}
                                 </Badge>
                                 <Badge className={`text-[10px] px-1.5 py-0 border shrink-0 ${sub.color}`}>
-                                  {sub.label}
+                                  {t(sub.labelKey)}
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
-                                <span>خطة: {PLAN_LABELS[tenant.planCode ?? "starter"] ?? tenant.planCode}</span>
+                                <span>{t("platform.tenantsSection.planLabel")} {t(`plans.${tenant.planCode ?? "starter"}`, { defaultValue: tenant.planCode })}</span>
                                 <span>·</span>
-                                <span>{new Date(tenant.createdAt as unknown as string).toLocaleDateString("ar-EG")}</span>
+                                <span>{new Date(tenant.createdAt as unknown as string).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US")}</span>
                               </div>
                             </div>
                           </div>
@@ -654,7 +654,7 @@ export default function Platform() {
           {!tenantsLoading && filteredTenants.length === 0 && (
             <div className="text-center py-20">
               <Store className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">لا توجد متاجر</p>
+              <p className="text-muted-foreground">{t("platform.noTenants")}</p>
             </div>
           )}
         </div>
@@ -703,7 +703,7 @@ export default function Platform() {
           {!healthLoading && (healthScores as any[]).length === 0 && (
             <div className="text-center py-20">
               <Heart className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">لا توجد بيانات صحة بعد</p>
+              <p className="text-muted-foreground">{t("platform.noHealth")}</p>
             </div>
           )}
         </motion.div>

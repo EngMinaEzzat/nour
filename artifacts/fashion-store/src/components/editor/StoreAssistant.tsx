@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Wand2, Send, Sparkles, RefreshCw, ChevronDown } from "lucide-react";
 import { AI_QUICK_ACTIONS } from "@/lib/store-config";
+import { useTranslation } from "react-i18next";
 
 type AiModel = "claude" | "gemini";
 
@@ -21,8 +22,9 @@ interface StoreAssistantProps {
 }
 
 export default function StoreAssistant({ onClose }: StoreAssistantProps) {
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", text: "مرحباً! أنا مساعدك الذكي لتحسين متجرك. اختر أحد الإجراءات أدناه أو اكتب طلبك." },
+    { role: "assistant", text: t("storeAssistant.welcome") },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -64,7 +66,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error((body as { error?: string }).error ?? "حدث خطأ في الاتصال");
+        throw new Error((body as { error?: string }).error ?? t("storeAssistant.errors.connection"));
       }
 
       const reader = res.body?.getReader();
@@ -113,7 +115,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
       }
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
-      const msg = (err as Error).message ?? "حدث خطأ — حاول مرة أخرى";
+      const msg = (err as Error).message ?? t("storeAssistant.errors.tryAgain");
       setError(msg);
       setMessages((m) => m.filter((_, i) => i !== m.length - 1));
     } finally {
@@ -127,7 +129,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       className="w-80 bg-white border-l border-stone-200 flex flex-col h-full shadow-xl"
-      dir="rtl"
+      dir={i18n.dir()}
     >
       {/* Header */}
       <div
@@ -136,7 +138,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
       >
         <div className="flex items-center gap-2 text-white">
           <Wand2 className="w-4 h-4" />
-          <span className="font-semibold text-sm">مساعد المتجر الذكي</span>
+          <span className="font-semibold text-sm">{t("storeAssistant.title")}</span>
         </div>
 
         {/* Model selector */}
@@ -239,7 +241,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
 
       {/* Quick actions */}
       <div className="px-4 pb-3 shrink-0">
-        <p className="text-[10px] text-stone-400 mb-2">إجراءات سريعة:</p>
+        <p className="text-[10px] text-stone-400 mb-2">{t("storeAssistant.quickActions")}</p>
         <div className="flex flex-wrap gap-1.5">
           {AI_QUICK_ACTIONS.map((action) => (
             <button
@@ -262,8 +264,8 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
-            placeholder="اكتب طلبك هنا..."
-            className="flex-1 text-xs border border-stone-200 rounded-lg px-3 py-2 text-right focus:outline-none focus:ring-2 focus:ring-[#8B1A35]/30"
+            placeholder={t("storeAssistant.placeholder")}
+            className={`flex-1 text-xs border border-stone-200 rounded-lg px-3 py-2 ${i18n.dir() === "rtl" ? "text-right" : "text-left"} focus:outline-none focus:ring-2 focus:ring-[#8B1A35]/30`}
             disabled={loading}
           />
           <button
@@ -277,7 +279,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
         </div>
         <p className="text-[9px] text-stone-300 mt-1.5 text-center flex items-center justify-center gap-1">
           <Sparkles className="w-2.5 h-2.5" />
-          مدعوم بالذكاء الاصطناعي — {activeModel.label} ({activeModel.badge})
+          {t("storeAssistant.poweredBy")} {activeModel.label} ({activeModel.badge})
         </p>
       </div>
     </motion.div>

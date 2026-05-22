@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -26,11 +27,11 @@ const stagger = {
 
 const PIE_COLORS = ["#f59e0b","#f97316","#3b82f6","#8b5cf6","#22c55e","#ef4444","#6b7280","#ec4899"];
 
-const STOCK_STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  out_of_stock: { label: "نفد المخزون", color: "bg-red-100 text-red-700 border-red-200" },
-  low_stock:    { label: "مخزون منخفض", color: "bg-orange-100 text-orange-700 border-orange-200" },
-  ok:           { label: "متاح", color: "bg-green-100 text-green-700 border-green-200" },
-};
+const STOCK_STATUS_LABELS = (t: any): Record<string, { label: string; color: string }> => ({
+  out_of_stock: { label: t("analytics.stockStatus.outOfStock"), color: "bg-red-100 text-red-700 border-red-200" },
+  low_stock:    { label: t("analytics.stockStatus.lowStock"), color: "bg-orange-100 text-orange-700 border-orange-200" },
+  ok:           { label: t("analytics.stockStatus.ok"), color: "bg-green-100 text-green-700 border-green-200" },
+});
 
 interface AnalyticsData {
   period: { from: string; to: string };
@@ -49,12 +50,13 @@ interface AnalyticsData {
 }
 
 function useAnalytics(tenantId: number | undefined, dateFrom: string, dateTo: string) {
+  const { t } = useTranslation();
   return useQuery<AnalyticsData>({
     queryKey: ["analytics-merchant", tenantId, dateFrom, dateTo],
     enabled: !!tenantId,
     queryFn: async () => {
       const r = await fetch(apiUrl(`/analytics/merchant?dateFrom=${dateFrom}&dateTo=${dateTo}`), { credentials: "include" });
-      if (!r.ok) throw new Error("فشل جلب التحليلات");
+      if (!r.ok) throw new Error(t("analytics.toast.fetchError"));
       return r.json();
     },
   });
@@ -92,6 +94,7 @@ function KpiCard({
 }
 
 export default function Analytics() {
+  const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const tenantId = merchant?.tenantId;
 
@@ -101,6 +104,7 @@ export default function Analytics() {
   const [dateTo, setDateTo] = useState(today.toISOString().split("T")[0]);
 
   const { data, isLoading, refetch } = useAnalytics(tenantId, dateFrom, dateTo);
+  const stockLabels = STOCK_STATUS_LABELS(t);
 
   function setPreset(days: number) {
     const d = new Date();
@@ -111,27 +115,27 @@ export default function Analytics() {
 
   if (!tenantId) {
     return (
-      <div className="container mx-auto px-4 py-12 text-center">
-        <p className="text-muted-foreground">يجب تسجيل الدخول لعرض التحليلات</p>
+      <div className="container mx-auto px-4 py-12 text-center" dir={i18n.dir()}>
+        <p className="text-muted-foreground">{t("analytics.page.requireLogin")}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div className="min-h-screen bg-background pb-16" dir={i18n.dir()}>
       <div className="border-b bg-card/60">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold">التحليلات والأداء</h1>
-              <p className="text-muted-foreground text-sm mt-1">نظرة شاملة على أداء متجرك</p>
+              <h1 className="text-2xl font-bold">{t("analytics.page.title")}</h1>
+              <p className="text-muted-foreground text-sm mt-1">{t("analytics.page.subtitle")}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex gap-1.5">
                 {[
-                  { label: "7 أيام", days: 7 },
-                  { label: "30 يوم", days: 30 },
-                  { label: "90 يوم", days: 90 },
+                  { label: t("analytics.presets.days7"), days: 7 },
+                  { label: t("analytics.presets.days30"), days: 30 },
+                  { label: t("analytics.presets.days90"), days: 90 },
                 ].map((p) => (
                   <Button key={p.days} variant="outline" size="sm" className="h-8 text-xs rounded-lg" onClick={() => setPreset(p.days)}>
                     {p.label}
@@ -161,14 +165,14 @@ export default function Analytics() {
             ))
           ) : data ? (
             <>
-              <KpiCard title="إجمالي الطلبات" value={data.totalOrders.toLocaleString("ar-EG")} icon={ShoppingCart} color="bg-blue-100 text-blue-600" />
-              <KpiCard title="الإيراد الإجمالي" value={`${data.grossRevenue.toLocaleString("ar-EG")} ج.م`} icon={DollarSign} color="bg-green-100 text-green-600" />
-              <KpiCard title="الإيراد الصافي" value={`${data.netRevenue.toLocaleString("ar-EG")} ج.م`} sub="مستبعداً الملغي والمُعاد" icon={TrendingUp} color="bg-emerald-100 text-emerald-600" />
-              <KpiCard title="متوسط قيمة الطلب" value={`${data.avgOrderValue.toLocaleString("ar-EG")} ج.م`} icon={BarChart2} color="bg-violet-100 text-violet-600" />
-              <KpiCard title="معدل الإلغاء" value={`${data.cancellationRate}%`} icon={TrendingDown} color="bg-red-100 text-red-600" />
-              <KpiCard title="معدل الإرجاع" value={`${data.returnRate}%`} icon={RotateCcw} color="bg-orange-100 text-orange-600" />
-              <KpiCard title="عملاء متكررون" value={data.repeatCustomerCount.toLocaleString("ar-EG")} sub="طلبوا أكثر من مرة" icon={Users} color="bg-pink-100 text-pink-600" />
-              <KpiCard title="طلبات إرجاع مفتوحة" value={data.openReturnCases.toLocaleString("ar-EG")} icon={RefreshCcw} color="bg-amber-100 text-amber-600" />
+              <KpiCard title={t("analytics.kpi.totalOrders")} value={data.totalOrders.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} icon={ShoppingCart} color="bg-blue-100 text-blue-600" />
+              <KpiCard title={t("analytics.kpi.grossRevenue")} value={`${data.grossRevenue.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} ${i18n.language === "ar" ? "ج.م" : "EGP"}`} icon={DollarSign} color="bg-green-100 text-green-600" />
+              <KpiCard title={t("analytics.kpi.netRevenue")} value={`${data.netRevenue.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} ${i18n.language === "ar" ? "ج.م" : "EGP"}`} sub={t("analytics.kpi.netRevenueSub")} icon={TrendingUp} color="bg-emerald-100 text-emerald-600" />
+              <KpiCard title={t("analytics.kpi.avgOrderValue")} value={`${data.avgOrderValue.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} ${i18n.language === "ar" ? "ج.م" : "EGP"}`} icon={BarChart2} color="bg-violet-100 text-violet-600" />
+              <KpiCard title={t("analytics.kpi.cancellationRate")} value={`${data.cancellationRate}%`} icon={TrendingDown} color="bg-red-100 text-red-600" />
+              <KpiCard title={t("analytics.kpi.returnRate")} value={`${data.returnRate}%`} icon={RotateCcw} color="bg-orange-100 text-orange-600" />
+              <KpiCard title={t("analytics.kpi.repeatCustomerCount")} value={data.repeatCustomerCount.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} sub={t("analytics.kpi.repeatCustomerSub")} icon={Users} color="bg-pink-100 text-pink-600" />
+              <KpiCard title={t("analytics.kpi.openReturnCases")} value={data.openReturnCases.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} icon={RefreshCcw} color="bg-amber-100 text-amber-600" />
             </>
           ) : null}
         </motion.div>
@@ -178,7 +182,7 @@ export default function Analytics() {
           {/* Sales by Day */}
           <Card className="md:col-span-2 border-0 shadow-md">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">المبيعات اليومية</CardTitle>
+              <CardTitle className="text-base">{t("analytics.charts.salesByDay")}</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? <Skeleton className="h-56 w-full" /> : (
@@ -193,7 +197,7 @@ export default function Analytics() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="day" tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip formatter={(v: number) => [`${v.toLocaleString("ar-EG")} ج.م`, "الإيراد"]} />
+                    <Tooltip formatter={(v: number) => [`${v.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} ${i18n.language === "ar" ? "ج.م" : "EGP"}`, t("analytics.charts.revenueTooltip")]} />
                     <Area type="monotone" dataKey="revenue" stroke="#8b5cf6" fill="url(#revGrad)" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -204,7 +208,7 @@ export default function Analytics() {
           {/* Order Status Pie */}
           <Card className="border-0 shadow-md">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">حالات الطلبات</CardTitle>
+              <CardTitle className="text-base">{t("analytics.charts.orderStatus")}</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? <Skeleton className="h-56 w-full" /> : (
@@ -224,7 +228,7 @@ export default function Analytics() {
                       <div key={s.status} className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full inline-block" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                          <span className="text-muted-foreground">{s.label}</span>
+                          <span className="text-muted-foreground">{t(`common.orderStatus.${s.status}`, { defaultValue: s.label })}</span>
                         </div>
                         <span className="font-medium">{s.count}</span>
                       </div>
@@ -243,14 +247,14 @@ export default function Analytics() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
                 <Star className="w-4 h-4 text-amber-500" />
-                أفضل المنتجات مبيعاً
+                {t("analytics.charts.topProducts")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? <Skeleton className="h-40 w-full" /> : (
                 <div className="space-y-3">
                   {(data?.topProducts ?? []).slice(0, 5).length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">لا توجد مبيعات في هذه الفترة</p>
+                    <p className="text-sm text-muted-foreground text-center py-8">{t("analytics.charts.noSales")}</p>
                   ) : (
                     (data?.topProducts ?? []).slice(0, 5).map((p, i) => (
                       <div key={p.id} className="flex items-center gap-3">
@@ -259,9 +263,9 @@ export default function Analytics() {
                         </span>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{p.name}</p>
-                          <p className="text-xs text-muted-foreground">{p.units_sold} وحدة</p>
+                          <p className="text-xs text-muted-foreground">{p.units_sold} {t("analytics.charts.units")}</p>
                         </div>
-                        <span className="text-sm font-semibold shrink-0">{p.revenue.toLocaleString("ar-EG")} ج.م</span>
+                        <span className="text-sm font-semibold shrink-0">{p.revenue.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>
                       </div>
                     ))
                   )}
@@ -275,23 +279,23 @@ export default function Analytics() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-orange-500" />
-                مخزون منخفض / نافد
+                {t("analytics.charts.lowStock")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? <Skeleton className="h-40 w-full" /> : (
                 <div className="space-y-3">
                   {(data?.lowStockProducts ?? []).length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">لا توجد منتجات بمخزون منخفض 👍</p>
+                    <p className="text-sm text-muted-foreground text-center py-8">{t("analytics.charts.noLowStock")}</p>
                   ) : (
                     (data?.lowStockProducts ?? []).slice(0, 6).map((p) => {
                       const st = p.stock === 0 ? "out_of_stock" : "low_stock";
-                      const info = STOCK_STATUS_LABELS[st];
+                      const info = stockLabels[st];
                       return (
                         <div key={p.id} className="flex items-center justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{p.name}</p>
-                            <p className="text-xs text-muted-foreground">متبقٍ: {p.stock} من {p.effective_threshold}</p>
+                            <p className="text-xs text-muted-foreground">{t("analytics.charts.remaining")} {p.stock} {t("analytics.charts.outOf")} {p.effective_threshold}</p>
                           </div>
                           <Badge className={`text-[10px] px-2 py-0.5 border ${info.color} shrink-0`}>{info.label}</Badge>
                         </div>
@@ -308,7 +312,7 @@ export default function Analytics() {
         {!isLoading && (data?.topProducts ?? []).length > 0 && (
           <Card className="border-0 shadow-md">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">مقارنة إيرادات المنتجات</CardTitle>
+              <CardTitle className="text-base">{t("analytics.charts.productRevenue")}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={200}>
@@ -316,7 +320,7 @@ export default function Analytics() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="name" tick={{ fontSize: 9 }} />
                   <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip formatter={(v: number) => [`${v.toLocaleString("ar-EG")} ج.م`, "الإيراد"]} />
+                  <Tooltip formatter={(v: number) => [`${v.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} ${i18n.language === "ar" ? "ج.م" : "EGP"}`, t("analytics.charts.revenueTooltip")]} />
                   <Bar dataKey="revenue" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

@@ -1,47 +1,46 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Shield, Truck, RotateCcw, Headphones } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
-const TRUST_ITEMS = [
-  {
-    icon: <Truck className="w-6 h-6" />,
-    title: "شحن سريع",
-    desc: "توصيل خلال 2-3 أيام عمل لجميع المحافظات",
-    accent: "#8B1A35",
-  },
-  {
-    icon: <Shield className="w-6 h-6" />,
-    title: "دفع آمن 100%",
-    desc: "بطاقات ائتمانية، فوري، ومحافظ إلكترونية",
-    accent: "#c8963a",
-  },
-  {
-    icon: <RotateCcw className="w-6 h-6" />,
-    title: "إرجاع مجاني",
-    desc: "استرجاع سهل خلال 14 يوماً بلا تعقيد",
-    accent: "#c97b8b",
-  },
-  {
-    icon: <Headphones className="w-6 h-6" />,
-    title: "دعم متواصل",
-    desc: "خدمة عملاء على مدار الساعة عبر واتساب",
-    accent: "#7a5c9e",
-  },
-];
-
-interface TrustStripProps {
-  primaryColor: string;
-}
-
 export function TrustStrip({ primaryColor: p }: TrustStripProps) {
+  const { t, i18n } = useTranslation();
+  
+  const TRUST_ITEMS = [
+    {
+      icon: <Truck className="w-6 h-6" />,
+      title: t("storefront.home.trust.shipping", "شحن سريع"),
+      desc: t("storefront.home.trust.shippingDesc", "توصيل خلال 2-3 أيام عمل لجميع المحافظات"),
+      accent: "#8B1A35",
+    },
+    {
+      icon: <Shield className="w-6 h-6" />,
+      title: t("storefront.home.trust.secure", "دفع آمن 100%"),
+      desc: t("storefront.home.trust.secureDesc", "بطاقات ائتمانية، فوري، ومحافظ إلكترونية"),
+      accent: "#c8963a",
+    },
+    {
+      icon: <RotateCcw className="w-6 h-6" />,
+      title: t("storefront.home.trust.returns", "إرجاع مجاني"),
+      desc: t("storefront.home.trust.returnsDesc", "استرجاع سهل خلال 14 يوماً بلا تعقيد"),
+      accent: "#c97b8b",
+    },
+    {
+      icon: <Headphones className="w-6 h-6" />,
+      title: t("storefront.home.trust.support", "دعم متواصل"),
+      desc: t("storefront.home.trust.supportDesc", "خدمة عملاء على مدار الساعة عبر واتساب"),
+      accent: "#7a5c9e",
+    },
+  ];
+
   return (
     <section
       className="py-14 px-4 sm:px-6 border-y"
       style={{
         background: "#fff",
         borderColor: "rgba(139,26,53,0.07)",
-        direction: "rtl",
+        direction: i18n.dir(),
       }}
     >
       <div className="max-w-7xl mx-auto">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useListOrders } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,24 +11,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Search, ChevronLeft } from "lucide-react";
 import GuideCard from "@/components/admin/GuideCard";
 
-const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  pending: {
-    label: "قيد الانتظار",
-    color: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  },
-  confirmed: {
-    label: "مؤكد",
-    color: "bg-blue-100 text-blue-800 border-blue-200",
-  },
-  shipped: {
-    label: "تم الشحن",
-    color: "bg-purple-100 text-purple-800 border-purple-200",
-  },
-  delivered: {
-    label: "تم التوصيل",
-    color: "bg-green-100 text-green-800 border-green-200",
-  },
-  cancelled: { label: "ملغي", color: "bg-red-100 text-red-800 border-red-200" },
+const STATUS_COLORS: Record<string, string> = {
+  pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  confirmed: "bg-blue-100 text-blue-800 border-blue-200",
+  shipped: "bg-purple-100 text-purple-800 border-purple-200",
+  delivered: "bg-green-100 text-green-800 border-green-200",
+  cancelled: "bg-red-100 text-red-800 border-red-200",
 };
 
 const stagger = {
@@ -39,6 +28,7 @@ const stagger = {
 };
 
 export default function Orders() {
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const { data: ordersResponse, isLoading } = useListOrders();
@@ -54,7 +44,7 @@ export default function Orders() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -62,43 +52,43 @@ export default function Orders() {
       >
         <div className="flex items-center gap-3 mb-2">
           <FileText className="w-6 h-6 text-primary" />
-          <h1 className="text-3xl font-bold">الطلبات</h1>
+          <h1 className="text-3xl font-bold">{t("orders.page.title")}</h1>
         </div>
         <p className="text-muted-foreground mb-4">
-          إدارة ومتابعة جميع الطلبات الواردة من متجرك
+          {t("orders.page.subtitle")}
         </p>
       </motion.div>
 
       <GuideCard
         storageKey="orders"
-        title="كيف تدير طلباتك؟"
-        description="هنا تجد كل الطلبات التي وردت من متجرك. انقر على أي طلب لعرض تفاصيله وتحديث حالته."
+        title={t("orders.guide.title")}
+        description={t("orders.guide.description")}
         steps={[
           {
             icon: "📦",
-            title: "استلام الطلب",
-            desc: "عند ورود طلب جديد ستصلك إشعار — تأكد من مراجعته خلال 24 ساعة.",
+            title: t("orders.guide.step1.title"),
+            desc: t("orders.guide.step1.desc"),
           },
           {
             icon: "✅",
-            title: "تأكيد وتحضير",
-            desc: "غير الحالة إلى «مؤكد» عند التحقق من الطلب وبدء التحضير.",
+            title: t("orders.guide.step2.title"),
+            desc: t("orders.guide.step2.desc"),
           },
           {
             icon: "🚚",
-            title: "الشحن والتوصيل",
-            desc: "عند الإرسال للشحن غير الحالة إلى «تم الشحن» وأضف رقم التتبع.",
+            title: t("orders.guide.step3.title"),
+            desc: t("orders.guide.step3.desc"),
           },
           {
             icon: "⭐",
-            title: "ما بعد التوصيل",
-            desc: "تابع مع العميل للتأكد من رضاه وشجعه على ترك تقييم.",
+            title: t("orders.guide.step4.title"),
+            desc: t("orders.guide.step4.desc"),
           },
         ]}
         tips={[
-          "رد على طلبات COD خلال ساعتين لتقليل نسبة الإلغاء.",
-          "استخدم فلتر «قيد الانتظار» لعرض الطلبات التي تحتاج اهتماماً فورياً.",
-          "أرسل رسالة واتساب للعميل فور تأكيد طلبه لبناء الثقة.",
+          t("orders.guide.tips.0"),
+          t("orders.guide.tips.1"),
+          t("orders.guide.tips.2"),
         ]}
         variant="guide"
       />
@@ -110,12 +100,12 @@ export default function Orders() {
         className="flex flex-col sm:flex-row gap-3 mb-8"
       >
         <div className="relative flex-1">
-          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className={`absolute ${i18n.dir() === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
           <Input
-            placeholder="بحث بالرقم أو اسم العميل..."
+            placeholder={t("orders.search.placeholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="ps-10 h-11"
+            className="px-10 h-11"
           />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -125,9 +115,9 @@ export default function Orders() {
             className="rounded-full"
             onClick={() => setStatusFilter(null)}
           >
-            الكل
+            {t("orders.filter.all")}
           </Button>
-          {Object.entries(STATUS_MAP).map(([key, val]) => (
+          {Object.keys(STATUS_COLORS).map((key) => (
             <Button
               key={key}
               size="sm"
@@ -135,7 +125,7 @@ export default function Orders() {
               className="rounded-full"
               onClick={() => setStatusFilter(statusFilter === key ? null : key)}
             >
-              {val.label}
+              {t(`orders.status.${key}`)}
             </Button>
           ))}
         </div>
@@ -143,7 +133,7 @@ export default function Orders() {
 
       {!isLoading && (
         <p className="text-sm text-muted-foreground mb-4">
-          {filtered?.length ?? 0} طلب
+          {filtered?.length ?? 0} {t("orders.list.orderCount")}
         </p>
       )}
 
@@ -162,10 +152,8 @@ export default function Orders() {
                 </motion.div>
               ))
           : filtered?.map((order) => {
-              const s = STATUS_MAP[order.status] ?? {
-                label: order.status,
-                color: "",
-              };
+              const statusLabel = t(`orders.status.${order.status}`) ?? order.status;
+              const statusColor = STATUS_COLORS[order.status] ?? "";
               return (
                 <motion.div key={order.id} variants={stagger.item}>
                   <Card className="border-border/50 hover:shadow-sm transition-shadow">
@@ -178,16 +166,16 @@ export default function Orders() {
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-foreground">
-                                طلب #{order.id}
+                                {t("orders.list.orderNum")}{order.id}
                               </span>
-                              <Badge className={`text-xs ${s.color}`}>
-                                {s.label}
+                              <Badge className={`text-xs ${statusColor}`}>
+                                {statusLabel}
                               </Badge>
                             </div>
                             <p className="text-sm text-muted-foreground mt-0.5">
-                              {order.customerName ?? "عميل غير معروف"} ·{" "}
+                              {order.customerName ?? t("orders.list.unknownCustomer")} ·{" "}
                               {new Date(order.createdAt).toLocaleDateString(
-                                "ar-EG",
+                                i18n.language === "ar" ? "ar-EG" : "en-US",
                               )}
                             </p>
                           </div>
@@ -196,17 +184,17 @@ export default function Orders() {
                           <div className="text-end hidden sm:block">
                             <p className="font-bold text-primary">
                               {Number(order.totalAmount ?? 0).toLocaleString(
-                                "ar-EG",
+                                i18n.language === "ar" ? "ar-EG" : "en-US",
                               )}{" "}
-                              ج.م
+                              {i18n.language === "ar" ? "ج.م" : "EGP"}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {order.items?.length ?? 0} منتج
+                              {order.items?.length ?? 0} {t("orders.list.productCount")}
                             </p>
                           </div>
                           <Button variant="ghost" size="icon" asChild>
                             <Link href={`/orders/${order.id}`}>
-                              <ChevronLeft className="w-5 h-5" />
+                              <ChevronLeft className={`w-5 h-5 ${i18n.dir() === "ltr" ? "rotate-180" : ""}`} />
                             </Link>
                           </Button>
                         </div>
@@ -221,7 +209,7 @@ export default function Orders() {
       {!isLoading && filtered?.length === 0 && (
         <div className="text-center py-24">
           <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-          <p className="text-muted-foreground">لا توجد طلبات</p>
+          <p className="text-muted-foreground">{t("orders.list.empty")}</p>
         </div>
       )}
     </div>

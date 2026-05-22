@@ -1,0 +1,2420 @@
+{
+  "products": {
+    "title": "Products",
+    "subtitle": "Manage products and their prices",
+    "searchPlaceholder": "Search for a product...",
+    "btnAdd": "Add Product",
+    "btnImport": "Import CSV",
+    "emptySearch": "No products match your search",
+    "emptyState": {
+      "title": "No products yet",
+      "subtitle": "Add your first product to start selling"
+    },
+    "sizes": {
+      "xs": "XS",
+      "s": "S",
+      "m": "M",
+      "l": "L",
+      "xl": "XL",
+      "xxl": "XXL",
+      "free": "Free Size",
+      "one": "One Size"
+    },
+    "colors": {
+      "black": "Black",
+      "white": "White",
+      "red": "Red",
+      "pink": "Pink",
+      "purple": "Purple",
+      "blue": "Blue",
+      "green": "Green",
+      "beige": "Beige",
+      "navy": "Navy",
+      "gray": "Gray",
+      "gold": "Gold",
+      "brown": "Brown"
+    },
+    "status": {
+      "active": "Active",
+      "out_of_stock": "Out of Stock",
+      "hidden": "Hidden"
+    },
+    "columns": {
+      "image": "Image",
+      "name": "Name",
+      "price": "Price",
+      "stock": "Stock",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "form": {
+      "addTitle": "Add New Product",
+      "editTitle": "Edit Product",
+      "name": "Product Name",
+      "namePlaceholder": "e.g. Summer Dress",
+      "description": "Description",
+      "descriptionPlaceholder": "Attractive description...",
+      "category": "Category (Optional)",
+      "noCategory": "No Category",
+      "price": "Price",
+      "pricePlaceholder": "250",
+      "originalPrice": "Original Price (Optional)",
+      "originalPricePlaceholder": "350",
+      "featured": "Featured Product (Shows on Home Page)",
+      "status": "Status",
+      "image": "Main Product Image",
+      "btnSave": "Save",
+      "btnSaving": "Saving...",
+      "btnCancel": "Cancel",
+      "saveError": "An error occurred while saving."
+    },
+    "variants": {
+      "title": "Sizes and Colors",
+      "addBtn": "Add Variant",
+      "empty": "No variants yet. Click 'Add Variant' to add a size or color.",
+      "size": "Size",
+      "sizeNone": "— None —",
+      "color": "Color",
+      "colorPlaceholder": "Color Name",
+      "stock": "Stock",
+      "btnSave": "Save",
+      "btnDelete": "Delete",
+      "images": "Variant Images",
+      "draftTitle": "Variants & Stock",
+      "draftStockMsg": "Total stock calculated from variants: "
+    },
+    "csv": {
+      "title": "Import Products from CSV",
+      "templateTitle": "CSV Template",
+      "templateDesc": "Download the template and fill it with your products — Columns: name, description, price, originalPrice, imageUrl, stock, featured, status",
+      "btnDownload": "Download Template",
+      "dropzoneTitle": "Drop CSV file here or click to select",
+      "dropzoneDesc": "Supports .csv files only",
+      "fileRows": "rows in file",
+      "valid": "Valid",
+      "invalid": "Error",
+      "btnChangeFile": "Change File",
+      "colNum": "#",
+      "colName": "Name",
+      "colPrice": "Price",
+      "colStock": "Stock",
+      "colStatus": "Status",
+      "colNote": "Note",
+      "importing": "Importing...",
+      "doneTitle": "Import Complete",
+      "doneMsg": "Successfully imported {{count}} products",
+      "doneFail": " · Failed {{count}}",
+      "btnClose": "Close",
+      "btnCancel": "Cancel",
+      "btnImport": "Import {{count}} Products",
+      "errors": {
+        "nameReq": "Name is required",
+        "priceInv": "Invalid price"
+      }
+    },
+    "delete": {
+      "title": "Are you sure you want to delete this product?",
+      "desc": "This action cannot be undone. The product and all its variants and images will be permanently deleted.",
+      "btnCancel": "Cancel",
+      "btnConfirm": "Yes, delete product",
+      "btnDeleting": "Deleting..."
+    },
+    "pricing": {
+      "title": "Smart Pricing Advisor",
+      "btn": "Pricing Advisor",
+      "claude": "Claude 3.5 Sonnet Analysis",
+      "gemini": "Gemini 1.5 Pro Analysis",
+      "loading": "Analyzing...",
+      "error": "An error occurred"
+    }
+  },
+  "tenants": {
+    "card": {
+      "visitStore": "Visit store",
+      "active": "Active"
+    },
+    "categories": {
+      "fashion": "Fashion",
+      "beauty": "Beauty",
+      "other": "Other"
+    }
+  },
+  "domains": {
+    "title": "Custom Domain",
+    "subtitle": "Connect your custom domain to your Nour store",
+    "status": {
+      "PENDING_DNS": "Pending DNS",
+      "VERIFYING": "Verifying",
+      "ACTIVE": "Active & Verified",
+      "FAILED": "Verification Failed",
+      "REMOVED": "Removed"
+    },
+    "locked": {
+      "title": "Available in Pro Plan",
+      "desc": "Custom domain mapping is only available for Pro plan subscribers",
+      "btnUpgrade": "Upgrade to Pro"
+    },
+    "dns": {
+      "instructions": "Add the following records to your DNS management panel:",
+      "visitStore": "Visit Store"
+    },
+    "form": {
+      "title": "Connect New Domain",
+      "placeholder": "mystore.com",
+      "btnSubmitting": "Submitting...",
+      "btnSubmit": "Connect Domain",
+      "hint": "You will need access to your domain's DNS settings to complete the connection"
+    },
+    "removeDialog": {
+      "title": "Confirm Removal",
+      "desc": "Are you sure you want to remove the custom domain? The store will stop working on this domain.",
+      "btnCancel": "Cancel",
+      "btnRemoving": "Removing...",
+      "btnRemove": "Remove"
+    }
+  },
+  "common": {
+    "appName": "Nour",
+    "appSubtitle": "Nour Platform for Egyptian E-commerce",
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "login": "Login",
+      "register": "Start for Free",
+      "logout": "Logout",
+      "acceptAndCreate": "Accept Invite & Create Account",
+      "backToLogin": "Go to Login",
+      "createAndJoin": "Create Account & Join",
+      "acceptAndActivate": "Accept & Activate",
+      "reject": "Reject",
+      "close": "Close",
+      "details": "Details",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirm": "Confirm"
+    },
+    "currency": "EGP",
+    "pricing": "Pricing",
+    "public": "Public",
+    "admin": "Operator",
+    "allRightsReserved": "All rights reserved",
+    "placeholder": {
+      "email": "example@nour.eg",
+      "phone": "01xxxxxxxxx",
+      "password": "At least 8 characters",
+      "confirmPassword": "Re-type your password",
+      "fullName": "Mohamed Ahmed"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "desc": "Sorry, we couldn't find the page you are looking for.",
+      "backToHome": "Back to Home"
+    }
+  },
+  "roles": {
+    "owner": "Owner",
+    "manager": "Manager",
+    "staff": "Staff",
+    "catalog_manager": "Catalog Manager",
+    "order_operator": "Order Operator",
+    "marketing_analyst": "Marketing Analyst"
+  },
+  "status": {
+    "trial": "Trial",
+    "active": "Active",
+    "past_due": "Past Due",
+    "suspended": "Suspended",
+    "canceled": "Canceled",
+    "pending": "Pending Review",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "plans": {
+    "starter": "Starter",
+    "growth": "Growth",
+    "pro": "Pro"
+  },
+  "layout": {
+    "myStore": "My Store",
+    "operatorPanel": "Operator Panel",
+    "dashboard": "Dashboard",
+    "storeBuilder": "Store Builder",
+    "analytics": "Analytics",
+    "orders": "Orders",
+    "followUp": "Follow-up",
+    "products": "Products",
+    "customers": "Customers",
+    "returns": "Returns",
+    "shipping": "Shipping Rules",
+    "automation": "Automation",
+    "categories": "Categories",
+    "staff": "Staff",
+    "storeSettings": "Store Settings",
+    "tracking": "Tracking & Pixels",
+    "exports": "Exports",
+    "billing": "Billing",
+    "domains": "Custom Domain",
+    "discounts": "Discounts",
+    "reviews": "Reviews",
+    "abandonedCarts": "Abandoned Carts",
+    "inventoryAlerts": "Inventory Alerts",
+    "facebookModerator": "Facebook Moderator",
+    "growth": "Growth",
+    "loggedAs": "Logged in as"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Manage your store from the dashboard",
+      "email": "Email Address",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "invalid": "Invalid email or password",
+      "loggingIn": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Register your store now"
+    },
+    "acceptInvite": {
+      "title": "Invitation to Join Store",
+      "invitedTo": "You will join store",
+      "asRole": "as",
+      "store": "Store",
+      "email": "Email",
+      "role": "Role",
+      "expiresAt": "Expires at",
+      "hasAccount": "Already have an account?",
+      "loginNow": "Login",
+      "createAccount": "Create your account in",
+      "joinAs": "You will join as",
+      "onEmail": "on email",
+      "fullName": "Full Name *",
+      "password": "Password *",
+      "confirmPassword": "Confirm Password *",
+      "creatingAccount": "Creating account...",
+      "successTitle": "Welcome to",
+      "successDesc": "Your account has been created successfully as",
+      "successDescSuffix": ". You can now log in and start working.",
+      "loginCta": "Login Now",
+      "tokenMissing": "Invalid invitation link — no token.",
+      "inviteNotFound": "Invitation not found",
+      "acceptFailed": "Failed to accept invitation",
+      "nameRequired": "Name is required",
+      "pwTooShort": "Password must be at least 8 characters",
+      "pwMismatch": "Passwords do not match"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password?",
+      "subtitle": "Enter your email and we'll send you a reset link",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "example@nour.eg",
+      "checkEmailTitle": "Check your email",
+      "checkEmailDesc": "We sent a password reset link to",
+      "checkEmailDescSuffix": ". Check your inbox and maybe spam folder.",
+      "linkExpireHint": "The link is valid for 1 hour.",
+      "linkReadyTitle": "Reset Link is Ready",
+      "linkReadyDesc": "Email is not activated yet. Click on the link below to reset password:",
+      "btnResetPassword": "Reset Password",
+      "sending": "Sending...",
+      "sendLink": "Send Reset Link",
+      "rememberPassword": "Remembered password?",
+      "loginNow": "Login",
+      "connectionError": "Connection error, try again",
+      "generalError": "Something went wrong, try again"
+    },
+    "register": {
+      "title": "Open your store now",
+      "subtitle": "Join thousands of merchants on the Nour platform",
+      "storeName": "Store Name",
+      "storeNamePlaceholder": "Example: Layla Fashion",
+      "storeSlug": "Store URL",
+      "storeSlugPlaceholder": "layla-fashion",
+      "categoryLabel": "What does the store sell?",
+      "categoryPlaceholder": "Choose category",
+      "catFashion": "Fashion and Clothing",
+      "catCosmetics": "Cosmetics and Care",
+      "catBoth": "Fashion and Cosmetics",
+      "genderLabel": "How would you like us to address you?",
+      "genderFemale": "👩 Female",
+      "genderMale": "👨 Male",
+      "genderHint": "So we can address you with the appropriate language in the store",
+      "phone": "Phone Number",
+      "email": "Email Address",
+      "password": "Password",
+      "duplicateEmail": "This email is already registered",
+      "loginInstead": "Login instead ←",
+      "generalError": "An error occurred during registration, try again",
+      "btnRegistering": "Creating store...",
+      "btnRegister": "Open my store",
+      "hasAccount": "Already have an account?",
+      "loginNow": "Login",
+      "slugChecking": "Checking...",
+      "slugAvailable": "URL is available",
+      "slugTaken": "URL is taken, try another name",
+      "slugInvalid": "URL contains invalid characters or is reserved",
+      "slugError": "Could not connect to server, try again",
+      "errDuplicateSlug": "Store name or URL is already in use, try another name"
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "subtitle": "Enter the new password for your account",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "passwordMismatch": "Passwords do not match",
+      "btnSaving": "Saving...",
+      "btnSave": "Save new password",
+      "successTitle": "Password changed successfully",
+      "successDesc": "You will be redirected to login in a few seconds...",
+      "invalidTokenTitle": "Reset link is invalid",
+      "requestNewLink": "Request a new link",
+      "connError": "Connection error, try again",
+      "generalError": "An error occurred, try again"
+    }
+  },
+  "platform": {
+    "title": "Operator Dashboard",
+    "subtitle": "Overview of all stores and platform activity",
+    "tabs": {
+      "merchants": "Registered Stores",
+      "payments": "Payments",
+      "tenants": "Store Directory",
+      "health": "Platform Health"
+    },
+    "stats": {
+      "totalStores": "Total Stores",
+      "activeStores": "Active Stores",
+      "trialStores": "Trial Stores",
+      "nearLimit": "Near Limit"
+    },
+    "cards": {
+      "onboarding": "Onboarding Completion",
+      "plans": "Plans Breakdown",
+      "onboardingRows": {
+        "complete": "Complete",
+        "partial": "Partial",
+        "notStarted": "Not Started"
+      }
+    },
+    "search": "Search by store, owner, city, or slug...",
+    "searchTenants": "Search by name or slug...",
+    "storesCount": "registered store",
+    "noStores": "No registered stores match the search",
+    "noTenants": "No stores found",
+    "noHealth": "No health data yet",
+    "healthScore": "Platform Health",
+    "verifyLoading": "Verifying...",
+    "restricted": "Access Restricted",
+    "restrictedDesc": "This page is only available to platform operators",
+    "backToDashboard": "Back to Dashboard",
+    "metrics": {
+      "products": "products",
+      "orders": "orders",
+      "revenue": "revenue"
+    },
+    "paymentsSection": {
+      "bankTransfers": "Bank Transfer Requests",
+      "noRequests": "No requests yet",
+      "paymobReconciliation": "Paymob Payments Reconciliation",
+      "paymobReconciliationDesc": "All Paymob transactions are stored in the payment_records table. Pending or failed payments can be reviewed and reconciled with the monthly Paymob statement.",
+      "paymobCompleted": "Completed",
+      "paymobPending": "Pending",
+      "paymobFailed": "Failed",
+      "queryLabel": "For direct query:",
+      "receipt": "Receipt",
+      "reference": "Ref:",
+      "note": "Note:",
+      "confirmApprove": "Confirm Payment Acceptance",
+      "confirmApproveDesc": "This will activate the subscription of \"{{storeName}}\" on the {{plan}} plan and generate a paid invoice automatically.",
+      "rejectTitle": "Reject Transfer Request",
+      "rejectDesc": "The merchant will be notified of the rejection. You can add an explanatory note.",
+      "rejectReasonPlaceholder": "Rejection reason (optional)..."
+    },
+    "tenantsSection": {
+      "planLabel": "Plan:"
+    },
+    "toggleStatus": {
+      "reactivateTitle": "Reactivate Store",
+      "reactivateDesc": "The store \"{{storeName}}\" will be reactivated immediately and an email will be sent to the merchant.",
+      "suspendTitle": "Temporarily Suspend Store",
+      "suspendDesc": "The store \"{{storeName}}\" will be temporarily suspended and a warning email will be sent to the merchant. All data will be preserved.",
+      "reactivateBtn": "Reactivate",
+      "suspendBtn": "Pause"
+    }
+  },
+  "dashboard": {
+    "status": {
+      "pending": "Pending",
+      "awaiting_confirmation": "Awaiting Confirmation",
+      "confirmed": "Confirmed",
+      "dispatched": "Dispatched",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "returned": "Returned"
+    },
+    "payment": {
+      "cod": "Cash on Delivery",
+      "paymob": "Paymob"
+    },
+    "subStatus": {
+      "trial": "Trial",
+      "active": "Active",
+      "past_due": "Past Due",
+      "suspended": "Suspended",
+      "canceled": "Canceled"
+    },
+    "plan": {
+      "starter": "Starter",
+      "growth": "Growth",
+      "pro": "Pro"
+    },
+    "onboarding": {
+      "ch1": "Chapter 1: First Impression",
+      "s1": "The customer enters your store and looks for a trust signal: a clear name, a reassuring description, and a layout that matches your brand.",
+      "a1": "Edit Identity",
+      "ch2": "Chapter 2: A Interface that Tells a Story",
+      "s2": "Before the customer browses the products, they need a sentence and an image that say: this store is designed for you.",
+      "a2": "Customize Interface",
+      "d2": "Interface Approved",
+      "ch3": "Chapter 3: The First Eye-Catching Piece",
+      "s3": "The store really starts when the customer sees a product with a clear image, price, and stock.",
+      "a3": "Add Product",
+      "ch4": "Chapter 4: Delivery to the Door",
+      "s4": "After liking the product, the customer asks: when will it arrive and for how much? Keep the answer ready.",
+      "a4": "Configure Shipping",
+      "d4": "Shipping Reviewed",
+      "ch5": "Chapter 5: The Moment of Payment",
+      "s5": "In the final step, the customer needs a clear and reassuring payment method, especially with Cash on Delivery.",
+      "a5": "Review Payment",
+      "d5": "Payment Reviewed",
+      "ch6": "Chapter 6: The Full Customer Experience",
+      "s6": "Open the store as a new customer: the interface, product, shipping, and payment should feel like one journey.",
+      "a6": "Preview & Refine",
+      "d6": "Ready to Launch",
+      "edit": "Edit"
+    },
+    "kpi": {
+      "thisMonth": "This Month",
+      "noData": "No data yet",
+      "noDataSub": "Will appear here when orders arrive",
+      "plan": "Plan",
+      "reachedLimit": "Reached Limit",
+      "unlimited": "Unlimited Products",
+      "productUsage": "Product Usage",
+      "upgradePlan": "Upgrade Plan",
+      "revenue": "Total Revenue",
+      "avgOrder": "Avg Order:",
+      "totalOrders": "Total Orders",
+      "pendingOrders": "Pending",
+      "customers": "Customers",
+      "registeredCustomer": "Registered Customer",
+      "revenueThisMonth": "Revenue This Month",
+      "ordersThisMonth": "Orders This Month"
+    },
+    "checklist": {
+      "title": "Your First Customer's Journey",
+      "desc": "Build the experience like a story: from the first glance to the first order. {{completed}} of {{total}} chapters completed",
+      "improveStore": "Improve Store",
+      "reviewed": "Reviewed",
+      "completed": "Completed"
+    },
+    "header": {
+      "welcome": "Hello, {{name}} 👋",
+      "subtitle": "A comprehensive overview of your store's performance",
+      "analytics": "Analytics",
+      "orders": "Orders",
+      "merchant": "Merchant"
+    },
+    "charts": {
+      "revenue30d": "Revenue — Last 30 Days",
+      "revenue": "Revenue",
+      "topProducts": "Top Products",
+      "status": "Status",
+      "price": "Monthly Price",
+      "trialEnds": "Trial Ends",
+      "nextRenewal": "Next Renewal",
+      "yourPlan": "Your Plan"
+    },
+    "transferRequest": {
+      "title": "Submit Bank Transfer Receipt",
+      "pendingBadge": "Pending",
+      "pendingNotice": "You have a pending request. Your subscription will be activated upon approval."
+    },
+    "transferHistory": {
+      "title": "Transfer Requests",
+      "ref": "Ref:"
+    },
+    "invoices": {
+      "title": "Invoice History",
+      "count": "invoices",
+      "noInvoices": "No invoices yet"
+    }
+  },
+  "staff": {
+    "title": "Team Management",
+    "subtitle": "Add staff and managers to your store and specify their permissions",
+    "inviteLinkBtn": "Invite via Link",
+    "directInviteBtn": "Direct Invite",
+    "roleDesc": {
+      "owner": "Full access — Settings, billing, and team management",
+      "manager": "Manage products, orders, customers, and view reports",
+      "catalog_manager": "Manage products, categories, and inventory only",
+      "order_operator": "View orders, update their status, and process shipping",
+      "marketing_analyst": "View reports, analytics, and customers only",
+      "staff": "View orders, update their status, and view products only"
+    },
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "catalog_manager": "Catalog Manager",
+      "order_operator": "Order Operator",
+      "marketing_analyst": "Marketing Analyst",
+      "staff": "Staff"
+    },
+    "membersList": {
+      "title": "Team Members",
+      "memberCount": "member",
+      "noMembers": "No team members yet",
+      "addFirst": "Add first member",
+      "you": "You",
+      "joined": "Joined"
+    },
+    "inviteDialog": {
+      "title": "Add New Member",
+      "desc": "Enter the details of the new member and specify their role in the store",
+      "nameLabel": "Name (Optional)",
+      "namePlaceholder": "Employee Name",
+      "emailLabel": "Email *",
+      "emailPlaceholder": "example@store.com",
+      "passwordLabel": "Password *",
+      "passwordPlaceholder": "At least 6 characters",
+      "roleLabel": "Role *",
+      "roles": {
+        "manager": "Manager — Full management",
+        "catalog_manager": "Catalog Manager — Products & inventory",
+        "order_operator": "Order Operator — Process orders",
+        "marketing_analyst": "Marketing Analyst — Reports only",
+        "staff": "Staff — Limited access"
+      },
+      "btnInviting": "Adding...",
+      "btnInvite": "Add Member",
+      "btnCancel": "Cancel",
+      "error": "An error occurred while adding"
+    },
+    "editDialog": {
+      "title": "Change Role",
+      "desc": "Select a new role for this member",
+      "btnSaving": "Saving...",
+      "btnSave": "Save",
+      "error": "An error occurred while updating"
+    },
+    "linkDialog": {
+      "title": "Invite via Link",
+      "desc": "Create a 7-day invitation link to share via any channel",
+      "emailPlaceholder": "employee@store.com",
+      "btnCreating": "Creating...",
+      "btnCreateLink": "Create Link",
+      "successTitle": "Invitation link created!",
+      "btnCopied": "Copied ✓",
+      "btnCopy": "Copy Link",
+      "btnClose": "Close"
+    },
+    "invitations": {
+      "title": "Pending Invitations",
+      "pendingCount": "pending",
+      "expires": "Expires",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      }
+    },
+    "deleteDialog": {
+      "title": "Confirm Deletion",
+      "desc": "Are you sure you want to delete this member? This action cannot be undone.",
+      "btnDeleting": "Deleting...",
+      "btnDelete": "Delete",
+      "error": "An error occurred while deleting"
+    }
+  },
+  "settings": {
+    "header": {
+      "title": "Store Settings",
+      "subtitle": "Customize your store's appearance and basic data",
+      "unsavedChanges": "Unsaved changes",
+      "previewStore": "Preview Store",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes"
+    },
+    "guide": {
+      "title": "How to configure your store settings?",
+      "desc": "This page controls how your store looks to the world. Set it up well once and you will feel the difference in sales.",
+      "step1Title": "Store Identity",
+      "step1Desc": "A clear name and engaging description help customers quickly understand what you sell.",
+      "step2Title": "Media and Appearance",
+      "step2Desc": "The logo and cover photo are the first things a customer sees — make them professional.",
+      "step3Title": "Primary Color",
+      "step3Desc": "Choose a color that reflects your brand identity and stick with it everywhere.",
+      "step4Title": "SEO",
+      "step4Desc": "Search title and description help you appear in Google results.",
+      "tip1": "A circular 200x200 px logo looks best on mobile.",
+      "tip2": "The ideal cover photo: 1400x600 px in high quality.",
+      "tip3": "Add a WhatsApp number to increase direct communication with customers."
+    },
+    "nav": {
+      "jumpTo": "Jump to section",
+      "sections": "Settings Sections"
+    },
+    "sections": {
+      "identity": "Store Identity",
+      "media": "Media and Appearance",
+      "colors": "Colors",
+      "theme": "Store Theme",
+      "seo": "SEO",
+      "social": "Social Links"
+    },
+    "identity": {
+      "storeName": "Store Name *",
+      "storeNamePlaceholder": "Nour Boutique...",
+      "storeLink": "Store Link",
+      "copyLink": "Copy Link",
+      "linkHint": "The link is fixed and cannot be changed after the store is created",
+      "category": "Store Category",
+      "catFashion": "Fashion 👗",
+      "catCosmetics": "Cosmetics 💄",
+      "catBoth": "Fashion & Cosmetics ✨",
+      "city": "City",
+      "cityPlaceholder": "Cairo...",
+      "desc": "Store Description *",
+      "descPlaceholder": "Write a description that attracts your customers — what makes your store special?",
+      "descHint": "{{count}} / 300 characters",
+      "fallbackName": "Your store name",
+      "fallbackDesc": "Your store description will appear here...",
+      "brandColors": "Your brand colors"
+    },
+    "media": {
+      "logo": "Store Logo",
+      "logoPlaceholder": "Logo image URL (https://...)",
+      "logoHint": "Square dimensions (e.g. 512x512)",
+      "cover": "Cover Photo",
+      "coverPlaceholder": "Cover photo URL",
+      "coverHint": "16:9 or 3:1 ratio (e.g. 1200x400)"
+    },
+    "colors": {
+      "primary": "Primary Color",
+      "primaryHint": "Color of buttons, headers and basic identity",
+      "secondary": "Secondary/Accent Color",
+      "secondaryHint": "Color of highlights, icons and details (optional)",
+      "customColor": "Or enter color code:",
+      "presetColors": "Suggested colors",
+      "preview": "Preview:"
+    },
+    "theme": {
+      "title": "Store Theme",
+      "desc": "Choose the general design of your store — it will be applied to the interface immediately.",
+      "selected": "Selected",
+      "select": "Select"
+    },
+    "seo": {
+      "titleTag": "Page Title (Title Tag)",
+      "titlePlaceholder": "Nour Fashion Store — Latest Egyptian Fashion",
+      "titleHint": "{{count}}/70 characters • Appears in Google results",
+      "metaDesc": "Page Description (Meta Description)",
+      "metaPlaceholder": "Discover the latest Egyptian fashion trends...",
+      "metaHint": "{{count}}/160 characters • Appears below the title in Google",
+      "previewTitle": "Google Preview",
+      "save": "Save SEO",
+      "saving": "Saving...",
+      "success": "SEO settings updated successfully.",
+      "error": "An error occurred"
+    },
+    "social": {
+      "title": "Social Links and Contact Information",
+      "email": "Email",
+      "phone": "Phone Number",
+      "save": "Save Links",
+      "saving": "Saving...",
+      "success": "Social links updated.",
+      "error": "An error occurred"
+    },
+    "messages": {
+      "saveSuccess": "Saved ✓",
+      "saveSuccessDesc": "Your store settings have been successfully updated.",
+      "saveError": "An error occurred",
+      "saveErrorDesc": "Could not save settings. Try again."
+    },
+    "themes": {
+      "classic_name": "Classic",
+      "classic_desc": "Warm gradient, rounded cards, lively and modern",
+      "luxe_name": "Luxe",
+      "luxe_desc": "Elegant black, editorial design, luxurious and bold",
+      "minimal_name": "Minimal",
+      "minimal_desc": "Bright white, thin lines, wide spaces",
+      "vibrant_name": "Vibrant",
+      "vibrant_desc": "Bold colors, circular shapes, energetic",
+      "boutique_name": "Boutique",
+      "boutique_desc": "Warm cream, circular, upscale boutique vibe",
+      "elegant_name": "Elegant",
+      "elegant_desc": "Calm gradient, tall and elegant cards, modern",
+      "royal_name": "Royal",
+      "royal_desc": "Dark navy, geometric patterns, luxurious royal tone",
+      "magazine_name": "Magazine",
+      "magazine_desc": "Editorial design, segmented, like a fashion magazine cover",
+      "retro_name": "Retro",
+      "retro_desc": "Warm vintage, classic design, thick border cards",
+      "pastel_name": "Pastel",
+      "pastel_desc": "Soft dreamy colors, transparent rounded cards",
+      "neon_name": "Neon",
+      "neon_desc": "Pitch black, neon glowing cards, bold and urban",
+      "street_name": "Street",
+      "street_desc": "Bold dark, 2 columns, youthful urban textures",
+      "summer_name": "Summer",
+      "summer_desc": "Bright and lively, colored squares, summery",
+      "nature_name": "Nature",
+      "nature_desc": "Calm green, organic cards, natural and authentic",
+      "glass_name": "Glass",
+      "glass_desc": "Gradient background, frosted transparent glass cards",
+      "craft_name": "Craft",
+      "craft_desc": "Warm craft texture, dotted borders, handmade",
+      "sporty_name": "Sporty",
+      "sporty_desc": "Diagonal lines, square images, bold sporty energy",
+      "heritage_name": "Heritage",
+      "heritage_desc": "Heritage green, geometric patterns, authenticity and heritage",
+      "salon_name": "Salon",
+      "salon_desc": "Gentle gradient, circular images, feminine beauty look",
+      "bold_name": "Bold",
+      "bold_desc": "Huge editorial division, 2 large columns, impactful"
+    },
+    "livePreview": {
+      "title": "Live Preview",
+      "pendingChanges": "Pending changes",
+      "qrTitle": "Your Store QR Code",
+      "download": "Download high quality",
+      "qrHint": "Put this QR Code on your products or business cards",
+      "tipsTitle": "💡 Tips",
+      "tip1": "• Square logo looks better (1:1)",
+      "tip2": "• Ideal cover image is 1200x400 pixels",
+      "tip3": "• Short and catchy description increases sales",
+      "tip4": "• Choose a color that reflects your brand identity"
+    },
+    "presets": {
+      "pink": "Authentic Pink",
+      "purple": "Royal Purple",
+      "blue": "Sky Blue",
+      "green": "Emerald Green",
+      "gold": "Sandy Gold",
+      "red": "Ruby Red",
+      "lightPink": "Light Pink",
+      "navy": "Elegant Navy",
+      "warmGold": "Warm Gold",
+      "teal": "Turquoise Teal",
+      "orange": "Orange",
+      "gray": "Gray",
+      "black": "Black",
+      "lightPurple": "Light Purple"
+    }
+  },
+  "productDetail": {
+    "notFound": "Product not found",
+    "notFoundDesc": "The requested product could not be found.",
+    "backToProducts": "Back to products",
+    "outOfStockBadge": "Out of stock",
+    "discount": "Discount",
+    "size": "Size",
+    "color": "Color",
+    "stock": "Stock:",
+    "availablePieces": "pieces available",
+    "outOfStock": "Out of stock",
+    "outOfStockShort": "Sold out",
+    "variantAvailable": "variant available",
+    "variantsAvailable": "variants available",
+    "selectSizeFirst": "Select size first",
+    "selectColor": "Select color",
+    "selectSizeColorFirst": "Select size/color first",
+    "addedToCart": "Added to cart ✓",
+    "addToCart": "Add to cart",
+    "orderOnWhatsapp": "Order on WhatsApp",
+    "reviews": "Customer Reviews",
+    "ratings": "rating",
+    "noReviewsYet": "No reviews yet",
+    "beFirstToReview": "Be the first to review this product",
+    "writeReview": "Write your review",
+    "thanksForReview": "Thanks for your review!",
+    "reviewPendingReview": "Your review will appear after approval",
+    "addAnotherReview": "Add another review",
+    "ratingLabel": "Rating *",
+    "nameLabel": "Your name *",
+    "namePlaceholder": "Jane Doe",
+    "emailLabel": "Your email *",
+    "emailPlaceholder": "jane@example.com",
+    "opinionLabel": "Your opinion (optional)",
+    "opinionPlaceholder": "Share your experience with this product...",
+    "sendReview": "Send review",
+    "sending": "Sending...",
+    "reviewApprovalNote": "Your review will appear after review by the store owner",
+    "whatsappMsgPrefix": "Hello 👋, I would like to inquire about the product:",
+    "whatsappMsgPrice": "Price:",
+    "whatsappMsgVariant": "— Size/Color:",
+    "pieces": "pieces"
+  },
+  "categories": {
+    "types": {
+      "fashion": "Fashion",
+      "cosmetics": "Cosmetics"
+    },
+    "form": {
+      "nameArLabel": "Arabic Name",
+      "nameArPlaceholder": "Dresses (in Arabic)",
+      "nameLabel": "Internal Name (English)",
+      "namePlaceholder": "Dresses",
+      "typeLabel": "Type",
+      "parentLabel": "Parent Category (Optional)",
+      "parentPlaceholder": "Main Category",
+      "parentNone": "None (Main Category)",
+      "imageLabel": "Category Image",
+      "btnEdit": "Save Changes",
+      "btnAdd": "Add Category"
+    },
+    "page": {
+      "title": "Categories",
+      "subtitle": "Manage product categories shown in the store",
+      "btnAdd": "Add Category",
+      "addTitle": "Add New Category",
+      "editTitle": "Edit Category",
+      "empty": "No categories yet"
+    },
+    "card": {
+      "productCount": "product",
+      "subOf": "Sub of:",
+      "btnProducts": "Products",
+      "btnEdit": "Edit"
+    }
+  },
+  "orders": {
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "page": {
+      "title": "Orders",
+      "subtitle": "Manage and track all incoming orders from your store"
+    },
+    "guide": {
+      "title": "How to manage your orders?",
+      "description": "Here you find all orders from your store. Click on any order to view details and update its status.",
+      "step1": {
+        "title": "Receive Order",
+        "desc": "When a new order arrives, you will get a notification review it within 24 hours."
+      },
+      "step2": {
+        "title": "Confirm & Prepare",
+        "desc": "Change status to Confirmed when verifying and preparing the order."
+      },
+      "step3": {
+        "title": "Shipping & Delivery",
+        "desc": "When sending for shipping, change status to Shipped and add tracking number."
+      },
+      "step4": {
+        "title": "After Delivery",
+        "desc": "Follow up with the customer to ensure satisfaction and encourage reviews."
+      },
+      "tips": [
+        "Respond to COD orders within 2 hours to reduce cancellation rate.",
+        "Use the Pending filter to show orders that need immediate attention.",
+        "Send a WhatsApp message immediately after confirming an order to build trust."
+      ]
+    },
+    "search": {
+      "placeholder": "Search by ID or customer name..."
+    },
+    "filter": {
+      "all": "All"
+    },
+    "list": {
+      "orderCount": "order(s)",
+      "orderNum": "Order #",
+      "unknownCustomer": "Unknown Customer",
+      "productCount": "product(s)",
+      "empty": "No orders yet"
+    }
+  },
+  "orderDetail": {
+    "status": {
+      "pending": "Pending",
+      "awaiting_confirmation": "Awaiting confirmation",
+      "confirmed": "Confirmed",
+      "dispatched": "Dispatched",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "returned": "Returned"
+    },
+    "paymentStatus": {
+      "pending": "Not paid yet",
+      "paid": "Paid",
+      "failed": "Payment failed"
+    },
+    "method": {
+      "phone": "Phone call",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "other": "Other"
+    },
+    "history": {
+      "title": "Order Status History",
+      "now": "Now"
+    },
+    "msgTypes": {
+      "confirmation": "Order Confirmation",
+      "shipping": "Shipping Update",
+      "followup": "Follow-up after delivery"
+    },
+    "ai": {
+      "title": "AI Message Draft",
+      "btnGenerate": "Write Message",
+      "btnGenerating": "Writing...",
+      "loading": "AI is writing a custom message...",
+      "error": "An error occurred",
+      "btnCopy": "Copy Message",
+      "btnCopied": "Copied ✅",
+      "btnWhatsapp": "Send via WhatsApp"
+    },
+    "contact": {
+      "title": "Contact Attempts",
+      "btnAdd": "Log Attempt",
+      "notePlaceholder": "Optional note...",
+      "btnSave": "Save Attempt",
+      "btnSaving": "Saving...",
+      "btnCancel": "Cancel",
+      "empty": "No contact attempts logged yet"
+    },
+    "cod": {
+      "rate": "COD Confirmation Rate:",
+      "trusted": "Trusted Customer",
+      "medium": "Medium Risk",
+      "high": "High Risk!",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "callFirst": "Call to confirm before shipping",
+      "verifyFirst": "Verify carefully before shipping"
+    },
+    "whatsapp": {
+      "title": "Confirm Order on WhatsApp",
+      "placeholder": "Customer WhatsApp Number",
+      "btnSend": "Send",
+      "btnSending": "Sending...",
+      "help": "If WhatsApp Business API is configured, it will be sent automatically — otherwise it opens manual send link",
+      "btnManual": "Open WhatsApp & Send",
+      "successConfigured": "Message sent automatically via WhatsApp API ✅",
+      "successManual": "Open WhatsApp link to send confirmation manually",
+      "error": "An error occurred — try again",
+      "missingPhone": "Enter phone number first"
+    },
+    "bosta": {
+      "title": "Create Bosta Shipment",
+      "badge": "Shipped",
+      "successLabel": "Shipment created — Tracking Number:",
+      "btnTrack": "Track Shipment",
+      "phonePlaceholder": "Customer Phone Number",
+      "cityPlaceholder": "City (Cairo)",
+      "btnCreate": "Create Bosta Shipment",
+      "btnCreating": "Creating Shipment...",
+      "btnReturn": "Open Return / Exchange Case",
+      "missingPhone": "Enter phone number first",
+      "success": "Shipment created ✅ Tracking Number: {trackingNumber}",
+      "errorUnconfigured": "Bosta not configured — add BOSTA_API_KEY",
+      "error": "An error occurred while creating shipment"
+    },
+    "page": {
+      "back": "Back to Orders",
+      "orderId": "Order #",
+      "notFound": "Order not found"
+    },
+    "card": {
+      "customerTitle": "Customer Information",
+      "whatsapp": "WhatsApp",
+      "shippingTitle": "Shipping Address",
+      "itemsTitle": "Order Items",
+      "quantity": "Quantity:",
+      "totalTitle": "Total",
+      "statusPlaceholder": "Update order status...",
+      "btnUpdate": "Update",
+      "btnUpdating": "Updating..."
+    }
+  },
+  "customers": {
+    "page": {
+      "title": "Customers",
+      "subtitle": "Store customer database with Cash on Delivery confirmation rate"
+    },
+    "guide": {
+      "title": "Understand Your Customer Base",
+      "description": "Here you find every customer who has placed an order. Search for any customer and view their purchase history and confirmation rate.",
+      "tips": [
+        "Customers with low confirmation rate (under 50%) — follow up before packing.",
+        "Repeat customers are your true treasure — send them special offers.",
+        "A verified phone number means a more reliable customer for COD orders."
+      ]
+    },
+    "search": {
+      "placeholder": "Search by customer name or email..."
+    },
+    "list": {
+      "customerCount": "customer(s)",
+      "empty": "No customers found"
+    },
+    "card": {
+      "repeated": "Repeated",
+      "ordersCount": "order(s)",
+      "codConfirmTitle": "Confirmation",
+      "codTitle": "COD Orders: {totalCod} | Confirmed: {confirmed} | Cancelled: {cancelled}",
+      "riskHigh": "High risk — high cancellation rate, verify before shipping",
+      "riskMedium": "Medium risk — call customer before shipping"
+    }
+  },
+  "returns": {
+    "page": {
+      "title": "Returns & Exchanges",
+      "subtitle": "Track returns and exchanges for your orders"
+    },
+    "status": {
+      "REQUESTED": "Requested",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "RECEIVED": "Received",
+      "RESOLVED": "Resolved"
+    },
+    "btnNew": "New Return Request",
+    "create": {
+      "title": "New Return / Exchange Request",
+      "orderId": "Order ID",
+      "orderIdPlaceholder": "Enter Order ID",
+      "reason": "Return Reason",
+      "reasonPlaceholder": "Example: Damaged product / Wrong size",
+      "note": "Notes (Optional)",
+      "notePlaceholder": "Additional details...",
+      "btnCancel": "Cancel",
+      "btnCreate": "Create Request"
+    },
+    "update": {
+      "title": "Update Return Request #{id}",
+      "newStatus": "New Status",
+      "note": "Note",
+      "btnCancel": "Cancel",
+      "btnSave": "Save Changes"
+    },
+    "search": {
+      "placeholder": "Search by Order ID, Customer Name, or Reason..."
+    },
+    "list": {
+      "emptySearch": "No matching results",
+      "empty": "No return requests yet",
+      "returnNum": "Return #",
+      "orderNum": "Order #",
+      "btnOrder": "Order",
+      "btnUpdate": "Update"
+    },
+    "toast": {
+      "createSuccess": "Return request created",
+      "updateSuccess": "Status updated",
+      "fetchError": "Failed to fetch return requests",
+      "actionError": "Failed"
+    }
+  },
+  "shippingRules": {
+    "page": {
+      "title": "Shipping Rules",
+      "subtitle": "Set shipping costs by governorate or city"
+    },
+    "btnAdd": "Add Zone",
+    "form": {
+      "governorate": "Governorate",
+      "city": "City / Area (Optional)",
+      "cityPlaceholder": "e.g. Nasr City",
+      "cost": "Shipping Cost",
+      "days": "Delivery Days",
+      "enable": "Enable this zone",
+      "btnCancel": "Cancel",
+      "btnSave": "Save"
+    },
+    "settings": {
+      "title": "General Shipping Settings",
+      "defaultCost": "Default Shipping Cost",
+      "freeMin": "Free Shipping Minimum Subtotal",
+      "freeMinPlaceholder": "Leave empty to disable",
+      "freeEnable": "Enable Free Shipping",
+      "freeEnableDesc": "Applied when order subtotal exceeds minimum",
+      "btnSave": "Save Settings"
+    },
+    "stats": {
+      "totalZones": "Total Zones",
+      "activeZones": "Active Zones",
+      "govCoverage": "Governorates Covered"
+    },
+    "list": {
+      "title": "Shipping Zones",
+      "empty": "No shipping zones yet",
+      "btnAddFirst": "Add first zone",
+      "disabled": "Disabled",
+      "deliveryDays": "delivery day(s)"
+    },
+    "toast": {
+      "createSuccess": "Shipping zone created",
+      "updateSuccess": "Updated successfully",
+      "deleteSuccess": "Zone deleted",
+      "settingsSuccess": "Settings saved",
+      "fetchError": "Failed",
+      "deleteError": "Failed to delete"
+    }
+  },
+  "inventoryAlerts": {
+    "page": {
+      "title": "Inventory Alerts",
+      "subtitle": "Monitor low stock products and send a reminder to yourself"
+    },
+    "btnSendWhatsApp": "Send WhatsApp Summary",
+    "stats": {
+      "outOfStock": "Out of Stock",
+      "critical": "Critical (1-3 items)",
+      "lowStock": "Low Stock",
+      "total": "Total Products"
+    },
+    "settings": {
+      "title": "Default Alert Threshold",
+      "subtitle": "You will be alerted when the stock of any product reaches this number or below",
+      "unit": "item(s)",
+      "btnSave": "Save"
+    },
+    "empty": {
+      "title": "Your stock is excellent!",
+      "subtitle": "All your products are above the specified minimum limit ({threshold} items)"
+    },
+    "list": {
+      "title": "Products needing restock",
+      "productCount": "({count} products)",
+      "table": {
+        "product": "Product",
+        "stock": "Stock",
+        "level": "Level",
+        "threshold": "Threshold",
+        "status": "Status",
+        "action": "Action"
+      },
+      "defaultThreshold": "(Default)",
+      "btnEdit": "Edit threshold"
+    },
+    "badge": {
+      "outOfStock": "Out",
+      "critical": "Critical",
+      "low": "Low"
+    },
+    "dialog": {
+      "title": "Edit Alert Threshold",
+      "product": "Product:",
+      "threshold": "Minimum Stock Threshold",
+      "unit": "item(s)",
+      "defaultNote": "Store default threshold: {threshold} item(s). ",
+      "btnRemove": "Remove customization",
+      "btnCancel": "Cancel",
+      "btnSave": "Save"
+    },
+    "whatsapp": {
+      "title": "Send WhatsApp Summary",
+      "subtitle": "A list of {count} low stock products will be sent to the WhatsApp number",
+      "phone": "WhatsApp Number",
+      "phoneNote": "Enter your number to send a reminder to yourself, or the supplier's number",
+      "btnCancel": "Cancel",
+      "btnOpen": "Open WhatsApp"
+    }
+  },
+  "analytics": {
+    "page": {
+      "title": "Analytics and Performance",
+      "subtitle": "A comprehensive overview of your store's performance",
+      "requireLogin": "You must be logged in to view analytics"
+    },
+    "presets": {
+      "days7": "7 Days",
+      "days30": "30 Days",
+      "days90": "90 Days"
+    },
+    "toast": {
+      "fetchError": "Failed to fetch analytics"
+    },
+    "stockStatus": {
+      "outOfStock": "Out of stock",
+      "lowStock": "Low stock",
+      "ok": "In stock"
+    },
+    "kpi": {
+      "totalOrders": "Total Orders",
+      "grossRevenue": "Gross Revenue",
+      "netRevenue": "Net Revenue",
+      "netRevenueSub": "Excluding canceled and returned",
+      "avgOrderValue": "Average Order Value",
+      "cancellationRate": "Cancellation Rate",
+      "returnRate": "Return Rate",
+      "repeatCustomerCount": "Repeat Customers",
+      "repeatCustomerSub": "Ordered more than once",
+      "openReturnCases": "Open Return Cases"
+    },
+    "charts": {
+      "salesByDay": "Sales by Day",
+      "orderStatus": "Order Statuses",
+      "revenueTooltip": "Revenue",
+      "topProducts": "Top Selling Products",
+      "noSales": "No sales in this period",
+      "units": "unit(s)",
+      "lowStock": "Low / Out of Stock",
+      "noLowStock": "No low stock products 👍",
+      "remaining": "Remaining:",
+      "outOf": "of",
+      "productRevenue": "Product Revenue Comparison"
+    }
+  },
+  "discounts": {
+    "page": {
+      "title": "Discount Codes",
+      "subtitle": "Create and manage discount codes to encourage customers to purchase"
+    },
+    "btnNew": "New Code",
+    "stats": {
+      "total": "Total Codes",
+      "active": "Active Codes",
+      "used": "Times Used"
+    },
+    "empty": {
+      "title": "No discount codes",
+      "subtitle": "Create your first discount code for your customers"
+    },
+    "badge": {
+      "percentage": "{value}% off",
+      "fixed": "{value} {currency} off",
+      "freeShipping": "Free Shipping"
+    },
+    "list": {
+      "minOrder": "Min order: {value} {currency}",
+      "usage": "{used}/{max} uses",
+      "usageUnlimited": "{used} uses",
+      "expired": "Expired",
+      "expiresAt": "Expires {date}",
+      "exhausted": "Exhausted"
+    },
+    "dialog": {
+      "createTitle": "New Discount Code",
+      "editTitle": "Edit Discount Code",
+      "code": "Discount Code *",
+      "btnRandom": "Random",
+      "type": "Discount Type *",
+      "typePercentage": "Percentage %",
+      "typeFixed": "Fixed amount ({currency})",
+      "typeFreeShipping": "Free Shipping",
+      "valuePercentage": "Discount Percentage (1-100) *",
+      "valueFixed": "Discount Amount ({currency}) *",
+      "minOrder": "Minimum Order Amount ({currency})",
+      "minOrderPlaceholder": "Optional",
+      "maxUses": "Max Uses",
+      "maxUsesPlaceholder": "Unlimited",
+      "expiresAt": "Expiry Date",
+      "btnCancel": "Cancel",
+      "btnCreate": "Create Code",
+      "btnSave": "Save Changes"
+    },
+    "delete": {
+      "title": "Delete Discount Code",
+      "desc": "Are you sure you want to delete the code {code}? This cannot be undone.",
+      "btnCancel": "Cancel",
+      "btnConfirm": "Delete"
+    },
+    "errors": {
+      "codeRequired": "Code is required",
+      "valueRequired": "Value is required",
+      "valueMax": "Percentage cannot exceed 100%"
+    },
+    "toast": {
+      "fetchError": "Failed to fetch",
+      "saveError": "Failed to save",
+      "updateError": "Failed to update"
+    }
+  },
+  "abandonedCarts": {
+    "page": {
+      "title": "Abandoned Carts",
+      "subtitle": "Follow up with customers who added products and didn't complete the purchase"
+    },
+    "stats": {
+      "abandoned": "Abandoned Carts",
+      "lostValue": "Lost Value ({currency})",
+      "withPhone": "Have WhatsApp",
+      "active": "Active Now"
+    },
+    "tabs": {
+      "abandoned": "Abandoned",
+      "active": "Active"
+    },
+    "empty": {
+      "abandonedTitle": "No abandoned carts",
+      "activeTitle": "No active carts currently",
+      "abandonedDesc": "Excellent! All customers completed their orders",
+      "activeDesc": "No customers in the middle of shopping right now"
+    },
+    "timeAgo": {
+      "minutes": "{minutes} minutes ago",
+      "hours": "{hours} hours ago",
+      "days": "{days} days ago"
+    },
+    "customer": {
+      "anonymous": "Anonymous Visitor",
+      "noContact": "No contact details"
+    },
+    "cart": {
+      "abandoned": "Abandoned",
+      "active": "Active",
+      "itemsMore": "+{count} more items",
+      "emptyCart": "Empty cart",
+      "productCount": "{count} product(s)",
+      "btnWhatsapp": "WhatsApp",
+      "btnNoPhone": "No phone"
+    },
+    "whatsappTip": {
+      "title": "You can reach {count} customers via WhatsApp",
+      "desc": "Click 'WhatsApp' next to any cart to open a ready-made reminder message — WhatsApp Web will open directly in your browser"
+    },
+    "toast": {
+      "remindError": "Failed"
+    }
+  },
+  "growth": {
+    "page": {
+      "title": "Upgrade Your Store",
+      "subtitle": "Compare plans and choose what fits your business"
+    },
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "f1": "50 Products",
+        "f2": "100 Orders/month",
+        "f3": "Online Store",
+        "f4": "Email Support"
+      },
+      "growth": {
+        "name": "Growth",
+        "f1": "500 Products",
+        "f2": "1000 Orders/month",
+        "f3": "Paymob Integration",
+        "f4": "WhatsApp Integration",
+        "f5": "Message Automation",
+        "f6": "Advanced Reports"
+      },
+      "pro": {
+        "name": "Pro",
+        "f1": "Unlimited Products",
+        "f2": "Unlimited Orders",
+        "f3": "Custom Domain",
+        "f4": "All Growth Features",
+        "f5": "Priority Support",
+        "f6": "Data Export"
+      }
+    },
+    "status": {
+      "currentPlan": "Your Current Plan",
+      "trial": "Active Trial",
+      "active": "Active Subscription"
+    },
+    "cards": {
+      "bestFor": "Best for successful stores ✨",
+      "yourPlan": "Your Plan",
+      "currency": "{currency} / Month",
+      "btnCurrent": "Current Plan",
+      "btnUpgrade": "Upgrade Now",
+      "btnPrevious": "Previous Plan"
+    },
+    "matrix": {
+      "title": "Detailed Feature Comparison",
+      "feature": "Feature",
+      "yourPlan": "Your Plan"
+    },
+    "features": {
+      "products": "Number of Products",
+      "productsV1": "50",
+      "productsV2": "500",
+      "productsV3": "Unlimited",
+      "orders": "Monthly Orders",
+      "ordersV1": "100",
+      "ordersV2": "1,000",
+      "ordersV3": "Unlimited",
+      "paymob": "Paymob Integration",
+      "whatsapp": "WhatsApp Integration",
+      "pixels": "Tracking Pixels",
+      "domain": "Custom Domain",
+      "export": "Data Export",
+      "automation": "Marketing Automation"
+    }
+  },
+  "affiliates": {
+    "page": {
+      "title": "Affiliates and Commissions Program",
+      "subtitle": "Create a unique code for each affiliate, track their sales, and calculate their commission automatically",
+      "btnAdd": "Add Affiliate"
+    },
+    "stats": {
+      "affiliates": "Affiliates",
+      "orders": "Converted Order(s)",
+      "commissionDue": "Commission Due {currency}"
+    },
+    "empty": {
+      "title": "No affiliates added yet",
+      "desc": "Add an affiliate and a discount code will be generated automatically — track their sales and commissions here",
+      "btnAddFirst": "Add first affiliate"
+    },
+    "list": {
+      "inactive": "Inactive",
+      "promoCode": "Promo Code:",
+      "uses": "Uses",
+      "revenue": "Revenue",
+      "commission": "Commission",
+      "due": "Due",
+      "toggleActive": "Activate",
+      "toggleInactive": "Deactivate",
+      "flatPerOrder": "{value} {currency}/order"
+    },
+    "howItWorks": {
+      "title": "How does the program work?",
+      "s1Title": "Add an affiliate",
+      "s1Desc": "Enter their name, account handle, and their discount code",
+      "s2Title": "Share the code",
+      "s2Desc": "Their followers use the code when purchasing from your store",
+      "s3Title": "Track and pay",
+      "s3Desc": "You see their revenue and commission automatically — pay them monthly"
+    },
+    "form": {
+      "title": "Add New Affiliate",
+      "name": "Affiliate Name *",
+      "namePlaceholder": "Sara Ahmed",
+      "handle": "Contact Handle *",
+      "handlePlaceholder": "@sara_style",
+      "platform": "Platform",
+      "platformOther": "Other",
+      "promoSection": "Affiliate Promo Code",
+      "promoCode": "Promo Code (auto-generated for affiliate) *",
+      "promoHint": "Shared with followers — cannot be duplicated",
+      "discountType": "Discount Type",
+      "discountTypePercent": "Percentage %",
+      "discountTypeFixed": "Fixed amount {currency}",
+      "discountValue": "Discount Value",
+      "commissionSection": "Affiliate Commission",
+      "commissionType": "Commission Type",
+      "commissionTypePercent": "% of revenue",
+      "commissionTypeFlat": "Fixed amount / order",
+      "commissionValue": "Value",
+      "commissionHintPercent": "The affiliate gets {value}% of every converted order's value",
+      "commissionHintFlat": "The affiliate gets {value} {currency} for each completed order",
+      "notes": "Notes (Optional)",
+      "notesPlaceholder": "Monthly collaboration, covers dresses category...",
+      "btnCancel": "Cancel",
+      "btnAdd": "Add Affiliate",
+      "btnAdding": "Creating..."
+    },
+    "delete": {
+      "title": "Delete Affiliate",
+      "desc": "The affiliate will be deleted from your list. Their discount code will still exist on the discounts page.",
+      "btnCancel": "Cancel",
+      "btnDelete": "Delete",
+      "btnDeleting": "Deleting..."
+    },
+    "toast": {
+      "fetchError": "Failed to load affiliates",
+      "createSuccess": "Affiliate added",
+      "createSuccessDesc": "The code was generated automatically and linked to the affiliate",
+      "createError": "Creation failed",
+      "updateError": "Update failed",
+      "deleteSuccess": "Deleted",
+      "deleteError": "Deletion failed",
+      "errorTitle": "Error",
+      "validationError": "Name, handle and promo code are required"
+    },
+    "copy": {
+      "copy": "Copy",
+      "copied": "Copied"
+    }
+  },
+  "automation": {
+    "page": {
+      "title": "Automation and Rules",
+      "subtitle": "Automate repetitive tasks to save your time",
+      "btnNewRule": "New Rule"
+    },
+    "triggers": {
+      "order_created": "When a new order is created",
+      "status_changed_to_confirmed": "When order is confirmed",
+      "status_changed_to_dispatched": "When order is dispatched",
+      "status_changed_to_delivered": "When order is delivered",
+      "status_changed_to_cancelled": "When order is cancelled",
+      "awaiting_confirmation_timeout": "When confirmation timeout ends",
+      "failed_contact_attempt": "After failed contact attempt"
+    },
+    "actions": {
+      "send_whatsapp": "Send WhatsApp message",
+      "mark_follow_up": "Add for follow-up",
+      "alert_merchant": "Alert Merchant"
+    },
+    "form": {
+      "ruleName": "Rule Name",
+      "ruleNamePlaceholder": "Example: Auto-confirm",
+      "trigger": "Trigger",
+      "action": "Action",
+      "enableRule": "Enable Rule",
+      "btnCancel": "Cancel",
+      "btnSave": "Save"
+    },
+    "planGate": {
+      "title": "This feature is only available in Growth and Pro plans",
+      "desc": "Upgrade your plan to benefit from order and message automation"
+    },
+    "info": {
+      "desc": "Rules will only send messages if a WhatsApp provider is active. Make sure to set up the provider in store settings first."
+    },
+    "empty": {
+      "title": "No automation rules yet",
+      "btnAddFirst": "Add first rule"
+    },
+    "list": {
+      "disabled": "Disabled"
+    },
+    "toast": {
+      "fetchError": "Failed to load automation rules",
+      "createSuccess": "Rule created successfully",
+      "updateSuccess": "Rule updated successfully",
+      "deleteSuccess": "Rule deleted successfully",
+      "errorTitle": "Error",
+      "actionFailed": "Action failed"
+    }
+  },
+  "tracking": {
+    "title": "Tracking Pixels",
+    "subtitle": "Track your store performance and marketing campaigns",
+    "hints": {
+      "ga4": "Example: G-ABC123XYZ",
+      "meta": "10-20 digits only",
+      "tiktok": "Alphanumeric string",
+      "googleAds": "Example: AW-123456789"
+    },
+    "howToGetIt": "How to get it",
+    "active": "Active",
+    "saveBtn": "Save Settings",
+    "saving": "Saving...",
+    "savedSuccess": "Tracking settings saved successfully"
+  },
+  "facebookModerator": {
+    "title": "Smart Facebook Moderator",
+    "subtitle": "Manage and reply to your page's comments and messages with AI",
+    "apiError": "An error occurred",
+    "status": {
+      "pending": "Pending",
+      "replied": "Replied",
+      "ignored": "Ignored",
+      "flagged": "Flagged"
+    },
+    "connectPanel": {
+      "title": "Connect Facebook Page",
+      "howTo": "How to get connection details:",
+      "steps": [
+        "Open Meta Business Suite → Settings → API Access",
+        "Create a permanent Page Access Token with permissions: pages_read_engagement, pages_manage_posts, pages_messaging",
+        "Copy your page ID from its URL: facebook.com/YourPageName → Settings → Page ID"
+      ],
+      "pageIdLabel": "Page ID",
+      "pageIdPlaceholder": "123456789012345",
+      "tokenLabel": "Page Access Token",
+      "tokenPlaceholder": "EAABsbCS...",
+      "btnConnect": "Connect Page",
+      "connecting": "Connecting...",
+      "errorEmpty": "Enter Page ID and Token",
+      "errorConnect": "Connection failed",
+      "successConnect": "✅ Connected to page \"{name}\""
+    },
+    "itemCard": {
+      "timeMinutes": "{minutes} minutes ago",
+      "timeHours": "{hours} hours ago",
+      "timeDays": "{days} days ago",
+      "showThread": "Show thread ({count} messages)",
+      "hideThread": "Hide thread",
+      "btnAiReply": "Smart Reply",
+      "btnDrafting": "Drafting...",
+      "btnManualReply": "Manual Reply",
+      "btnHide": "Hide",
+      "btnIgnore": "Ignore",
+      "btnFlag": "Flag",
+      "placeholderTextarea": "Type your reply here...",
+      "btnCopy": "Copy",
+      "btnCopied": "Copied",
+      "btnSendFb": "Send on Facebook",
+      "btnSending": "Sending...",
+      "msgDraftFailed": "Failed to generate reply",
+      "msgSendFailed": "Failed to send reply",
+      "msgSendSuccess": "✅ Reply sent on Facebook",
+      "repliedLabel": "Replied to this item"
+    },
+    "filter": {
+      "all": "All",
+      "pending": "Pending",
+      "replied": "Replied",
+      "flagged": "Flagged",
+      "ignored": "Ignored"
+    },
+    "main": {
+      "btnRefresh": "Refresh",
+      "btnDisconnect": "Disconnect",
+      "connectedTo": "Connected to page",
+      "tabComments": "Comments",
+      "tabMessages": "Messages",
+      "emptyComments": "No comments in the last 15 posts",
+      "emptyMessages": "No conversations in inbox",
+      "emptyFilter": "No items match this filter"
+    }
+  },
+  "storeBuilder": {
+    "loading": "Loading your store...",
+    "noStore": "No store connected to your account.",
+    "createFirst": "Create your store first"
+  },
+  "visualEditor": {
+    "toast": {
+      "saveSuccess": "Saved ✓",
+      "saveSuccessDesc": "All changes saved successfully",
+      "saveError": "Save Error",
+      "saveErrorDesc": "Please try again"
+    },
+    "menu": {
+      "openStoreSections": "Open store sections",
+      "storeSections": "Store Sections",
+      "closeSectionsMenu": "Close sections menu",
+      "chooseStoryPart": "Choose a part of the story",
+      "chooseStoryPartDesc": "Click a section, we will close the menu and open its settings."
+    },
+    "canvas": {
+      "editing": "Editing:",
+      "selectSectionToEdit": "Choose a section to edit",
+      "saveChanges": "Save Changes"
+    }
+  },
+  "editorCanvas": {
+    "deviceLabels": {
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Mobile"
+    },
+    "empty": {
+      "title": "Your home page is empty",
+      "desc": "Add sections from the sidebar to start designing your store"
+    }
+  },
+  "inspectorPanel": {
+    "actions": {
+      "title": "Related Actions",
+      "hero": {
+        "label": "Edit Store Identity",
+        "desc": "Change logo, cover image, name, and description."
+      },
+      "newArrivals": {
+        "label": "Manage New Arrivals",
+        "desc": "Add products, images, and inventory."
+      },
+      "bestSellers": {
+        "label": "Manage Best Sellers",
+        "desc": "Review products and inventory to showcase the best items."
+      },
+      "categories": {
+        "label": "Manage Categories",
+        "desc": "Add category images, arrange them, and link products."
+      },
+      "offers": {
+        "label": "Manage Discount Codes",
+        "desc": "Create offers and coupons for discount banners."
+      },
+      "testimonials": {
+        "label": "Manage Reviews",
+        "desc": "Review customer feedback before showcasing."
+      },
+      "about": {
+        "label": "Update Store Identity",
+        "desc": "Edit store description, city, and category."
+      },
+      "instagram": {
+        "label": "Link Social Accounts",
+        "desc": "Add Instagram, Facebook, and TikTok links."
+      },
+      "lookbook": {
+        "label": "Prepare Product Images",
+        "desc": "Upload high-quality product images for the lookbook."
+      },
+      "productCatalog": {
+        "label": "Manage Catalog",
+        "desc": "Control products, prices, images, statuses, and inventory."
+      },
+      "whatsapp": {
+        "label": "Update Contact Details",
+        "desc": "Add WhatsApp number and contact links."
+      },
+      "newsletter": {
+        "label": "Manage Customers",
+        "desc": "Review the customer base for newsletters."
+      },
+      "trustStrip": {
+        "label": "Setup Shipping Rules",
+        "desc": "Review shipping cost and delivery times."
+      }
+    },
+    "empty": {
+      "title": "Choose a Section",
+      "desc": "Click on any section in the preview to edit it here"
+    },
+    "buttons": {
+      "close": "Close editing panel",
+      "show": "Show",
+      "hide": "Hide",
+      "duplicate": "Duplicate",
+      "delete": "Delete"
+    },
+    "hiddenNotice": "This section is hidden from visitors",
+    "fields": {
+      "heading": "Section Title",
+      "subheading": "Subtitle",
+      "ctaText": "Button Text",
+      "body": "Story Text",
+      "imageUrl": "Background Image",
+      "imageUrlHint": "Enter image URL",
+      "height": "Section Height",
+      "heightShort": "Short",
+      "heightMedium": "Medium",
+      "heightTall": "Tall",
+      "heightFull": "Full Screen",
+      "textAlign": "Text Alignment",
+      "textAlignRight": "Right (RTL)",
+      "textAlignCenter": "Center",
+      "textAlignLeft": "Left",
+      "overlayOpacity": "Overlay Opacity",
+      "productCount": "Number of Products",
+      "cardStyle": "Display Style",
+      "layout": "Layout",
+      "layoutGrid": "Grid",
+      "layoutCarousel": "Carousel",
+      "layoutEditorial": "Editorial",
+      "layoutWithImage": "Text + Image",
+      "layoutTextOnly": "Text Only",
+      "showPrices": "Show Prices",
+      "showQuickAdd": "Quick Add Button",
+      "showRating": "Show Star Rating",
+      "floatingButton": "Floating WhatsApp Button",
+      "columns": "Number of Columns",
+      "trustStripNote": "The features strip displays trust promises such as shipping, returns, and quality. Review the associated action above to adjust the data supporting these promises.",
+      "faqNote": "The current editor controls the visibility of this section and its title. Editing question details requires an extended editing panel.",
+      "noSettings": "No settings available for this section."
+    }
+  },
+  "storeAssistant": {
+    "welcome": "Hello! I am your smart assistant to improve your store. Choose an action below or type your request.",
+    "errors": {
+      "connection": "Connection error",
+      "tryAgain": "An error occurred — try again"
+    },
+    "title": "Smart Store Assistant",
+    "quickActions": "Quick Actions:",
+    "placeholder": "Type your request here...",
+    "poweredBy": "Powered by AI —"
+  },
+  "editorSidebar": {
+    "tabs": {
+      "sections": "Sections",
+      "theme": "Theme",
+      "ai": "Assistant"
+    },
+    "hint": {
+      "female": "👋 Click on any section to edit it, or use the arrow buttons to change its order",
+      "male": "👋 Click on any section to edit it, or use the arrow buttons to change its order"
+    },
+    "sectionItem": {
+      "hidden": "Hidden",
+      "moveUp": "Move Up",
+      "moveDown": "Move Down",
+      "show": "Show",
+      "hide": "Hide",
+      "duplicate": "Duplicate",
+      "delete": "Delete"
+    },
+    "addSection": {
+      "button": "Add Section",
+      "titleFemale": "Choose a section to add",
+      "titleMale": "Choose a section to add",
+      "descFemale": "Click on any section to add it to the page",
+      "descMale": "Click on any section to add it to the page"
+    },
+    "themePanel": {
+      "title": "Choose Your Store Theme",
+      "buyNow": "Buy Now",
+      "customOptions": "Advanced Customization",
+      "primaryColor": "Primary Color",
+      "buttonStyle": {
+        "title": "Button Style",
+        "pill": "Pill",
+        "rounded": "Rounded",
+        "square": "Square"
+      },
+      "animation": {
+        "title": "Animation Level",
+        "none": "⬜ No Animation (Fastest)",
+        "subtle": "✨ Subtle Animation (Recommended)",
+        "lively": "🎬 Lively Animation (Joyful)"
+      },
+      "themes": {
+        "roseBoutique": {
+          "name": "Rose Boutique",
+          "desc": "Luxurious elegance with a warm touch"
+        },
+        "midnightGlam": {
+          "name": "Midnight Glam",
+          "desc": "Refined black with royal gold"
+        },
+        "emeraldFresh": {
+          "name": "Emerald Fresh",
+          "desc": "Natural and modern freshness"
+        },
+        "purpleLuxe": {
+          "name": "Purple Luxe",
+          "desc": "Purple mystery and elegance"
+        },
+        "sandMinimal": {
+          "name": "Sand Minimal",
+          "desc": "Simplicity and authenticity"
+        },
+        "oceanBlue": {
+          "name": "Ocean Blue",
+          "desc": "Calmness and blue confidence"
+        },
+        "coralPlayful": {
+          "name": "Coral Playful",
+          "desc": "Energy and bright colors"
+        },
+        "ivoryClassic": {
+          "name": "Ivory Classic",
+          "desc": "Heritage and timeless luxury"
+        }
+      }
+    }
+  },
+  "readinessChecklist": {
+    "title": "Store Readiness",
+    "status": {
+      "excellent": "Excellent — ready to publish!",
+      "good": "Close — add more",
+      "needsWork": "Needs some additions"
+    },
+    "items": {
+      "name": "Store name added",
+      "products": "At least 3 products",
+      "hero": "Hero section completed",
+      "whatsapp": "WhatsApp number for contact",
+      "color": "Primary color selected",
+      "return": "Return policy added",
+      "social": "Social media links",
+      "about": "Store story section",
+      "sections": "At least 3 sections on the page",
+      "mobile": "Mobile view checked"
+    },
+    "required": "(Required)",
+    "legend": {
+      "done": "Done",
+      "recommended": "Recommended",
+      "missing": "Missing"
+    },
+    "warning": "Complete required items before publishing"
+  },
+  "editorTopBar": {
+    "devices": {
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Mobile"
+    },
+    "tooltips": {
+      "unsavedChanges": "There are unsaved changes",
+      "undo": "Undo",
+      "redo": "Redo",
+      "preview": "Preview",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "saved": "Saved"
+    },
+    "hints": {
+      "save": "💾 Click here to save changes"
+    },
+    "publish": "Publish"
+  },
+  "welcomeOverlay": {
+    "female": {
+      "greeting": "Welcome to your store! 🎉",
+      "subtitle": "Your store is ready and waiting for you! Now you can easily customize it.",
+      "step1Title": "Choose a Theme",
+      "step1Desc": "From the \"Theme\" tab in the sidebar, choose a style that suits your store.",
+      "step2Title": "Arrange Sections",
+      "step2Desc": "From the \"Sections\" tab, add, remove, or reorder sections.",
+      "step3Title": "Save and Publish",
+      "step3Desc": "Once you're done editing, click 💾 Save then \"Publish\" to make your store live.",
+      "cta": "Let's Start! 🚀",
+      "assistantHint": "If you ever need help, click the \"Assistant\" tab ✨"
+    },
+    "male": {
+      "greeting": "Welcome to your store! 🎉",
+      "subtitle": "Your store is ready and waiting for you! Now you can easily customize it.",
+      "step1Title": "Choose a Theme",
+      "step1Desc": "From the \"Theme\" tab in the sidebar, choose a style that suits your store.",
+      "step2Title": "Arrange Sections",
+      "step2Desc": "From the \"Sections\" tab, add, remove, or reorder sections.",
+      "step3Title": "Save and Publish",
+      "step3Desc": "Once you're done editing, click 💾 Save then \"Publish\" to make your store live.",
+      "cta": "Let's Start! 🚀",
+      "assistantHint": "If you ever need help, click the \"Assistant\" tab ✨"
+    },
+    "close": "Close"
+  },
+  "sectionPreview": {
+    "edit": "Edit",
+    "defaults": {
+      "heroHeading": "Main Heading",
+      "heroSubheading": "Subheading Text",
+      "heroCta": "Shop Now",
+      "heroNewArrival": "New Arrival",
+      "newArrivalTag": "NEW",
+      "popularTag": "POPULAR",
+      "catalogTag": "CATALOG",
+      "catalogHeading": "All Products",
+      "catalogProducts": "Store Products",
+      "catalogFilters": [
+        "All",
+        "Fashion",
+        "Beauty",
+        "Perfumes"
+      ],
+      "categoriesHeading": "Categories",
+      "categoriesEmpty": "Add categories from the categories tab to show them here",
+      "categoriesDummy": [
+        "Fashion",
+        "Care",
+        "Accessories",
+        "Perfumes"
+      ],
+      "offersHeading": "30% OFF",
+      "offersCta": "Get the offer",
+      "aboutTag": "Our Story",
+      "newsletterCta": "Subscribe",
+      "whatsappCta": "Contact via WhatsApp"
+    }
+  },
+  "storefront": {
+    "announcement": {
+      "freeShipping": "Free shipping on orders over EGP 1000",
+      "useCode": "Use code WELCOME10 for 10% off your first order",
+      "close": "Close announcement"
+    },
+    "header": {
+      "search": "Search",
+      "cart": "Cart",
+      "menu": "Menu",
+      "links": {
+        "home": "Home",
+        "products": "Products",
+        "categories": "Categories",
+        "offers": "Offers"
+      }
+    },
+    "footer": {
+      "about": "About Us",
+      "contact": "Contact Us",
+      "quickLinks": "Quick Links",
+      "policies": "Policies",
+      "links": {
+        "shipping": "Shipping Policy",
+        "returns": "Return Policy",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "faq": "FAQ"
+      },
+      "rights": "All rights reserved.",
+      "developedBy": "Developed by Nour"
+    },
+    "hero": {
+      "shopNow": "Shop Now"
+    },
+    "categories": {
+      "viewAll": "View All Products"
+    },
+    "products": {
+      "newArrivals": "New Arrivals",
+      "bestSellers": "Best Sellers",
+      "trending": "Trending Now",
+      "viewAll": "View All",
+      "addToCart": "Add to Cart",
+      "outOfStock": "Out of Stock",
+      "soldOut": "Sold Out",
+      "quickAdd": "Quick Add",
+      "selectOptions": "Select Options"
+    },
+    "trust": {
+      "shipping": "Free Shipping",
+      "shippingDesc": "On orders over 1000 EGP",
+      "returns": "Easy Returns",
+      "returnsDesc": "Within 14 days",
+      "support": "24/7 Support",
+      "supportDesc": "We're here to help",
+      "secure": "Secure Payments",
+      "secureDesc": "100% protected"
+    },
+    "newsletter": {
+      "title": "Join Our Newsletter",
+      "subtitle": "Get updates on new arrivals and exclusive offers.",
+      "placeholder": "Your Email Address",
+      "subscribe": "Subscribe",
+      "success": "Thank you for subscribing!"
+    },
+    "search": {
+      "placeholder": "Search for products...",
+      "noResults": "No results found for",
+      "popular": "Popular Searches"
+    },
+    "lookbook": {
+      "title": "Editorial Lookbook",
+      "subtitle": "Discover the latest styles",
+      "shopLook": "Shop the Look"
+    },
+    "promo": {
+      "shopNow": "Shop Now"
+    },
+    "ugc": {
+      "title": "Join Our Community",
+      "subtitle": "Tag us on Instagram to be featured",
+      "follow": "Follow Us"
+    },
+    "beauty": {
+      "title": "Your Beauty Routine",
+      "subtitle": "Handpicked products for your daily care",
+      "step1": "Cleanse",
+      "step2": "Treat",
+      "step3": "Moisturize",
+      "step4": "Protect"
+    },
+    "checkout": {
+      "title": "Checkout",
+      "contact": "Contact Information",
+      "shipping": "Shipping Address",
+      "payment": "Payment",
+      "summary": "Order Summary",
+      "subtotal": "Subtotal",
+      "shippingFee": "Shipping Fee",
+      "total": "Total",
+      "placeOrder": "Place Order",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "fullName": "Full Name",
+      "address": "Address",
+      "city": "City",
+      "governorate": "Governorate",
+      "notes": "Order Notes (Optional)",
+      "cod": "Cash on Delivery",
+      "online": "Online Payment",
+      "applyCode": "Apply Code",
+      "discountCode": "Discount Code",
+      "backToCart": "Back to Cart"
+    },
+    "orderConfirmation": {
+      "title": "Order Confirmed!",
+      "subtitle": "Thank you for your order. We've sent a confirmation email.",
+      "orderId": "Order ID",
+      "trackOrder": "Track Order",
+      "continueShopping": "Continue Shopping",
+      "status": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "dear": "Dear",
+      "thankYou": "Thank you, ",
+      "paymentSuccess": "Your payment was received successfully. Your order will be processed and shipped soon.",
+      "paidOnline": "Paid online via Paymob",
+      "orderIds": "Order IDs",
+      "whatsappTitle": "Get order confirmation on WhatsApp",
+      "whatsappDesc": "Tap to open confirmation message for",
+      "whatsappBtn": "Send confirmation on WhatsApp",
+      "bostaTitle": "Delivery by Bosta",
+      "bostaDesc": "The store will create your shipment within 24 hours — you'll receive a tracking number"
+    },
+    "orderTrack": {
+      "status": {
+        "pending": "Pending Review",
+        "confirmed": "Confirmed",
+        "dispatched": "Dispatched",
+        "shipped": "On the way",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled",
+        "returned": "Returned"
+      },
+      "invalidLink": "Invalid order link",
+      "home": "Home",
+      "loading": "Searching for your order...",
+      "notFound": "Order not found",
+      "notFoundDesc": "Check the order number or contact the store",
+      "title": "Track Your Order",
+      "orderNo": "Order No.",
+      "statusLabel": "Order Status",
+      "trackingNo": "Tracking Number",
+      "timeline": "Order Timeline",
+      "details": "Order Details",
+      "total": "Total",
+      "store": "Store",
+      "visitStore": "Visit Store"
+    },
+    "error": {
+      "notFoundTitle": "Store Not Found",
+      "notFoundDesc": "We couldn't find a store with this link.",
+      "browseStores": "Browse Stores"
+    }
+  },
+  "exports": {
+    "title": "Export Data",
+    "subtitle": "Download your data as CSV files",
+    "newExport": "New Export",
+    "types": {
+      "orders": {
+        "label": "Orders",
+        "desc": "All orders with full data"
+      },
+      "products": {
+        "label": "Products",
+        "desc": "Product list with prices and stock"
+      },
+      "customers": {
+        "label": "Customers",
+        "desc": "Customer data and contact info"
+      },
+      "returns": {
+        "label": "Returns",
+        "desc": "Return cases and statuses"
+      },
+      "inventory_adjustments": {
+        "label": "Inventory Adjustments",
+        "desc": "Stock adjustment history"
+      }
+    },
+    "status": {
+      "queued": "Queued",
+      "processing": "Processing",
+      "complete": "Complete",
+      "failed": "Failed"
+    },
+    "dateFrom": "Date From (Optional)",
+    "dateTo": "Date To (Optional)",
+    "exportBtn": "Export {type}",
+    "exporting": "Exporting...",
+    "history": {
+      "title": "Export History",
+      "count": "{count} request(s)",
+      "empty": "No exports yet",
+      "rows": "{count} rows"
+    },
+    "error": "Export failed"
+  },
+  "pricing": {
+    "badge": "Clear plans — no hidden fees",
+    "title": "Choose the right plan for you",
+    "subtitle": "Start your journey with confidence — and upgrade anytime as your store grows",
+    "popular": "Most Popular ⭐",
+    "currencyPerMonth": "{currency} / month",
+    "unlimitedProducts": "Unlimited products",
+    "productsCount": "{count} products",
+    "unlimitedOrders": "Unlimited orders / month",
+    "ordersCount": "{count} orders / month",
+    "seatOne": "1 seat",
+    "seatsCount": "{count} seats",
+    "forTeam": "for the team",
+    "features": {
+      "store": "Full online store",
+      "tracking": "Order tracking",
+      "whatsappManual": "Manual WhatsApp",
+      "analytics": "Advanced analytics",
+      "paymob": "Paymob (Card / Fawry)",
+      "whatsappAuto": "Automated WhatsApp"
+    },
+    "soon": "Soon",
+    "startNow": "Start Now",
+    "noCreditCard": "No credit card required",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "Can I change my plan anytime?",
+      "a1": "Yes — contact our support team and we will upgrade or downgrade immediately.",
+      "q2": "What happens if I exceed the order limit?",
+      "a2": "Your store will not stop — we will contact you to upgrade your plan when you approach the limit.",
+      "q3": "Is the data safe?",
+      "a3": "Of course — each store is completely independent and isolated from the rest."
+    }
+  },
+  "home": {
+    "badge": "Nour Egyptian E-Commerce Platform",
+    "title_1": "Open your ",
+    "title_highlight": "Online Store",
+    "title_2": "in one minute",
+    "subtitle": "Nour is a 100% Egyptian SaaS platform enabling merchants to create professional fashion and beauty stores — with Paymob, Bosta, and WhatsApp ready from day one.",
+    "btnStartFree": "Start Free Now",
+    "btnMerchantLogin": "Merchant Login",
+    "noCreditCard": "No credit card required • Cancel anytime",
+    "dashboardMockup": {
+      "title": "Nour — Dashboard",
+      "sidebar": [
+        "Dashboard",
+        "Products",
+        "Orders",
+        "Customers",
+        "Team"
+      ],
+      "revenueTitle": "Revenue",
+      "revenueVal": "12,450 EGP",
+      "ordersTitle": "Orders",
+      "ordersVal": "38 orders",
+      "customersTitle": "Customers",
+      "customersVal": "21 customers",
+      "recentOrders": "Recent Orders",
+      "order1": "Fatma Mohamed — Blue Abaya",
+      "order2": "Nour Ali — Whitening Cream",
+      "order3": "Malak Omar — Silk Scarf",
+      "confirmed": "✓ Confirmed"
+    },
+    "stats": {
+      "merchants": "Active Merchant",
+      "orders": "Completed Order",
+      "satisfaction": "Merchant Satisfaction",
+      "minutes": "to open your store"
+    },
+    "features": {
+      "badge": "Features",
+      "title": "Everything you need to succeed",
+      "subtitle": "A complete platform designed specifically for the Egyptian market — no compromise on details.",
+      "f1_title": "Your Store in a Minute",
+      "f1_desc": "Create your professional online store instantly without technical experience — your link, your design, your brand.",
+      "f2_title": "Egyptian Electronic Payment",
+      "f2_desc": "Paymob ready from day one — Visa, Fawry, E-wallets, and COD. All Egyptian payment methods in one place.",
+      "f3_title": "Bosta Shipping",
+      "f3_desc": "Create Bosta shipments directly from your dashboard, track orders, and manage COD with one click.",
+      "f4_title": "Automated WhatsApp",
+      "f4_desc": "Send order confirmations to your customers on WhatsApp automatically — name, order details, and tracking number.",
+      "f5_title": "Sales Analytics",
+      "f5_desc": "An Arabic dashboard giving you a complete overview: your revenue, top selling products, and new customers count.",
+      "f6_title": "Team Management",
+      "f6_desc": "Add managers and staff to your store with different permissions — owner, manager, staff. Full control over who accesses what."
+    },
+    "steps": {
+      "badge": "Simple Steps",
+      "title": "Start in just 3 steps",
+      "s1_title": "Register your account",
+      "s1_desc": "Create your account for free in seconds — no credit card required.",
+      "s2_title": "Customize your store",
+      "s2_desc": "Add your products, images, categories and draw your store identity.",
+      "s3_title": "Start selling",
+      "s3_desc": "Share your store link and start receiving orders immediately."
+    },
+    "pricing": {
+      "badge": "Pricing",
+      "title": "Transparent and simple",
+      "subtitle": "No hidden fees — no commission on your sales.",
+      "free_name": "Free",
+      "free_desc": "For a strong start",
+      "free_f1": "Full online store",
+      "free_f2": "Up to 20 products",
+      "free_f3": "Cash on delivery",
+      "free_f4": "Arabic RTL interface",
+      "free_f5": "Manual WhatsApp support",
+      "free_cta": "Start Free",
+      "pro_name": "Professional",
+      "pro_price": "299",
+      "pro_desc": "Monthly / per store",
+      "pro_badge": "Most Popular",
+      "pro_f1": "Unlimited products",
+      "pro_f2": "Paymob — E-payment",
+      "pro_f3": "Automated Bosta shipping",
+      "pro_f4": "Automated WhatsApp API",
+      "pro_f5": "Advanced analytics",
+      "pro_f6": "Team management",
+      "pro_f7": "Priority support",
+      "pro_cta": "Try 30 days free",
+      "ent_name": "Enterprise",
+      "ent_price": "799",
+      "ent_desc": "Monthly / unlimited stores",
+      "ent_f1": "All professional features",
+      "ent_f2": "Multiple stores",
+      "ent_f3": "Custom API",
+      "ent_f4": "Dedicated account manager",
+      "ent_f5": "Advanced reports",
+      "ent_cta": "Contact us"
+    },
+    "testimonials": {
+      "badge": "Nour Merchants",
+      "title": "What our merchants say",
+      "t1_name": "Sara Mohamed",
+      "t1_store": "Pearl Boutique",
+      "t1_text": "I opened my store in less than an hour and received my first order the same day! Nour changed my professional life.",
+      "t2_name": "Mai Ahmed",
+      "t2_store": "Beauty World",
+      "t2_text": "Payment via Paymob and Bosta shipping with one click — saved me hours every day.",
+      "t3_name": "Nadine Hossam",
+      "t3_store": "Style House",
+      "t3_text": "Automated WhatsApp messages for customers increased their satisfaction 100%. Exceptional product."
+    },
+    "trust": {
+      "ssl": "Free 100% secure SSL",
+      "uptime": "99.9% uptime",
+      "servers": "Servers inside Egypt",
+      "support": "Arabic support 7 days"
+    },
+    "cta": {
+      "title": "Ready to open your store?",
+      "subtitle": "Join more than 500 Egyptian merchants building their commercial future with Nour."
+    }
+  },
+  "assistant": {
+    "tooltip": "Nour AI Assistant ✨",
+    "title": "Nour AI Assistant",
+    "storeFallback": "Your Store",
+    "clearHistory": "Clear chat",
+    "welcome": "Welcome to Nour Assistant!",
+    "welcomeDesc": "Ask me about your orders, products, customers,\\nor ask me to help you with anything.",
+    "quick1": "How many pending orders today?",
+    "quick2": "What is the best-selling product?",
+    "quick3": "Help me write a welcome message for new customers",
+    "quick4": "What are your tips to increase sales this month?",
+    "quick5": "How is the revenue this month?",
+    "placeholder": "Type your message here... (Enter to send)",
+    "poweredBy": "Powered by {model} · Shift+Enter for new line",
+    "error": "Connection error, please try again."
+  },
+  "imageUpload": {
+    "url": "URL",
+    "upload": "Upload",
+    "urlPlaceholder": "https://example.com/image.jpg",
+    "uploading": "Uploading...",
+    "dropHere": "Click or drag image here",
+    "supported": "{formats} up to {max}MB without compression",
+    "errorSize": "Image size must be less than {max}MB",
+    "errorFormat": "Supported formats: {formats}. On iPhone choose JPG if the image appears as HEIC.",
+    "errorGeneric": "Failed to upload image"
+  },
+  "productCard": {
+    "featured": "Featured",
+    "outOfStock": "Out of Stock",
+    "selectOptions": "Select options",
+    "addedToBag": "Added to bag",
+    "addToBag": "Add to bag",
+    "multipleOptions": "Multiple options — select to add"
+  }
+}

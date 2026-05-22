@@ -4,6 +4,7 @@ import { Trash2, EyeOff, Eye, Copy, X, ExternalLink } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 
 interface InspectorPanelProps {
   section: SectionConfig | null;
@@ -93,6 +94,7 @@ export default function InspectorPanel({
   section, theme, onSectionChange, onThemeChange, onDelete, onDuplicate, onToggleVisibility,
   variant = "desktop", onClose,
 }: InspectorPanelProps) {
+  const { t, i18n } = useTranslation();
   const shellClass =
     variant === "mobile"
       ? "w-full bg-white border-t border-stone-200 flex flex-col max-h-[58vh] rounded-t-2xl shadow-2xl"
@@ -102,10 +104,10 @@ export default function InspectorPanel({
     if (variant === "mobile") return null;
 
     return (
-      <div className="w-72 bg-white border-r border-stone-200 flex flex-col items-center justify-center p-8 text-center" dir="rtl">
+      <div className="w-72 bg-white border-r border-stone-200 flex flex-col items-center justify-center p-8 text-center" dir={i18n.dir()}>
         <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center text-2xl mb-4">👆</div>
-        <p className="text-sm font-medium text-stone-700 mb-1">اختاري قسماً</p>
-        <p className="text-xs text-stone-400">اضغطي على أي قسم في المعاينة لتعديله هنا</p>
+        <p className="text-sm font-medium text-stone-700 mb-1">{t("inspectorPanel.empty.title")}</p>
+        <p className="text-xs text-stone-400">{t("inspectorPanel.empty.desc")}</p>
       </div>
     );
   }
@@ -119,7 +121,7 @@ export default function InspectorPanel({
   }
 
   return (
-    <div className={shellClass} dir="rtl">
+    <div className={shellClass} dir={i18n.dir()}>
       {/* Header */}
       <div className="p-4 border-b border-stone-100 shrink-0">
         <div className="flex items-center justify-between mb-3">
@@ -141,28 +143,28 @@ export default function InspectorPanel({
             <button
               onClick={() => onToggleVisibility(section.id)}
               className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors"
-              title={section.visible ? "إخفاء" : "إظهار"}
+              title={section.visible ? t("inspectorPanel.buttons.hide") : t("inspectorPanel.buttons.show")}
             >
               {section.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
             </button>
             <button
               onClick={() => onDuplicate(section.id)}
               className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors"
-              title="تكرار"
+              title={t("inspectorPanel.buttons.duplicate")}
             >
               <Copy className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onDelete(section.id)}
               className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-500 transition-colors"
-              title="حذف"
+              title={t("inspectorPanel.buttons.delete")}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
         {!section.visible && (
-          <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">هذا القسم مخفي عن الزوار</div>
+          <div className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">{t("inspectorPanel.hiddenNotice")}</div>
         )}
       </div>
 
@@ -187,13 +189,33 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 function RelatedSectionAction({ section }: { section: SectionConfig }) {
-  const action = SECTION_RELATED_ACTIONS[section.type];
+  const { t } = useTranslation();
+  const getAction = (type: string) => {
+    switch(type) {
+      case "hero": return { href: "/store-settings#section-media", label: t("inspectorPanel.actions.hero.label"), desc: t("inspectorPanel.actions.hero.desc") };
+      case "new-arrivals": return { href: "/products", label: t("inspectorPanel.actions.newArrivals.label"), desc: t("inspectorPanel.actions.newArrivals.desc") };
+      case "best-sellers": return { href: "/products", label: t("inspectorPanel.actions.bestSellers.label"), desc: t("inspectorPanel.actions.bestSellers.desc") };
+      case "categories": return { href: "/categories", label: t("inspectorPanel.actions.categories.label"), desc: t("inspectorPanel.actions.categories.desc") };
+      case "offers": return { href: "/discounts", label: t("inspectorPanel.actions.offers.label"), desc: t("inspectorPanel.actions.offers.desc") };
+      case "testimonials": return { href: "/reviews", label: t("inspectorPanel.actions.testimonials.label"), desc: t("inspectorPanel.actions.testimonials.desc") };
+      case "about": return { href: "/store-settings#section-identity", label: t("inspectorPanel.actions.about.label"), desc: t("inspectorPanel.actions.about.desc") };
+      case "instagram": return { href: "/store-settings#section-social", label: t("inspectorPanel.actions.instagram.label"), desc: t("inspectorPanel.actions.instagram.desc") };
+      case "lookbook": return { href: "/products", label: t("inspectorPanel.actions.lookbook.label"), desc: t("inspectorPanel.actions.lookbook.desc") };
+      case "product-catalog": return { href: "/products", label: t("inspectorPanel.actions.productCatalog.label"), desc: t("inspectorPanel.actions.productCatalog.desc") };
+      case "whatsapp": return { href: "/store-settings#section-social", label: t("inspectorPanel.actions.whatsapp.label"), desc: t("inspectorPanel.actions.whatsapp.desc") };
+      case "newsletter": return { href: "/customers", label: t("inspectorPanel.actions.newsletter.label"), desc: t("inspectorPanel.actions.newsletter.desc") };
+      case "trust-strip": return { href: "/shipping-rules", label: t("inspectorPanel.actions.trustStrip.label"), desc: t("inspectorPanel.actions.trustStrip.desc") };
+      default: return null;
+    }
+  };
+
+  const action = getAction(section.type);
   if (!action) return null;
 
   return (
     <div className="rounded-xl border border-[#8B1A35]/15 bg-[#8B1A35]/5 p-3">
-      <p className="text-xs font-semibold text-stone-800">إجراءات مرتبطة</p>
-      <p className="mt-1 text-[11px] leading-relaxed text-stone-500">{action.description}</p>
+      <p className="text-xs font-semibold text-stone-800">{t("inspectorPanel.actions.title")}</p>
+      <p className="mt-1 text-[11px] leading-relaxed text-stone-500">{action.desc}</p>
       <Link
         href={action.href}
         className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-lg bg-white px-3 text-xs font-semibold text-[#8B1A35] shadow-sm ring-1 ring-[#8B1A35]/15 transition-colors hover:bg-[#8B1A35]/10"
@@ -266,43 +288,44 @@ function SectionFields({ section, patchContent, patchSettings }: {
   theme: StoreConfig["theme"];
   onThemeChange: (t: StoreConfig["theme"]) => void;
 }) {
+  const { t, i18n } = useTranslation();
   switch (section.type) {
     case "hero":
       return (
         <>
-          <Field label="العنوان الرئيسي">
+          <Field label={t("inspectorPanel.fields.heading")}>
             <Textarea
               value={section.content.heading ?? ""}
               onChange={(e) => patchContent({ heading: e.target.value })}
-              className="text-right text-xs min-h-[60px]"
+              className={`text-xs min-h-[60px] ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
               rows={2}
             />
           </Field>
-          <Field label="النص التوضيحي">
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.subheading")}>
+            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="نص الزر الرئيسي">
-            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.ctaText")}>
+            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SelectField
-            label="ارتفاع القسم"
+            label={t("inspectorPanel.fields.height")}
             value={section.settings.height ?? "tall"}
-            options={[{ value: "short", label: "قصير" }, { value: "medium", label: "متوسط" }, { value: "tall", label: "طويل" }, { value: "full", label: "ملء الشاشة" }]}
+            options={[{ value: "short", label: t("inspectorPanel.fields.heightShort") }, { value: "medium", label: t("inspectorPanel.fields.heightMedium") }, { value: "tall", label: t("inspectorPanel.fields.heightTall") }, { value: "full", label: t("inspectorPanel.fields.heightFull") }]}
             onChange={(v) => patchSettings({ height: v as SectionConfig["settings"]["height"] })}
           />
           <SelectField
-            label="محاذاة النص"
+            label={t("inspectorPanel.fields.textAlign")}
             value={section.settings.textAlign ?? "right"}
-            options={[{ value: "right", label: "يمين (RTL)" }, { value: "center", label: "وسط" }, { value: "left", label: "يسار" }]}
+            options={[{ value: "right", label: t("inspectorPanel.fields.textAlignRight") }, { value: "center", label: t("inspectorPanel.fields.textAlignCenter") }, { value: "left", label: t("inspectorPanel.fields.textAlignLeft") }]}
             onChange={(v) => patchSettings({ textAlign: v as "left" | "center" | "right" })}
           />
           <SliderField
-            label="شفافية التعتيم"
+            label={t("inspectorPanel.fields.overlayOpacity")}
             min={0} max={80} value={section.settings.overlayOpacity ?? 40}
             onChange={(v) => patchSettings({ overlayOpacity: v })}
             unit="%"
           />
-          <Field label="صورة الخلفية" hint="أدخلي رابط الصورة">
+          <Field label={t("inspectorPanel.fields.imageUrl")} hint={t("inspectorPanel.fields.imageUrlHint")}>
             <Input
               value={section.content.imageUrl ?? ""}
               onChange={(e) => patchContent({ imageUrl: e.target.value })}
@@ -318,38 +341,38 @@ function SectionFields({ section, patchContent, patchSettings }: {
     case "best-sellers":
       return (
         <>
-          <Field label="عنوان القسم">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="النص التوضيحي">
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.subheading")}>
+            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SliderField
-            label="عدد المنتجات"
+            label={t("inspectorPanel.fields.productCount")}
             min={4} max={12} value={section.settings.productCount ?? 8}
             onChange={(v) => patchSettings({ productCount: v })}
           />
           <SelectField
-            label="طريقة العرض"
+            label={t("inspectorPanel.fields.cardStyle")}
             value={section.settings.cardStyle ?? "grid"}
-            options={[{ value: "grid", label: "شبكة" }, { value: "carousel", label: "سلايدر" }]}
+            options={[{ value: "grid", label: t("inspectorPanel.fields.layoutGrid") }, { value: "carousel", label: t("inspectorPanel.fields.layoutCarousel") }]}
             onChange={(v) => patchSettings({ cardStyle: v as "grid" | "carousel" })}
           />
-          <ToggleField label="إظهار الأسعار" value={section.settings.showPrices ?? true} onChange={(v) => patchSettings({ showPrices: v })} />
-          <ToggleField label="زر الإضافة السريعة" value={section.settings.showQuickAdd ?? true} onChange={(v) => patchSettings({ showQuickAdd: v })} />
+          <ToggleField label={t("inspectorPanel.fields.showPrices")} value={section.settings.showPrices ?? true} onChange={(v) => patchSettings({ showPrices: v })} />
+          <ToggleField label={t("inspectorPanel.fields.showQuickAdd")} value={section.settings.showQuickAdd ?? true} onChange={(v) => patchSettings({ showQuickAdd: v })} />
         </>
       );
 
     case "categories":
       return (
         <>
-          <Field label="عنوان القسم">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SelectField
-            label="تخطيط العرض"
+            label={t("inspectorPanel.fields.layout")}
             value={section.settings.layout ?? "grid"}
-            options={[{ value: "grid", label: "شبكة" }, { value: "carousel", label: "سلايدر" }, { value: "editorial", label: "تحريري" }]}
+            options={[{ value: "grid", label: t("inspectorPanel.fields.layoutGrid") }, { value: "carousel", label: t("inspectorPanel.fields.layoutCarousel") }, { value: "editorial", label: t("inspectorPanel.fields.layoutEditorial") }]}
             onChange={(v) => patchSettings({ layout: v as "grid" | "carousel" | "editorial" })}
           />
         </>
@@ -358,30 +381,30 @@ function SectionFields({ section, patchContent, patchSettings }: {
     case "testimonials":
       return (
         <>
-          <Field label="عنوان القسم">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SelectField
-            label="تخطيط التقييمات"
+            label={t("inspectorPanel.fields.layout")}
             value={section.settings.layout ?? "grid"}
-            options={[{ value: "grid", label: "شبكة" }, { value: "carousel", label: "سلايدر" }]}
+            options={[{ value: "grid", label: t("inspectorPanel.fields.layoutGrid") }, { value: "carousel", label: t("inspectorPanel.fields.layoutCarousel") }]}
             onChange={(v) => patchSettings({ layout: v as "grid" | "carousel" })}
           />
-          <ToggleField label="إظهار تقييم النجوم" value={section.settings.showRating ?? true} onChange={(v) => patchSettings({ showRating: v })} />
+          <ToggleField label={t("inspectorPanel.fields.showRating")} value={section.settings.showRating ?? true} onChange={(v) => patchSettings({ showRating: v })} />
         </>
       );
 
     case "offers":
       return (
         <>
-          <Field label="عنوان العرض">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="النص التوضيحي">
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.subheading")}>
+            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="نص الزر">
-            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.ctaText")}>
+            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
         </>
       );
@@ -389,21 +412,21 @@ function SectionFields({ section, patchContent, patchSettings }: {
     case "about":
       return (
         <>
-          <Field label="عنوان القسم">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="نص القصة">
+          <Field label={t("inspectorPanel.fields.body")}>
             <Textarea
               value={section.content.body ?? ""}
               onChange={(e) => patchContent({ body: e.target.value })}
-              className="text-right text-xs min-h-[100px]"
+              className={`text-xs min-h-[100px] ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
               rows={5}
             />
           </Field>
           <SelectField
-            label="التخطيط"
+            label={t("inspectorPanel.fields.layout")}
             value={section.settings.layout ?? "with-image"}
-            options={[{ value: "with-image", label: "نص + صورة" }, { value: "text-only", label: "نص فقط" }]}
+            options={[{ value: "with-image", label: t("inspectorPanel.fields.layoutWithImage") }, { value: "text-only", label: t("inspectorPanel.fields.layoutTextOnly") }]}
             onChange={(v) => patchSettings({ layout: v as "with-image" | "text-only" })}
           />
         </>
@@ -412,14 +435,14 @@ function SectionFields({ section, patchContent, patchSettings }: {
     case "newsletter":
       return (
         <>
-          <Field label="عنوان النشرة">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="النص التوضيحي">
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.subheading")}>
+            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="نص زر الاشتراك">
-            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.ctaText")}>
+            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
         </>
       );
@@ -427,40 +450,40 @@ function SectionFields({ section, patchContent, patchSettings }: {
     case "product-catalog":
       return (
         <>
-          <Field label="عنوان الكتالوج">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="النص الصغير">
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.subheading")}>
+            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <ToggleField label="إظهار الأسعار" value={section.settings.showPrices ?? true} onChange={(v) => patchSettings({ showPrices: v })} />
-          <ToggleField label="زر الإضافة السريعة" value={section.settings.showQuickAdd ?? true} onChange={(v) => patchSettings({ showQuickAdd: v })} />
+          <ToggleField label={t("inspectorPanel.fields.showPrices")} value={section.settings.showPrices ?? true} onChange={(v) => patchSettings({ showPrices: v })} />
+          <ToggleField label={t("inspectorPanel.fields.showQuickAdd")} value={section.settings.showQuickAdd ?? true} onChange={(v) => patchSettings({ showQuickAdd: v })} />
         </>
       );
 
     case "faq":
       return (
         <>
-          <Field label="عنوان القسم">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <p className="text-xs leading-relaxed text-stone-400">المحرر الحالي يتحكم في ظهور هذا القسم وعنوانه. تحرير تفاصيل الأسئلة داخل القسم سيحتاج للوحة تحرير موسعة.</p>
+          <p className="text-xs leading-relaxed text-stone-400">{t("inspectorPanel.fields.faqNote")}</p>
         </>
       );
 
     case "whatsapp":
       return (
         <>
-          <Field label="عنوان القسم">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="النص التوضيحي">
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.subheading")}>
+            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <Field label="نص الزر">
-            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.ctaText")}>
+            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <ToggleField label="زر واتساب عائم" value={section.settings.floatingButton ?? true} onChange={(v) => patchSettings({ floatingButton: v })} />
+          <ToggleField label={t("inspectorPanel.fields.floatingButton")} value={section.settings.floatingButton ?? true} onChange={(v) => patchSettings({ floatingButton: v })} />
         </>
       );
 
@@ -468,11 +491,11 @@ function SectionFields({ section, patchContent, patchSettings }: {
     case "lookbook":
       return (
         <>
-          <Field label="عنوان القسم">
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className="text-right text-xs" />
+          <Field label={t("inspectorPanel.fields.heading")}>
+            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SliderField
-            label="عدد الأعمدة"
+            label={t("inspectorPanel.fields.columns")}
             min={2} max={4} value={section.settings.columns ?? 3}
             onChange={(v) => patchSettings({ columns: v })}
           />
@@ -481,10 +504,10 @@ function SectionFields({ section, patchContent, patchSettings }: {
 
     case "trust-strip":
       return (
-        <p className="text-xs leading-relaxed text-stone-400">شريط المميزات يعرض وعود الثقة مثل الشحن والإرجاع والجودة. راجعي الإجراء المرتبط أعلاه لضبط البيانات التي تدعم هذه الوعود.</p>
+        <p className="text-xs leading-relaxed text-stone-400">{t("inspectorPanel.fields.trustStripNote")}</p>
       );
 
     default:
-      return <p className="text-xs text-stone-400">لا توجد إعدادات متاحة لهذا القسم.</p>;
+      return <p className="text-xs text-stone-400">{t("inspectorPanel.fields.noSettings")}</p>;
   }
 }

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Instagram, Heart } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
@@ -36,10 +37,11 @@ interface UGCSectionProps {
 }
 
 export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
+  const { t, i18n } = useTranslation();
   return (
     <section
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#faf7f4", direction: "rtl" }}
+      style={{ background: "#faf7f4", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -48,18 +50,18 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
             className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
             style={{ color: p }}
           >
-            مجتمعنا
+            {t("storefront.home.ugc.eyebrow", "مجتمعنا")}
           </p>
           <h2
             className="text-4xl md:text-5xl text-stone-900 mb-3"
             style={{ fontFamily: SERIF, fontWeight: 400 }}
           >
-            إلهامنا من
+            {t("storefront.home.ugc.title1", "إلهامنا من")}
             <br />
-            <span style={{ color: p, fontStyle: "italic" }}>عملاءنا</span>
+            <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.ugc.title2", "عملاءنا")}</span>
           </h2>
           <p className="text-stone-400 text-sm max-w-sm mx-auto">
-            شاركينا لوك اليوم بـ <span className="font-semibold text-stone-600">#نور</span>
+            {t("storefront.home.ugc.subtitle", "شاركينا لوك اليوم بـ")} <span className="font-semibold text-stone-600">#{t("storefront.home.ugc.hashtag", "نور")}</span>
           </p>
         </div>
 
@@ -77,12 +79,11 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
             >
               <img
                 src={item.src}
-                alt={`لوك ${i + 1}`}
+                alt={`${t("storefront.home.ugc.look", "لوك")} ${i + 1}`}
                 loading="lazy"
                 decoding="async"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
-
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1">
@@ -93,7 +94,7 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
 
               {/* Instagram icon on corner */}
               <div
-                className="absolute top-2 start-2 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className={`absolute top-2 ${i18n.dir() === "rtl" ? "start-2" : "start-2"} w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity`}
                 style={{ background: "rgba(255,255,255,0.9)" }}
               >
                 <Instagram className="w-2.5 h-2.5" style={{ color: "#c13584" }} />
@@ -113,7 +114,7 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
               style={{ borderColor: "#c13584", color: "#c13584" }}
             >
               <Instagram className="w-4 h-4" />
-              تابعينا على إنستغرام
+              {t("storefront.home.ugc.followUs", "تابعينا على إنستغرام")}
             </a>
           </div>
         )}

@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { MapPin, MessageCircle, Instagram, Facebook, Twitter, ArrowUp } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
@@ -24,6 +25,7 @@ export function StoreFooter({
   primaryColor: p,
   onScrollToProducts,
 }: StoreFooterProps) {
+  const { t, i18n } = useTranslation();
   const waNum = whatsappNumber?.replace(/\D/g, "") ?? null;
   const sl = (() => {
     try { return socialLinks ? JSON.parse(socialLinks) : {}; }
@@ -32,21 +34,21 @@ export function StoreFooter({
 
   const NAV_SECTIONS = [
     {
-      title: "تسوقي",
+      title: t("storefront.footer.shop", "تسوقي"),
       links: [
-        { label: "وصل حديثاً", action: () => document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" }) },
-        { label: "الأكثر مبيعاً", action: () => document.getElementById("best-sellers")?.scrollIntoView({ behavior: "smooth" }) },
-        { label: "جميع المنتجات", action: onScrollToProducts },
-        { label: "العروض", action: onScrollToProducts },
+        { label: t("storefront.products.newArrivals", "وصل حديثاً"), action: () => document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" }) },
+        { label: t("storefront.header.links.bestSellers", "الأكثر مبيعاً"), action: () => document.getElementById("best-sellers")?.scrollIntoView({ behavior: "smooth" }) },
+        { label: t("storefront.header.links.allProducts", "جميع المنتجات"), action: onScrollToProducts },
+        { label: t("storefront.footer.offers", "العروض"), action: onScrollToProducts },
       ],
     },
     {
-      title: "مساعدة",
+      title: t("storefront.footer.help", "مساعدة"),
       links: [
-        { label: "تتبع طلبك", action: () => {} },
-        { label: "سياسة الإرجاع", action: () => {} },
-        { label: "دليل المقاسات", action: () => {} },
-        { label: "تواصل معنا", action: () => waNum && window.open(`https://wa.me/${waNum}`) },
+        { label: t("storefront.footer.trackOrder", "تتبع طلبك"), action: () => {} },
+        { label: t("storefront.footer.returns", "سياسة الإرجاع"), action: () => {} },
+        { label: t("storefront.footer.sizeGuide", "دليل المقاسات"), action: () => {} },
+        { label: t("storefront.footer.contactUs", "تواصل معنا"), action: () => waNum && window.open(`https://wa.me/${waNum}`) },
       ],
     },
   ];
@@ -56,7 +58,7 @@ export function StoreFooter({
       style={{
         background: "#1a1614",
         color: "rgba(255,255,255,0.55)",
-        direction: "rtl",
+        direction: i18n.dir(),
       }}
     >
       {/* Top golden rule */}
@@ -96,7 +98,7 @@ export function StoreFooter({
             )}
             {city && (
               <p className="text-xs flex items-center gap-1.5 mb-5">
-                <MapPin className="w-3.5 h-3.5" />{city}، مصر
+                <MapPin className="w-3.5 h-3.5" />{city}، {t("storefront.footer.egypt", "مصر")}
               </p>
             )}
 
@@ -171,7 +173,7 @@ export function StoreFooter({
               className="text-white font-semibold text-sm mb-5"
               style={{ fontFamily: SERIF }}
             >
-              نحن هنا لك
+              {t("storefront.footer.weAreHere", "نحن هنا لك")}
             </h5>
             {waNum && (
               <a
@@ -182,11 +184,16 @@ export function StoreFooter({
                 style={{ background: "rgba(37,211,102,0.1)", color: "#25D366" }}
               >
                 <MessageCircle className="w-4 h-4" />
-                واتساب مباشر
+                {t("storefront.footer.whatsappDirect", "واتساب مباشر")}
               </a>
             )}
             <div className="flex flex-wrap gap-2">
-              {["🔒 دفع آمن", "📦 شحن سريع", "↩️ إرجاع مجاني", "⭐ 100% أصلي"].map(badge => (
+              {[
+                i18n.language === "ar" ? "🔒 دفع آمن" : "🔒 Secure Payment",
+                i18n.language === "ar" ? "📦 شحن سريع" : "📦 Fast Shipping",
+                i18n.language === "ar" ? "↩️ إرجاع مجاني" : "↩️ Free Returns",
+                i18n.language === "ar" ? "⭐ 100% أصلي" : "⭐ 100% Authentic"
+              ].map(badge => (
                 <span
                   key={badge}
                   className="text-[10px] px-2.5 py-1 rounded-full font-medium"
@@ -204,10 +211,10 @@ export function StoreFooter({
           className="mt-12 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs"
           style={{ borderColor: "rgba(255,255,255,0.06)" }}
         >
-          <span>© {new Date().getFullYear()} {storeName} — جميع الحقوق محفوظة</span>
+          <span>© {new Date().getFullYear()} {storeName} — {t("storefront.footer.allRightsReserved", "جميع الحقوق محفوظة")}</span>
           <div className="flex items-center gap-4">
             <a href="/" className="opacity-40 hover:opacity-70 transition-opacity">
-              مدعوم بـ <span className="font-black" style={{ color: p }}>نور</span>
+              {t("storefront.footer.poweredBy", "مدعوم بـ")} <span className="font-black" style={{ color: p }}>نور</span>
             </a>
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

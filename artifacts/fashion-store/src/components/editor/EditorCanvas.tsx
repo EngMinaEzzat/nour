@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { SectionPreview } from "./SectionPreview";
 import { DeviceType, StoreConfig } from "@/lib/store-config";
@@ -27,6 +28,7 @@ const DEVICE_LABELS: Record<DeviceType, string> = {
 export default function EditorCanvas({
   config, categories = [], selectedId, device, onSelectSection, onDeselectAll,
 }: EditorCanvasProps) {
+  const { t, i18n } = useTranslation();
   const width = DEVICE_WIDTHS[device];
   const isConstrained = device !== "desktop";
 
@@ -52,7 +54,7 @@ export default function EditorCanvas({
       }}
     >
       {/* Device label */}
-      <div className="py-3 text-xs text-stone-400 font-medium">{DEVICE_LABELS[device]}</div>
+      <div className="py-3 text-xs text-stone-400 font-medium">{t(`editorCanvas.deviceLabels.${device}`)}</div>
 
       {/* Canvas frame */}
       <motion.div
@@ -83,7 +85,7 @@ export default function EditorCanvas({
         {/* Page content */}
         <div
           className="overflow-y-auto"
-          style={{ maxHeight: device === "mobile" ? "85vh" : device === "tablet" ? "90vh" : "85vh", direction: "rtl" }}
+          style={{ maxHeight: device === "mobile" ? "85vh" : device === "tablet" ? "90vh" : "85vh", direction: i18n.dir() }}
           onClick={(e) => {
             if (e.target === e.currentTarget) onDeselectAll();
           }}
@@ -110,11 +112,12 @@ export default function EditorCanvas({
 }
 
 function EmptyCanvas() {
+  const { t, i18n } = useTranslation();
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8" dir="rtl">
+    <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8" dir={i18n.dir()}>
       <div className="w-16 h-16 rounded-2xl bg-stone-100 flex items-center justify-center text-3xl mb-4">🏠</div>
-      <p className="text-stone-700 font-medium mb-1">صفحتك الرئيسية فارغة</p>
-      <p className="text-xs text-stone-400 max-w-[200px]">أضيفي أقسام من القائمة الجانبية لتبدأ في تصميم متجرك</p>
+      <p className="text-stone-700 font-medium mb-1">{t("editorCanvas.empty.title")}</p>
+      <p className="text-xs text-stone-400 max-w-[200px]">{t("editorCanvas.empty.desc")}</p>
     </div>
   );
 }

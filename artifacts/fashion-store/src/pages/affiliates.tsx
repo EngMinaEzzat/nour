@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,12 +75,12 @@ function PlatformIcon({ platform }: { platform: Affiliate["platform"] }) {
   return <Link2 className="w-4 h-4 text-muted-foreground" />;
 }
 
-function PlatformLabel({ platform }: { platform: Affiliate["platform"] }) {
-  const map = { instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", other: "أخرى" };
+function PlatformLabel({ platform, t }: { platform: Affiliate["platform"], t: any }) {
+  const map = { instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", other: t("affiliates.form.platformOther") };
   return <span>{map[platform]}</span>;
 }
 
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ text, t }: { text: string, t: any }) {
   const [copied, setCopied] = useState(false);
   function copy() {
     navigator.clipboard.writeText(text);
@@ -90,12 +91,13 @@ function CopyButton({ text }: { text: string }) {
     <button onClick={copy}
       className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0">
       {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-      {copied ? "تم النسخ" : "نسخ"}
+      {copied ? t("affiliates.copy.copied") : t("affiliates.copy.copy")}
     </button>
   );
 }
 
 export default function Affiliates() {
+  const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -109,7 +111,7 @@ export default function Affiliates() {
     queryKey: ["affiliates", merchant?.tenantId],
     queryFn: async () => {
       const r = await fetch(api("/affiliates"), { credentials: "include" });
-      if (!r.ok) throw new Error("فشل تحميل المؤثرين");
+      if (!r.ok) throw new Error(t("affiliates.toast.fetchError"));
       return r.json();
     },
     enabled: !!merchant,
@@ -129,11 +131,11 @@ export default function Affiliates() {
         body: JSON.stringify(body),
       });
       const json = await r.json();
-      if (!r.ok) throw new Error(json.error ?? "فشل الإنشاء");
+      if (!r.ok) throw new Error(json.error ?? t("affiliates.toast.createError"));
       return json;
     },
     onSuccess: () => {
-      toast({ title: "تم إضافة المؤثر", description: "تم إنشاء الكود تلقائياً وربطه بالمؤثر" });
+      toast({ title: t("affiliates.toast.createSuccess"), description: t("affiliates.toast.createSuccessDesc") });
       queryClient.invalidateQueries({ queryKey: ["affiliates"] });
       setShowCreate(false);
       setForm(EMPTY_FORM);
@@ -149,23 +151,23 @@ export default function Affiliates() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active }),
       });
-      if (!r.ok) throw new Error("فشل التحديث");
+      if (!r.ok) throw new Error(t("affiliates.toast.updateError"));
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["affiliates"] }),
-    onError: () => toast({ title: "خطأ", description: "فشل تحديث الحالة", variant: "destructive" }),
+    onError: () => toast({ title: t("affiliates.toast.errorTitle"), description: t("affiliates.toast.updateError"), variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const r = await fetch(api(`/affiliates/${id}`), { method: "DELETE", credentials: "include" });
-      if (!r.ok) throw new Error("فشل الحذف");
+      if (!r.ok) throw new Error(t("affiliates.toast.deleteError"));
     },
     onSuccess: () => {
-      toast({ title: "تم الحذف" });
+      toast({ title: t("affiliates.toast.deleteSuccess") });
       queryClient.invalidateQueries({ queryKey: ["affiliates"] });
       setDeleteId(null);
     },
-    onError: () => toast({ title: "خطأ", description: "فشل الحذف", variant: "destructive" }),
+    onError: () => toast({ title: t("affiliates.toast.errorTitle"), description: t("affiliates.toast.deleteError"), variant: "destructive" }),
   });
 
   function f(key: keyof FormState) {
@@ -176,7 +178,7 @@ export default function Affiliates() {
   function handleCreate() {
     setFormError("");
     if (!form.name || !form.handle || !form.promoCode) {
-      setFormError("الاسم والحساب وكود الخصم مطلوبة");
+      setFormError(t("affiliates.toast.validationError"));
       return;
     }
     createMutation.mutate({
@@ -193,21 +195,21 @@ export default function Affiliates() {
   }
 
   return (
-    <div className="space-y-6 pb-10" dir="rtl">
+    <div className="space-y-6 pb-10" dir={i18n.dir()}>
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold flex items-center gap-2">
             <Star className="w-5 h-5 text-amber-500" />
-            برنامج المؤثرين والعمولات
+            {t("affiliates.page.title")}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            أنشئ كوداً فريداً لكل مؤثر، تتبع مبيعاته، واحسب عمولته تلقائياً
+            {t("affiliates.page.subtitle")}
           </p>
         </div>
         <Button onClick={() => setShowCreate(true)} className="gap-2 shrink-0">
           <Plus className="w-4 h-4" />
-          إضافة مؤثر
+          {t("affiliates.page.btnAdd")}
         </Button>
       </div>
 
@@ -219,7 +221,7 @@ export default function Affiliates() {
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold">{affiliates.length}</p>
                 <p className="text-[11px] text-muted-foreground mt-1 flex items-center justify-center gap-1">
-                  <Users className="w-3 h-3" /> مؤثرون
+                  <Users className="w-3 h-3" /> {t("affiliates.stats.affiliates")}
                 </p>
               </CardContent>
             </Card>
@@ -227,17 +229,17 @@ export default function Affiliates() {
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-primary">{totalUses}</p>
                 <p className="text-[11px] text-muted-foreground mt-1 flex items-center justify-center gap-1">
-                  <TrendingUp className="w-3 h-3" /> طلب محوّل
+                  <TrendingUp className="w-3 h-3" /> {t("affiliates.stats.orders")}
                 </p>
               </CardContent>
             </Card>
             <Card className="border-border/50">
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-amber-600">
-                  {totalCommission.toLocaleString("ar-EG", { maximumFractionDigits: 0 })}
+                  {totalCommission.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US", { maximumFractionDigits: 0 })}
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-1 flex items-center justify-center gap-1">
-                  <Wallet className="w-3 h-3" /> عمولة مستحقة ج.م
+                  <Wallet className="w-3 h-3" /> {t("affiliates.stats.commissionDue", { currency: i18n.language === "ar" ? "ج.م" : "EGP" })}
                 </p>
               </CardContent>
             </Card>
@@ -252,12 +254,12 @@ export default function Affiliates() {
           <Card className="border-dashed border-2 border-border/50">
             <CardContent className="py-16 text-center space-y-3">
               <Star className="w-10 h-10 text-muted-foreground/30 mx-auto" />
-              <p className="font-medium text-muted-foreground">لم تضف أي مؤثر بعد</p>
+              <p className="font-medium text-muted-foreground">{t("affiliates.empty.title")}</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                أضف مؤثراً وسيُنشأ له كود خصم تلقائياً — تتبع مبيعاته وعمولاته من هنا
+                {t("affiliates.empty.desc")}
               </p>
               <Button variant="outline" size="sm" onClick={() => setShowCreate(true)} className="gap-2 mt-2">
-                <Plus className="w-3.5 h-3.5" /> إضافة أول مؤثر
+                <Plus className="w-3.5 h-3.5" /> {t("affiliates.empty.btnAddFirst")}
               </Button>
             </CardContent>
           </Card>
@@ -285,9 +287,9 @@ export default function Affiliates() {
                                 {a.handle}
                               </span>
                               <Badge variant="outline" className="text-[10px]">
-                                <PlatformLabel platform={a.platform} />
+                                <PlatformLabel platform={a.platform} t={t} />
                               </Badge>
-                              {!a.active && <Badge variant="secondary" className="text-[10px]">متوقف</Badge>}
+                              {!a.active && <Badge variant="secondary" className="text-[10px]">{t("affiliates.list.inactive")}</Badge>}
                             </div>
                             {a.notes && <p className="text-xs text-muted-foreground mt-0.5">{a.notes}</p>}
                           </div>
@@ -296,7 +298,7 @@ export default function Affiliates() {
                           <div className="flex items-center gap-1 shrink-0">
                             <button
                               onClick={() => toggleMutation.mutate({ id: a.id, active: !a.active })}
-                              title={a.active ? "إيقاف" : "تفعيل"}
+                              title={a.active ? t("affiliates.list.toggleInactive") : t("affiliates.list.toggleActive")}
                               className="p-1.5 rounded-lg hover:bg-muted transition-colors">
                               {a.active
                                 ? <ToggleRight className="w-5 h-5 text-primary" />
@@ -313,25 +315,25 @@ export default function Affiliates() {
                         {/* Promo code */}
                         {a.promoCode && (
                           <div className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2 border border-border/40">
-                            <span className="text-xs text-muted-foreground shrink-0">كود الخصم:</span>
+                            <span className="text-xs text-muted-foreground shrink-0">{t("affiliates.list.promoCode")}</span>
                             <code className="text-sm font-mono font-bold tracking-wider flex-1">{a.promoCode}</code>
-                            <CopyButton text={a.promoCode} />
+                            <CopyButton text={a.promoCode} t={t} />
                           </div>
                         )}
 
                         {/* Stats row */}
                         <div className="grid grid-cols-4 gap-2">
                           {[
-                            { label: "استخدامات", value: a.uses.toString(), color: "text-foreground" },
-                            { label: "إيرادات", value: `${a.totalRevenue.toLocaleString("ar-EG", { maximumFractionDigits: 0 })} ج.م`, color: "text-green-600" },
+                            { label: t("affiliates.list.uses"), value: a.uses.toString(), color: "text-foreground" },
+                            { label: t("affiliates.list.revenue"), value: `${a.totalRevenue.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US", { maximumFractionDigits: 0 })} ${i18n.language === "ar" ? "ج.م" : "EGP"}`, color: "text-green-600" },
                             {
-                              label: "العمولة",
+                              label: t("affiliates.list.commission"),
                               value: a.commissionType === "percent"
                                 ? `${a.commissionValue}%`
-                                : `${a.commissionValue} ج.م/طلب`,
+                                : t("affiliates.list.flatPerOrder", { value: a.commissionValue, currency: i18n.language === "ar" ? "ج.م" : "EGP" }),
                               color: "text-muted-foreground",
                             },
-                            { label: "مستحق", value: `${a.commissionDue.toLocaleString("ar-EG", { maximumFractionDigits: 0 })} ج.م`, color: "text-amber-600 font-bold" },
+                            { label: t("affiliates.list.due"), value: `${a.commissionDue.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US", { maximumFractionDigits: 0 })} ${i18n.language === "ar" ? "ج.م" : "EGP"}`, color: "text-amber-600 font-bold" },
                           ].map((stat, i) => (
                             <div key={i} className="bg-muted/30 rounded-lg p-2 text-center">
                               <p className={`text-sm font-semibold ${stat.color}`}>{stat.value}</p>
@@ -353,12 +355,12 @@ export default function Affiliates() {
       {affiliates.length === 0 && (
         <Card className="border-border/50 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20">
           <CardContent className="p-5">
-            <p className="text-sm font-semibold mb-3">كيف يعمل البرنامج؟</p>
+            <p className="text-sm font-semibold mb-3">{t("affiliates.howItWorks.title")}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-muted-foreground">
               {[
-                { step: "١", title: "أضف مؤثراً", desc: "أدخل اسمه وحسابه وكود الخصم الخاص به" },
-                { step: "٢", title: "شارك الكود", desc: "يستخدم متابعوه الكود عند الشراء من متجرك" },
-                { step: "٣", title: "تتبع وادفع", desc: "ترى إيراداته وعمولته تلقائياً — ادفعها له شهرياً" },
+                { step: i18n.language === "ar" ? "١" : "1", title: t("affiliates.howItWorks.s1Title"), desc: t("affiliates.howItWorks.s1Desc") },
+                { step: i18n.language === "ar" ? "٢" : "2", title: t("affiliates.howItWorks.s2Title"), desc: t("affiliates.howItWorks.s2Desc") },
+                { step: i18n.language === "ar" ? "٣" : "3", title: t("affiliates.howItWorks.s3Title"), desc: t("affiliates.howItWorks.s3Desc") },
               ].map((s) => (
                 <div key={s.step} className="flex items-start gap-3">
                   <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0 font-bold text-sm">
@@ -377,91 +379,91 @@ export default function Affiliates() {
 
       {/* Create dialog */}
       <Dialog open={showCreate} onOpenChange={(o) => { setShowCreate(o); if (!o) { setForm(EMPTY_FORM); setFormError(""); } }}>
-        <DialogContent className="max-w-md" dir="rtl">
+        <DialogContent className="max-w-md" dir={i18n.dir()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-500" /> إضافة مؤثر جديد
+              <Star className="w-4 h-4 text-amber-500" /> {t("affiliates.form.title")}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>اسم المؤثر *</Label>
-                <Input value={form.name} onChange={f("name")} placeholder="سارة أحمد" className="h-9" />
+                <Label>{t("affiliates.form.name")}</Label>
+                <Input value={form.name} onChange={f("name")} placeholder={t("affiliates.form.namePlaceholder")} className="h-9" />
               </div>
               <div className="space-y-1.5">
-                <Label>حساب التواصل *</Label>
-                <Input value={form.handle} onChange={f("handle")} placeholder="@sara_style" className="h-9" dir="ltr" />
+                <Label>{t("affiliates.form.handle")}</Label>
+                <Input value={form.handle} onChange={f("handle")} placeholder={t("affiliates.form.handlePlaceholder")} className="h-9" dir="ltr" />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label>المنصة</Label>
+              <Label>{t("affiliates.form.platform")}</Label>
               <Select value={form.platform} onValueChange={(v) => setForm(p => ({ ...p, platform: v as FormState["platform"] }))}>
                 <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="instagram">Instagram</SelectItem>
                   <SelectItem value="tiktok">TikTok</SelectItem>
                   <SelectItem value="youtube">YouTube</SelectItem>
-                  <SelectItem value="other">أخرى</SelectItem>
+                  <SelectItem value="other">{t("affiliates.form.platformOther")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="border-t border-border/50 pt-4">
-              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">كود الخصم للمؤثر</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">{t("affiliates.form.promoSection")}</p>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5 col-span-3">
-                  <Label>كود الخصم (يُنشأ تلقائياً للمؤثر) *</Label>
+                  <Label>{t("affiliates.form.promoCode")}</Label>
                   <Input value={form.promoCode} onChange={f("promoCode")} placeholder="SARA20" className="h-9 font-mono uppercase" dir="ltr" />
-                  <p className="text-[10px] text-muted-foreground">يُشارَك مع المتابعين — لا يمكن تكراره</p>
+                  <p className="text-[10px] text-muted-foreground">{t("affiliates.form.promoHint")}</p>
                 </div>
                 <div className="space-y-1.5 col-span-2">
-                  <Label>نوع الخصم</Label>
+                  <Label>{t("affiliates.form.discountType")}</Label>
                   <Select value={form.discountType} onValueChange={(v) => setForm(p => ({ ...p, discountType: v as FormState["discountType"] }))}>
                     <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="percentage">نسبة مئوية %</SelectItem>
-                      <SelectItem value="fixed">مبلغ ثابت ج.م</SelectItem>
+                      <SelectItem value="percentage">{t("affiliates.form.discountTypePercent")}</SelectItem>
+                      <SelectItem value="fixed">{t("affiliates.form.discountTypeFixed", { currency: i18n.language === "ar" ? "ج.م" : "EGP" })}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>قيمة الخصم</Label>
+                  <Label>{t("affiliates.form.discountValue")}</Label>
                   <Input value={form.discountValue} onChange={f("discountValue")} type="number" min={0} className="h-9" />
                 </div>
               </div>
             </div>
 
             <div className="border-t border-border/50 pt-4">
-              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">عمولة المؤثر</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">{t("affiliates.form.commissionSection")}</p>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5 col-span-2">
-                  <Label>نوع العمولة</Label>
+                  <Label>{t("affiliates.form.commissionType")}</Label>
                   <Select value={form.commissionType} onValueChange={(v) => setForm(p => ({ ...p, commissionType: v as FormState["commissionType"] }))}>
                     <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="percent">% من الإيراد</SelectItem>
-                      <SelectItem value="flat">مبلغ ثابت / طلب</SelectItem>
+                      <SelectItem value="percent">{t("affiliates.form.commissionTypePercent")}</SelectItem>
+                      <SelectItem value="flat">{t("affiliates.form.commissionTypeFlat")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>القيمة</Label>
+                  <Label>{t("affiliates.form.commissionValue")}</Label>
                   <Input value={form.commissionValue} onChange={f("commissionValue")} type="number" min={0} className="h-9" />
                 </div>
               </div>
               <p className="text-[10px] text-muted-foreground mt-2">
                 {form.commissionType === "percent"
-                  ? `المؤثر يحصل على ${form.commissionValue || 0}% من قيمة كل طلب يُحوّله`
-                  : `المؤثر يحصل على ${form.commissionValue || 0} ج.م عن كل طلب مكتمل`}
+                  ? t("affiliates.form.commissionHintPercent", { value: form.commissionValue || 0 })
+                  : t("affiliates.form.commissionHintFlat", { value: form.commissionValue || 0, currency: i18n.language === "ar" ? "ج.م" : "EGP" })}
               </p>
             </div>
 
             <div className="space-y-1.5">
-              <Label>ملاحظات (اختياري)</Label>
-              <Input value={form.notes} onChange={f("notes")} placeholder="تعاون شهري، يغطي فئة الفساتين..." className="h-9" />
+              <Label>{t("affiliates.form.notes")}</Label>
+              <Input value={form.notes} onChange={f("notes")} placeholder={t("affiliates.form.notesPlaceholder")} className="h-9" />
             </div>
 
             {formError && (
@@ -470,9 +472,9 @@ export default function Affiliates() {
           </div>
 
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowCreate(false)}>إلغاء</Button>
+            <Button variant="outline" onClick={() => setShowCreate(false)}>{t("affiliates.form.btnCancel")}</Button>
             <Button onClick={handleCreate} disabled={createMutation.isPending} className="gap-2">
-              {createMutation.isPending ? "جاري الإنشاء..." : <><Plus className="w-3.5 h-3.5" />إضافة المؤثر</>}
+              {createMutation.isPending ? t("affiliates.form.btnAdding") : <><Plus className="w-3.5 h-3.5" />{t("affiliates.form.btnAdd")}</>}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -480,20 +482,20 @@ export default function Affiliates() {
 
       {/* Delete confirm */}
       <AlertDialog open={deleteId !== null} onOpenChange={(o) => { if (!o) setDeleteId(null); }}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={i18n.dir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>حذف المؤثر</AlertDialogTitle>
+            <AlertDialogTitle>{t("affiliates.delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              سيتم حذف المؤثر من قائمتك. كود الخصم الخاص به سيظل موجوداً في صفحة الخصومات.
+              {t("affiliates.delete.desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel>{t("affiliates.delete.btnCancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deleteId !== null && deleteMutation.mutate(deleteId)}
               disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending ? "جاري الحذف..." : "حذف"}
+              {deleteMutation.isPending ? t("affiliates.delete.btnDeleting") : t("affiliates.delete.btnDelete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

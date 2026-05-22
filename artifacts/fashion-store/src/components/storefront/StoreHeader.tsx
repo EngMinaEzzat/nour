@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   Search, ShoppingBag, Menu, X, MessageCircle,
   Instagram, Facebook, MapPin,
@@ -34,6 +35,7 @@ export function StoreHeader({
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [, navigate] = useLocation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -56,11 +58,11 @@ export function StoreHeader({
   const glass = !scrolled;
 
   const NAV_LINKS = [
-    { label: "وصل حديثاً", id: "new-arrivals" },
-    { label: "أزياء", id: "trending" },
-    { label: "جمال وعناية", id: "beauty-routine" },
-    { label: "الأفضل مبيعاً", id: "best-sellers" },
-    { label: "جميع المنتجات", id: "products-section" },
+    { label: t("storefront.products.newArrivals"), id: "new-arrivals" },
+    { label: t("storefront.header.links.fashion"), id: "trending" },
+    { label: t("storefront.header.links.beauty"), id: "beauty-routine" },
+    { label: t("storefront.header.links.bestSellers"), id: "best-sellers" },
+    { label: t("storefront.header.links.allProducts"), id: "products-section" },
   ];
 
   function scrollTo(id: string) {
@@ -86,7 +88,7 @@ export function StoreHeader({
           boxShadow: scrolled
             ? "0 2px 24px rgba(26,22,20,0.07)"
             : "none",
-          direction: "rtl",
+          direction: i18n.dir(),
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center gap-4">
@@ -141,7 +143,7 @@ export function StoreHeader({
               onClick={() => navigate("/checkout")}
               className="relative w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100"
               style={{ color: p }}
-              aria-label="السلة"
+              aria-label={t("storefront.header.actions.cart")}
             >
               <ShoppingBag className="w-4 h-4" />
               {cartCount > 0 && (
@@ -181,12 +183,12 @@ export function StoreHeader({
               className="fixed top-0 right-0 h-full w-[280px] z-[70] flex flex-col"
               style={{
                 background: "#faf7f4",
-                direction: "rtl",
-                boxShadow: "-8px 0 40px rgba(26,22,20,0.15)",
+                direction: i18n.dir(),
+                boxShadow: i18n.dir() === "rtl" ? "-8px 0 40px rgba(26,22,20,0.15)" : "8px 0 40px rgba(26,22,20,0.15)",
               }}
-              initial={{ x: "100%" }}
+              initial={{ x: i18n.dir() === "rtl" ? "100%" : "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              exit={{ x: i18n.dir() === "rtl" ? "100%" : "-100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 320 }}
             >
               {/* Drawer header */}
@@ -214,8 +216,8 @@ export function StoreHeader({
                   <motion.button
                     key={link.id}
                     onClick={() => scrollTo(link.id)}
-                    className="text-right py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all"
-                    initial={{ opacity: 0, x: 20 }}
+                    className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                    initial={{ opacity: 0, x: i18n.dir() === "rtl" ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.04 }}
                   >
@@ -232,7 +234,7 @@ export function StoreHeader({
                     style={{ background: "rgba(37,211,102,0.08)" }}
                   >
                     <MessageCircle className="w-4 h-4 text-green-600" />
-                    تواصل عبر واتساب
+                    {i18n.language === "ar" ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
                   </a>
                 )}
               </nav>
@@ -247,7 +249,7 @@ export function StoreHeader({
                     <MapPin className="w-3 h-3" />{city}
                   </span>
                 )}
-                <div className="flex gap-2 mr-auto">
+                <div className={`flex gap-2 ${i18n.dir() === "rtl" ? "mr-auto" : "ml-auto"}`}>
                   {sl.instagram && (
                     <a href={sl.instagram} target="_blank" rel="noreferrer"
                       className="w-7 h-7 rounded-lg flex items-center justify-center"

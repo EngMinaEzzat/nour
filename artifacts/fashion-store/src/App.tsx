@@ -8,6 +8,7 @@ import { CartProvider } from "@/hooks/use-cart";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/components/protected-route";
 import { fetchAndSetCsrfToken } from "@workspace/api-client-react";
+import { useTranslation } from "react-i18next";
 
 import Storefront from "@/pages/storefront";
 
@@ -338,11 +339,19 @@ function Router() {
 
 function App() {
   const subdomainSlug = getSubdomainSlug();
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     if (isReadOnlyPublicRoute(subdomainSlug)) return;
     fetchAndSetCsrfToken();
   }, [subdomainSlug]);
+
+  useEffect(() => {
+    const isRtl = i18n.language === "ar";
+    document.documentElement.dir = isRtl ? "rtl" : "ltr";
+    document.documentElement.lang = i18n.language;
+    document.documentElement.classList.toggle("ltr", !isRtl);
+  }, [i18n.language]);
 
   // On a store subdomain ({slug}.nour.eg), render only the storefront
   if (subdomainSlug) {

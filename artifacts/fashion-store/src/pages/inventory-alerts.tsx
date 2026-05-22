@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -46,12 +47,14 @@ function StockBar({ stock, threshold }: { stock: number; threshold: number }) {
 }
 
 function StockBadge({ stock }: { stock: number }) {
-  if (stock === 0) return <Badge variant="destructive" className="text-xs gap-1"><XCircle className="w-3 h-3" />نفذ</Badge>;
-  if (stock <= 3) return <Badge className="text-xs gap-1 bg-orange-500 hover:bg-orange-600"><AlertTriangle className="w-3 h-3" />حرج</Badge>;
-  return <Badge className="text-xs gap-1 bg-amber-500 hover:bg-amber-600"><TrendingDown className="w-3 h-3" />منخفض</Badge>;
+  const { t } = useTranslation();
+  if (stock === 0) return <Badge variant="destructive" className="text-xs gap-1"><XCircle className="w-3 h-3" />{t("inventoryAlerts.badge.outOfStock")}</Badge>;
+  if (stock <= 3) return <Badge className="text-xs gap-1 bg-orange-500 hover:bg-orange-600"><AlertTriangle className="w-3 h-3" />{t("inventoryAlerts.badge.critical")}</Badge>;
+  return <Badge className="text-xs gap-1 bg-amber-500 hover:bg-amber-600"><TrendingDown className="w-3 h-3" />{t("inventoryAlerts.badge.low")}</Badge>;
 }
 
 export default function InventoryAlerts() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [globalInput, setGlobalInput] = useState("");
   const [editingProduct, setEditingProduct] = useState<LowStockProduct | null>(null);
@@ -109,15 +112,15 @@ export default function InventoryAlerts() {
   const globalThreshold = data?.globalThreshold ?? 5;
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24 max-w-5xl">
+    <div className="container mx-auto px-4 py-8 pb-24 max-w-5xl" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <div className="flex items-start justify-between flex-wrap gap-4 mb-8">
           <div>
             <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
               <Bell className="w-9 h-9 text-amber-500" />
-              تنبيهات المخزون
+              {t("inventoryAlerts.page.title")}
             </h1>
-            <p className="text-muted-foreground mt-1">راقب المنتجات منخفضة المخزون وأرسل تذكيراً لنفسك</p>
+            <p className="text-muted-foreground mt-1">{t("inventoryAlerts.page.subtitle")}</p>
           </div>
           <Button
             className="rounded-xl gap-2 bg-green-600 hover:bg-green-700 text-white"
@@ -125,17 +128,17 @@ export default function InventoryAlerts() {
             disabled={lowStock.length === 0}
           >
             <MessageCircle className="w-4 h-4" />
-            إرسال ملخص واتساب
+            {t("inventoryAlerts.btnSendWhatsApp")}
           </Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "نفذ المخزون", value: stats?.outOfStock ?? 0, icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" },
-            { label: "حرج (1–3 قطع)", value: stats?.critical ?? 0, icon: AlertTriangle, color: "text-orange-600", bg: "bg-orange-100" },
-            { label: "منخفض المخزون", value: stats?.lowStockCount ?? 0, icon: TrendingDown, color: "text-amber-600", bg: "bg-amber-100" },
-            { label: "إجمالي المنتجات", value: stats?.totalProducts ?? 0, icon: Package, color: "text-primary", bg: "bg-primary/10" },
+            { label: t("inventoryAlerts.stats.outOfStock"), value: stats?.outOfStock ?? 0, icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" },
+            { label: t("inventoryAlerts.stats.critical"), value: stats?.critical ?? 0, icon: AlertTriangle, color: "text-orange-600", bg: "bg-orange-100" },
+            { label: t("inventoryAlerts.stats.lowStock"), value: stats?.lowStockCount ?? 0, icon: TrendingDown, color: "text-amber-600", bg: "bg-amber-100" },
+            { label: t("inventoryAlerts.stats.total"), value: stats?.totalProducts ?? 0, icon: Package, color: "text-primary", bg: "bg-primary/10" },
           ].map((s) => (
             <Card key={s.label} className="border-border/50">
               <CardContent className="pt-4 pb-3 flex items-center gap-3">
@@ -143,7 +146,7 @@ export default function InventoryAlerts() {
                   <s.icon className={`w-4 h-4 ${s.color}`} />
                 </div>
                 <div>
-                  <p className={`text-2xl font-bold ${s.value > 0 && s.label !== "إجمالي المنتجات" ? s.color : ""}`}>{s.value}</p>
+                  <p className={`text-2xl font-bold ${s.value > 0 && s.label !== t("inventoryAlerts.stats.total") ? s.color : ""}`}>{s.value}</p>
                   <p className="text-[11px] text-muted-foreground leading-tight">{s.label}</p>
                 </div>
               </CardContent>
@@ -157,8 +160,8 @@ export default function InventoryAlerts() {
             <div className="flex items-center gap-4 flex-wrap">
               <Settings2 className="w-5 h-5 text-muted-foreground shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">الحد الافتراضي للتنبيه</p>
-                <p className="text-xs text-muted-foreground">سيتم تنبيهك عندما يصل مخزون أي منتج إلى هذا الرقم أو أقل</p>
+                <p className="font-semibold text-sm">{t("inventoryAlerts.settings.title")}</p>
+                <p className="text-xs text-muted-foreground">{t("inventoryAlerts.settings.subtitle")}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Input
@@ -169,7 +172,7 @@ export default function InventoryAlerts() {
                   className="w-20 text-center h-9 text-sm"
                   dir="ltr"
                 />
-                <span className="text-sm text-muted-foreground">قطعة</span>
+                <span className="text-sm text-muted-foreground">{t("inventoryAlerts.settings.unit")}</span>
                 <Button
                   size="sm"
                   className="rounded-xl h-9"
@@ -177,7 +180,7 @@ export default function InventoryAlerts() {
                   onClick={() => updateGlobal.mutate(parseInt(globalInput, 10))}
                 >
                   {updateGlobal.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                  حفظ
+                  {t("inventoryAlerts.settings.btnSave")}
                 </Button>
               </div>
             </div>
@@ -190,27 +193,27 @@ export default function InventoryAlerts() {
         ) : lowStock.length === 0 ? (
           <div className="text-center py-24 bg-muted/20 rounded-3xl border border-dashed border-border text-muted-foreground">
             <ShoppingBag className="w-14 h-14 mx-auto mb-4 opacity-30" />
-            <p className="text-xl font-semibold mb-1">مخزونك ممتاز!</p>
-            <p className="text-sm">جميع منتجاتك فوق الحد الأدنى المحدد ({globalThreshold} قطع)</p>
+            <p className="text-xl font-semibold mb-1">{t("inventoryAlerts.empty.title")}</p>
+            <p className="text-sm">{t("inventoryAlerts.empty.subtitle").replace("{threshold}", globalThreshold.toString())}</p>
           </div>
         ) : (
           <div>
             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />
-              المنتجات التي تحتاج إعادة تخزين
-              <span className="text-sm text-muted-foreground font-normal">({lowStock.length} منتج)</span>
+              {t("inventoryAlerts.list.title")}
+              <span className="text-sm text-muted-foreground font-normal">{t("inventoryAlerts.list.productCount").replace("{count}", lowStock.length.toString())}</span>
             </h2>
 
             <div className="rounded-2xl border border-border/50 overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 border-b border-border/50">
                   <tr>
-                    <th className="text-start px-4 py-3 font-medium text-muted-foreground">المنتج</th>
-                    <th className="text-center px-4 py-3 font-medium text-muted-foreground">المخزون</th>
-                    <th className="text-center px-4 py-3 font-medium text-muted-foreground">المستوى</th>
-                    <th className="text-center px-4 py-3 font-medium text-muted-foreground">الحد</th>
-                    <th className="text-center px-4 py-3 font-medium text-muted-foreground">الحالة</th>
-                    <th className="text-start px-4 py-3 font-medium text-muted-foreground">إجراء</th>
+                    <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t("inventoryAlerts.list.table.product")}</th>
+                    <th className="text-center px-4 py-3 font-medium text-muted-foreground">{t("inventoryAlerts.list.table.stock")}</th>
+                    <th className="text-center px-4 py-3 font-medium text-muted-foreground">{t("inventoryAlerts.list.table.level")}</th>
+                    <th className="text-center px-4 py-3 font-medium text-muted-foreground">{t("inventoryAlerts.list.table.threshold")}</th>
+                    <th className="text-center px-4 py-3 font-medium text-muted-foreground">{t("inventoryAlerts.list.table.status")}</th>
+                    <th className="text-start px-4 py-3 font-medium text-muted-foreground">{t("inventoryAlerts.list.table.action")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -248,7 +251,7 @@ export default function InventoryAlerts() {
                         <td className="px-4 py-3 text-center text-muted-foreground text-xs">
                           {product.lowStockThreshold !== null
                             ? <span className="font-medium text-foreground">{product.lowStockThreshold}</span>
-                            : <span className="opacity-60">{globalThreshold} (افتراضي)</span>
+                            : <span className="opacity-60">{globalThreshold} {t("inventoryAlerts.list.defaultThreshold")}</span>
                           }
                         </td>
                         <td className="px-4 py-3">
@@ -264,7 +267,7 @@ export default function InventoryAlerts() {
                             onClick={() => { setEditingProduct(product); setProductThresholdInput(String(product.lowStockThreshold ?? globalThreshold)); }}
                           >
                             <Pencil className="w-3 h-3" />
-                            تعديل الحد
+                            {t("inventoryAlerts.list.btnEdit")}
                           </Button>
                         </td>
                       </motion.tr>
@@ -279,17 +282,17 @@ export default function InventoryAlerts() {
 
       {/* Edit product threshold dialog */}
       <Dialog open={!!editingProduct} onOpenChange={(o) => !o && setEditingProduct(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm" dir={i18n.dir()}>
           <DialogHeader>
-            <DialogTitle>تعديل حد التنبيه</DialogTitle>
+            <DialogTitle>{t("inventoryAlerts.dialog.title")}</DialogTitle>
           </DialogHeader>
           {editingProduct && (
             <div className="space-y-4 py-2">
               <p className="text-sm text-muted-foreground">
-                منتج: <span className="font-semibold text-foreground">{editingProduct.name}</span>
+                {t("inventoryAlerts.dialog.product")} <span className="font-semibold text-foreground">{editingProduct.name}</span>
               </p>
               <div className="space-y-1.5">
-                <Label>الحد الأدنى للمخزون</Label>
+                <Label>{t("inventoryAlerts.dialog.threshold")}</Label>
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -300,22 +303,22 @@ export default function InventoryAlerts() {
                     dir="ltr"
                     autoFocus
                   />
-                  <span className="text-sm text-muted-foreground">قطعة</span>
+                  <span className="text-sm text-muted-foreground">{t("inventoryAlerts.dialog.unit")}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  الحد الافتراضي للمتجر: {globalThreshold} قطع.{" "}
+                  {t("inventoryAlerts.dialog.defaultNote").replace("{threshold}", globalThreshold.toString())}
                   <button
                     className="text-primary underline"
                     onClick={() => setProductThresholdInput("")}
                   >
-                    حذف التخصيص
+                    {t("inventoryAlerts.dialog.btnRemove")}
                   </button>
                 </p>
               </div>
             </div>
           )}
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl" onClick={() => setEditingProduct(null)}>إلغاء</Button>
+            <Button variant="outline" className="rounded-xl" onClick={() => setEditingProduct(null)}>{t("inventoryAlerts.dialog.btnCancel")}</Button>
             <Button
               className="rounded-xl"
               disabled={updateProductThreshold.isPending}
@@ -327,7 +330,7 @@ export default function InventoryAlerts() {
               }
             >
               {updateProductThreshold.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin me-1" /> : null}
-              حفظ
+              {t("inventoryAlerts.dialog.btnSave")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -335,19 +338,19 @@ export default function InventoryAlerts() {
 
       {/* WhatsApp notify dialog */}
       <Dialog open={notifyOpen} onOpenChange={setNotifyOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm" dir={i18n.dir()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-green-600" />
-              إرسال ملخص واتساب
+              {t("inventoryAlerts.whatsapp.title")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <p className="text-sm text-muted-foreground">
-              سيتم إرسال قائمة بـ {lowStock.length} منتج منخفض المخزون إلى رقم واتساب
+              {t("inventoryAlerts.whatsapp.subtitle").replace("{count}", lowStock.length.toString())}
             </p>
             <div className="space-y-1.5">
-              <Label>رقم واتساب</Label>
+              <Label>{t("inventoryAlerts.whatsapp.phone")}</Label>
               <Input
                 type="tel"
                 placeholder="01012345678"
@@ -356,14 +359,14 @@ export default function InventoryAlerts() {
                 dir="ltr"
                 autoFocus
               />
-              <p className="text-xs text-muted-foreground">أدخلي رقمك لإرسال تذكير لنفسك، أو رقم المورد</p>
+              <p className="text-xs text-muted-foreground">{t("inventoryAlerts.whatsapp.phoneNote")}</p>
             </div>
             {notifyMutation.error && (
               <p className="text-xs text-destructive">{(notifyMutation.error as Error).message}</p>
             )}
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl" onClick={() => setNotifyOpen(false)}>إلغاء</Button>
+            <Button variant="outline" className="rounded-xl" onClick={() => setNotifyOpen(false)}>{t("inventoryAlerts.whatsapp.btnCancel")}</Button>
             <Button
               className="rounded-xl bg-green-600 hover:bg-green-700 text-white gap-2"
               disabled={!notifyPhone.trim() || notifyMutation.isPending}
@@ -373,7 +376,7 @@ export default function InventoryAlerts() {
                 ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 : <><MessageCircle className="w-3.5 h-3.5" /><ExternalLink className="w-3 h-3 opacity-70" /></>
               }
-              فتح واتساب
+              {t("inventoryAlerts.whatsapp.btnOpen")}
             </Button>
           </DialogFooter>
         </DialogContent>

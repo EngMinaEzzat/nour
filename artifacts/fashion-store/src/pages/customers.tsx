@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { useListCustomers } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,24 +30,26 @@ function CodBadge({ rate, totalCod, confirmed, cancelled }: {
   const risk = getCodRisk(rate, resolved);
   if (risk === null) return null;
 
+  const { t } = useTranslation();
   const config = {
-    high:   { label: `${rate}% تأكيد`, cls: "bg-green-100 text-green-800 border-green-200",  Icon: TrendingUp },
-    medium: { label: `${rate}% تأكيد`, cls: "bg-amber-100 text-amber-800 border-amber-200",  Icon: Minus },
-    low:    { label: `${rate}% تأكيد`, cls: "bg-red-100 text-red-800 border-red-200",        Icon: TrendingDown },
+    high:   { label: `${rate}% ${t("customers.card.codConfirmTitle")}`, cls: "bg-green-100 text-green-800 border-green-200",  Icon: TrendingUp },
+    medium: { label: `${rate}% ${t("customers.card.codConfirmTitle")}`, cls: "bg-amber-100 text-amber-800 border-amber-200",  Icon: Minus },
+    low:    { label: `${rate}% ${t("customers.card.codConfirmTitle")}`, cls: "bg-red-100 text-red-800 border-red-200",        Icon: TrendingDown },
   }[risk];
 
   return (
     <Badge
       className={`text-[10px] px-1.5 py-0 border shrink-0 flex items-center gap-0.5 ${config.cls}`}
-      title={`طلبات COD: ${totalCod} | مؤكدة: ${confirmed} | ملغية: ${cancelled}`}
+      title={t("customers.card.codTitle", { totalCod, confirmed, cancelled }).replace("{totalCod}", totalCod.toString()).replace("{confirmed}", confirmed.toString()).replace("{cancelled}", cancelled.toString())}
     >
       <config.Icon className="w-2.5 h-2.5" />
-      {config.label}
+      {rate}% {t("customers.card.codConfirmTitle")}
     </Badge>
   );
 }
 
 export default function Customers() {
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
   const { data: customers, isLoading } = useListCustomers();
 
@@ -57,23 +60,23 @@ export default function Customers() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
         <div className="flex items-center gap-3 mb-2">
           <Users className="w-6 h-6 text-primary" />
-          <h1 className="text-3xl font-bold">العملاء</h1>
+          <h1 className="text-3xl font-bold">{t("customers.page.title")}</h1>
         </div>
-        <p className="text-muted-foreground mb-4">قاعدة بيانات عملاء المتجر مع معدل تأكيد الدفع عند الاستلام</p>
+        <p className="text-muted-foreground mb-4">{t("customers.page.subtitle")}</p>
       </motion.div>
 
       <GuideCard
         storageKey="customers"
-        title="فهم قاعدة عملائك"
-        description="هنا تجد كل عميل سبق وأجرى طلباً. ابحث عن أي عميل واطّلع على سجل مشترياته ومعدل التأكيد."
+        title={t("customers.guide.title")}
+        description={t("customers.guide.description")}
         tips={[
-          "العملاء ذوو معدل تأكيد منخفض (أقل 50%) — تابع معهم قبل التغليف.",
-          "العملاء المتكررون هم كنزك الحقيقي — أرسل لهم عروضاً خاصة.",
-          "رقم الهاتف المتحقق منه يعني عميلاً أكثر مصداقية لطلبات COD.",
+          t("customers.guide.tips.0"),
+          t("customers.guide.tips.1"),
+          t("customers.guide.tips.2"),
         ]}
         variant="tip"
       />
@@ -84,17 +87,17 @@ export default function Customers() {
         transition={{ duration: 0.3, delay: 0.1 }}
         className="relative mb-6 max-w-md"
       >
-        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className={`absolute ${i18n.dir() === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
         <Input
-          placeholder="بحث باسم العميل أو البريد الإلكتروني..."
+          placeholder={t("customers.search.placeholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="ps-10 h-11"
+          className="px-10 h-11"
         />
       </motion.div>
 
       {!isLoading && (
-        <p className="text-sm text-muted-foreground mb-6">{filtered?.length ?? 0} عميل</p>
+        <p className="text-sm text-muted-foreground mb-6">{filtered?.length ?? 0} {t("customers.list.customerCount")}</p>
       )}
 
       <motion.div
@@ -128,7 +131,7 @@ export default function Customers() {
                           <p className="font-bold text-foreground truncate">{c.name}</p>
                           {cod.totalOrders > 1 && (
                             <Badge className="text-[10px] px-1.5 py-0 bg-pink-100 text-pink-700 border border-pink-200 shrink-0">
-                              <Star className="w-2.5 h-2.5 me-0.5 fill-pink-500 text-pink-500" /> متكرر
+                              <Star className="w-2.5 h-2.5 me-0.5 fill-pink-500 text-pink-500" /> {t("customers.card.repeated")}
                             </Badge>
                           )}
                           <CodBadge
@@ -156,11 +159,11 @@ export default function Customers() {
                         {cod.totalOrders !== undefined && (
                           <div className="flex gap-3 mt-2 pt-2 border-t border-border/30 flex-wrap">
                             <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <ShoppingCart className="w-3 h-3" /> {cod.totalOrders} طلب
+                              <ShoppingCart className="w-3 h-3" /> {cod.totalOrders} {t("customers.card.ordersCount")}
                             </span>
                             {cod.totalSpent > 0 && (
                               <span className="text-xs font-medium text-primary">
-                                {Number(cod.totalSpent).toLocaleString("ar-EG")} ج.م
+                                {Number(cod.totalSpent).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}
                               </span>
                             )}
                             {cod.codTotalOrders > 0 && (
@@ -174,13 +177,13 @@ export default function Customers() {
                         {risk === "low" && (
                           <div className="mt-2 text-[10px] bg-red-50 border border-red-200 text-red-700 rounded-lg px-2 py-1 flex items-center gap-1">
                             <TrendingDown className="w-3 h-3 shrink-0" />
-                            خطر عالٍ — معدل إلغاء مرتفع، تأكد قبل الشحن
+                            {t("customers.card.riskHigh")}
                           </div>
                         )}
                         {risk === "medium" && (
                           <div className="mt-2 text-[10px] bg-amber-50 border border-amber-200 text-amber-700 rounded-lg px-2 py-1 flex items-center gap-1">
                             <Minus className="w-3 h-3 shrink-0" />
-                            خطر متوسط — اتصل بالعميل قبل الشحن
+                            {t("customers.card.riskMedium")}
                           </div>
                         )}
                       </div>
@@ -195,7 +198,7 @@ export default function Customers() {
       {!isLoading && filtered?.length === 0 && (
         <div className="text-center py-24">
           <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-          <p className="text-muted-foreground">لا يوجد عملاء</p>
+          <p className="text-muted-foreground">{t("customers.list.empty")}</p>
         </div>
       )}
     </div>

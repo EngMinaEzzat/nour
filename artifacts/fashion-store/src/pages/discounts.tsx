@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +59,7 @@ function generateCode() {
 }
 
 export default function Discounts() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<DiscountCode | null>(null);
@@ -75,7 +77,7 @@ export default function Discounts() {
     mutationFn: (body: object) =>
       fetch(api("/discounts"), { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(body) }).then(async (r) => {
         const d = await r.json();
-        if (!r.ok) throw new Error(d.error ?? "فشل الحفظ");
+        if (!r.ok) throw new Error(d.error ?? t("discounts.toast.saveError"));
         return d;
       }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["discounts"] }); setOpen(false); },
@@ -85,7 +87,7 @@ export default function Discounts() {
     mutationFn: ({ id, ...body }: { id: number } & Record<string, unknown>) =>
       fetch(api(`/discounts/${id}`), { method: "PUT", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(body) }).then(async (r) => {
         const d = await r.json();
-        if (!r.ok) throw new Error(d.error ?? "فشل التحديث");
+        if (!r.ok) throw new Error(d.error ?? t("discounts.toast.updateError"));
         return d;
       }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["discounts"] }),
@@ -120,9 +122,9 @@ export default function Discounts() {
 
   function validate() {
     const errs: Record<string, string> = {};
-    if (!form.code.trim()) errs.code = "الكود مطلوب";
-    if (form.type !== "free_shipping" && (!form.value || parseFloat(form.value) <= 0)) errs.value = "القيمة مطلوبة";
-    if (form.type === "percentage" && parseFloat(form.value) > 100) errs.value = "النسبة لا تتجاوز 100%";
+    if (!form.code.trim()) errs.code = t("discounts.errors.codeRequired");
+    if (form.type !== "free_shipping" && (!form.value || parseFloat(form.value) <= 0)) errs.value = t("discounts.errors.valueRequired");
+    if (form.type === "percentage" && parseFloat(form.value) > 100) errs.value = t("discounts.errors.valueMax");
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -159,24 +161,24 @@ export default function Discounts() {
   const totalUses = codes.reduce((s, c) => s + c.usedCount, 0);
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24 max-w-5xl">
+    <div className="container mx-auto px-4 py-8 pb-24 max-w-5xl" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">أكواد الخصم</h1>
-            <p className="text-muted-foreground mt-1">أنشئ وأدّر أكواد خصم لتشجيع العملاء على الشراء</p>
+            <h1 className="text-4xl font-bold text-foreground">{t("discounts.page.title")}</h1>
+            <p className="text-muted-foreground mt-1">{t("discounts.page.subtitle")}</p>
           </div>
           <Button className="rounded-2xl gap-2" onClick={openCreate}>
-            <Plus className="w-4 h-4" /> كود جديد
+            <Plus className="w-4 h-4" /> {t("discounts.btnNew")}
           </Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
-            { label: "إجمالي الأكواد", value: codes.length, icon: Ticket, color: "text-primary" },
-            { label: "أكواد نشطة", value: activeCount, icon: Tag, color: "text-green-600" },
-            { label: "مرات الاستخدام", value: totalUses, icon: Users, color: "text-amber-600" },
+            { label: t("discounts.stats.total"), value: codes.length, icon: Ticket, color: "text-primary" },
+            { label: t("discounts.stats.active"), value: activeCount, icon: Tag, color: "text-green-600" },
+            { label: t("discounts.stats.used"), value: totalUses, icon: Users, color: "text-amber-600" },
           ].map((s) => (
             <Card key={s.label} className="border-border/50">
               <CardContent className="pt-5 pb-4 flex items-center gap-4">
@@ -196,9 +198,9 @@ export default function Discounts() {
         ) : codes.length === 0 ? (
           <div className="text-center py-24 text-muted-foreground">
             <Ticket className="w-14 h-14 mx-auto mb-4 opacity-30" />
-            <p className="text-xl font-semibold mb-2">لا توجد أكواد خصم</p>
-            <p className="text-sm mb-6">أنشئ أول كود خصم لعملائك</p>
-            <Button className="rounded-2xl" onClick={openCreate}><Plus className="w-4 h-4 me-2" /> كود جديد</Button>
+            <p className="text-xl font-semibold mb-2">{t("discounts.empty.title")}</p>
+            <p className="text-sm mb-6">{t("discounts.empty.subtitle")}</p>
+            <Button className="rounded-2xl" onClick={openCreate}><Plus className="w-4 h-4 me-2" /> {t("discounts.btnNew")}</Button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -234,28 +236,28 @@ export default function Discounts() {
                           {/* Type + value */}
                           <div className="flex items-center gap-2">
                             <Badge variant="outline" className="text-xs">
-                              {code.type === "percentage" ? `${code.value}% خصم` : code.type === "fixed" ? `${code.value.toLocaleString("ar-EG")} ج.م خصم` : "شحن مجاني"}
+                              {code.type === "percentage" ? t("discounts.badge.percentage", { value: code.value }) : code.type === "fixed" ? t("discounts.badge.fixed", { value: code.value.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US"), currency: i18n.language === "ar" ? "ج.م" : "EGP" }) : t("discounts.badge.freeShipping")}
                             </Badge>
                             {code.minOrderAmount && (
-                              <span className="text-xs text-muted-foreground">حد أدنى: {code.minOrderAmount.toLocaleString("ar-EG")} ج.م</span>
+                              <span className="text-xs text-muted-foreground">{t("discounts.list.minOrder", { value: code.minOrderAmount.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US"), currency: i18n.language === "ar" ? "ج.م" : "EGP" })}</span>
                             )}
                           </div>
 
                           {/* Usage */}
                           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <TrendingUp className="w-3.5 h-3.5" />
-                            {code.usedCount}{code.maxUses !== null ? `/${code.maxUses}` : ""} استخدام
+                            {code.maxUses !== null ? t("discounts.list.usage", { used: code.usedCount, max: code.maxUses }) : t("discounts.list.usageUnlimited", { used: code.usedCount })}
                           </div>
 
                           {/* Expiry */}
                           {code.expiresAt && (
                             <span className={`text-xs ${expired ? "text-destructive" : "text-muted-foreground"}`}>
-                              {expired ? "منتهي الصلاحية" : `ينتهي ${new Date(code.expiresAt).toLocaleDateString("ar-EG")}`}
+                              {expired ? t("discounts.list.expired") : t("discounts.list.expiresAt", { date: new Date(code.expiresAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US") })}
                             </span>
                           )}
 
                           {/* Status badges */}
-                          {exhausted && <Badge variant="destructive" className="text-[10px]">استُنفد</Badge>}
+                          {exhausted && <Badge variant="destructive" className="text-[10px]">{t("discounts.list.exhausted")}</Badge>}
 
                           {/* Actions — pushed to end */}
                           <div className="ms-auto flex items-center gap-3">
@@ -284,13 +286,13 @@ export default function Discounts() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md" dir="rtl">
+        <DialogContent className="max-w-md" dir={i18n.dir()}>
           <DialogHeader>
-            <DialogTitle>{editing ? "تعديل كود الخصم" : "كود خصم جديد"}</DialogTitle>
+            <DialogTitle>{editing ? t("discounts.dialog.editTitle") : t("discounts.dialog.createTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label>كود الخصم *</Label>
+              <Label>{t("discounts.dialog.code")}</Label>
               <div className="flex gap-2">
                 <Input
                   value={form.code}
@@ -300,27 +302,27 @@ export default function Discounts() {
                   dir="ltr"
                 />
                 <Button variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, code: generateCode() }))}>
-                  عشوائي
+                  {t("discounts.dialog.btnRandom")}
                 </Button>
               </div>
               {errors.code && <p className="text-xs text-destructive">{errors.code}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label>نوع الخصم *</Label>
+              <Label>{t("discounts.dialog.type")}</Label>
               <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v as Form["type"] }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="percentage">نسبة مئوية %</SelectItem>
-                  <SelectItem value="fixed">مبلغ ثابت ج.م</SelectItem>
-                  <SelectItem value="free_shipping">شحن مجاني</SelectItem>
+                  <SelectItem value="percentage">{t("discounts.dialog.typePercentage")}</SelectItem>
+                  <SelectItem value="fixed">{t("discounts.dialog.typeFixed", { currency: i18n.language === "ar" ? "ج.م" : "EGP" })}</SelectItem>
+                  <SelectItem value="free_shipping">{t("discounts.dialog.typeFreeShipping")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {form.type !== "free_shipping" && (
               <div className="space-y-1.5">
-                <Label>{form.type === "percentage" ? "نسبة الخصم (1-100) *" : "مبلغ الخصم (ج.م) *"}</Label>
+                <Label>{form.type === "percentage" ? t("discounts.dialog.valuePercentage") : t("discounts.dialog.valueFixed", { currency: i18n.language === "ar" ? "ج.م" : "EGP" })}</Label>
                 <Input
                   type="number"
                   value={form.value}
@@ -336,29 +338,29 @@ export default function Discounts() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>حد أدنى للطلب (ج.م)</Label>
+                <Label>{t("discounts.dialog.minOrder", { currency: i18n.language === "ar" ? "ج.م" : "EGP" })}</Label>
                 <Input
                   type="number"
                   value={form.minOrderAmount}
                   onChange={(e) => setForm((f) => ({ ...f, minOrderAmount: e.target.value }))}
-                  placeholder="اختياري"
+                  placeholder={t("discounts.dialog.minOrderPlaceholder")}
                   min={0}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>أقصى عدد استخدامات</Label>
+                <Label>{t("discounts.dialog.maxUses")}</Label>
                 <Input
                   type="number"
                   value={form.maxUses}
                   onChange={(e) => setForm((f) => ({ ...f, maxUses: e.target.value }))}
-                  placeholder="بلا حدود"
+                  placeholder={t("discounts.dialog.maxUsesPlaceholder")}
                   min={1}
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label>تاريخ انتهاء الصلاحية</Label>
+              <Label>{t("discounts.dialog.expiresAt")}</Label>
               <Input
                 type="date"
                 value={form.expiresAt}
@@ -369,10 +371,10 @@ export default function Discounts() {
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>{t("discounts.dialog.btnCancel")}</Button>
             <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
               {createMutation.isPending || updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : null}
-              {editing ? "حفظ التعديلات" : "إنشاء الكود"}
+              {editing ? t("discounts.dialog.btnSave") : t("discounts.dialog.btnCreate")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -380,20 +382,20 @@ export default function Discounts() {
 
       {/* Delete Confirm */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
-        <AlertDialogContent dir="rtl">
+        <AlertDialogContent dir={i18n.dir()}>
           <AlertDialogHeader>
-            <AlertDialogTitle>حذف كود الخصم</AlertDialogTitle>
+            <AlertDialogTitle>{t("discounts.delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              هل تريد حذف الكود <span className="font-mono font-bold">{deleteTarget?.code}</span>؟ لا يمكن التراجع.
+              {t("discounts.delete.desc", { code: deleteTarget?.code })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel>{t("discounts.delete.btnCancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
             >
-              حذف
+              {t("discounts.delete.btnConfirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

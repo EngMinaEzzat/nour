@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 
 const MESSAGES = [
@@ -19,6 +20,7 @@ export function AnnouncementBar({
   p?: string;
   onDismiss?: () => void;
 }) {
+  const { t } = useTranslation();
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
@@ -55,7 +57,7 @@ export function AnnouncementBar({
       <button
         onClick={handleDismiss}
         className="absolute left-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
-        aria-label="إغلاق الإعلان"
+        aria-label={t("storefront.announcement.close", "إغلاق الإعلان")}
       >
         <X className="w-3 h-3 text-white" />
       </button>

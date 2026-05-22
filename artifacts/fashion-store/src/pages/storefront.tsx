@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useLocation } from "wouter";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { motion, AnimatePresence } from "framer-motion";
@@ -117,7 +118,7 @@ function CategoryFilter({
                 }
           }
         >
-          الكل
+          {store.categories.length > 0 ? t("storefront.home.categories.all", "الكل") : ""}
         </button>
         {parents.map(cat => {
           const isParentSelected = selected === cat.id || (selectedCategory?.parentId === cat.id);
@@ -136,7 +137,7 @@ function CategoryFilter({
                     }
               }
             >
-              {cat.name}
+              {i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name}
             </button>
           );
         })}
@@ -166,7 +167,7 @@ function CategoryFilter({
                       }
                 }
               >
-                {cat.name}
+                {i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name}
               </button>
             ))}
           </motion.div>
@@ -188,6 +189,7 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
   }, []);
 
   if (!waNum) return null;
+  const { t, i18n } = useTranslation();
   const msg = encodeURIComponent(`مرحباً 👋، أريد الاستفسار عن متجر ${store.name}`);
 
   return (
@@ -206,9 +208,9 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0 }}
                 className="bg-white shadow-xl rounded-2xl px-4 py-2.5 text-xs font-medium text-stone-700 whitespace-nowrap border border-stone-100"
-                style={{ direction: "rtl" }}
+                style={{ direction: i18n.dir() }}
               >
-                تحدثي مع المتجر مباشرة
+                {t("storefront.trust.support")}
               </motion.div>
             )}
           </AnimatePresence>
@@ -234,13 +236,14 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
 // ─── Admin Preview Bar ────────────────────────────────────────────────────────
 function AdminBar() {
   const { isAuthenticated } = useAuth();
+  const { i18n } = useTranslation();
   if (!isAuthenticated) return null;
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed top-3 right-3 z-[200]"
-      style={{ direction: "ltr" }}
+      className={`fixed top-3 ${i18n.dir() === "rtl" ? "right-3" : "left-3"} z-[200]`}
+      style={{ direction: i18n.dir() }}
     >
       <Link href="/store-settings">
         <motion.button
@@ -249,7 +252,7 @@ function AdminBar() {
           className="flex items-center gap-2 bg-gray-900/90 text-white text-xs font-semibold px-3.5 py-2 rounded-full shadow-xl backdrop-blur-sm border border-white/10 hover:bg-gray-900 transition-colors"
         >
           <LayoutDashboard className="w-3.5 h-3.5" />
-          لوحة التحكم
+          {t("storefront.adminBar.dashboard", "لوحة التحكم")}
         </motion.button>
       </Link>
     </motion.div>
@@ -272,15 +275,16 @@ function EditorTextSection({
     : typeof section.content.subheading === "string"
       ? section.content.subheading
       : null;
+  const { i18n } = useTranslation();
 
   if (section.type === "whatsapp") {
     return (
-      <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "#faf7f4", direction: "rtl" }}>
+      <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "#faf7f4", direction: i18n.dir() }}>
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl text-stone-900 mb-3" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
           {body && <p className="text-stone-500 text-sm mb-6">{body}</p>}
           <button onClick={onScrollToProducts} className="px-8 py-3 rounded-full text-white text-sm font-semibold" style={{ background: primaryColor }}>
-            {typeof section.content.ctaText === "string" ? section.content.ctaText : "تسوقي الآن"}
+            {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow", "تسوقي الآن")}
           </button>
         </div>
       </section>
@@ -288,12 +292,12 @@ function EditorTextSection({
   }
 
   return (
-    <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: "rtl" }}>
+    <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: i18n.dir() }}>
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-4xl md:text-5xl text-stone-900 mb-4" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
         {body && <p className="text-stone-500 text-sm leading-7 max-w-2xl mx-auto mb-8">{body}</p>}
         {items.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right">
+          <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
             {items.slice(0, 6).map((item, index) => (
               <div key={index} className="border border-stone-100 rounded-2xl p-5 bg-[#faf7f4]">
                 <p className="font-semibold text-stone-900 mb-2">{item.title ?? item.q ?? item.name ?? ""}</p>
@@ -309,6 +313,7 @@ function EditorTextSection({
 
 // ─── ROOT COMPONENT ───────────────────────────────────────────────────────────
 export default function Storefront({ overrideSlug }: { overrideSlug?: string; params?: { slug?: string } }) {
+  const { t, i18n } = useTranslation();
   const params = useParams<{ slug?: string; categorySlug?: string }>();
   const slug = overrideSlug ?? params.slug ?? "";
   const [, navigate] = useLocation();
@@ -375,7 +380,11 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             ? `${selectedCategoryMeta.name} | ${store.name}`
             : (((store as any).seoTitle ?? store.name) as string),
           description: selectedCategoryMeta
-            ? `تسوق ${selectedCategoryMeta.name} من ${store.name} على نور.`
+            ? t("storefront.seo.categoryDesc", {
+                category: i18n.language === "ar" ? (selectedCategoryMeta.nameAr || selectedCategoryMeta.name) : selectedCategoryMeta.name,
+                store: store.name,
+                defaultValue: i18n.language === "ar" ? `تسوق ${selectedCategoryMeta.nameAr || selectedCategoryMeta.name} من ${store.name} على نور.` : `Shop ${selectedCategoryMeta.name} from ${store.name} on Nour.`
+              })
             : (((store as any).seoDescription ?? store.description ?? undefined) as string | undefined),
           image: ((store as any).coverUrl ?? (store as any).logoUrl ?? null) as string | null,
           canonicalPath: storefrontCanonicalPath ?? undefined,
@@ -476,7 +485,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center px-4 text-center"
-        style={{ direction: "rtl", background: "#faf7f4" }}
+        style={{ direction: i18n.dir(), background: "#faf7f4" }}
       >
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
           <div className="bg-rose-50 rounded-full p-5 mb-6 inline-flex">
@@ -486,17 +495,17 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             className="text-3xl font-bold mb-2 text-stone-900"
             style={{ fontFamily: SERIF }}
           >
-            المتجر غير موجود
+            {t("storefront.error.notFoundTitle", "المتجر غير موجود")}
           </h1>
           <p className="text-stone-400 mb-8 max-w-sm text-sm">
-            لم نتمكن من العثور على متجر بهذا الرابط.
+            {t("storefront.error.notFoundDesc", "لم نتمكن من العثور على متجر بهذا الرابط.")}
           </p>
           <Link
             href="/tenants"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white text-sm font-semibold"
             style={{ background: "#8B1A35" }}
           >
-            استعرضي المتاجر
+            {t("storefront.error.browseStores", "استعرضي المتاجر")}
           </Link>
         </motion.div>
       </div>
@@ -616,24 +625,24 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             style={{ background: "#fff" }}
           >
             <div className="max-w-7xl mx-auto">
-              <div className="flex items-center gap-4 mb-8" style={{ direction: "rtl" }}>
+              <div className="flex items-center gap-4 mb-8" style={{ direction: i18n.dir() }}>
                 <div>
                   <p
                     className="text-[11px] tracking-[0.25em] uppercase mb-1 font-medium"
                     style={{ color: p }}
                   >
-                    {typeof section.content.subheading === "string" ? section.content.subheading : "كتالوج كامل"}
+                    {typeof section.content.subheading === "string" ? section.content.subheading : t("storefront.categories.viewAll")}
                   </p>
                   <h2
                     className="text-4xl text-stone-900"
                     style={{ fontFamily: SERIF, fontWeight: 400 }}
                   >
-                    {typeof section.content.heading === "string" ? section.content.heading : "جميع المنتجات"}
+                    {typeof section.content.heading === "string" ? section.content.heading : t("storefront.products.viewAll")}
                   </h2>
                 </div>
                 <div className="flex-1 h-px bg-stone-100 mx-4" />
                 <span className="text-sm text-stone-400 shrink-0">
-                  {liveStore.products.length} منتج
+                  {liveStore.products.length} {t("storefront.products.productCount", "منتج")}
                 </span>
               </div>
 
@@ -652,10 +661,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="text-center py-24"
-                    style={{ direction: "rtl" }}
+                    style={{ direction: i18n.dir() }}
                   >
                     <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
-                    <p className="text-stone-400 text-sm">لا توجد منتجات في هذه الفئة</p>
+                    <p className="text-stone-400 text-sm">{t("storefront.products.emptyCategory", "لا توجد منتجات في هذه الفئة")}</p>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -665,7 +674,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.35 }}
-                    style={{ direction: "rtl" }}
+                    style={{ direction: i18n.dir() }}
                   >
                     {filtered.map((product, i) => (
                       <motion.div
@@ -701,7 +710,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   }
 
   return (
-    <div style={{ background: "#faf7f4", minHeight: "100vh", direction: "rtl" }}>
+    <div style={{ background: "#faf7f4", minHeight: "100vh", direction: i18n.dir() }}>
 
       {/* ── Admin back button (only visible when logged in as merchant) ── */}
       <AdminBar />
@@ -813,18 +822,18 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 className="text-[11px] tracking-[0.25em] uppercase mb-1 font-medium"
                 style={{ color: p }}
               >
-                كتالوج كامل
+                {t("storefront.categories.viewAll")}
               </p>
               <h2
                 className="text-4xl text-stone-900"
                 style={{ fontFamily: SERIF, fontWeight: 400 }}
               >
-                جميع المنتجات
+                {t("storefront.products.viewAll")}
               </h2>
             </div>
             <div className="flex-1 h-px bg-stone-100 mx-4" />
             <span className="text-sm text-stone-400 shrink-0">
-              {store.products.length} منتج
+              {store.products.length} {t("storefront.products.productCount", "منتج")}
             </span>
           </div>
 
@@ -845,10 +854,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="text-center py-24"
-                style={{ direction: "rtl" }}
+                style={{ direction: i18n.dir() }}
               >
                 <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
-                <p className="text-stone-400 text-sm">لا توجد منتجات في هذه الفئة</p>
+                <p className="text-stone-400 text-sm">{t("storefront.products.emptyCategory", "لا توجد منتجات في هذه الفئة")}</p>
               </motion.div>
             ) : (
               <motion.div
@@ -858,7 +867,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35 }}
-                style={{ direction: "rtl" }}
+                style={{ direction: i18n.dir() }}
               >
                 {filtered.map((product, i) => (
                   <motion.div

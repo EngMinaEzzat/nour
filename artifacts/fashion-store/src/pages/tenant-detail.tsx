@@ -19,12 +19,7 @@ import {
   ShieldCheck, ClipboardList, Plus, Zap, Save, MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  fashion: "أزياء",
-  cosmetics: "تجميل",
-  both: "أزياء وتجميل",
-};
+import { useTranslation } from "react-i18next";
 
 const PLAN_LABELS: Record<string, string> = { starter: "ستارتر", growth: "جروث", pro: "برو" };
 
@@ -50,6 +45,7 @@ const stagger = {
 };
 
 function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
+  const { t } = useTranslation();
   const { data: tenant, refetch: refetchTenant } = useGetTenant(tenantId, {
     query: { queryKey: getGetTenantQueryKey(tenantId) },
   });
@@ -96,13 +92,13 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               <Zap className="w-4 h-4 text-primary" />
-              إدارة الخطة — مشغّل المنصة
+              {t("tenants.detail.adminPanel.planTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <p className="text-xs text-muted-foreground font-medium">الخطة</p>
+                <p className="text-xs text-muted-foreground font-medium">{t("tenants.detail.adminPanel.planLabel")}</p>
                 <Select value={planCode} onValueChange={setPlanCode}>
                   <SelectTrigger className="h-9">
                     <SelectValue />
@@ -115,7 +111,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <p className="text-xs text-muted-foreground font-medium">حالة الاشتراك</p>
+                <p className="text-xs text-muted-foreground font-medium">{t("tenants.detail.adminPanel.statusLabel")}</p>
                 <Select value={subStatus} onValueChange={setSubStatus}>
                   <SelectTrigger className="h-9">
                     <SelectValue />
@@ -129,7 +125,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
               </div>
             </div>
             <Textarea
-              placeholder="ملاحظة داخلية عن التغيير (اختياري)"
+              placeholder={t("tenants.detail.adminPanel.notePlaceholder")}
               value={planNote}
               onChange={(e) => setPlanNote(e.target.value)}
               rows={2}
@@ -143,7 +139,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
                 className="gap-1.5"
               >
                 <Save className="w-3.5 h-3.5" />
-                {updatePlan.isPending ? "جارٍ الحفظ..." : "حفظ التغييرات"}
+                {updatePlan.isPending ? t("tenants.detail.adminPanel.btnSaving") : t("tenants.detail.adminPanel.btnSave")}
               </Button>
               <AnimatePresence>
                 {planSaved && (
@@ -153,7 +149,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
                     exit={{ opacity: 0 }}
                     className="text-xs text-green-600 font-medium"
                   >
-                    ✅ تم الحفظ
+                    ✅ {t("tenants.detail.adminPanel.savedMsg")}
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -169,7 +165,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm flex items-center gap-2">
                 <ClipboardList className="w-4 h-4 text-primary" />
-                ملاحظات الدعم
+                {t("tenants.detail.adminPanel.supportNotes")}
                 {notes && notes.length > 0 && (
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0">{notes.length}</Badge>
                 )}
@@ -181,7 +177,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
                 onClick={() => setShowNoteForm((f) => !f)}
               >
                 <Plus className="w-3 h-3" />
-                إضافة ملاحظة
+                {t("tenants.detail.adminPanel.btnAddNote")}
               </Button>
             </div>
           </CardHeader>
@@ -195,7 +191,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
                   className="space-y-2 overflow-hidden"
                 >
                   <Textarea
-                    placeholder="أكتب ملاحظتك هنا..."
+                    placeholder={t("tenants.detail.adminPanel.noteInputPlaceholder")}
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     rows={3}
@@ -204,9 +200,9 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
                   />
                   <div className="flex gap-2">
                     <Button size="sm" onClick={handleAddNote} disabled={createNote.isPending || !noteText.trim()} className="flex-1">
-                      {createNote.isPending ? "جارٍ الحفظ..." : "حفظ الملاحظة"}
+                      {createNote.isPending ? t("tenants.detail.adminPanel.btnSaving") : t("tenants.detail.adminPanel.btnSaveNote")}
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setShowNoteForm(false)}>إلغاء</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setShowNoteForm(false)}>{t("tenants.detail.adminPanel.btnCancel")}</Button>
                   </div>
                 </motion.div>
               )}
@@ -221,7 +217,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
                       <p className="text-sm text-foreground leading-relaxed">{note.note}</p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {note.createdByName && <span>{note.createdByName} · </span>}
-                        {new Date(note.createdAt).toLocaleString("ar-EG", { dateStyle: "short", timeStyle: "short" })}
+                        {new Date(note.createdAt).toLocaleString(t("tenants.detail.adminPanel.langCode") === "ar" ? "ar-EG" : "en-US", { dateStyle: "short", timeStyle: "short" })}
                       </p>
                     </div>
                   </div>
@@ -229,7 +225,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
               </div>
             ) : (
               !showNoteForm && (
-                <p className="text-sm text-muted-foreground text-center py-6">لا توجد ملاحظات بعد</p>
+                <p className="text-sm text-muted-foreground text-center py-6">{t("tenants.detail.adminPanel.noNotes")}</p>
               )
             )}
           </CardContent>
@@ -240,6 +236,7 @@ function PlatformAdminPanel({ tenantId }: { tenantId: number }) {
 }
 
 export default function TenantDetail() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const tenantId = Number(id);
   const { merchant } = useAuth();
@@ -271,9 +268,9 @@ export default function TenantDetail() {
 
   if (!tenant) {
     return (
-      <div className="container mx-auto px-4 py-24 text-center">
+      <div className="container mx-auto px-4 py-24 text-center" dir={i18n.dir()}>
         <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-        <p className="text-muted-foreground">المتجر غير موجود</p>
+        <p className="text-muted-foreground">{t("tenants.detail.notFound")}</p>
       </div>
     );
   }
@@ -281,7 +278,7 @@ export default function TenantDetail() {
   const tenantAny = tenant as typeof tenant & { planCode?: string; subscriptionStatus?: string };
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-5xl">
+    <div className="container mx-auto px-4 py-10 max-w-5xl" dir={i18n.dir()}>
       {/* Cover + Logo */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -316,11 +313,11 @@ export default function TenantDetail() {
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <Badge className="bg-white/20 text-white border-white/30 text-xs">
-                  {CATEGORY_LABELS[tenant.category] ?? tenant.category}
+                  {t(`tenants.categories.${tenant.category}`) ?? tenant.category}
                 </Badge>
                 {isPlatformAdmin && tenantAny.planCode && (
                   <Badge className="bg-primary/80 text-white border-primary/40 text-xs">
-                    خطة {PLAN_LABELS[tenantAny.planCode] ?? tenantAny.planCode}
+                    {t("tenants.detail.planPrefix")} {PLAN_LABELS[tenantAny.planCode] ?? tenantAny.planCode}
                   </Badge>
                 )}
                 {tenant.city && (
@@ -348,9 +345,9 @@ export default function TenantDetail() {
           transition={{ delay: 0.15 }}
         >
           {[
-            { label: "المنتجات", value: stats.totalProducts, icon: Package },
-            { label: "الطلبات", value: stats.totalOrders, icon: ShoppingBag },
-            { label: "الإيرادات", value: `${Number(stats.totalRevenue ?? 0).toLocaleString("ar-EG")} ج.م`, icon: TrendingUp },
+            { label: t("tenants.detail.stats.products"), value: stats.totalProducts, icon: Package },
+            { label: t("tenants.detail.stats.orders"), value: stats.totalOrders, icon: ShoppingBag },
+            { label: t("tenants.detail.stats.revenue"), value: `${Number(stats.totalRevenue ?? 0).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} ${i18n.language === "ar" ? "ج.م" : "EGP"}`, icon: TrendingUp },
           ].map((s) => (
             <div key={s.label} className="bg-card border border-border/50 rounded-2xl p-4 text-center">
               <s.icon className="w-5 h-5 text-primary mx-auto mb-2" />
@@ -366,8 +363,8 @@ export default function TenantDetail() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-10">
           <div className="flex items-center gap-2 mb-4">
             <ShieldCheck className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-bold">أدوات المشغّل</h2>
-            <Badge className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">Admin</Badge>
+            <h2 className="text-lg font-bold">{t("tenants.detail.adminPanel.title")}</h2>
+            <Badge className="text-[10px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">{t("tenants.detail.adminPanel.adminBadge")}</Badge>
           </div>
           <PlatformAdminPanel tenantId={tenantId} />
         </motion.div>
@@ -375,7 +372,7 @@ export default function TenantDetail() {
 
       {/* Products */}
       <div>
-        <h2 className="text-2xl font-bold mb-6">منتجات المتجر</h2>
+        <h2 className="text-2xl font-bold mb-6">{t("tenants.detail.productsTitle")}</h2>
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
           variants={stagger.container} initial="hidden" animate="show"
@@ -393,7 +390,7 @@ export default function TenantDetail() {
             ))}
         </motion.div>
         {!loadingProducts && !products?.length && (
-          <p className="text-muted-foreground text-center py-16">لا توجد منتجات في هذا المتجر بعد</p>
+          <p className="text-muted-foreground text-center py-16">{t("tenants.detail.noProducts")}</p>
         )}
       </div>
     </div>

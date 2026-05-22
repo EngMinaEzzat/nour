@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
 export default function ResetPassword() {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
   const [password, setPassword] = useState("");
@@ -19,7 +21,7 @@ export default function ResetPassword() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (password !== confirm) {
-      setError("كلمتا المرور غير متطابقتين");
+      setError(t("auth.resetPassword.passwordMismatch"));
       return;
     }
     setError("");
@@ -32,13 +34,13 @@ export default function ResetPassword() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "حدث خطأ، حاول مرة أخرى");
+        setError(data.error || t("auth.resetPassword.generalError"));
         return;
       }
       setDone(true);
       setTimeout(() => navigate("/login"), 3000);
     } catch {
-      setError("حدث خطأ في الاتصال، حاول مرة أخرى");
+      setError(t("auth.resetPassword.connError"));
     } finally {
       setIsLoading(false);
     }
@@ -48,9 +50,9 @@ export default function ResetPassword() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="text-center space-y-4">
-          <p className="text-destructive text-lg font-medium">رابط إعادة التعيين غير صالح</p>
+          <p className="text-destructive text-lg font-medium">{t("auth.resetPassword.invalidTokenTitle")}</p>
           <Link href="/forgot-password" className="text-primary hover:underline text-sm">
-            اطلب رابطًا جديدًا
+            {t("auth.resetPassword.requestNewLink")}
           </Link>
         </div>
       </div>
@@ -67,10 +69,10 @@ export default function ResetPassword() {
       >
         <div className="text-center mb-10">
           <Link href="/">
-            <span className="text-4xl font-bold text-primary cursor-pointer">نور</span>
+            <span className="text-4xl font-bold text-primary cursor-pointer">{t("common.appName")}</span>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground mt-4">تعيين كلمة مرور جديدة</h1>
-          <p className="text-muted-foreground mt-2 text-sm">أدخل كلمة المرور الجديدة لحسابك</p>
+          <h1 className="text-2xl font-bold text-foreground mt-4">{t("auth.resetPassword.title")}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">{t("auth.resetPassword.subtitle")}</p>
         </div>
 
         <motion.div
@@ -90,8 +92,8 @@ export default function ResetPassword() {
                 <div className="flex justify-center">
                   <CheckCircle2 className="w-14 h-14 text-green-500" />
                 </div>
-                <h2 className="text-lg font-semibold">تم تغيير كلمة المرور بنجاح</h2>
-                <p className="text-sm text-muted-foreground">سيتم تحويلك لتسجيل الدخول خلال ثوانٍ...</p>
+                <h2 className="text-lg font-semibold">{t("auth.resetPassword.successTitle")}</h2>
+                <p className="text-sm text-muted-foreground">{t("auth.resetPassword.successDesc")}</p>
               </motion.div>
             ) : (
               <motion.form
@@ -102,12 +104,12 @@ export default function ResetPassword() {
                 exit={{ opacity: 0 }}
               >
                 <div className="space-y-1.5">
-                  <Label htmlFor="password">كلمة المرور الجديدة</Label>
+                  <Label htmlFor="password">{t("auth.resetPassword.newPassword")}</Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="٨ أحرف على الأقل"
+                      placeholder={t("common.placeholder.password")}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -126,11 +128,11 @@ export default function ResetPassword() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirm">تأكيد كلمة المرور</Label>
+                  <Label htmlFor="confirm">{t("auth.resetPassword.confirmPassword")}</Label>
                   <Input
                     id="confirm"
                     type={showPassword ? "text" : "password"}
-                    placeholder="أعد كتابة كلمة المرور"
+                    placeholder={t("common.placeholder.confirmPassword")}
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     required
@@ -156,9 +158,9 @@ export default function ResetPassword() {
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> جارٍ الحفظ...</>
+                    <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> {t("auth.resetPassword.btnSaving")}</>
                   ) : (
-                    "حفظ كلمة المرور الجديدة"
+                    t("auth.resetPassword.btnSave")
                   )}
                 </Button>
               </motion.form>

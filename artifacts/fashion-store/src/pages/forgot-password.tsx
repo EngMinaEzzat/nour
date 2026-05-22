@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,13 +26,13 @@ export default function ForgotPassword() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "حدث خطأ، حاول مرة أخرى");
+        setError(data.error || t("auth.forgotPassword.generalError"));
         return;
       }
       // Always show the generic success message if the request was successful
       setEmailSent(true);
     } catch {
-      setError("حدث خطأ في الاتصال، حاول مرة أخرى");
+      setError(t("auth.forgotPassword.connectionError"));
     } finally {
       setIsLoading(false);
     }
@@ -46,10 +48,10 @@ export default function ForgotPassword() {
       >
         <div className="text-center mb-10">
           <Link href="/">
-            <span className="text-4xl font-bold text-primary cursor-pointer">نور</span>
+            <span className="text-4xl font-bold text-primary cursor-pointer">{t("common.appName")}</span>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground mt-4">نسيت كلمة المرور؟</h1>
-          <p className="text-muted-foreground mt-2 text-sm">أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين</p>
+          <h1 className="text-2xl font-bold text-foreground mt-4">{t("auth.forgotPassword.title")}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">{t("auth.forgotPassword.subtitle")}</p>
         </div>
 
         <motion.div
@@ -69,12 +71,13 @@ export default function ForgotPassword() {
                 <div className="flex justify-center">
                   <CheckCircle2 className="w-14 h-14 text-green-500" />
                 </div>
-                <h2 className="text-lg font-semibold">تحقق من بريدك الإلكتروني</h2>
+                <h2 className="text-lg font-semibold">{t("auth.forgotPassword.checkEmailTitle")}</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  أرسلنا رابط إعادة تعيين كلمة المرور إلى <span className="font-medium text-foreground">{email}</span>.
-                  تحقق من صندوق الوارد وربما مجلد الرسائل غير المرغوب فيها.
+                  {t("auth.forgotPassword.checkEmailDesc")}{" "}
+                  <span className="font-medium text-foreground">{email}</span>
+                  {t("auth.forgotPassword.checkEmailDescSuffix")}
                 </p>
-                <p className="text-xs text-muted-foreground">الرابط صالح لمدة ساعة واحدة.</p>
+                <p className="text-xs text-muted-foreground">{t("auth.forgotPassword.linkExpireHint")}</p>
               </motion.div>
             ) : (
               <motion.form
@@ -85,12 +88,12 @@ export default function ForgotPassword() {
                 exit={{ opacity: 0 }}
               >
                 <div className="space-y-1.5">
-                  <Label htmlFor="email">البريد الإلكتروني</Label>
+                  <Label htmlFor="email">{t("auth.forgotPassword.emailLabel")}</Label>
                   <div className="relative">
                     <Input
                       id="email"
                       type="email"
-                      placeholder="example@nour.eg"
+                      placeholder={t("auth.forgotPassword.emailPlaceholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -117,9 +120,15 @@ export default function ForgotPassword() {
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> جارٍ الإرسال...</>
+                    <>
+                      <Loader2 className="w-4 h-4 ms-2 animate-spin" />
+                      {t("auth.forgotPassword.sending")}
+                    </>
                   ) : (
-                    <>إرسال رابط إعادة التعيين <ArrowRight className="w-4 h-4 me-2" /></>
+                    <>
+                      {t("auth.forgotPassword.sendLink")}
+                      <ArrowRight className="w-4 h-4 me-2" />
+                    </>
                   )}
                 </Button>
               </motion.form>
@@ -128,9 +137,9 @@ export default function ForgotPassword() {
         </motion.div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          تذكّرت كلمة المرور؟{" "}
+          {t("auth.forgotPassword.rememberPassword")}{" "}
           <Link href="/login" className="text-primary font-semibold hover:underline">
-            سجّل دخولك
+            {t("auth.forgotPassword.loginNow")}
           </Link>
         </p>
       </motion.div>
