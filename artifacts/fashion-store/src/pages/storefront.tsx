@@ -93,6 +93,8 @@ function CategoryFilter({
   onSelect: (id: number | null) => void;
   p: string;
 }) {
+  const { t, i18n } = useTranslation();
+
   if (!store.categories || store.categories.length === 0) return null;
 
   const selectedCategory = store.categories.find(c => c.id === selected);
@@ -236,7 +238,7 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
 // ─── Admin Preview Bar ────────────────────────────────────────────────────────
 function AdminBar() {
   const { isAuthenticated } = useAuth();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   if (!isAuthenticated) return null;
   return (
     <motion.div
@@ -275,7 +277,7 @@ function EditorTextSection({
     : typeof section.content.subheading === "string"
       ? section.content.subheading
       : null;
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (section.type === "whatsapp") {
     return (

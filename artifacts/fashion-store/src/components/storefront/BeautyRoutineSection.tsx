@@ -4,6 +4,11 @@ import { Sparkles, Droplets, Sun, Moon } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
+export interface BeautyRoutineSectionProps {
+  primaryColor: string;
+  onScrollToProducts: () => void;
+}
+
 interface Step {
   icon: React.ReactNode;
   step: string;

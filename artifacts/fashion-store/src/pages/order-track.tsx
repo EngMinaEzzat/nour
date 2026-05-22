@@ -119,7 +119,7 @@ export default function OrderTrack() {
               <CardContent className="px-5 pb-4">
                 <div className="space-y-3">
                   {TIMELINE_STATUSES.map((s, idx) => {
-                    const info = STATUS_MAP[s];
+                    const info = STATUS_MAP[s as keyof typeof STATUS_MAP];
                     const Icon = info.icon;
                     const done = idx <= currentIdx;
                     const active = idx === currentIdx;

@@ -6,6 +6,7 @@ import { Upload, X, Link2 } from "lucide-react";
 import { getCsrfToken } from "@workspace/api-client-react";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
 import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const MAX_IMAGE_SIZE_MB = 20;

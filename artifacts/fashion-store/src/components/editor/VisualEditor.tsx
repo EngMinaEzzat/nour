@@ -118,6 +118,20 @@ export default function VisualEditor({
     });
   }
 
+  function moveSection(id: string, direction: "up" | "down") {
+    const sections = [...config.homepage.sections];
+    const index = sections.findIndex(s => s.id === id);
+    if (index === -1) return;
+    if (direction === "up" && index > 0) {
+      [sections[index - 1], sections[index]] = [sections[index], sections[index - 1]];
+    } else if (direction === "down" && index < sections.length - 1) {
+      [sections[index + 1], sections[index]] = [sections[index], sections[index + 1]];
+    } else {
+      return;
+    }
+    pushConfig({ ...config, homepage: { sections } });
+  }
+
   // ─── Save handler ──────────────────────────────────────────────────────────
   async function handleSave() {
     if (!isDirty) return;
@@ -227,6 +241,10 @@ export default function VisualEditor({
             onDelete={deleteSection}
             onDuplicate={duplicateSection}
             onToggleVisibility={toggleVisibility}
+            onMoveUp={() => moveSection(selectedSection!.id, "up")}
+            onMoveDown={() => moveSection(selectedSection!.id, "down")}
+            canMoveUp={config.homepage.sections.findIndex(s => s.id === selectedSection?.id) > 0}
+            canMoveDown={config.homepage.sections.findIndex(s => s.id === selectedSection?.id) < config.homepage.sections.length - 1}
           />
         </div>
 
@@ -299,6 +317,10 @@ export default function VisualEditor({
                 onDelete={deleteSection}
                 onDuplicate={duplicateSection}
                 onToggleVisibility={toggleVisibility}
+                onMoveUp={() => moveSection(selectedSection!.id, "up")}
+                onMoveDown={() => moveSection(selectedSection!.id, "down")}
+                canMoveUp={config.homepage.sections.findIndex(s => s.id === selectedSection?.id) > 0}
+                canMoveDown={config.homepage.sections.findIndex(s => s.id === selectedSection?.id) < config.homepage.sections.length - 1}
                 variant="mobile"
                 onClose={() => setSelectedId(null)}
               />

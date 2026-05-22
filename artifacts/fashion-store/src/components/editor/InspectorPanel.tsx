@@ -1,6 +1,6 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
 import { SECTION_ICONS, SECTION_LABELS } from "@/lib/store-config";
-import { Trash2, EyeOff, Eye, Copy, X, ExternalLink } from "lucide-react";
+import { Trash2, EyeOff, Eye, Copy, X, ExternalLink, ChevronUp, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
@@ -14,6 +14,10 @@ interface InspectorPanelProps {
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onToggleVisibility: (id: string) => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
   variant?: "desktop" | "mobile";
   onClose?: () => void;
 }
@@ -92,6 +96,7 @@ const SECTION_RELATED_ACTIONS: Partial<Record<SectionConfig["type"], {
 
 export default function InspectorPanel({
   section, theme, onSectionChange, onThemeChange, onDelete, onDuplicate, onToggleVisibility,
+  onMoveUp, onMoveDown, canMoveUp, canMoveDown,
   variant = "desktop", onClose,
 }: InspectorPanelProps) {
   const { t, i18n } = useTranslation();
@@ -154,6 +159,26 @@ export default function InspectorPanel({
             >
               <Copy className="w-3.5 h-3.5" />
             </button>
+            {onMoveUp && (
+              <button
+                onClick={onMoveUp}
+                disabled={!canMoveUp}
+                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title={t("inspectorPanel.buttons.moveUp", "Move Up")}
+              >
+                <ChevronUp className="w-4 h-4" />
+              </button>
+            )}
+            {onMoveDown && (
+              <button
+                onClick={onMoveDown}
+                disabled={!canMoveDown}
+                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title={t("inspectorPanel.buttons.moveDown", "Move Down")}
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={() => onDelete(section.id)}
               className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-500 transition-colors"
@@ -170,8 +195,8 @@ export default function InspectorPanel({
 
       {/* Fields */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <RelatedSectionAction section={section} />
         <SectionFields section={section} patchContent={patchContent} patchSettings={patchSettings} theme={theme} onThemeChange={onThemeChange} />
+        <RelatedSectionAction section={section} />
       </div>
     </div>
   );

@@ -130,7 +130,7 @@ export default function Pricing() {
 
                     {/* Description */}
                     <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-                      {i18n.language === "ar" ? plan.descriptionAr : plan.description}
+                      {i18n.language === "ar" ? plan.descriptionAr : (plan as any).description}
                     </p>
 
                     {/* Limits */}

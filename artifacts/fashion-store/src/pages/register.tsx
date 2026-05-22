@@ -102,7 +102,7 @@ export default function Register() {
       });
       // Persist gender locally for the editor UI language
       try { localStorage.setItem(`nour_gender_${slug}`, form.gender); } catch {}
-      navigate("/store-builder?mode=editor");
+      setTimeout(() => navigate("/store-builder?mode=editor"), 0);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       if (msg.includes("اسم المتجر") || msg.includes("الرابط")) {

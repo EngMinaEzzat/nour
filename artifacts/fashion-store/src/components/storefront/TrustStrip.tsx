@@ -4,6 +4,10 @@ import { Shield, Truck, RotateCcw, Headphones } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
+export interface TrustStripProps {
+  primaryColor: string;
+}
+
 export function TrustStrip({ primaryColor: p }: TrustStripProps) {
   const { t, i18n } = useTranslation();
   
