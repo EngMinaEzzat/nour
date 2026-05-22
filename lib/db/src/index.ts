@@ -17,10 +17,18 @@ const requiresSsl =
   process.env.NODE_ENV === "production" &&
   !/[?&]sslmode=disable(?:&|$)/.test(process.env.DATABASE_URL);
 
+const DEFAULT_POOL_MAX = 5;
+
+function parsePoolMax(value: string | undefined): number {
+  if (!value) return DEFAULT_POOL_MAX;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_POOL_MAX;
+}
+
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: requiresSsl ? { rejectUnauthorized: false } : undefined,
-  max: process.env.DB_POOL_MAX ? parseInt(process.env.DB_POOL_MAX) : 20, // Increased default pool size for concurrent queries
+  max: parsePoolMax(process.env.DB_POOL_MAX),
 });
 export const db = drizzle(pool, { schema });
 
