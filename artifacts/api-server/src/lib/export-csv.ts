@@ -186,7 +186,11 @@ export function toCsv(rows: Record<string, unknown>[]): string {
   if (!rows.length) return "";
   const headers = Object.keys(rows[0]);
   const escape = (v: unknown) => {
-    const s = String(v ?? "");
+    let s = String(v ?? "");
+    // Prevent CSV Injection (Formula Injection)
+    if (/^[=\-+\@]/.test(s)) {
+      s = "'" + s;
+    }
     return s.includes(",") || s.includes('"') || s.includes("\n")
       ? `"${s.replace(/"/g, '""')}"`
       : s;
