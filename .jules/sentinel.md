@@ -14,3 +14,8 @@
 **Vulnerability:** Leaking password reset tokens in API responses during email delivery failure.
 **Learning:** Returning sensitive tokens in an API fallback response when an external service fails (like email delivery) completely bypasses the intended authentication factor (possession of the email account). Attackers can intentionally trigger or exploit broken email configurations to intercept reset links for any user.
 **Prevention:** Always fail securely. If an out-of-band delivery mechanism (like email or SMS) fails, do not expose the sensitive token in the immediate API response or UI. Present a generic success or generic failure message.
+
+## 2026-05-22 - Prevented CSV Injection in Data Exports
+**Vulnerability:** CSV/Formula Injection vulnerability in the toCsv function.
+**Learning:** Malicious inputs that start with formula prefix characters (=, +, -, @) can be interpreted as formulas in spreadsheet applications (like Excel) when a user exports data. This could lead to arbitrary command execution on the admin's machine.
+**Prevention:** When exporting data to CSV, always escape cells that begin with =, +, -, or @ by prepending a single quote (') or tab character to them so they are treated as literal text.
