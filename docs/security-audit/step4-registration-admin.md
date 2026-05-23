@@ -1,39 +1,34 @@
-# Step 4: Registration & Admin Controls
+# Security Audit - Step 4: Registration & Admin Controls
 
-## Overview
-This document covers the deep-dive security review of the authentication layer (`auth.ts`), including merchant registration, session management, password resets, and platform administrator bootstrapping.
+## Context for the LLM
+You are working on a multi-tenant SaaS e-commerce platform built with Node.js, Express, and Drizzle ORM.
+This step focuses on the authentication layer (`auth.ts`), handling merchant registration, login sessions, and password resets. The goal is to harden session management and prevent race conditions.
 
-## Audit Findings & Action Plan
+## Tasks & Implementation Instructions
 
-### 1. Registration & Store Slug Handling (Low Risk / Enhancement)
-- **Target**: `POST /auth/register` and `GET /auth/check-slug`
-- **Findings**:
-  - **Strengths**: The application implements a solid `normalizeSlug` function to strip malicious characters, preventing XSS and injection in store URLs. It also restricts sensitive slugs via `RESERVED_SLUGS`.
-  - **Weakness (Race Condition)**: The route performs a `SELECT` check to see if the slug is available, followed by a separate database transaction to `INSERT`. A race condition could allow two concurrent requests to pass the `SELECT` check.
-  - **Remediation**: Ensure the `tenantsTable.slug` column has a strict `UNIQUE` constraint at the database schema level (in `schema.ts`) so that even if the race condition occurs, the database throws a constraint error and the transaction safely rolls back.
+### Task 1: Prevent Session Fixation Attacks (Medium Severity)
+- **Target File**: `artifacts/api-server/src/routes/auth.ts`
+- **Current State**: Upon successful login (`POST /auth/login`), the system sets `req.session.merchantId = merchant.id`. It does not regenerate the session ID. This leaves the system vulnerable to Session Fixation if an attacker forces a known session cookie onto a victim.
+- **Action**: Wrap the session assignment in a `req.session.regenerate()` callback.
+  ```javascript
+  req.session.regenerate((err) => {
+    if (err) return res.status(500).json({ error: "Session error" });
+    req.session.merchantId = merchant.id;
+    return res.json(buildAuthResponse(merchant, tenant));
+  });
+  ```
 
-### 2. Session Management & Fixation Risks (Medium Severity)
-- **Target**: `POST /auth/login`
-- **Findings**:
-  - **Strengths**: Passwords are securely hashed with `bcrypt.hash(password, 12)`, which provides strong resistance to offline cracking.
-  - **Weakness (Session Fixation)**: Upon successful authentication, the route assigns `req.session.merchantId = merchant.id` directly. Using standard `express-session`, this does NOT automatically regenerate the underlying session cookie. An attacker who forces a victim to use a known session cookie could hijack the session post-login.
-  - **Remediation**: Wrap the login assignment inside a `req.session.regenerate()` callback to guarantee a completely new session ID is issued upon privilege elevation (login).
+### Task 2: Mitigate Slug Registration Race Conditions (Low Severity)
+- **Target Files**: `artifacts/api-server/src/routes/auth.ts` and Database Schema
+- **Current State**: `POST /auth/register` does a `SELECT` to check if a slug exists, then inserts it. Two concurrent requests could bypass the `SELECT`.
+- **Action**: Ensure that the database schema for `tenantsTable` has a strict `UNIQUE` constraint on the `slug` column. Verify that the `catch(err)` block in the registration route safely handles the database constraint violation error without crashing the server.
 
-### 3. Password Reset Security (Low Risk / Best Practice)
-- **Target**: `POST /auth/forgot-password` and `POST /auth/reset-password`
-- **Findings**:
-  - **Strengths**: Highly secure. Uses `crypto.randomBytes(32)` for token generation, returns generic `{ ok: true }` responses to prevent user enumeration, and explicitly avoids leaking the token in API responses if email delivery fails. Tokens are invalidated via a `usedAt` timestamp.
-  - **Weakness (Session Invalidation)**: Resetting the password updates the hash but does not actively destroy existing active sessions for that merchant.
-  - **Remediation**: While optional, a best practice for password resets is to either rotate a `sessionVersion` counter in the database (which the session middleware checks) or clear all active sessions for the user to forcefully log out any potentially compromised sessions.
+### Task 3: Harden Password Resets (Best Practice)
+- **Target File**: `artifacts/api-server/src/routes/auth.ts`
+- **Current State**: `POST /auth/reset-password` updates the password hash but does not invalidate active sessions.
+- **Action**: Optional but recommended: Implement logic to destroy or invalidate all active sessions for the `merchantId` upon a successful password reset. (If `express-session` backed by Postgres/Redis is used, you may need to delete records matching the merchant's session data).
 
-### 4. Rate Limiting (Secure)
-- **Target**: `authLimiter`
-- **Findings**:
-  - **Strengths**: The global `authLimiter` correctly applies a limit of 10 requests per 15 minutes per IP address to all sensitive `/auth` endpoints. This is highly effective against brute-forcing and credential stuffing.
-  - **Status**: No changes required.
-
-### 5. Admin Bootstrap Safety (Secure)
-- **Target**: `POST /auth/bootstrap-platform-admin`
-- **Findings**:
-  - **Strengths**: The endpoint checks `if (process.env.NODE_ENV === "production") return res.status(404)`, completely neutralizing the route in live environments. It also mandates a `PLATFORM_ADMIN_SECRET`.
-  - **Status**: No changes required.
+## Exit Criteria
+1. The `/auth/login` route explicitly calls `req.session.regenerate()` before assigning the `merchantId`.
+2. The `tenantsTable.slug` column is confirmed to have a `UNIQUE` constraint in the database schema.
+3. The password reset flow is verified to be secure against user enumeration and replay attacks (already partially implemented, ensure tokens are marked `usedAt`).

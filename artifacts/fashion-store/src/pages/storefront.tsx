@@ -560,7 +560,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   
   function translateSectionContent(section: SectionConfig): SectionConfig {
     const s = { ...section, content: { ...section.content } };
-    const sn = store.name;
+    const sn = liveStore.name;
     
     if (s.type === "hero") {
       if (s.content.heading === `اكتشفي جمالكِ مع ${sn}`) s.content.heading = t("defaultSections.hero.headingCosmetics", { storeName: sn, defaultValue: s.content.heading });

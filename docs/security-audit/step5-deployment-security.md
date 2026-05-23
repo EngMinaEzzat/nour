@@ -1,33 +1,28 @@
-# Step 5: Deployment & Configuration Security
+# Security Audit - Step 5: Deployment & Configuration Security
 
-## Overview
-This document covers the deep-dive security review of the infrastructural and configuration layer of the API server (`app.ts`, `csrf.ts`, headers, logging, and package configurations).
+## Context for the LLM
+You are working on a multi-tenant SaaS e-commerce platform built with Node.js, Express, and Drizzle ORM.
+This step focuses on infrastructural security, specifically Cross-Site Request Forgery (CSRF) protections, Cross-Origin Resource Sharing (CORS), and application initialization secrets.
 
-## Audit Findings & Action Plan
+## Tasks & Implementation Instructions
 
-### 1. Environment Secrets & Fail-Fast Mechanisms (Secure)
-- **Target**: `app.ts` (Startup block)
-- **Findings**:
-  - **Strengths**: The application implements strict fail-fast validation at startup. It mandates `SESSION_SECRET` globally and ensures `DATABASE_URL` and `RESEND_API_KEY` are present in production. 
-  - **Critical Protection**: It explicitly crashes if `PAYMOB_ALLOW_MOCKS === "true"` is detected in production. This perfectly mitigates the risk of developers accidentally leaving mock payments enabled on live stores.
-  - **Status**: Excellent. No changes needed.
+### Task 1: Fix CSRF Blocking WhatsApp Webhooks (High Severity)
+- **Target File**: `artifacts/api-server/src/lib/csrf.ts`
+- **Current State**: The application uses `doubleCsrf` protection, which is globally applied to all state-mutating requests in production. Webhooks (which do not carry CSRF cookies) must be explicitly whitelisted in `CSRF_EXEMPT_PATHS`. Paymob is currently whitelisted, but WhatsApp is completely missing.
+- **Action**: Add `/api/whatsapp/messages/` (or the exact path `/api/whatsapp/messages/:id/callback` pattern) to the `CSRF_EXEMPT_PATHS` array or ensure the `isCsrfExempt` function correctly identifies and allows incoming WhatsApp webhooks.
 
-### 2. CSRF Exemption Missing for WhatsApp Webhooks (High Severity)
-- **Target**: `artifacts/api-server/src/lib/csrf.ts`
-- **Findings**:
-  - **Strengths**: The application correctly employs the `doubleCsrf` pattern. In production, it utilizes the highly secure `__Host-` prefix for the CSRF cookie and correctly binds the token to the `req.session.id`.
-  - **Weakness (Bug)**: The `CSRF_EXEMPT_PATHS` array explicitly whitelists `/api/paymob/webhook` and related Paymob endpoints so they aren't blocked (since webhooks don't send CSRF tokens). However, the WhatsApp callback endpoint (`/whatsapp/messages/:id/callback`) is completely **missing** from this list!
-  - **Impact**: Any incoming webhook from Meta/WhatsApp will immediately be rejected by the CSRF middleware with a `403 Forbidden` error, long before it even reaches the route handler.
-  - **Remediation**: Add `/api/whatsapp/messages` (or a regex matcher) to `CSRF_EXEMPT_PATHS` to allow provider callbacks.
+### Task 2: Verify CORS & Secure Cookies
+- **Target File**: `artifacts/api-server/src/app.ts`
+- **Current State**: The app configures CORS and session cookies.
+- **Action**: Verify that:
+  1. `cors({ origin: allowedOrigins })` is strictly applied when `NODE_ENV === "production"`.
+  2. The session cookie is configured with `secure: true` and `sameSite: "none"` (if cross-domain) or `"lax"`. (Note: If `sameSite: "none"` is used, the CSRF protection audited in Task 1 is absolutely vital).
 
-### 3. Session & CORS Configurations (Secure)
-- **Target**: `app.ts`
-- **Findings**:
-  - **CORS**: `cors({ origin: allowedOrigins })` strictly validates origins against the `ALLOWED_ORIGINS` environment variable in production, preventing malicious sites from making cross-origin requests with credentials.
-  - **Sessions**: The session cookie correctly employs `secure: true` and `httpOnly: true`. Because `sameSite: "none"` is used (which is necessary for cross-domain API setups), the robust CSRF implementation mentioned above is strictly required.
+### Task 3: Verify Secrets Fail-Fast
+- **Target File**: `artifacts/api-server/src/app.ts`
+- **Action**: Ensure the startup code explicitly throws an error and crashes the server if `SESSION_SECRET`, `DATABASE_URL`, or `RESEND_API_KEY` are missing in production. Ensure `PAYMOB_ALLOW_MOCKS` is strictly prohibited in production. (Initial audits show this is already implemented, so just verify).
 
-### 4. Logging & Header Defenses (Low Risk / Safe)
-- **Target**: `app.ts`
-- **Findings**:
-  - **Logging**: `pino-http` strips query parameters before logging (`req.url?.split("?")[0]`). This is a highly secure practice that ensures tokens, PII, or sensitive IDs passed in query strings are never inadvertently leaked into the server logs.
-  - **Helmet**: Helmet disables `crossOriginEmbedderPolicy` (to permit the Paymob checkout iframe) and `contentSecurityPolicy` (relying on the frontend to manage CSP). This is acceptable since the API strictly returns JSON.
+## Exit Criteria
+1. The `CSRF_EXEMPT_PATHS` array in `lib/csrf.ts` explicitly includes the WhatsApp webhook callback route.
+2. The application crashes immediately upon startup if critical production secrets are missing.
+3. CSRF and CORS configurations are confirmed to be strictly enforced in production environments.
