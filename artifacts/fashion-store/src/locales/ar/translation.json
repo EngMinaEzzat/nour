@@ -2495,7 +2495,8 @@
     "supported": "{formats} حتى {max}MB بدون ضغط",
     "errorSize": "حجم الصورة يجب أن يكون أقل من {max}MB",
     "errorFormat": "الصيغ المدعومة: {formats}. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.",
-    "errorGeneric": "فشل رفع الصورة"
+    "errorGeneric": "فشل رفع الصورة",
+    "removeImage": "إزالة الصورة"
   },
   "productCard": {
     "featured": "مميز",
