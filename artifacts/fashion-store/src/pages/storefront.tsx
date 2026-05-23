@@ -563,11 +563,15 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     const sn = liveStore.name;
     
     if (s.type === "hero") {
-      if (s.content.heading === `اكتشفي جمالكِ مع ${sn}`) s.content.heading = t("defaultSections.hero.headingCosmetics", { storeName: sn, defaultValue: s.content.heading });
-      else if (s.content.heading === `اكتشفي أحدث تشكيلة من ${sn}`) s.content.heading = t("defaultSections.hero.heading", { storeName: sn, defaultValue: s.content.heading });
+      if (typeof s.content.heading === "string") {
+        if (s.content.heading.includes("اكتشفي جمالكِ مع")) s.content.heading = t("defaultSections.hero.headingCosmetics", { storeName: sn, defaultValue: s.content.heading });
+        else if (s.content.heading.includes("اكتشفي أحدث تشكيلة من")) s.content.heading = t("defaultSections.hero.heading", { storeName: sn, defaultValue: s.content.heading });
+      }
       
-      if (s.content.subheading === "مستحضرات عناية وتجميل تبرز جمالك الطبيعي") s.content.subheading = t("defaultSections.hero.subheadingCosmetics", { defaultValue: s.content.subheading });
-      else if (s.content.subheading === "أزياء راقية بأسعار تناسبك") s.content.subheading = t("defaultSections.hero.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.subheading === "string") {
+        if (s.content.subheading.includes("مستحضرات عناية وتجميل")) s.content.subheading = t("defaultSections.hero.subheadingCosmetics", { defaultValue: s.content.subheading });
+        else if (s.content.subheading.includes("أزياء راقية")) s.content.subheading = t("defaultSections.hero.subheading", { defaultValue: s.content.subheading });
+      }
       
       if (s.content.ctaText === "تسوقي الآن") s.content.ctaText = t("defaultSections.hero.ctaText", { defaultValue: s.content.ctaText });
     } else if (s.type === "new-arrivals") {
@@ -579,13 +583,16 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     } else if (s.type === "categories") {
       if (s.content.heading === "تسوقي حسب القسم") s.content.heading = t("defaultSections.categories.heading", { defaultValue: s.content.heading });
     } else if (s.type === "offers") {
-      if (s.content.heading === "تخفيض 30% على جميع المنتجات") s.content.heading = t("defaultSections.offers.heading", { defaultValue: s.content.heading });
-      if (s.content.subheading === "لفترة محدودة — لا تفوتي العرض!") s.content.subheading = t("defaultSections.offers.subheading", { defaultValue: s.content.subheading });
+      if (s.content.heading === "تخفيض 30% على جميع المنتجات" || s.content.heading?.includes("تخفيض")) s.content.heading = t("defaultSections.offers.heading", { defaultValue: s.content.heading });
+      if (s.content.subheading === "لفترة محدودة — لا تفوتي العرض!" || s.content.subheading?.includes("لفترة محدودة")) s.content.subheading = t("defaultSections.offers.subheading", { defaultValue: s.content.subheading });
       if (s.content.ctaText === "احصلي على العرض") s.content.ctaText = t("defaultSections.offers.ctaText", { defaultValue: s.content.ctaText });
     } else if (s.type === "about") {
-      if (s.content.heading === `قصة ${sn}`) s.content.heading = t("defaultSections.about.heading", { storeName: sn, defaultValue: s.content.heading });
-      if (s.content.body === "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ.") s.content.body = t("defaultSections.about.bodyCosmetics", { defaultValue: s.content.body });
-      else if (s.content.body === "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.") s.content.body = t("defaultSections.about.bodyFashion", { defaultValue: s.content.body });
+      if (typeof s.content.heading === "string" && s.content.heading.includes("قصة")) s.content.heading = t("defaultSections.about.heading", { storeName: sn, defaultValue: s.content.heading });
+      
+      if (typeof s.content.body === "string") {
+        if (s.content.body.includes("نؤمن بأن الجمال الحقيقي ينبع من الداخل")) s.content.body = t("defaultSections.about.bodyCosmetics", { defaultValue: s.content.body });
+        else if (s.content.body.includes("نؤمن بأن كل امرأة تستحق أن تشعر بالثقة")) s.content.body = t("defaultSections.about.bodyFashion", { defaultValue: s.content.body });
+      }
     }
     return s;
   }
