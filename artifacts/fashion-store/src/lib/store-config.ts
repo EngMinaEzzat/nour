@@ -213,84 +213,127 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   
+  const tr = (key: string, fallback: any, options?: any) => {
+    if (t) {
+      const res = t(key, { defaultValue: fallback, returnObjects: true, ...options });
+      return res;
+    }
+    return fallback;
+  };
+
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: t ? t("defaultSections.hero.heading", { defaultValue: isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, storeName }) : (isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`), 
-        subheading: t ? t("defaultSections.hero.subheading", { defaultValue: isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك" }) : (isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
-        ctaText: t ? t("defaultSections.hero.ctaText", { defaultValue: "تسوقي الآن" }) : "تسوقي الآن", 
+        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
+        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
+        ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
         ctaLink: "#products" 
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
     "new-arrivals": {
-      content: { heading: t ? t("defaultSections.newArrivals.heading", { defaultValue: "وصل حديثاً" }) : "وصل حديثاً", subheading: t ? t("defaultSections.newArrivals.subheading", { defaultValue: "أحدث المنتجات في مجموعتنا" }) : "أحدث المنتجات في مجموعتنا" },
+      content: { 
+        heading: tr("defaultSections.newArrivals.heading", "وصل حديثاً"), 
+        subheading: tr("defaultSections.newArrivals.subheading", "أحدث المنتجات في مجموعتنا") 
+      },
       settings: { productCount: 8, cardStyle: "grid", showPrices: true, showQuickAdd: true },
     },
     "best-sellers": {
-      content: { heading: t ? t("defaultSections.bestSellers.heading", { defaultValue: "الأكثر مبيعاً" }) : "الأكثر مبيعاً", subheading: t ? t("defaultSections.bestSellers.subheading", { defaultValue: "المنتجات المفضلة لعملائنا" }) : "المنتجات المفضلة لعملائنا" },
+      content: { 
+        heading: tr("defaultSections.bestSellers.heading", "الأكثر مبيعاً"), 
+        subheading: tr("defaultSections.bestSellers.subheading", "المنتجات المفضلة لعملائنا") 
+      },
       settings: { productCount: 8, cardStyle: "grid", showPrices: true, showQuickAdd: true },
     },
     categories: {
-      content: { heading: t ? t("defaultSections.categories.heading", { defaultValue: "تسوقي حسب القسم" }) : "تسوقي حسب القسم" },
+      content: { 
+        heading: tr("defaultSections.categories.heading", "تسوقي حسب القسم") 
+      },
       settings: { layout: "grid" },
     },
     testimonials: {
-      content: { heading: "ماذا يقول عملاؤنا", items: [
-        { name: "سارة م.", text: "منتجات رائعة وجودة عالية! سأشتري مجدداً بالتأكيد.", rating: "5" },
-        { name: "هبة ع.", text: "خدمة ممتازة وتوصيل سريع. أنصح به بشدة.", rating: "5" },
-        { name: "نور ك.", text: "تسوق مريح والمنتجات طبق المنتظر.", rating: "5" },
-      ]},
+      content: { 
+        heading: tr("defaultSections.testimonials.heading", "ماذا يقول عملاؤنا"), 
+        items: tr("defaultSections.testimonials.items", [
+          { name: "سارة م.", text: "منتجات رائعة وجودة عالية! سأشتري مجدداً بالتأكيد.", rating: "5" },
+          { name: "هبة ع.", text: "خدمة ممتازة وتوصيل سريع. أنصح به بشدة.", rating: "5" },
+          { name: "نور ك.", text: "تسوق مريح والمنتجات طبق المنتظر.", rating: "5" },
+        ])
+      },
       settings: { layout: "grid", showRating: true },
     },
     offers: {
-      content: { heading: "تخفيض 30% على جميع المنتجات", subheading: "لفترة محدودة — لا تفوتي العرض!", ctaText: "احصلي على العرض" },
+      content: { 
+        heading: tr("defaultSections.offers.heading", "تخفيض 30% على جميع المنتجات"), 
+        subheading: tr("defaultSections.offers.subheading", "لفترة محدودة — لا تفوتي العرض!"), 
+        ctaText: tr("defaultSections.offers.ctaText", "احصلي على العرض") 
+      },
       settings: {},
     },
     about: {
       content: { 
-        heading: `قصة ${storeName}`, 
-        body: isCosmetics 
+        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
+        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
-          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار." 
+          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.") 
       },
       settings: { layout: "with-image" },
     },
     instagram: {
-      content: { heading: "تابعينا على إنستغرام" },
+      content: { 
+        heading: tr("defaultSections.instagram.heading", "تابعينا على إنستغرام") 
+      },
       settings: { columns: 3 },
     },
     faq: {
-      content: { heading: "أسئلة شائعة", items: [
-        { q: "كم مدة التوصيل؟", a: "يصل طلبك خلال 2-5 أيام عمل داخل المحافظات الكبرى." },
-        { q: "هل يمكنني الإرجاع؟", a: "نعم، نقبل الإرجاع خلال 14 يوم من الاستلام." },
-        { q: "ما هي طرق الدفع المتاحة؟", a: "نقبل الدفع عند الاستلام، والبطاقات البنكية، وفودافون كاش." },
-      ]},
+      content: { 
+        heading: tr("defaultSections.faq.heading", "أسئلة شائعة"), 
+        items: tr("defaultSections.faq.items", [
+          { q: "كم مدة التوصيل؟", a: "يصل طلبك خلال 2-5 أيام عمل داخل المحافظات الكبرى." },
+          { q: "هل يمكنني الإرجاع؟", a: "نعم، نقبل الإرجاع خلال 14 يوم من الاستلام." },
+          { q: "ما هي طرق الدفع المتاحة؟", a: "نقبل الدفع عند الاستلام، والبطاقات البنكية، وفودافون كاش." },
+        ])
+      },
       settings: {},
     },
     whatsapp: {
-      content: { heading: "تحدثي معنا مباشرة", subheading: "نرد على استفساراتك خلال دقائق", ctaText: "تواصلي عبر واتساب" },
+      content: { 
+        heading: tr("defaultSections.whatsapp.heading", "تحدثي معنا مباشرة"), 
+        subheading: tr("defaultSections.whatsapp.subheading", "نرد على استفساراتك خلال دقائق"), 
+        ctaText: tr("defaultSections.whatsapp.ctaText", "تواصلي عبر واتساب") 
+      },
       settings: { floatingButton: true },
     },
     newsletter: {
-      content: { heading: "اشتركي في نشرتنا", subheading: "كوني أول من تعرف بالعروض والمنتجات الجديدة", ctaText: "اشتركي الآن" },
+      content: { 
+        heading: tr("defaultSections.newsletter.heading", "اشتركي في نشرتنا"), 
+        subheading: tr("defaultSections.newsletter.subheading", "كوني أول من تعرف بالعروض والمنتجات الجديدة"), 
+        ctaText: tr("defaultSections.newsletter.ctaText", "اشتركي الآن") 
+      },
       settings: {},
     },
     lookbook: {
-      content: { heading: "لوك بوك - إلهامي هذا الموسم" },
+      content: { 
+        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم") 
+      },
       settings: { columns: 3 },
     },
     "product-catalog": {
-      content: { heading: "جميع المنتجات", subheading: "كتالوج كامل" },
+      content: { 
+        heading: tr("defaultSections.productCatalog.heading", "جميع المنتجات"), 
+        subheading: tr("defaultSections.productCatalog.subheading", "كتالوج كامل") 
+      },
       settings: { layout: "grid", showPrices: true, showQuickAdd: true },
     },
     "trust-strip": {
-      content: { items: [
-        { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
-        { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
-        { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
-        { icon: "⭐", title: "جودة مضمونة", text: "منتجات أصلية 100%" },
-      ]},
+      content: { 
+        items: tr("defaultSections.trustStrip.items", [
+          { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
+          { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
+          { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
+          { icon: "⭐", title: "جودة مضمونة", text: "منتجات أصلية 100%" },
+        ])
+      },
       settings: {},
     },
   };

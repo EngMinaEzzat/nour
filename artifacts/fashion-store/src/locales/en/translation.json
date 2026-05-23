@@ -2027,7 +2027,11 @@
         "home": "Home",
         "products": "Products",
         "categories": "Categories",
-        "offers": "Offers"
+        "offers": "Offers",
+        "fashion": "Fashion",
+        "beauty": "Beauty",
+        "bestSellers": "Best Sellers",
+        "allProducts": "All Products"
       }
     },
     "footer": {
@@ -2436,7 +2440,9 @@
   "defaultSections": {
     "hero": {
       "heading": "Discover the latest collection from {{storeName}}",
+      "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
+      "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
       "ctaText": "Shop Now"
     },
     "newArrivals": {
@@ -2449,6 +2455,60 @@
     },
     "categories": {
       "heading": "Shop by Category"
+    },
+    "testimonials": {
+      "heading": "What our customers say",
+      "items": [
+        { "name": "Sarah M.", "text": "Great products and high quality! Will definitely buy again." },
+        { "name": "Hiba A.", "text": "Excellent service and fast delivery. Highly recommended." },
+        { "name": "Nour K.", "text": "Comfortable shopping and products exactly as expected." }
+      ]
+    },
+    "offers": {
+      "heading": "30% off all products",
+      "subheading": "For a limited time — don't miss the offer!",
+      "ctaText": "Get the offer"
+    },
+    "about": {
+      "heading": "The story of {{storeName}}",
+      "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+    },
+    "instagram": {
+      "heading": "Follow us on Instagram"
+    },
+    "faq": {
+      "heading": "Frequently Asked Questions",
+      "items": [
+        { "q": "How long does delivery take?", "a": "Your order arrives within 2-5 working days in major governorates." },
+        { "q": "Can I return items?", "a": "Yes, we accept returns within 14 days of receipt." },
+        { "q": "What payment methods are available?", "a": "We accept Cash on Delivery, Credit Cards, and Vodafone Cash." }
+      ]
+    },
+    "whatsapp": {
+      "heading": "Chat with us directly",
+      "subheading": "We reply to your inquiries within minutes",
+      "ctaText": "Contact via WhatsApp"
+    },
+    "newsletter": {
+      "heading": "Subscribe to our newsletter",
+      "subheading": "Be the first to know about offers and new products",
+      "ctaText": "Subscribe now"
+    },
+    "lookbook": {
+      "heading": "Lookbook - My inspiration this season"
+    },
+    "productCatalog": {
+      "heading": "All Products",
+      "subheading": "Full catalog"
+    },
+    "trustStrip": {
+      "items": [
+        { "title": "Fast Delivery", "text": "Within 2-5 days" },
+        { "title": "Secure Payment", "text": "Card or Cash" },
+        { "title": "Free Returns", "text": "Within 14 days" },
+        { "title": "Guaranteed Quality", "text": "100% Original Products" }
+      ]
     }
   }
 }
