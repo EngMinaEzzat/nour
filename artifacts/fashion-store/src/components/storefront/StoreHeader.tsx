@@ -4,8 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   Search, ShoppingBag, Menu, X, MessageCircle,
-  Instagram, Facebook, MapPin,
+  Instagram, Facebook, MapPin, Globe, ChevronDown
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -19,6 +25,8 @@ interface StoreHeaderProps {
   cartCount: number;
   onSearchOpen: () => void;
   announcementVisible: boolean;
+  categories?: Array<{ id: number; name: string; nameAr?: string | null; parentId?: number | null }>;
+  onCategorySelect?: (id: number) => void;
 }
 
 export function StoreHeader({
@@ -31,6 +39,8 @@ export function StoreHeader({
   cartCount,
   onSearchOpen,
   announcementVisible,
+  categories = [],
+  onCategorySelect,
 }: StoreHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -57,16 +67,27 @@ export function StoreHeader({
   const topOffset = announcementVisible ? 36 : 0;
   const glass = !scrolled;
 
-  const NAV_LINKS = [
-    { label: t("storefront.products.newArrivals"), id: "new-arrivals" },
-    { label: t("storefront.header.links.fashion"), id: "trending" },
-    { label: t("storefront.header.links.beauty"), id: "beauty-routine" },
-    { label: t("storefront.header.links.bestSellers"), id: "best-sellers" },
-    { label: t("storefront.header.links.allProducts"), id: "products-section" },
-  ];
+  const rootCategories = categories.filter(c => !c.parentId);
+  const childrenMap = new Map<number, typeof categories>();
+  categories.forEach(c => {
+    if (c.parentId) {
+      if (!childrenMap.has(c.parentId)) childrenMap.set(c.parentId, []);
+      childrenMap.get(c.parentId)!.push(c);
+    }
+  });
+
+  function handleNavClick(id: number) {
+    onCategorySelect?.(id);
+    scrollTo("products-section");
+  }
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setDrawerOpen(false);
+  }
+
+  function toggleLanguage(lang: string) {
+    i18n.changeLanguage(lang);
     setDrawerOpen(false);
   }
 
@@ -114,19 +135,61 @@ export function StoreHeader({
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6 flex-1 justify-center">
-            {NAV_LINKS.map(link => (
-              <button
-                key={link.id}
-                onClick={() => scrollTo(link.id)}
-                className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group"
-              >
-                {link.label}
-                <span
-                  className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center"
-                  style={{ background: p }}
-                />
-              </button>
-            ))}
+            <button
+              onClick={() => scrollTo("new-arrivals")}
+              className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group"
+            >
+              {t("storefront.products.newArrivals")}
+              <span className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center" style={{ background: p }} />
+            </button>
+            
+            {rootCategories.map(cat => {
+              const children = childrenMap.get(cat.id) || [];
+              const label = i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name;
+              
+              if (children.length > 0) {
+                return (
+                  <DropdownMenu key={cat.id}>
+                    <DropdownMenuTrigger asChild>
+                      <button className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group flex items-center gap-1">
+                        {label}
+                        <ChevronDown className="w-3 h-3 opacity-50" />
+                        <span className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center" style={{ background: p }} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="w-48">
+                      <DropdownMenuItem onClick={() => handleNavClick(cat.id)} className="font-semibold">
+                        {t("storefront.home.allProducts")} {label}
+                      </DropdownMenuItem>
+                      {children.map(child => (
+                        <DropdownMenuItem key={child.id} onClick={() => handleNavClick(child.id)}>
+                          {i18n.language === "ar" ? (child.nameAr || child.name) : child.name}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+              
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleNavClick(cat.id)}
+                  className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group"
+                >
+                  {label}
+                  <span className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center" style={{ background: p }} />
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => scrollTo("products-section")}
+              className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group"
+            >
+              {t("storefront.header.links.allProducts")}
+              <span className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center" style={{ background: p }} />
+            </button>
           </nav>
 
           {/* Actions */}
@@ -138,6 +201,27 @@ export function StoreHeader({
             >
               <Search className="w-4 h-4" />
             </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                  aria-label={t("storefront.header.actions.language", "Language")}
+                >
+                  <Globe className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => toggleLanguage("ar")} className="justify-between">
+                  العربية (AR)
+                  {i18n.language === "ar" && <span className="text-xs text-stone-400">✓</span>}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toggleLanguage("en")} className="justify-between">
+                  English (EN)
+                  {i18n.language === "en" && <span className="text-xs text-stone-400">✓</span>}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <button
               onClick={() => navigate("/checkout")}
@@ -180,7 +264,7 @@ export function StoreHeader({
               onClick={() => setDrawerOpen(false)}
             />
             <motion.aside
-              className="fixed top-0 right-0 h-full w-[280px] z-[70] flex flex-col"
+              className={`fixed top-0 ${i18n.dir() === "rtl" ? "right-0" : "left-0"} h-full w-[280px] z-[70] flex flex-col`}
               style={{
                 background: "#faf7f4",
                 direction: i18n.dir(),
@@ -211,19 +295,70 @@ export function StoreHeader({
               </div>
 
               {/* Nav links */}
-              <nav className="flex-1 px-4 py-6 flex flex-col gap-1">
-                {NAV_LINKS.map((link, i) => (
+              <div className="flex-1 overflow-y-auto">
+                <nav className="px-4 py-6 flex flex-col gap-1">
                   <motion.button
-                    key={link.id}
-                    onClick={() => scrollTo(link.id)}
+                    onClick={() => scrollTo("new-arrivals")}
                     className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
                     initial={{ opacity: 0, x: i18n.dir() === "rtl" ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04 }}
                   >
-                    {link.label}
+                    {t("storefront.products.newArrivals")}
                   </motion.button>
-                ))}
+
+                  {rootCategories.map((cat, i) => {
+                    const children = childrenMap.get(cat.id) || [];
+                    const label = i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name;
+
+                    if (children.length > 0) {
+                      return (
+                        <div key={cat.id} className="py-1">
+                          <div className={`px-3 py-2 text-stone-900 font-semibold text-[15px] ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
+                            {label}
+                          </div>
+                          <div className="flex flex-col gap-1 pl-4 pr-4 border-l-2 border-stone-100 ml-3">
+                            <button
+                              onClick={() => handleNavClick(cat.id)}
+                              className={`py-2 px-3 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                            >
+                              {t("storefront.home.allProducts")}
+                            </button>
+                            {children.map(child => (
+                              <button
+                                key={child.id}
+                                onClick={() => handleNavClick(child.id)}
+                                className={`py-2 px-3 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                              >
+                                {i18n.language === "ar" ? (child.nameAr || child.name) : child.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <motion.button
+                        key={cat.id}
+                        onClick={() => handleNavClick(cat.id)}
+                        className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                        initial={{ opacity: 0, x: i18n.dir() === "rtl" ? 20 : -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.04 }}
+                      >
+                        {label}
+                      </motion.button>
+                    );
+                  })}
+
+                  <motion.button
+                    onClick={() => scrollTo("products-section")}
+                    className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                    initial={{ opacity: 0, x: i18n.dir() === "rtl" ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                  >
+                    {t("storefront.header.links.allProducts")}
+                  </motion.button>
 
                 {waNum && (
                   <a
@@ -237,7 +372,31 @@ export function StoreHeader({
                     {i18n.language === "ar" ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
                   </a>
                 )}
+
+                <div className="mt-auto pt-6 pb-2">
+                  <div className="flex items-center justify-between py-2 px-3 bg-stone-100 rounded-xl">
+                    <span className="text-sm font-medium text-stone-600 flex items-center gap-2">
+                      <Globe className="w-4 h-4" />
+                      {i18n.language === "ar" ? "اللغة" : "Language"}
+                    </span>
+                    <div className="flex bg-white rounded-lg p-0.5 shadow-sm">
+                      <button
+                        onClick={() => toggleLanguage("ar")}
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${i18n.language === "ar" ? "bg-stone-900 text-white" : "text-stone-500 hover:text-stone-900"}`}
+                      >
+                        AR
+                      </button>
+                      <button
+                        onClick={() => toggleLanguage("en")}
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${i18n.language === "en" ? "bg-stone-900 text-white" : "text-stone-500 hover:text-stone-900"}`}
+                      >
+                        EN
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </nav>
+            </div>
 
               {/* Social + City */}
               <div

@@ -145,33 +145,32 @@ function CategoryFilter({
         })}
       </div>
 
-      {/* Subcategories (if a parent is selected) */}
-      <AnimatePresence>
+      {/* Subcategories (if any) */}
+      <AnimatePresence mode="wait">
         {children.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex gap-2 flex-wrap ps-4 border-r-2 border-primary/20"
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            className="flex gap-2 flex-wrap overflow-hidden"
           >
-            {children.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => onSelect(cat.id)}
-                className="shrink-0 px-4 py-1.5 rounded-full text-[11px] font-medium transition-all"
-                style={
-                  selected === cat.id
-                    ? { background: p, color: "#fff" }
-                    : {
-                        background: "rgba(122,96,96,0.05)",
-                        color: "#7a6060",
-                        border: "1px solid rgba(122,96,96,0.1)",
-                      }
-                }
-              >
-                {i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name}
-              </button>
-            ))}
+            {children.map(cat => {
+              const isChildSelected = selected === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => onSelect(cat.id)}
+                  className="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all"
+                  style={
+                    isChildSelected
+                      ? { background: `${p}20`, color: p, border: `1px solid ${p}` }
+                      : { background: "transparent", color: "#8a7b7b", border: "1px solid rgba(122,96,96,0.15)" }
+                  }
+                >
+                  {i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name}
+                </button>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
@@ -474,10 +473,13 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   // ── Error state ──
   const selectedCategoryIds = useMemo(() => {
     if (!store || !selectedCategory) return null;
-    const childIds = store.categories
-      ?.filter((category) => category.parentId === selectedCategory)
-      .map((category) => category.id) ?? [];
-    return new Set([selectedCategory, ...childIds]);
+    
+    const getDescendants = (id: number): number[] => {
+      const children = store.categories?.filter(c => c.parentId === id).map(c => c.id) ?? [];
+      return [...children, ...children.flatMap(getDescendants)];
+    };
+    
+    return new Set([selectedCategory, ...getDescendants(selectedCategory)]);
   }, [store?.categories, selectedCategory]);
 
   if (error) {
@@ -555,9 +557,44 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const cartCount = items.filter(i => i.tenantId === store.id).reduce((acc, i) => acc + i.quantity, 0);
   const filtered = store.products.filter(pr => !selectedCategoryIds || selectedCategoryIds.has((pr as any).categoryId));
   const showBeautySection = store.category === "cosmetics" || store.category === "both";
+  
+  function translateSectionContent(section: SectionConfig): SectionConfig {
+    const s = { ...section, content: { ...section.content } };
+    const sn = store.name;
+    
+    if (s.type === "hero") {
+      if (s.content.heading === `اكتشفي جمالكِ مع ${sn}`) s.content.heading = t("defaultSections.hero.headingCosmetics", { storeName: sn, defaultValue: s.content.heading });
+      else if (s.content.heading === `اكتشفي أحدث تشكيلة من ${sn}`) s.content.heading = t("defaultSections.hero.heading", { storeName: sn, defaultValue: s.content.heading });
+      
+      if (s.content.subheading === "مستحضرات عناية وتجميل تبرز جمالك الطبيعي") s.content.subheading = t("defaultSections.hero.subheadingCosmetics", { defaultValue: s.content.subheading });
+      else if (s.content.subheading === "أزياء راقية بأسعار تناسبك") s.content.subheading = t("defaultSections.hero.subheading", { defaultValue: s.content.subheading });
+      
+      if (s.content.ctaText === "تسوقي الآن") s.content.ctaText = t("defaultSections.hero.ctaText", { defaultValue: s.content.ctaText });
+    } else if (s.type === "new-arrivals") {
+      if (s.content.heading === "وصل حديثاً") s.content.heading = t("defaultSections.newArrivals.heading", { defaultValue: s.content.heading });
+      if (s.content.subheading === "أحدث المنتجات في مجموعتنا") s.content.subheading = t("defaultSections.newArrivals.subheading", { defaultValue: s.content.subheading });
+    } else if (s.type === "best-sellers") {
+      if (s.content.heading === "الأكثر مبيعاً") s.content.heading = t("defaultSections.bestSellers.heading", { defaultValue: s.content.heading });
+      if (s.content.subheading === "المنتجات المفضلة لعملائنا") s.content.subheading = t("defaultSections.bestSellers.subheading", { defaultValue: s.content.subheading });
+    } else if (s.type === "categories") {
+      if (s.content.heading === "تسوقي حسب القسم") s.content.heading = t("defaultSections.categories.heading", { defaultValue: s.content.heading });
+    } else if (s.type === "offers") {
+      if (s.content.heading === "تخفيض 30% على جميع المنتجات") s.content.heading = t("defaultSections.offers.heading", { defaultValue: s.content.heading });
+      if (s.content.subheading === "لفترة محدودة — لا تفوتي العرض!") s.content.subheading = t("defaultSections.offers.subheading", { defaultValue: s.content.subheading });
+      if (s.content.ctaText === "احصلي على العرض") s.content.ctaText = t("defaultSections.offers.ctaText", { defaultValue: s.content.ctaText });
+    } else if (s.type === "about") {
+      if (s.content.heading === `قصة ${sn}`) s.content.heading = t("defaultSections.about.heading", { storeName: sn, defaultValue: s.content.heading });
+      if (s.content.body === "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ.") s.content.body = t("defaultSections.about.bodyCosmetics", { defaultValue: s.content.body });
+      else if (s.content.body === "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.") s.content.body = t("defaultSections.about.bodyFashion", { defaultValue: s.content.body });
+    }
+    return s;
+  }
+
   const editorSections = [...visualConfig.homepage.sections]
     .filter((section) => section.visible)
-    .sort((a, b) => a.order - b.order);
+    .sort((a, b) => a.order - b.order)
+    .map(translateSectionContent);
+    
   const hasProductCatalogSection = visualConfig.homepage.sections.some((section) => section.type === "product-catalog");
 
   function renderEditorSection(section: SectionConfig) {

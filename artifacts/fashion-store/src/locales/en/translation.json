@@ -2001,10 +2001,22 @@
       "categoriesHeading": "Categories",
       "categoriesEmpty": "Add categories from the categories tab to show them here",
       "categoriesDummy": [
-        { "name": "Fashion", "image": "/images/categories/fashion.png" },
-        { "name": "Care", "image": "/images/categories/care.png" },
-        { "name": "Accessories", "image": "/images/categories/accessories.png" },
-        { "name": "Perfumes", "image": "/images/categories/perfumes.png" }
+        {
+          "name": "Fashion",
+          "image": "/images/categories/fashion.png"
+        },
+        {
+          "name": "Care",
+          "image": "/images/categories/care.png"
+        },
+        {
+          "name": "Accessories",
+          "image": "/images/categories/accessories.png"
+        },
+        {
+          "name": "Perfumes",
+          "image": "/images/categories/perfumes.png"
+        }
       ],
       "offersHeading": "30% OFF",
       "offersCta": "Get the offer",
@@ -2185,6 +2197,18 @@
       "notFoundTitle": "Store Not Found",
       "notFoundDesc": "We couldn't find a store with this link.",
       "browseStores": "Browse Stores"
+    },
+    "home": {
+      "trust": {
+        "shipping": "Fast Shipping",
+        "shippingDesc": "Delivery within 2-3 business days nationwide",
+        "secure": "100% Secure Payment",
+        "secureDesc": "Credit cards, Fawry, and E-wallets",
+        "returns": "Free Returns",
+        "returnsDesc": "Easy 14-day hassle-free returns",
+        "support": "24/7 Support",
+        "supportDesc": "Round-the-clock customer service via WhatsApp"
+      }
     }
   },
   "exports": {
@@ -2459,9 +2483,18 @@
     "testimonials": {
       "heading": "What our customers say",
       "items": [
-        { "name": "Sarah M.", "text": "Great products and high quality! Will definitely buy again." },
-        { "name": "Hiba A.", "text": "Excellent service and fast delivery. Highly recommended." },
-        { "name": "Nour K.", "text": "Comfortable shopping and products exactly as expected." }
+        {
+          "name": "Sarah M.",
+          "text": "Great products and high quality! Will definitely buy again."
+        },
+        {
+          "name": "Hiba A.",
+          "text": "Excellent service and fast delivery. Highly recommended."
+        },
+        {
+          "name": "Nour K.",
+          "text": "Comfortable shopping and products exactly as expected."
+        }
       ]
     },
     "offers": {
@@ -2480,9 +2513,18 @@
     "faq": {
       "heading": "Frequently Asked Questions",
       "items": [
-        { "q": "How long does delivery take?", "a": "Your order arrives within 2-5 working days in major governorates." },
-        { "q": "Can I return items?", "a": "Yes, we accept returns within 14 days of receipt." },
-        { "q": "What payment methods are available?", "a": "We accept Cash on Delivery, Credit Cards, and Vodafone Cash." }
+        {
+          "q": "How long does delivery take?",
+          "a": "Your order arrives within 2-5 working days in major governorates."
+        },
+        {
+          "q": "Can I return items?",
+          "a": "Yes, we accept returns within 14 days of receipt."
+        },
+        {
+          "q": "What payment methods are available?",
+          "a": "We accept Cash on Delivery, Credit Cards, and Vodafone Cash."
+        }
       ]
     },
     "whatsapp": {
@@ -2504,10 +2546,22 @@
     },
     "trustStrip": {
       "items": [
-        { "title": "Fast Delivery", "text": "Within 2-5 days" },
-        { "title": "Secure Payment", "text": "Card or Cash" },
-        { "title": "Free Returns", "text": "Within 14 days" },
-        { "title": "Guaranteed Quality", "text": "100% Original Products" }
+        {
+          "title": "Fast Delivery",
+          "text": "Within 2-5 days"
+        },
+        {
+          "title": "Secure Payment",
+          "text": "Card or Cash"
+        },
+        {
+          "title": "Free Returns",
+          "text": "Within 14 days"
+        },
+        {
+          "title": "Guaranteed Quality",
+          "text": "100% Original Products"
+        }
       ]
     }
   }

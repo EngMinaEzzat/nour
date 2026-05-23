@@ -117,9 +117,15 @@ function CategoryForm({
     onSaved();
   }
 
-  // Potential parents are those that are NOT the current category itself (if editing)
-  // and preferably those that don't already have a parent (to keep it 2 levels deep, though the schema supports more)
-  const availableParents = categories.filter(c => !c.parentId && (!category || c.id !== category.id));
+  // Allow any category except itself and its descendants
+  const getDescendants = (id: number): number[] => {
+    const children = categories.filter(c => c.parentId === id).map(c => c.id);
+    return [...children, ...children.flatMap(getDescendants)];
+  };
+  const editingDescendants = category ? getDescendants(category.id) : [];
+  const availableParents = categories.filter(c => 
+    !category || (c.id !== category.id && !editingDescendants.includes(c.id))
+  );
 
   return (
     <div className="space-y-4" dir={i18n.dir()}>
@@ -267,6 +273,75 @@ export default function Categories() {
     );
   };
 
+  const CategoryAccordionNode = ({ category }: { category: Category }) => {
+    const children = childrenMap.get(category.id) || [];
+    const canEdit = isAuthenticated && (category as Category & { tenantId?: number | null }).tenantId !== null;
+    
+    return (
+      <Accordion type="multiple" className="w-full mb-4" defaultValue={[category.id.toString()]}>
+        <AccordionItem value={category.id.toString()} className="border rounded-xl bg-card overflow-hidden">
+          <div className="flex items-center justify-between p-4 border-b gap-4 flex-wrap sm:flex-nowrap">
+            <AccordionTrigger className="hover:no-underline py-0 flex-1 justify-start gap-4">
+              <div className="flex items-center gap-4 text-left" dir={i18n.dir()}>
+                {category.imageUrl ? (
+                  <img src={productImageUrl(category.imageUrl)} className="w-14 h-14 rounded-lg object-cover" alt="" />
+                ) : (
+                  <div className="w-14 h-14 bg-primary/10 flex items-center justify-center rounded-lg">
+                    <ImageIcon className="w-6 h-6 text-primary/40" />
+                  </div>
+                )}
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">{i18n.language === "ar" ? category.nameAr : category.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="secondary" className="text-[10px]">{t(`categories.types.${category.type}`) ?? category.type}</Badge>
+                    <span className="text-xs text-muted-foreground">{children.length} {t("categories.card.subcategories", { defaultValue: "أقسام فرعية" })} • {category.productCount} {t("categories.card.productCount")}</span>
+                  </div>
+                </div>
+              </div>
+            </AccordionTrigger>
+            
+            <div className="flex items-center gap-2 shrink-0">
+              <Button asChild size="sm" variant="outline" className="gap-1.5" onClick={(e) => e.stopPropagation()}>
+                <Link href={`/products?categoryId=${category.id}`}>
+                  <Eye className="w-3.5 h-3.5" />
+                  {t("categories.card.btnProducts")}
+                </Link>
+              </Button>
+              {canEdit && (
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={(e) => { e.stopPropagation(); setEditing(category); }}>
+                  <Edit className="w-3.5 h-3.5" />
+                  {t("categories.card.btnEdit")}
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          <AccordionContent className="p-4 bg-muted/30 border-t">
+            {children.length > 0 ? (
+              <div className="flex flex-col gap-4">
+                {children.map((child) => {
+                  const grandChildren = childrenMap.get(child.id) || [];
+                  if (grandChildren.length > 0) {
+                    return <CategoryAccordionNode key={child.id} category={child} />;
+                  }
+                  return (
+                    <div key={child.id} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+                      {renderCategoryCard(child)}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-6 border border-dashed border-border rounded-lg bg-background">
+                <p className="text-sm text-muted-foreground">{t("categories.card.noSubcategories", { defaultValue: "لا توجد أقسام فرعية. يمكنك إضافتها باختيار هذا القسم كقسم رئيسي." })}</p>
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    );
+  };
+
   return (
     <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
       <motion.div
@@ -309,69 +384,11 @@ export default function Categories() {
         </div>
       ) : (
         <div className="space-y-6">
-          <Accordion type="multiple" className="space-y-4" defaultValue={rootCategories.map(c => c.id.toString())}>
-            {rootCategories.map((rootCat) => {
-              const children = childrenMap.get(rootCat.id) || [];
-              const canEdit = isAuthenticated && (rootCat as Category & { tenantId?: number | null }).tenantId !== null;
-              
-              return (
-                <AccordionItem key={rootCat.id} value={rootCat.id.toString()} className="border rounded-xl bg-card overflow-hidden">
-                  <div className="flex items-center justify-between p-4 border-b gap-4 flex-wrap sm:flex-nowrap">
-                    <AccordionTrigger className="hover:no-underline py-0 flex-1 justify-start gap-4">
-                      <div className="flex items-center gap-4 text-left" dir={i18n.dir()}>
-                        {rootCat.imageUrl ? (
-                          <img src={productImageUrl(rootCat.imageUrl)} className="w-14 h-14 rounded-lg object-cover" alt="" />
-                        ) : (
-                          <div className="w-14 h-14 bg-primary/10 flex items-center justify-center rounded-lg">
-                            <ImageIcon className="w-6 h-6 text-primary/40" />
-                          </div>
-                        )}
-                        <div>
-                          <h3 className="font-bold text-lg text-foreground">{i18n.language === "ar" ? rootCat.nameAr : rootCat.name}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="secondary" className="text-[10px]">{t(`categories.types.${rootCat.type}`) ?? rootCat.type}</Badge>
-                            <span className="text-xs text-muted-foreground">{children.length} {t("categories.card.subcategories", { defaultValue: "أقسام فرعية" })} • {rootCat.productCount} {t("categories.card.productCount")}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button asChild size="sm" variant="outline" className="gap-1.5" onClick={(e) => e.stopPropagation()}>
-                        <Link href={`/products?categoryId=${rootCat.id}`}>
-                          <Eye className="w-3.5 h-3.5" />
-                          {t("categories.card.btnProducts")}
-                        </Link>
-                      </Button>
-                      {canEdit && (
-                        <Button size="sm" variant="outline" className="gap-1.5" onClick={(e) => { e.stopPropagation(); setEditing(rootCat); }}>
-                          <Edit className="w-3.5 h-3.5" />
-                          {t("categories.card.btnEdit")}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <AccordionContent className="p-4 bg-muted/30">
-                    {children.length > 0 ? (
-                      <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                        variants={stagger.container}
-                        initial="hidden"
-                        animate="show"
-                      >
-                        {children.map((child) => renderCategoryCard(child))}
-                      </motion.div>
-                    ) : (
-                      <div className="text-center py-6 border border-dashed border-border rounded-lg bg-background">
-                        <p className="text-sm text-muted-foreground">{t("categories.card.noSubcategories", { defaultValue: "لا توجد أقسام فرعية. يمكنك إضافتها باختيار هذا القسم كقسم رئيسي." })}</p>
-                      </div>
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              );
-            })}
-          </Accordion>
+          <div className="space-y-4">
+            {rootCategories.map((rootCat) => (
+              <CategoryAccordionNode key={rootCat.id} category={rootCat} />
+            ))}
+          </div>
 
           {orphanCategories.length > 0 && (
             <div className="mt-8">
