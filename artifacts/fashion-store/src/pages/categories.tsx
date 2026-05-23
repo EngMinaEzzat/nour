@@ -24,6 +24,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -197,6 +203,70 @@ export default function Categories() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
 
+  const rootCategories = categories?.filter((c) => !c.parentId) || [];
+  const childrenMap = new Map<number, typeof categories>();
+  categories?.forEach((c) => {
+    if (c.parentId) {
+      if (!childrenMap.has(c.parentId)) childrenMap.set(c.parentId, []);
+      childrenMap.get(c.parentId)!.push(c);
+    }
+  });
+
+  const orphanCategories = categories?.filter(
+    (c) => c.parentId && !rootCategories.find((r) => r.id === c.parentId)
+  ) || [];
+
+  const renderCategoryCard = (cat: Category) => {
+    const canEdit = isAuthenticated && (cat as Category & { tenantId?: number | null }).tenantId !== null;
+    return (
+      <motion.div key={cat.id} variants={stagger.item} className="h-full">
+        <Card className="border-border/50 overflow-hidden hover:shadow-sm transition-shadow h-full flex flex-col">
+          <div className="relative h-36 bg-muted shrink-0">
+            {cat.imageUrl ? (
+              <img
+                src={productImageUrl(cat.imageUrl)}
+                alt={cat.nameAr}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-primary/10">
+                <ImageIcon className="w-10 h-10 text-primary/40" />
+              </div>
+            )}
+          </div>
+          <CardContent className="p-4 flex flex-col flex-1">
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="min-w-0">
+                <h2 className="text-lg font-bold text-foreground truncate">{i18n.language === "ar" ? cat.nameAr : cat.name}</h2>
+                {i18n.language === "ar" && (
+                  <p className="text-sm text-muted-foreground truncate" dir="ltr">{cat.name}</p>
+                )}
+              </div>
+              <Badge variant="secondary" className="text-xs shrink-0">
+                {t(`categories.types.${cat.type}`) ?? cat.type}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4 flex-1">{cat.productCount} {t("categories.card.productCount")}</p>
+            <div className="flex items-center gap-2 mt-auto">
+              <Button asChild size="sm" variant="outline" className="flex-1 gap-1.5">
+                <Link href={`/products?categoryId=${cat.id}`}>
+                  <Eye className="w-3.5 h-3.5" />
+                  {t("categories.card.btnProducts")}
+                </Link>
+              </Button>
+              {canEdit && (
+                <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => setEditing(cat)}>
+                  <Edit className="w-3.5 h-3.5" />
+                  {t("categories.card.btnEdit")}
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  };
+
   return (
     <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
       <motion.div
@@ -231,74 +301,88 @@ export default function Categories() {
         )}
       </motion.div>
 
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
-        variants={stagger.container}
-        initial="hidden"
-        animate="show"
-      >
-        {isLoading
-          ? Array(6).fill(0).map((_, i) => (
-            <motion.div key={i} variants={stagger.item}>
-              <Skeleton className="h-72 w-full rounded-xl" />
-            </motion.div>
-          ))
-          : categories?.map((cat) => {
-            const canEdit = isAuthenticated && (cat as Category & { tenantId?: number | null }).tenantId !== null;
-            return (
-              <motion.div key={cat.id} variants={stagger.item}>
-                <Card className="border-border/50 overflow-hidden hover:shadow-sm transition-shadow">
-                  <div className="relative h-36 bg-muted">
-                    {cat.imageUrl ? (
-                      <img
-                        src={productImageUrl(cat.imageUrl)}
-                        alt={cat.nameAr}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-primary/10">
-                        <ImageIcon className="w-10 h-10 text-primary/40" />
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div className="min-w-0">
-                        <h2 className="text-lg font-bold text-foreground truncate">{i18n.language === "ar" ? cat.nameAr : cat.name}</h2>
-                        {i18n.language === "ar" && (
-                          <p className="text-sm text-muted-foreground truncate" dir="ltr">{cat.name}</p>
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {Array(6).fill(0).map((_, i) => (
+            <Skeleton key={i} className="h-72 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <Accordion type="multiple" className="space-y-4" defaultValue={rootCategories.map(c => c.id.toString())}>
+            {rootCategories.map((rootCat) => {
+              const children = childrenMap.get(rootCat.id) || [];
+              const canEdit = isAuthenticated && (rootCat as Category & { tenantId?: number | null }).tenantId !== null;
+              
+              return (
+                <AccordionItem key={rootCat.id} value={rootCat.id.toString()} className="border rounded-xl bg-card overflow-hidden">
+                  <div className="flex items-center justify-between p-4 border-b gap-4 flex-wrap sm:flex-nowrap">
+                    <AccordionTrigger className="hover:no-underline py-0 flex-1 justify-start gap-4">
+                      <div className="flex items-center gap-4 text-left" dir={i18n.dir()}>
+                        {rootCat.imageUrl ? (
+                          <img src={productImageUrl(rootCat.imageUrl)} className="w-14 h-14 rounded-lg object-cover" alt="" />
+                        ) : (
+                          <div className="w-14 h-14 bg-primary/10 flex items-center justify-center rounded-lg">
+                            <ImageIcon className="w-6 h-6 text-primary/40" />
+                          </div>
                         )}
+                        <div>
+                          <h3 className="font-bold text-lg text-foreground">{i18n.language === "ar" ? rootCat.nameAr : rootCat.name}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary" className="text-[10px]">{t(`categories.types.${rootCat.type}`) ?? rootCat.type}</Badge>
+                            <span className="text-xs text-muted-foreground">{children.length} {t("categories.card.subcategories", { defaultValue: "أقسام فرعية" })} • {rootCat.productCount} {t("categories.card.productCount")}</span>
+                          </div>
+                        </div>
                       </div>
-                      <Badge variant="secondary" className="text-xs shrink-0">
-                        {t(`categories.types.${cat.type}`) ?? cat.type}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-4">{cat.productCount} {t("categories.card.productCount")}</p>
-                    {cat.parentId && (
-                      <Badge variant="outline" className="mb-4 text-[10px] font-normal">
-                        {t("categories.card.subOf")} {categories.find(p => p.id === cat.parentId)?.[i18n.language === "ar" ? "nameAr" : "name"] ?? "..."}
-                      </Badge>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <Button asChild size="sm" variant="outline" className="flex-1 gap-1.5">
-                        <Link href={`/products?categoryId=${cat.id}`}>
+                    </AccordionTrigger>
+                    
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button asChild size="sm" variant="outline" className="gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <Link href={`/products?categoryId=${rootCat.id}`}>
                           <Eye className="w-3.5 h-3.5" />
                           {t("categories.card.btnProducts")}
                         </Link>
                       </Button>
                       {canEdit && (
-                        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setEditing(cat)}>
+                        <Button size="sm" variant="outline" className="gap-1.5" onClick={(e) => { e.stopPropagation(); setEditing(rootCat); }}>
                           <Edit className="w-3.5 h-3.5" />
                           {t("categories.card.btnEdit")}
                         </Button>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-      </motion.div>
+                  </div>
+                  
+                  <AccordionContent className="p-4 bg-muted/30">
+                    {children.length > 0 ? (
+                      <motion.div
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                        variants={stagger.container}
+                        initial="hidden"
+                        animate="show"
+                      >
+                        {children.map((child) => renderCategoryCard(child))}
+                      </motion.div>
+                    ) : (
+                      <div className="text-center py-6 border border-dashed border-border rounded-lg bg-background">
+                        <p className="text-sm text-muted-foreground">{t("categories.card.noSubcategories", { defaultValue: "لا توجد أقسام فرعية. يمكنك إضافتها باختيار هذا القسم كقسم رئيسي." })}</p>
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+
+          {orphanCategories.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-bold mb-4">{t("categories.page.orphans", { defaultValue: "أقسام أخرى" })}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {orphanCategories.map((child) => renderCategoryCard(child))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {!isLoading && categories?.length === 0 && (
         <div className="text-center py-24">

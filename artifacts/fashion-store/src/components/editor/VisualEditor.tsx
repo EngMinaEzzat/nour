@@ -260,11 +260,11 @@ export default function VisualEditor({
                 onClick={() => setSectionsOpen(false)}
               />
               <motion.aside
-                initial={{ x: "100%" }}
+                initial={{ x: i18n.dir() === "rtl" ? "100%" : "-100%" }}
                 animate={{ x: 0 }}
-                exit={{ x: "100%" }}
+                exit={{ x: i18n.dir() === "rtl" ? "100%" : "-100%" }}
                 transition={{ type: "spring", stiffness: 320, damping: 34 }}
-                className="fixed inset-y-0 right-0 z-50 w-[86vw] max-w-sm bg-white shadow-2xl lg:hidden flex flex-col"
+                className="fixed inset-y-0 start-0 z-50 w-[86vw] max-w-sm bg-white shadow-2xl lg:hidden flex flex-col"
                 dir={i18n.dir()}
                 aria-label={t("visualEditor.menu.storeSections")}
               >
