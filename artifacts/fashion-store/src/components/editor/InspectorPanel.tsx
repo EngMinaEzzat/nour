@@ -305,6 +305,84 @@ function SelectField({ label, value, options, onChange }: {
   );
 }
 
+function ItemListEditor({
+  label,
+  items,
+  fields,
+  onChange,
+}: {
+  label: string;
+  items: Array<Record<string, string>>;
+  fields: Array<{ key: string; label: string; type: "text" | "textarea" | "image" }>;
+  onChange: (newItems: Array<Record<string, string>>) => void;
+}) {
+  const { t, i18n } = useTranslation();
+  
+  const updateItem = (index: number, key: string, value: string) => {
+    const next = [...items];
+    next[index] = { ...next[index], [key]: value };
+    onChange(next);
+  };
+
+  const removeItem = (index: number) => {
+    const next = items.filter((_, i) => i !== index);
+    onChange(next);
+  };
+
+  const addItem = () => {
+    const newItem: Record<string, string> = {};
+    fields.forEach(f => newItem[f.key] = "");
+    onChange([...items, newItem]);
+  };
+
+  return (
+    <div className="space-y-3 mt-4 border-t border-stone-100 pt-4">
+      <label className="block text-xs font-semibold text-stone-800 mb-2">{label}</label>
+      {items.map((item, i) => (
+        <div key={i} className="border border-stone-200 rounded-lg p-3 space-y-3 relative bg-stone-50/50">
+          <button
+            onClick={() => removeItem(i)}
+            className="absolute top-2 left-2 text-stone-400 hover:text-red-500 w-6 h-6 flex items-center justify-center rounded hover:bg-red-50 transition-colors"
+            title={t("inspectorPanel.buttons.delete")}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+          
+          <div className="space-y-3 mt-1 pr-6">
+            {fields.map(f => (
+              <div key={f.key}>
+                <label className="block text-[10px] font-medium text-stone-500 mb-1">{f.label}</label>
+                {f.type === "textarea" ? (
+                  <Textarea
+                    value={item[f.key] ?? ""}
+                    onChange={(e) => updateItem(i, f.key, e.target.value)}
+                    className={`text-xs min-h-[60px] bg-white ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                  />
+                ) : (
+                  <Input
+                    value={item[f.key] ?? ""}
+                    onChange={(e) => updateItem(i, f.key, e.target.value)}
+                    className={`text-xs bg-white ${f.type === "image" ? "text-left" : (i18n.dir() === "rtl" ? "text-right" : "text-left")}`}
+                    dir={f.type === "image" ? "ltr" : undefined}
+                    placeholder={f.type === "image" ? "https://..." : undefined}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <button
+        onClick={addItem}
+        className="w-full py-2.5 border border-dashed border-stone-300 rounded-lg text-xs font-medium text-stone-600 hover:bg-stone-50 hover:text-stone-900 hover:border-stone-400 transition-colors flex items-center justify-center gap-2"
+      >
+        <span className="text-lg leading-none">+</span>
+        {t("inspectorPanel.buttons.addItem", { defaultValue: "إضافة عنصر جديد" })}
+      </button>
+    </div>
+  );
+}
+
 // ─── Per-section field panels ──────────────────────────────────────────────────
 function SectionFields({ section, patchContent, patchSettings }: {
   section: SectionConfig;
@@ -416,6 +494,16 @@ function SectionFields({ section, patchContent, patchSettings }: {
             onChange={(v) => patchSettings({ layout: v as "grid" | "carousel" })}
           />
           <ToggleField label={t("inspectorPanel.fields.showRating")} value={section.settings.showRating ?? true} onChange={(v) => patchSettings({ showRating: v })} />
+          <ItemListEditor
+            label={t("inspectorPanel.fields.testimonialItems", { defaultValue: "الآراء" })}
+            items={(section.content.items as any) ?? []}
+            fields={[
+              { key: "name", label: t("inspectorPanel.fields.testimonialName", { defaultValue: "اسم العميل" }), type: "text" },
+              { key: "text", label: t("inspectorPanel.fields.testimonialText", { defaultValue: "الرأي" }), type: "textarea" },
+              { key: "rating", label: t("inspectorPanel.fields.testimonialRating", { defaultValue: "التقييم (1-5)" }), type: "text" }
+            ]}
+            onChange={(items) => patchContent({ items })}
+          />
         </>
       );
 
@@ -492,7 +580,15 @@ function SectionFields({ section, patchContent, patchSettings }: {
           <Field label={t("inspectorPanel.fields.heading")}>
             <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
-          <p className="text-xs leading-relaxed text-stone-400">{t("inspectorPanel.fields.faqNote")}</p>
+          <ItemListEditor
+            label={t("inspectorPanel.fields.faqItems", { defaultValue: "الأسئلة والإجابات" })}
+            items={(section.content.items as any) ?? []}
+            fields={[
+              { key: "q", label: t("inspectorPanel.fields.faqQ", { defaultValue: "السؤال" }), type: "text" },
+              { key: "a", label: t("inspectorPanel.fields.faqA", { defaultValue: "الإجابة" }), type: "textarea" }
+            ]}
+            onChange={(items) => patchContent({ items })}
+          />
         </>
       );
 
@@ -524,12 +620,31 @@ function SectionFields({ section, patchContent, patchSettings }: {
             min={2} max={4} value={section.settings.columns ?? 3}
             onChange={(v) => patchSettings({ columns: v })}
           />
+          <ItemListEditor
+            label={t("inspectorPanel.fields.imageItems", { defaultValue: "الصور" })}
+            items={(section.content.items as any) ?? []}
+            fields={[
+              { key: "imageUrl", label: t("inspectorPanel.fields.imageUrl", { defaultValue: "رابط الصورة" }), type: "image" }
+            ]}
+            onChange={(items) => patchContent({ items })}
+          />
         </>
       );
 
     case "trust-strip":
       return (
-        <p className="text-xs leading-relaxed text-stone-400">{t("inspectorPanel.fields.trustStripNote")}</p>
+        <>
+          <ItemListEditor
+            label={t("inspectorPanel.fields.trustStripItems", { defaultValue: "مميزات المتجر (Store Features)" })}
+            items={(section.content.items as any) ?? []}
+            fields={[
+              { key: "icon", label: t("inspectorPanel.fields.trustStripIcon", { defaultValue: "الأيقونة (إيموجي)" }), type: "text" },
+              { key: "title", label: t("inspectorPanel.fields.trustStripTitle", { defaultValue: "العنوان" }), type: "text" },
+              { key: "text", label: t("inspectorPanel.fields.trustStripText", { defaultValue: "الوصف" }), type: "text" }
+            ]}
+            onChange={(items) => patchContent({ items })}
+          />
+        </>
       );
 
     default:
