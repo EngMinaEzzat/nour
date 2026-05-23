@@ -168,7 +168,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion"): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: any): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -192,7 +192,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
     }
   });
 
@@ -209,30 +209,30 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion"): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: any): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, 
-        subheading: isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك", 
-        ctaText: "تسوقي الآن", 
+        heading: t ? t("defaultSections.hero.heading", { defaultValue: isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, storeName }) : (isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`), 
+        subheading: t ? t("defaultSections.hero.subheading", { defaultValue: isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك" }) : (isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
+        ctaText: t ? t("defaultSections.hero.ctaText", { defaultValue: "تسوقي الآن" }) : "تسوقي الآن", 
         ctaLink: "#products" 
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
     "new-arrivals": {
-      content: { heading: "وصل حديثاً", subheading: "أحدث المنتجات في مجموعتنا" },
+      content: { heading: t ? t("defaultSections.newArrivals.heading", { defaultValue: "وصل حديثاً" }) : "وصل حديثاً", subheading: t ? t("defaultSections.newArrivals.subheading", { defaultValue: "أحدث المنتجات في مجموعتنا" }) : "أحدث المنتجات في مجموعتنا" },
       settings: { productCount: 8, cardStyle: "grid", showPrices: true, showQuickAdd: true },
     },
     "best-sellers": {
-      content: { heading: "الأكثر مبيعاً", subheading: "المنتجات المفضلة لعملائنا" },
+      content: { heading: t ? t("defaultSections.bestSellers.heading", { defaultValue: "الأكثر مبيعاً" }) : "الأكثر مبيعاً", subheading: t ? t("defaultSections.bestSellers.subheading", { defaultValue: "المنتجات المفضلة لعملائنا" }) : "المنتجات المفضلة لعملائنا" },
       settings: { productCount: 8, cardStyle: "grid", showPrices: true, showQuickAdd: true },
     },
     categories: {
-      content: { heading: "تسوقي حسب القسم" },
+      content: { heading: t ? t("defaultSections.categories.heading", { defaultValue: "تسوقي حسب القسم" }) : "تسوقي حسب القسم" },
       settings: { layout: "grid" },
     },
     testimonials: {
@@ -391,7 +391,7 @@ export function createDefaultConfig(partial?: Partial<StoreConfig>): StoreConfig
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, undefined),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };

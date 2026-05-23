@@ -2504,5 +2504,39 @@
     "addedToBag": "تمت الإضافة",
     "addToBag": "أضف للسلة",
     "multipleOptions": "متعدد الخيارات — اختر للإضافة"
+  },
+  "sections": {
+    "hero": "الصورة الرئيسية",
+    "new-arrivals": "وصل حديثاً",
+    "best-sellers": "الأكثر مبيعاً",
+    "categories": "الأقسام",
+    "testimonials": "آراء العملاء",
+    "offers": "عروض وخصومات",
+    "about": "قصة المتجر",
+    "instagram": "معرض الصور",
+    "faq": "أسئلة شائعة",
+    "whatsapp": "تواصل عبر واتساب",
+    "newsletter": "اشترك في النشرة",
+    "lookbook": "لوك بوك",
+    "product-catalog": "جميع المنتجات",
+    "trust-strip": "مميزات المتجر"
+  },
+  "defaultSections": {
+    "hero": {
+      "heading": "اكتشفي أحدث تشكيلة من {{storeName}}",
+      "subheading": "أزياء راقية بأسعار تناسبك",
+      "ctaText": "تسوقي الآن"
+    },
+    "newArrivals": {
+      "heading": "وصل حديثاً",
+      "subheading": "أحدث المنتجات في مجموعتنا"
+    },
+    "bestSellers": {
+      "heading": "الأكثر مبيعاً",
+      "subheading": "المنتجات المفضلة لعملائنا"
+    },
+    "categories": {
+      "heading": "تسوقي حسب القسم"
+    }
   }
 }

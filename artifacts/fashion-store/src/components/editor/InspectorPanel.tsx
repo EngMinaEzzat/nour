@@ -132,7 +132,7 @@ export default function InspectorPanel({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-xl">{SECTION_ICONS[section.type]}</span>
-            <span className="text-sm font-semibold text-stone-800">{SECTION_LABELS[section.type]}</span>
+            <span className="text-sm font-semibold text-stone-800">{t(`sections.${section.type}`, { defaultValue: SECTION_LABELS[section.type] })}</span>
           </div>
           <div className="flex items-center gap-1">
             {variant === "mobile" && (

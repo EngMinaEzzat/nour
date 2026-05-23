@@ -2416,5 +2416,39 @@
     "addedToBag": "Added to bag",
     "addToBag": "Add to bag",
     "multipleOptions": "Multiple options — select to add"
+  },
+  "sections": {
+    "hero": "Hero Image",
+    "new-arrivals": "New Arrivals",
+    "best-sellers": "Best Sellers",
+    "categories": "Categories",
+    "testimonials": "Testimonials",
+    "offers": "Offers & Discounts",
+    "about": "Our Story",
+    "instagram": "Photo Gallery",
+    "faq": "FAQ",
+    "whatsapp": "WhatsApp Contact",
+    "newsletter": "Newsletter",
+    "lookbook": "Lookbook",
+    "product-catalog": "All Products",
+    "trust-strip": "Store Features"
+  },
+  "defaultSections": {
+    "hero": {
+      "heading": "Discover the latest collection from {{storeName}}",
+      "subheading": "Elegant fashion at affordable prices",
+      "ctaText": "Shop Now"
+    },
+    "newArrivals": {
+      "heading": "New Arrivals",
+      "subheading": "The latest products in our collection"
+    },
+    "bestSellers": {
+      "heading": "Best Sellers",
+      "subheading": "Our customers' favorite products"
+    },
+    "categories": {
+      "heading": "Shop by Category"
+    }
   }
 }

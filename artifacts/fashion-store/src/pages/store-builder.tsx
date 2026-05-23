@@ -82,7 +82,7 @@ export default function StoreBuilder() {
         cardShadow: "soft",
       },
       homepage: {
-        sections: normalizeHomepageSections(undefined, tenant.name ?? "متجري", tenant.category ?? "fashion"),
+        sections: normalizeHomepageSections(undefined, tenant.name ?? "متجري", tenant.category ?? "fashion", t),
       },
       business: {
         whatsapp: (tenant as any).whatsappNumber ?? "",

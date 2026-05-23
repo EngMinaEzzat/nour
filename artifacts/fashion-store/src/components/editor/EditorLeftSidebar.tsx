@@ -83,7 +83,7 @@ export default function EditorLeftSidebar({
   }
 
   function addSection(type: SectionType) {
-    const s = createDefaultSection(type, config.brand.name, config.brand.category);
+    const s = createDefaultSection(type, config.brand.name, config.brand.category, t);
     s.order = config.homepage.sections.length;
     onConfigChange({ ...config, homepage: { sections: [...config.homepage.sections, s] } });
     setAddingSection(false);
