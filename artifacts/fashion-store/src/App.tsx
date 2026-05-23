@@ -104,6 +104,18 @@ export function getSubdomainSlug(): string | null {
   return sub;
 }
 
+export function getStoreSlugFromPath(): string | null {
+  if (typeof window === "undefined") return null;
+  const path = window.location.pathname;
+  if (path.startsWith("/store/")) {
+    const parts = path.split("/");
+    if (parts.length > 2 && parts[2]) {
+      return parts[2];
+    }
+  }
+  return null;
+}
+
 export function isReadOnlyPublicRoute(subdomainSlug: string | null): boolean {
   if (typeof window === "undefined") return false;
   const path = window.location.pathname;
@@ -115,12 +127,16 @@ export function isReadOnlyPublicRoute(subdomainSlug: string | null): boolean {
 
   if (path === "/checkout" || path.startsWith("/order-")) return false;
   if (initialPublicPage?.page) return true;
+  
+  const isStoreFallback = path.startsWith("/store/");
+  const normalizedPath = isStoreFallback ? path.replace(/^\/store\/[^\/]+/, "") || "/" : path;
+
   if (
     subdomainSlug &&
-    (path === "/" ||
-      path.startsWith("/product/") ||
-      path.startsWith("/category/") ||
-      path.startsWith("/order-track/"))
+    (normalizedPath === "/" ||
+      normalizedPath.startsWith("/product/") ||
+      normalizedPath.startsWith("/category/") ||
+      normalizedPath.startsWith("/order-track/"))
   ) {
     return true;
   }
@@ -325,12 +341,14 @@ function Router() {
 
 function App() {
   const subdomainSlug = getSubdomainSlug();
+  const pathSlug = getStoreSlugFromPath();
+  const activeSlug = subdomainSlug || pathSlug;
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    if (isReadOnlyPublicRoute(subdomainSlug)) return;
+    if (isReadOnlyPublicRoute(activeSlug)) return;
     fetchAndSetCsrfToken();
-  }, [subdomainSlug]);
+  }, [activeSlug]);
 
   useEffect(() => {
     const isRtl = i18n.language === "ar";
@@ -339,14 +357,18 @@ function App() {
     document.documentElement.classList.toggle("ltr", !isRtl);
   }, [i18n.language]);
 
-  // On a store subdomain ({slug}.nour.eg), render only the storefront
-  if (subdomainSlug) {
+  // On a store subdomain ({slug}.nour.eg) or path fallback (/store/slug), render only the storefront
+  if (activeSlug) {
+    const routerBase = pathSlug ? `/store/${pathSlug}` : "";
+    const envBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+    const finalBase = envBase + routerBase;
+
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <AuthProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <StorefrontRouter slug={subdomainSlug} />
+            <WouterRouter base={finalBase}>
+              <StorefrontRouter slug={activeSlug} />
             </WouterRouter>
           </AuthProvider>
           <Toaster />
