@@ -2001,10 +2001,10 @@
       "categoriesHeading": "Categories",
       "categoriesEmpty": "Add categories from the categories tab to show them here",
       "categoriesDummy": [
-        "Fashion",
-        "Care",
-        "Accessories",
-        "Perfumes"
+        { "name": "Fashion", "image": "/images/categories/fashion.png" },
+        { "name": "Care", "image": "/images/categories/care.png" },
+        { "name": "Accessories", "image": "/images/categories/accessories.png" },
+        { "name": "Perfumes", "image": "/images/categories/perfumes.png" }
       ],
       "offersHeading": "30% OFF",
       "offersCta": "Get the offer",

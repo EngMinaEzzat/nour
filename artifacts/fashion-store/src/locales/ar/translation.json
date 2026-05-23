@@ -2089,10 +2089,10 @@
       "categoriesHeading": "الأقسام",
       "categoriesEmpty": "أضيفي الفئات من تبويب الفئات لتظهر هنا",
       "categoriesDummy": [
-        "أزياء",
-        "عناية",
-        "إكسسوار",
-        "عطور"
+        { "name": "أزياء", "image": "/images/categories/fashion.png" },
+        { "name": "عناية", "image": "/images/categories/care.png" },
+        { "name": "إكسسوارات", "image": "/images/categories/accessories.png" },
+        { "name": "عطور", "image": "/images/categories/perfumes.png" }
       ],
       "offersHeading": "خصم 30%",
       "offersCta": "احصلي على العرض",
