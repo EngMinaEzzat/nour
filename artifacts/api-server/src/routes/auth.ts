@@ -328,7 +328,7 @@ router.post("/auth/bootstrap-platform-admin", async (req, res) => {
   }
 });
 
-router.post("/auth/forgot-password", async (req, res) => {
+router.post("/auth/forgot-password", authLimiter, async (req, res) => {
   const { email } = req.body as { email?: string };
   if (!email) return res.status(400).json({ error: "البريد الإلكتروني مطلوب" });
 
@@ -362,7 +362,7 @@ router.post("/auth/forgot-password", async (req, res) => {
   }
 });
 
-router.post("/auth/reset-password", async (req, res) => {
+router.post("/auth/reset-password", authLimiter, async (req, res) => {
   const { token, password } = req.body as { token?: string; password?: string };
   if (!token || !password) return res.status(400).json({ error: "البيانات ناقصة" });
   if (password.length < 8) return res.status(400).json({ error: "كلمة المرور قصيرة جدًا" });
