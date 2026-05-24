@@ -2734,9 +2734,14 @@
       ]
     },
     "offers": {
-      "heading": "تخفيض 30% على جميع المنتجات",
-      "subheading": "لفترة محدودة — لا تفوتي العرض!",
-      "ctaText": "احصلي على العرض"
+      "promo1Label": "عروض حصرية",
+      "promo1Heading": "خصم يصل إلى",
+      "promo1Desc": "على تشكيلات مختارة — لفترة محدودة",
+      "promo1Cta": "تسوقي الآن",
+      "promo2Label": "توصيل مجاني",
+      "promo2Heading": "شحن مجاني",
+      "promo2Subheading": "لكل طلب فوق",
+      "promo2Cta": "اطلبي الآن"
     },
     "about": {
       "heading": "قصة {{storeName}}",

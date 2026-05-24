@@ -6,11 +6,26 @@ const SERIF = "'Cormorant Garamond', Georgia, serif";
 
 interface PromoBannersProps {
   primaryColor: string;
-  onScrollToProducts: () => void;
+  onScrollToProducts: (discount?: number) => void;
+  content?: any;
 }
 
-export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBannersProps) {
+export function PromoBanners({ primaryColor: p, onScrollToProducts, content }: PromoBannersProps) {
   const { t, i18n } = useTranslation();
+  
+  // Use content or fallback to translation defaults
+  const promo1Label = content?.promo1Label || t("storefront.home.promos.exclusiveOffers", "عروض حصرية");
+  const promo1Heading = content?.promo1Heading || t("storefront.home.promos.discountUpTo", "خصم يصل إلى");
+  const promo1Discount = content?.promo1Discount || "40";
+  const promo1Desc = content?.promo1Desc || t("storefront.home.promos.discountDesc", "على تشكيلات مختارة — لفترة محدودة");
+  const promo1Cta = content?.promo1Cta || t("storefront.hero.shopNow", "تسوقي الآن");
+  
+  const promo2Label = content?.promo2Label || t("storefront.home.promos.freeShipping", "توصيل مجاني");
+  const promo2Heading = content?.promo2Heading || t("storefront.home.promos.freeShippingText", "شحن مجاني");
+  const promo2Subheading = content?.promo2Subheading || t("storefront.home.promos.forOrdersOver", "لكل طلب فوق");
+  const promo2Threshold = content?.promo2Threshold || "999";
+  const promo2Cta = content?.promo2Cta || t("storefront.home.promos.orderNow", "اطلبي الآن");
+
   return (
     <section
       className="py-10 px-4 sm:px-6"
@@ -29,7 +44,7 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBanne
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5 }}
           whileHover={{ scale: 1.01 }}
-          onClick={onScrollToProducts}
+          onClick={() => onScrollToProducts(parseInt(promo1Discount, 10))}
         >
           {/* BG decorative circle */}
           <div
@@ -50,19 +65,19 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBanne
             </div>
             <div>
               <p className="text-white/70 text-[11px] tracking-widest uppercase mb-1 font-medium">
-                {t("storefront.home.promos.exclusiveOffers", "عروض حصرية")}
+                {promo1Label}
               </p>
               <h3
                 className="text-white text-3xl mb-2"
                 style={{ fontFamily: SERIF, fontWeight: 400 }}
               >
-                {t("storefront.home.promos.discountUpTo", "خصم يصل إلى")}
+                {promo1Heading}
                 <br />
-                <span className="text-5xl font-bold">40%</span>
+                <span className="text-5xl font-bold">{promo1Discount}%</span>
               </h3>
-              <p className="text-white/80 text-sm">{t("storefront.home.promos.discountDesc", "على تشكيلات مختارة — لفترة محدودة")}</p>
+              <p className="text-white/80 text-sm">{promo1Desc}</p>
               <div className="mt-5 flex items-center gap-2 text-white font-semibold text-sm group-hover:gap-3 transition-all">
-                {t("storefront.hero.shopNow", "تسوقي الآن")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                {promo1Cta} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </div>
             </div>
           </div>
@@ -80,7 +95,7 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBanne
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           whileHover={{ scale: 1.01 }}
-          onClick={onScrollToProducts}
+          onClick={() => onScrollToProducts()}
         >
           {/* Golden accent */}
           <div
@@ -104,22 +119,22 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBanne
                 className="text-[11px] tracking-widest uppercase mb-1 font-medium"
                 style={{ color: "#c8963a" }}
               >
-                {t("storefront.home.promos.freeShipping", "توصيل مجاني")}
+                {promo2Label}
               </p>
               <h3
                 className="text-white text-3xl mb-2"
                 style={{ fontFamily: SERIF, fontWeight: 400 }}
               >
-                {t("storefront.home.promos.freeShippingText", "شحن مجاني")}
+                {promo2Heading}
                 <br />
-                <span style={{ color: "#c8963a" }}>{t("storefront.home.promos.forOrdersOver", "لكل طلب فوق")}</span>
+                <span style={{ color: "#c8963a" }}>{promo2Subheading}</span>
               </h3>
               <p className="text-white/50 text-sm">
                 <span
                   className="text-4xl font-black"
                   style={{ fontFamily: SERIF, color: "#c8963a" }}
                 >
-                  999
+                  {promo2Threshold}
                 </span>
                 {" "}{i18n.language === "ar" ? "ج.م" : "EGP"}
               </p>
@@ -127,7 +142,7 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts }: PromoBanne
                 className="mt-5 flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all"
                 style={{ color: "#c8963a" }}
               >
-                {t("storefront.home.promos.orderNow", "اطلبي الآن")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+                {promo2Cta} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </div>
             </div>
           </div>

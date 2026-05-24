@@ -264,9 +264,16 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     offers: {
       content: { 
-        heading: tr("defaultSections.offers.heading", "تخفيض 30% على جميع المنتجات"), 
-        subheading: tr("defaultSections.offers.subheading", "لفترة محدودة — لا تفوتي العرض!"), 
-        ctaText: tr("defaultSections.offers.ctaText", "احصلي على العرض") 
+        promo1Label: tr("defaultSections.offers.promo1Label", "عروض حصرية"),
+        promo1Heading: tr("defaultSections.offers.promo1Heading", "خصم يصل إلى"),
+        promo1Discount: "40",
+        promo1Desc: tr("defaultSections.offers.promo1Desc", "على تشكيلات مختارة — لفترة محدودة"),
+        promo1Cta: tr("defaultSections.offers.promo1Cta", "تسوقي الآن"),
+        promo2Label: tr("defaultSections.offers.promo2Label", "توصيل مجاني"),
+        promo2Heading: tr("defaultSections.offers.promo2Heading", "شحن مجاني"),
+        promo2Subheading: tr("defaultSections.offers.promo2Subheading", "لكل طلب فوق"),
+        promo2Threshold: "999",
+        promo2Cta: tr("defaultSections.offers.promo2Cta", "اطلبي الآن"),
       },
       settings: {},
     },

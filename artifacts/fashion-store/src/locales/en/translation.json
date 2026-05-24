@@ -2646,9 +2646,14 @@
       ]
     },
     "offers": {
-      "heading": "30% off all products",
-      "subheading": "For a limited time — don't miss the offer!",
-      "ctaText": "Get the offer"
+      "promo1Label": "Exclusive Offers",
+      "promo1Heading": "Discount up to",
+      "promo1Desc": "On selected collections — limited time",
+      "promo1Cta": "Shop Now",
+      "promo2Label": "Free Shipping",
+      "promo2Heading": "Free Shipping",
+      "promo2Subheading": "for orders over",
+      "promo2Cta": "Order Now"
     },
     "about": {
       "heading": "The story of {{storeName}}",

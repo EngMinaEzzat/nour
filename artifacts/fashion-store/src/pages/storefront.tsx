@@ -320,6 +320,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const [, navigate] = useLocation();
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [minDiscount, setMinDiscount] = useState<number | null>(null);
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const [searchOpen, setSearchOpen] = useState(false);
   const [barVisible, setBarVisible] = useState(true);
@@ -453,7 +454,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     setTimeout(() => setAddedIds(prev => { const n=new Set(prev); n.delete(product.id); return n; }), 2000);
   }, [store, addItem, navigate, productHref]);
 
-  function scrollToProducts() {
+  function scrollToProducts(discount?: number) {
+    if (discount !== undefined) {
+      setMinDiscount(discount);
+    }
     document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
   }
 
@@ -555,7 +559,15 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   })();
 
   const cartCount = items.filter(i => i.tenantId === store.id).reduce((acc, i) => acc + i.quantity, 0);
-  const filtered = store.products.filter(pr => !selectedCategoryIds || selectedCategoryIds.has((pr as any).categoryId));
+  const filtered = store.products.filter(pr => {
+    if (selectedCategoryIds && !selectedCategoryIds.has((pr as any).categoryId)) return false;
+    if (minDiscount !== null) {
+      if (!pr.originalPrice || pr.originalPrice <= pr.price) return false;
+      const discountPct = ((pr.originalPrice - pr.price) / pr.originalPrice) * 100;
+      if (discountPct > minDiscount) return false;
+    }
+    return true;
+  });
   const showBeautySection = store.category === "cosmetics" || store.category === "both";
   
   function translateSectionContent(section: SectionConfig): SectionConfig {
@@ -583,9 +595,14 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     } else if (s.type === "categories") {
       if (typeof s.content.heading === "string" && s.content.heading.includes("تسوقي حسب القسم")) s.content.heading = t("defaultSections.categories.heading", { defaultValue: s.content.heading });
     } else if (s.type === "offers") {
-      if (s.content.heading === "تخفيض 30% على جميع المنتجات" || s.content.heading?.includes("تخفيض")) s.content.heading = t("defaultSections.offers.heading", { defaultValue: s.content.heading });
-      if (s.content.subheading === "لفترة محدودة — لا تفوتي العرض!" || s.content.subheading?.includes("لفترة محدودة")) s.content.subheading = t("defaultSections.offers.subheading", { defaultValue: s.content.subheading });
-      if (s.content.ctaText === "احصلي على العرض") s.content.ctaText = t("defaultSections.offers.ctaText", { defaultValue: s.content.ctaText });
+      if (s.content.promo1Label === "عروض حصرية") s.content.promo1Label = t("defaultSections.offers.promo1Label", { defaultValue: s.content.promo1Label });
+      if (s.content.promo1Heading === "خصم يصل إلى") s.content.promo1Heading = t("defaultSections.offers.promo1Heading", { defaultValue: s.content.promo1Heading });
+      if (s.content.promo1Desc === "على تشكيلات مختارة — لفترة محدودة") s.content.promo1Desc = t("defaultSections.offers.promo1Desc", { defaultValue: s.content.promo1Desc });
+      if (s.content.promo1Cta === "تسوقي الآن") s.content.promo1Cta = t("defaultSections.offers.promo1Cta", { defaultValue: s.content.promo1Cta });
+      if (s.content.promo2Label === "توصيل مجاني") s.content.promo2Label = t("defaultSections.offers.promo2Label", { defaultValue: s.content.promo2Label });
+      if (s.content.promo2Heading === "شحن مجاني") s.content.promo2Heading = t("defaultSections.offers.promo2Heading", { defaultValue: s.content.promo2Heading });
+      if (s.content.promo2Subheading === "لكل طلب فوق") s.content.promo2Subheading = t("defaultSections.offers.promo2Subheading", { defaultValue: s.content.promo2Subheading });
+      if (s.content.promo2Cta === "اطلبي الآن") s.content.promo2Cta = t("defaultSections.offers.promo2Cta", { defaultValue: s.content.promo2Cta });
     } else if (s.type === "about") {
       if (typeof s.content.heading === "string" && s.content.heading.includes("قصة")) s.content.heading = t("defaultSections.about.heading", { storeName: sn, defaultValue: s.content.heading });
       
@@ -682,7 +699,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           />
         );
       case "offers":
-        return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} />;
+        return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} />;
       case "lookbook":
         return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} />;
       case "instagram":
