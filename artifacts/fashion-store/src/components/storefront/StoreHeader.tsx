@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   Search, ShoppingBag, Menu, X, MessageCircle,
-  Instagram, Facebook, MapPin, Globe, ChevronDown
+  Instagram, Facebook, MapPin, Globe, ChevronDown, Languages
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -222,10 +222,12 @@ export function StoreHeader({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                  className="h-9 px-2 min-w-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
                   aria-label={t("storefront.header.actions.language", "Language")}
                 >
-                  <Globe className="w-4 h-4" />
+                  <span className="font-semibold text-xs uppercase tracking-wider">
+                    {i18n.language === "ar" ? "العربية" : "EN"}
+                  </span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -393,7 +395,7 @@ export function StoreHeader({
                 <div className="mt-auto pt-6 pb-2">
                   <div className="flex items-center justify-between py-2 px-3 bg-stone-100 rounded-xl">
                     <span className="text-sm font-medium text-stone-600 flex items-center gap-2">
-                      <Globe className="w-4 h-4" />
+                      <Languages className="w-4 h-4" />
                       {i18n.language === "ar" ? "اللغة" : "Language"}
                     </span>
                     <div className="flex bg-white rounded-lg p-0.5 shadow-sm">

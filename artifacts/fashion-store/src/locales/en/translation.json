@@ -2052,19 +2052,18 @@
       }
     },
     "footer": {
-      "about": "About Us",
-      "contact": "Contact Us",
-      "quickLinks": "Quick Links",
-      "policies": "Policies",
-      "links": {
-        "shipping": "Shipping Policy",
-        "returns": "Return Policy",
-        "privacy": "Privacy Policy",
-        "terms": "Terms of Service",
-        "faq": "FAQ"
-      },
-      "rights": "All rights reserved.",
-      "developedBy": "Developed by Nour"
+      "shop": "Shop",
+      "offers": "Offers",
+      "help": "Help",
+      "trackOrder": "Track Your Order",
+      "returns": "Return Policy",
+      "sizeGuide": "Size Guide",
+      "contactUs": "Contact Us",
+      "egypt": "Egypt",
+      "weAreHere": "We Are Here For You",
+      "whatsappDirect": "Direct WhatsApp",
+      "allRightsReserved": "All Rights Reserved",
+      "poweredBy": "Powered by"
     },
     "hero": {
       "shopNow": "Shop Now"

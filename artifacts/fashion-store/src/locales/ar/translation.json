@@ -2140,19 +2140,18 @@
       }
     },
     "footer": {
-      "about": "من نحن",
-      "contact": "تواصل معنا",
-      "quickLinks": "روابط سريعة",
-      "policies": "السياسات",
-      "links": {
-        "shipping": "سياسة الشحن",
-        "returns": "سياسة الإرجاع",
-        "privacy": "سياسة الخصوصية",
-        "terms": "الشروط والأحكام",
-        "faq": "الأسئلة الشائعة"
-      },
-      "rights": "جميع الحقوق محفوظة.",
-      "developedBy": "طُوِّر بواسطة نور"
+      "shop": "تسوقي",
+      "offers": "العروض",
+      "help": "مساعدة",
+      "trackOrder": "تتبع طلبك",
+      "returns": "سياسة الإرجاع",
+      "sizeGuide": "دليل المقاسات",
+      "contactUs": "تواصل معنا",
+      "egypt": "مصر",
+      "weAreHere": "نحن هنا لك",
+      "whatsappDirect": "واتساب مباشر",
+      "allRightsReserved": "جميع الحقوق محفوظة",
+      "poweredBy": "مدعوم بـ"
     },
     "hero": {
       "shopNow": "تسوقي الآن"
