@@ -145,7 +145,14 @@ export function StoreHeader({
             
             {rootCategories.map(cat => {
               const children = childrenMap.get(cat.id) || [];
-              const label = i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name;
+              let label = i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name;
+              if (i18n.language === "en" && typeof label === "string") {
+                label = label
+                  .replace("أزياء", "Fashion")
+                  .replace("عناية وتجميل", "Beauty & Care")
+                  .replace("إكسسوارات", "Accessories")
+                  .replace("عطور", "Perfumes");
+              }
               
               if (children.length > 0) {
                 return (
@@ -161,11 +168,21 @@ export function StoreHeader({
                       <DropdownMenuItem onClick={() => handleNavClick(cat.id)} className="font-semibold">
                         {t("storefront.home.allProducts")} {label}
                       </DropdownMenuItem>
-                      {children.map(child => (
-                        <DropdownMenuItem key={child.id} onClick={() => handleNavClick(child.id)}>
-                          {i18n.language === "ar" ? (child.nameAr || child.name) : child.name}
-                        </DropdownMenuItem>
-                      ))}
+                      {children.map(child => {
+                        let childLabel = i18n.language === "ar" ? (child.nameAr || child.name) : child.name;
+                        if (i18n.language === "en" && typeof childLabel === "string") {
+                          childLabel = childLabel
+                            .replace("أزياء", "Fashion")
+                            .replace("عناية وتجميل", "Beauty & Care")
+                            .replace("إكسسوارات", "Accessories")
+                            .replace("عطور", "Perfumes");
+                        }
+                        return (
+                          <DropdownMenuItem key={child.id} onClick={() => handleNavClick(child.id)}>
+                            {childLabel}
+                          </DropdownMenuItem>
+                        );
+                      })}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );

@@ -593,6 +593,35 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
         if (s.content.body.includes("نؤمن بأن الجمال الحقيقي ينبع من الداخل")) s.content.body = t("defaultSections.about.bodyCosmetics", { defaultValue: s.content.body });
         else if (s.content.body.includes("نؤمن بأن كل امرأة تستحق أن تشعر بالثقة")) s.content.body = t("defaultSections.about.bodyFashion", { defaultValue: s.content.body });
       }
+    } else if (s.type === "testimonials") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("ماذا يقول عملاؤنا")) s.content.heading = t("defaultSections.testimonials.heading", { defaultValue: s.content.heading });
+      if (Array.isArray(s.content.items)) {
+        s.content.items = t("defaultSections.testimonials.items", { returnObjects: true, defaultValue: s.content.items }) as any[];
+      }
+    } else if (s.type === "faq") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("أسئلة شائعة")) s.content.heading = t("defaultSections.faq.heading", { defaultValue: s.content.heading });
+      if (Array.isArray(s.content.items)) {
+        s.content.items = t("defaultSections.faq.items", { returnObjects: true, defaultValue: s.content.items }) as any[];
+      }
+    } else if (s.type === "whatsapp") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("تحدثي معنا مباشرة")) s.content.heading = t("defaultSections.whatsapp.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("نرد على استفساراتك")) s.content.subheading = t("defaultSections.whatsapp.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.ctaText === "string" && s.content.ctaText.includes("تواصلي عبر واتساب")) s.content.ctaText = t("defaultSections.whatsapp.ctaText", { defaultValue: s.content.ctaText });
+    } else if (s.type === "newsletter") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("اشتركي")) s.content.heading = t("defaultSections.newsletter.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("كوني أول من تعرف")) s.content.subheading = t("defaultSections.newsletter.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.ctaText === "string" && s.content.ctaText.includes("اشتركي الآن")) s.content.ctaText = t("defaultSections.newsletter.ctaText", { defaultValue: s.content.ctaText });
+    } else if (s.type === "lookbook") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("لوك بوك")) s.content.heading = t("defaultSections.lookbook.heading", { defaultValue: s.content.heading });
+    } else if (s.type === "product-catalog") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("جميع المنتجات")) s.content.heading = t("defaultSections.productCatalog.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("كتالوج كامل")) s.content.subheading = t("defaultSections.productCatalog.subheading", { defaultValue: s.content.subheading });
+    } else if (s.type === "trust-strip") {
+      if (Array.isArray(s.content.items)) {
+        s.content.items = t("defaultSections.trustStrip.items", { returnObjects: true, defaultValue: s.content.items }) as any[];
+      }
+    } else if (s.type === "instagram") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("تابعينا")) s.content.heading = t("defaultSections.instagram.heading", { defaultValue: s.content.heading });
     }
     return s;
   }

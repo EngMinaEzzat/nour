@@ -65,7 +65,18 @@ export function CategoryGrid({
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {categories.map((category, i) => {
-            const label = category.nameAr || category.name;
+            let label = i18n.language === "ar" 
+              ? (category.nameAr || category.name) 
+              : (category.name || category.nameAr);
+            
+            if (i18n.language === "en" && typeof label === "string") {
+              label = label
+                .replace("أزياء", "Fashion")
+                .replace("عناية وتجميل", "Beauty & Care")
+                .replace("إكسسوارات", "Accessories")
+                .replace("عطور", "Perfumes");
+            }
+            
             const accent = ACCENTS[i % ACCENTS.length];
             return (
               <motion.button
@@ -91,7 +102,7 @@ export function CategoryGrid({
                 {category.imageUrl ? (
                   <img
                     src={productImageUrl(category.imageUrl)}
-                    alt={label}
+                    alt={label || undefined}
                     loading="lazy"
                     decoding="async"
                     onError={(event) => {

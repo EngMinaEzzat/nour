@@ -2252,6 +2252,111 @@
           "title": "Beauty\\nMagic",
           "desc": "High quality care products"
         }
+      },
+      "testimonials": {
+        "heading": "What Our Customers Say",
+        "items": [
+          {
+            "name": "Sarah M.",
+            "text": "Great products and high quality! I will definitely buy again.",
+            "rating": "5"
+          },
+          {
+            "name": "Heba A.",
+            "text": "Excellent service and fast delivery. Highly recommended.",
+            "rating": "5"
+          },
+          {
+            "name": "Nour K.",
+            "text": "Convenient shopping and products exactly as expected.",
+            "rating": "5"
+          }
+        ]
+      },
+      "faq": {
+        "heading": "Frequently Asked Questions",
+        "items": [
+          {
+            "q": "How long does delivery take?",
+            "a": "Your order will arrive within 2-5 business days across major cities."
+          },
+          {
+            "q": "Can I return an item?",
+            "a": "Yes, we accept returns within 14 days of receipt."
+          },
+          {
+            "q": "What payment methods are available?",
+            "a": "We accept cash on delivery, credit cards, and e-wallets."
+          }
+        ]
+      },
+      "whatsapp": {
+        "heading": "Talk to Us Directly",
+        "subheading": "We respond to your inquiries within minutes",
+        "ctaText": "Contact via WhatsApp"
+      },
+      "newsletter": {
+        "heading": "Subscribe to Our Newsletter",
+        "subheading": "Be the first to know about new arrivals and exclusive offers",
+        "ctaText": "Subscribe Now",
+        "title": "Be the first to know",
+        "subtitle": "New Arrivals",
+        "desc": "Subscribe to {{storeName}} newsletter and enjoy exclusive offers and the latest fashion right in your inbox",
+        "successTitle": "Subscribed Successfully!",
+        "successDesc": "We are glad to have you in the {{storeName}} community ✨",
+        "emailPlaceholder": "Your Email Address",
+        "subscribe": "Subscribe Now",
+        "disclaimer": "You can unsubscribe at any time • No spam ever"
+      },
+      "productCatalog": {
+        "heading": "All Products",
+        "subheading": "Complete Catalog"
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🚚",
+            "title": "Fast Delivery",
+            "text": "Within 2-5 days"
+          },
+          {
+            "icon": "🔒",
+            "title": "Secure Payment",
+            "text": "Card or Cash"
+          },
+          {
+            "icon": "↩️",
+            "title": "Free Returns",
+            "text": "Within 14 days"
+          },
+          {
+            "icon": "⭐",
+            "title": "Guaranteed Quality",
+            "text": "100% Authentic Products"
+          }
+        ]
+      },
+      "instagram": {
+        "heading": "Follow Us on Instagram"
+      },
+      "ugc": {
+        "eyebrow": "Our Community",
+        "title1": "Inspired By",
+        "title2": "Our Customers",
+        "subtitle": "Share your look of the day with",
+        "hashtag": "Nour",
+        "look": "Look",
+        "followUs": "Follow us on Instagram"
+      },
+      "trust": {
+        "shipping": "Fast Shipping",
+        "shippingDesc": "Delivery within 2-3 business days across all provinces",
+        "secure": "100% Secure Payment",
+        "secureDesc": "Credit cards, cash, and e-wallets",
+        "returns": "Free Returns",
+        "returnsDesc": "Easy return within 14 days without complications",
+        "support": "Continuous Support",
+        "supportDesc": "Customer service around the clock via WhatsApp"
       }
     }
   },
