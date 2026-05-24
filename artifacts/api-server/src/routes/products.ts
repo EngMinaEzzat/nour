@@ -359,6 +359,7 @@ router.get("/products/:id", async (req, res) => {
   try {
     const [row] = await fetchProductsWithJoin([
       eq(productsTable.id, parsed.data.id),
+      eq(tenantsTable.status, 'active'),
     ] as ReturnType<typeof and>[]);
     if (!row) return res.status(404).json({ error: "المنتج غير موجود" });
 

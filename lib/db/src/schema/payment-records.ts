@@ -23,7 +23,7 @@ export const paymobProvidersTable = pgTable("paymob_providers", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").notNull().unique().references(() => tenantsTable.id, { onDelete: "cascade" }),
   status: paymobProviderStatusEnum("status").notNull().default("NOT_CONFIGURED"),
-  apiKeyHash: text("api_key_hash"),
+  apiKey: text("api_key"),
   integrationId: text("integration_id"),
   iframeId: text("iframe_id"),
   hmacSecret: text("hmac_secret"),
