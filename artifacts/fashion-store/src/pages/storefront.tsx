@@ -476,7 +476,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     if (discount !== undefined) {
       setMinDiscount(discount);
     }
-    document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+    // Delay scroll to allow React to update the DOM and prevent smooth scroll cancellation
+    setTimeout(() => {
+      document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }
 
   function handleCategorySelect(categoryId: number | null) {
