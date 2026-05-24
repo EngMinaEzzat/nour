@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { db } from "@workspace/db";
-import { ordersTable, customersTable, tenantsTable } from "@workspace/db";
+import { db, paymobProvidersTable, ordersTable, customersTable, tenantsTable } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
 import * as paymob from "../lib/paymob";
 import * as whatsapp from "../lib/whatsapp";
@@ -18,6 +17,7 @@ router.post("/payments/paymob/init", requireRole("owner", "manager", "staff"), a
     const [row] = await db
       .select({
         id: ordersTable.id,
+        tenantId: ordersTable.tenantId,
         totalAmount: ordersTable.totalAmount,
         shippingAddress: ordersTable.shippingAddress,
         customerPhone: ordersTable.customerPhone,
@@ -39,6 +39,10 @@ router.post("/payments/paymob/init", requireRole("owner", "manager", "staff"), a
       });
     }
 
+    const [provider] = await db.select({ apiKey: paymobProvidersTable.apiKey, integrationId: paymobProvidersTable.integrationId, iframeId: paymobProvidersTable.iframeId }).from(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, row.tenantId));
+    if (!provider || !provider.apiKey || !provider.integrationId || !provider.iframeId) {
+      return res.status(503).json({ error: "Paymob غير مُهيأ للمتجر" });
+    }
     const result = await paymob.initPayment({
       orderId: row.id,
       amountEGP: parseFloat(row.totalAmount as string),
@@ -46,6 +50,9 @@ router.post("/payments/paymob/init", requireRole("owner", "manager", "staff"), a
       customerEmail: row.customerEmail ?? "customer@nour.eg",
       customerPhone: row.customerPhone ?? "01000000000",
       shippingAddress: row.shippingAddress ?? "Cairo, Egypt",
+      apiKey: provider.apiKey,
+      integrationId: provider.integrationId,
+      iframeId: provider.iframeId,
     });
 
     await db.update(ordersTable)

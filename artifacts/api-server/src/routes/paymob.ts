@@ -79,7 +79,8 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
       return res.status(400).json({ error: "integration_id و iframe_id مطلوبان" });
     }
 
-    const apiKeyHash = apiKey ? crypto.createHash("sha256").update(apiKey).digest("hex") : undefined;
+    // Store raw apiKey in apiKey column
+    const apiKeyRaw = apiKey || undefined;
     const status = enabled ? "ACTIVE" : "CONFIGURED_DISABLED";
 
     const existing = await db.select({ id: paymobProvidersTable.id }).from(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, tenantId));
@@ -88,7 +89,7 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
         status,
         integrationId,
         iframeId,
-        ...(apiKeyHash ? { apiKeyHash } : {}),
+        ...(apiKeyRaw ? { apiKey: apiKeyRaw } : {}),
         ...(hmacSecret ? { hmacSecret } : {}),
         updatedAt: new Date(),
       }).where(eq(paymobProvidersTable.tenantId, tenantId));
@@ -98,7 +99,7 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
         status,
         integrationId,
         iframeId,
-        apiKeyHash: apiKeyHash ?? "",
+        apiKey: apiKeyRaw ?? "",
         hmacSecret: hmacSecret ?? "",
       });
     }
@@ -155,14 +156,15 @@ router.post("/paymob/initiate", requireRole("owner", "manager", "staff"), async 
     }
 
     const mockAllowed = provider.isMockAllowed === "true";
-    if (!isPlatformPaymobConfigured() && (process.env.NODE_ENV === "production" || !mockAllowed)) {
+    const paymobConfig = { apiKey: provider.apiKey, integrationId: provider.integrationId, iframeId: provider.iframeId };
+    if (!isPlatformPaymobConfigured(paymobConfig) && (process.env.NODE_ENV === "production" || !mockAllowed)) {
       return res.status(503).json({ error: "Paymob live credentials are not configured" });
     }
 
     const idempotencyKey = `paymob-init-${tenantId}-${order.id}`;
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
-    if (!isPlatformPaymobConfigured()) {
+    if (!isPlatformPaymobConfigured(paymobConfig)) {
       const [record] = await db.insert(paymentRecordsTable).values({
         tenantId,
         orderId: order.id,
@@ -186,6 +188,9 @@ router.post("/paymob/initiate", requireRole("owner", "manager", "staff"), async 
       customerEmail: order.customerEmail ?? "customer@nour.eg",
       customerPhone: order.customerPhone ?? "01000000000",
       shippingAddress: order.shippingAddress ?? "Cairo, Egypt",
+      apiKey: provider.apiKey!,
+      integrationId: provider.integrationId!,
+      iframeId: provider.iframeId!,
     });
 
     const [record] = await db.insert(paymentRecordsTable).values({
@@ -223,50 +228,6 @@ router.post("/paymob/webhook", async (req, res) => {
     const { hmac } = req.query;
     const body = req.body;
 
-    // HMAC verification — required if PAYMOB_HMAC_SECRET is configured
-    const platformHmacSecret = process.env.PAYMOB_HMAC_SECRET;
-    if (process.env.NODE_ENV === "production" && !platformHmacSecret) {
-      return res.status(503).json({ error: "Paymob webhook HMAC secret is not configured" });
-    }
-    if (platformHmacSecret && hmac) {
-      // Paymob HMAC: SHA512 of concatenated transaction fields
-      const obj = body?.obj ?? body ?? {};
-      const fields = [
-        String(obj.amount_cents ?? ""),
-        String(obj.created_at ?? ""),
-        String(obj.currency ?? ""),
-        String(obj.error_occured ?? ""),
-        String(obj.has_parent_transaction ?? ""),
-        String(obj.id ?? ""),
-        String(obj.integration_id ?? ""),
-        String(obj.is_3d_secure ?? ""),
-        String(obj.is_auth ?? ""),
-        String(obj.is_capture ?? ""),
-        String(obj.is_refunded ?? ""),
-        String(obj.is_standalone_payment ?? ""),
-        String(obj.is_voided ?? ""),
-        String(obj.order?.id ?? ""),
-        String(obj.owner ?? ""),
-        String(obj.pending ?? ""),
-        String(obj.source_data?.pan ?? ""),
-        String(obj.source_data?.sub_type ?? ""),
-        String(obj.source_data?.type ?? ""),
-        String(obj.success ?? ""),
-      ].join("");
-
-      const computed = crypto.createHmac("sha512", platformHmacSecret).update(fields).digest("hex");
-      const computedBuf = Buffer.from(computed);
-      const hmacBuf = Buffer.from(String(hmac));
-
-      if (computedBuf.length !== hmacBuf.length || !crypto.timingSafeEqual(computedBuf, hmacBuf)) {
-        req.log.warn({ transactionId: obj.id }, "Paymob webhook HMAC mismatch — rejected");
-        return res.status(401).json({ error: "HMAC verification failed" });
-      }
-    } else if (platformHmacSecret && !hmac) {
-      req.log.warn("Paymob webhook received without HMAC — rejected");
-      return res.status(401).json({ error: "Missing HMAC signature" });
-    }
-
     const transactionId = String(body?.obj?.id ?? body?.transaction_id ?? "unknown");
     const obj = (body?.obj ?? body ?? {}) as Record<string, unknown>;
     const isPaid = isPaymobPaidPayload(obj);
@@ -288,6 +249,59 @@ router.post("/paymob/webhook", async (req, res) => {
       : [];
     if (!paymentRecord && Number.isInteger(nourOrderId)) {
       [paymentRecord] = await db.select().from(paymentRecordsTable).where(eq(paymentRecordsTable.orderId, nourOrderId)).limit(1);
+    }
+
+    // HMAC verification
+    let tenantHmacSecret = process.env.PAYMOB_HMAC_SECRET;
+    if (paymentRecord && paymentRecord.tenantId) {
+      const [provider] = await db.select({ hmacSecret: paymobProvidersTable.hmacSecret })
+        .from(paymobProvidersTable)
+        .where(eq(paymobProvidersTable.tenantId, paymentRecord.tenantId));
+      if (provider && provider.hmacSecret) {
+        tenantHmacSecret = provider.hmacSecret;
+      }
+    }
+
+    if (process.env.NODE_ENV === "production" && !tenantHmacSecret) {
+      return res.status(503).json({ error: "Paymob webhook HMAC secret is not configured" });
+    }
+
+    if (tenantHmacSecret && hmac) {
+      // Paymob HMAC: SHA512 of concatenated transaction fields
+      const fields = [
+        String(obj.amount_cents ?? ""),
+        String(obj.created_at ?? ""),
+        String(obj.currency ?? ""),
+        String(obj.error_occured ?? ""),
+        String(obj.has_parent_transaction ?? ""),
+        String((body?.obj as any)?.id ?? ""),
+        String(obj.integration_id ?? ""),
+        String(obj.is_3d_secure ?? ""),
+        String(obj.is_auth ?? ""),
+        String(obj.is_capture ?? ""),
+        String(obj.is_refunded ?? ""),
+        String(obj.is_standalone_payment ?? ""),
+        String(obj.is_voided ?? ""),
+        String((obj as any).order?.id ?? ""),
+        String(obj.owner ?? ""),
+        String(obj.pending ?? ""),
+        String((body?.obj?.source_data as any)?.pan ?? ""),
+        String((body?.obj?.source_data as any)?.sub_type ?? ""),
+        String((body?.obj?.source_data as any)?.type ?? ""),
+        String(obj.success ?? ""),
+      ].join("");
+
+      const computed = crypto.createHmac("sha512", tenantHmacSecret).update(fields).digest("hex");
+      const computedBuf = Buffer.from(computed);
+      const hmacBuf = Buffer.from(String(hmac));
+
+      if (computedBuf.length !== hmacBuf.length || !crypto.timingSafeEqual(computedBuf, hmacBuf)) {
+        req.log.warn({ transactionId: (obj as any).id }, "Paymob webhook HMAC mismatch — rejected");
+        return res.status(401).json({ error: "HMAC verification failed" });
+      }
+    } else if (tenantHmacSecret && !hmac) {
+      req.log.warn("Paymob webhook received without HMAC — rejected");
+      return res.status(401).json({ error: "Missing HMAC signature" });
     }
 
     await db.insert(paymentWebhooksTable).values({

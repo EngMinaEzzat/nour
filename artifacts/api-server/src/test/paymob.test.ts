@@ -58,7 +58,7 @@ describe("Paymob production safety", () => {
       status: "ACTIVE",
       integrationId: "123",
       iframeId: "456",
-      apiKeyHash: "hash",
+      apiKey: "hash",
       hmacSecret: "secret",
       isMockAllowed: "true",
     });

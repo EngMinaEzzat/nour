@@ -1,22 +1,17 @@
 const PAYMOB_BASE = "https://accept.paymob.com/api";
 
-const API_KEY = process.env.PAYMOB_API_KEY ?? "PAYMOB_API_KEY_PLACEHOLDER";
-const INTEGRATION_ID = parseInt(process.env.PAYMOB_INTEGRATION_ID ?? "0", 10);
-export const IFRAME_ID = process.env.PAYMOB_IFRAME_ID ?? "PAYMOB_IFRAME_ID_PLACEHOLDER";
-
-export function isConfigured(): boolean {
-  return (
-    !!process.env.PAYMOB_API_KEY &&
-    !!process.env.PAYMOB_INTEGRATION_ID &&
-    !!process.env.PAYMOB_IFRAME_ID
-  );
+export function isConfigured(params?: { apiKey?: string | null; integrationId?: string | null; iframeId?: string | null }): boolean {
+  if (params) {
+    return !!params.apiKey && !!params.integrationId && !!params.iframeId;
+  }
+  return true;
 }
 
-async function authenticate(): Promise<string> {
+async function authenticate(apiKey: string): Promise<string> {
   const res = await fetch(`${PAYMOB_BASE}/auth/tokens`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ api_key: API_KEY }),
+    body: JSON.stringify({ api_key: apiKey }),
   });
   if (!res.ok) throw new Error(`Paymob auth failed: ${res.status}`);
   const data = await res.json() as { token: string };
@@ -43,6 +38,7 @@ async function createOrder(token: string, amountCents: number, merchantOrderId: 
 
 async function createPaymentKey(
   token: string,
+  integrationId: number,
   paymobOrderId: number,
   amountCents: number,
   billing: {
@@ -64,7 +60,7 @@ async function createPaymentKey(
       expiration: 3600,
       order_id: paymobOrderId,
       currency: "EGP",
-      integration_id: INTEGRATION_ID,
+      integration_id: integrationId,
       billing_data: {
         first_name: billing.firstName,
         last_name: billing.lastName,
@@ -94,15 +90,19 @@ export async function initPayment(params: {
   customerEmail: string;
   customerPhone: string;
   shippingAddress: string;
+  apiKey: string;
+  integrationId: string;
+  iframeId: string;
 }): Promise<{ paymobOrderId: number; paymentKey: string; iframeUrl: string }> {
   const amountCents = Math.round(params.amountEGP * 100);
   const nameParts = params.customerName.split(" ");
   const firstName = nameParts[0] ?? "Customer";
   const lastName = nameParts.slice(1).join(" ") || "N/A";
 
-  const token = await authenticate();
+  const integrationId = parseInt(params.integrationId, 10);
+  const token = await authenticate(params.apiKey);
   const paymobOrderId = await createOrder(token, amountCents, `NOUR-${params.orderId}`);
-  const paymentKey = await createPaymentKey(token, paymobOrderId, amountCents, {
+  const paymentKey = await createPaymentKey(token, integrationId, paymobOrderId, amountCents, {
     firstName,
     lastName,
     email: params.customerEmail,
@@ -112,7 +112,7 @@ export async function initPayment(params: {
     street: params.shippingAddress,
   });
 
-  const iframeUrl = `https://accept.paymob.com/api/acceptance/iframes/${IFRAME_ID}?payment_token=${paymentKey}`;
+  const iframeUrl = `https://accept.paymob.com/api/acceptance/iframes/${params.iframeId}?payment_token=${paymentKey}`;
   return { paymobOrderId, paymentKey, iframeUrl };
 }
 
