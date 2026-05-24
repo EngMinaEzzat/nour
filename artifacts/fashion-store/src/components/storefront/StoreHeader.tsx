@@ -264,15 +264,15 @@ export function StoreHeader({
               onClick={() => setDrawerOpen(false)}
             />
             <motion.aside
-              className={`fixed top-0 ${i18n.dir() === "rtl" ? "right-0" : "left-0"} h-full w-[280px] z-[70] flex flex-col`}
+              className={`fixed top-0 ${i18n.dir() === "rtl" ? "left-0" : "right-0"} h-full w-[280px] z-[70] flex flex-col`}
               style={{
                 background: "#faf7f4",
                 direction: i18n.dir(),
-                boxShadow: i18n.dir() === "rtl" ? "-8px 0 40px rgba(26,22,20,0.15)" : "8px 0 40px rgba(26,22,20,0.15)",
+                boxShadow: i18n.dir() === "rtl" ? "8px 0 40px rgba(26,22,20,0.15)" : "-8px 0 40px rgba(26,22,20,0.15)",
               }}
-              initial={{ x: i18n.dir() === "rtl" ? "100%" : "-100%" }}
+              initial={{ x: i18n.dir() === "rtl" ? "-100%" : "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: i18n.dir() === "rtl" ? "100%" : "-100%" }}
+              exit={{ x: i18n.dir() === "rtl" ? "-100%" : "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 320 }}
             >
               {/* Drawer header */}

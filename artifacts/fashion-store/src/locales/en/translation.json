@@ -2029,7 +2029,12 @@
     "announcement": {
       "freeShipping": "Free shipping on orders over EGP 1000",
       "useCode": "Use code WELCOME10 for 10% off your first order",
-      "close": "Close announcement"
+      "close": "Close announcement",
+      "msg1": "✦ Free shipping on orders over 999 EGP",
+      "msg2": "✦ 100% Authentic Products",
+      "msg3": "✦ New summer arrivals are here",
+      "msg4": "✦ Free returns within 14 days",
+      "msg5": "✦ Fast & secure checkout"
     },
     "header": {
       "search": "Search",
@@ -2199,15 +2204,54 @@
       "browseStores": "Browse Stores"
     },
     "home": {
-      "trust": {
-        "shipping": "Fast Shipping",
-        "shippingDesc": "Delivery within 2-3 business days nationwide",
-        "secure": "100% Secure Payment",
-        "secureDesc": "Credit cards, Fawry, and E-wallets",
-        "returns": "Free Returns",
-        "returnsDesc": "Easy 14-day hassle-free returns",
-        "support": "24/7 Support",
-        "supportDesc": "Round-the-clock customer service via WhatsApp"
+      "viewAll": "View All",
+      "allProducts": "All Products",
+      "viewAllProducts": "View All Products",
+      "beautyRoutine": {
+        "eyebrow": "Care Routine",
+        "title1": "Your Daily",
+        "title2": "Ideal Routine",
+        "subtitle": "Four simple steps for clear, glowing skin all day long",
+        "shopRoutine": "Shop Care Products",
+        "step1Title": "Cleansing",
+        "step1Desc": "Start your routine by gently cleansing your skin to remove impurities.",
+        "step2Title": "Moisturizing",
+        "step2Desc": "Hydrate your skin with a nourishing serum that gives it lasting freshness.",
+        "step3Title": "Protection",
+        "step3Desc": "Protect your skin from the sun daily with a suitable sunscreen.",
+        "step4Title": "Night Care",
+        "step4Desc": "Let your skin regenerate while you sleep with a concentrated night cream."
+      },
+      "bestSellers": {
+        "eyebrow": "Always Favorite",
+        "title1": "Best",
+        "title2": "Sellers"
+      },
+      "categories": {
+        "eyebrow": "Shop By Category",
+        "title": "Discover Our Collection",
+        "productsCount": "products"
+      },
+      "lookbook": {
+        "eyebrow": "Our Inspiration",
+        "title1": "Season",
+        "title2": "Lookbook",
+        "discover": "Discover the Collection",
+        "panel1": {
+          "tag": "Fashion",
+          "title": "Egyptian\\nBeauty",
+          "desc": "An exclusive collection inspired by heritage"
+        },
+        "panel2": {
+          "tag": "Spring 2025",
+          "title": "Spring\\nColors",
+          "desc": "Soft shades for a perfect look"
+        },
+        "panel3": {
+          "tag": "Beauty",
+          "title": "Beauty\\nMagic",
+          "desc": "High quality care products"
+        }
       }
     }
   },
