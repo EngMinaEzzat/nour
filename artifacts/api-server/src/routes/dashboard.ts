@@ -2,10 +2,11 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { tenantsTable, productsTable, ordersTable, customersTable, orderItemsTable } from "@workspace/db";
 import { count, sum, eq, sql, and, gte } from "drizzle-orm";
+import { requirePlatformAdmin, requireRole } from "../middleware/require-role";
 
 const router = Router();
 
-router.get("/dashboard/summary", async (req, res) => {
+router.get("/dashboard/summary", requirePlatformAdmin, async (req, res) => {
   try {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
@@ -67,7 +68,7 @@ router.get("/dashboard/summary", async (req, res) => {
   }
 });
 
-router.get("/dashboard/activity", async (req, res) => {
+router.get("/dashboard/activity", requirePlatformAdmin, async (req, res) => {
   try {
     const [recentOrders, recentTenants] = await Promise.all([
       db
@@ -116,9 +117,8 @@ router.get("/dashboard/activity", async (req, res) => {
 });
 
 /* ─── Merchant-specific analytics ─── */
-router.get("/dashboard/merchant-analytics", async (req, res) => {
-  const tenantId = parseInt(req.query.tenantId as string, 10);
-  if (!tenantId || isNaN(tenantId)) return res.status(400).json({ error: "tenantId مطلوب" });
+router.get("/dashboard/merchant-analytics", requireRole("owner", "manager", "staff"), async (req, res) => {
+  const tenantId = req.merchantTenantId!;
 
   try {
     const thirtyDaysAgo = new Date();

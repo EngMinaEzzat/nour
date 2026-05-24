@@ -152,7 +152,12 @@ router.get("/products/featured", async (req, res) => {
         categoriesTable,
         eq(productsTable.categoryId, categoriesTable.id),
       )
-      .where(eq(productsTable.featured, true))
+      .where(
+        and(
+          eq(productsTable.featured, true),
+          eq(tenantsTable.status, 'active')
+        )
+      )
       .limit(12);
     res.json(rows.map(formatProduct));
   } catch (err) {
@@ -187,6 +192,7 @@ router.get("/products/trending", async (req, res) => {
         categoriesTable,
         eq(productsTable.categoryId, categoriesTable.id),
       )
+      .where(eq(tenantsTable.status, 'active'))
       .orderBy(desc(productsTable.orderCount))
       .limit(12);
     res.json(rows.map(formatProduct));
@@ -224,6 +230,10 @@ router.get("/products", async (req, res) => {
   const conditions = [eq(productsTable.tenantId, effectiveTenantId)];
   if (categoryId) conditions.push(eq(productsTable.categoryId, categoryId));
   if (search) conditions.push(ilike(productsTable.name, `%${search}%`));
+
+  // Enforce tenant active status
+  conditions.push(eq(tenantsTable.status, 'active'));
+
   try {
     const rows = await fetchProductsWithJoin(
       conditions as ReturnType<typeof and>[],
@@ -341,6 +351,7 @@ router.get("/products/:id", async (req, res) => {
   try {
     const [row] = await fetchProductsWithJoin([
       eq(productsTable.id, parsed.data.id),
+      eq(tenantsTable.status, 'active'),
     ] as ReturnType<typeof and>[]);
     if (!row) return res.status(404).json({ error: "المنتج غير موجود" });
     res.json(row);
