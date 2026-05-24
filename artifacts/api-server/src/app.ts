@@ -186,4 +186,16 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
+// Global JSON error handler to prevent Express from sending HTML error pages
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  req.log.error({ err }, "Unhandled application error");
+  if (err.code === "EBADCSRFTOKEN") {
+    return res.status(403).json({ error: "انتهت صلاحية الجلسة، يرجى تحديث الصفحة" });
+  }
+  if (err.name === "MulterError") {
+    return res.status(400).json({ error: "خطأ في رفع الملف: " + err.message });
+  }
+  res.status(500).json({ error: "حدث خطأ داخلي في الخادم", details: err.message });
+});
+
 export default app;

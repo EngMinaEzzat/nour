@@ -155,6 +155,17 @@ function CategoryFilter({
             exit={{ opacity: 0, height: 0, marginTop: 0 }}
             className="flex gap-2 flex-wrap overflow-hidden"
           >
+            <button
+              onClick={() => activeParentId && onSelect(activeParentId)}
+              className="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={
+                selected === activeParentId
+                  ? { background: `${p}20`, color: p, border: `1px solid ${p}` }
+                  : { background: "transparent", color: "#8a7b7b", border: "1px solid rgba(122,96,96,0.15)" }
+              }
+            >
+              {t("storefront.home.categories.all", "الكل")}
+            </button>
             {children.map(cat => {
               const isChildSelected = selected === cat.id;
               return (

@@ -77,6 +77,7 @@ function CategoryForm({
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
   const [form, setForm] = useState<CategoryFormState>(EMPTY_FORM);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!category) {
@@ -97,6 +98,7 @@ function CategoryForm({
 
   async function handleSave() {
     if (!canSave) return;
+    setError(null);
 
     const payload = {
       name: form.name.trim(),
@@ -106,15 +108,22 @@ function CategoryForm({
       parentId: form.parentId,
     };
 
-    if (category) {
-      await updateCategory.mutateAsync({ id: category.id, data: payload });
-    } else {
-      await createCategory.mutateAsync({ data: payload });
-      setForm(EMPTY_FORM);
-    }
+    try {
+      if (category) {
+        await updateCategory.mutateAsync({ id: category.id, data: payload });
+      } else {
+        await createCategory.mutateAsync({ data: payload });
+        setForm(EMPTY_FORM);
+      }
 
-    await queryClient.invalidateQueries({ queryKey: getListCategoriesQueryKey() });
-    onSaved();
+      await queryClient.invalidateQueries({ queryKey: getListCategoriesQueryKey() });
+      onSaved();
+    } catch (err: any) {
+      console.error("Failed to save category:", err);
+      // Try to extract the error message from the response
+      const message = err.response?.data?.error || err.message || t("categories.form.errorGeneric", { defaultValue: "حدث خطأ غير متوقع" });
+      setError(typeof message === "string" ? message : JSON.stringify(message));
+    }
   }
 
   // Allow any category except itself and its descendants
@@ -193,6 +202,8 @@ function CategoryForm({
         value={form.imageUrl}
         onChange={(imageUrl) => setForm((current) => ({ ...current, imageUrl }))}
       />
+
+      {error && <p className="text-sm text-destructive font-medium">{error}</p>}
 
       <Button className="w-full gap-2" onClick={handleSave} disabled={!canSave}>
         {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : category ? <Edit className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
