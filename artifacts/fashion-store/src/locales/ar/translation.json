@@ -2200,6 +2200,25 @@
     "promo": {
       "shopNow": "تسوقي الآن"
     },
+    "filters": {
+      "sort": "ترتيب",
+      "filter": "تصفية",
+      "clearAll": "مسح الكل",
+      "default": "الافتراضي",
+      "priceLowHigh": "السعر: من الأقل للأعلى",
+      "priceHighLow": "السعر: من الأعلى للأقل",
+      "newest": "الأحدث أولاً",
+      "biggestDiscount": "أكبر خصم",
+      "priceRange": "نطاق السعر",
+      "min": "من",
+      "max": "إلى",
+      "onSale": "عروض",
+      "inStock": "متوفر",
+      "results": "{{count}} منتج",
+      "noResults": "لا توجد منتجات تطابق الفلتر",
+      "apply": "تطبيق",
+      "discountUpTo": "خصم حتى {{pct}}%"
+    },
     "ugc": {
       "title": "انضمي لمجتمعنا",
       "subtitle": "شاركينا صورك على إنستجرام",

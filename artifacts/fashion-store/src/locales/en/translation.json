@@ -2112,6 +2112,25 @@
     "promo": {
       "shopNow": "Shop Now"
     },
+    "filters": {
+      "sort": "Sort",
+      "filter": "Filter",
+      "clearAll": "Clear All",
+      "default": "Default",
+      "priceLowHigh": "Price: Low to High",
+      "priceHighLow": "Price: High to Low",
+      "newest": "Newest First",
+      "biggestDiscount": "Biggest Discount",
+      "priceRange": "Price Range",
+      "min": "Min",
+      "max": "Max",
+      "onSale": "On Sale",
+      "inStock": "In Stock",
+      "results": "{{count}} products",
+      "noResults": "No products match your filters",
+      "apply": "Apply",
+      "discountUpTo": "Up to {{pct}}% off"
+    },
     "ugc": {
       "title": "Join Our Community",
       "subtitle": "Tag us on Instagram to be featured",

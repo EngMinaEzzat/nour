@@ -26,6 +26,7 @@ import { EditorialLookbook } from "@/components/storefront/EditorialLookbook";
 import { TrendingSection } from "@/components/storefront/TrendingSection";
 import { BestSellersSection } from "@/components/storefront/BestSellersSection";
 import { PromoBanners } from "@/components/storefront/PromoBanners";
+import { ProductToolbar, type ProductFilters } from "@/components/storefront/ProductToolbar";
 import { UGCSection } from "@/components/storefront/UGCSection";
 import { TrustStrip } from "@/components/storefront/TrustStrip";
 import { NewsletterSection } from "@/components/storefront/NewsletterSection";
@@ -321,6 +322,12 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [minDiscount, setMinDiscount] = useState<number | null>(null);
+  const [productFilters, setProductFilters] = useState<ProductFilters>({
+    sortBy: "default",
+    priceRange: { min: null, max: null },
+    onSaleOnly: false,
+    inStockOnly: false,
+  });
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const [searchOpen, setSearchOpen] = useState(false);
   const [barVisible, setBarVisible] = useState(true);
@@ -559,15 +566,37 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   })();
 
   const cartCount = items.filter(i => i.tenantId === store.id).reduce((acc, i) => acc + i.quantity, 0);
-  const filtered = store.products.filter(pr => {
-    if (selectedCategoryIds && !selectedCategoryIds.has((pr as any).categoryId)) return false;
-    if (minDiscount !== null) {
-      if (!pr.originalPrice || pr.originalPrice <= pr.price) return false;
-      const discountPct = ((pr.originalPrice - pr.price) / pr.originalPrice) * 100;
-      if (discountPct > minDiscount) return false;
-    }
-    return true;
-  });
+  const filtered = useMemo(() => {
+    const { sortBy, priceRange, onSaleOnly, inStockOnly } = productFilters;
+    let result = store.products.filter(pr => {
+      // Category filter
+      if (selectedCategoryIds && !selectedCategoryIds.has((pr as any).categoryId)) return false;
+      // Promo-banner discount filter
+      if (minDiscount !== null) {
+        if (!pr.originalPrice || pr.originalPrice <= pr.price) return false;
+        const discountPct = ((pr.originalPrice - pr.price) / pr.originalPrice) * 100;
+        if (discountPct > minDiscount) return false;
+      }
+      // Price range filter
+      if (priceRange.min !== null && pr.price < priceRange.min) return false;
+      if (priceRange.max !== null && pr.price > priceRange.max) return false;
+      // On-sale filter
+      if (onSaleOnly && (!pr.originalPrice || pr.originalPrice <= pr.price)) return false;
+      // In-stock filter
+      if (inStockOnly && (pr.status === "out_of_stock" || pr.stock === 0)) return false;
+      return true;
+    });
+    // Sort
+    if (sortBy === "price-asc") result = [...result].sort((a, b) => a.price - b.price);
+    else if (sortBy === "price-desc") result = [...result].sort((a, b) => b.price - a.price);
+    else if (sortBy === "newest") result = [...result].sort((a, b) => b.id - a.id);
+    else if (sortBy === "discount") result = [...result].sort((a, b) => {
+      const da = a.originalPrice && a.originalPrice > a.price ? (1 - a.price / a.originalPrice) : 0;
+      const db = b.originalPrice && b.originalPrice > b.price ? (1 - b.price / b.originalPrice) : 0;
+      return db - da;
+    });
+    return result;
+  }, [store.products, selectedCategoryIds, minDiscount, productFilters]);
   const showBeautySection = store.category === "cosmetics" || store.category === "both";
   
   function translateSectionContent(section: SectionConfig): SectionConfig {
@@ -734,6 +763,17 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                   {liveStore.products.length} {t("storefront.products.productCount", "منتج")}
                 </span>
               </div>
+
+              <ProductToolbar
+                filters={productFilters}
+                onChange={setProductFilters}
+                resultCount={filtered.length}
+                totalCount={liveStore.products.length}
+                primaryColor={p}
+                activeDiscount={minDiscount}
+                onClearDiscount={() => setMinDiscount(null)}
+                currency={i18n.language === "ar" ? "ج.م" : "EGP"}
+              />
 
               <CategoryFilter
                 store={liveStore}
@@ -927,6 +967,17 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           </div>
 
           {/* Category filter */}
+          <ProductToolbar
+            filters={productFilters}
+            onChange={setProductFilters}
+            resultCount={filtered.length}
+            totalCount={store.products.length}
+            primaryColor={p}
+            activeDiscount={minDiscount}
+            onClearDiscount={() => setMinDiscount(null)}
+            currency={i18n.language === "ar" ? "ج.م" : "EGP"}
+          />
+
           <CategoryFilter
             store={store}
             selected={selectedCategory}
