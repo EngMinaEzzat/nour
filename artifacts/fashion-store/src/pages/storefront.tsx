@@ -575,13 +575,13 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       
       if (s.content.ctaText === "تسوقي الآن") s.content.ctaText = t("defaultSections.hero.ctaText", { defaultValue: s.content.ctaText });
     } else if (s.type === "new-arrivals") {
-      if (s.content.heading === "وصل حديثاً") s.content.heading = t("defaultSections.newArrivals.heading", { defaultValue: s.content.heading });
-      if (s.content.subheading === "أحدث المنتجات في مجموعتنا") s.content.subheading = t("defaultSections.newArrivals.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.heading === "string" && s.content.heading.includes("وصل حديثاً")) s.content.heading = t("defaultSections.newArrivals.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("أحدث المنتجات")) s.content.subheading = t("defaultSections.newArrivals.subheading", { defaultValue: s.content.subheading });
     } else if (s.type === "best-sellers") {
-      if (s.content.heading === "الأكثر مبيعاً") s.content.heading = t("defaultSections.bestSellers.heading", { defaultValue: s.content.heading });
-      if (s.content.subheading === "المنتجات المفضلة لعملائنا") s.content.subheading = t("defaultSections.bestSellers.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.heading === "string" && s.content.heading.includes("الأكثر مبيعاً")) s.content.heading = t("defaultSections.bestSellers.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("المنتجات المفضلة")) s.content.subheading = t("defaultSections.bestSellers.subheading", { defaultValue: s.content.subheading });
     } else if (s.type === "categories") {
-      if (s.content.heading === "تسوقي حسب القسم") s.content.heading = t("defaultSections.categories.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.heading === "string" && s.content.heading.includes("تسوقي حسب القسم")) s.content.heading = t("defaultSections.categories.heading", { defaultValue: s.content.heading });
     } else if (s.type === "offers") {
       if (s.content.heading === "تخفيض 30% على جميع المنتجات" || s.content.heading?.includes("تخفيض")) s.content.heading = t("defaultSections.offers.heading", { defaultValue: s.content.heading });
       if (s.content.subheading === "لفترة محدودة — لا تفوتي العرض!" || s.content.subheading?.includes("لفترة محدودة")) s.content.subheading = t("defaultSections.offers.subheading", { defaultValue: s.content.subheading });
