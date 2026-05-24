@@ -700,7 +700,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
         return (
           <CategoryGrid
             primaryColor={p}
-            categories={liveStore.categories ?? []}
+            categories={(liveStore.categories ?? []).filter((c: any) => !c.parentId)}
             onScrollToProducts={scrollToProducts}
             onCategorySelect={handleCategorySelect}
           />
@@ -884,7 +884,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       {/* ── Category Grid ── */}
       <CategoryGrid
         primaryColor={p}
-        categories={store.categories ?? []}
+        categories={(store.categories ?? []).filter((c: any) => !c.parentId)}
         onScrollToProducts={scrollToProducts}
         onCategorySelect={handleCategorySelect}
       />
