@@ -566,37 +566,36 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   })();
 
   const cartCount = items.filter(i => i.tenantId === store.id).reduce((acc, i) => acc + i.quantity, 0);
-  const filtered = useMemo(() => {
-    const { sortBy, priceRange, onSaleOnly, inStockOnly } = productFilters;
-    let result = store.products.filter(pr => {
-      // Category filter
-      if (selectedCategoryIds && !selectedCategoryIds.has((pr as any).categoryId)) return false;
-      // Promo-banner discount filter
-      if (minDiscount !== null) {
-        if (!pr.originalPrice || pr.originalPrice <= pr.price) return false;
-        const discountPct = ((pr.originalPrice - pr.price) / pr.originalPrice) * 100;
-        if (discountPct > minDiscount) return false;
-      }
-      // Price range filter
-      if (priceRange.min !== null && pr.price < priceRange.min) return false;
-      if (priceRange.max !== null && pr.price > priceRange.max) return false;
-      // On-sale filter
-      if (onSaleOnly && (!pr.originalPrice || pr.originalPrice <= pr.price)) return false;
-      // In-stock filter
-      if (inStockOnly && (pr.status === "out_of_stock" || pr.stock === 0)) return false;
-      return true;
-    });
-    // Sort
-    if (sortBy === "price-asc") result = [...result].sort((a, b) => a.price - b.price);
-    else if (sortBy === "price-desc") result = [...result].sort((a, b) => b.price - a.price);
-    else if (sortBy === "newest") result = [...result].sort((a, b) => b.id - a.id);
-    else if (sortBy === "discount") result = [...result].sort((a, b) => {
-      const da = a.originalPrice && a.originalPrice > a.price ? (1 - a.price / a.originalPrice) : 0;
-      const db = b.originalPrice && b.originalPrice > b.price ? (1 - b.price / b.originalPrice) : 0;
-      return db - da;
-    });
-    return result;
-  }, [store.products, selectedCategoryIds, minDiscount, productFilters]);
+  let filtered = store.products.filter(pr => {
+    const { priceRange, onSaleOnly, inStockOnly } = productFilters;
+    // Category filter
+    if (selectedCategoryIds && !selectedCategoryIds.has((pr as any).categoryId)) return false;
+    // Promo-banner discount filter
+    if (minDiscount !== null) {
+      if (!pr.originalPrice || pr.originalPrice <= pr.price) return false;
+      const discountPct = ((pr.originalPrice - pr.price) / pr.originalPrice) * 100;
+      if (discountPct > minDiscount) return false;
+    }
+    // Price range filter
+    if (priceRange.min !== null && pr.price < priceRange.min) return false;
+    if (priceRange.max !== null && pr.price > priceRange.max) return false;
+    // On-sale filter
+    if (onSaleOnly && (!pr.originalPrice || pr.originalPrice <= pr.price)) return false;
+    // In-stock filter
+    if (inStockOnly && (pr.status === "out_of_stock" || pr.stock === 0)) return false;
+    return true;
+  });
+
+  // Sort
+  const { sortBy } = productFilters;
+  if (sortBy === "price-asc") filtered = [...filtered].sort((a, b) => a.price - b.price);
+  else if (sortBy === "price-desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
+  else if (sortBy === "newest") filtered = [...filtered].sort((a, b) => b.id - a.id);
+  else if (sortBy === "discount") filtered = [...filtered].sort((a, b) => {
+    const da = a.originalPrice && a.originalPrice > a.price ? (1 - a.price / a.originalPrice) : 0;
+    const db = b.originalPrice && b.originalPrice > b.price ? (1 - b.price / b.originalPrice) : 0;
+    return db - da;
+  });
   const showBeautySection = store.category === "cosmetics" || store.category === "both";
   
   function translateSectionContent(section: SectionConfig): SectionConfig {
