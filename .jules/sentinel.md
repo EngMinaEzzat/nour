@@ -24,3 +24,9 @@
 **Vulnerability:** The password reset and forgot password endpoints lacked rate limiting, potentially allowing an attacker to brute force password reset tokens or cause a DoS condition by flooding the email system.
 **Learning:** Even if a file imports and defines a rate limiter middleware, it must be explicitly applied to *all* sensitive routes within that file. The `authLimiter` was used for `/register` and `/login` but overlooked for password reset flows.
 **Prevention:** When reviewing auth/account management routes, always verify that every state-mutating endpoint (especially those triggering emails, SMS, or verifying tokens) is protected by a rate limit middleware.
+## 2024-05-24 - Enforcing Tenant Boundaries and Preventing Mass Assignment
+**Learning:** We discovered high-severity Broken Access Control (IDOR) vulnerabilities where analytics endpoints extracted `tenantId` from client-provided query parameters instead of securely populated session data. Additionally, `PUT` endpoints were blindly spreading request payloads into database update queries, creating mass assignment risks allowing merchants to arbitrarily upgrade their own billing status. Public endpoints were also indiscriminately fetching catalog data without checking if the parent tenant was actively suspended.
+**Action:**
+1. Never trust `req.query.tenantId` for accessing scoped data in merchant-facing endpoints. Always use `req.merchantTenantId` injected by `requireRole` middleware.
+2. Explicitly sanitize and strip administrative or billing fields (`planCode`, `status`, `subscriptionStatus`) from incoming payload objects before executing `db.update().set(...)`.
+3. When querying public multi-tenant entities (e.g. products), join the `tenantsTable` and strictly enforce `.where(eq(tenantsTable.status, "active"))` unless the request originates from the owner.

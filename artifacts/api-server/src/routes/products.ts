@@ -94,6 +94,7 @@ async function fetchProductsWithJoin(conditions: ReturnType<typeof and>[]) {
       tenantName: tenantsTable.name,
       tenantSlug: tenantsTable.slug,
       tenantSocialLinks: tenantsTable.socialLinks,
+      tenantStatus: tenantsTable.status,
       categoryId: productsTable.categoryId,
       categoryName: categoriesTable.name,
       name: productsTable.name,
@@ -118,10 +119,12 @@ async function fetchProductsWithJoin(conditions: ReturnType<typeof and>[]) {
       const sl = row.tenantSocialLinks ? JSON.parse(row.tenantSocialLinks) : {};
       tenantWhatsapp = sl.whatsapp || null;
     } catch {}
-    const { tenantSocialLinks: _, ...rest } = row;
+    const { tenantSocialLinks: _, tenantStatus, ...rest } = row;
     return {
       ...formatProduct(rest as Record<string, unknown>),
+      tenantId: row.tenantId,
       tenantWhatsapp,
+      tenantStatus,
     };
   });
 }
@@ -152,7 +155,12 @@ router.get("/products/featured", async (req, res) => {
         categoriesTable,
         eq(productsTable.categoryId, categoriesTable.id),
       )
-      .where(eq(productsTable.featured, true))
+      .where(
+        and(
+          eq(productsTable.featured, true),
+          eq(tenantsTable.status, "active")
+        )
+      )
       .limit(12);
     res.json(rows.map(formatProduct));
   } catch (err) {
@@ -187,6 +195,7 @@ router.get("/products/trending", async (req, res) => {
         categoriesTable,
         eq(productsTable.categoryId, categoriesTable.id),
       )
+      .where(eq(tenantsTable.status, "active"))
       .orderBy(desc(productsTable.orderCount))
       .limit(12);
     res.json(rows.map(formatProduct));
@@ -224,11 +233,20 @@ router.get("/products", async (req, res) => {
   const conditions = [eq(productsTable.tenantId, effectiveTenantId)];
   if (categoryId) conditions.push(eq(productsTable.categoryId, categoryId));
   if (search) conditions.push(ilike(productsTable.name, `%${search}%`));
+
+  if (!sessionTenantId || sessionTenantId !== effectiveTenantId) {
+    conditions.push(eq(tenantsTable.status, "active"));
+  }
+
   try {
     const rows = await fetchProductsWithJoin(
       conditions as ReturnType<typeof and>[],
     );
-    res.json(rows);
+    // Strip tenantStatus from the response
+    res.json(rows.map((r: any) => {
+      const { tenantStatus: _, ...safeRow } = r;
+      return safeRow;
+    }));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب المنتجات" });
@@ -343,7 +361,17 @@ router.get("/products/:id", async (req, res) => {
       eq(productsTable.id, parsed.data.id),
     ] as ReturnType<typeof and>[]);
     if (!row) return res.status(404).json({ error: "المنتج غير موجود" });
-    res.json(row);
+
+    // Security check: if the product belongs to another tenant, hide it if the tenant is suspended.
+    // If it belongs to the current logged-in merchant, they should see it regardless of status.
+    const isPublicQuery = req.merchantTenantId !== row.tenantId;
+    if (isPublicQuery && (row as any).tenantStatus !== "active") {
+      return res.status(404).json({ error: "المنتج غير موجود" });
+    }
+
+    // Strip tenantStatus from the response to match the original API shape
+    const { tenantStatus: _ts, ...safeRow } = row as any;
+    res.json(safeRow);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب المنتج" });
