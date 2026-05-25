@@ -28,7 +28,6 @@ describe("toCsv", () => {
   it("handles rows missing keys present in the first row", () => {
     const data = [
       { id: 1, name: "Alice", age: 30 },
-      // @ts-expect-error Testing missing keys
       { id: 2, name: "Bob" },
     ];
     // Object.keys is called on the first row, so headers are id, name, age
