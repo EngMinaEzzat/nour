@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
+import { Link } from "wouter";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -298,10 +299,13 @@ export default function BillingPage() {
       {/* Current plan card */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
         <Card className="border-border/50">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-primary" /> {t("billing.currentPlan.title")}
             </CardTitle>
+            <Button variant="outline" size="sm" asChild className="h-8 text-xs">
+              <Link href="/pricing">{t("billing.currentPlan.btnViewPlans", { defaultValue: "استعراض الباقات" })}</Link>
+            </Button>
           </CardHeader>
           <CardContent>
             {loadingStatus ? (
@@ -336,33 +340,7 @@ export default function BillingPage() {
         </Card>
       </motion.div>
 
-      {/* Plan options */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {(["starter", "growth", "pro"] as const).map((code) => {
-          // use static fallback array if translation returns something weird
-          const featTransl = t(`billing.planFeatures.${code}`, { returnObjects: true });
-          const feats = Array.isArray(featTransl) ? featTransl : [];
-          return (
-            <Card key={code} className={`border-2 transition-all ${status?.planCode === code ? "border-primary shadow-sm" : "border-border/50"}`}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold">{t(`billing.planNames.${code}`)}</span>
-                  {status?.planCode === code && <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20">{t("billing.currentPlan.yourPlan")}</Badge>}
-                </div>
-                <p className="text-xl font-extrabold mb-3">{PLAN_PRICES[code].toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} <span className="text-xs font-normal text-muted-foreground">{t("billing.planPrices.currency")}</span></p>
-                <ul className="space-y-1.5">
-                  {feats.map((f: string) => (
-                    <li key={f} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </motion.div>
+
 
       {/* Bank details */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>

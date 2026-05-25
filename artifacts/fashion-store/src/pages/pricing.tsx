@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Check, Zap, TrendingUp, Crown, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/hooks/use-auth";
 
 const PLAN_ICONS: Record<string, React.ElementType> = {
   starter: Zap,
@@ -47,6 +48,7 @@ const stagger = {
 export default function Pricing() {
   const { data: plans, isLoading } = useListPlans();
   const { t, i18n } = useTranslation();
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -166,11 +168,15 @@ export default function Pricing() {
                     {/* CTA */}
                     <div className="mt-auto">
                       <Button className={`w-full rounded-xl h-11 font-semibold ${c.btn}`} asChild>
-                        <Link href="/register">{t("pricing.startNow")}</Link>
+                        <Link href={isAuthenticated ? `/billing` : "/register"}>
+                          {isAuthenticated ? t("pricing.btnUpgrade", { defaultValue: "اختر الباقة" }) : t("pricing.startNow")}
+                        </Link>
                       </Button>
-                      <p className="text-center text-xs text-muted-foreground mt-2">
-                        {t("pricing.noCreditCard")}
-                      </p>
+                      {!isAuthenticated && (
+                        <p className="text-center text-xs text-muted-foreground mt-2">
+                          {t("pricing.noCreditCard")}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </motion.div>
