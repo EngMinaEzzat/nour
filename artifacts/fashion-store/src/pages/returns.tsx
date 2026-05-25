@@ -137,7 +137,7 @@ function UpdateStatusModal({
   );
 }
 
-export default function Returns() {
+export default function Returns({ embedded = false }: { embedded?: boolean }) {
   const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const { toast } = useToast();
@@ -177,8 +177,9 @@ export default function Returns() {
   const isOwnerOrManager = merchant?.role === "owner" || merchant?.role === "manager";
 
   return (
-    <div className="min-h-screen bg-background pb-16" dir={i18n.dir()}>
-      <div className="border-b bg-card/60">
+    <div className={embedded ? "pb-8" : "min-h-screen bg-background pb-16"} dir={i18n.dir()}>
+      {!embedded && (
+        <div className="border-b bg-card/60">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -192,9 +193,10 @@ export default function Returns() {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
-      <div className="container mx-auto px-4 py-8 space-y-5">
+      <div className={embedded ? "space-y-5" : "container mx-auto px-4 py-8 space-y-5"}>
         {/* Status summary */}
         {!isLoading && returns && (
           <div className="flex gap-3 flex-wrap">

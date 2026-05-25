@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
@@ -143,29 +143,42 @@ export function isReadOnlyPublicRoute(subdomainSlug: string | null): boolean {
   return false;
 }
 
+import { CustomerAuthProvider } from "@/hooks/use-customer-auth";
+
+const CustomerLogin = lazy(() => import("@/pages/customer-login"));
+const CustomerRegister = lazy(() => import("@/pages/customer-register"));
+const CustomerOrders = lazy(() => import("@/pages/customer-orders"));
+
 // ─── Storefront-only routing (used on {slug}.nour.eg subdomains) ─────────────
 function StorefrontRouter({ slug }: { slug: string }) {
   return (
-    <CartProvider>
-      <Suspense fallback={<PageFallback />}>
-        <Switch>
-          <Route
-            path="/"
-            component={() => <Storefront overrideSlug={slug} />}
-          />
-          <Route path="/product/:productSlug" component={ProductDetail} />
-          <Route
-            path="/category/:categorySlug"
-            component={() => <Storefront overrideSlug={slug} />}
-          />
-          <Route path="/products/:id" component={ProductDetail} />
-          <Route path="/checkout" component={Checkout} />
-          <Route path="/order-confirmation" component={OrderConfirmation} />
-          <Route path="/order-track/:orderId" component={OrderTrack} />
-          <Route component={() => <Storefront overrideSlug={slug} />} />
-        </Switch>
-      </Suspense>
-    </CartProvider>
+    <CustomerAuthProvider>
+      <CartProvider>
+        <Suspense fallback={<PageFallback />}>
+          <Switch>
+            <Route
+              path="/"
+              component={() => <Storefront overrideSlug={slug} />}
+            />
+            <Route path="/product/:productSlug" component={ProductDetail} />
+            <Route
+              path="/category/:categorySlug"
+              component={() => <Storefront overrideSlug={slug} />}
+            />
+            <Route path="/products/:id" component={ProductDetail} />
+            <Route path="/checkout" component={Checkout} />
+            <Route path="/order-confirmation" component={OrderConfirmation} />
+            <Route path="/order-track/:orderId" component={OrderTrack} />
+            
+            <Route path="/customer/login" component={CustomerLogin} />
+            <Route path="/customer/register" component={CustomerRegister} />
+            <Route path="/customer/orders" component={CustomerOrders} />
+
+            <Route component={() => <Storefront overrideSlug={slug} />} />
+          </Switch>
+        </Suspense>
+      </CartProvider>
+    </CustomerAuthProvider>
   );
 }
 
@@ -230,14 +243,10 @@ function Router() {
                 </ProtectedRoute>
               </Route>
               <Route path="/follow-up">
-                <ProtectedRoute>
-                  <FollowUp />
-                </ProtectedRoute>
+                <Redirect to="/orders?tab=follow-up" />
               </Route>
               <Route path="/returns">
-                <ProtectedRoute>
-                  <Returns />
-                </ProtectedRoute>
+                <Redirect to="/orders?tab=returns" />
               </Route>
               <Route path="/shipping-rules">
                 <ProtectedRoute>
@@ -305,9 +314,7 @@ function Router() {
                 </ProtectedRoute>
               </Route>
               <Route path="/inventory-alerts">
-                <ProtectedRoute>
-                  <InventoryAlerts />
-                </ProtectedRoute>
+                <Redirect to="/products?filter=low-stock" />
               </Route>
               <Route path="/facebook-moderator">
                 <ProtectedRoute>
@@ -315,15 +322,15 @@ function Router() {
                 </ProtectedRoute>
               </Route>
               <Route path="/cod-score">
-                <ProtectedRoute>
-                  <CodScore />
-                </ProtectedRoute>
+                <Redirect to="/customers?view=cod-risk" />
               </Route>
-              <Route path="/social-orders">
-                <ProtectedRoute>
-                  <SocialOrders />
-                </ProtectedRoute>
-              </Route>
+              {import.meta.env.DEV && (
+                <Route path="/social-orders">
+                  <ProtectedRoute>
+                    <SocialOrders />
+                  </ProtectedRoute>
+                </Route>
+              )}
               <Route path="/affiliates">
                 <ProtectedRoute>
                   <Affiliates />

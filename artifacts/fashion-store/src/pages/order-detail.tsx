@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ChevronRight, Package, User, MapPin, CreditCard, ShoppingCart,
   MessageCircle, Truck, ExternalLink, CheckCircle2, AlertCircle,
@@ -605,7 +606,13 @@ export default function OrderDetail() {
         </div>
       </motion.div>
 
-      <div className="space-y-5">
+      <Tabs defaultValue="overview" className="space-y-5">
+        <TabsList className="grid w-full grid-cols-2 max-w-sm mb-4">
+          <TabsTrigger value="overview">{t("orderDetail.tabs.overview") || "Overview"}</TabsTrigger>
+          <TabsTrigger value="communications">{t("orderDetail.tabs.communications") || "Communications & Log"}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-5 outline-none">
         {/* Customer */}
         {order.customerName && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
@@ -723,6 +730,82 @@ export default function OrderDetail() {
           </Card>
         </motion.div>
 
+        {/* ─── Merchant-only integration actions (Bosta) ─── */}
+        {isAuthenticated && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}>
+            <Card className="border-blue-200/60 bg-blue-50/30 dark:border-blue-800/30 dark:bg-blue-900/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                  <Truck className="w-4 h-4" />
+                  {t("orderDetail.bosta.title")}
+                  {order.bostaShipmentId && (
+                    <Badge className={`ms-auto text-xs bg-blue-100 text-blue-700 border-blue-200`}>{t("orderDetail.bosta.badge")}</Badge>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {order.bostaShipmentId ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-blue-700">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{t("orderDetail.bosta.successLabel")} <strong>{order.trackingNumber}</strong></span>
+                    </div>
+                    {order.trackingNumber && (
+                      <Button size="sm" variant="outline" className="border-blue-300 text-blue-700" asChild>
+                        <a href={`https://app.bosta.co/tracking/${order.trackingNumber}`} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-3.5 h-3.5 me-1.5" /> {t("orderDetail.bosta.btnTrack")}
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder={defaultPhone || t("orderDetail.bosta.phonePlaceholder")}
+                        value={bostaPhone}
+                        onChange={(e) => setBostaPhone(e.target.value)}
+                        dir="ltr"
+                        className="flex-1 text-left"
+                      />
+                      <Input
+                        placeholder={t("orderDetail.bosta.cityPlaceholder")}
+                        value={bostaCity}
+                        onChange={(e) => setBostaCity(e.target.value)}
+                        className="w-32 shrink-0"
+                        dir={i18n.dir()}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleCreateShipment}
+                      disabled={bostaLoading}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Truck className="w-4 h-4 me-2" />
+                      {bostaLoading ? t("orderDetail.bosta.btnCreating") : t("orderDetail.bosta.btnCreate")}
+                    </Button>
+                    <Link href="/orders?tab=returns">
+                      <Button variant="outline" size="sm" className="w-full h-8 text-xs rounded-lg border-orange-200 text-orange-700 hover:bg-orange-50">
+                        <RotateCcw className="w-3.5 h-3.5 me-1.5" />
+                        {t("orderDetail.bosta.btnReturn")}
+                      </Button>
+                    </Link>
+                    <AnimatePresence>
+                      {bostaResult && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                          <ActionFeedback success={bostaResult.success} message={bostaResult.message} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+        </TabsContent>
+
+        <TabsContent value="communications" className="space-y-5 outline-none">
         {/* Status History Timeline */}
         {order.statusHistory && order.statusHistory.length > 0 && (
           <StatusTimeline history={order.statusHistory} />
@@ -731,7 +814,7 @@ export default function OrderDetail() {
         {/* Contact Attempts — merchant only */}
         {isAuthenticated && <ContactAttemptsSection orderId={orderId} />}
 
-        {/* ─── Merchant-only integration actions ─── */}
+        {/* ─── Merchant-only communication actions ─── */}
         {isAuthenticated && (
           <>
             {/* WhatsApp confirmation */}
@@ -800,81 +883,10 @@ export default function OrderDetail() {
               items={order.items?.map((i) => ({ productName: i.productName, quantity: i.quantity }))}
               storeName={merchant?.storeName ?? undefined}
             />
-
-            {/* Bosta shipping */}
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}>
-              <Card className="border-blue-200/60 bg-blue-50/30 dark:border-blue-800/30 dark:bg-blue-900/10">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2 text-blue-700 dark:text-blue-400">
-                    <Truck className="w-4 h-4" />
-                    {t("orderDetail.bosta.title")}
-                    {order.bostaShipmentId && (
-                      <Badge className={`ms-auto text-xs bg-blue-100 text-blue-700 border-blue-200`}>{t("orderDetail.bosta.badge")}</Badge>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {order.bostaShipmentId ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-blue-700">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>{t("orderDetail.bosta.successLabel")} <strong>{order.trackingNumber}</strong></span>
-                      </div>
-                      {order.trackingNumber && (
-                        <Button size="sm" variant="outline" className="border-blue-300 text-blue-700" asChild>
-                          <a href={`https://app.bosta.co/tracking/${order.trackingNumber}`} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-3.5 h-3.5 me-1.5" /> {t("orderDetail.bosta.btnTrack")}
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder={defaultPhone || t("orderDetail.bosta.phonePlaceholder")}
-                          value={bostaPhone}
-                          onChange={(e) => setBostaPhone(e.target.value)}
-                          dir="ltr"
-                          className="flex-1 text-left"
-                        />
-                        <Input
-                          placeholder={t("orderDetail.bosta.cityPlaceholder")}
-                          value={bostaCity}
-                          onChange={(e) => setBostaCity(e.target.value)}
-                          className="w-32 shrink-0"
-                          dir={i18n.dir()}
-                        />
-                      </div>
-                      <Button
-                        onClick={handleCreateShipment}
-                        disabled={bostaLoading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Truck className="w-4 h-4 me-2" />
-                        {bostaLoading ? t("orderDetail.bosta.btnCreating") : t("orderDetail.bosta.btnCreate")}
-                      </Button>
-                      <Link href="/returns">
-                        <Button variant="outline" size="sm" className="w-full h-8 text-xs rounded-lg border-orange-200 text-orange-700 hover:bg-orange-50">
-                          <RotateCcw className="w-3.5 h-3.5 me-1.5" />
-                          {t("orderDetail.bosta.btnReturn")}
-                        </Button>
-                      </Link>
-                      <AnimatePresence>
-                        {bostaResult && (
-                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                            <ActionFeedback success={bostaResult.success} message={bostaResult.message} />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          </>
+            </>
         )}
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

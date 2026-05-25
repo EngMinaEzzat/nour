@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Search, ChevronLeft } from "lucide-react";
 import GuideCard from "@/components/admin/GuideCard";
+import Returns from "@/pages/returns";
+import FollowUp from "@/pages/follow-up";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -30,7 +32,26 @@ const stagger = {
 export default function Orders() {
   const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get("tab") || "all";
+    }
+    return "all";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (activeTab === "all") {
+        url.searchParams.delete("tab");
+      } else {
+        url.searchParams.set("tab", activeTab);
+      }
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [activeTab]);
   const { data: ordersResponse, isLoading } = useListOrders();
   const orders = ordersResponse?.data ?? [];
 
@@ -39,9 +60,23 @@ export default function Orders() {
       !search ||
       String(o.id).includes(search) ||
       o.customerName?.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = !statusFilter || o.status === statusFilter;
+    
+    let matchesStatus = true;
+    if (activeTab === "pending") matchesStatus = o.status === "pending";
+    if (activeTab === "confirmed") matchesStatus = o.status === "confirmed";
+    if (activeTab === "shipped") matchesStatus = o.status === "shipped";
+    
     return matchesSearch && matchesStatus;
   });
+
+  const TABS = [
+    { id: "all", label: t("orders.filter.all") || "All" },
+    { id: "pending", label: t("orders.status.pending") || "Needs confirmation" },
+    { id: "confirmed", label: t("orders.status.confirmed") || "Ready to ship" },
+    { id: "shipped", label: t("orders.status.shipped") || "Shipped" },
+    { id: "returns", label: t("layout.returns") || "Returns" },
+    { id: "follow-up", label: t("layout.followUp") || "Follow-up" },
+  ];
 
   return (
     <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
@@ -97,39 +132,37 @@ export default function Orders() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1 }}
-        className="flex flex-col sm:flex-row gap-3 mb-8"
+        className="flex items-center gap-2 flex-wrap mb-8 border-b border-border/40 pb-4"
       >
-        <div className="relative flex-1">
-          <Search className={`absolute ${i18n.dir() === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
-          <Input
-            placeholder={t("orders.search.placeholder")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="px-10 h-11"
-          />
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        {TABS.map((tab) => (
           <Button
+            key={tab.id}
             size="sm"
-            variant={!statusFilter ? "default" : "outline"}
+            variant={activeTab === tab.id ? "default" : "outline"}
             className="rounded-full"
-            onClick={() => setStatusFilter(null)}
+            onClick={() => setActiveTab(tab.id)}
           >
-            {t("orders.filter.all")}
+            {tab.label}
           </Button>
-          {Object.keys(STATUS_COLORS).map((key) => (
-            <Button
-              key={key}
-              size="sm"
-              variant={statusFilter === key ? "default" : "outline"}
-              className="rounded-full"
-              onClick={() => setStatusFilter(statusFilter === key ? null : key)}
-            >
-              {t(`orders.status.${key}`)}
-            </Button>
-          ))}
-        </div>
+        ))}
       </motion.div>
+
+      {activeTab === "returns" && <Returns embedded />}
+      {activeTab === "follow-up" && <FollowUp embedded />}
+
+      {activeTab !== "returns" && activeTab !== "follow-up" && (
+        <>
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+            <div className="relative flex-1 max-w-md">
+              <Search className={`absolute ${i18n.dir() === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+              <Input
+                placeholder={t("orders.search.placeholder")}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="px-10 h-11"
+              />
+            </div>
+          </div>
 
       {!isLoading && (
         <p className="text-sm text-muted-foreground mb-4">
@@ -211,6 +244,8 @@ export default function Orders() {
           <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
           <p className="text-muted-foreground">{t("orders.list.empty")}</p>
         </div>
+      )}
+      </>
       )}
     </div>
   );

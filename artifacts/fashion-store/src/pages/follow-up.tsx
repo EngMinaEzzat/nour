@@ -70,7 +70,7 @@ function formatTime(iso: string) {
   return `منذ ${Math.floor(hrs / 24)} يوم`;
 }
 
-export default function FollowUp() {
+export default function FollowUp({ embedded = false }: { embedded?: boolean }) {
   const { merchant } = useAuth();
   const { data, isLoading, refetch } = useQueue();
 
@@ -87,8 +87,9 @@ export default function FollowUp() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-16">
-      <div className="border-b bg-card/60">
+    <div className={embedded ? "pb-8" : "min-h-screen bg-background pb-16"}>
+      {!embedded && (
+        <div className="border-b bg-card/60">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -108,9 +109,10 @@ export default function FollowUp() {
             </Button>
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
-      <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className={embedded ? "space-y-6" : "container mx-auto px-4 py-8 space-y-6"}>
         {/* Summary */}
         {!isLoading && data && (
           <div className="grid grid-cols-3 gap-4">
