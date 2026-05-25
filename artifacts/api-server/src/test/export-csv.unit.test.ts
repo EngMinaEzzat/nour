@@ -2,6 +2,41 @@ import { describe, expect, it } from "vitest";
 import { toCsv } from "../lib/export-csv.js";
 
 describe("toCsv", () => {
+  it("returns an empty string when given an empty array", () => {
+    expect(toCsv([])).toBe("");
+  });
+
+  it("converts a standard array of objects to CSV (happy path)", () => {
+    const data = [
+      { id: 1, name: "Alice", active: true },
+      { id: 2, name: "Bob", active: false },
+    ];
+    expect(toCsv(data)).toBe(
+      ["id,name,active", "1,Alice,true", "2,Bob,false"].join("\n"),
+    );
+  });
+
+  it("converts null and undefined values to empty strings", () => {
+    const data = [
+      { id: 1, name: null, note: undefined, extra: "text" },
+    ];
+    expect(toCsv(data)).toBe(
+      ["id,name,note,extra", "1,,,text"].join("\n"),
+    );
+  });
+
+  it("handles rows missing keys present in the first row", () => {
+    const data = [
+      { id: 1, name: "Alice", age: 30 },
+      // @ts-expect-error Testing missing keys
+      { id: 2, name: "Bob" },
+    ];
+    // Object.keys is called on the first row, so headers are id, name, age
+    expect(toCsv(data)).toBe(
+      ["id,name,age", "1,Alice,30", "2,Bob,"].join("\n"),
+    );
+  });
+
   it("prefixes formula-like cells with an apostrophe", () => {
     const csv = toCsv([
       {
