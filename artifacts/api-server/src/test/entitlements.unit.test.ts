@@ -3,12 +3,13 @@ import { getPlan, isNearLimit, isAtLimit, getPlansArray, PLANS } from "../lib/en
 
 describe("entitlements", () => {
   describe("getPlan", () => {
-    it("returns the starter plan for unknown codes", () => {
-      expect(getPlan("unknown")).toEqual(PLANS.starter);
-      expect(getPlan("")).toEqual(PLANS.starter);
+    it("returns the free plan for unknown codes", () => {
+      expect(getPlan("unknown")).toEqual(PLANS.free);
+      expect(getPlan("")).toEqual(PLANS.free);
     });
 
     it("returns the correct plan for known codes", () => {
+      expect(getPlan("free")).toEqual(PLANS.free);
       expect(getPlan("starter")).toEqual(PLANS.starter);
       expect(getPlan("growth")).toEqual(PLANS.growth);
       expect(getPlan("pro")).toEqual(PLANS.pro);
@@ -63,7 +64,8 @@ describe("entitlements", () => {
   describe("getPlansArray", () => {
     it("returns an array of all defined plans", () => {
       const plans = getPlansArray();
-      expect(plans).toHaveLength(3);
+      expect(plans).toHaveLength(4);
+      expect(plans).toContain(PLANS.free);
       expect(plans).toContain(PLANS.starter);
       expect(plans).toContain(PLANS.growth);
       expect(plans).toContain(PLANS.pro);
