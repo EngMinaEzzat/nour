@@ -512,17 +512,44 @@ function SectionFields({ section, patchContent, patchSettings }: {
 
     case "offers":
       return (
-        <>
-          <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
-          </Field>
-          <Field label={t("inspectorPanel.fields.subheading")}>
-            <Input value={section.content.subheading ?? ""} placeholder={defaultSection.content.subheading} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
-          </Field>
-          <Field label={t("inspectorPanel.fields.ctaText")}>
-            <Input value={section.content.ctaText ?? ""} placeholder={defaultSection.content.ctaText} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
-          </Field>
-        </>
+        <div className="space-y-4">
+          <div className="pb-4 border-b border-border/50 space-y-3">
+            <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo1Title", { defaultValue: "العرض الأول (الخصم)" })}</h4>
+            <Field label={t("inspectorPanel.fields.promo1Label", { defaultValue: "التسمية" })}>
+              <Input value={(section.content.promo1Label as string) ?? ""} placeholder={defaultSection.content.promo1Label as string} onChange={(e) => patchContent({ promo1Label: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+            <Field label={t("inspectorPanel.fields.promo1Heading", { defaultValue: "العنوان" })}>
+              <Input value={(section.content.promo1Heading as string) ?? ""} placeholder={defaultSection.content.promo1Heading as string} onChange={(e) => patchContent({ promo1Heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+            <Field label={t("inspectorPanel.fields.promo1Discount", { defaultValue: "نسبة الخصم (%)" })}>
+              <Input type="number" value={(section.content.promo1Discount as string) ?? ""} placeholder={defaultSection.content.promo1Discount as string} onChange={(e) => patchContent({ promo1Discount: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+            <Field label={t("inspectorPanel.fields.promo1Desc", { defaultValue: "الوصف" })}>
+              <Input value={(section.content.promo1Desc as string) ?? ""} placeholder={defaultSection.content.promo1Desc as string} onChange={(e) => patchContent({ promo1Desc: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+            <Field label={t("inspectorPanel.fields.promo1Cta", { defaultValue: "نص الزر" })}>
+              <Input value={(section.content.promo1Cta as string) ?? ""} placeholder={defaultSection.content.promo1Cta as string} onChange={(e) => patchContent({ promo1Cta: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+          </div>
+          <div className="space-y-3">
+            <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo2Title", { defaultValue: "العرض الثاني (الشحن)" })}</h4>
+            <Field label={t("inspectorPanel.fields.promo2Label", { defaultValue: "التسمية" })}>
+              <Input value={(section.content.promo2Label as string) ?? ""} placeholder={defaultSection.content.promo2Label as string} onChange={(e) => patchContent({ promo2Label: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+            <Field label={t("inspectorPanel.fields.promo2Heading", { defaultValue: "العنوان" })}>
+              <Input value={(section.content.promo2Heading as string) ?? ""} placeholder={defaultSection.content.promo2Heading as string} onChange={(e) => patchContent({ promo2Heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+            <Field label={t("inspectorPanel.fields.promo2Subheading", { defaultValue: "العنوان الفرعي" })}>
+              <Input value={(section.content.promo2Subheading as string) ?? ""} placeholder={defaultSection.content.promo2Subheading as string} onChange={(e) => patchContent({ promo2Subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+            <Field label={t("inspectorPanel.fields.promo2Threshold", { defaultValue: "قيمة الطلب" })}>
+              <Input type="number" value={(section.content.promo2Threshold as string) ?? ""} placeholder={defaultSection.content.promo2Threshold as string} onChange={(e) => patchContent({ promo2Threshold: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+            <Field label={t("inspectorPanel.fields.promo2Cta", { defaultValue: "نص الزر" })}>
+              <Input value={(section.content.promo2Cta as string) ?? ""} placeholder={defaultSection.content.promo2Cta as string} onChange={(e) => patchContent({ promo2Cta: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            </Field>
+          </div>
+        </div>
       );
 
     case "about":
