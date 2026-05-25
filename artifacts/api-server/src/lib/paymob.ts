@@ -4,7 +4,11 @@ export function isConfigured(params?: { apiKey?: string | null; integrationId?: 
   if (params) {
     return !!params.apiKey && !!params.integrationId && !!params.iframeId;
   }
-  return true;
+  return (
+    !!process.env.PAYMOB_API_KEY &&
+    !!process.env.PAYMOB_INTEGRATION_ID &&
+    !!process.env.PAYMOB_IFRAME_ID
+  );
 }
 
 async function authenticate(apiKey: string): Promise<string> {

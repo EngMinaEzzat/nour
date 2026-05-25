@@ -1,4 +1,4 @@
-import { Router } from "express";
+﻿import { Router } from "express";
 import { db } from "@workspace/db";
 import {
   paymobProvidersTable, paymentRecordsTable, paymentWebhooksTable,
@@ -7,12 +7,22 @@ import {
 import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
 import { eq, and, desc, lt, sql, inArray } from "drizzle-orm";
 import { initPayment, isConfigured as isPlatformPaymobConfigured } from "../lib/paymob";
+import { checkoutLimiter } from "../lib/rate-limiters";
 import crypto from "crypto";
 
 const router = Router();
 
 const PLAN_ALLOWS_PAYMOB = ["growth", "pro"];
 const MUTABLE_PAYMENT_STATUSES = ["initiated", "pending"] as const;
+
+class PaymobHttpError extends Error {
+  constructor(
+    public statusCode: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
 
 function asPaymobBoolean(value: unknown): boolean {
   return value === true || value === "true" || value === 1 || value === "1";
@@ -38,6 +48,121 @@ function isPaymobFailedPayload(obj: Record<string, unknown>): boolean {
   );
 }
 
+async function initiatePaymobPaymentForOrder(params: {
+  orderId: number;
+  tenantId?: number;
+  trackingToken?: string;
+}) {
+  const conditions = [eq(ordersTable.id, params.orderId)];
+  if (params.tenantId !== undefined) {
+    conditions.push(eq(ordersTable.tenantId, params.tenantId));
+  }
+  if (params.trackingToken) {
+    conditions.push(eq(ordersTable.trackingToken, params.trackingToken));
+  }
+
+  const [order] = await db
+    .select({
+      id: ordersTable.id,
+      tenantId: ordersTable.tenantId,
+      totalAmount: ordersTable.totalAmount,
+      shippingAddress: ordersTable.shippingAddress,
+      customerPhone: ordersTable.customerPhone,
+      customerName: customersTable.name,
+      customerEmail: customersTable.email,
+      paymentMethod: ordersTable.paymentMethod,
+      planCode: tenantsTable.planCode,
+    })
+    .from(ordersTable)
+    .leftJoin(customersTable, eq(ordersTable.customerId, customersTable.id))
+    .leftJoin(tenantsTable, eq(ordersTable.tenantId, tenantsTable.id))
+    .where(and(...conditions));
+
+  if (!order) throw new PaymobHttpError(404, "Order not found");
+  if (order.paymentMethod !== "paymob") {
+    throw new PaymobHttpError(400, "Order is not configured for Paymob payment");
+  }
+  if (!PLAN_ALLOWS_PAYMOB.includes(order.planCode ?? "")) {
+    throw new PaymobHttpError(402, "Paymob requires the growth plan or higher");
+  }
+
+  const [provider] = await db.select().from(paymobProvidersTable).where(
+    and(eq(paymobProvidersTable.tenantId, order.tenantId), eq(paymobProvidersTable.status, "ACTIVE"))
+  );
+  if (!provider) throw new PaymobHttpError(422, "Paymob is not enabled for this store");
+
+  const existing = await db
+    .select()
+    .from(paymentRecordsTable)
+    .where(and(eq(paymentRecordsTable.tenantId, order.tenantId), eq(paymentRecordsTable.orderId, order.id), eq(paymentRecordsTable.status, "pending")))
+    .limit(1);
+  if (existing[0]?.iframeSrc) {
+    return { paymentRecordId: existing[0].id, iframeSrc: existing[0].iframeSrc, expiresAt: existing[0].expiresAt };
+  }
+
+  const mockAllowed = provider.isMockAllowed === "true";
+  const paymobConfig = { apiKey: provider.apiKey, integrationId: provider.integrationId, iframeId: provider.iframeId };
+  if (!isPlatformPaymobConfigured(paymobConfig) && (process.env.NODE_ENV === "production" || !mockAllowed)) {
+    throw new PaymobHttpError(503, "Paymob live credentials are not configured");
+  }
+
+  const idempotencyKey = `paymob-init-${order.tenantId}-${order.id}`;
+  const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+  if (!isPlatformPaymobConfigured(paymobConfig)) {
+    const [record] = await db.insert(paymentRecordsTable).values({
+      tenantId: order.tenantId,
+      orderId: order.id,
+      idempotencyKey,
+      amount: String(order.totalAmount),
+      status: "pending",
+      expiresAt,
+      iframeSrc: `https://accept.paymob.com/api/acceptance/iframes/${provider.iframeId}?payment_token=DEV_MOCK_${crypto.randomUUID()}`,
+    }).onConflictDoUpdate({
+      target: paymentRecordsTable.idempotencyKey,
+      set: { status: "pending", expiresAt, updatedAt: new Date() },
+    }).returning();
+
+    return { paymentRecordId: record.id, iframeSrc: record.iframeSrc, expiresAt };
+  }
+
+  const payment = await initPayment({
+    orderId: order.id,
+    amountEGP: parseFloat(order.totalAmount as string),
+    customerName: order.customerName ?? "Customer",
+    customerEmail: order.customerEmail ?? "customer@nour.eg",
+    customerPhone: order.customerPhone ?? "01000000000",
+    shippingAddress: order.shippingAddress ?? "Cairo, Egypt",
+    apiKey: provider.apiKey!,
+    integrationId: provider.integrationId!,
+    iframeId: provider.iframeId!,
+  });
+
+  const [record] = await db.insert(paymentRecordsTable).values({
+    tenantId: order.tenantId,
+    orderId: order.id,
+    idempotencyKey,
+    amount: String(order.totalAmount),
+    status: "pending",
+    providerOrderId: String(payment.paymobOrderId),
+    paymentToken: payment.paymentKey,
+    iframeSrc: payment.iframeUrl,
+    expiresAt,
+  }).onConflictDoUpdate({
+    target: paymentRecordsTable.idempotencyKey,
+    set: {
+      status: "pending",
+      providerOrderId: String(payment.paymobOrderId),
+      paymentToken: payment.paymentKey,
+      iframeSrc: payment.iframeUrl,
+      expiresAt,
+      updatedAt: new Date(),
+    },
+  }).returning();
+
+  return { paymentRecordId: record.id, iframeSrc: record.iframeSrc, expiresAt };
+}
+
 // GET /paymob/status
 router.get("/paymob/status", requireRole("owner", "manager", "staff"), async (req, res) => {
   try {
@@ -49,6 +174,7 @@ router.get("/paymob/status", requireRole("owner", "manager", "staff"), async (re
     const [provider] = await db.select({
       id: paymobProvidersTable.id,
       status: paymobProvidersTable.status,
+      apiKey: paymobProvidersTable.apiKey,
       integrationId: paymobProvidersTable.integrationId,
       iframeId: paymobProvidersTable.iframeId,
       isMockAllowed: paymobProvidersTable.isMockAllowed,
@@ -57,10 +183,11 @@ router.get("/paymob/status", requireRole("owner", "manager", "staff"), async (re
       updatedAt: paymobProvidersTable.updatedAt,
     }).from(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, tenantId));
     if (!provider) return res.json({ status: "NOT_CONFIGURED" });
-    res.json({ ...provider, hasApiKey: !!provider.integrationId });
+    const { apiKey: _apiKey, ...safeProvider } = provider;
+    res.json({ ...safeProvider, hasApiKey: !!provider.apiKey });
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "فشل جلب حالة Paymob" });
+    res.status(500).json({ error: "ÙØ´Ù„ Ø¬Ù„Ø¨ Ø­Ø§Ù„Ø© Paymob" });
   }
 });
 
@@ -71,19 +198,25 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
     const merchantId = req.session?.merchantId;
     const [tenant] = await db.select({ planCode: tenantsTable.planCode }).from(tenantsTable).where(eq(tenantsTable.id, tenantId));
     if (!PLAN_ALLOWS_PAYMOB.includes(tenant?.planCode ?? "")) {
-      return res.status(402).json({ error: "هذه الميزة تتطلب خطة جروث أو برو" });
+      return res.status(402).json({ error: "Ù‡Ø°Ù‡ Ø§Ù„Ù…ÙŠØ²Ø© ØªØªØ·Ù„Ø¨ Ø®Ø·Ø© Ø¬Ø±ÙˆØ« Ø£Ùˆ Ø¨Ø±Ùˆ" });
     }
 
     const { apiKey, integrationId, iframeId, hmacSecret, enabled } = req.body;
     if (!integrationId || !iframeId) {
-      return res.status(400).json({ error: "integration_id و iframe_id مطلوبان" });
+      return res.status(400).json({ error: "integration_id Ùˆ iframe_id Ù…Ø·Ù„ÙˆØ¨Ø§Ù†" });
     }
 
     // Store raw apiKey in apiKey column
     const apiKeyRaw = apiKey || undefined;
     const status = enabled ? "ACTIVE" : "CONFIGURED_DISABLED";
 
-    const existing = await db.select({ id: paymobProvidersTable.id }).from(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, tenantId));
+    const existing = await db
+      .select({ id: paymobProvidersTable.id, apiKey: paymobProvidersTable.apiKey })
+      .from(paymobProvidersTable)
+      .where(eq(paymobProvidersTable.tenantId, tenantId));
+    if (enabled && !apiKeyRaw && !existing[0]?.apiKey) {
+      return res.status(400).json({ error: "apiKey is required before enabling Paymob" });
+    }
     if (existing.length > 0) {
       await db.update(paymobProvidersTable).set({
         status,
@@ -107,122 +240,59 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
     await db.insert(tenantAuditEventsTable).values({
       tenantId,
       actorId: merchantId,
-      actorLabel: "تاجر",
+      actorLabel: "ØªØ§Ø¬Ø±",
       eventType: "paymob_configured",
-      summary: `تم ${enabled ? "تفعيل" : "إيقاف"} Paymob — integrationId: ${integrationId}`,
+      summary: `ØªÙ… ${enabled ? "ØªÙØ¹ÙŠÙ„" : "Ø¥ÙŠÙ‚Ø§Ù"} Paymob â€” integrationId: ${integrationId}`,
     }).catch(() => {});
 
     res.json({ success: true, status });
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "فشل تهيئة Paymob" });
+    res.status(500).json({ error: "ÙØ´Ù„ ØªÙ‡ÙŠØ¦Ø© Paymob" });
   }
 });
 
-// POST /paymob/initiate — initiate payment for an order
+// POST /paymob/public/initiate - token-bound shopper payment initiation
+router.post("/paymob/public/initiate", checkoutLimiter, async (req, res) => {
+  try {
+    const orderId = Number((req.body as { orderId?: number }).orderId);
+    const trackingToken = typeof req.body?.trackingToken === "string" ? req.body.trackingToken.trim() : "";
+    if (!Number.isInteger(orderId) || orderId <= 0 || !trackingToken) {
+      return res.status(400).json({ error: "orderId and trackingToken are required" });
+    }
+
+    const result = await initiatePaymobPaymentForOrder({ orderId, trackingToken });
+    return res.json(result);
+  } catch (err) {
+    req.log.error(err);
+    if (err instanceof PaymobHttpError) {
+      return res.status(err.statusCode).json({ error: err.message });
+    }
+    return res.status(500).json({ error: "Failed to initiate Paymob payment" });
+  }
+});
+
+// POST /paymob/initiate â€” initiate payment for an order
 router.post("/paymob/initiate", requireRole("owner", "manager", "staff"), async (req, res) => {
   try {
     const tenantId = req.merchantTenantId!;
-    const { orderId } = req.body as { orderId?: number };
-    const amount = 1;
-    if (!orderId || !amount) return res.status(400).json({ error: "orderId و amount مطلوبان" });
+    {
+      const orderId = Number((req.body as { orderId?: number }).orderId);
+      if (!Number.isInteger(orderId) || orderId <= 0) return res.status(400).json({ error: "orderId is required" });
 
-    const [provider] = await db.select().from(paymobProvidersTable).where(
-      and(eq(paymobProvidersTable.tenantId, tenantId), eq(paymobProvidersTable.status, "ACTIVE"))
-    );
-    if (!provider) return res.status(422).json({ error: "Paymob غير مفعّل لهذا المتجر" });
-
-    const [order] = await db
-      .select({
-        id: ordersTable.id,
-        totalAmount: ordersTable.totalAmount,
-        shippingAddress: ordersTable.shippingAddress,
-        customerPhone: ordersTable.customerPhone,
-        customerName: customersTable.name,
-        customerEmail: customersTable.email,
-      })
-      .from(ordersTable)
-      .leftJoin(customersTable, eq(ordersTable.customerId, customersTable.id))
-      .where(and(eq(ordersTable.id, Number(orderId)), eq(ordersTable.tenantId, tenantId)));
-    if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
-
-    const existing = await db
-      .select()
-      .from(paymentRecordsTable)
-      .where(and(eq(paymentRecordsTable.tenantId, tenantId), eq(paymentRecordsTable.orderId, order.id), eq(paymentRecordsTable.status, "pending")))
-      .limit(1);
-    if (existing[0]?.iframeSrc) {
-      return res.json({ paymentRecordId: existing[0].id, iframeSrc: existing[0].iframeSrc, expiresAt: existing[0].expiresAt });
+      const result = await initiatePaymobPaymentForOrder({ orderId, tenantId });
+      return res.json(result);
     }
-
-    const mockAllowed = provider.isMockAllowed === "true";
-    const paymobConfig = { apiKey: provider.apiKey, integrationId: provider.integrationId, iframeId: provider.iframeId };
-    if (!isPlatformPaymobConfigured(paymobConfig) && (process.env.NODE_ENV === "production" || !mockAllowed)) {
-      return res.status(503).json({ error: "Paymob live credentials are not configured" });
-    }
-
-    const idempotencyKey = `paymob-init-${tenantId}-${order.id}`;
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
-
-    if (!isPlatformPaymobConfigured(paymobConfig)) {
-      const [record] = await db.insert(paymentRecordsTable).values({
-        tenantId,
-        orderId: order.id,
-        idempotencyKey,
-        amount: String(order.totalAmount),
-        status: "pending",
-        expiresAt,
-        iframeSrc: `https://accept.paymob.com/api/acceptance/iframes/${provider.iframeId}?payment_token=DEV_MOCK_${crypto.randomUUID()}`,
-      }).onConflictDoUpdate({
-        target: paymentRecordsTable.idempotencyKey,
-        set: { status: "pending", expiresAt, updatedAt: new Date() },
-      }).returning();
-
-      return res.json({ paymentRecordId: record.id, iframeSrc: record.iframeSrc, expiresAt });
-    }
-
-    const payment = await initPayment({
-      orderId: order.id,
-      amountEGP: parseFloat(order.totalAmount as string),
-      customerName: order.customerName ?? "Customer",
-      customerEmail: order.customerEmail ?? "customer@nour.eg",
-      customerPhone: order.customerPhone ?? "01000000000",
-      shippingAddress: order.shippingAddress ?? "Cairo, Egypt",
-      apiKey: provider.apiKey!,
-      integrationId: provider.integrationId!,
-      iframeId: provider.iframeId!,
-    });
-
-    const [record] = await db.insert(paymentRecordsTable).values({
-      tenantId,
-      orderId: order.id,
-      idempotencyKey,
-      amount: String(order.totalAmount),
-      status: "pending",
-      providerOrderId: String(payment.paymobOrderId),
-      paymentToken: payment.paymentKey,
-      iframeSrc: payment.iframeUrl,
-      expiresAt,
-    }).onConflictDoUpdate({
-      target: paymentRecordsTable.idempotencyKey,
-      set: {
-        status: "pending",
-        providerOrderId: String(payment.paymobOrderId),
-        paymentToken: payment.paymentKey,
-        iframeSrc: payment.iframeUrl,
-        expiresAt,
-        updatedAt: new Date(),
-      },
-    }).returning();
-
-    res.json({ paymentRecordId: record.id, iframeSrc: record.iframeSrc, expiresAt });
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "فشل بدء عملية الدفع" });
+    if (err instanceof PaymobHttpError) {
+      return res.status(err.statusCode).json({ error: err.message });
+    }
+    res.status(500).json({ error: "ÙØ´Ù„ Ø¨Ø¯Ø¡ Ø¹Ù…Ù„ÙŠØ© Ø§Ù„Ø¯ÙØ¹" });
   }
 });
 
-// POST /paymob/webhook — public endpoint (no auth) — HMAC verified
+// POST /paymob/webhook â€” public endpoint (no auth) â€” HMAC verified
 router.post("/paymob/webhook", async (req, res) => {
   try {
     const { hmac } = req.query;
@@ -237,7 +307,7 @@ router.post("/paymob/webhook", async (req, res) => {
 
     const existing = await db.select().from(paymentWebhooksTable).where(eq(paymentWebhooksTable.idempotencyKey, idempotencyKey));
     if (existing.length > 0) {
-      req.log.info({ transactionId }, "Duplicate Paymob webhook — idempotent skip");
+      req.log.info({ transactionId }, "Duplicate Paymob webhook â€” idempotent skip");
       return res.json({ received: true, duplicate: true });
     }
 
@@ -296,11 +366,11 @@ router.post("/paymob/webhook", async (req, res) => {
       const hmacBuf = Buffer.from(String(hmac));
 
       if (computedBuf.length !== hmacBuf.length || !crypto.timingSafeEqual(computedBuf, hmacBuf)) {
-        req.log.warn({ transactionId: (obj as any).id }, "Paymob webhook HMAC mismatch — rejected");
+        req.log.warn({ transactionId: (obj as any).id }, "Paymob webhook HMAC mismatch â€” rejected");
         return res.status(401).json({ error: "HMAC verification failed" });
       }
     } else if (tenantHmacSecret && !hmac) {
-      req.log.warn("Paymob webhook received without HMAC — rejected");
+      req.log.warn("Paymob webhook received without HMAC â€” rejected");
       return res.status(401).json({ error: "Missing HMAC signature" });
     }
 
@@ -331,7 +401,7 @@ router.post("/paymob/webhook", async (req, res) => {
           tenantId: updated[0].tenantId,
           actorLabel: "Paymob Webhook",
           eventType: "payment_succeeded",
-          summary: `تم الدفع بنجاح — معرف المعاملة: ${transactionId}`,
+          summary: `ØªÙ… Ø§Ù„Ø¯ÙØ¹ Ø¨Ù†Ø¬Ø§Ø­ â€” Ù…Ø¹Ø±Ù Ø§Ù„Ù…Ø¹Ø§Ù…Ù„Ø©: ${transactionId}`,
           metadata: JSON.stringify({ transactionId, orderId: updated[0].orderId }),
         }).catch(() => {});
       }
@@ -376,7 +446,7 @@ router.post("/paymob/webhook", async (req, res) => {
         });
       }
     } else {
-      req.log.info({ transactionId }, "Paymob webhook is pending — no local state mutation");
+      req.log.info({ transactionId }, "Paymob webhook is pending â€” no local state mutation");
     }
 
     res.json({ received: true });
@@ -386,7 +456,7 @@ router.post("/paymob/webhook", async (req, res) => {
   }
 });
 
-// GET /paymob/payments — merchant payment records
+// GET /paymob/payments â€” merchant payment records
 router.get("/paymob/payments", requireRole("owner", "manager"), async (req, res) => {
   try {
     const tenantId = req.merchantTenantId!;
@@ -397,11 +467,11 @@ router.get("/paymob/payments", requireRole("owner", "manager"), async (req, res)
     res.json(records.map((r) => ({ ...r, paymentToken: undefined, iframeSrc: undefined })));
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "فشل جلب سجلات الدفع" });
+    res.status(500).json({ error: "ÙØ´Ù„ Ø¬Ù„Ø¨ Ø³Ø¬Ù„Ø§Øª Ø§Ù„Ø¯ÙØ¹" });
   }
 });
 
-// GET /paymob/reconciliation — platform admin: stale pending + failed
+// GET /paymob/reconciliation â€” platform admin: stale pending + failed
 router.get("/paymob/reconciliation", requirePlatformAdmin, async (req, res) => {
   try {
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
@@ -416,7 +486,7 @@ router.get("/paymob/reconciliation", requirePlatformAdmin, async (req, res) => {
     res.json({ stalePending: stale.length, failedCount: failed.length, stale, failed });
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "فشل المطابقة" });
+    res.status(500).json({ error: "ÙØ´Ù„ Ø§Ù„Ù…Ø·Ø§Ø¨Ù‚Ø©" });
   }
 });
 

@@ -45,7 +45,7 @@ function loadEnvTestFallbacks(): void {
     if (process.env[key] !== undefined) continue;
 
     const value = parseEnvValue(trimmed.slice(separatorIndex + 1));
-    if (key === "DATABASE_URL" || key === "NOUR_TEST_DATABASE_OK") {
+    if (key === "DATABASE_URL") {
       process.env[key] = value;
     }
   }
@@ -75,7 +75,7 @@ if (!isSafeDb) {
     "\nDATABASE_URL is missing or does not look like a dedicated test database.\n" +
     "Tests create and delete real data, so refusing to run.\n" +
     "Use a local database, a URL/name containing _test, -test, test_, or localtest,\n" +
-    "or set NOUR_TEST_DATABASE_OK=true in .env.test only when intentionally using\n" +
+    "or set NOUR_TEST_DATABASE_OK=true in the shell only when intentionally using\n" +
     "a disposable/shared development database with no real merchant data.\n"
   );
   process.exit(1);

@@ -32,6 +32,7 @@ node_modules
 /.env.*
 !/.env.example
 !/.env.test.example
+/artifacts/*/.env.test
 /.sass-cache
 /connect.lock
 /coverage
@@ -54,6 +55,7 @@ Thumbs.db
 .vercel
 .env*.local
 /*.zip
+/jules_session_*/
 
 # Runtime/test uploads
 artifacts/api-server/uploads/
