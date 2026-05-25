@@ -298,7 +298,8 @@ export interface CustomerAuthResponse {
 export interface CreateCustomerBody {
   name: string;
   email: string;
-  phone?: string | null;
+  /** @pattern ^01[0125][0-9]{8}$ */
+  phone: string;
   city?: string | null;
 }
 

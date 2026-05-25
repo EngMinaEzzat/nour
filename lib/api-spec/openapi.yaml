@@ -1688,11 +1688,11 @@ components:
           type: string
         phone:
           type: string
-          nullable: true
+          pattern: '^01[0125][0-9]{8}$'
         city:
           type: string
           nullable: true
-      required: [name, email]
+      required: [name, email, phone]
 
     OrderItem:
       type: object

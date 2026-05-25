@@ -843,10 +843,12 @@ export const ListCustomersResponse = zod.array(ListCustomersResponseItem);
 /**
  * @summary Create a new customer
  */
+export const createCustomerBodyPhoneRegExp = new RegExp("^01[0125][0-9]{8}$");
+
 export const CreateCustomerBody = zod.object({
   name: zod.string(),
   email: zod.string(),
-  phone: zod.string().nullish(),
+  phone: zod.string().regex(createCustomerBodyPhoneRegExp),
   city: zod.string().nullish(),
 });
 
