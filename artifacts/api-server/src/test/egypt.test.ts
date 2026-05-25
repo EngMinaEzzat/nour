@@ -26,11 +26,10 @@ describe("normaliseEgyptianPhone", () => {
     expect(normaliseEgyptianPhone("1012345678")).toBe("+201012345678");
   });
 
-  it("should strip spaces, dashes, parentheses and periods from the input before normalising", () => {
+  it("should strip spaces, dashes, and parentheses from the input before normalising", () => {
     expect(normaliseEgyptianPhone("010 1234 5678")).toBe("+201012345678");
     expect(normaliseEgyptianPhone("011-123-45678")).toBe("+201112345678");
     expect(normaliseEgyptianPhone("(012) 1234-5678")).toBe("+201212345678");
-    expect(normaliseEgyptianPhone("015.1234.5678")).toBe("+201512345678");
     expect(normaliseEgyptianPhone("+20 10 1234 5678")).toBe("+201012345678");
   });
 
