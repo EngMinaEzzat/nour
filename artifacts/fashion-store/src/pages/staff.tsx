@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient as useQC } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  useListStaff, useInviteStaff, useUpdateStaffRole, useRemoveStaff,
+  useListStaff, useUpdateStaffRole, useRemoveStaff,
   getListStaffQueryKey, MerchantRole,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -68,11 +68,9 @@ export default function Staff() {
     query: { queryKey: getListStaffQueryKey() },
   });
 
-  const inviteMutation = useInviteStaff();
   const updateRoleMutation = useUpdateStaffRole();
   const removeMutation = useRemoveStaff();
 
-  const [inviteOpen, setInviteOpen] = useState(false);
   const [editMember, setEditMember] = useState<{ id: number; role: MerchantRole } | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -101,21 +99,6 @@ export default function Staff() {
     onSuccess: (data) => { setInvLinkResult(data.inviteLink); refetchInvs(); },
   });
 
-  const [form, setForm] = useState({ email: "", name: "", password: "", role: "staff" as "manager" | "staff" | "catalog_manager" | "order_operator" | "marketing_analyst" });
-
-  async function handleInvite(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    try {
-      await inviteMutation.mutateAsync({ data: { ...form, role: form.role as MerchantRole } });
-      queryClient.invalidateQueries({ queryKey: getListStaffQueryKey() });
-      setInviteOpen(false);
-      setForm({ email: "", name: "", password: "", role: "staff" });
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg ?? t("staff.inviteDialog.error"));
-    }
-  }
 
   async function handleUpdateRole() {
     if (!editMember) return;
@@ -164,11 +147,8 @@ export default function Staff() {
         </div>
         {isOwner && (
           <div className="flex gap-2 shrink-0">
-            <Button variant="outline" className="rounded-full gap-2" onClick={() => { setInvLinkOpen(true); setInvLinkResult(null); }}>
-              <Link2 className="w-4 h-4" /> {t("staff.inviteLinkBtn")}
-            </Button>
-            <Button className="rounded-full gap-2" onClick={() => { setInviteOpen(true); setError(null); }}>
-              <UserPlus className="w-4 h-4" /> {t("staff.directInviteBtn")}
+            <Button className="rounded-full gap-2" onClick={() => { setInvLinkOpen(true); setInvLinkResult(null); }}>
+              <UserPlus className="w-4 h-4" /> {t("staff.inviteLinkBtn", { defaultValue: "دعوة عضو" })}
             </Button>
           </div>
         )}
@@ -182,9 +162,6 @@ export default function Staff() {
         {[
           { role: "owner" },
           { role: "manager" },
-          { role: "catalog_manager" },
-          { role: "order_operator" },
-          { role: "marketing_analyst" },
           { role: "staff" },
         ].map(({ role }) => {
           const Icon = ROLE_ICONS[role];
@@ -229,7 +206,7 @@ export default function Staff() {
               <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p>{t("staff.membersList.noMembers")}</p>
               {isOwner && (
-                <Button variant="outline" size="sm" className="mt-4 rounded-full" onClick={() => setInviteOpen(true)}>
+                <Button variant="outline" size="sm" className="mt-4 rounded-full" onClick={() => { setInvLinkOpen(true); setInvLinkResult(null); }}>
                   <UserPlus className="w-3.5 h-3.5 me-1.5" /> {t("staff.membersList.addFirst")}
                 </Button>
               )}
@@ -303,83 +280,7 @@ export default function Staff() {
         </CardContent>
       </Card>
 
-      {/* Invite dialog */}
-      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="sm:max-w-md" dir={i18n.dir()}>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <UserPlus className="w-5 h-5 text-primary" />
-              {t("staff.inviteDialog.title")}
-            </DialogTitle>
-            <DialogDescription>
-              {t("staff.inviteDialog.desc")}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleInvite} className="space-y-4 mt-2">
-            <div className="space-y-2">
-              <Label>{t("staff.inviteDialog.nameLabel")}</Label>
-              <Input
-                placeholder={t("staff.inviteDialog.namePlaceholder")}
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("staff.inviteDialog.emailLabel")}</Label>
-              <Input
-                type="email"
-                placeholder={t("staff.inviteDialog.emailPlaceholder")}
-                required
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("staff.inviteDialog.passwordLabel")}</Label>
-              <Input
-                type="password"
-                placeholder={t("staff.inviteDialog.passwordPlaceholder")}
-                required
-                minLength={6}
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("staff.inviteDialog.roleLabel")}</Label>
-              <Select
-                value={form.role}
-                onValueChange={(v) => setForm({ ...form, role: v as "manager" | "staff" })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="manager">{t("staff.inviteDialog.roles.manager")}</SelectItem>
-                  <SelectItem value="catalog_manager">{t("staff.inviteDialog.roles.catalog_manager")}</SelectItem>
-                  <SelectItem value="order_operator">{t("staff.inviteDialog.roles.order_operator")}</SelectItem>
-                  <SelectItem value="marketing_analyst">{t("staff.inviteDialog.roles.marketing_analyst")}</SelectItem>
-                  <SelectItem value="staff">{t("staff.inviteDialog.roles.staff")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {error && (
-              <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 px-3 py-2 rounded-lg">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {error}
-              </div>
-            )}
-            <div className="flex gap-3 pt-2">
-              <Button type="submit" className="flex-1" disabled={inviteMutation.isPending}>
-                {inviteMutation.isPending ? t("staff.inviteDialog.btnInviting") : t("staff.inviteDialog.btnInvite")}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => setInviteOpen(false)}>
-                {t("staff.inviteDialog.btnCancel")}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+
 
       {/* Edit role dialog */}
       <Dialog open={!!editMember} onOpenChange={(o) => !o && setEditMember(null)}>
@@ -398,9 +299,6 @@ export default function Staff() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="manager">{t("staff.roles.manager")}</SelectItem>
-                <SelectItem value="catalog_manager">{t("staff.roles.catalog_manager")}</SelectItem>
-                <SelectItem value="order_operator">{t("staff.roles.order_operator")}</SelectItem>
-                <SelectItem value="marketing_analyst">{t("staff.roles.marketing_analyst")}</SelectItem>
                 <SelectItem value="staff">{t("staff.roles.staff")}</SelectItem>
               </SelectContent>
             </Select>
@@ -439,9 +337,6 @@ export default function Staff() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="manager">{t("staff.roles.manager")}</SelectItem>
-                    <SelectItem value="catalog_manager">{t("staff.roles.catalog_manager")}</SelectItem>
-                    <SelectItem value="order_operator">{t("staff.roles.order_operator")}</SelectItem>
-                    <SelectItem value="marketing_analyst">{t("staff.roles.marketing_analyst")}</SelectItem>
                     <SelectItem value="staff">{t("staff.roles.staff")}</SelectItem>
                   </SelectContent>
                 </Select>
