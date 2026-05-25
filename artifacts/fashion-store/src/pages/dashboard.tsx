@@ -250,7 +250,7 @@ function OnboardingChecklist() {
   const { t } = useTranslation();
   const { data: onboarding, refetch } = useGetOnboarding();
   const patch = usePatchOnboarding();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   if (!onboarding || onboarding.isComplete) return null;
 
