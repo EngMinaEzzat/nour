@@ -2,8 +2,6 @@ import { SectionConfig, StoreConfig } from "@/lib/store-config";
 import { normalizeStoredImageUrl } from "@/lib/image-url";
 import { useTranslation } from "react-i18next";
 
-const FALLBACK_HERO = "/hero-optimized.jpg";
-
 interface PreviewProps {
   section: SectionConfig;
   theme: StoreConfig["theme"];
@@ -57,7 +55,10 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
       const height = section.settings.height === "short" ? 160 : section.settings.height === "medium" ? 240 : section.settings.height === "full" ? 340 : 280;
       const align = section.settings.textAlign ?? "right";
       const overlay = (section.settings.overlayOpacity ?? 40) / 100;
-      const heroImageUrl = normalizeStoredImageUrl(section.content.imageUrl) || normalizeStoredImageUrl(brand.coverUrl) || FALLBACK_HERO;
+      const defaultHero = (brand.category === "cosmetics" || brand.category === "both")
+        ? "/hero-cosmetics-optimized.jpg"
+        : "/hero-fashion-optimized.jpg";
+      const heroImageUrl = normalizeStoredImageUrl(section.content.imageUrl) || normalizeStoredImageUrl(brand.coverUrl) || defaultHero;
       return wrap(
         <div
           className="relative overflow-hidden flex items-center"

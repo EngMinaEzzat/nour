@@ -4,8 +4,6 @@ import { ChevronDown, Sparkles } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
-const FALLBACK_HERO = "/hero-optimized.jpg";
-
 interface HeroSectionProps {
   storeName: string;
   description?: string | null;
@@ -34,7 +32,10 @@ export function HeroSection({
   onScrollToProducts,
 }: HeroSectionProps) {
   const { t, i18n } = useTranslation();
-  const imgSrc = imageUrl || coverUrl || FALLBACK_HERO;
+  const defaultHero = (category === "cosmetics" || category === "both")
+    ? "/hero-cosmetics-optimized.jpg"
+    : "/hero-fashion-optimized.jpg";
+  const imgSrc = imageUrl || coverUrl || defaultHero;
   const tagline =
     eyebrow ||
     category === "cosmetics"

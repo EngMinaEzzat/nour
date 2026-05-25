@@ -56,9 +56,9 @@ describe("Paymob production safety", () => {
     await db.insert(paymobProvidersTable).values({
       tenantId: ctx.tenantId,
       status: "ACTIVE",
-      integrationId: "123",
+      integrationId: null,
       iframeId: "456",
-      apiKey: "hash",
+      apiKey: null,
       hmacSecret: "secret",
       isMockAllowed: "true",
     });
@@ -87,6 +87,8 @@ describe("Paymob production safety", () => {
       if (previous.apiKey) process.env.PAYMOB_API_KEY = previous.apiKey;
       if (previous.integrationId) process.env.PAYMOB_INTEGRATION_ID = previous.integrationId;
       if (previous.iframeId) process.env.PAYMOB_IFRAME_ID = previous.iframeId;
+
+      await db.delete(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, ctx.tenantId));
     }
   });
 
