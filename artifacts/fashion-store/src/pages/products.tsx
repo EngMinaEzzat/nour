@@ -25,9 +25,12 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Package, Plus, Pencil, Trash2, Search, Star, Eye, EyeOff,
   AlertCircle, Layers, X, Check, Palette, AlertTriangle, Sparkles, Loader2,
-  FileUp, FileDown, CheckCircle2, XCircle, UploadCloud,
+  FileUp, FileDown, CheckCircle2, XCircle, UploadCloud, MoreHorizontal, Filter,
 } from "lucide-react";
 import { ImageUpload, ImageUploadList } from "@/components/image-upload";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
@@ -59,12 +62,12 @@ const STATUS_COLORS: Record<string, string> = {
 
 type ProductForm = {
   name: string; description: string; price: string; originalPrice: string;
-  imageUrl: string; featured: boolean;
+  stock: string; imageUrl: string; featured: boolean;
   status: "active" | "out_of_stock" | "hidden"; categoryId: string;
 };
 
 const EMPTY_FORM: ProductForm = {
-  name: "", description: "", price: "", originalPrice: "",
+  name: "", description: "", price: "", originalPrice: "", stock: "0",
   imageUrl: "", featured: false, status: "active", categoryId: "",
 };
 
@@ -106,6 +109,9 @@ function VariantManager({ productId }: { productId: number }) {
 
   useEffect(() => {
     setRows(variants?.map(variantToRow) ?? []);
+    if (variants && variants.length > 0) {
+      // notify parent if needed, but here we just manage rows
+    }
   }, [productId, variants]);
 
   function addRow() {
@@ -699,6 +705,7 @@ export default function Products() {
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   const [search, setSearch] = useState("");
+  const [filterLowStock, setFilterLowStock] = useState(() => new URLSearchParams(window.location.search).get("filter") === "low-stock");
   const [csvImportOpen, setCsvImportOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -708,6 +715,7 @@ export default function Products() {
   const [draftVariants, setDraftVariants] = useState<VariantRow[]>([newVariantRow()]);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [hasVariants, setHasVariants] = useState(false);
 
   // Pricing advisor state
   type PricingProduct = { id: number; name: string; price: number; originalPrice?: number | null; stock: number; orderCount: number; description: string; categoryName?: string | null };
@@ -757,13 +765,16 @@ export default function Products() {
     fetchPricingAdvice(product, pricingModel);
   }
 
-  const filtered = products?.filter((p) =>
-    !search || p.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = products?.filter((p) => {
+    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (filterLowStock && p.stock > 5) return false;
+    return true;
+  });
 
   function openCreate() {
     setForm(EMPTY_FORM);
     setDraftVariants([newVariantRow()]);
+    setHasVariants(false);
     setFormError(null);
     setEditingId(null);
     setVariantsProductId(null);
@@ -774,10 +785,15 @@ export default function Products() {
     setForm({
       name: p.name, description: p.description,
       price: String(p.price), originalPrice: p.originalPrice ? String(p.originalPrice) : "",
+      stock: String(p.stock),
       imageUrl: normalizeStoredImageUrl(p.imageUrl),
       featured: p.featured, status: p.status,
       categoryId: p.categoryId ? String(p.categoryId) : "",
     });
+    // Let hasVariants trigger after fetching if variants exist, or just rely on variant length.
+    // For simplicity, we assume they have variants if their stock doesn't perfectly match product stock, 
+    // or we'll let VariantManager handle it. Actually, just set it true for now and hide if 0 in effect.
+    setHasVariants(true); 
     setFormError(null);
     setEditingId(p.id);
     setVariantsProductId(p.id);
@@ -794,8 +810,8 @@ export default function Products() {
     setSaving(true);
     setFormError(null);
     try {
-      const representativeImage = normalizeStoredImageUrl(form.imageUrl) || firstVariantImage(rowsForCreate);
-      const derivedStock = editingId ? undefined : variantStock(rowsForCreate);
+      const representativeImage = normalizeStoredImageUrl(form.imageUrl) || (hasVariants ? firstVariantImage(rowsForCreate) : "");
+      const derivedStock = hasVariants ? (editingId ? undefined : variantStock(rowsForCreate)) : parseInt(form.stock, 10);
       const payload = {
         name: form.name.trim(),
         description: form.description.trim(),
@@ -809,11 +825,13 @@ export default function Products() {
       };
       if (editingId) {
         const { stock: _stock, ...updatePayload } = payload;
-        await updateProduct.mutateAsync({ id: editingId, data: updatePayload });
+        await updateProduct.mutateAsync({ id: editingId, data: hasVariants ? updatePayload : payload });
       } else {
         const created = await createProduct.mutateAsync({ data: { ...payload, tenantId } });
-        for (const row of rowsForCreate) {
-          await createVariantFromDraft(created.id, row);
+        if (hasVariants) {
+          for (const row of rowsForCreate) {
+            await createVariantFromDraft(created.id, row);
+          }
         }
         setVariantsProductId(created.id);
         setEditingId(created.id);
@@ -868,10 +886,24 @@ export default function Products() {
               className="ps-10 bg-background h-10 rounded-xl"
             />
           </div>
-          <Button onClick={() => setCsvImportOpen(true)} variant="secondary" className="gap-2 h-10 rounded-xl shadow-sm">
-            <FileUp className="w-4 h-4" />
-            <span className="hidden sm:inline">{t("products.btnImport")}</span>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" className="gap-2 h-10 rounded-xl shadow-sm px-3">
+                <MoreHorizontal className="w-4 h-4" />
+                <span className="hidden sm:inline">مزيد من الإجراءات</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => setFilterLowStock(!filterLowStock)}>
+                <Filter className="w-4 h-4 me-2 text-muted-foreground" />
+                {filterLowStock ? "عرض كل المنتجات" : "تصفية المخزون المنخفض"}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCsvImportOpen(true)}>
+                <FileUp className="w-4 h-4 me-2 text-muted-foreground" />
+                {t("products.btnImport")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button onClick={openCreate} className="gap-2 h-10 rounded-xl shadow-sm">
             <Plus className="w-4 h-4" />
             {t("products.btnAdd")}
@@ -896,17 +928,6 @@ export default function Products() {
         ]}
         variant="guide"
       />
-
-      {/* Search */}
-      <div className="relative mb-6 max-w-sm">
-        <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="ابحث عن منتج..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="ps-10 h-10"
-        />
-      </div>
 
       {/* Stats summary */}
       {!isLoading && products && (
@@ -1073,6 +1094,12 @@ export default function Products() {
                 <Label>{t("products.form.originalPrice")}</Label>
                 <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} />
               </div>
+              {!hasVariants && (
+                <div className="space-y-1.5">
+                  <Label>{t("products.columns.stock")}</Label>
+                  <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" />
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label>{t("products.form.category").split(" ")[0]}</Label>
                 <Select
@@ -1135,7 +1162,13 @@ export default function Products() {
 
             {!variantsProductId && (
               <div className="border-t border-border/50 pt-5">
-                <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
+                {hasVariants ? (
+                  <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
+                ) : (
+                  <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
+                    <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
+                  </Button>
+                )}
               </div>
             )}
 
@@ -1152,7 +1185,7 @@ export default function Products() {
             </DialogFooter>
 
             {/* Variants section — shown after product exists */}
-            {variantsProductId && (
+            {variantsProductId && hasVariants && (
               <AnimatePresence>
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
@@ -1165,6 +1198,13 @@ export default function Products() {
                   </p>
                 </motion.div>
               </AnimatePresence>
+            )}
+            {variantsProductId && !hasVariants && (
+              <div className="border-t border-border/50 pt-5">
+                <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
+                  <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
+                </Button>
+              </div>
             )}
 
           </div>
