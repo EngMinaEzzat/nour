@@ -276,6 +276,24 @@ export interface Customer {
   createdAt: string;
 }
 
+export interface RegisterCustomerBody {
+  /** @minLength 1 */
+  name: string;
+  email: string;
+  /** @minLength 8 */
+  password: string;
+  phone?: string | null;
+}
+
+export interface LoginCustomerBody {
+  email: string;
+  password: string;
+}
+
+export interface CustomerAuthResponse {
+  customer: Customer;
+}
+
 export interface CreateCustomerBody {
   name: string;
   email: string;

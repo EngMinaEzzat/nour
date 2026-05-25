@@ -7,6 +7,7 @@ import {
   Menu, LogOut, LogIn, UserCog, X, Settings, ShieldCheck,
   BarChart2, Truck, Bell, RotateCcw, Zap, CreditCard, Globe,
   Download, TrendingUp, Ticket, Star, ShoppingCart, AlertTriangle, Facebook, Wand2,
+  ChevronDown, ChevronRight, Link as LinkIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,40 +17,58 @@ import { useTranslation } from "react-i18next";
 import { getStoreUrl } from "@/lib/utils";
 
 function getMerchantNav(merchant: { slug?: string; role?: string; isPlatformAdmin?: boolean } | null) {
-  const base = [
-    { name: "layout.dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "layout.storeBuilder", href: "/store-builder", icon: Wand2 },
-    { name: "layout.analytics", href: "/analytics", icon: BarChart2 },
-    { name: "layout.orders", href: "/orders", icon: FileText },
-    { name: "layout.followUp", href: "/follow-up", icon: Bell },
-    { name: "layout.products", href: "/products", icon: Package },
-    { name: "layout.customers", href: "/customers", icon: Users },
-    { name: "layout.returns", href: "/returns", icon: RotateCcw },
-    { name: "layout.shipping", href: "/shipping-rules", icon: Truck },
-    { name: "layout.automation", href: "/automation", icon: Zap },
-    { name: "layout.categories", href: "/categories", icon: Tags },
-    ...(merchant?.role === "owner" || merchant?.role === "manager"
-      ? [{ name: "layout.staff", href: "/staff", icon: UserCog }]
-      : []),
-    { name: "layout.storeSettings", href: "/store-settings", icon: Settings },
-    { name: "layout.tracking", href: "/tracking", icon: BarChart2 },
-    { name: "layout.exports", href: "/exports", icon: Download },
-    { name: "layout.billing", href: "/billing", icon: CreditCard },
-    { name: "layout.domains", href: "/domains", icon: Globe },
-    { name: "layout.discounts", href: "/discounts", icon: Ticket },
-    { name: "layout.reviews", href: "/reviews", icon: Star },
-    { name: "layout.abandonedCarts", href: "/abandoned-carts", icon: ShoppingCart },
-    { name: "layout.inventoryAlerts", href: "/inventory-alerts", icon: AlertTriangle },
-    { name: "layout.facebookModerator", href: "/facebook-moderator", icon: Facebook },
-    { name: "layout.growth", href: "/growth", icon: TrendingUp },
-    ...(merchant?.slug ? [{ name: "layout.myStore", href: getStoreUrl(merchant.slug), icon: Store, external: true }] : []),
+  const groups = [
+    {
+      title: "layout.group.storeManagement",
+      fallback: "Store Management",
+      items: [
+        { name: "layout.dashboard", href: "/dashboard", icon: LayoutDashboard },
+        { name: "layout.orders", href: "/orders", icon: FileText },
+        { name: "layout.shipping", href: "/shipping-rules", icon: Truck },
+        { name: "layout.products", href: "/products", icon: Package },
+        { name: "layout.categories", href: "/categories", icon: Tags },
+        { name: "layout.customers", href: "/customers", icon: Users },
+      ]
+    },
+    {
+      title: "layout.group.marketingGrowth",
+      fallback: "Marketing & Growth",
+      items: [
+        { name: "layout.analytics", href: "/analytics", icon: BarChart2 },
+        { name: "layout.discounts", href: "/discounts", icon: Ticket },
+        { name: "layout.abandonedCarts", href: "/abandoned-carts", icon: ShoppingCart },
+        { name: "layout.growth", href: "/growth", icon: TrendingUp },
+        { name: "layout.tracking", href: "/tracking", icon: BarChart2 },
+      ]
+    },
+    {
+      title: "layout.group.settingsPreferences",
+      fallback: "Settings & Preferences",
+      items: [
+        { name: "layout.storeBuilder", href: "/store-builder", icon: Wand2 },
+        { name: "layout.storeSettings", href: "/store-settings", icon: Settings },
+        { name: "layout.domains", href: "/domains", icon: Globe },
+        { name: "layout.billing", href: "/billing", icon: CreditCard },
+        { name: "common.pricing", href: "/pricing", icon: CreditCard },
+        ...(merchant?.role === "owner" || merchant?.role === "manager"
+          ? [{ name: "layout.staff", href: "/staff", icon: UserCog }]
+          : []),
+      ]
+    },
+    {
+      title: "layout.group.advancedIntegrations",
+      fallback: "Advanced / Integrations",
+      advanced: true,
+      items: [
+        { name: "layout.facebookModerator", href: "/facebook-moderator", icon: Facebook },
+        { name: "layout.affiliates", href: "/affiliates", icon: LinkIcon },
+        { name: "layout.automation", href: "/automation", icon: Zap },
+        { name: "layout.exports", href: "/exports", icon: Download },
+      ]
+    }
   ];
 
-  if (merchant?.isPlatformAdmin) {
-    base.push({ name: "platform.title", href: "/platform", icon: ShieldCheck });
-  }
-
-  return base;
+  return groups;
 }
 
 const PUBLIC_NAV = [
@@ -78,6 +97,7 @@ function NavLink({ href, children, active }: { href: string; children: ReactNode
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const { isAuthenticated, logout, merchant } = useAuth();
   const { t, i18n } = useTranslation();
 
@@ -119,48 +139,96 @@ export function Layout({ children }: { children: ReactNode }) {
               <div className="flex flex-col p-4 space-y-1 overflow-y-auto flex-1">
                 {isAuthenticated ? (
                   <>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2">
-                      {merchant?.name ?? t("layout.myStore")}
-                    </p>
-                    {merchantNav.map((item) => {
-                      const active = isActive(item.href);
-                      const Icon = item.icon;
-                      const navItemContent = (
-                        <>
-                          <Icon className="h-4 w-4" />
-                          {t(item.name)}
-                          {item.name === "layout.myStore" && (
-                            <Badge variant="outline" className="ms-auto text-[10px] px-1.5 py-0">{t("common.public")}</Badge>
-                          )}
-                          {item.name === "platform.title" && (
-                            <Badge className="ms-auto text-[10px] px-1.5 py-0 bg-primary/20 text-primary border-primary/30">Admin</Badge>
-                          )}
-                        </>
-                      );
-                      const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                        active
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`;
+                    <div className="flex flex-col mb-4">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 border-b border-border/40 pb-3 mb-2 flex items-center justify-between">
+                        {merchant?.name ?? t("layout.myStore")}
+                        {merchant?.slug && (
+                           <a href={getStoreUrl(merchant.slug)} target="_blank" rel="noreferrer" className="text-primary flex items-center gap-1 normal-case hover:underline">
+                             <Store className="w-3 h-3" />
+                             {t("layout.myStore")}
+                           </a>
+                        )}
+                      </p>
+                    </div>
 
-                      return item.external ? (
-                        <a
-                          key={item.name}
-                          href={item.href}
-                          onClick={() => setMobileOpen(false)}
-                          className={className}
-                        >
-                          {navItemContent}
-                        </a>
-                      ) : (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          onClick={() => setMobileOpen(false)}
-                          className={className}
-                        >
-                          {navItemContent}
-                        </Link>
+                    {merchantNav.map((group, groupIdx) => {
+                      const groupTitle = t(group.title) === group.title ? group.fallback : t(group.title);
+                      
+                      if (group.advanced) {
+                        return (
+                          <div key={group.title} className="mt-4">
+                            <button
+                              onClick={() => setAdvancedOpen(!advancedOpen)}
+                              className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:bg-muted/50 rounded-lg transition-colors"
+                            >
+                              {groupTitle}
+                              {advancedOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                            </button>
+                            <AnimatePresence>
+                              {advancedOpen && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  className="overflow-hidden flex flex-col space-y-1 mt-1 pl-2 border-l-2 border-border/40 ml-4"
+                                >
+                                  {group.items.map((item) => {
+                                    const active = isActive(item.href);
+                                    const Icon = item.icon;
+                                    const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                                      active
+                                        ? "bg-primary text-primary-foreground"
+                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    }`;
+
+                                    return (
+                                      <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        onClick={() => setMobileOpen(false)}
+                                        className={className}
+                                      >
+                                        <Icon className="h-4 w-4" />
+                                        {t(item.name)}
+                                      </Link>
+                                    );
+                                  })}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div key={group.title} className="mb-4">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
+                            {groupTitle}
+                          </p>
+                          <div className="flex flex-col space-y-1">
+                            {group.items.map((item) => {
+                              const active = isActive(item.href);
+                              const Icon = item.icon;
+                              const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                                active
+                                  ? "bg-primary text-primary-foreground"
+                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                              }`;
+
+                              return (
+                                <Link
+                                  key={item.name}
+                                  href={item.href}
+                                  onClick={() => setMobileOpen(false)}
+                                  className={className}
+                                >
+                                  <Icon className="h-4 w-4" />
+                                  {item.name === "common.pricing" ? "Subscription / Plans" : t(item.name)}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
                       );
                     })}
                     <div className="pt-4 border-t border-border/40 mt-2">

@@ -250,6 +250,118 @@ export const GetMeResponse = zod.object({
 });
 
 /**
+ * @summary Register a customer
+ */
+
+export const registerCustomerBodyPasswordMin = 8;
+
+export const RegisterCustomerBody = zod.object({
+  name: zod.string().min(1),
+  email: zod.string().email(),
+  password: zod.string().min(registerCustomerBodyPasswordMin),
+  phone: zod.string().nullish(),
+});
+
+/**
+ * @summary Log in as a customer
+ */
+export const LoginCustomerBody = zod.object({
+  email: zod.string().email(),
+  password: zod.string(),
+});
+
+export const LoginCustomerResponse = zod.object({
+  customer: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+    phone: zod.string().nullish(),
+    city: zod.string().nullish(),
+    totalOrders: zod.number(),
+    totalSpent: zod.number(),
+    createdAt: zod.coerce.date(),
+  }),
+});
+
+/**
+ * @summary Get current authenticated customer
+ */
+export const GetCustomerMeResponse = zod.object({
+  customer: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+    phone: zod.string().nullish(),
+    city: zod.string().nullish(),
+    totalOrders: zod.number(),
+    totalSpent: zod.number(),
+    createdAt: zod.coerce.date(),
+  }),
+});
+
+/**
+ * @summary Get authenticated customer orders for store
+ */
+export const GetCustomerOrdersParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetCustomerOrdersResponseItem = zod.object({
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  customerId: zod.number(),
+  customerName: zod.string(),
+  status: zod.enum([
+    "pending",
+    "awaiting_confirmation",
+    "confirmed",
+    "dispatched",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "returned",
+  ]),
+  totalAmount: zod.number(),
+  shippingCost: zod.number().optional(),
+  shippingAddress: zod.string().nullish(),
+  customerPhone: zod.string().nullish(),
+  paymentMethod: zod.enum(["cod", "paymob"]),
+  paymentStatus: zod.enum(["pending", "paid", "failed"]),
+  paymobOrderId: zod.string().nullish(),
+  paymobTransactionId: zod.string().nullish(),
+  bostaShipmentId: zod.string().nullish(),
+  trackingNumber: zod.string().nullish(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      productId: zod.number(),
+      variantId: zod.number().nullish(),
+      productName: zod.string(),
+      quantity: zod.number(),
+      unitPrice: zod.number(),
+      totalPrice: zod.number(),
+    }),
+  ),
+  statusHistory: zod
+    .array(
+      zod.object({
+        id: zod.number(),
+        orderId: zod.number(),
+        fromStatus: zod.string().nullish(),
+        toStatus: zod.string(),
+        note: zod.string().nullish(),
+        createdAt: zod.coerce.date(),
+      }),
+    )
+    .optional(),
+  createdAt: zod.coerce.date(),
+});
+export const GetCustomerOrdersResponse = zod.array(
+  GetCustomerOrdersResponseItem,
+);
+
+/**
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({

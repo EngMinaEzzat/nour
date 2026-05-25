@@ -307,6 +307,95 @@ paths:
         "401":
           description: Not authenticated
 
+  /storefront-auth/register:
+    post:
+      operationId: registerCustomer
+      tags: [customers]
+      summary: Register a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterCustomerBody"
+      responses:
+        "201":
+          description: Registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerAuthResponse"
+        "409":
+          description: Email already exists
+
+  /storefront-auth/login:
+    post:
+      operationId: loginCustomer
+      tags: [customers]
+      summary: Log in as a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginCustomerBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerAuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /storefront-auth/logout:
+    post:
+      operationId: logoutCustomer
+      tags: [customers]
+      summary: Log out customer
+      responses:
+        "204":
+          description: Logged out
+
+  /storefront-auth/me:
+    get:
+      operationId: getCustomerMe
+      tags: [customers]
+      summary: Get current authenticated customer
+      responses:
+        "200":
+          description: Current customer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerAuthResponse"
+        "401":
+          description: Not authenticated
+
+  /store/{slug}/customer-orders:
+    get:
+      operationId: getCustomerOrders
+      tags: [orders]
+      summary: Get authenticated customer orders for store
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Customer orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+        "401":
+          description: Not authenticated
+
   /healthz:
     get:
       operationId: healthCheck
@@ -1555,6 +1644,40 @@ components:
           type: string
           format: date-time
       required: [id, name, email, totalOrders, totalSpent, createdAt]
+
+    RegisterCustomerBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        phone:
+          type: string
+          nullable: true
+      required: [name, email, password]
+
+    LoginCustomerBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    CustomerAuthResponse:
+      type: object
+      properties:
+        customer:
+          $ref: "#/components/schemas/Customer"
+      required: [customer]
 
     CreateCustomerBody:
       type: object

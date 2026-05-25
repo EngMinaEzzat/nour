@@ -205,4 +205,36 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
   }
 });
 
+router.get("/store/:slug/customer-orders", async (req, res) => {
+  const customerId = req.session.customerId;
+  if (!customerId) return res.status(401).json({ error: "غير مسجل الدخول" });
+
+  const slug = String(req.params.slug);
+
+  try {
+    const [tenant] = await db
+      .select({ id: tenantsTable.id })
+      .from(tenantsTable)
+      .where(and(eq(tenantsTable.slug, slug), eq(tenantsTable.status, "active")));
+
+    if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
+
+    const orders = await db
+      .select()
+      .from(ordersTable)
+      .where(
+        and(
+          eq(ordersTable.tenantId, tenant.id),
+          eq(ordersTable.customerId, customerId)
+        )
+      )
+      .orderBy(ordersTable.createdAt);
+
+    return res.json(orders);
+  } catch (err) {
+    req.log.error(err);
+    return res.status(500).json({ error: "حدث خطأ أثناء استرجاع الطلبات" });
+  }
+});
+
 export default router;

@@ -2,7 +2,8 @@ import "express-session";
 
 declare module "express-session" {
   interface SessionData {
-    merchantId: number;
+    merchantId?: number;
+    customerId?: number;
     isPlatformAdmin?: boolean;
   }
 }

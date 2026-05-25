@@ -242,6 +242,24 @@ export function StoreHeader({
               </DropdownMenuContent>
             </DropdownMenu>
 
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="h-9 px-3 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all text-[13px] font-medium"
+                >
+                  {t("storefront.header.actions.account", "حسابي")}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate("/customer/orders")}>
+                  {t("storefront.header.actions.myOrders", "طلباتي")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/customer/login")}>
+                  {t("storefront.header.actions.login", "تسجيل الدخول")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <button
               onClick={() => navigate("/checkout")}
               className="relative w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100"

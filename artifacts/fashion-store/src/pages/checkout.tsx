@@ -36,13 +36,16 @@ type CouponState = {
   value: number;
 };
 
+import { useCustomerAuth } from "@/hooks/use-customer-auth";
+
 export default function Checkout() {
   const { items, totalPrice, clearCart, sessionId } = useCart();
+  const { customer: authCustomer, isAuthenticated } = useCustomerAuth();
   const [, navigate] = useLocation();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(authCustomer?.name ?? "");
+  const [email, setEmail] = useState(authCustomer?.email ?? "");
+  const [phone, setPhone] = useState(authCustomer?.phone ?? "");
   const [address, setAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [paymobIframeUrl, setPaymobIframeUrl] = useState<string | null>(null);
@@ -136,16 +139,20 @@ export default function Checkout() {
     setIsSubmitting(true);
     try {
       let customerId: number;
-      const existing = customers?.find((c) => c.email.toLowerCase() === email.toLowerCase());
-      if (existing) {
-        customerId = existing.id;
+      if (isAuthenticated && authCustomer) {
+        customerId = authCustomer.id;
       } else {
-        const newCustomer = await createCustomer.mutateAsync({ data: {
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          phone: phone.trim(),
-        } });
-        customerId = newCustomer.id;
+        const existing = customers?.find((c) => c.email.toLowerCase() === email.toLowerCase());
+        if (existing) {
+          customerId = existing.id;
+        } else {
+          const newCustomer = await createCustomer.mutateAsync({ data: {
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            phone: phone.trim(),
+          } });
+          customerId = newCustomer.id;
+        }
       }
 
       const orderIds: number[] = [];

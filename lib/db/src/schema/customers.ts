@@ -11,6 +11,7 @@ export const customersTable = pgTable("customers", {
   marketingConsent: boolean("marketing_consent").notNull().default(false),
   marketingConsentSource: text("marketing_consent_source"),
   marketingConsentAt: timestamp("marketing_consent_at"),
+  passwordHash: text("password_hash"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
