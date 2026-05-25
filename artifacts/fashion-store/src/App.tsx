@@ -196,6 +196,13 @@ function Router() {
 
         {/* Standalone storefront routes are now solely handled by StorefrontRouter via subdomains */}
 
+        {/* Platform Admin Dashboard - Isolated from Merchant Layout */}
+        <Route path="/platform">
+          <ProtectedRoute>
+            <Platform />
+          </ProtectedRoute>
+        </Route>
+
         {/* All other routes render inside the dashboard Layout */}
         <Route>
           <Layout>
@@ -207,11 +214,7 @@ function Router() {
               <Route path="/products/:id" component={ProductDetail} />
               <Route path="/categories" component={Categories} />
 
-              <Route path="/platform">
-                <ProtectedRoute>
-                  <Platform />
-                </ProtectedRoute>
-              </Route>
+
               <Route path="/products">
                 <ProtectedRoute>
                   <Products />

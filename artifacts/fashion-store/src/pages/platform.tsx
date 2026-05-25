@@ -297,9 +297,17 @@ export default function Platform() {
   return (
     <div className="container mx-auto px-4 py-10 max-w-7xl">
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center gap-3 mb-1">
-          <ShieldCheck className="w-6 h-6 text-primary" />
-          <h1 className="text-3xl font-bold">{t("platform.title")}</h1>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="w-6 h-6 text-primary" />
+            <h1 className="text-3xl font-bold">{t("platform.title")}</h1>
+          </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard">
+              <ChevronLeft className="w-4 h-4 me-1" />
+              {t("platform.backToDashboard", { defaultValue: "العودة للمتجر" })}
+            </Link>
+          </Button>
         </div>
         <p className="text-muted-foreground mb-6">{t("platform.subtitle")}</p>
         <div className="flex gap-2 mb-8 flex-wrap">
