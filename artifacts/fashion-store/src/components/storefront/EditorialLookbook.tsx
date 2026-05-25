@@ -102,7 +102,7 @@ export function EditorialLookbook({
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 auto-rows-[260px] md:auto-rows-[320px]">
-          {PANELS.map((panel, i) => (
+          {PANELS.map((panel: any, i: number) => (
             <motion.div
               key={i}
               className={`relative overflow-hidden rounded-3xl cursor-pointer group ${panel.span}`}
