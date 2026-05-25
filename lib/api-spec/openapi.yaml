@@ -1659,8 +1659,8 @@ components:
           minLength: 8
         phone:
           type: string
-          nullable: true
-      required: [name, email, password]
+          pattern: '^01[0125][0-9]{8}$'
+      required: [name, email, password, phone]
 
     LoginCustomerBody:
       type: object

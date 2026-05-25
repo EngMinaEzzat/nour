@@ -63,11 +63,15 @@ export default function CustomerRegister() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">رقم الهاتف (اختياري)</label>
+              <label className="text-sm font-medium">رقم الهاتف</label>
               <Input 
                 type="tel" 
                 value={phone} 
                 onChange={e => setPhone(e.target.value)}
+                required
+                pattern="01[0125][0-9]{8}"
+                placeholder="01xxxxxxxxx"
+                title="رقم هاتف مصري صحيح (مثال: 01012345678)"
                 dir="ltr"
               />
             </div>

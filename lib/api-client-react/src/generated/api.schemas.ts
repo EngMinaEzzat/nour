@@ -282,7 +282,8 @@ export interface RegisterCustomerBody {
   email: string;
   /** @minLength 8 */
   password: string;
-  phone?: string | null;
+  /** @pattern ^01[0125][0-9]{8}$ */
+  phone: string;
 }
 
 export interface LoginCustomerBody {

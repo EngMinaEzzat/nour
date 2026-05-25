@@ -255,11 +255,13 @@ export const GetMeResponse = zod.object({
 
 export const registerCustomerBodyPasswordMin = 8;
 
+export const registerCustomerBodyPhoneRegExp = new RegExp("^01[0125][0-9]{8}$");
+
 export const RegisterCustomerBody = zod.object({
   name: zod.string().min(1),
   email: zod.string().email(),
   password: zod.string().min(registerCustomerBodyPasswordMin),
-  phone: zod.string().nullish(),
+  phone: zod.string().regex(registerCustomerBodyPhoneRegExp),
 });
 
 /**

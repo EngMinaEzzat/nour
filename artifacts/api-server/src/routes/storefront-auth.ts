@@ -31,7 +31,10 @@ function buildCustomerResponse(customer: { id: number; name: string; email: stri
 
 router.post("/storefront-auth/register", authLimiter, async (req, res) => {
   const parsed = RegisterCustomerBody.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success) {
+    req.log.error({ body: req.body, error: parsed.error.flatten() }, "Validation failed for customer registration");
+    return res.status(400).json({ error: parsed.error.flatten() });
+  }
 
   const { name, email, password, phone } = parsed.data;
 
