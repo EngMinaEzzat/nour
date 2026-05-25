@@ -115,4 +115,18 @@ describe("Audit Routes", () => {
       expect(res.status).toBe(401);
     });
   });
+
+  describe("GET /api/audit/logs", () => {
+    it("✅ should act as an alias for /audit/events/my", async () => {
+      const res = await merchantCtx.agent.get("/api/audit/logs");
+      expect(res.status).toBe(200);
+      expect(res.body.length).toBeGreaterThanOrEqual(2);
+      expect(res.body.map((e: any) => e.eventType)).toEqual(expect.arrayContaining(["product_deleted", "plan_changed"]));
+    });
+
+    it("❌ should reject unauthenticated requests", async () => {
+      const res = await unauthAgent().get("/api/audit/logs");
+      expect(res.status).toBe(401);
+    });
+  });
 });

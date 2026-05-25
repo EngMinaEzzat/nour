@@ -6,6 +6,21 @@ import { eq, desc, and } from "drizzle-orm";
 
 const router = Router();
 
+// GET /audit/logs — backward compatibility for older clients, alias for /audit/events/my
+router.get("/audit/logs", requireRole("owner", "manager"), async (req, res) => {
+  try {
+    const tenantId = req.merchantTenantId!;
+    const events = await db.select().from(tenantAuditEventsTable)
+      .where(eq(tenantAuditEventsTable.tenantId, tenantId))
+      .orderBy(desc(tenantAuditEventsTable.createdAt))
+      .limit(50);
+    res.json(events);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "فشل جلب السجل" });
+  }
+});
+
 // GET /audit/events — platform admin sees all tenant events
 router.get("/audit/events", requirePlatformAdmin, async (req, res) => {
   try {

@@ -1,16 +1,7 @@
-ALTER TABLE "tenants" ADD COLUMN IF NOT EXISTS "store_config" jsonb;--> statement-breakpoint
-ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "parent_id" integer;--> statement-breakpoint
-ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "image_url" text;--> statement-breakpoint
-ALTER TABLE "product_variants" ADD COLUMN IF NOT EXISTS "image_urls" text DEFAULT '[]' NOT NULL;--> statement-breakpoint
-ALTER TABLE "order_items" ADD COLUMN IF NOT EXISTS "variant_id" integer;--> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "categories" ADD CONSTRAINT "categories_parent_id_categories_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."categories"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "order_items" ADD CONSTRAINT "order_items_variant_id_product_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE set null ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
+ALTER TABLE "tenants" ADD COLUMN "store_config" jsonb;--> statement-breakpoint
+ALTER TABLE "categories" ADD COLUMN "parent_id" integer;--> statement-breakpoint
+ALTER TABLE "categories" ADD COLUMN "image_url" text;--> statement-breakpoint
+ALTER TABLE "product_variants" ADD COLUMN "image_urls" text DEFAULT '[]' NOT NULL;--> statement-breakpoint
+ALTER TABLE "order_items" ADD COLUMN "variant_id" integer;--> statement-breakpoint
+ALTER TABLE "categories" ADD CONSTRAINT "categories_parent_id_categories_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."categories"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "order_items" ADD CONSTRAINT "order_items_variant_id_product_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE set null ON UPDATE no action;

@@ -30,6 +30,7 @@ describe("Smoke Test — End-to-End COD Flow", () => {
       email: `smoke.${id}@test.invalid`,
       password: "TestPass123!",
       category: "fashion",
+      phone: "01000000000",
       description: "Automated smoke-test store",
     });
     

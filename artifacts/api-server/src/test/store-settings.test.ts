@@ -129,6 +129,6 @@ describe("Store settings", () => {
 
     const storefront = await request(app).get(`/api/store/${ctx.slug}`);
     expect(storefront.status).toBe(200);
-    expect(storefront.body.storeConfig.homepage.sections[0].content.heading).toBe("Editor hero headline");
+    expect(storefront.body.storeConfig?.homepage?.sections?.[0]?.content?.heading).toBe("Editor hero headline");
   });
 });
