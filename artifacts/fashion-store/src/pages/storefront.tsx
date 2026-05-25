@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useLocation } from "wouter";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,6 +26,7 @@ import { EditorialLookbook } from "@/components/storefront/EditorialLookbook";
 import { TrendingSection } from "@/components/storefront/TrendingSection";
 import { BestSellersSection } from "@/components/storefront/BestSellersSection";
 import { PromoBanners } from "@/components/storefront/PromoBanners";
+import { ProductToolbar, type ProductFilters } from "@/components/storefront/ProductToolbar";
 import { UGCSection } from "@/components/storefront/UGCSection";
 import { TrustStrip } from "@/components/storefront/TrustStrip";
 import { NewsletterSection } from "@/components/storefront/NewsletterSection";
@@ -92,6 +94,8 @@ function CategoryFilter({
   onSelect: (id: number | null) => void;
   p: string;
 }) {
+  const { t, i18n } = useTranslation();
+
   if (!store.categories || store.categories.length === 0) return null;
 
   const selectedCategory = store.categories.find(c => c.id === selected);
@@ -117,7 +121,7 @@ function CategoryFilter({
                 }
           }
         >
-          الكل
+          {store.categories.length > 0 ? t("storefront.home.categories.all", "الكل") : ""}
         </button>
         {parents.map(cat => {
           const isParentSelected = selected === cat.id || (selectedCategory?.parentId === cat.id);
@@ -136,39 +140,49 @@ function CategoryFilter({
                     }
               }
             >
-              {cat.name}
+              {i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name}
             </button>
           );
         })}
       </div>
 
-      {/* Subcategories (if a parent is selected) */}
-      <AnimatePresence>
+      {/* Subcategories (if any) */}
+      <AnimatePresence mode="wait">
         {children.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex gap-2 flex-wrap ps-4 border-r-2 border-primary/20"
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            className="flex gap-2 flex-wrap overflow-hidden"
           >
-            {children.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => onSelect(cat.id)}
-                className="shrink-0 px-4 py-1.5 rounded-full text-[11px] font-medium transition-all"
-                style={
-                  selected === cat.id
-                    ? { background: p, color: "#fff" }
-                    : {
-                        background: "rgba(122,96,96,0.05)",
-                        color: "#7a6060",
-                        border: "1px solid rgba(122,96,96,0.1)",
-                      }
-                }
-              >
-                {cat.name}
-              </button>
-            ))}
+            <button
+              onClick={() => activeParentId && onSelect(activeParentId)}
+              className="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={
+                selected === activeParentId
+                  ? { background: `${p}20`, color: p, border: `1px solid ${p}` }
+                  : { background: "transparent", color: "#8a7b7b", border: "1px solid rgba(122,96,96,0.15)" }
+              }
+            >
+              {t("storefront.home.categories.all", "الكل")}
+            </button>
+            {children.map(cat => {
+              const isChildSelected = selected === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => onSelect(cat.id)}
+                  className="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all"
+                  style={
+                    isChildSelected
+                      ? { background: `${p}20`, color: p, border: `1px solid ${p}` }
+                      : { background: "transparent", color: "#8a7b7b", border: "1px solid rgba(122,96,96,0.15)" }
+                  }
+                >
+                  {i18n.language === "ar" ? (cat.nameAr || cat.name) : cat.name}
+                </button>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
@@ -188,6 +202,7 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
   }, []);
 
   if (!waNum) return null;
+  const { t, i18n } = useTranslation();
   const msg = encodeURIComponent(`مرحباً 👋، أريد الاستفسار عن متجر ${store.name}`);
 
   return (
@@ -206,9 +221,9 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0 }}
                 className="bg-white shadow-xl rounded-2xl px-4 py-2.5 text-xs font-medium text-stone-700 whitespace-nowrap border border-stone-100"
-                style={{ direction: "rtl" }}
+                style={{ direction: i18n.dir() }}
               >
-                تحدثي مع المتجر مباشرة
+                {t("storefront.trust.support")}
               </motion.div>
             )}
           </AnimatePresence>
@@ -234,13 +249,14 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
 // ─── Admin Preview Bar ────────────────────────────────────────────────────────
 function AdminBar() {
   const { isAuthenticated } = useAuth();
+  const { t, i18n } = useTranslation();
   if (!isAuthenticated) return null;
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed top-3 right-3 z-[200]"
-      style={{ direction: "ltr" }}
+      className={`fixed top-3 ${i18n.dir() === "rtl" ? "right-3" : "left-3"} z-[200]`}
+      style={{ direction: i18n.dir() }}
     >
       <Link href="/store-settings">
         <motion.button
@@ -249,7 +265,7 @@ function AdminBar() {
           className="flex items-center gap-2 bg-gray-900/90 text-white text-xs font-semibold px-3.5 py-2 rounded-full shadow-xl backdrop-blur-sm border border-white/10 hover:bg-gray-900 transition-colors"
         >
           <LayoutDashboard className="w-3.5 h-3.5" />
-          لوحة التحكم
+          {t("storefront.adminBar.dashboard", "لوحة التحكم")}
         </motion.button>
       </Link>
     </motion.div>
@@ -272,15 +288,16 @@ function EditorTextSection({
     : typeof section.content.subheading === "string"
       ? section.content.subheading
       : null;
+  const { t, i18n } = useTranslation();
 
   if (section.type === "whatsapp") {
     return (
-      <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "#faf7f4", direction: "rtl" }}>
+      <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "#faf7f4", direction: i18n.dir() }}>
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl text-stone-900 mb-3" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
           {body && <p className="text-stone-500 text-sm mb-6">{body}</p>}
           <button onClick={onScrollToProducts} className="px-8 py-3 rounded-full text-white text-sm font-semibold" style={{ background: primaryColor }}>
-            {typeof section.content.ctaText === "string" ? section.content.ctaText : "تسوقي الآن"}
+            {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow", "تسوقي الآن")}
           </button>
         </div>
       </section>
@@ -288,12 +305,12 @@ function EditorTextSection({
   }
 
   return (
-    <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: "rtl" }}>
+    <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: i18n.dir() }}>
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-4xl md:text-5xl text-stone-900 mb-4" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
         {body && <p className="text-stone-500 text-sm leading-7 max-w-2xl mx-auto mb-8">{body}</p>}
         {items.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-right">
+          <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
             {items.slice(0, 6).map((item, index) => (
               <div key={index} className="border border-stone-100 rounded-2xl p-5 bg-[#faf7f4]">
                 <p className="font-semibold text-stone-900 mb-2">{item.title ?? item.q ?? item.name ?? ""}</p>
@@ -309,11 +326,19 @@ function EditorTextSection({
 
 // ─── ROOT COMPONENT ───────────────────────────────────────────────────────────
 export default function Storefront({ overrideSlug }: { overrideSlug?: string; params?: { slug?: string } }) {
+  const { t, i18n } = useTranslation();
   const params = useParams<{ slug?: string; categorySlug?: string }>();
   const slug = overrideSlug ?? params.slug ?? "";
   const [, navigate] = useLocation();
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [minDiscount, setMinDiscount] = useState<number | null>(null);
+  const [productFilters, setProductFilters] = useState<ProductFilters>({
+    sortBy: "default",
+    priceRange: { min: null, max: null },
+    onSaleOnly: false,
+    inStockOnly: false,
+  });
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
   const [searchOpen, setSearchOpen] = useState(false);
   const [barVisible, setBarVisible] = useState(true);
@@ -353,8 +378,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     ? initialCanonicalMatches
       ? initialPublicPage.canonical
       : selectedCategoryMeta
-      ? `/store/${store.slug}/category/${publicEntitySlug(selectedCategoryMeta.id, selectedCategoryMeta.name)}`
-      : `/store/${store.slug}`
+      ? `/category/${publicEntitySlug(selectedCategoryMeta.id, selectedCategoryMeta.name)}`
+      : `/`
     : null;
   const storefrontCanonicalUrl = storefrontCanonicalPath
     ? /^https?:\/\//i.test(storefrontCanonicalPath)
@@ -364,7 +389,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const storeCanonicalUrl = store
     ? initialPublicPage?.page === "store" && initialPublicPage.canonical
       ? initialPublicPage.canonical
-      : `${window.location.origin}/store/${store.slug}`
+      : `${window.location.origin}/`
     : null;
 
   // SEO meta
@@ -375,7 +400,11 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             ? `${selectedCategoryMeta.name} | ${store.name}`
             : (((store as any).seoTitle ?? store.name) as string),
           description: selectedCategoryMeta
-            ? `تسوق ${selectedCategoryMeta.name} من ${store.name} على نور.`
+            ? t("storefront.seo.categoryDesc", {
+                category: i18n.language === "ar" ? (selectedCategoryMeta.nameAr || selectedCategoryMeta.name) : selectedCategoryMeta.name,
+                store: store.name,
+                defaultValue: i18n.language === "ar" ? `تسوق ${selectedCategoryMeta.nameAr || selectedCategoryMeta.name} من ${store.name} على نور.` : `Shop ${selectedCategoryMeta.name} from ${store.name} on Nour.`
+              })
             : (((store as any).seoDescription ?? store.description ?? undefined) as string | undefined),
           image: ((store as any).coverUrl ?? (store as any).logoUrl ?? null) as string | null,
           canonicalPath: storefrontCanonicalPath ?? undefined,
@@ -432,9 +461,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const productHref = useCallback((product: Pick<ProductCardData, "id" | "name">) => {
     if (!store) return `/products/${product.id}`;
     const slugPart = publicEntitySlug(product.id, product.name);
-    const isStoreRoot = overrideSlug && typeof window !== "undefined" && !window.location.pathname.startsWith("/store/");
-    return isStoreRoot ? `/product/${slugPart}` : `/store/${store.slug}/product/${slugPart}`;
-  }, [store, overrideSlug]);
+    return `/product/${slugPart}`;
+  }, [store]);
 
   const handleAddToCart = useCallback((product: ProductCardData) => {
     if (!store) return;
@@ -444,39 +472,46 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     setTimeout(() => setAddedIds(prev => { const n=new Set(prev); n.delete(product.id); return n; }), 2000);
   }, [store, addItem, navigate, productHref]);
 
-  function scrollToProducts() {
-    document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+  function scrollToProducts(discount?: number) {
+    if (discount !== undefined) {
+      setMinDiscount(discount);
+    }
+    // Delay scroll to allow React to update the DOM and prevent smooth scroll cancellation
+    setTimeout(() => {
+      document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }
 
   function handleCategorySelect(categoryId: number | null) {
     setSelectedCategory(categoryId);
     if (!store) return;
-    const isStoreRoot = overrideSlug && typeof window !== "undefined" && !window.location.pathname.startsWith("/store/");
     if (!categoryId) {
-      navigate(isStoreRoot ? "/" : `/store/${store.slug}`);
+      navigate("/");
       return;
     }
     const category = store.categories?.find((c) => c.id === categoryId);
     if (category) {
-      const href = `${isStoreRoot ? "" : `/store/${store.slug}`}/category/${publicEntitySlug(category.id, category.name)}`;
-      navigate(href);
+      navigate(`/category/${publicEntitySlug(category.id, category.name)}`);
     }
   }
 
   // ── Error state ──
   const selectedCategoryIds = useMemo(() => {
     if (!store || !selectedCategory) return null;
-    const childIds = store.categories
-      ?.filter((category) => category.parentId === selectedCategory)
-      .map((category) => category.id) ?? [];
-    return new Set([selectedCategory, ...childIds]);
+    
+    const getDescendants = (id: number): number[] => {
+      const children = store.categories?.filter(c => c.parentId === id).map(c => c.id) ?? [];
+      return [...children, ...children.flatMap(getDescendants)];
+    };
+    
+    return new Set([selectedCategory, ...getDescendants(selectedCategory)]);
   }, [store?.categories, selectedCategory]);
 
   if (error) {
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center px-4 text-center"
-        style={{ direction: "rtl", background: "#faf7f4" }}
+        style={{ direction: i18n.dir(), background: "#faf7f4" }}
       >
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
           <div className="bg-rose-50 rounded-full p-5 mb-6 inline-flex">
@@ -486,17 +521,17 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             className="text-3xl font-bold mb-2 text-stone-900"
             style={{ fontFamily: SERIF }}
           >
-            المتجر غير موجود
+            {t("storefront.error.notFoundTitle", "المتجر غير موجود")}
           </h1>
           <p className="text-stone-400 mb-8 max-w-sm text-sm">
-            لم نتمكن من العثور على متجر بهذا الرابط.
+            {t("storefront.error.notFoundDesc", "لم نتمكن من العثور على متجر بهذا الرابط.")}
           </p>
           <Link
             href="/tenants"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white text-sm font-semibold"
             style={{ background: "#8B1A35" }}
           >
-            استعرضي المتاجر
+            {t("storefront.error.browseStores", "استعرضي المتاجر")}
           </Link>
         </motion.div>
       </div>
@@ -545,11 +580,116 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   })();
 
   const cartCount = items.filter(i => i.tenantId === store.id).reduce((acc, i) => acc + i.quantity, 0);
-  const filtered = store.products.filter(pr => !selectedCategoryIds || selectedCategoryIds.has((pr as any).categoryId));
+  let filtered = store.products.filter(pr => {
+    const { priceRange, onSaleOnly, inStockOnly } = productFilters;
+    // Category filter
+    if (selectedCategoryIds && !selectedCategoryIds.has((pr as any).categoryId)) return false;
+    // Promo-banner discount filter
+    if (minDiscount !== null) {
+      if (!pr.originalPrice || pr.originalPrice <= pr.price) return false;
+      const discountPct = ((pr.originalPrice - pr.price) / pr.originalPrice) * 100;
+      if (discountPct > minDiscount) return false;
+    }
+    // Price range filter
+    if (priceRange.min !== null && pr.price < priceRange.min) return false;
+    if (priceRange.max !== null && pr.price > priceRange.max) return false;
+    // On-sale filter
+    if (onSaleOnly && (!pr.originalPrice || pr.originalPrice <= pr.price)) return false;
+    // In-stock filter
+    if (inStockOnly && (pr.status === "out_of_stock" || pr.stock === 0)) return false;
+    return true;
+  });
+
+  // Sort
+  const { sortBy } = productFilters;
+  if (sortBy === "price-asc") filtered = [...filtered].sort((a, b) => a.price - b.price);
+  else if (sortBy === "price-desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
+  else if (sortBy === "newest") filtered = [...filtered].sort((a, b) => b.id - a.id);
+  else if (sortBy === "discount") filtered = [...filtered].sort((a, b) => {
+    const da = a.originalPrice && a.originalPrice > a.price ? (1 - a.price / a.originalPrice) : 0;
+    const db = b.originalPrice && b.originalPrice > b.price ? (1 - b.price / b.originalPrice) : 0;
+    return db - da;
+  });
   const showBeautySection = store.category === "cosmetics" || store.category === "both";
+  
+  function translateSectionContent(section: SectionConfig): SectionConfig {
+    const s = { ...section, content: { ...section.content } };
+    const sn = liveStore.name;
+    
+    if (s.type === "hero") {
+      if (typeof s.content.heading === "string") {
+        if (s.content.heading.includes("اكتشفي جمالكِ مع")) s.content.heading = t("defaultSections.hero.headingCosmetics", { storeName: sn, defaultValue: s.content.heading });
+        else if (s.content.heading.includes("اكتشفي أحدث تشكيلة من")) s.content.heading = t("defaultSections.hero.heading", { storeName: sn, defaultValue: s.content.heading });
+      }
+      
+      if (typeof s.content.subheading === "string") {
+        if (s.content.subheading.includes("مستحضرات عناية وتجميل")) s.content.subheading = t("defaultSections.hero.subheadingCosmetics", { defaultValue: s.content.subheading });
+        else if (s.content.subheading.includes("أزياء راقية")) s.content.subheading = t("defaultSections.hero.subheading", { defaultValue: s.content.subheading });
+      }
+      
+      if (s.content.ctaText === "تسوقي الآن") s.content.ctaText = t("defaultSections.hero.ctaText", { defaultValue: s.content.ctaText });
+    } else if (s.type === "new-arrivals") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("وصل حديثاً")) s.content.heading = t("defaultSections.newArrivals.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("أحدث المنتجات")) s.content.subheading = t("defaultSections.newArrivals.subheading", { defaultValue: s.content.subheading });
+    } else if (s.type === "best-sellers") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("الأكثر مبيعاً")) s.content.heading = t("defaultSections.bestSellers.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("المنتجات المفضلة")) s.content.subheading = t("defaultSections.bestSellers.subheading", { defaultValue: s.content.subheading });
+    } else if (s.type === "categories") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("تسوقي حسب القسم")) s.content.heading = t("defaultSections.categories.heading", { defaultValue: s.content.heading });
+    } else if (s.type === "offers") {
+      if (s.content.promo1Label === "عروض حصرية") s.content.promo1Label = t("defaultSections.offers.promo1Label", { defaultValue: s.content.promo1Label });
+      if (s.content.promo1Heading === "خصم يصل إلى") s.content.promo1Heading = t("defaultSections.offers.promo1Heading", { defaultValue: s.content.promo1Heading });
+      if (s.content.promo1Desc === "على تشكيلات مختارة — لفترة محدودة") s.content.promo1Desc = t("defaultSections.offers.promo1Desc", { defaultValue: s.content.promo1Desc });
+      if (s.content.promo1Cta === "تسوقي الآن") s.content.promo1Cta = t("defaultSections.offers.promo1Cta", { defaultValue: s.content.promo1Cta });
+      if (s.content.promo2Label === "توصيل مجاني") s.content.promo2Label = t("defaultSections.offers.promo2Label", { defaultValue: s.content.promo2Label });
+      if (s.content.promo2Heading === "شحن مجاني") s.content.promo2Heading = t("defaultSections.offers.promo2Heading", { defaultValue: s.content.promo2Heading });
+      if (s.content.promo2Subheading === "لكل طلب فوق") s.content.promo2Subheading = t("defaultSections.offers.promo2Subheading", { defaultValue: s.content.promo2Subheading });
+      if (s.content.promo2Cta === "اطلبي الآن") s.content.promo2Cta = t("defaultSections.offers.promo2Cta", { defaultValue: s.content.promo2Cta });
+    } else if (s.type === "about") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("قصة")) s.content.heading = t("defaultSections.about.heading", { storeName: sn, defaultValue: s.content.heading });
+      
+      if (typeof s.content.body === "string") {
+        if (s.content.body.includes("نؤمن بأن الجمال الحقيقي ينبع من الداخل")) s.content.body = t("defaultSections.about.bodyCosmetics", { defaultValue: s.content.body });
+        else if (s.content.body.includes("نؤمن بأن كل امرأة تستحق أن تشعر بالثقة")) s.content.body = t("defaultSections.about.bodyFashion", { defaultValue: s.content.body });
+      }
+    } else if (s.type === "testimonials") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("ماذا يقول عملاؤنا")) s.content.heading = t("defaultSections.testimonials.heading", { defaultValue: s.content.heading });
+      if (Array.isArray(s.content.items)) {
+        s.content.items = t("defaultSections.testimonials.items", { returnObjects: true, defaultValue: s.content.items }) as any[];
+      }
+    } else if (s.type === "faq") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("أسئلة شائعة")) s.content.heading = t("defaultSections.faq.heading", { defaultValue: s.content.heading });
+      if (Array.isArray(s.content.items)) {
+        s.content.items = t("defaultSections.faq.items", { returnObjects: true, defaultValue: s.content.items }) as any[];
+      }
+    } else if (s.type === "whatsapp") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("تحدثي معنا مباشرة")) s.content.heading = t("defaultSections.whatsapp.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("نرد على استفساراتك")) s.content.subheading = t("defaultSections.whatsapp.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.ctaText === "string" && s.content.ctaText.includes("تواصلي عبر واتساب")) s.content.ctaText = t("defaultSections.whatsapp.ctaText", { defaultValue: s.content.ctaText });
+    } else if (s.type === "newsletter") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("اشتركي")) s.content.heading = t("defaultSections.newsletter.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("كوني أول من تعرف")) s.content.subheading = t("defaultSections.newsletter.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.ctaText === "string" && s.content.ctaText.includes("اشتركي الآن")) s.content.ctaText = t("defaultSections.newsletter.ctaText", { defaultValue: s.content.ctaText });
+    } else if (s.type === "lookbook") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("لوك بوك")) s.content.heading = t("defaultSections.lookbook.heading", { defaultValue: s.content.heading });
+    } else if (s.type === "product-catalog") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("جميع المنتجات")) s.content.heading = t("defaultSections.productCatalog.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("كتالوج كامل")) s.content.subheading = t("defaultSections.productCatalog.subheading", { defaultValue: s.content.subheading });
+    } else if (s.type === "trust-strip") {
+      if (Array.isArray(s.content.items)) {
+        s.content.items = t("defaultSections.trustStrip.items", { returnObjects: true, defaultValue: s.content.items }) as any[];
+      }
+    } else if (s.type === "instagram") {
+      if (typeof s.content.heading === "string" && s.content.heading.includes("تابعينا")) s.content.heading = t("defaultSections.instagram.heading", { defaultValue: s.content.heading });
+    }
+    return s;
+  }
+
   const editorSections = [...visualConfig.homepage.sections]
     .filter((section) => section.visible)
-    .sort((a, b) => a.order - b.order);
+    .sort((a, b) => a.order - b.order)
+    .map(translateSectionContent);
+    
   const hasProductCatalogSection = visualConfig.homepage.sections.some((section) => section.type === "product-catalog");
 
   function renderEditorSection(section: SectionConfig) {
@@ -574,7 +714,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
         return (
           <CategoryGrid
             primaryColor={p}
-            categories={liveStore.categories ?? []}
+            categories={(liveStore.categories ?? []).filter((c: any) => !c.parentId)}
             onScrollToProducts={scrollToProducts}
             onCategorySelect={handleCategorySelect}
           />
@@ -601,9 +741,9 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           />
         );
       case "offers":
-        return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} />;
+        return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} />;
       case "lookbook":
-        return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} />;
+        return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} />;
       case "instagram":
         return <UGCSection primaryColor={p} instagramUrl={sl.instagram ?? null} />;
       case "newsletter":
@@ -616,26 +756,37 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             style={{ background: "#fff" }}
           >
             <div className="max-w-7xl mx-auto">
-              <div className="flex items-center gap-4 mb-8" style={{ direction: "rtl" }}>
+              <div className="flex items-center gap-4 mb-8" style={{ direction: i18n.dir() }}>
                 <div>
                   <p
                     className="text-[11px] tracking-[0.25em] uppercase mb-1 font-medium"
                     style={{ color: p }}
                   >
-                    {typeof section.content.subheading === "string" ? section.content.subheading : "كتالوج كامل"}
+                    {typeof section.content.subheading === "string" ? section.content.subheading : t("storefront.categories.viewAll")}
                   </p>
                   <h2
                     className="text-4xl text-stone-900"
                     style={{ fontFamily: SERIF, fontWeight: 400 }}
                   >
-                    {typeof section.content.heading === "string" ? section.content.heading : "جميع المنتجات"}
+                    {typeof section.content.heading === "string" ? section.content.heading : t("storefront.products.viewAll")}
                   </h2>
                 </div>
                 <div className="flex-1 h-px bg-stone-100 mx-4" />
                 <span className="text-sm text-stone-400 shrink-0">
-                  {liveStore.products.length} منتج
+                  {liveStore.products.length} {t("storefront.products.productCount", "منتج")}
                 </span>
               </div>
+
+              <ProductToolbar
+                filters={productFilters}
+                onChange={setProductFilters}
+                resultCount={filtered.length}
+                totalCount={liveStore.products.length}
+                primaryColor={p}
+                activeDiscount={minDiscount}
+                onClearDiscount={() => setMinDiscount(null)}
+                currency={i18n.language === "ar" ? "ج.م" : "EGP"}
+              />
 
               <CategoryFilter
                 store={liveStore}
@@ -652,10 +803,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="text-center py-24"
-                    style={{ direction: "rtl" }}
+                    style={{ direction: i18n.dir() }}
                   >
                     <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
-                    <p className="text-stone-400 text-sm">لا توجد منتجات في هذه الفئة</p>
+                    <p className="text-stone-400 text-sm">{t("storefront.products.emptyCategory", "لا توجد منتجات في هذه الفئة")}</p>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -665,7 +816,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.35 }}
-                    style={{ direction: "rtl" }}
+                    style={{ direction: i18n.dir() }}
                   >
                     {filtered.map((product, i) => (
                       <motion.div
@@ -701,7 +852,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   }
 
   return (
-    <div style={{ background: "#faf7f4", minHeight: "100vh", direction: "rtl" }}>
+    <div style={{ background: "#faf7f4", minHeight: "100vh", direction: i18n.dir() }}>
 
       {/* ── Admin back button (only visible when logged in as merchant) ── */}
       <AdminBar />
@@ -747,7 +898,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       {/* ── Category Grid ── */}
       <CategoryGrid
         primaryColor={p}
-        categories={store.categories ?? []}
+        categories={(store.categories ?? []).filter((c: any) => !c.parentId)}
         onScrollToProducts={scrollToProducts}
         onCategorySelect={handleCategorySelect}
       />
@@ -813,22 +964,33 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 className="text-[11px] tracking-[0.25em] uppercase mb-1 font-medium"
                 style={{ color: p }}
               >
-                كتالوج كامل
+                {t("storefront.categories.viewAll")}
               </p>
               <h2
                 className="text-4xl text-stone-900"
                 style={{ fontFamily: SERIF, fontWeight: 400 }}
               >
-                جميع المنتجات
+                {t("storefront.products.viewAll")}
               </h2>
             </div>
             <div className="flex-1 h-px bg-stone-100 mx-4" />
             <span className="text-sm text-stone-400 shrink-0">
-              {store.products.length} منتج
+              {store.products.length} {t("storefront.products.productCount", "منتج")}
             </span>
           </div>
 
           {/* Category filter */}
+          <ProductToolbar
+            filters={productFilters}
+            onChange={setProductFilters}
+            resultCount={filtered.length}
+            totalCount={store.products.length}
+            primaryColor={p}
+            activeDiscount={minDiscount}
+            onClearDiscount={() => setMinDiscount(null)}
+            currency={i18n.language === "ar" ? "ج.م" : "EGP"}
+          />
+
           <CategoryFilter
             store={store}
             selected={selectedCategory}
@@ -845,10 +1007,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="text-center py-24"
-                style={{ direction: "rtl" }}
+                style={{ direction: i18n.dir() }}
               >
                 <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
-                <p className="text-stone-400 text-sm">لا توجد منتجات في هذه الفئة</p>
+                <p className="text-stone-400 text-sm">{t("storefront.products.emptyCategory", "لا توجد منتجات في هذه الفئة")}</p>
               </motion.div>
             ) : (
               <motion.div
@@ -858,7 +1020,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35 }}
-                style={{ direction: "rtl" }}
+                style={{ direction: i18n.dir() }}
               >
                 {filtered.map((product, i) => (
                   <motion.div

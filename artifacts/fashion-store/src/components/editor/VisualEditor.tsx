@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { StoreConfig, SectionConfig, DeviceType, createDefaultSection } from "@/lib/store-config";
@@ -26,6 +27,7 @@ export default function VisualEditor({
   initialConfig, storeSlug, productCount, categories = [], onSave,
   isFirstVisit = false, gender = "female",
 }: VisualEditorProps) {
+  const { t, i18n } = useTranslation();
   // ─── History-based undo/redo ────────────────────────────────────────────────
   const [history, setHistory] = useState<StoreConfig[]>([initialConfig]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -116,6 +118,20 @@ export default function VisualEditor({
     });
   }
 
+  function moveSection(id: string, direction: "up" | "down") {
+    const sections = [...config.homepage.sections];
+    const index = sections.findIndex(s => s.id === id);
+    if (index === -1) return;
+    if (direction === "up" && index > 0) {
+      [sections[index - 1], sections[index]] = [sections[index], sections[index - 1]];
+    } else if (direction === "down" && index < sections.length - 1) {
+      [sections[index + 1], sections[index]] = [sections[index], sections[index + 1]];
+    } else {
+      return;
+    }
+    pushConfig({ ...config, homepage: { sections } });
+  }
+
   // ─── Save handler ──────────────────────────────────────────────────────────
   async function handleSave() {
     if (!isDirty) return;
@@ -124,16 +140,16 @@ export default function VisualEditor({
       await onSave(config);
       // Mark current index as saved
       savedIndexRef.current = historyIndex;
-      toast({ title: "تم الحفظ ✓", description: "تم حفظ جميع التغييرات بنجاح" });
+      toast({ title: t("visualEditor.toast.saveSuccess"), description: t("visualEditor.toast.saveSuccessDesc") });
     } catch {
-      toast({ title: "خطأ في الحفظ", description: "حاول مرة أخرى", variant: "destructive" });
+      toast({ title: t("visualEditor.toast.saveError"), description: t("visualEditor.toast.saveErrorDesc"), variant: "destructive" });
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div className="h-screen flex flex-col bg-stone-100 overflow-hidden" dir="rtl">
+    <div className="h-screen flex flex-col bg-stone-100 overflow-hidden" dir={i18n.dir()}>
       <EditorTopBar
         storeName={config.brand.name}
         storeSlug={storeSlug}
@@ -164,20 +180,20 @@ export default function VisualEditor({
 
         {/* Center canvas */}
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          <div className="lg:hidden bg-white border-b border-stone-200 px-3 py-2 flex items-center justify-between gap-2" dir="rtl">
+          <div className="lg:hidden bg-white border-b border-stone-200 px-3 py-2 flex items-center justify-between gap-2" dir={i18n.dir()}>
             <button
               onClick={() => setSectionsOpen(true)}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 text-sm font-semibold text-stone-800 shadow-sm"
-              aria-label="فتح أقسام المتجر"
+              aria-label={t("visualEditor.menu.openStoreSections")}
               aria-expanded={sectionsOpen}
             >
               <Menu className="w-4 h-4" />
-              أقسام المتجر
+              {t("visualEditor.menu.storeSections")}
             </button>
             <div className="flex min-w-0 items-center gap-2 text-xs text-stone-500">
               <Layers3 className="w-4 h-4 shrink-0 text-[#8B1A35]" />
               <span className="truncate">
-                {selectedSection ? `تعدلين: ${selectedSection.label}` : "اختاري جزء من المتجر للتعديل"}
+                {selectedSection ? `${t("visualEditor.canvas.editing")} ${selectedSection.label}` : t("visualEditor.canvas.selectSectionToEdit")}
               </span>
             </div>
           </div>
@@ -207,7 +223,7 @@ export default function VisualEditor({
                   style={{ background: "linear-gradient(135deg, #8B1A35, #c8963a)" }}
                 >
                   <Save className="w-4 h-4" />
-                  حفظ التغييرات
+                  {t("visualEditor.canvas.saveChanges")}
                   <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                 </button>
               </motion.div>
@@ -225,6 +241,10 @@ export default function VisualEditor({
             onDelete={deleteSection}
             onDuplicate={duplicateSection}
             onToggleVisibility={toggleVisibility}
+            onMoveUp={() => moveSection(selectedSection!.id, "up")}
+            onMoveDown={() => moveSection(selectedSection!.id, "down")}
+            canMoveUp={config.homepage.sections.findIndex(s => s.id === selectedSection?.id) > 0}
+            canMoveDown={config.homepage.sections.findIndex(s => s.id === selectedSection?.id) < config.homepage.sections.length - 1}
           />
         </div>
 
@@ -240,23 +260,23 @@ export default function VisualEditor({
                 onClick={() => setSectionsOpen(false)}
               />
               <motion.aside
-                initial={{ x: "100%" }}
+                initial={{ x: i18n.dir() === "rtl" ? "100%" : "-100%" }}
                 animate={{ x: 0 }}
-                exit={{ x: "100%" }}
+                exit={{ x: i18n.dir() === "rtl" ? "100%" : "-100%" }}
                 transition={{ type: "spring", stiffness: 320, damping: 34 }}
-                className="fixed inset-y-0 right-0 z-50 w-[86vw] max-w-sm bg-white shadow-2xl lg:hidden flex flex-col"
-                dir="rtl"
-                aria-label="قائمة أقسام المتجر"
+                className="fixed inset-y-0 start-0 z-50 w-[86vw] max-w-sm bg-white shadow-2xl lg:hidden flex flex-col"
+                dir={i18n.dir()}
+                aria-label={t("visualEditor.menu.storeSections")}
               >
                 <div className="flex items-center justify-between border-b border-stone-100 p-4">
                   <div>
-                    <p className="text-sm font-semibold text-stone-900">اختاري جزء من القصة</p>
-                    <p className="mt-1 text-xs text-stone-500">اضغطي على القسم، هنقفل القائمة ونفتح تعديلاته مباشرة.</p>
+                    <p className="text-sm font-semibold text-stone-900">{t("visualEditor.menu.chooseStoryPart")}</p>
+                    <p className="mt-1 text-xs text-stone-500">{t("visualEditor.menu.chooseStoryPartDesc")}</p>
                   </div>
                   <button
                     onClick={() => setSectionsOpen(false)}
                     className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-600"
-                    aria-label="إغلاق قائمة الأقسام"
+                    aria-label={t("visualEditor.menu.closeSectionsMenu")}
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -297,6 +317,10 @@ export default function VisualEditor({
                 onDelete={deleteSection}
                 onDuplicate={duplicateSection}
                 onToggleVisibility={toggleVisibility}
+                onMoveUp={() => moveSection(selectedSection!.id, "up")}
+                onMoveDown={() => moveSection(selectedSection!.id, "down")}
+                canMoveUp={config.homepage.sections.findIndex(s => s.id === selectedSection?.id) > 0}
+                canMoveDown={config.homepage.sections.findIndex(s => s.id === selectedSection?.id) < config.homepage.sections.length - 1}
                 variant="mobile"
                 onClose={() => setSelectedId(null)}
               />

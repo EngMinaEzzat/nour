@@ -75,10 +75,16 @@ router.put("/tenants/:id", requireRole("owner", "manager"), async (req, res) => 
   if (req.merchantTenantId !== paramsParsed.data.id) {
     return res.status(403).json({ error: "لا يمكنك تعديل بيانات متجر آخر" });
   }
+
+  const updatePayload = { ...bodyParsed.data } as Record<string, unknown>;
+  delete updatePayload.planCode;
+  delete updatePayload.subscriptionStatus;
+  delete updatePayload.status;
+
   try {
     const [tenant] = await db
       .update(tenantsTable)
-      .set(bodyParsed.data)
+      .set(updatePayload)
       .where(eq(tenantsTable.id, paramsParsed.data.id))
       .returning();
     if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });

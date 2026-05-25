@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Award, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Award, ArrowLeft, ArrowRight } from "lucide-react";
 import { StorefrontProductCard, ProductCardData } from "./StorefrontProductCard";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
@@ -19,6 +20,7 @@ export function BestSellersSection({
   onAddToCart,
   onScrollToAll,
 }: BestSellersSectionProps) {
+  const { t, i18n } = useTranslation();
   const featured = products.filter(pr => pr.featured).slice(0, 4);
   const best = featured.length >= 2 ? featured : products.slice(0, 4);
 
@@ -28,7 +30,7 @@ export function BestSellersSection({
     <section
       id="best-sellers"
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#faf7f4", direction: "rtl" }}
+      style={{ background: "#faf7f4", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -38,15 +40,15 @@ export function BestSellersSection({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              المفضلة دائماً
+              {t("storefront.home.bestSellers.eyebrow", "المفضلة دائماً")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              الأكثر
+              {t("storefront.home.bestSellers.title1", "الأكثر")}
               <br />
-              <span style={{ color: p, fontStyle: "italic" }}>مبيعاً</span>
+              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.bestSellers.title2", "مبيعاً")}</span>
             </h2>
           </div>
           <button
@@ -54,8 +56,8 @@ export function BestSellersSection({
             className="hidden md:flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
             style={{ color: p }}
           >
-            عرض الكل
-            <ArrowLeft className="w-4 h-4" />
+            {t("storefront.home.viewAll", "عرض الكل")}
+            {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
 
@@ -73,7 +75,7 @@ export function BestSellersSection({
               {/* Rank badge */}
               <div className="relative">
                 <div
-                  className="absolute top-3 end-3 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-white"
+                  className={`absolute top-3 ${i18n.dir() === "rtl" ? "end-3" : "end-3"} z-20 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-white`}
                   style={{ background: i === 0 ? "#c8963a" : p }}
                 >
                   <Award className="w-2.5 h-2.5" />
@@ -98,7 +100,7 @@ export function BestSellersSection({
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold border-2"
             style={{ borderColor: p, color: p }}
           >
-            عرض كل المنتجات
+            {t("storefront.home.viewAllProducts", "عرض كل المنتجات")}
           </button>
         </div>
       </div>

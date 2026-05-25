@@ -14,7 +14,11 @@ if (!process.env.DATABASE_URL) {
 }
 
 const requiresSsl =
-  process.env.NODE_ENV === "production" &&
+  (process.env.NODE_ENV === "production" ||
+   process.env.DB_SSL === "true" ||
+   process.env.DATABASE_URL.includes("supabase.co") ||
+   process.env.DATABASE_URL.includes("supabase.com") ||
+   /[?&]sslmode=(?:require|prefer)(?:&|$)/.test(process.env.DATABASE_URL)) &&
   !/[?&]sslmode=disable(?:&|$)/.test(process.env.DATABASE_URL);
 
 const DEFAULT_POOL_MAX = 5;

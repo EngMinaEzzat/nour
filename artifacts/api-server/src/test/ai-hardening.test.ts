@@ -188,6 +188,41 @@ describe("AI Hardening — Rate Limits", () => {
       await cleanupTenant(ctx.tenantId, ctx.merchantId);
     }
   });
+
+  it("✅ ai-import endpoints return 429 when rate limit is exceeded", async () => {
+    const ctx = await createTestMerchant();
+    try {
+      // Exhaust rate limit for this tenant
+      for (let i = 0; i < 21; i++) {
+        checkAiRateLimit(ctx.tenantId, "starter");
+      }
+
+      const descRes = await ctx.agent
+        .post("/api/ai/generate-product-description")
+        .send({ productName: "Test", model: "claude" });
+
+      expect(descRes.status).toBe(429);
+      expect(descRes.body.error).toBeTruthy();
+
+      const replyRes = await ctx.agent
+        .post("/api/ai/draft-reply")
+        .send({ messageType: "confirmation", customerName: "Test", model: "claude" });
+
+      expect(replyRes.status).toBe(429);
+      expect(replyRes.body.error).toBeTruthy();
+
+      const importRes = await ctx.agent
+        .post("/api/ai/import-facebook")
+        .send({ facebookUrl: "https://facebook.com/test", model: "claude" });
+
+      expect(importRes.status).toBe(429);
+      expect(importRes.body.error).toBeTruthy();
+
+    } finally {
+      resetAiRateLimit(ctx.tenantId);
+      await cleanupTenant(ctx.tenantId, ctx.merchantId);
+    }
+  });
 });
 
 describe("AI Hardening — Input Length Limits", () => {

@@ -182,11 +182,17 @@ export default function Checkout() {
       }).catch(() => {});
 
       if (paymentMethod === "paymob" && orderIds.length > 0) {
-        const initRes = await fetch(`${BASE}/api/paymob/initiate`, {
+        const trackingToken = orderTracks[0]?.trackingToken;
+        if (!trackingToken) {
+          setErrors({ submit: "Missing payment verification token. Please try again." });
+          return;
+        }
+
+        const initRes = await fetch(`${BASE}/api/paymob/public/initiate`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ orderId: orderIds[0] }),
+          body: JSON.stringify({ orderId: orderIds[0], trackingToken }),
         });
         const initData = await initRes.json() as { iframeSrc?: string; paymentRecordId?: number; error?: string };
         if (initRes.ok && initData.iframeSrc) {

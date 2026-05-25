@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,16 +35,17 @@ type Stats = {
   withPhone: number;
 };
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, t: any): string {
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 60) return `منذ ${minutes} دقيقة`;
+  if (minutes < 60) return t("abandonedCarts.timeAgo.minutes", { minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `منذ ${hours} ساعة`;
-  return `منذ ${Math.floor(hours / 24)} يوم`;
+  if (hours < 24) return t("abandonedCarts.timeAgo.hours", { hours });
+  return t("abandonedCarts.timeAgo.days", { days: Math.floor(hours / 24) });
 }
 
 export default function AbandonedCarts() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [tab, setTab] = useState<"abandoned" | "active">("abandoned");
   const [remindingId, setRemindingId] = useState<number | null>(null);
@@ -60,7 +62,7 @@ export default function AbandonedCarts() {
       fetch(api(`/abandoned-carts/${id}/remind`), { method: "POST", credentials: "include" })
         .then(async (r) => {
           const d = await r.json();
-          if (!r.ok) throw new Error(d.error ?? "فشل");
+          if (!r.ok) throw new Error(d.error ?? t("abandonedCarts.toast.remindError"));
           return d as { waUrl: string; message: string };
         }),
     onSuccess: (data) => {
@@ -83,20 +85,20 @@ export default function AbandonedCarts() {
   const stats = data?.stats;
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24 max-w-5xl">
+    <div className="container mx-auto px-4 py-8 pb-24 max-w-5xl" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground">سلات التسوق المتروكة</h1>
-          <p className="text-muted-foreground mt-1">تابع العملاء الذين أضافوا منتجات ولم يكملوا الشراء</p>
+          <h1 className="text-4xl font-bold text-foreground">{t("abandonedCarts.page.title")}</h1>
+          <p className="text-muted-foreground mt-1">{t("abandonedCarts.page.subtitle")}</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "سلات متروكة", value: stats?.totalAbandoned ?? 0, icon: TrendingDown, color: "text-destructive" },
-            { label: "قيمة ضائعة (ج.م)", value: (stats?.totalValue ?? 0).toLocaleString("ar-EG"), icon: DollarSign, color: "text-amber-600" },
-            { label: "لديهم واتساب", value: stats?.withPhone ?? 0, icon: MessageCircle, color: "text-green-600" },
-            { label: "نشطة الآن", value: stats?.totalActive ?? 0, icon: ShoppingCart, color: "text-primary" },
+            { label: t("abandonedCarts.stats.abandoned"), value: stats?.totalAbandoned ?? 0, icon: TrendingDown, color: "text-destructive" },
+            { label: t("abandonedCarts.stats.lostValue", { currency: i18n.language === "ar" ? "ج.م" : "EGP" }), value: (stats?.totalValue ?? 0).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US"), icon: DollarSign, color: "text-amber-600" },
+            { label: t("abandonedCarts.stats.withPhone"), value: stats?.withPhone ?? 0, icon: MessageCircle, color: "text-green-600" },
+            { label: t("abandonedCarts.stats.active"), value: stats?.totalActive ?? 0, icon: ShoppingCart, color: "text-primary" },
           ].map((s) => (
             <Card key={s.label} className="border-border/50">
               <CardContent className="pt-4 pb-3 flex items-center gap-3">
@@ -111,16 +113,16 @@ export default function AbandonedCarts() {
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="mb-6">
-          <TabsList className="rounded-2xl">
+          <TabsList className="rounded-2xl" dir={i18n.dir()}>
             <TabsTrigger value="abandoned" className="rounded-xl gap-1.5">
-              متروكة
+              {t("abandonedCarts.tabs.abandoned")}
               {(stats?.totalAbandoned ?? 0) > 0 && (
                 <span className="bg-destructive text-white text-[10px] rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
                   {stats?.totalAbandoned}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="active" className="rounded-xl">نشطة</TabsTrigger>
+            <TabsTrigger value="active" className="rounded-xl">{t("abandonedCarts.tabs.active")}</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -130,12 +132,12 @@ export default function AbandonedCarts() {
           <div className="text-center py-24 text-muted-foreground bg-muted/20 rounded-3xl border border-dashed border-border">
             <ShoppingCart className="w-14 h-14 mx-auto mb-4 opacity-30" />
             <p className="text-xl font-semibold mb-1">
-              {tab === "abandoned" ? "لا توجد سلات متروكة" : "لا توجد سلات نشطة حالياً"}
+              {tab === "abandoned" ? t("abandonedCarts.empty.abandonedTitle") : t("abandonedCarts.empty.activeTitle")}
             </p>
             <p className="text-sm">
               {tab === "abandoned"
-                ? "ممتاز! جميع العملاء أكملوا طلباتهم"
-                : "لا يوجد عملاء في منتصف التسوق الآن"}
+                ? t("abandonedCarts.empty.abandonedDesc")
+                : t("abandonedCarts.empty.activeDesc")}
             </p>
           </div>
         ) : (
@@ -166,7 +168,7 @@ export default function AbandonedCarts() {
                                 </div>
                                 <div>
                                   <p className="font-semibold text-sm">
-                                    {cart.customerName ?? <span className="text-muted-foreground italic">زائر مجهول</span>}
+                                    {cart.customerName ?? <span className="text-muted-foreground italic">{t("abandonedCarts.customer.anonymous")}</span>}
                                   </p>
                                   {cart.customerEmail && (
                                     <p className="text-[11px] text-muted-foreground dir-ltr">{cart.customerEmail}</p>
@@ -179,11 +181,11 @@ export default function AbandonedCarts() {
                                 variant="outline"
                                 className={`text-[10px] ${cart.status === "abandoned" ? "border-destructive/40 text-destructive" : "border-primary/40 text-primary"}`}
                               >
-                                {cart.status === "abandoned" ? "متروكة" : "نشطة"}
+                                {cart.status === "abandoned" ? t("abandonedCarts.cart.abandoned") : t("abandonedCarts.cart.active")}
                               </Badge>
                               <span className="text-xs text-muted-foreground flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
-                                {timeAgo(cart.lastActivityAt)}
+                                {timeAgo(cart.lastActivityAt, t)}
                               </span>
                             </div>
 
@@ -201,10 +203,10 @@ export default function AbandonedCarts() {
                                 </div>
                               ))}
                               {itemsList.length > 3 && (
-                                <span className="text-xs text-muted-foreground">+{itemsList.length - 3} منتجات</span>
+                                <span className="text-xs text-muted-foreground">{t("abandonedCarts.cart.itemsMore", { count: itemsList.length - 3 })}</span>
                               )}
                               {itemsList.length === 0 && (
-                                <span className="text-xs text-muted-foreground italic">سلة فارغة</span>
+                                <span className="text-xs text-muted-foreground italic">{t("abandonedCarts.cart.emptyCart")}</span>
                               )}
                             </div>
 
@@ -217,7 +219,7 @@ export default function AbandonedCarts() {
                               )}
                               {!cart.customerPhone && !cart.customerEmail && (
                                 <span className="flex items-center gap-1 text-muted-foreground/60 italic">
-                                  <AlertCircle className="w-3 h-3" /> لا تفاصيل تواصل
+                                  <AlertCircle className="w-3 h-3" /> {t("abandonedCarts.customer.noContact")}
                                 </span>
                               )}
                             </div>
@@ -226,9 +228,9 @@ export default function AbandonedCarts() {
                           {/* Value + actions */}
                           <div className="flex flex-col items-end gap-2 shrink-0">
                             <p className="text-lg font-bold text-foreground">
-                              {cart.totalAmount.toLocaleString("ar-EG")} ج.م
+                              {cart.totalAmount.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}
                             </p>
-                            <p className="text-[11px] text-muted-foreground">{cart.itemCount} منتج</p>
+                            <p className="text-[11px] text-muted-foreground">{t("abandonedCarts.cart.productCount", { count: cart.itemCount })}</p>
 
                             <div className="flex items-center gap-1.5 mt-1">
                               {cart.customerPhone ? (
@@ -244,13 +246,13 @@ export default function AbandonedCarts() {
                                   {remindMutation.isPending && remindingId === cart.id
                                     ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                     : <MessageCircle className="w-3.5 h-3.5" />}
-                                  واتساب
+                                  {t("abandonedCarts.cart.btnWhatsapp")}
                                   <ExternalLink className="w-3 h-3 opacity-60" />
                                 </Button>
                               ) : (
                                 <Button size="sm" variant="outline" className="rounded-xl h-8 text-xs" disabled>
                                   <MessageCircle className="w-3.5 h-3.5 me-1 opacity-40" />
-                                  لا رقم
+                                  {t("abandonedCarts.cart.btnNoPhone")}
                                 </Button>
                               )}
 
@@ -284,10 +286,10 @@ export default function AbandonedCarts() {
             <MessageCircle className="w-5 h-5 shrink-0 mt-0.5 text-green-600" />
             <div>
               <p className="font-semibold">
-                يمكنك الوصول إلى {stats?.withPhone} عميل عبر واتساب
+                {t("abandonedCarts.whatsappTip.title", { count: stats?.withPhone })}
               </p>
               <p className="text-green-700/80 mt-0.5">
-                اضغط على "واتساب" بجانب أي سلة لفتح رسالة تذكير جاهزة — سيفتح واتساب ويب مباشرةً في متصفحك
+                {t("abandonedCarts.whatsappTip.desc")}
               </p>
             </div>
           </motion.div>

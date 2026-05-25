@@ -2,19 +2,21 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, CheckCircle, Clock, AlertTriangle, Trash2, Plus, Copy, Check, ExternalLink, Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
-  PENDING_DNS: { label: "في انتظار DNS", color: "text-amber-600 bg-amber-50", icon: Clock },
-  VERIFYING: { label: "جاري التحقق", color: "text-blue-600 bg-blue-50", icon: Clock },
-  ACTIVE: { label: "نشط ومفعّل", color: "text-green-600 bg-green-50", icon: CheckCircle },
-  FAILED: { label: "فشل التحقق", color: "text-red-600 bg-red-50", icon: AlertTriangle },
-  REMOVED: { label: "تمت الإزالة", color: "text-gray-500 bg-gray-100", icon: AlertTriangle },
+const STATUS_ICONS: Record<string, { color: string; icon: any }> = {
+  PENDING_DNS: { color: "text-amber-600 bg-amber-50", icon: Clock },
+  VERIFYING: { color: "text-blue-600 bg-blue-50", icon: Clock },
+  ACTIVE: { color: "text-green-600 bg-green-50", icon: CheckCircle },
+  FAILED: { color: "text-red-600 bg-red-50", icon: AlertTriangle },
+  REMOVED: { color: "text-gray-500 bg-gray-100", icon: AlertTriangle },
 };
 
 export default function DomainsPage() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [domainInput, setDomainInput] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
@@ -49,14 +51,14 @@ export default function DomainsPage() {
 
   const isLocked = data?.planDisallowed;
   const domain = data && !data.planDisallowed ? data : null;
-  const statusCfg = domain ? STATUS_CONFIG[domain.status] : null;
+  const statusCfg = domain ? STATUS_ICONS[domain.status] : null;
   const StatusIcon = statusCfg?.icon;
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold text-gray-900">النطاق المخصص</h1>
-        <p className="text-gray-500 mt-1">اربط نطاقك الخاص بمتجرك على نور</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t("domains.title")}</h1>
+        <p className="text-gray-500 mt-1">{t("domains.subtitle")}</p>
       </motion.div>
 
       {/* Plan Lock */}
@@ -66,10 +68,10 @@ export default function DomainsPage() {
           <div className="w-14 h-14 bg-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Lock className="w-7 h-7 text-purple-700" />
           </div>
-          <h2 className="text-lg font-bold text-purple-900 mb-2">متاح في خطة برو</h2>
-          <p className="text-purple-700 text-sm mb-4">ربط النطاق المخصص متاح فقط لمشتركي خطة برو</p>
+          <h2 className="text-lg font-bold text-purple-900 mb-2">{t("domains.locked.title")}</h2>
+          <p className="text-purple-700 text-sm mb-4">{t("domains.locked.desc")}</p>
           <a href="/billing" className="inline-flex items-center gap-2 bg-purple-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-purple-700 transition-colors text-sm">
-            <TrendingUp className="w-4 h-4" /> ترقية إلى برو
+            <TrendingUp className="w-4 h-4" /> {t("domains.locked.btnUpgrade")}
           </a>
         </motion.div>
       )}
@@ -87,7 +89,7 @@ export default function DomainsPage() {
                 <p className="font-semibold text-gray-800">{domain.domain}</p>
                 <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${statusCfg?.color}`}>
                   {StatusIcon && <StatusIcon className="w-3 h-3" />}
-                  {statusCfg?.label}
+                  {t(`domains.status.${domain.status}`)}
                 </span>
               </div>
             </div>
@@ -99,7 +101,7 @@ export default function DomainsPage() {
           {/* DNS Instructions */}
           {domain.status === "PENDING_DNS" && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-semibold text-amber-800">أضف السجلات التالية في لوحة إدارة DNS الخاصة بك:</p>
+              <p className="text-sm font-semibold text-amber-800">{t("domains.dns.instructions")}</p>
               <div className="space-y-2">
                 {[
                   { type: "CNAME", name: domain.domain, value: domain.dnsTarget, key: "cname" },
@@ -122,7 +124,7 @@ export default function DomainsPage() {
           {domain.status === "ACTIVE" && (
             <a href={`https://${domain.domain}`} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-blue-600 hover:underline mt-2">
-              <ExternalLink className="w-4 h-4" /> زيارة المتجر
+              <ExternalLink className="w-4 h-4" /> {t("domains.dns.visitStore")}
             </a>
           )}
         </motion.div>
@@ -136,14 +138,14 @@ export default function DomainsPage() {
             <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
               <Plus className="w-5 h-5 text-green-600" />
             </div>
-            <h2 className="text-base font-semibold text-gray-800">ربط نطاق جديد</h2>
+            <h2 className="text-base font-semibold text-gray-800">{t("domains.form.title")}</h2>
           </div>
           <div className="space-y-3">
             <input
               type="text"
               value={domainInput}
               onChange={(e) => setDomainInput(e.target.value)}
-              placeholder="متجري.com"
+              placeholder={t("domains.form.placeholder")}
               className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-rose-400 bg-gray-50"
               dir="ltr"
             />
@@ -153,10 +155,10 @@ export default function DomainsPage() {
               disabled={!domainInput.trim() || requestMutation.isPending}
               className="w-full bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors text-sm"
             >
-              {requestMutation.isPending ? "جاري الإرسال..." : "ربط النطاق"}
+              {requestMutation.isPending ? t("domains.form.btnSubmitting") : t("domains.form.btnSubmit")}
             </button>
           </div>
-          <p className="text-xs text-gray-400 mt-3">ستحتاج إلى الوصول لإعدادات DNS لنطاقك لإتمام عملية الربط</p>
+          <p className="text-xs text-gray-400 mt-3">{t("domains.form.hint")}</p>
         </motion.div>
       )}
 
@@ -164,18 +166,18 @@ export default function DomainsPage() {
       <AnimatePresence>
         {showConfirmRemove && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" dir="rtl">
+            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" dir={i18n.dir()}>
             <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
               className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
-              <h3 className="font-bold text-gray-900 mb-2">تأكيد الإزالة</h3>
-              <p className="text-sm text-gray-600 mb-5">هل أنت متأكد من إزالة النطاق المخصص؟ سيتوقف المتجر عن العمل على هذا النطاق.</p>
+              <h3 className="font-bold text-gray-900 mb-2">{t("domains.removeDialog.title")}</h3>
+              <p className="text-sm text-gray-600 mb-5">{t("domains.removeDialog.desc")}</p>
               <div className="flex gap-3">
                 <button onClick={() => setShowConfirmRemove(false)} className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors">
-                  إلغاء
+                  {t("domains.removeDialog.btnCancel")}
                 </button>
                 <button onClick={() => removeMutation.mutate()} disabled={removeMutation.isPending}
                   className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50">
-                  {removeMutation.isPending ? "جاري الإزالة..." : "إزالة"}
+                  {removeMutation.isPending ? t("domains.removeDialog.btnRemoving") : t("domains.removeDialog.btnRemove")}
                 </button>
               </div>
             </motion.div>

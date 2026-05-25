@@ -1,8 +1,8 @@
 export const DEFAULT_CATEGORIES = [
-  { name: "Clothing", nameAr: "ملابس", type: "fashion" as const },
-  { name: "Accessories", nameAr: "إكسسوارات", type: "fashion" as const },
-  { name: "Cosmetics", nameAr: "مستحضرات تجميل", type: "cosmetics" as const },
-  { name: "Perfumes", nameAr: "عطور", type: "cosmetics" as const },
+  { name: "Clothing", nameAr: "ملابس", type: "fashion" as const, imageUrl: "/images/categories/fashion.png" },
+  { name: "Accessories", nameAr: "إكسسوارات", type: "fashion" as const, imageUrl: "/images/categories/accessories.png" },
+  { name: "Cosmetics", nameAr: "مستحضرات تجميل", type: "cosmetics" as const, imageUrl: "/images/categories/care.png" },
+  { name: "Perfumes", nameAr: "عطور", type: "cosmetics" as const, imageUrl: "/images/categories/perfumes.png" },
 ];
 
 export const DEFAULT_SHIPPING_ZONES_CONFIG = [

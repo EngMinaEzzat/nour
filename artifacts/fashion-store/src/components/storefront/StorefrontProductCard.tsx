@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { ShoppingBag, Check, Layers, Heart, Star } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetProductQueryKey } from "@workspace/api-client-react";
 import { publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl } from "@/lib/image-url";
+import { getStoreUrl } from "@/lib/utils";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -48,6 +50,7 @@ export function StorefrontProductCard({
   const [wishlisted, setWishlisted] = useState(false);
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const { t, i18n } = useTranslation();
 
   const unavailable =
     product.status === "out_of_stock" || (product.stock ?? 1) === 0;
@@ -65,8 +68,8 @@ export function StorefrontProductCard({
       : "aspect-[3/4]";
 
   const productHref = storeSlug
-    ? `/store/${storeSlug}/product/${publicEntitySlug(product.id, product.name)}`
-    : `/products/${product.id}`;
+    ? `${getStoreUrl(storeSlug)}/product/${publicEntitySlug(product.id, product.name)}`
+    : `/product/${publicEntitySlug(product.id, product.name)}`;
   const imageUrl = productImageUrl(product.imageUrl);
 
   function prefetchProduct() {
@@ -98,15 +101,9 @@ export function StorefrontProductCard({
     setWishlisted(w => !w);
   }
 
-  return (
-    <div
-      className="group flex flex-col"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Image */}
-      <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
-        <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-stone-100`}>
+
+  const imageContent = (
+    <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-stone-100`}>
           <img
             src={imageUrl}
             alt={product.name}
@@ -128,16 +125,16 @@ export function StorefrontProductCard({
           )}
           {product.featured && !discount && (
             <div
-              className="absolute top-3 end-3 text-[10px] px-2.5 py-1 rounded-full font-bold text-white z-10"
+              className={`absolute top-3 ${i18n.dir() === "rtl" ? "end-3" : "end-3"} text-[10px] px-2.5 py-1 rounded-full font-bold text-white z-10`}
               style={{ background: "#c8963a" }}
             >
-              مميز
+              {t("storefront.products.featured", "مميز")}
             </div>
           )}
           {unavailable && (
             <div className="absolute inset-0 bg-stone-900/50 flex items-center justify-center z-10 rounded-2xl">
               <span className="text-white text-xs font-semibold px-4 py-2 bg-stone-900/70 rounded-full">
-                نفذت الكمية
+                {t("storefront.products.outOfStock", "نفذت الكمية")}
               </span>
             </div>
           )}
@@ -145,7 +142,7 @@ export function StorefrontProductCard({
           {/* Wishlist */}
           <button
             onClick={handleWishlist}
-            className="absolute top-3 start-3 w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all"
+            className={`absolute top-3 ${i18n.dir() === "rtl" ? "start-3" : "start-3"} w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all`}
             style={{
               background: "rgba(250,247,244,0.88)",
               backdropFilter: "blur(8px)",
@@ -186,35 +183,63 @@ export function StorefrontProductCard({
                     }}
                   >
                     {product.hasVariants ? (
-                      <><Layers className="w-3.5 h-3.5" />اختري خيارك</>
+                      <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption", "اختري خيارك")}</>
                     ) : inCart ? (
-                      <><Check className="w-3.5 h-3.5" />في السلة</>
+                      <><Check className="w-3.5 h-3.5" />{t("storefront.products.inCart", "في السلة")}</>
                     ) : (
-                      <><ShoppingBag className="w-3.5 h-3.5" />أضفي للسلة</>
+                      <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart", "أضفي للسلة")}</>
                     )}
                   </button>
                 </motion.div>
               )}
             </AnimatePresence>
           )}
-        </div>
-      </Link>
+    </div>
+  );
+
+  return (
+    <div
+      className="group flex flex-col"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Image */}
+      {storeSlug ? (
+        <a href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+          {imageContent}
+        </a>
+      ) : (
+        <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+          {imageContent}
+        </Link>
+      )}
 
       {/* Info */}
-      <div className="mt-3 px-0.5" style={{ direction: "rtl" }}>
+      <div className="mt-3 px-0.5" style={{ direction: i18n.dir() }}>
         {product.categoryName && (
           <p className="text-[10px] tracking-widest uppercase text-stone-400 mb-0.5 font-medium">
             {product.categoryName}
           </p>
         )}
-        <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
-          <h3
-            className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
-            style={{ fontFamily: SERIF, fontWeight: 400 }}
-          >
-            {product.name}
-          </h3>
-        </Link>
+        {storeSlug ? (
+          <a href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+            <h3
+              className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
+              style={{ fontFamily: SERIF, fontWeight: 400 }}
+            >
+              {product.name}
+            </h3>
+          </a>
+        ) : (
+          <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+            <h3
+              className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
+              style={{ fontFamily: SERIF, fontWeight: 400 }}
+            >
+              {product.name}
+            </h3>
+          </Link>
+        )}
 
         {showRating && (
           <div className="flex items-center gap-1 mt-1 mb-1.5">
@@ -234,18 +259,18 @@ export function StorefrontProductCard({
 
         <div className="flex items-baseline gap-2">
           <span className="font-bold text-[15px]" style={{ color: p }}>
-            {product.price.toLocaleString("ar-EG")} ج.م
+            {product.price.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}
           </span>
           {product.originalPrice && product.originalPrice > product.price && (
             <span className="text-xs text-stone-400 line-through">
-              {product.originalPrice.toLocaleString("ar-EG")}
+              {product.originalPrice.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")}
             </span>
           )}
         </div>
 
         {product.hasVariants && (
           <p className="text-[10px] text-stone-400 mt-1 flex items-center gap-1">
-            <Layers className="w-2.5 h-2.5" /> متعدد الخيارات
+            <Layers className="w-2.5 h-2.5" /> {t("storefront.products.hasVariants", "متعدد الخيارات")}
           </p>
         )}
       </div>

@@ -1,14 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
-
-const MESSAGES = [
-  "✦ شحن مجاني على الطلبات فوق 999 ج.م",
-  "✦ منتجات أصيلة 100% • Free shipping on orders over 999 EGP",
-  "✦ وصلت أحدث تشكيلات الصيف",
-  "✦ إرجاع مجاني خلال 14 يوم",
-  "✦ New summer arrivals — Shop now",
-  "✦ دفع آمن • Fast & secure checkout",
-];
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -19,11 +11,20 @@ export function AnnouncementBar({
   p?: string;
   onDismiss?: () => void;
 }) {
+  const { t, i18n } = useTranslation();
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
 
-  const text = MESSAGES.join("     •     ");
+  const messages = [
+    t("storefront.announcement.msg1", "✦ شحن مجاني على الطلبات فوق 999 ج.م"),
+    t("storefront.announcement.msg2", "✦ منتجات أصيلة 100%"),
+    t("storefront.announcement.msg3", "✦ وصلت أحدث تشكيلات الصيف"),
+    t("storefront.announcement.msg4", "✦ إرجاع مجاني خلال 14 يوم"),
+    t("storefront.announcement.msg5", "✦ دفع آمن"),
+  ];
+
+  const text = messages.join("     •     ");
 
   function handleDismiss() {
     setDismissed(true);
@@ -55,7 +56,7 @@ export function AnnouncementBar({
       <button
         onClick={handleDismiss}
         className="absolute left-3 top-1/2 -translate-y-1/2 opacity-60 hover:opacity-100 transition-opacity"
-        aria-label="إغلاق الإعلان"
+        aria-label={t("storefront.announcement.close", "إغلاق الإعلان")}
       >
         <X className="w-3 h-3 text-white" />
       </button>

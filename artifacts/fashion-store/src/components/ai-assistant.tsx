@@ -7,8 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+import { useTranslation } from "react-i18next";
 
 type AiModel = "claude" | "gemini";
 
@@ -19,13 +18,7 @@ interface ChatMessage {
   streaming?: boolean;
 }
 
-const QUICK_PROMPTS = [
-  "كم طلبي المعلق اليوم؟",
-  "ما أكثر منتج مبيعاً؟",
-  "ساعدني أكتب رسالة ترحيب بالعملاء الجدد",
-  "ما نصائحك لزيادة المبيعات هذا الشهر؟",
-  "كيف حال إيرادات الشهر الحالي؟",
-];
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function TypingDots() {
   return (
@@ -77,6 +70,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
 
 export function AiAssistant() {
   const { isAuthenticated, merchant } = useAuth();
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const [model, setModel] = useState<AiModel>("claude");
   const [input, setInput] = useState("");
@@ -124,7 +118,7 @@ export function AiAssistant() {
           signal: abortRef.current.signal,
         });
 
-        if (!res.ok || !res.body) throw new Error("فشل الاتصال");
+        if (!res.ok || !res.body) throw new Error(t("assistant.error"));
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -177,7 +171,7 @@ export function AiAssistant() {
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantMsg.id
-                ? { ...m, content: "حدث خطأ في الاتصال، حاول مرة أخرى.", streaming: false }
+                ? { ...m, content: t("assistant.error"), streaming: false }
                 : m
             )
           );
@@ -214,10 +208,18 @@ export function AiAssistant() {
 
   if (!isAuthenticated) return null;
 
-  const storeName = merchant?.storeName ?? merchant?.name ?? "متجرك";
+  const storeName = merchant?.storeName ?? merchant?.name ?? t("assistant.storeFallback");
+
+  const QUICK_PROMPTS = [
+    t("assistant.quick1"),
+    t("assistant.quick2"),
+    t("assistant.quick3"),
+    t("assistant.quick4"),
+    t("assistant.quick5"),
+  ];
 
   return (
-    <>
+    <div dir={i18n.dir()}>
       {/* Floating button */}
       <AnimatePresence>
         {!open && (
@@ -244,7 +246,7 @@ export function AiAssistant() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              مساعد نور الذكي ✨
+              {t("assistant.tooltip")}
             </motion.div>
           </motion.div>
         )}
@@ -267,7 +269,7 @@ export function AiAssistant() {
                 <Sparkles className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm leading-none mb-0.5">مساعد نور الذكي</p>
+                <p className="font-semibold text-sm leading-none mb-0.5">{t("assistant.title")}</p>
                 <p className="text-xs text-white/70 truncate">{storeName}</p>
               </div>
 
@@ -294,7 +296,7 @@ export function AiAssistant() {
                     variant="ghost"
                     onClick={clearHistory}
                     className="w-7 h-7 rounded-full hover:bg-white/15 text-white/80 hover:text-white"
-                    title="مسح المحادثة"
+                    title={t("assistant.clearHistory")}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
@@ -325,9 +327,9 @@ export function AiAssistant() {
                     <Sparkles className="w-8 h-8 text-violet-600 dark:text-violet-400" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground mb-1">أهلاً بك في مساعد نور!</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      اسألني عن طلباتك، منتجاتك، عملاءك،<br />أو اطلب مني مساعدتك في أي شيء
+                    <p className="font-semibold text-foreground mb-1">{t("assistant.welcome")}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {t("assistant.welcomeDesc")}
                     </p>
                   </div>
 
@@ -357,7 +359,7 @@ export function AiAssistant() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="اكتب رسالتك هنا... (Enter للإرسال)"
+                  placeholder={t("assistant.placeholder")}
                   className="flex-1 resize-none text-sm min-h-[40px] max-h-[100px] rounded-xl border-border/60 focus-visible:ring-violet-500/30"
                   rows={1}
                   disabled={loading}
@@ -376,12 +378,12 @@ export function AiAssistant() {
                 </Button>
               </div>
               <p className="text-[10px] text-muted-foreground/50 text-center mt-1.5">
-                مدعوم بـ {model === "claude" ? "Claude AI" : "Gemini AI"} · Shift+Enter لسطر جديد
+                {t("assistant.poweredBy", { model: model === "claude" ? "Claude AI" : "Gemini AI" })}
               </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

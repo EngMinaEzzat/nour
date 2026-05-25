@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Palette, LayoutList, Save, Sparkles, Rocket, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export type MerchantGender = "female" | "male";
 
@@ -12,32 +13,6 @@ interface WelcomeOverlayProps {
   onOpenAssistant?: () => void;
 }
 
-/** Gender-aware Arabic text for the welcome overlay */
-function t(gender: MerchantGender) {
-  const f = gender === "female";
-  return {
-    greeting: f ? "أهلاً بكِ في متجرك! 🎉" : "أهلاً بك في متجرك! 🎉",
-    subtitle: f
-      ? "متجرك جاهز وبيستناكِ! دلوقتي تقدري تخصصيه بسهولة."
-      : "متجرك جاهز وبيستناك! دلوقتي تقدر تخصصه بسهولة.",
-    step1Title: f ? "اختاري الثيم" : "اختار الثيم",
-    step1Desc: f
-      ? "من تاب \"الثيم\" في القائمة الجانبية، اختاري الستايل اللي يناسب متجرك"
-      : "من تاب \"الثيم\" في القائمة الجانبية، اختار الستايل اللي يناسب متجرك",
-    step2Title: f ? "رتّبي أقسام صفحتك" : "رتّب أقسام صفحتك",
-    step2Desc: f
-      ? "من تاب \"الأقسام\"، أضيفي أو احذفي أو غيّري ترتيب الأقسام"
-      : "من تاب \"الأقسام\"، أضف أو احذف أو غيّر ترتيب الأقسام",
-    step3Title: f ? "احفظي وانشري" : "احفظ وانشر",
-    step3Desc: f
-      ? "بعد ما تخلصي التعديلات، اضغطي 💾 حفظ ثم \"نشر\" عشان متجرك يبقى لايف"
-      : "بعد ما تخلص التعديلات، اضغط 💾 حفظ ثم \"نشر\" عشان متجرك يبقى لايف",
-    cta: f ? "يلا نبدأ! 🚀" : "يلا نبدأ! 🚀",
-    assistantHint: f
-      ? "لو محتاجة مساعدة في أي وقت، اضغطي على تاب \"مساعد\" ✨"
-      : "لو محتاج مساعدة في أي وقت، اضغط على تاب \"مساعد\" ✨",
-  };
-}
 
 const STEPS_CONFIG = [
   { icon: Palette, color: "#8B1A35", bg: "#fff0f3", key: "step1" as const },
@@ -52,8 +27,8 @@ export default function WelcomeOverlay({
   onDismiss,
   onOpenAssistant,
 }: WelcomeOverlayProps) {
+  const { t, i18n } = useTranslation();
   const [exiting, setExiting] = useState(false);
-  const text = t(gender);
 
   function handleDismiss() {
     setExiting(true);
@@ -65,9 +40,9 @@ export default function WelcomeOverlay({
   }
 
   const steps = [
-    { title: text.step1Title, desc: text.step1Desc },
-    { title: text.step2Title, desc: text.step2Desc },
-    { title: text.step3Title, desc: text.step3Desc },
+    { title: t(`welcomeOverlay.${gender}.step1Title`), desc: t(`welcomeOverlay.${gender}.step1Desc`) },
+    { title: t(`welcomeOverlay.${gender}.step2Title`), desc: t(`welcomeOverlay.${gender}.step2Desc`) },
+    { title: t(`welcomeOverlay.${gender}.step3Title`), desc: t(`welcomeOverlay.${gender}.step3Desc`) },
   ];
 
   return (
@@ -79,7 +54,7 @@ export default function WelcomeOverlay({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35 }}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          dir="rtl"
+          dir={i18n.dir()}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 30 }}
@@ -91,8 +66,8 @@ export default function WelcomeOverlay({
             {/* Close button */}
             <button
               onClick={handleDismiss}
-              className="absolute top-4 left-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 text-stone-400 hover:bg-stone-200 hover:text-stone-600 transition-all"
-              aria-label="إغلاق"
+              className={`absolute top-4 ${i18n.dir() === "rtl" ? "left-4" : "right-4"} z-10 w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 text-stone-400 hover:bg-stone-200 hover:text-stone-600 transition-all`}
+              aria-label={t("welcomeOverlay.close")}
             >
               <X className="w-4 h-4" />
             </button>
@@ -124,7 +99,7 @@ export default function WelcomeOverlay({
                 transition={{ delay: 0.3 }}
                 className="text-2xl font-bold text-stone-900 mb-2"
               >
-                {text.greeting}
+                {t(`welcomeOverlay.${gender}.greeting`)}
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
@@ -133,7 +108,7 @@ export default function WelcomeOverlay({
                 className="text-sm text-stone-500 leading-relaxed"
               >
                 <span className="font-semibold text-stone-700">{storeName}</span> —{" "}
-                {text.subtitle}
+                {t(`welcomeOverlay.${gender}.subtitle`)}
               </motion.p>
             </div>
 
@@ -158,11 +133,11 @@ export default function WelcomeOverlay({
                       <Icon className="w-5 h-5" style={{ color: cfg.color }} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-stone-800 mb-0.5">
-                        <span className="text-stone-400 font-normal ml-1.5">{i + 1}.</span>
+                      <p className={`text-sm font-semibold text-stone-800 mb-0.5 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
+                        <span className={`text-stone-400 font-normal ${i18n.dir() === "rtl" ? "ml-1.5" : "mr-1.5"}`}>{i + 1}.</span>
                         {step.title}
                       </p>
-                      <p className="text-xs text-stone-500 leading-relaxed">{step.desc}</p>
+                      <p className={`text-xs text-stone-500 leading-relaxed ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>{step.desc}</p>
                     </div>
                   </motion.div>
                 );
@@ -176,9 +151,9 @@ export default function WelcomeOverlay({
               transition={{ delay: 0.75 }}
               className="mx-8 mb-4 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-100"
             >
-              <p className="text-xs text-amber-700 flex items-center gap-2">
+              <p className={`text-xs text-amber-700 flex items-center gap-2 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
                 <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-                {text.assistantHint}
+                {t(`welcomeOverlay.${gender}.assistantHint`)}
               </p>
             </motion.div>
 
@@ -197,7 +172,7 @@ export default function WelcomeOverlay({
                 }}
               >
                 <Rocket className="w-5 h-5" />
-                {text.cta}
+                {t(`welcomeOverlay.${gender}.cta`)}
               </motion.button>
             </div>
           </motion.div>

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { getBaseDomain } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +19,7 @@ async function checkSlugAvailability(slug: string): Promise<{ available: boolean
 }
 
 export default function Register() {
+  const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { register } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -100,16 +103,16 @@ export default function Register() {
       });
       // Persist gender locally for the editor UI language
       try { localStorage.setItem(`nour_gender_${slug}`, form.gender); } catch {}
-      navigate("/store-builder?mode=editor");
+      setTimeout(() => navigate("/store-builder?mode=editor"), 0);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       if (msg.includes("اسم المتجر") || msg.includes("الرابط")) {
-        setError("اسم المتجر أو الرابط مستخدم مسبقًا، جرّب اسمًا آخر");
+        setError(t("auth.register.errDuplicateSlug"));
         setSlugStatus("taken");
       } else if (msg.includes("البريد الإلكتروني") || msg.includes("409") || msg.includes("مسجل")) {
         setDuplicateEmail(true);
       } else {
-        setError("حدث خطأ أثناء التسجيل، حاول مرة أخرى");
+        setError(t("auth.register.generalError"));
       }
     } finally {
       setIsLoading(false);
@@ -124,11 +127,11 @@ export default function Register() {
 
   const slugHint = {
     idle: null,
-    checking: { color: "text-muted-foreground", icon: <Loader2 className="w-3.5 h-3.5 animate-spin" />, text: "جارٍ التحقق..." },
-    available: { color: "text-green-600", icon: <CheckCircle2 className="w-3.5 h-3.5" />, text: "الرابط متاح" },
-    taken: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: "الرابط مستخدم، جرّب اسمًا آخر" },
-    invalid: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: "الرابط يحتوي على أحرف غير مقبولة أو محجوز" },
-    error: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: "تعذر الاتصال بالخادم، حاول مرة أخرى" },
+    checking: { color: "text-muted-foreground", icon: <Loader2 className="w-3.5 h-3.5 animate-spin" />, text: t("auth.register.slugChecking") },
+    available: { color: "text-green-600", icon: <CheckCircle2 className="w-3.5 h-3.5" />, text: t("auth.register.slugAvailable") },
+    taken: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: t("auth.register.slugTaken") },
+    invalid: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: t("auth.register.slugInvalid") },
+    error: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: t("auth.register.slugError") },
   }[slugStatus];
 
   return (
@@ -141,10 +144,10 @@ export default function Register() {
       >
         <div className="text-center mb-10">
           <Link href="/">
-            <span className="text-4xl font-bold text-primary cursor-pointer">نور</span>
+            <span className="text-4xl font-bold text-primary cursor-pointer">{t("common.appName")}</span>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground mt-4">افتح متجرك الآن</h1>
-          <p className="text-muted-foreground mt-2 text-sm">انضم إلى آلاف التجار على منصة نور</p>
+          <h1 className="text-2xl font-bold text-foreground mt-4">{t("auth.register.title")}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">{t("auth.register.subtitle")}</p>
         </div>
 
         <motion.div
@@ -156,10 +159,10 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="storeName">اسم المتجر</Label>
+                <Label htmlFor="storeName">{t("auth.register.storeName")}</Label>
                 <Input
                   id="storeName"
-                  placeholder="مثال: أزياء ليلى"
+                  placeholder={t("auth.register.storeNamePlaceholder")}
                   value={form.storeName}
                   onChange={(e) => handleStoreNameChange(e.target.value)}
                   required
@@ -168,23 +171,22 @@ export default function Register() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="slug">
-                  رابط المتجر
-                  <span className="text-muted-foreground text-xs me-2">nour.eg/store/</span>
+                <Label htmlFor="slug" className="flex items-center gap-1">
+                  {t("auth.register.storeSlug")}
                 </Label>
-                <div className="relative">
+                <div className="relative flex items-center" dir="ltr">
                   <Input
                     id="slug"
-                    placeholder="layla-fashion"
+                    placeholder={t("auth.register.storeSlugPlaceholder")}
                     value={form.slug}
                     onChange={(e) => handleSlugChange(e.target.value)}
                     required
-                    className={`h-11 pe-10 transition-colors ${
+                    className={`h-11 pe-10 text-right transition-colors ${
                       slugStatus === "available" ? "border-green-500 focus-visible:ring-green-400" :
                       slugStatus === "taken" || slugStatus === "invalid" ? "border-destructive focus-visible:ring-destructive" : ""
                     }`}
-                    dir="ltr"
                   />
+                  <span className="text-muted-foreground text-sm ms-2 font-mono">.{getBaseDomain()}</span>
                   {slugStatus !== "idle" && (
                     <span className={`absolute inset-y-0 end-3 flex items-center ${slugHint?.color}`}>
                       {slugHint?.icon}
@@ -208,24 +210,24 @@ export default function Register() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="category">ماذا يبيع المتجر؟</Label>
+                <Label htmlFor="category">{t("auth.register.categoryLabel")}</Label>
                 <Select
                   value={form.category}
                   onValueChange={(val: "fashion" | "cosmetics" | "both") => setForm(f => ({ ...f, category: val }))}
                 >
                   <SelectTrigger id="category" className="h-11">
-                    <SelectValue placeholder="اختر الفئة" />
+                    <SelectValue placeholder={t("auth.register.categoryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fashion">أزياء وملابس</SelectItem>
-                    <SelectItem value="cosmetics">مستحضرات تجميل وعناية</SelectItem>
-                    <SelectItem value="both">أزياء ومستحضرات تجميل</SelectItem>
+                    <SelectItem value="fashion">{t("auth.register.catFashion")}</SelectItem>
+                    <SelectItem value="cosmetics">{t("auth.register.catCosmetics")}</SelectItem>
+                    <SelectItem value="both">{t("auth.register.catBoth")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label>كيف تحب نخاطبك؟</Label>
+                <Label>{t("auth.register.genderLabel")}</Label>
                 <div className="flex gap-2">
                   {(["female", "male"] as const).map((g) => {
                     const isActive = form.gender === g;
@@ -240,20 +242,20 @@ export default function Register() {
                             : "border-border text-muted-foreground hover:border-primary/40"
                         }`}
                       >
-                        {g === "female" ? "👩 أنثى" : "👨 ذكر"}
+                        {g === "female" ? t("auth.register.genderFemale") : t("auth.register.genderMale")}
                       </button>
                     );
                   })}
                 </div>
-                <p className="text-[11px] text-muted-foreground">عشان نكلمك باللغة المناسبة في المتجر</p>
+                <p className="text-[11px] text-muted-foreground">{t("auth.register.genderHint")}</p>
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="phone">رقم الهاتف</Label>
+                <Label htmlFor="phone">{t("auth.register.phone")}</Label>
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="01xxxxxxxxx"
+                  placeholder={t("common.placeholder.phone")}
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                   required
@@ -266,11 +268,11 @@ export default function Register() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="email">البريد الإلكتروني</Label>
+                <Label htmlFor="email">{t("auth.register.email")}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="example@nour.eg"
+                  placeholder={t("common.placeholder.email")}
                   {...field("email")}
                   required
                   className="h-11"
@@ -279,12 +281,12 @@ export default function Register() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="password">كلمة المرور</Label>
+                <Label htmlFor="password">{t("auth.register.password")}</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="٨ أحرف على الأقل"
+                    placeholder={t("common.placeholder.password")}
                     {...field("password")}
                     required
                     minLength={8}
@@ -308,12 +310,12 @@ export default function Register() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-center space-y-2"
               >
-                <p className="text-sm text-amber-800 font-medium">هذا البريد الإلكتروني مسجّل مسبقًا</p>
+                <p className="text-sm text-amber-800 font-medium">{t("auth.register.duplicateEmail")}</p>
                 <Link
                   href={`/login?email=${encodeURIComponent(form.email)}`}
                   className="inline-block text-sm font-semibold text-primary hover:underline"
                 >
-                  تسجيل الدخول بدلاً من ذلك ←
+                  {t("auth.register.loginInstead")}
                 </Link>
               </motion.div>
             )}
@@ -334,18 +336,18 @@ export default function Register() {
               disabled={isLoading || slugStatus === "taken" || slugStatus === "invalid" || slugStatus === "checking"}
             >
               {isLoading ? (
-                <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> جارٍ إنشاء المتجر...</>
+                <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> {t("auth.register.btnRegistering")}</>
               ) : (
-                <><Sparkles className="w-4 h-4 ms-2" /> افتح متجري</>
+                <><Sparkles className="w-4 h-4 ms-2" /> {t("auth.register.btnRegister")}</>
               )}
             </Button>
           </form>
         </motion.div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          لديك حساب بالفعل؟{" "}
+          {t("auth.register.hasAccount")} {" "}
           <Link href="/login" className="text-primary font-semibold hover:underline">
-            سجّل دخولك
+            {t("auth.register.loginNow")}
           </Link>
         </p>
       </motion.div>

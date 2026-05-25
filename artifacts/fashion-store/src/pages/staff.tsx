@@ -23,6 +23,7 @@ import {
   UserPlus, Shield, User, Crown, Trash2, Pencil, AlertCircle, Users,
   Mail, Link2, Clock, X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -32,15 +33,6 @@ const INV_STATUS_COLORS: Record<string, string> = {
   accepted: "bg-green-100 text-green-700",
   expired: "bg-gray-100 text-gray-500",
   revoked: "bg-red-100 text-red-600",
-};
-
-const ROLE_LABELS: Record<string, string> = {
-  owner: "مالك",
-  manager: "مدير",
-  staff: "موظف",
-  catalog_manager: "مدير كتالوج",
-  order_operator: "موظف طلبات",
-  marketing_analyst: "محلل تسويق",
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -67,6 +59,7 @@ const stagger = {
 };
 
 export default function Staff() {
+  const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const queryClient = useQueryClient();
   const isOwner = merchant?.role === "owner";
@@ -120,7 +113,7 @@ export default function Staff() {
       setForm({ email: "", name: "", password: "", role: "staff" });
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg ?? "حدث خطأ أثناء الإضافة");
+      setError(msg ?? t("staff.inviteDialog.error"));
     }
   }
 
@@ -136,7 +129,7 @@ export default function Staff() {
       setEditMember(null);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg ?? "حدث خطأ أثناء التحديث");
+      setError(msg ?? t("staff.editDialog.error"));
     }
   }
 
@@ -149,7 +142,7 @@ export default function Staff() {
       setDeleteId(null);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg ?? "حدث خطأ أثناء الحذف");
+      setError(msg ?? t("staff.deleteDialog.error"));
     }
   }
 
@@ -165,17 +158,17 @@ export default function Staff() {
         <div>
           <h1 className="text-4xl font-bold text-foreground mb-1 flex items-center gap-3">
             <Users className="w-9 h-9 text-primary" />
-            إدارة الفريق
+            {t("staff.title")}
           </h1>
-          <p className="text-muted-foreground">أضف موظفين ومديرين لمتجرك وحدد صلاحياتهم</p>
+          <p className="text-muted-foreground">{t("staff.subtitle")}</p>
         </div>
         {isOwner && (
           <div className="flex gap-2 shrink-0">
             <Button variant="outline" className="rounded-full gap-2" onClick={() => { setInvLinkOpen(true); setInvLinkResult(null); }}>
-              <Link2 className="w-4 h-4" /> دعوة برابط
+              <Link2 className="w-4 h-4" /> {t("staff.inviteLinkBtn")}
             </Button>
             <Button className="rounded-full gap-2" onClick={() => { setInviteOpen(true); setError(null); }}>
-              <UserPlus className="w-4 h-4" /> إضافة مباشر
+              <UserPlus className="w-4 h-4" /> {t("staff.directInviteBtn")}
             </Button>
           </div>
         )}
@@ -187,20 +180,20 @@ export default function Staff() {
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
       >
         {[
-          { role: "owner", desc: "وصول كامل — الإعدادات والفوترة وإدارة الفريق" },
-          { role: "manager", desc: "إدارة المنتجات والطلبات والعملاء وعرض التقارير" },
-          { role: "catalog_manager", desc: "إدارة المنتجات والفئات والمخزون فقط" },
-          { role: "order_operator", desc: "عرض الطلبات وتحديث حالتها ومعالجة الشحن" },
-          { role: "marketing_analyst", desc: "عرض التقارير والتحليلات والعملاء فقط" },
-          { role: "staff", desc: "عرض الطلبات وتحديث حالتها وعرض المنتجات فقط" },
-        ].map(({ role, desc }) => {
+          { role: "owner" },
+          { role: "manager" },
+          { role: "catalog_manager" },
+          { role: "order_operator" },
+          { role: "marketing_analyst" },
+          { role: "staff" },
+        ].map(({ role }) => {
           const Icon = ROLE_ICONS[role];
           return (
             <div key={role} className={`rounded-xl border px-4 py-3 flex gap-3 items-start ${ROLE_COLORS[role]}`}>
               <Icon className="w-4 h-4 mt-0.5 shrink-0" />
               <div>
-                <p className="font-bold text-sm">{ROLE_LABELS[role]}</p>
-                <p className="text-xs opacity-80 mt-0.5">{desc}</p>
+                <p className="font-bold text-sm">{t(`staff.roles.${role}`)}</p>
+                <p className="text-xs opacity-80 mt-0.5">{t(`staff.roleDesc.${role}`)}</p>
               </div>
             </div>
           );
@@ -212,9 +205,9 @@ export default function Staff() {
         <CardHeader>
           <CardTitle className="text-lg font-bold flex items-center gap-2">
             <Shield className="w-5 h-5 text-primary" />
-            أعضاء الفريق
+            {t("staff.membersList.title")}
             {staffList && (
-              <Badge variant="secondary" className="ms-auto text-xs">{staffList.length} عضو</Badge>
+              <Badge variant="secondary" className="ms-auto text-xs">{staffList.length} {t("staff.membersList.memberCount")}</Badge>
             )}
           </CardTitle>
         </CardHeader>
@@ -234,10 +227,10 @@ export default function Staff() {
           ) : !staffList?.length ? (
             <div className="text-center py-12 text-muted-foreground">
               <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p>لا يوجد أعضاء فريق بعد</p>
+              <p>{t("staff.membersList.noMembers")}</p>
               {isOwner && (
                 <Button variant="outline" size="sm" className="mt-4 rounded-full" onClick={() => setInviteOpen(true)}>
-                  <UserPlus className="w-3.5 h-3.5 me-1.5" /> أضف أول عضو
+                  <UserPlus className="w-3.5 h-3.5 me-1.5" /> {t("staff.membersList.addFirst")}
                 </Button>
               )}
             </div>
@@ -267,17 +260,17 @@ export default function Staff() {
                           {member.name ?? member.email}
                         </p>
                         {isMe && (
-                          <Badge variant="outline" className="text-xs text-primary border-primary/30">أنت</Badge>
+                          <Badge variant="outline" className="text-xs text-primary border-primary/30">{t("staff.membersList.you")}</Badge>
                         )}
                         <Badge className={`text-xs border ${ROLE_COLORS[member.role]} bg-transparent`}>
-                          {ROLE_LABELS[member.role] ?? member.role}
+                          {t(`staff.roles.${member.role}`)}
                         </Badge>
                       </div>
                       {member.name && (
                         <p className="text-xs text-muted-foreground mt-0.5">{member.email}</p>
                       )}
                       <p className="text-xs text-muted-foreground/60 mt-0.5">
-                        انضم {new Date(member.createdAt).toLocaleDateString("ar-EG")}
+                        {t("staff.membersList.joined")} {new Date(member.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US")}
                       </p>
                     </div>
 
@@ -312,40 +305,40 @@ export default function Staff() {
 
       {/* Invite dialog */}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="sm:max-w-md" dir="rtl">
+        <DialogContent className="sm:max-w-md" dir={i18n.dir()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-primary" />
-              إضافة عضو جديد
+              {t("staff.inviteDialog.title")}
             </DialogTitle>
             <DialogDescription>
-              أدخل بيانات العضو الجديد وحدد دوره في المتجر
+              {t("staff.inviteDialog.desc")}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleInvite} className="space-y-4 mt-2">
             <div className="space-y-2">
-              <Label>الاسم (اختياري)</Label>
+              <Label>{t("staff.inviteDialog.nameLabel")}</Label>
               <Input
-                placeholder="اسم الموظف"
+                placeholder={t("staff.inviteDialog.namePlaceholder")}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>البريد الإلكتروني *</Label>
+              <Label>{t("staff.inviteDialog.emailLabel")}</Label>
               <Input
                 type="email"
-                placeholder="example@store.com"
+                placeholder={t("staff.inviteDialog.emailPlaceholder")}
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>كلمة المرور *</Label>
+              <Label>{t("staff.inviteDialog.passwordLabel")}</Label>
               <Input
                 type="password"
-                placeholder="6 أحرف على الأقل"
+                placeholder={t("staff.inviteDialog.passwordPlaceholder")}
                 required
                 minLength={6}
                 value={form.password}
@@ -353,7 +346,7 @@ export default function Staff() {
               />
             </div>
             <div className="space-y-2">
-              <Label>الدور *</Label>
+              <Label>{t("staff.inviteDialog.roleLabel")}</Label>
               <Select
                 value={form.role}
                 onValueChange={(v) => setForm({ ...form, role: v as "manager" | "staff" })}
@@ -362,11 +355,11 @@ export default function Staff() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="manager">مدير — إدارة كاملة</SelectItem>
-                  <SelectItem value="catalog_manager">مدير كتالوج — منتجات ومخزون</SelectItem>
-                  <SelectItem value="order_operator">موظف طلبات — معالجة الطلبات</SelectItem>
-                  <SelectItem value="marketing_analyst">محلل تسويق — تقارير فقط</SelectItem>
-                  <SelectItem value="staff">موظف — صلاحيات محدودة</SelectItem>
+                  <SelectItem value="manager">{t("staff.inviteDialog.roles.manager")}</SelectItem>
+                  <SelectItem value="catalog_manager">{t("staff.inviteDialog.roles.catalog_manager")}</SelectItem>
+                  <SelectItem value="order_operator">{t("staff.inviteDialog.roles.order_operator")}</SelectItem>
+                  <SelectItem value="marketing_analyst">{t("staff.inviteDialog.roles.marketing_analyst")}</SelectItem>
+                  <SelectItem value="staff">{t("staff.inviteDialog.roles.staff")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -378,10 +371,10 @@ export default function Staff() {
             )}
             <div className="flex gap-3 pt-2">
               <Button type="submit" className="flex-1" disabled={inviteMutation.isPending}>
-                {inviteMutation.isPending ? "جارٍ الإضافة..." : "إضافة العضو"}
+                {inviteMutation.isPending ? t("staff.inviteDialog.btnInviting") : t("staff.inviteDialog.btnInvite")}
               </Button>
               <Button type="button" variant="outline" onClick={() => setInviteOpen(false)}>
-                إلغاء
+                {t("staff.inviteDialog.btnCancel")}
               </Button>
             </div>
           </form>
@@ -390,10 +383,10 @@ export default function Staff() {
 
       {/* Edit role dialog */}
       <Dialog open={!!editMember} onOpenChange={(o) => !o && setEditMember(null)}>
-        <DialogContent className="sm:max-w-sm" dir="rtl">
+        <DialogContent className="sm:max-w-sm" dir={i18n.dir()}>
           <DialogHeader>
-            <DialogTitle>تغيير الدور</DialogTitle>
-            <DialogDescription>حدد الدور الجديد لهذا العضو</DialogDescription>
+            <DialogTitle>{t("staff.editDialog.title")}</DialogTitle>
+            <DialogDescription>{t("staff.editDialog.desc")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <Select
@@ -404,11 +397,11 @@ export default function Staff() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="manager">مدير</SelectItem>
-                <SelectItem value="catalog_manager">مدير كتالوج</SelectItem>
-                <SelectItem value="order_operator">موظف طلبات</SelectItem>
-                <SelectItem value="marketing_analyst">محلل تسويق</SelectItem>
-                <SelectItem value="staff">موظف</SelectItem>
+                <SelectItem value="manager">{t("staff.roles.manager")}</SelectItem>
+                <SelectItem value="catalog_manager">{t("staff.roles.catalog_manager")}</SelectItem>
+                <SelectItem value="order_operator">{t("staff.roles.order_operator")}</SelectItem>
+                <SelectItem value="marketing_analyst">{t("staff.roles.marketing_analyst")}</SelectItem>
+                <SelectItem value="staff">{t("staff.roles.staff")}</SelectItem>
               </SelectContent>
             </Select>
             {error && (
@@ -418,9 +411,9 @@ export default function Staff() {
             )}
             <div className="flex gap-3">
               <Button className="flex-1" onClick={handleUpdateRole} disabled={updateRoleMutation.isPending}>
-                {updateRoleMutation.isPending ? "جارٍ الحفظ..." : "حفظ"}
+                {updateRoleMutation.isPending ? t("staff.editDialog.btnSaving") : t("staff.editDialog.btnSave")}
               </Button>
-              <Button variant="outline" onClick={() => setEditMember(null)}>إلغاء</Button>
+              <Button variant="outline" onClick={() => setEditMember(null)}>{t("staff.inviteDialog.btnCancel")}</Button>
             </div>
           </div>
         </DialogContent>
@@ -428,49 +421,49 @@ export default function Staff() {
 
       {/* Invite by link dialog */}
       <Dialog open={invLinkOpen} onOpenChange={(o) => { if (!o) { setInvLinkOpen(false); setInvLinkResult(null); } }}>
-        <DialogContent className="sm:max-w-md" dir="rtl">
+        <DialogContent className="sm:max-w-md" dir={i18n.dir()}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Link2 className="w-5 h-5 text-primary" /> دعوة برابط</DialogTitle>
-            <DialogDescription>أنشئ رابط دعوة لمدة 7 أيام يُرسل للعضو عبر أي قناة</DialogDescription>
+            <DialogTitle className="flex items-center gap-2"><Link2 className="w-5 h-5 text-primary" /> {t("staff.linkDialog.title")}</DialogTitle>
+            <DialogDescription>{t("staff.linkDialog.desc")}</DialogDescription>
           </DialogHeader>
           {!invLinkResult ? (
             <div className="space-y-4 mt-2">
               <div className="space-y-2">
-                <Label>البريد الإلكتروني *</Label>
-                <input type="email" placeholder="employee@store.com" value={invLinkForm.email} onChange={(e) => setInvLinkForm({ ...invLinkForm, email: e.target.value })}
-                  className="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
+                <Label>{t("staff.inviteDialog.emailLabel")}</Label>
+                <input type="email" placeholder={t("staff.linkDialog.emailPlaceholder")} value={invLinkForm.email} onChange={(e) => setInvLinkForm({ ...invLinkForm, email: e.target.value })}
+                  className="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 bg-background" />
               </div>
               <div className="space-y-2">
-                <Label>الدور</Label>
+                <Label>{t("staff.inviteDialog.roleLabel")}</Label>
                 <Select value={invLinkForm.role} onValueChange={(v) => setInvLinkForm({ ...invLinkForm, role: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="manager">مدير</SelectItem>
-                    <SelectItem value="catalog_manager">مدير كتالوج</SelectItem>
-                    <SelectItem value="order_operator">موظف طلبات</SelectItem>
-                    <SelectItem value="marketing_analyst">محلل تسويق</SelectItem>
-                    <SelectItem value="staff">موظف</SelectItem>
+                    <SelectItem value="manager">{t("staff.roles.manager")}</SelectItem>
+                    <SelectItem value="catalog_manager">{t("staff.roles.catalog_manager")}</SelectItem>
+                    <SelectItem value="order_operator">{t("staff.roles.order_operator")}</SelectItem>
+                    <SelectItem value="marketing_analyst">{t("staff.roles.marketing_analyst")}</SelectItem>
+                    <SelectItem value="staff">{t("staff.roles.staff")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex gap-3">
                 <Button className="flex-1" disabled={!invLinkForm.email || sendInvLinkMutation.isPending} onClick={() => sendInvLinkMutation.mutate(invLinkForm)}>
-                  {sendInvLinkMutation.isPending ? "جاري الإنشاء..." : "إنشاء رابط الدعوة"}
+                  {sendInvLinkMutation.isPending ? t("staff.linkDialog.btnCreating") : t("staff.linkDialog.btnCreateLink")}
                 </Button>
-                <Button variant="outline" onClick={() => setInvLinkOpen(false)}>إلغاء</Button>
+                <Button variant="outline" onClick={() => setInvLinkOpen(false)}>{t("staff.inviteDialog.btnCancel")}</Button>
               </div>
             </div>
           ) : (
             <div className="space-y-4 mt-2">
               <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                <p className="text-sm font-medium text-green-800 mb-2">تم إنشاء رابط الدعوة!</p>
+                <p className="text-sm font-medium text-green-800 mb-2">{t("staff.linkDialog.successTitle")}</p>
                 <p className="text-xs text-green-700 font-mono break-all">{window.location.origin}{invLinkResult}</p>
               </div>
               <div className="flex gap-3">
                 <Button className="flex-1" onClick={() => { navigator.clipboard.writeText(`${window.location.origin}${invLinkResult}`); setCopiedInvLink(true); setTimeout(() => setCopiedInvLink(false), 2000); }}>
-                  {copiedInvLink ? "تم النسخ ✓" : "نسخ الرابط"}
+                  {copiedInvLink ? t("staff.linkDialog.btnCopied") : t("staff.linkDialog.btnCopy")}
                 </Button>
-                <Button variant="outline" onClick={() => { setInvLinkOpen(false); setInvLinkResult(null); }}>إغلاق</Button>
+                <Button variant="outline" onClick={() => { setInvLinkOpen(false); setInvLinkResult(null); }}>{t("staff.linkDialog.btnClose")}</Button>
               </div>
             </div>
           )}
@@ -482,8 +475,8 @@ export default function Staff() {
         <Card className="border-border/50 mt-6">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Mail className="w-4 h-4 text-primary" /> الدعوات المعلّقة
-              <Badge variant="secondary" className="ms-auto text-xs">{(invitations as any[]).filter((i: any) => i.status === "pending").length} معلّقة</Badge>
+              <Mail className="w-4 h-4 text-primary" /> {t("staff.invitations.title")}
+              <Badge variant="secondary" className="ms-auto text-xs">{(invitations as any[]).filter((i: any) => i.status === "pending").length} {t("staff.invitations.pendingCount")}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="divide-y divide-border/40">
@@ -493,11 +486,11 @@ export default function Staff() {
                   <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{inv.invitedEmail}</p>
-                    <p className="text-xs text-muted-foreground">{ROLE_LABELS[inv.role] ?? inv.role} • تنتهي {new Date(inv.expiresAt).toLocaleDateString("ar-EG")}</p>
+                    <p className="text-xs text-muted-foreground">{t(`staff.roles.${inv.role}`) ?? inv.role} • {t("staff.invitations.expires")} {new Date(inv.expiresAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US")}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${INV_STATUS_COLORS[inv.status] ?? "bg-gray-100 text-gray-600"}`}>{inv.status === "pending" ? "معلّقة" : inv.status === "accepted" ? "مقبولة" : inv.status === "expired" ? "منتهية" : "ملغاة"}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${INV_STATUS_COLORS[inv.status] ?? "bg-gray-100 text-gray-600"}`}>{t(`staff.invitations.status.${inv.status}`)}</span>
                   {inv.status === "pending" && (
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => revokeInvMutation.mutate(inv.id)}>
                       <X className="w-3.5 h-3.5" />
@@ -512,14 +505,14 @@ export default function Staff() {
 
       {/* Delete confirm dialog */}
       <Dialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-        <DialogContent className="sm:max-w-sm" dir="rtl">
+        <DialogContent className="sm:max-w-sm" dir={i18n.dir()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="w-5 h-5" />
-              تأكيد الحذف
+              {t("staff.deleteDialog.title")}
             </DialogTitle>
             <DialogDescription>
-              هل أنت متأكد من حذف هذا العضو؟ لا يمكن التراجع عن هذا الإجراء.
+              {t("staff.deleteDialog.desc")}
             </DialogDescription>
           </DialogHeader>
           {error && (
@@ -529,9 +522,9 @@ export default function Staff() {
           )}
           <div className="flex gap-3 mt-2">
             <Button variant="destructive" className="flex-1" onClick={handleDelete} disabled={removeMutation.isPending}>
-              {removeMutation.isPending ? "جارٍ الحذف..." : "حذف"}
+              {removeMutation.isPending ? t("staff.deleteDialog.btnDeleting") : t("staff.deleteDialog.btnDelete")}
             </Button>
-            <Button variant="outline" onClick={() => setDeleteId(null)}>إلغاء</Button>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>{t("staff.inviteDialog.btnCancel")}</Button>
           </div>
         </DialogContent>
       </Dialog>

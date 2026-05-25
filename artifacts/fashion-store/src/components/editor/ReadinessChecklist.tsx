@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Check, AlertTriangle, X, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { StoreConfig } from "@/lib/store-config";
+import { useTranslation } from "react-i18next";
 
 interface ChecklistItem {
   id: string;
@@ -16,66 +17,67 @@ interface ReadinessChecklistProps {
 }
 
 export default function ReadinessChecklist({ config, productCount }: ReadinessChecklistProps) {
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const items: ChecklistItem[] = [
     {
       id: "name",
-      label: "اسم المتجر مضاف",
+      label: t("readinessChecklist.items.name"),
       status: config.brand.name.trim() ? "done" : "missing",
       critical: true,
     },
     {
       id: "products",
-      label: "3 منتجات على الأقل",
+      label: t("readinessChecklist.items.products"),
       status: productCount >= 3 ? "done" : productCount > 0 ? "recommended" : "missing",
       critical: true,
     },
     {
       id: "hero",
-      label: "قسم الصفحة الرئيسي مكتمل",
+      label: t("readinessChecklist.items.hero"),
       status: config.homepage.sections.some((s) => s.type === "hero" && s.content.heading) ? "done" : "recommended",
       critical: false,
     },
     {
       id: "whatsapp",
-      label: "رقم واتساب للتواصل",
+      label: t("readinessChecklist.items.whatsapp"),
       status: config.business.whatsapp ? "done" : "recommended",
       critical: false,
     },
     {
       id: "color",
-      label: "اللون الرئيسي محدد",
+      label: t("readinessChecklist.items.color"),
       status: config.theme.primaryColor !== "#8B1A35" || true ? "done" : "recommended",
       critical: false,
     },
     {
       id: "return",
-      label: "سياسة الإرجاع مضافة",
+      label: t("readinessChecklist.items.return"),
       status: config.business.returnPolicy ? "done" : "recommended",
       critical: false,
     },
     {
       id: "social",
-      label: "روابط التواصل الاجتماعي",
+      label: t("readinessChecklist.items.social"),
       status: Object.values(config.business.socialLinks).some(Boolean) ? "done" : "recommended",
       critical: false,
     },
     {
       id: "about",
-      label: "قسم قصة المتجر",
+      label: t("readinessChecklist.items.about"),
       status: config.homepage.sections.some((s) => s.type === "about") ? "done" : "recommended",
       critical: false,
     },
     {
       id: "sections",
-      label: "3 أقسام على الأقل في الصفحة",
+      label: t("readinessChecklist.items.sections"),
       status: config.homepage.sections.filter((s) => s.visible).length >= 3 ? "done" : "missing",
       critical: false,
     },
     {
       id: "mobile",
-      label: "تم التحقق من عرض الموبايل",
+      label: t("readinessChecklist.items.mobile"),
       status: "recommended",
       critical: false,
     },
@@ -88,7 +90,7 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
   const scoreColor = score >= 80 ? "#059669" : score >= 50 ? "#d97706" : "#dc2626";
 
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden" dir="rtl">
+    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden" dir={i18n.dir()}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between p-4 hover:bg-stone-50 transition-colors"
@@ -109,10 +111,10 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
               {score}%
             </span>
           </div>
-          <div className="text-right">
-            <p className="font-semibold text-stone-800 text-sm">جاهزية المتجر</p>
+          <div className={i18n.dir() === "rtl" ? "text-right" : "text-left"}>
+            <p className="font-semibold text-stone-800 text-sm">{t("readinessChecklist.title")}</p>
             <p className="text-xs" style={{ color: scoreColor }}>
-              {score >= 80 ? "ممتاز — جاهز للنشر!" : score >= 50 ? "قريب — أضيفي المزيد" : "تحتاجين بعض الإضافات"}
+              {score >= 80 ? t("readinessChecklist.status.excellent") : score >= 50 ? t("readinessChecklist.status.good") : t("readinessChecklist.status.needsWork")}
             </p>
           </div>
         </div>
@@ -137,10 +139,10 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
                   {item.status === "recommended" && <AlertTriangle className="w-3 h-3 text-amber-600" />}
                   {item.status === "missing" && <X className="w-3 h-3 text-red-500" />}
                 </div>
-                <span className={`text-xs flex-1 ${item.status === "done" ? "text-stone-500" : item.status === "recommended" ? "text-stone-700" : "text-stone-800 font-medium"}`}>
+                <span className={`text-xs flex-1 ${i18n.dir() === "rtl" ? "text-right" : "text-left"} ${item.status === "done" ? "text-stone-500" : item.status === "recommended" ? "text-stone-700" : "text-stone-800 font-medium"}`}>
                   {item.label}
                   {item.critical && item.status === "missing" && (
-                    <span className="mr-1 text-[10px] text-red-500">(مطلوب)</span>
+                    <span className={`text-[10px] text-red-500 ${i18n.dir() === "rtl" ? "mr-1" : "ml-1"}`}>{t("readinessChecklist.required")}</span>
                   )}
                 </span>
               </div>
@@ -148,13 +150,13 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
           </div>
 
           <div className="p-3 border-t border-stone-100">
-            <div className="flex gap-3 text-[10px] text-stone-400">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400" />مكتمل</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />موصى به</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400" />ناقص</span>
+            <div className={`flex gap-3 text-[10px] text-stone-400 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400" />{t("readinessChecklist.legend.done")}</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />{t("readinessChecklist.legend.recommended")}</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400" />{t("readinessChecklist.legend.missing")}</span>
             </div>
             {!canPublish && (
-              <p className="text-xs text-red-500 mt-2">أكملي العناصر المطلوبة قبل النشر</p>
+              <p className={`text-xs text-red-500 mt-2 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>{t("readinessChecklist.warning")}</p>
             )}
           </div>
         </motion.div>

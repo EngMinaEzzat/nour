@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   useGetMerchantAnalytics, getGetMerchantAnalyticsQueryKey,
   useGetOnboarding, usePatchOnboarding,
@@ -40,27 +41,12 @@ const STATUS_COLORS: Record<string, string> = {
 
 const PIE_COLORS = ["#f59e0b", "#f97316", "#3b82f6", "#8b5cf6", "#22c55e", "#ef4444", "#6b7280"];
 
-const STATUS_LABELS: Record<string, string> = {
-  pending: "قيد الانتظار",
-  awaiting_confirmation: "بانتظار التأكيد",
-  confirmed: "مؤكد",
-  dispatched: "تم الإرسال",
-  shipped: "تم الشحن",
-  delivered: "تم التسليم",
-  cancelled: "ملغي",
-  returned: "مُعاد",
-};
-
-const PAYMENT_LABELS: Record<string, string> = { cod: "دفع عند الاستلام", paymob: "Paymob" };
-
-const PLAN_LABELS: Record<string, string> = { starter: "ستارتر", growth: "جروث", pro: "برو" };
-
-const SUB_STATUS: Record<string, { label: string; color: string }> = {
-  trial:     { label: "تجريبي",  color: "bg-blue-100 text-blue-700 border-blue-200" },
-  active:    { label: "نشط",     color: "bg-green-100 text-green-700 border-green-200" },
-  past_due:  { label: "متأخر",   color: "bg-orange-100 text-orange-700 border-orange-200" },
-  suspended: { label: "موقوف",   color: "bg-red-100 text-red-700 border-red-200" },
-  canceled:  { label: "ملغي",    color: "bg-gray-100 text-gray-600 border-gray-200" },
+const SUB_STATUS_COLORS: Record<string, string> = {
+  trial:     "bg-blue-100 text-blue-700 border-blue-200",
+  active:    "bg-green-100 text-green-700 border-green-200",
+  past_due:  "bg-orange-100 text-orange-700 border-orange-200",
+  suspended: "bg-red-100 text-red-700 border-red-200",
+  canceled:  "bg-gray-100 text-gray-600 border-gray-200",
 };
 
 const MANUAL_ONBOARDING_STEPS = ["homepage_message", "shipping_setup", "integrations_review", "launch_review"] as const;
@@ -140,7 +126,7 @@ function KPICard({
               {trend !== undefined && (
                 <div className={`flex items-center gap-1 mt-1.5 text-xs font-medium ${trend >= 0 ? "text-green-600" : "text-red-500"}`}>
                   <ArrowUpRight className={`w-3 h-3 ${trend < 0 ? "rotate-180" : ""}`} />
-                  هذا الشهر
+                  {label === "thisMonth" ? undefined : trend}
                 </div>
               )}
             </div>
@@ -154,15 +140,15 @@ function KPICard({
   );
 }
 
-function EmptyChart({ height = 200 }: { height?: number }) {
+function EmptyChart({ height = 200, t }: { height?: number; t: any }) {
   return (
     <div
       className="flex flex-col items-center justify-center text-muted-foreground/40 border-2 border-dashed border-border/30 rounded-xl"
       style={{ height }}
     >
       <BarChart2 className="w-10 h-10 mb-2" />
-      <p className="text-sm">لا توجد بيانات بعد</p>
-      <p className="text-xs mt-1">ستظهر هنا عند ورود الطلبات</p>
+      <p className="text-sm">{t("dashboard.kpi.noData")}</p>
+      <p className="text-xs mt-1">{t("dashboard.kpi.noDataSub")}</p>
     </div>
   );
 }
@@ -182,14 +168,15 @@ function UsageBar({ value, max, color = "bg-primary" }: { value: number; max: nu
         />
       </div>
       <div className="flex justify-between text-xs text-muted-foreground">
-        <span>{value.toLocaleString("ar-EG")}</span>
-        <span>{max === -1 ? "∞" : max.toLocaleString("ar-EG")}</span>
+        <span>{value.toLocaleString()}</span>
+        <span>{max === -1 ? "∞" : max.toLocaleString()}</span>
       </div>
     </div>
   );
 }
 
 function PlanUsageCard() {
+  const { t, i18n } = useTranslation();
   const { data: ent, isLoading } = useGetEntitlements();
 
   if (isLoading) {
@@ -201,7 +188,8 @@ function PlanUsageCard() {
   }
   if (!ent) return null;
 
-  const sub = SUB_STATUS[ent.subscriptionStatus] ?? SUB_STATUS.trial;
+  const subColor = SUB_STATUS_COLORS[ent.subscriptionStatus] ?? SUB_STATUS_COLORS.trial;
+  const subLabel = t(`dashboard.subStatus.${ent.subscriptionStatus}`, { defaultValue: t("dashboard.subStatus.trial") });
   const productLimit = ent.plan.productLimit;
   const unlimited = productLimit === -1;
   const atLimit = ent.atProductLimit;
@@ -223,32 +211,32 @@ function PlanUsageCard() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-foreground">خطة {PLAN_LABELS[ent.planCode] ?? ent.planCode}</span>
-                  <Badge className={`text-[10px] px-1.5 py-0 border ${sub.color}`}>{sub.label}</Badge>
+                  <span className="font-bold text-foreground">{t("dashboard.kpi.plan")} {t(`dashboard.plan.${ent.planCode}`, { defaultValue: ent.planCode })}</span>
+                  <Badge className={`text-[10px] px-1.5 py-0 border ${subColor}`}>{subLabel}</Badge>
                   {atLimit && (
                     <Badge className="text-[10px] px-1.5 py-0 border bg-red-100 text-red-700 border-red-200">
-                      <AlertTriangle className="w-2.5 h-2.5 me-0.5" /> وصلت للحد
+                      <AlertTriangle className="w-2.5 h-2.5 me-0.5" /> {t("dashboard.kpi.reachedLimit")}
                     </Badge>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {unlimited
-                    ? "منتجات غير محدودة"
-                    : `${ent.usage.productCount} من ${productLimit} منتج`}
+                    ? t("dashboard.kpi.unlimited")
+                    : `${ent.usage.productCount} / ${productLimit}`}
                 </p>
               </div>
             </div>
 
             {!unlimited && (
               <div className="flex-1 min-w-[140px]">
-                <p className="text-xs text-muted-foreground mb-1.5">استخدام المنتجات</p>
+                <p className="text-xs text-muted-foreground mb-1.5">{t("dashboard.kpi.productUsage")}</p>
                 <UsageBar value={ent.usage.productCount} max={productLimit} />
               </div>
             )}
 
             {(atLimit || nearLimit) && ent.planCode !== "pro" && (
               <Button size="sm" className="shrink-0 rounded-xl" asChild>
-                <Link href="/pricing">ترقية الخطة</Link>
+                <Link href="/pricing">{t("dashboard.kpi.upgradePlan")}</Link>
               </Button>
             )}
           </div>
@@ -259,6 +247,7 @@ function PlanUsageCard() {
 }
 
 function OnboardingChecklist() {
+  const { t } = useTranslation();
   const { data: onboarding, refetch } = useGetOnboarding();
   const patch = usePatchOnboarding();
   const [collapsed, setCollapsed] = useState(false);
@@ -284,9 +273,9 @@ function OnboardingChecklist() {
                 <Rocket className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-base">رحلة أول عميلة في متجرك</CardTitle>
+                <CardTitle className="text-base">{t("dashboard.checklist.title")}</CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  ابنِ التجربة كقصة: من أول نظرة إلى أول طلب. {completedCount} من {totalCount} فصول مكتملة
+                  {t("dashboard.checklist.desc", { completed: completedCount, total: totalCount })}
                 </p>
               </div>
             </div>
@@ -297,7 +286,7 @@ function OnboardingChecklist() {
               <Button size="sm" className="rounded-xl gap-1.5 h-8 text-xs" asChild>
                 <Link href="/store-builder?mode=editor">
                   <Rocket className="w-3.5 h-3.5" />
-                  تحسين المتجر
+                  {t("dashboard.checklist.improveStore")}
                 </Link>
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCollapsed((c) => !c)}>
@@ -326,13 +315,18 @@ function OnboardingChecklist() {
               <CardContent className="pt-0 pb-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                   {steps.map((step, i) => {
-                    const meta = ONBOARDING_STORY[step.key] ?? {
-                      chapter: step.label,
-                      story: step.description,
+                    const fallbackMeta = ONBOARDING_STORY[step.key] ?? {
                       href: step.href,
-                      action: "تعديل",
                       icon: Circle,
                     };
+                    
+                    const chapter = t(`dashboard.onboarding.ch${i+1}`);
+                    const story = t(`dashboard.onboarding.s${i+1}`);
+                    const action = t(`dashboard.onboarding.a${i+1}`);
+                    const doneAction = step.key !== "store_identity" && step.key !== "first_product" ? t(`dashboard.onboarding.d${i+1}`) : undefined;
+                    
+                    const meta = { ...fallbackMeta, chapter, story, action, doneAction };
+                    
                     const Icon = meta.icon;
                     const canMarkDone = MANUAL_ONBOARDING_STEPS.includes(step.key as (typeof MANUAL_ONBOARDING_STEPS)[number]);
 
@@ -378,12 +372,12 @@ function OnboardingChecklist() {
                               disabled={patch.isPending}
                               onClick={() => markDone(step.key)}
                             >
-                              {meta.doneAction ?? "تمت المراجعة"}
+                              {meta.doneAction ?? t("dashboard.checklist.reviewed")}
                             </Button>
                           )}
                           {step.done && (
                             <span className="inline-flex h-8 items-center rounded-xl bg-green-100 px-2.5 text-xs font-medium text-green-700">
-                              مكتمل
+                              {t("dashboard.checklist.completed")}
                             </span>
                           )}
                         </div>
@@ -401,6 +395,7 @@ function OnboardingChecklist() {
 }
 
 export default function Dashboard() {
+  const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const tenantId = merchant?.tenantId;
 
@@ -409,35 +404,38 @@ export default function Dashboard() {
     { query: { enabled: !!tenantId, queryKey: getGetMerchantAnalyticsQueryKey({ tenantId: tenantId! }) } }
   );
 
+  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const curr = i18n.language === "ar" ? "ج.م" : "EGP";
+
   const kpiCards = analytics
     ? [
         {
-          label: "إجمالي الإيرادات",
-          value: `${analytics.totalRevenue.toLocaleString("ar-EG")} ج.م`,
-          sub: `متوسط الطلب: ${analytics.avgOrderValue.toLocaleString("ar-EG")} ج.م`,
+          label: t("dashboard.kpi.revenue"),
+          value: `${analytics.totalRevenue.toLocaleString(locale)} ${curr}`,
+          sub: `${t("dashboard.kpi.avgOrder")} ${analytics.avgOrderValue.toLocaleString(locale)} ${curr}`,
           icon: TrendingUp,
           color: "bg-primary",
           trend: analytics.revenueThisMonth,
         },
         {
-          label: "إجمالي الطلبات",
+          label: t("dashboard.kpi.totalOrders"),
           value: analytics.totalOrders,
-          sub: `${analytics.pendingOrders} قيد الانتظار`,
+          sub: `${analytics.pendingOrders} ${t("dashboard.kpi.pendingOrders")}`,
           icon: ShoppingCart,
           color: "bg-blue-500",
           trend: analytics.ordersThisMonth,
         },
         {
-          label: "العملاء",
+          label: t("dashboard.kpi.customers"),
           value: analytics.totalCustomers,
-          sub: "عميل مسجّل",
+          sub: t("dashboard.kpi.registeredCustomer"),
           icon: Users,
           color: "bg-violet-500",
         },
         {
-          label: "إيرادات هذا الشهر",
-          value: `${analytics.revenueThisMonth.toLocaleString("ar-EG")} ج.م`,
-          sub: `${analytics.ordersThisMonth} طلب هذا الشهر`,
+          label: t("dashboard.kpi.revenueThisMonth"),
+          value: `${analytics.revenueThisMonth.toLocaleString(locale)} ${curr}`,
+          sub: `${analytics.ordersThisMonth} ${t("dashboard.kpi.ordersThisMonth")}`,
           icon: ArrowUpRight,
           color: "bg-green-500",
         },
@@ -453,19 +451,19 @@ export default function Dashboard() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-1">
-              أهلاً، {merchant?.storeName ?? "التاجر"} 👋
+              {t("dashboard.header.welcome", { name: merchant?.storeName ?? t("dashboard.header.merchant") })}
             </h1>
-            <p className="text-muted-foreground text-sm">نظرة شاملة على أداء متجرك</p>
+            <p className="text-muted-foreground text-sm">{t("dashboard.header.subtitle")}</p>
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline" className="gap-2 rounded-xl" size="sm">
               <Link href="/analytics">
-                <BarChart2 className="w-4 h-4" /> التحليلات <ChevronLeft className="w-3 h-3" />
+                <BarChart2 className="w-4 h-4" /> {t("dashboard.header.analytics")} <ChevronLeft className="w-3 h-3 rtl:-scale-x-100" />
               </Link>
             </Button>
             <Button asChild variant="outline" className="gap-2 rounded-xl" size="sm">
               <Link href="/orders">
-                <ShoppingCart className="w-4 h-4" /> الطلبات <ChevronLeft className="w-3 h-3" />
+                <ShoppingCart className="w-4 h-4" /> {t("dashboard.header.orders")} <ChevronLeft className="w-3 h-3 rtl:-scale-x-100" />
               </Link>
             </Button>
           </div>
@@ -503,14 +501,14 @@ export default function Dashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-bold flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-primary" />
-              الإيرادات — آخر 30 يوم
+              {t("dashboard.charts.revenue30d")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <Skeleton className="h-56 w-full rounded-xl" />
             ) : !hasOrders || !analytics?.salesByDay.length ? (
-              <EmptyChart height={224} />
+              <EmptyChart height={224} t={t} />
             ) : (
               <ResponsiveContainer width="100%" height={224}>
                 <AreaChart data={analytics.salesByDay} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
@@ -523,21 +521,21 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                   <XAxis
                     dataKey="day"
-                    tick={{ fontFamily: "Cairo", fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    tick={{ fontFamily: "inherit", fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                     axisLine={false} tickLine={false}
                     interval={Math.floor((analytics.salesByDay.length - 1) / 6)}
                   />
                   <YAxis
-                    tick={{ fontFamily: "Cairo", fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    tick={{ fontFamily: "inherit", fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                     axisLine={false} tickLine={false}
                     tickFormatter={(v) => `${(v / 1000).toFixed(v >= 1000 ? 1 : 0)}${v >= 1000 ? "k" : ""}`}
                     width={42}
                   />
                   <Tooltip
-                    formatter={(v: number) => [`${v.toLocaleString("ar-EG")} ج.م`, "الإيرادات"]}
-                    labelFormatter={(l) => `يوم ${l}`}
+                    formatter={(v: number) => [`${v.toLocaleString(locale)} ${curr}`, t("dashboard.charts.revenue")]}
+                    labelFormatter={(l) => `${l}`}
                     contentStyle={{
-                      fontFamily: "Cairo", direction: "rtl",
+                      fontFamily: "inherit", direction: i18n.dir(),
                       borderRadius: "12px", border: "1px solid hsl(var(--border))",
                       background: "hsl(var(--background))",
                     }}
@@ -571,20 +569,20 @@ export default function Dashboard() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <Package className="w-4 h-4 text-primary" />
-                أفضل المنتجات
+                {t("dashboard.charts.topProducts")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
                 <div className="space-y-3">{Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
               ) : !analytics?.topProducts.length ? (
-                <EmptyChart height={200} />
+                <EmptyChart height={200} t={t} />
               ) : (
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={analytics.topProducts} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
                     <XAxis
                       type="number"
-                      tick={{ fontFamily: "Cairo", fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                      tick={{ fontFamily: "inherit", fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       axisLine={false} tickLine={false}
                       tickFormatter={(v) => `${(v / 1000).toFixed(1)}k`}
                     />
@@ -592,14 +590,14 @@ export default function Dashboard() {
                       type="category"
                       dataKey="name"
                       width={80}
-                      tick={{ fontFamily: "Cairo", fontSize: 10, fill: "hsl(var(--foreground))" }}
+                      tick={{ fontFamily: "inherit", fontSize: 10, fill: "hsl(var(--foreground))" }}
                       axisLine={false} tickLine={false}
                       tickFormatter={(v: string) => v.length > 10 ? v.slice(0, 10) + "…" : v}
                     />
                     <Tooltip
-                      formatter={(v: number) => [`${v.toLocaleString("ar-EG")} ج.م`, "الإيرادات"]}
+                      formatter={(v: number) => [`${v.toLocaleString(locale)} ${curr}`, t("dashboard.charts.revenue")]}
                       contentStyle={{
-                        fontFamily: "Cairo", direction: "rtl",
+                        fontFamily: "inherit", direction: i18n.dir(),
                         borderRadius: "12px", border: "1px solid hsl(var(--border))",
                         background: "hsl(var(--background))",
                       }}
@@ -621,14 +619,14 @@ export default function Dashboard() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <ShoppingCart className="w-4 h-4 text-primary" />
-                حالة الطلبات
+                {t("dashboard.charts.orderStatus")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
                 <Skeleton className="h-48 w-full rounded-xl" />
               ) : !hasOrders ? (
-                <EmptyChart height={192} />
+                <EmptyChart height={192} t={t} />
               ) : (
                 <div>
                   <ResponsiveContainer width="100%" height={160}>
@@ -648,9 +646,12 @@ export default function Dashboard() {
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(v: number, _name: string, props: { payload?: { label?: string } }) => [v, props.payload?.label ?? ""]}
+                        formatter={(v: number, _name: string, props: { payload?: { label?: string, status?: string } }) => [
+                          v, 
+                          props.payload?.status ? t(`dashboard.status.${props.payload.status}`, { defaultValue: props.payload.label }) : (props.payload?.label ?? "")
+                        ]}
                         contentStyle={{
-                          fontFamily: "Cairo", direction: "rtl",
+                          fontFamily: "inherit", direction: i18n.dir(),
                           borderRadius: "12px", border: "1px solid hsl(var(--border))",
                           background: "hsl(var(--background))",
                         }}
@@ -661,7 +662,7 @@ export default function Dashboard() {
                     {analytics?.orderStatusBreakdown.filter((s) => s.count > 0).map((s) => (
                       <div key={s.status} className="flex items-center gap-1.5 text-xs">
                         <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: STATUS_COLORS[s.status] ?? "#888" }} />
-                        <span className="text-muted-foreground">{STATUS_LABELS[s.status] ?? s.label}</span>
+                        <span className="text-muted-foreground">{t(`dashboard.status.${s.status}`, { defaultValue: s.label })}</span>
                         <span className="font-bold text-foreground ms-auto">{s.count}</span>
                       </div>
                     ))}
@@ -682,10 +683,10 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                   <Clock className="w-4 h-4 text-primary" />
-                  آخر الطلبات
+                  {t("dashboard.charts.recentOrders")}
                 </CardTitle>
                 <Button asChild variant="ghost" size="sm" className="text-xs h-7 gap-1 text-primary">
-                  <Link href="/orders">عرض الكل <ChevronLeft className="w-3 h-3" /></Link>
+                  <Link href="/orders">{t("dashboard.charts.viewAll")} <ChevronLeft className="w-3 h-3 rtl:-scale-x-100" /></Link>
                 </Button>
               </div>
             </CardHeader>
@@ -695,7 +696,7 @@ export default function Dashboard() {
               ) : !analytics?.recentOrders.length ? (
                 <div className="text-center py-12 text-muted-foreground/40">
                   <Store className="w-10 h-10 mx-auto mb-2" />
-                  <p className="text-sm">لا توجد طلبات بعد</p>
+                  <p className="text-sm">{t("dashboard.charts.noOrders")}</p>
                 </div>
               ) : (
                 analytics.recentOrders.map((order) => (
@@ -712,20 +713,20 @@ export default function Dashboard() {
                               borderColor: `${STATUS_COLORS[order.status]}40`,
                             }}
                           >
-                            {STATUS_LABELS[order.status] ?? order.status}
+                            {t(`dashboard.status.${order.status}`, { defaultValue: order.status })}
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod}
+                          {t(`dashboard.payment.${order.paymentMethod}`, { defaultValue: order.paymentMethod })}
                           {" · "}
-                          {new Date(order.createdAt).toLocaleDateString("ar-EG", { month: "short", day: "numeric" })}
+                          {new Date(order.createdAt).toLocaleDateString(locale, { month: "short", day: "numeric" })}
                         </p>
                       </div>
                       <div className="text-end shrink-0">
                         <p className="text-sm font-bold text-primary">
-                          {Number(order.totalAmount ?? 0).toLocaleString("ar-EG")} ج.م
+                          {Number(order.totalAmount ?? 0).toLocaleString(locale)} {curr}
                         </p>
-                        <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground ms-auto mt-0.5 group-hover:text-primary transition-colors" />
+                        <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground ms-auto mt-0.5 group-hover:text-primary transition-colors rtl:-scale-x-100" />
                       </div>
                     </div>
                   </Link>

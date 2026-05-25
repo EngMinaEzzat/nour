@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, AlertCircle, ChevronRight, Store, Tag, Check, Layers, Star, MessageSquare, Loader2, MessageCircle } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
@@ -48,6 +49,7 @@ function StarRow({ rating, interactive = false, onRate }: { rating: number; inte
 type Variant = { id: number; size?: string | null; color?: string | null; colorHex?: string | null; imageUrls?: string[]; stock: number };
 
 export default function ProductDetail() {
+  const { t, i18n } = useTranslation();
   const params = useParams<{ id?: string; slug?: string; productSlug?: string }>();
   const productId = idFromPublicSlug(params.id ?? params.productSlug);
 
@@ -97,9 +99,9 @@ export default function ProductDetail() {
   const productPublicSlug = product ? publicEntitySlug(product.id, product.name) : null;
   const productCanonicalPath = initialPublicPage?.page === "product" && initialPublicPage.canonical
     ? initialPublicPage.canonical
-    : productTenantSlug && productPublicSlug
-    ? `/store/${productTenantSlug}/product/${productPublicSlug}`
-    : `/products/${product?.id ?? productId}`;
+    : productPublicSlug
+    ? `/product/${productPublicSlug}`
+    : `/product/${product?.id ?? productId}`;
   const productCanonicalUrl = /^https?:\/\//i.test(productCanonicalPath)
     ? productCanonicalPath
     : `${window.location.origin}${productCanonicalPath}`;
@@ -143,9 +145,9 @@ export default function ProductDetail() {
 
   function validateReview() {
     const errs: Record<string, string> = {};
-    if (!reviewForm.name.trim()) errs.name = "الاسم مطلوب";
-    if (!reviewForm.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reviewForm.email)) errs.email = "بريد إلكتروني صحيح مطلوب";
-    if (!reviewForm.rating) errs.rating = "اختاري التقييم";
+    if (!reviewForm.name.trim()) errs.name = t("productDetail.nameLabel").replace(" *", "");
+    if (!reviewForm.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reviewForm.email)) errs.email = t("productDetail.emailLabel").replace(" *", "");
+    if (!reviewForm.rating) errs.rating = t("productDetail.ratingLabel").replace(" *", "");
     setReviewErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -228,9 +230,9 @@ export default function ProductDetail() {
     return (
       <div className="container mx-auto px-4 py-24 text-center">
         <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-        <h1 className="text-3xl font-bold mb-2">المنتج غير موجود</h1>
-        <p className="text-muted-foreground mb-8">لم يتم العثور على المنتج المطلوب.</p>
-        <Button asChild className="rounded-full"><Link href="/products">العودة للمنتجات</Link></Button>
+        <h1 className="text-3xl font-bold mb-2">{t("productDetail.notFound")}</h1>
+        <p className="text-muted-foreground mb-8">{t("productDetail.notFoundDesc")}</p>
+        <Button asChild className="rounded-full"><Link href="/products">{t("productDetail.backToProducts")}</Link></Button>
       </div>
     );
   }
@@ -255,7 +257,7 @@ export default function ProductDetail() {
 
   const discountPercent = product.originalPrice && product.originalPrice > product.price
     ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
-  const backHref = productTenantSlug ? `/store/${productTenantSlug}` : "/products";
+  const backHref = "/";
   const defaultImageUrl = productImageUrl(selectedVariant?.imageUrls?.[0] ?? product.imageUrl);
   const imageUrl = activeImage ?? defaultImageUrl;
   const galleryImages = [
@@ -265,10 +267,10 @@ export default function ProductDetail() {
   ].filter((url, index, all) => url && all.indexOf(url) === index);
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24">
+    <div className="container mx-auto px-4 py-8 pb-24" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <Button variant="ghost" size="sm" asChild className="mb-6 -ms-2">
-          <Link href={backHref}><ChevronRight className="w-4 h-4 me-1" /> العودة للمنتجات</Link>
+          <Link href={backHref}><ChevronRight className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-1" : "ms-1 rotate-180"}`} /> {t("productDetail.backToProducts")}</Link>
         </Button>
       </motion.div>
 
@@ -288,12 +290,12 @@ export default function ProductDetail() {
             />
             {unavailable && (
               <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
-                <Badge variant="destructive" className="text-lg px-6 py-2">نفذت الكمية</Badge>
+                <Badge variant="destructive" className="text-lg px-6 py-2">{t("productDetail.outOfStockBadge")}</Badge>
               </div>
             )}
             {discountPercent > 0 && (
               <div className="absolute top-4 start-4">
-                <Badge className="bg-primary text-primary-foreground text-sm px-3 py-1">خصم {discountPercent}%</Badge>
+                <Badge className="bg-primary text-primary-foreground text-sm px-3 py-1">{t("productDetail.discount")} {discountPercent}%</Badge>
               </div>
             )}
           </div>
@@ -321,9 +323,9 @@ export default function ProductDetail() {
             </Link>
             <h1 className="text-4xl font-bold text-foreground leading-tight mb-4">{product.name}</h1>
             <div className="flex items-center gap-4">
-              <span className="text-3xl font-bold text-foreground">{product.price.toLocaleString("ar-EG")} ج.م</span>
+              <span className="text-3xl font-bold text-foreground">{product.price.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>
               {product.originalPrice && product.originalPrice > product.price && (
-                <span className="text-xl text-muted-foreground line-through">{product.originalPrice.toLocaleString("ar-EG")} ج.م</span>
+                <span className="text-xl text-muted-foreground line-through">{product.originalPrice.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>
               )}
             </div>
           </div>
@@ -340,7 +342,7 @@ export default function ProductDetail() {
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
                   <div className="flex items-center justify-between mb-3">
                     <p className="font-semibold text-sm flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-primary" /> المقاس
+                      <Layers className="w-3.5 h-3.5 text-primary" /> {t("productDetail.size")}
                     </p>
                     {selectedSize && <p className="text-xs text-primary font-medium">{selectedSize}</p>}
                   </div>
@@ -377,7 +379,7 @@ export default function ProductDetail() {
               {uniqueColors.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
                   <div className="flex items-center justify-between mb-3">
-                    <p className="font-semibold text-sm">اللون</p>
+                    <p className="font-semibold text-sm">{t("productDetail.color")}</p>
                     {selectedColor && <p className="text-xs text-primary font-medium">{selectedColor}</p>}
                   </div>
                   <div className="flex flex-wrap gap-3">
@@ -423,10 +425,10 @@ export default function ProductDetail() {
                     exit={{ opacity: 0, height: 0 }}
                     className="text-sm text-muted-foreground"
                   >
-                    المخزون:{" "}
+                    {t("productDetail.stock")}{" "}
                     {selectedVariant.stock > 0
-                      ? <span className="text-green-600 font-medium">{selectedVariant.stock} قطعة متاحة</span>
-                      : <span className="text-destructive font-medium">نفذت الكمية</span>}
+                      ? <span className="text-green-600 font-medium">{selectedVariant.stock} {t("productDetail.availablePieces")}</span>
+                      : <span className="text-destructive font-medium">{t("productDetail.outOfStock")}</span>}
                   </motion.p>
                 )}
               </AnimatePresence>
@@ -443,16 +445,16 @@ export default function ProductDetail() {
               )}
               {!hasVariants && (
                 <div className="text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-full border border-border/50">
-                  المخزون:{" "}
+                  {t("productDetail.stock")}{" "}
                   {product.stock > 0
-                    ? <span className="text-foreground font-medium">{product.stock} قطعة</span>
-                    : <span className="text-destructive font-medium">نفذت</span>}
+                    ? <span className="text-foreground font-medium">{product.stock} {t("productDetail.pieces", "قطعة")}</span>
+                    : <span className="text-destructive font-medium">{t("productDetail.outOfStockShort")}</span>}
                 </div>
               )}
               {hasVariants && (
                 <div className="text-sm text-muted-foreground bg-primary/5 px-4 py-2 rounded-full border border-primary/20 flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-primary" />
-                  {variants.length} متغيّر متاح
+                  {variants.length} {t("productDetail.variantsAvailable", "متغيّر متاح")}
                 </div>
               )}
             </div>
@@ -466,8 +468,8 @@ export default function ProductDetail() {
                   exit={{ opacity: 0 }}
                   className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5"
                 >
-                  {uniqueSizes.length > 0 && !selectedSize && "اختاري المقاس أولاً"}
-                  {uniqueSizes.length > 0 && selectedSize && uniqueColors.length > 0 && !selectedColor && "اختاري اللون"}
+                  {uniqueSizes.length > 0 && !selectedSize && t("productDetail.selectSizeFirst")}
+                  {uniqueSizes.length > 0 && selectedSize && uniqueColors.length > 0 && !selectedColor && t("productDetail.selectColor")}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -482,13 +484,13 @@ export default function ProductDetail() {
                 onClick={handleAddToCart}
               >
                 {unavailable ? (
-                  <><ShoppingBag className="w-5 h-5 me-2" /> نفذت الكمية</>
+                  <><ShoppingBag className="w-5 h-5 me-2" /> {t("productDetail.outOfStockBadge")}</>
                 ) : hasVariants && !variantSelectionComplete ? (
-                  <><Layers className="w-5 h-5 me-2" /> اختاري المقاس/اللون أولاً</>
+                  <><Layers className="w-5 h-5 me-2" /> {t("productDetail.selectSizeColorFirst")}</>
                 ) : inCart ? (
-                  <><Check className="w-5 h-5 me-2" /> تمت الإضافة للسلة ✓</>
+                  <><Check className="w-5 h-5 me-2" /> {t("productDetail.addedToCart")}</>
                 ) : (
-                  <><ShoppingBag className="w-5 h-5 me-2" /> أضف للسلة</>
+                  <><ShoppingBag className="w-5 h-5 me-2" /> {t("productDetail.addToCart")}</>
                 )}
               </Button>
             </motion.div>
@@ -507,13 +509,13 @@ export default function ProductDetail() {
                       ? ` — المقاس/اللون: ${[selectedSize, selectedColor].filter(Boolean).join(" / ")}`
                       : "";
                     const msg = encodeURIComponent(
-                      `مرحباً 👋، أريد الاستفسار عن المنتج: ${product.name}${variantPart}\nالسعر: ${product.price.toLocaleString("ar-EG")} ج.م`
+                      `${t("productDetail.whatsappMsgPrefix")} ${product.name}${variantPart}\n${t("productDetail.whatsappMsgPrice")} ${product.price.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} ${i18n.language === "ar" ? "ج.م" : "EGP"}`
                     );
                     window.open(`https://wa.me/${num}?text=${msg}`, "_blank");
                   }}
                 >
                   <MessageCircle className="w-5 h-5 fill-green-500 text-green-600" />
-                  اطلب على واتساب
+                  {t("productDetail.orderOnWhatsapp")}
                 </Button>
               </motion.div>
             )}
@@ -535,13 +537,13 @@ export default function ProductDetail() {
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <MessageSquare className="w-6 h-6 text-primary" />
-              آراء العملاء
+              {t("productDetail.reviews")}
             </h2>
             {reviewsData && reviewsData.totalCount > 0 && (
               <div className="flex items-center gap-2 mt-2">
                 <StarRow rating={Math.round(reviewsData.avgRating ?? 0)} />
                 <span className="text-lg font-bold">{(reviewsData.avgRating ?? 0).toFixed(1)}</span>
-                <span className="text-sm text-muted-foreground">({reviewsData.totalCount} تقييم)</span>
+                <span className="text-sm text-muted-foreground">({reviewsData.totalCount} {t("productDetail.ratings")})</span>
               </div>
             )}
           </div>
@@ -558,8 +560,8 @@ export default function ProductDetail() {
             ) : reviewsData.reviews.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground bg-muted/30 rounded-2xl border border-dashed border-border">
                 <Star className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">لا توجد تقييمات بعد</p>
-                <p className="text-sm mt-1">كوني أول من يقيّم هذا المنتج</p>
+                <p className="font-medium">{t("productDetail.noReviewsYet")}</p>
+                <p className="text-sm mt-1">{t("productDetail.beFirstToReview")}</p>
               </div>
             ) : (
               <AnimatePresence>
@@ -579,7 +581,7 @@ export default function ProductDetail() {
                           <span className="font-semibold text-sm">{review.customerName}</span>
                           <StarRow rating={review.rating} />
                           <span className="text-xs text-muted-foreground ms-auto">
-                            {new Date(review.createdAt).toLocaleDateString("ar-EG")}
+                            {new Date(review.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US")}
                           </span>
                         </div>
                         {review.body && (
@@ -596,7 +598,7 @@ export default function ProductDetail() {
           {/* Submit review form */}
           <div className="lg:col-span-2">
             <div className="bg-card border border-border/50 rounded-2xl p-6 sticky top-24">
-              <h3 className="font-bold text-lg mb-5">اكتبي تقييمك</h3>
+              <h3 className="font-bold text-lg mb-5">{t("productDetail.writeReview")}</h3>
               <AnimatePresence mode="wait">
                 {reviewSubmitted ? (
                   <motion.div
@@ -608,21 +610,21 @@ export default function ProductDetail() {
                     <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Check className="w-7 h-7 text-green-600" />
                     </div>
-                    <p className="font-semibold text-green-700">شكراً على تقييمك!</p>
-                    <p className="text-xs text-muted-foreground mt-1">سيظهر تقييمك بعد مراجعته</p>
+                    <p className="font-semibold text-green-700">{t("productDetail.thanksForReview")}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t("productDetail.reviewPendingReview")}</p>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="mt-4"
                       onClick={() => setReviewSubmitted(false)}
                     >
-                      إضافة تقييم آخر
+                      {t("productDetail.addAnotherReview")}
                     </Button>
                   </motion.div>
                 ) : (
                   <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                     <div className="space-y-1.5">
-                      <Label>التقييم *</Label>
+                      <Label>{t("productDetail.ratingLabel")}</Label>
                       <div>
                         <StarRow
                           rating={reviewForm.rating}
@@ -633,9 +635,9 @@ export default function ProductDetail() {
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label>اسمك *</Label>
+                      <Label>{t("productDetail.nameLabel")}</Label>
                       <Input
-                        placeholder="فاطمة محمد"
+                        placeholder={t("productDetail.namePlaceholder")}
                         value={reviewForm.name}
                         onChange={(e) => setReviewForm((f) => ({ ...f, name: e.target.value }))}
                         className={reviewErrors.name ? "border-destructive" : ""}
@@ -643,10 +645,10 @@ export default function ProductDetail() {
                       {reviewErrors.name && <p className="text-xs text-destructive">{reviewErrors.name}</p>}
                     </div>
                     <div className="space-y-1.5">
-                      <Label>بريدك الإلكتروني *</Label>
+                      <Label>{t("productDetail.emailLabel")}</Label>
                       <Input
                         type="email"
-                        placeholder="fatima@example.com"
+                        placeholder={t("productDetail.emailPlaceholder")}
                         value={reviewForm.email}
                         onChange={(e) => setReviewForm((f) => ({ ...f, email: e.target.value }))}
                         className={reviewErrors.email ? "border-destructive" : ""}
@@ -655,9 +657,9 @@ export default function ProductDetail() {
                       {reviewErrors.email && <p className="text-xs text-destructive">{reviewErrors.email}</p>}
                     </div>
                     <div className="space-y-1.5">
-                      <Label>رأيك (اختياري)</Label>
+                      <Label>{t("productDetail.opinionLabel")}</Label>
                       <textarea
-                        placeholder="شاركي تجربتك مع هذا المنتج..."
+                        placeholder={t("productDetail.opinionPlaceholder")}
                         value={reviewForm.body}
                         onChange={(e) => setReviewForm((f) => ({ ...f, body: e.target.value }))}
                         rows={3}
@@ -672,9 +674,9 @@ export default function ProductDetail() {
                       onClick={handleSubmitReview}
                       disabled={submitReview.isPending}
                     >
-                      {submitReview.isPending ? <><Loader2 className="w-4 h-4 me-2 animate-spin" /> جارٍ الإرسال...</> : "إرسال التقييم"}
+                      {submitReview.isPending ? <><Loader2 className="w-4 h-4 me-2 animate-spin" /> {t("productDetail.sending")}</> : t("productDetail.sendReview")}
                     </Button>
-                    <p className="text-[10px] text-muted-foreground text-center">سيظهر تقييمك بعد مراجعته من صاحب المتجر</p>
+                    <p className="text-[10px] text-muted-foreground text-center">{t("productDetail.reviewApprovalNote")}</p>
                   </motion.div>
                 )}
               </AnimatePresence>

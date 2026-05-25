@@ -1,6 +1,5 @@
-import { Router } from "express";
-import { db } from "@workspace/db";
-import { ordersTable, customersTable, tenantsTable } from "@workspace/db";
+﻿import { Router } from "express";
+import { db, paymobProvidersTable, ordersTable, customersTable, tenantsTable } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
 import * as paymob from "../lib/paymob";
 import * as whatsapp from "../lib/whatsapp";
@@ -11,13 +10,14 @@ const router = Router();
 
 router.post("/payments/paymob/init", requireRole("owner", "manager", "staff"), async (req, res) => {
   const { orderId } = req.body as { orderId?: number };
-  if (!orderId) return res.status(400).json({ error: "orderId مطلوب" });
+  if (!orderId) return res.status(400).json({ error: "orderId Ù…Ø·Ù„ÙˆØ¨" });
 
   try {
     const tenantId = req.merchantTenantId!;
     const [row] = await db
       .select({
         id: ordersTable.id,
+        tenantId: ordersTable.tenantId,
         totalAmount: ordersTable.totalAmount,
         shippingAddress: ordersTable.shippingAddress,
         customerPhone: ordersTable.customerPhone,
@@ -28,17 +28,12 @@ router.post("/payments/paymob/init", requireRole("owner", "manager", "staff"), a
       .leftJoin(customersTable, eq(ordersTable.customerId, customersTable.id))
       .where(and(eq(ordersTable.id, orderId), eq(ordersTable.tenantId, tenantId)));
 
-    if (!row) return res.status(404).json({ error: "الطلب غير موجود" });
+    if (!row) return res.status(404).json({ error: "Ø§Ù„Ø·Ù„Ø¨ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯" });
 
-    if (!paymob.isConfigured()) {
-      return res.json({
-        configured: false,
-        iframeUrl: "",
-        paymobOrderId: 0,
-        message: "Paymob غير مُهيأ — أضف PAYMOB_API_KEY و PAYMOB_INTEGRATION_ID و PAYMOB_IFRAME_ID",
-      });
+    const [provider] = await db.select({ apiKey: paymobProvidersTable.apiKey, integrationId: paymobProvidersTable.integrationId, iframeId: paymobProvidersTable.iframeId }).from(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, row.tenantId));
+    if (!provider || !provider.apiKey || !provider.integrationId || !provider.iframeId) {
+      return res.status(503).json({ error: "Paymob ØºÙŠØ± Ù…ÙÙ‡ÙŠØ£ Ù„Ù„Ù…ØªØ¬Ø±" });
     }
-
     const result = await paymob.initPayment({
       orderId: row.id,
       amountEGP: parseFloat(row.totalAmount as string),
@@ -46,6 +41,9 @@ router.post("/payments/paymob/init", requireRole("owner", "manager", "staff"), a
       customerEmail: row.customerEmail ?? "customer@nour.eg",
       customerPhone: row.customerPhone ?? "01000000000",
       shippingAddress: row.shippingAddress ?? "Cairo, Egypt",
+      apiKey: provider.apiKey,
+      integrationId: provider.integrationId,
+      iframeId: provider.iframeId,
     });
 
     await db.update(ordersTable)
@@ -55,7 +53,7 @@ router.post("/payments/paymob/init", requireRole("owner", "manager", "staff"), a
     return res.json({ configured: true, ...result });
   } catch (err) {
     req.log.error(err);
-    return res.status(500).json({ error: "حدث خطأ أثناء تهيئة الدفع" });
+    return res.status(500).json({ error: "Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ ØªÙ‡ÙŠØ¦Ø© Ø§Ù„Ø¯ÙØ¹" });
   }
 });
 
@@ -118,9 +116,9 @@ router.post("/payments/paymob/webhook", async (req, res) => {
         await whatsapp.sendWhatsAppMessage({
           toPhone: order.customerPhone,
           templateName: "order_confirmation",
-          customerName: order.customerName ?? "عميلنا",
+          customerName: order.customerName ?? "Ø¹Ù…ÙŠÙ„Ù†Ø§",
           orderId: order.id,
-          storeName: order.storeName ?? "نور",
+          storeName: order.storeName ?? "Ù†ÙˆØ±",
           totalAmount: parseFloat(order.totalAmount as string),
         });
       }

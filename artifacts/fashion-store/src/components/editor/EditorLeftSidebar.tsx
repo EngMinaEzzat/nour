@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Copy, Palette, LayoutList, Wand2, CheckCircle2 } from "lucide-react";
 import {
   StoreConfig, SectionConfig, SectionType,
-  SECTION_LABELS, SECTION_ICONS, SECTION_DESCRIPTIONS,
+  SECTION_ICONS, SECTION_DESCRIPTIONS,
   AVAILABLE_SECTIONS, createDefaultSection,
 } from "@/lib/store-config";
 import ReadinessChecklist from "./ReadinessChecklist";
 import type { MerchantGender } from "./WelcomeOverlay";
+import { useTranslation } from "react-i18next";
 
 type SidebarTab = "sections" | "theme" | "ai";
 
@@ -25,6 +26,7 @@ interface EditorLeftSidebarProps {
 export default function EditorLeftSidebar({
   config, selectedId, onSelect, onConfigChange, onOpenAI, productCount = 0, gender = "female", className = "",
 }: EditorLeftSidebarProps) {
+  const { t, i18n } = useTranslation();
   const [tab, setTab] = useState<SidebarTab>("sections");
   const [addingSection, setAddingSection] = useState(false);
   const [sidebarHintDismissed, setSidebarHintDismissed] = useState(() => {
@@ -81,7 +83,7 @@ export default function EditorLeftSidebar({
   }
 
   function addSection(type: SectionType) {
-    const s = createDefaultSection(type, config.brand.name, config.brand.category);
+    const s = createDefaultSection(type, config.brand.name, config.brand.category, t);
     s.order = config.homepage.sections.length;
     onConfigChange({ ...config, homepage: { sections: [...config.homepage.sections, s] } });
     setAddingSection(false);
@@ -89,13 +91,13 @@ export default function EditorLeftSidebar({
   }
 
   const TABS = [
-    { key: "sections" as SidebarTab, icon: LayoutList, label: "الأقسام" },
-    { key: "theme" as SidebarTab, icon: Palette, label: "الثيم" },
-    { key: "ai" as SidebarTab, icon: Wand2, label: "مساعد" },
+    { key: "sections" as SidebarTab, icon: LayoutList, label: t("editorSidebar.tabs.sections") },
+    { key: "theme" as SidebarTab, icon: Palette, label: t("editorSidebar.tabs.theme") },
+    { key: "ai" as SidebarTab, icon: Wand2, label: t("editorSidebar.tabs.ai") },
   ];
 
   return (
-    <div className={`w-64 bg-white border-l border-stone-200 flex flex-col h-full ${className}`} dir="rtl">
+    <div className={`w-64 bg-white border-l border-stone-200 flex flex-col h-full ${className}`} dir={i18n.dir()}>
       {/* Tabs */}
       <div className="flex border-b border-stone-200">
         {TABS.map(({ key, icon: Icon, label }) => (
@@ -124,10 +126,10 @@ export default function EditorLeftSidebar({
                 >
                   ×
                 </button>
-                <p className="text-xs text-blue-700 leading-relaxed pr-1">
-                  👋 {gender === "female"
-                    ? "اضغطي على أي قسم لتعديله، أو استخدمي أزرار الأسهم لتغيير ترتيبه"
-                    : "اضغط على أي قسم لتعديله، أو استخدم أزرار الأسهم لتغيير ترتيبه"}
+                <p className={`text-xs text-blue-700 leading-relaxed ${i18n.dir() === "rtl" ? "pr-1" : "pl-1"}`}>
+                  {gender === "female"
+                    ? t("editorSidebar.hint.female")
+                    : t("editorSidebar.hint.male")}
                 </p>
               </div>
             )}
@@ -145,25 +147,25 @@ export default function EditorLeftSidebar({
                       <span className="text-base shrink-0">{SECTION_ICONS[section.type]}</span>
                       <div className="flex-1 min-w-0">
                         <p className={`text-xs font-medium truncate ${section.visible ? "text-stone-800" : "text-stone-400"}`}>
-                          {section.label}
+                          {t(`sections.${section.type}`)}
                         </p>
-                        {!section.visible && <p className="text-[10px] text-stone-400">مخفي</p>}
+                        {!section.visible && <p className="text-[10px] text-stone-400">{t("editorSidebar.sectionItem.hidden")}</p>}
                       </div>
 
                       <div className={`flex items-center gap-0.5 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}>
-                        <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }} disabled={idx === 0} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30" title="رفع">
+                        <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }} disabled={idx === 0} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30" title={t("editorSidebar.sectionItem.moveUp")}>
                           <ChevronUp className="w-3 h-3" />
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }} disabled={idx === sections.length - 1} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30" title="خفض">
+                        <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }} disabled={idx === sections.length - 1} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30" title={t("editorSidebar.sectionItem.moveDown")}>
                           <ChevronDown className="w-3 h-3" />
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={section.visible ? "إخفاء" : "إظهار"}>
+                        <button onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={section.visible ? t("editorSidebar.sectionItem.hide") : t("editorSidebar.sectionItem.show")}>
                           {section.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3 text-stone-400" />}
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title="تكرار">
+                        <button onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={t("editorSidebar.sectionItem.duplicate")}>
                           <Copy className="w-3 h-3" />
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500" title="حذف">
+                        <button onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500" title={t("editorSidebar.sectionItem.delete")}>
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
@@ -179,7 +181,7 @@ export default function EditorLeftSidebar({
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-stone-300 text-sm text-stone-500 hover:border-[#8B1A35] hover:text-[#8B1A35] transition-all"
               >
                 <Plus className="w-4 h-4" />
-                إضافة قسم
+                {t("editorSidebar.addSection.button")}
               </button>
             </div>
           </div>
@@ -204,23 +206,23 @@ export default function EditorLeftSidebar({
             />
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
-              className="fixed bottom-4 right-4 w-72 bg-white rounded-2xl shadow-2xl border border-stone-200 z-50 max-h-[70vh] overflow-y-auto"
-              dir="rtl"
+              className={`fixed bottom-4 ${i18n.dir() === "rtl" ? "right-4" : "left-4"} w-72 bg-white rounded-2xl shadow-2xl border border-stone-200 z-50 max-h-[70vh] overflow-y-auto`}
+              dir={i18n.dir()}
             >
               <div className="p-4 border-b border-stone-100">
-                <p className="font-medium text-stone-800">{gender === "female" ? "اختاري قسماً لإضافته" : "اختار قسماً لإضافته"}</p>
-                <p className="text-xs text-stone-400 mt-0.5">{gender === "female" ? "انقري على أي قسم لإضافته للصفحة" : "انقر على أي قسم لإضافته للصفحة"}</p>
+                <p className="font-medium text-stone-800">{gender === "female" ? t("editorSidebar.addSection.titleFemale") : t("editorSidebar.addSection.titleMale")}</p>
+                <p className="text-xs text-stone-400 mt-0.5">{gender === "female" ? t("editorSidebar.addSection.descFemale") : t("editorSidebar.addSection.descMale")}</p>
               </div>
               <div className="p-2 space-y-1">
                 {AVAILABLE_SECTIONS.map((type) => (
                   <button
                     key={type}
                     onClick={() => addSection(type)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-stone-50 text-right transition-colors"
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl hover:bg-stone-50 ${i18n.dir() === "rtl" ? "text-right" : "text-left"} transition-colors`}
                   >
                     <span className="text-xl">{SECTION_ICONS[type]}</span>
                     <div>
-                      <p className="text-sm font-medium text-stone-800">{SECTION_LABELS[type]}</p>
+                      <p className="text-sm font-medium text-stone-800">{t(`sections.${type}`)}</p>
                       <p className="text-xs text-stone-400">{SECTION_DESCRIPTIONS[type]}</p>
                     </div>
                   </button>
@@ -311,6 +313,7 @@ const VISUAL_THEMES = [
 ];
 
 function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigChange: (c: StoreConfig) => void }) {
+  const { t, i18n } = useTranslation();
   const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
   const [showCustom, setShowCustom] = useState(false);
 
@@ -326,45 +329,45 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
   const COLORS = ["#8B1A35", "#7c3aed", "#2563eb", "#059669", "#d97706", "#dc2626", "#db2777", "#1e3a5f", "#795548", "#333333"];
 
   return (
-    <div className="flex-1 overflow-y-auto" dir="rtl">
+    <div className="flex-1 overflow-y-auto" dir={i18n.dir()}>
       {/* Theme Cards */}
       <div className="p-3">
-        <p className="text-xs font-semibold text-stone-500 mb-2 uppercase tracking-wide">اختاري ثيم متجرك</p>
+        <p className="text-xs font-semibold text-stone-500 mb-2 uppercase tracking-wide">{t("editorSidebar.themePanel.title")}</p>
         <div className="grid grid-cols-2 gap-2">
-          {VISUAL_THEMES.map((t) => {
-            const isActive = activeThemeId === t.id || (
+          {VISUAL_THEMES.map((tTheme) => {
+            const isActive = activeThemeId === tTheme.id || (
               !activeThemeId &&
-              config.theme.primaryColor === t.theme.primaryColor &&
-              config.theme.buttonStyle === t.theme.buttonStyle
+              config.theme.primaryColor === tTheme.theme.primaryColor &&
+              config.theme.buttonStyle === tTheme.theme.buttonStyle
             );
             return (
               <motion.button
-                key={t.id}
-                onClick={() => applyTheme(t)}
+                key={tTheme.id}
+                onClick={() => applyTheme(tTheme)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`relative rounded-xl overflow-hidden border-2 transition-all text-right ${isActive ? "border-[#8B1A35] shadow-lg" : "border-transparent hover:border-stone-300"}`}
+                className={`relative rounded-xl overflow-hidden border-2 transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"} ${isActive ? "border-[#8B1A35] shadow-lg" : "border-transparent hover:border-stone-300"}`}
               >
                 {/* Theme preview swatch */}
                 <div
                   className="h-16 relative"
-                  style={{ background: t.preview.bg }}
+                  style={{ background: tTheme.preview.bg }}
                 >
                   {/* Mock product card preview */}
                   <div
                     className="absolute inset-2 rounded-lg opacity-80"
-                    style={{ background: `linear-gradient(135deg, ${t.preview.accent}22, ${t.preview.accent}44)` }}
+                    style={{ background: `linear-gradient(135deg, ${tTheme.preview.accent}22, ${tTheme.preview.accent}44)` }}
                   />
                   <div
                     className="absolute bottom-2 right-2 left-2 h-5 rounded-md flex items-center justify-center text-white text-[8px] font-bold"
                     style={{
-                      background: t.preview.accent,
-                      borderRadius: t.theme.radius ?? 8,
+                      background: tTheme.preview.accent,
+                      borderRadius: tTheme.theme.radius ?? 8,
                     }}
                   >
-                    اشتري الآن
+                    {t("editorSidebar.themePanel.buyNow")}
                   </div>
-                  <div className={`absolute top-2 right-2 w-full h-px bg-gradient-to-r ${t.gradient} opacity-60`} />
+                  <div className={`absolute top-2 right-2 w-full h-px bg-gradient-to-r ${tTheme.gradient} opacity-60`} />
                   {isActive && (
                     <motion.div
                       initial={{ scale: 0 }} animate={{ scale: 1 }}
@@ -377,9 +380,9 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
                 {/* Theme name */}
                 <div className="px-2 py-1.5 bg-white">
                   <p className="text-[11px] font-semibold text-stone-800 flex items-center gap-1">
-                    <span>{t.emoji}</span> {t.name}
+                    <span>{tTheme.emoji}</span> {t(`editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.name`)}
                   </p>
-                  <p className="text-[9px] text-stone-400 truncate">{t.desc}</p>
+                  <p className="text-[9px] text-stone-400 truncate">{t(`editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.desc`)}</p>
                 </div>
               </motion.button>
             );
@@ -393,7 +396,7 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
           onClick={() => setShowCustom((s) => !s)}
           className="w-full flex items-center justify-between px-4 py-3 text-xs text-stone-500 hover:bg-stone-50 transition-colors"
         >
-          <span className="font-medium">تخصيص متقدم</span>
+          <span className="font-medium">{t("editorSidebar.themePanel.customOptions")}</span>
           <motion.span animate={{ rotate: showCustom ? 180 : 0 }} transition={{ duration: 0.2 }}>▾</motion.span>
         </button>
 
@@ -406,36 +409,36 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
               className="px-4 pb-4 space-y-4 overflow-hidden"
             >
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">اللون الرئيسي</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.primaryColor")}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {COLORS.map((c) => (
                     <button key={c} onClick={() => patchTheme({ primaryColor: c })}
                       className="w-6 h-6 rounded-full border-2 transition-all"
                       style={{ background: c, borderColor: config.theme.primaryColor === c ? "white" : "transparent", boxShadow: config.theme.primaryColor === c ? `0 0 0 3px ${c}` : "none" }} />
                   ))}
-                  <input type="color" value={config.theme.primaryColor} onChange={(e) => patchTheme({ primaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" title="لون مخصص" />
+                  <input type="color" value={config.theme.primaryColor} onChange={(e) => patchTheme({ primaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" />
                 </div>
               </div>
 
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">شكل الأزرار</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.buttonStyle.title")}</p>
                 <div className="flex gap-2">
                   {(["pill", "rounded", "square"] as const).map((s) => (
                     <button key={s} onClick={() => patchTheme({ buttonStyle: s })}
                       className={`flex-1 py-1.5 text-xs border-2 transition-all ${config.theme.buttonStyle === s ? "border-[#8B1A35] text-[#8B1A35]" : "border-stone-200 text-stone-500"}`}
                       style={{ borderRadius: s === "pill" ? 999 : s === "rounded" ? 6 : 0 }}>
-                      {s === "pill" ? "دائري" : s === "rounded" ? "مدور" : "مربع"}
+                      {t(`editorSidebar.themePanel.buttonStyle.${s}`)}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">مستوى التحريك</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.animation.title")}</p>
                 {(["none", "subtle", "lively"] as const).map((a) => (
                   <button key={a} onClick={() => patchTheme({ animationLevel: a })}
-                    className={`block w-full text-right text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.animationLevel === a ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}>
-                    {a === "none" ? "⬜ بدون تحريك (أسرع)" : a === "subtle" ? "✨ تحريك خفيف (موصى به)" : "🎬 تحريك حيوي (مبهج)"}
+                    className={`block w-full ${i18n.dir() === "rtl" ? "text-right" : "text-left"} text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.animationLevel === a ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}>
+                    {t(`editorSidebar.themePanel.animation.${a}`)}
                   </button>
                 ))}
               </div>

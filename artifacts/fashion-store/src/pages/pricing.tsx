@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Check, Zap, TrendingUp, Crown, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const PLAN_ICONS: Record<string, React.ElementType> = {
   starter: Zap,
@@ -45,6 +46,7 @@ const stagger = {
 
 export default function Pricing() {
   const { data: plans, isLoading } = useListPlans();
+  const { t, i18n } = useTranslation();
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,22 +58,23 @@ export default function Pricing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
           className="container mx-auto px-4 text-center relative"
+          dir={i18n.dir()}
         >
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary border border-primary/20 rounded-full px-4 py-1.5 text-sm font-medium mb-5">
             <Sparkles className="w-3.5 h-3.5" />
-            خطط واضحة — بدون رسوم خفية
+            {t("pricing.badge")}
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            اختاري الخطة المناسبة لك
+            {t("pricing.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            ابدئي رحلتك بثقة — وترقّي متى شئت مع نمو متجرك
+            {t("pricing.subtitle")}
           </p>
         </motion.div>
       </div>
 
       {/* Plans grid */}
-      <div className="container mx-auto px-4 pb-24">
+      <div className="container mx-auto px-4 pb-24" dir={i18n.dir()}>
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[0, 1, 2].map((i) => (
@@ -95,7 +98,7 @@ export default function Pricing() {
                   {isGrowth && (
                     <div className="absolute -top-3 inset-x-0 flex justify-center z-10">
                       <Badge className="bg-violet-600 text-white border-0 shadow-lg px-4 py-1">
-                        الأكثر شيوعاً ⭐
+                        {t("pricing.popular")}
                       </Badge>
                     </div>
                   )}
@@ -111,7 +114,7 @@ export default function Pricing() {
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground font-medium">{plan.name}</p>
-                        <h2 className="text-xl font-bold text-foreground">{plan.nameAr}</h2>
+                        <h2 className="text-xl font-bold text-foreground">{i18n.language === "ar" ? plan.nameAr : plan.name}</h2>
                       </div>
                     </div>
 
@@ -119,42 +122,42 @@ export default function Pricing() {
                     <div className="mt-4 mb-5">
                       <div className="flex items-end gap-1">
                         <span className="text-4xl font-bold text-foreground">
-                          {plan.priceEgp.toLocaleString("ar-EG")}
+                          {plan.priceEgp.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")}
                         </span>
-                        <span className="text-muted-foreground mb-1">ج.م / شهر</span>
+                        <span className="text-muted-foreground mb-1">{t("pricing.currencyPerMonth", { currency: i18n.language === "ar" ? "ج.م" : "EGP" })}</span>
                       </div>
                     </div>
 
                     {/* Description */}
                     <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
-                      {plan.descriptionAr}
+                      {i18n.language === "ar" ? plan.descriptionAr : (plan as any).description}
                     </p>
 
                     {/* Limits */}
                     <div className="space-y-2.5 mb-6">
                       <FeatureRow
-                        label={plan.productLimit === -1 ? "منتجات غير محدودة" : `${plan.productLimit} منتج`}
+                        label={plan.productLimit === -1 ? t("pricing.unlimitedProducts") : t("pricing.productsCount", { count: plan.productLimit.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US") })}
                         included
                       />
                       <FeatureRow
-                        label={plan.monthlyOrderLimit === -1 ? "طلبات غير محدودة / شهر" : `${plan.monthlyOrderLimit} طلب / شهر`}
+                        label={plan.monthlyOrderLimit === -1 ? t("pricing.unlimitedOrders") : t("pricing.ordersCount", { count: plan.monthlyOrderLimit.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US") })}
                         included
                       />
                       <FeatureRow
-                        label={`${plan.staffSeatLimit === 1 ? "مقعد واحد" : `${plan.staffSeatLimit} مقاعد`} للفريق`}
+                        label={`${plan.staffSeatLimit === 1 ? t("pricing.seatOne") : t("pricing.seatsCount", { count: plan.staffSeatLimit.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US") })} ${t("pricing.forTeam")}`}
                         included
                       />
-                      <FeatureRow label="متجر أونلاين كامل" included />
-                      <FeatureRow label="تتبع الطلبات" included />
-                      <FeatureRow label="واتساب يدوي" included />
-                      <FeatureRow label="تحليلات متقدمة" included={plan.advancedAnalyticsAllowed ?? false} />
+                      <FeatureRow label={t("pricing.features.store")} included />
+                      <FeatureRow label={t("pricing.features.tracking")} included />
+                      <FeatureRow label={t("pricing.features.whatsappManual")} included />
+                      <FeatureRow label={t("pricing.features.analytics")} included={plan.advancedAnalyticsAllowed ?? false} />
                       <FeatureRow
-                        label="Paymob (بطاقة / فوري)"
+                        label={t("pricing.features.paymob")}
                         included={plan.paymobAllowed ?? false}
                         reserved={!(plan.paymobAllowed ?? false)}
                       />
                       <FeatureRow
-                        label="واتساب تلقائي"
+                        label={t("pricing.features.whatsappAuto")}
                         included={plan.whatsappAutomationAllowed ?? false}
                         reserved={!(plan.whatsappAutomationAllowed ?? false)}
                       />
@@ -163,10 +166,10 @@ export default function Pricing() {
                     {/* CTA */}
                     <div className="mt-auto">
                       <Button className={`w-full rounded-xl h-11 font-semibold ${c.btn}`} asChild>
-                        <Link href="/register">ابدأ الآن</Link>
+                        <Link href="/register">{t("pricing.startNow")}</Link>
                       </Button>
                       <p className="text-center text-xs text-muted-foreground mt-2">
-                        لا يلزم بطاقة ائتمان
+                        {t("pricing.noCreditCard")}
                       </p>
                     </div>
                   </div>
@@ -183,20 +186,20 @@ export default function Pricing() {
           transition={{ delay: 0.5, duration: 0.4 }}
           className="mt-20 max-w-2xl mx-auto text-center"
         >
-          <h2 className="text-2xl font-bold mb-6">أسئلة شائعة</h2>
-          <div className="space-y-4 text-right">
+          <h2 className="text-2xl font-bold mb-6">{t("pricing.faq.title")}</h2>
+          <div className="space-y-4 text-start">
             {[
               {
-                q: "هل أستطيع تغيير الخطة في أي وقت؟",
-                a: "نعم — تواصل مع فريق الدعم وسنقوم بالترقية أو التخفيض فوراً.",
+                q: t("pricing.faq.q1"),
+                a: t("pricing.faq.a1"),
               },
               {
-                q: "ماذا يحدث لو تجاوزت حد الطلبات؟",
-                a: "لن يتوقف متجرك — سنتواصل معك لترقية الخطة عند الاقتراب من الحد.",
+                q: t("pricing.faq.q2"),
+                a: t("pricing.faq.a2"),
               },
               {
-                q: "هل البيانات آمنة؟",
-                a: "بالطبع — كل متجر مستقل تماماً ومعزول عن باقي المتاجر.",
+                q: t("pricing.faq.q3"),
+                a: t("pricing.faq.a3"),
               },
             ].map((faq) => (
               <div
@@ -217,6 +220,7 @@ export default function Pricing() {
 function FeatureRow({
   label, included, reserved,
 }: { label: string; included: boolean; reserved?: boolean }) {
+  const { t } = useTranslation();
   return (
     <div className={`flex items-center gap-2.5 text-sm ${included ? "text-foreground" : "text-muted-foreground/50"}`}>
       {included ? (
@@ -227,7 +231,7 @@ function FeatureRow({
       <span>{label}</span>
       {reserved && !included && (
         <Badge variant="outline" className="text-[9px] px-1.5 py-0 ms-auto text-muted-foreground/50 border-muted-foreground/20">
-          قريباً
+          {t("pricing.soon")}
         </Badge>
       )}
     </div>

@@ -2,26 +2,30 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Download, FileText, CheckCircle, AlertCircle, Clock, RotateCcw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
 
-const EXPORT_TYPES = [
-  { value: "orders", label: "الطلبات", icon: "📦", desc: "جميع الطلبات مع بياناتها الكاملة" },
-  { value: "products", label: "المنتجات", icon: "🛍️", desc: "قائمة المنتجات مع الأسعار والمخزون" },
-  { value: "customers", label: "العملاء", icon: "👥", desc: "بيانات العملاء وبيانات التواصل" },
-  { value: "returns", label: "المرتجعات", icon: "🔄", desc: "حالات المرتجعات والإرجاع" },
-  { value: "inventory_adjustments", label: "تعديلات المخزون", icon: "📊", desc: "سجل تعديلات المخزون" },
-];
-
-const STATUS_CONFIG: Record<string, { label: string; color: string; Icon: any }> = {
-  queued: { label: "في الانتظار", color: "text-amber-600 bg-amber-50", Icon: Clock },
-  processing: { label: "جاري المعالجة", color: "text-blue-600 bg-blue-50", Icon: RotateCcw },
-  complete: { label: "مكتمل", color: "text-green-600 bg-green-50", Icon: CheckCircle },
-  failed: { label: "فشل", color: "text-red-600 bg-red-50", Icon: AlertCircle },
-};
-
 export default function ExportsPage() {
+  const { t, i18n } = useTranslation();
+
+  const EXPORT_TYPES = [
+    { value: "orders", label: t("exports.types.orders.label"), icon: "📦", desc: t("exports.types.orders.desc") },
+    { value: "products", label: t("exports.types.products.label"), icon: "🛍️", desc: t("exports.types.products.desc") },
+    { value: "customers", label: t("exports.types.customers.label"), icon: "👥", desc: t("exports.types.customers.desc") },
+    { value: "returns", label: t("exports.types.returns.label"), icon: "🔄", desc: t("exports.types.returns.desc") },
+    { value: "inventory_adjustments", label: t("exports.types.inventory_adjustments.label"), icon: "📊", desc: t("exports.types.inventory_adjustments.desc") },
+  ];
+
+  const STATUS_CONFIG: Record<string, { label: string; color: string; Icon: any }> = {
+    queued: { label: t("exports.status.queued"), color: "text-amber-600 bg-amber-50", Icon: Clock },
+    processing: { label: t("exports.status.processing"), color: "text-blue-600 bg-blue-50", Icon: RotateCcw },
+    complete: { label: t("exports.status.complete"), color: "text-green-600 bg-green-50", Icon: CheckCircle },
+    failed: { label: t("exports.status.failed"), color: "text-red-600 bg-red-50", Icon: AlertCircle },
+  };
+
+
   const [selectedType, setSelectedType] = useState("orders");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -47,7 +51,7 @@ export default function ExportsPage() {
 
       if (!res.ok) {
         const d = await res.json();
-        throw new Error(d.error ?? "فشل التصدير");
+        throw new Error(d.error ?? t("exports.error"));
       }
 
       const blob = await res.blob();
@@ -67,19 +71,19 @@ export default function ExportsPage() {
     }
   };
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString("ar-EG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  const formatDate = (d: string) => new Date(d).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold text-gray-900">تصدير البيانات</h1>
-        <p className="text-gray-500 mt-1">حمّل بياناتك كملفات CSV</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t("exports.title")}</h1>
+        <p className="text-gray-500 mt-1">{t("exports.subtitle")}</p>
       </motion.div>
 
       {/* Export Form */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
         className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-base font-semibold text-gray-800 mb-4">تصدير جديد</h2>
+        <h2 className="text-base font-semibold text-gray-800 mb-4">{t("exports.newExport")}</h2>
 
         {/* Type Selection */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
@@ -99,12 +103,12 @@ export default function ExportsPage() {
         {/* Date Range */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">من تاريخ (اختياري)</label>
+            <label className="text-xs font-medium text-gray-600 block mb-1.5">{t("exports.dateFrom")}</label>
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-rose-400" />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1.5">إلى تاريخ (اختياري)</label>
+            <label className="text-xs font-medium text-gray-600 block mb-1.5">{t("exports.dateTo")}</label>
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
               className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-rose-400" />
           </div>
@@ -119,7 +123,7 @@ export default function ExportsPage() {
         <button onClick={handleExport} disabled={isExporting}
           className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-medium px-6 py-3 rounded-xl transition-colors text-sm">
           <Download className="w-4 h-4" />
-          {isExporting ? "جاري التصدير..." : `تصدير ${EXPORT_TYPES.find((t) => t.value === selectedType)?.label}`}
+          {isExporting ? t("exports.exporting") : t("exports.exportBtn", { type: EXPORT_TYPES.find((t) => t.value === selectedType)?.label })}
         </button>
       </motion.div>
 
@@ -130,13 +134,13 @@ export default function ExportsPage() {
           <div className="w-9 h-9 bg-gray-50 rounded-xl flex items-center justify-center">
             <FileText className="w-5 h-5 text-gray-500" />
           </div>
-          <h2 className="text-base font-semibold text-gray-800">سجل التصدير</h2>
-          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full mr-auto">{jobs.length} طلب</span>
+          <h2 className="text-base font-semibold text-gray-800">{t("exports.history.title")}</h2>
+          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full ms-auto">{t("exports.history.count", { count: jobs.length })}</span>
         </div>
         {jobs.length === 0 ? (
           <div className="p-10 text-center text-gray-400">
             <Download className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p>لا توجد عمليات تصدير بعد</p>
+            <p>{t("exports.history.empty")}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
@@ -156,7 +160,7 @@ export default function ExportsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    {job.rowCount != null && <span className="text-xs text-gray-500">{job.rowCount.toLocaleString("ar-EG")} سطر</span>}
+                    {job.rowCount != null && <span className="text-xs text-gray-500">{t("exports.history.rows", { count: job.rowCount.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US") })}</span>}
                     <span className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${cfg?.color}`}>
                       <IconC className="w-3 h-3" />{cfg?.label}
                     </span>

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
 import { StorefrontProductCard, ProductCardData } from "./StorefrontProductCard";
 
@@ -29,6 +30,7 @@ export function TrendingSection({
   addedIds,
   onAddToCart,
 }: TrendingSectionProps) {
+  const { t, i18n } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   if (products.length === 0) return null;
@@ -48,7 +50,7 @@ export function TrendingSection({
     <section
       id="trending"
       className="py-16 md:py-24"
-      style={{ background: "linear-gradient(180deg, #faf7f4 0%, #fff 100%)", direction: "rtl" }}
+      style={{ background: "linear-gradient(180deg, #faf7f4 0%, #fff 100%)", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
@@ -58,15 +60,15 @@ export function TrendingSection({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              ترند الآن
+              {t("storefront.home.trending.eyebrow", "ترند الآن")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              الأكثر
+              {t("storefront.home.trending.title1", "الأكثر")}
               <br />
-              <span style={{ color: p, fontStyle: "italic" }}>رواجاً</span>
+              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.trending.title2", "رواجاً")}</span>
             </h2>
           </div>
           {/* Scroll arrows */}
@@ -90,7 +92,16 @@ export function TrendingSection({
 
         {/* Trend tags */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-none">
-          {TREND_TAGS.map((tag, i) => (
+          {(t("storefront.home.trending.tags", { returnObjects: true, defaultValue: [
+            "كوتشي",
+            "باليرينا",
+            "ميني",
+            "ستريت ستايل",
+            "ناعم وفخم",
+            "بوهو",
+            "مونوكروم",
+            "فلورال",
+          ] }) as string[]).map((tag, i) => (
             <motion.span
               key={tag}
               className="shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[12px] font-medium border"

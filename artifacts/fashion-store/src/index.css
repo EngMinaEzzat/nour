@@ -100,6 +100,11 @@
   --radius: 0.5rem;
 }
 
+:root.ltr {
+  --app-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --app-font-serif: 'Cormorant Garamond', serif;
+}
+
 .dark {
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);

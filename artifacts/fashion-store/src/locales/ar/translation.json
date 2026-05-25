@@ -1,0 +1,2828 @@
+{
+  "common": {
+    "appName": "نـور",
+    "appSubtitle": "منصة نور للتجارة الإلكترونية المصرية",
+    "buttons": {
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "submit": "إرسال",
+      "login": "تسجيل الدخول",
+      "register": "ابدأ مجاناً",
+      "logout": "تسجيل الخروج",
+      "acceptAndCreate": "قبول الدعوة وإنشاء حسابي",
+      "backToLogin": "الذهاب إلى تسجيل الدخول",
+      "createAndJoin": "إنشاء الحساب والانضمام",
+      "acceptAndActivate": "قبول وتفعيل",
+      "reject": "رفض",
+      "close": "إغلاق",
+      "details": "التفاصيل",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "confirm": "تأكيد"
+    },
+    "currency": "ج.م",
+    "pricing": "الأسعار",
+    "public": "عام",
+    "admin": "مشغّل",
+    "allRightsReserved": "جميع الحقوق محفوظة",
+    "placeholder": {
+      "email": "example@nour.eg",
+      "phone": "01xxxxxxxxx",
+      "password": "8 أحرف على الأقل",
+      "confirmPassword": "أعِد كتابة كلمة المرور",
+      "fullName": "محمد أحمد"
+    },
+    "notFound": {
+      "title": "الصفحة غير موجودة",
+      "desc": "عذرًا، لم نتمكن من العثور على الصفحة التي تبحثين عنها.",
+      "backToHome": "العودة للرئيسية"
+    }
+  },
+  "roles": {
+    "owner": "مالك",
+    "manager": "مدير",
+    "staff": "موظف",
+    "catalog_manager": "مدير كتالوج",
+    "order_operator": "موظف طلبات",
+    "marketing_analyst": "محلل تسويق"
+  },
+  "status": {
+    "trial": "تجريبي",
+    "active": "نشط",
+    "past_due": "متأخر",
+    "suspended": "موقوف",
+    "canceled": "ملغي",
+    "pending": "قيد المراجعة",
+    "approved": "مقبول",
+    "rejected": "مرفوض"
+  },
+  "plans": {
+    "starter": "ستارتر",
+    "growth": "جروث",
+    "pro": "برو"
+  },
+  "layout": {
+    "myStore": "متجري",
+    "operatorPanel": "لوحة المشغّل",
+    "dashboard": "لوحة التحكم",
+    "storeBuilder": "محرر المتجر",
+    "analytics": "التحليلات",
+    "orders": "الطلبات",
+    "followUp": "المتابعة",
+    "products": "المنتجات",
+    "customers": "العملاء",
+    "returns": "المرتجعات",
+    "shipping": "الشحن",
+    "automation": "الأتمتة",
+    "categories": "الفئات",
+    "staff": "الفريق",
+    "storeSettings": "إعدادات المتجر",
+    "tracking": "التتبع والبيكسلات",
+    "exports": "تصدير البيانات",
+    "billing": "الفوترة",
+    "domains": "النطاق المخصص",
+    "discounts": "أكواد الخصم",
+    "reviews": "التقييمات",
+    "abandonedCarts": "سلات متروكة",
+    "inventoryAlerts": "تنبيهات المخزون",
+    "facebookModerator": "مشرف Facebook",
+    "growth": "ارتقِ بمتجرك",
+    "loggedAs": "تسجيل الدخول كـ"
+  },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "subtitle": "إدارة متجرك من لوحة التحكم",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "invalid": "البريد الإلكتروني أو كلمة المرور غير صالحة",
+      "loggingIn": "جارٍ الدخول...",
+      "noAccount": "ليس لديك حساب؟",
+      "registerNow": "سجّل متجرك الآن"
+    },
+    "acceptInvite": {
+      "title": "دعوة للانضمام إلى متجر",
+      "invitedTo": "ستنضم إلى متجر",
+      "asRole": "بدور",
+      "store": "المتجر",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "expiresAt": "صلاحية حتى",
+      "hasAccount": "لديك حساب بالفعل؟",
+      "loginNow": "سجّل دخولك",
+      "createAccount": "إنشاء حسابك في",
+      "joinAs": "ستنضم كـ",
+      "onEmail": "على البريد",
+      "fullName": "الاسم الكامل *",
+      "password": "كلمة المرور *",
+      "confirmPassword": "تأكيد كلمة المرور *",
+      "creatingAccount": "جارٍ إنشاء الحساب...",
+      "successTitle": "مرحباً بك في",
+      "successDesc": "تم إنشاء حسابك بنجاح بدور",
+      "successDescSuffix": ". يمكنك الآن تسجيل الدخول والبدء في العمل.",
+      "loginCta": "تسجيل الدخول الآن",
+      "tokenMissing": "رابط الدعوة غير صالح — لا يوجد token.",
+      "inviteNotFound": "الدعوة غير موجودة",
+      "acceptFailed": "فشل قبول الدعوة",
+      "nameRequired": "الاسم مطلوب",
+      "pwTooShort": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+      "pwMismatch": "كلمتَا المرور غير متطابقتين"
+    },
+    "forgotPassword": {
+      "title": "نسيت كلمة المرور؟",
+      "subtitle": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "example@nour.eg",
+      "checkEmailTitle": "تحقق من بريدك الإلكتروني",
+      "checkEmailDesc": "أرسلنا رابط إعادة تعيين كلمة المرور إلى",
+      "checkEmailDescSuffix": ". تحقق من صندوق الوارد وربما مجلد الرسائل غير المرغوب فيها.",
+      "linkExpireHint": "الرابط صالح لمدة ساعة واحدة.",
+      "linkReadyTitle": "رابط إعادة التعيين جاهز",
+      "linkReadyDesc": "لم يتم تفعيل البريد الإلكتروني بعد. انقر على الرابط أدناه لإعادة تعيين كلمة المرور:",
+      "btnResetPassword": "إعادة تعيين كلمة المرور",
+      "sending": "جارٍ الإرسال...",
+      "sendLink": "إرسال رابط إعادة التعيين",
+      "rememberPassword": "تذكّرت كلمة المرور؟",
+      "loginNow": "سجّل دخولك",
+      "connectionError": "حدث خطأ في الاتصال، حاول مرة أخرى",
+      "generalError": "حدث خطأ، حاول مرة أخرى"
+    },
+    "register": {
+      "title": "افتح متجرك الآن",
+      "subtitle": "انضم إلى آلاف التجار على منصة نور",
+      "storeName": "اسم المتجر",
+      "storeNamePlaceholder": "مثال: أزياء ليلى",
+      "storeSlug": "رابط المتجر",
+      "storeSlugPlaceholder": "layla-fashion",
+      "categoryLabel": "ماذا يبيع المتجر؟",
+      "categoryPlaceholder": "اختر الفئة",
+      "catFashion": "أزياء وملابس",
+      "catCosmetics": "مستحضرات تجميل وعناية",
+      "catBoth": "أزياء ومستحضرات تجميل",
+      "genderLabel": "كيف تحب نخاطبك؟",
+      "genderFemale": "👩 أنثى",
+      "genderMale": "👨 ذكر",
+      "genderHint": "عشان نكلمك باللغة المناسبة في المتجر",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "duplicateEmail": "هذا البريد الإلكتروني مسجّل مسبقًا",
+      "loginInstead": "تسجيل الدخول بدلاً من ذلك ←",
+      "generalError": "حدث خطأ أثناء التسجيل، حاول مرة أخرى",
+      "btnRegistering": "جارٍ إنشاء المتجر...",
+      "btnRegister": "افتح متجري",
+      "hasAccount": "لديك حساب بالفعل؟",
+      "loginNow": "سجّل دخولك",
+      "slugChecking": "جارٍ التحقق...",
+      "slugAvailable": "الرابط متاح",
+      "slugTaken": "الرابط مستخدم، جرّب اسمًا آخر",
+      "slugInvalid": "الرابط يحتوي على أحرف غير مقبولة أو محجوز",
+      "slugError": "تعذر الاتصال بالخادم، حاول مرة أخرى",
+      "errDuplicateSlug": "اسم المتجر أو الرابط مستخدم مسبقًا، جرّب اسمًا آخر"
+    },
+    "resetPassword": {
+      "title": "تعيين كلمة مرور جديدة",
+      "subtitle": "أدخل كلمة المرور الجديدة لحسابك",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "passwordMismatch": "كلمتا المرور غير متطابقتين",
+      "btnSaving": "جارٍ الحفظ...",
+      "btnSave": "حفظ كلمة المرور الجديدة",
+      "successTitle": "تم تغيير كلمة المرور بنجاح",
+      "successDesc": "سيتم تحويلك لتسجيل الدخول خلال ثوانٍ...",
+      "invalidTokenTitle": "رابط إعادة التعيين غير صالح",
+      "requestNewLink": "اطلب رابطًا جديدًا",
+      "connError": "حدث خطأ في الاتصال، حاول مرة أخرى",
+      "generalError": "حدث خطأ، حاول مرة أخرى"
+    }
+  },
+  "platform": {
+    "title": "لوحة المشغّل",
+    "subtitle": "نظرة عامة على جميع المتاجر والنشاط",
+    "tabs": {
+      "merchants": "المتاجر المسجلة",
+      "payments": "المدفوعات",
+      "tenants": "دليل المتاجر",
+      "health": "صحة المنصة"
+    },
+    "stats": {
+      "totalStores": "إجمالي المتاجر",
+      "activeStores": "متاجر نشطة",
+      "trialStores": "متاجر تجريبية",
+      "nearLimit": "قريبة من الحد"
+    },
+    "cards": {
+      "onboarding": "اكتمال الإعداد",
+      "plans": "توزيع الخطط",
+      "onboardingRows": {
+        "complete": "مكتمل",
+        "partial": "جزئي",
+        "notStarted": "لم يبدأ"
+      }
+    },
+    "search": "بحث بالمتجر أو المالك أو المدينة أو الرابط...",
+    "searchTenants": "بحث بالاسم أو الرابط...",
+    "storesCount": "متجر مسجل",
+    "noStores": "لا توجد متاجر مسجلة تطابق البحث",
+    "noTenants": "لا توجد متاجر",
+    "noHealth": "لا توجد بيانات صحة بعد",
+    "healthScore": "صحة المنصة",
+    "verifyLoading": "جارٍ التحقق...",
+    "restricted": "وصول محظور",
+    "restrictedDesc": "هذه الصفحة متاحة للمشغلين فقط",
+    "backToDashboard": "العودة للوحة التحكم",
+    "metrics": {
+      "products": "منتجات",
+      "orders": "طلبات",
+      "revenue": "إيراد"
+    },
+    "paymentsSection": {
+      "bankTransfers": "طلبات التحويل البنكي",
+      "noRequests": "لا توجد طلبات بعد",
+      "paymobReconciliation": "تسوية مدفوعات Paymob",
+      "paymobReconciliationDesc": "يتم تخزين جميع معاملات Paymob في جدول payment_records. يمكن مراجعة المدفوعات المعلقة أو الفاشلة وتسويتها مع كشف حساب Paymob الشهري.",
+      "paymobCompleted": "مكتملة",
+      "paymobPending": "معلقة",
+      "paymobFailed": "فاشلة",
+      "queryLabel": "للاستعلام المباشر:",
+      "receipt": "الإيصال",
+      "reference": "مرجع:",
+      "note": "ملاحظة:",
+      "confirmApprove": "تأكيد قبول الدفعة",
+      "confirmApproveDesc": "سيتم تفعيل اشتراك متجر {{storeName}} على خطة {{plan}} وإنشاء فاتورة مدفوعة تلقائيًا.",
+      "rejectTitle": "رفض طلب التحويل",
+      "rejectDesc": "سيتم إعلام التاجر بالرفض. يمكنك إضافة ملاحظة توضيحية.",
+      "rejectReasonPlaceholder": "سبب الرفض (اختياري)..."
+    },
+    "tenantsSection": {
+      "planLabel": "خطة:"
+    },
+    "toggleStatus": {
+      "reactivateTitle": "إعادة تفعيل المتجر",
+      "reactivateDesc": "سيتم إعادة تفعيل متجر \"{{storeName}}\" فورًا وإرسال بريد للتاجر.",
+      "suspendTitle": "إيقاف المتجر مؤقتًا",
+      "suspendDesc": "سيتم إيقاف متجر \"{{storeName}}\" مؤقتًا وإرسال بريد تنبيه للتاجر. البيانات ستظل محفوظة.",
+      "reactivateBtn": "إعادة تفعيل",
+      "suspendBtn": "إيقاف مؤقت"
+    }
+  },
+  "dashboard": {
+    "status": {
+      "pending": "قيد الانتظار",
+      "awaiting_confirmation": "بانتظار التأكيد",
+      "confirmed": "مؤكد",
+      "dispatched": "تم الإرسال",
+      "shipped": "تم الشحن",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغي",
+      "returned": "مُعاد"
+    },
+    "payment": {
+      "cod": "دفع عند الاستلام",
+      "paymob": "Paymob"
+    },
+    "subStatus": {
+      "trial": "تجريبي",
+      "active": "نشط",
+      "past_due": "متأخر",
+      "suspended": "موقوف",
+      "canceled": "ملغي"
+    },
+    "plan": {
+      "starter": "ستارتر",
+      "growth": "جروث",
+      "pro": "برو"
+    },
+    "onboarding": {
+      "ch1": "الفصل 1: أول انطباع",
+      "s1": "العميلة تدخل متجرك وتبحث عن إشارة ثقة: اسم واضح، وصف مطمئن، وشكل يشبه علامتك.",
+      "a1": "تعديل الهوية",
+      "ch2": "الفصل 2: واجهة تحكي القصة",
+      "s2": "قبل أن تتصفح العميلة المنتجات، تحتاج جملة وصورة تقولان لها: هذا المتجر مصمم لك.",
+      "a2": "تخصيص الواجهة",
+      "d2": "اعتمدت الواجهة",
+      "ch3": "الفصل 3: أول قطعة تخطف العين",
+      "s3": "المتجر لا يبدأ حقا إلا عندما ترى العميلة منتجا بصورة وسعر ومخزون واضح.",
+      "a3": "إضافة منتج",
+      "ch4": "الفصل 4: الوصول للباب",
+      "s4": "بعد الإعجاب بالمنتج، العميلة تسأل: هيوصل امتى وبكام؟ اجعلي الإجابة جاهزة.",
+      "a4": "ضبط الشحن",
+      "d4": "راجعت الشحن",
+      "ch5": "الفصل 5: لحظة الدفع",
+      "s5": "في آخر خطوة، العميلة تحتاج طريقة دفع واضحة ومطمئنة، خصوصا مع الدفع عند الاستلام.",
+      "a5": "مراجعة الدفع",
+      "d5": "راجعت الدفع",
+      "ch6": "الفصل 6: تجربة العميلة كاملة",
+      "s6": "افتحي المتجر كأنك عميلة جديدة: الواجهة، المنتج، الشحن، والدفع يجب أن يشعروا كرحلة واحدة.",
+      "a6": "معاينة وتهذيب",
+      "d6": "جاهزة للإطلاق",
+      "edit": "تعديل"
+    },
+    "kpi": {
+      "thisMonth": "هذا الشهر",
+      "noData": "لا توجد بيانات بعد",
+      "noDataSub": "ستظهر هنا عند ورود الطلبات",
+      "plan": "خطة",
+      "reachedLimit": "وصلت للحد",
+      "unlimited": "منتجات غير محدودة",
+      "productUsage": "استخدام المنتجات",
+      "upgradePlan": "ترقية الخطة",
+      "revenue": "إجمالي الإيرادات",
+      "avgOrder": "متوسط الطلب:",
+      "totalOrders": "إجمالي الطلبات",
+      "pendingOrders": "قيد الانتظار",
+      "customers": "العملاء",
+      "registeredCustomer": "عميل مسجّل",
+      "revenueThisMonth": "إيرادات هذا الشهر",
+      "ordersThisMonth": "طلب هذا الشهر"
+    },
+    "checklist": {
+      "title": "رحلة أول عميلة في متجرك",
+      "desc": "ابنِ التجربة كقصة: من أول نظرة إلى أول طلب. {{completed}} من {{total}} فصول مكتملة",
+      "improveStore": "تحسين المتجر",
+      "reviewed": "تمت المراجعة",
+      "completed": "مكتمل"
+    },
+    "header": {
+      "welcome": "أهلاً، {{name}} 👋",
+      "subtitle": "نظرة شاملة على أداء متجرك",
+      "analytics": "التحليلات",
+      "orders": "الطلبات",
+      "merchant": "التاجر"
+    },
+    "charts": {
+      "revenue30d": "الإيرادات — آخر 30 يوم",
+      "revenue": "الإيرادات",
+      "topProducts": "أفضل المنتجات",
+      "orderStatus": "حالة الطلبات",
+      "recentOrders": "آخر الطلبات",
+      "viewAll": "عرض الكل",
+      "noOrders": "لا توجد طلبات بعد"
+    }
+  },
+  "products": {
+    "title": "المنتجات",
+    "subtitle": "إدارة المنتجات وأسعارها",
+    "searchPlaceholder": "ابحثي عن منتج...",
+    "btnAdd": "إضافة منتج",
+    "btnImport": "استيراد CSV",
+    "emptySearch": "لا توجد منتجات تطابق البحث",
+    "emptyState": {
+      "title": "لا توجد منتجات بعد",
+      "subtitle": "أضيفي أول منتج لمتجرك لتبدأي البيع"
+    },
+    "sizes": {
+      "xs": "XS",
+      "s": "S",
+      "m": "M",
+      "l": "L",
+      "xl": "XL",
+      "xxl": "XXL",
+      "free": "فري سايز",
+      "one": "مقاس واحد"
+    },
+    "colors": {
+      "black": "أسود",
+      "white": "أبيض",
+      "red": "أحمر",
+      "pink": "وردي",
+      "purple": "بنفسجي",
+      "blue": "أزرق",
+      "green": "أخضر",
+      "beige": "بيج",
+      "navy": "كحلي",
+      "gray": "رمادي",
+      "gold": "ذهبي",
+      "brown": "بني"
+    },
+    "status": {
+      "active": "نشط",
+      "out_of_stock": "نفذ",
+      "hidden": "مخفي"
+    },
+    "columns": {
+      "image": "صورة",
+      "name": "الاسم",
+      "price": "السعر",
+      "stock": "المخزون",
+      "status": "الحالة",
+      "actions": "إجراءات"
+    },
+    "form": {
+      "addTitle": "إضافة منتج جديد",
+      "editTitle": "تعديل المنتج",
+      "name": "اسم المنتج",
+      "namePlaceholder": "مثال: فستان صيفي",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف جذاب للمنتج...",
+      "category": "القسم (اختياري)",
+      "noCategory": "بدون قسم",
+      "price": "السعر",
+      "pricePlaceholder": "250",
+      "originalPrice": "السعر قبل الخصم (اختياري)",
+      "originalPricePlaceholder": "350",
+      "featured": "منتج مميز (يظهر في الصفحة الرئيسية)",
+      "status": "حالة المنتج",
+      "image": "صورة المنتج الرئيسية",
+      "btnSave": "حفظ",
+      "btnSaving": "جارٍ الحفظ...",
+      "btnCancel": "إلغاء",
+      "saveError": "يجب إضافة متغير واحد على الأقل للمنتج."
+    },
+    "variants": {
+      "title": "المقاسات والألوان",
+      "addBtn": "إضافة متغيّر",
+      "empty": "لا يوجد متغيرات — اضغط \"إضافة متغيّر\" لإضافة مقاس أو لون",
+      "size": "المقاس",
+      "sizeNone": "— بدون —",
+      "color": "اللون",
+      "colorPlaceholder": "اسم اللون",
+      "stock": "الكمية",
+      "btnSave": "حفظ",
+      "btnDelete": "حذف",
+      "images": "صور المتغير",
+      "draftTitle": "المتغيرات والكمية",
+      "draftStockMsg": "إجمالي المخزون المحسوب من المتغيرات: "
+    },
+    "csv": {
+      "title": "استيراد منتجات من CSV",
+      "templateTitle": "نموذج CSV",
+      "templateDesc": "حمّل النموذج واملأه بمنتجاتك — الأعمدة: name, description, price, originalPrice, imageUrl, stock, featured, status",
+      "btnDownload": "تحميل النموذج",
+      "dropzoneTitle": "اسحب ملف CSV هنا أو انقر للاختيار",
+      "dropzoneDesc": "يدعم ملفات .csv فقط",
+      "fileRows": "صف في الملف",
+      "valid": "صالح",
+      "invalid": "خطأ",
+      "btnChangeFile": "تغيير الملف",
+      "colNum": "#",
+      "colName": "الاسم",
+      "colPrice": "السعر",
+      "colStock": "الكمية",
+      "colStatus": "الحالة",
+      "colNote": "ملاحظة",
+      "importing": "جارٍ الاستيراد...",
+      "doneTitle": "اكتمل الاستيراد",
+      "doneMsg": "تم استيراد {{count}} منتج بنجاح",
+      "doneFail": " · فشل {{count}}",
+      "btnClose": "إغلاق",
+      "btnCancel": "إلغاء",
+      "btnImport": "استيراد {{count}} منتج",
+      "errors": {
+        "nameReq": "الاسم مطلوب",
+        "priceInv": "السعر غير صالح"
+      }
+    },
+    "delete": {
+      "title": "هل أنت متأكد من حذف هذا المنتج؟",
+      "desc": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف المنتج وجميع متغيراته وصوره نهائياً.",
+      "btnCancel": "إلغاء",
+      "btnConfirm": "نعم، احذف المنتج",
+      "btnDeleting": "جارٍ الحذف..."
+    },
+    "pricing": {
+      "title": "مستشار التسعير الذكي",
+      "btn": "مستشار التسعير",
+      "claude": "تحليل Claude 3.5 Sonnet",
+      "gemini": "تحليل Gemini 1.5 Pro",
+      "loading": "جارٍ التحليل...",
+      "error": "حدث خطأ"
+    }
+  },
+  "tenants": {
+    "card": {
+      "visitStore": "زيارة المتجر",
+      "active": "نشط"
+    },
+    "categories": {
+      "fashion": "أزياء",
+      "beauty": "جمال",
+      "other": "أخرى"
+    }
+  },
+  "domains": {
+    "title": "النطاق المخصص",
+    "subtitle": "اربط نطاقك الخاص بمتجرك على نور",
+    "status": {
+      "PENDING_DNS": "في انتظار DNS",
+      "VERIFYING": "جاري التحقق",
+      "ACTIVE": "نشط ومفعّل",
+      "FAILED": "فشل التحقق",
+      "REMOVED": "تمت الإزالة"
+    },
+    "locked": {
+      "title": "متاح في خطة برو",
+      "desc": "ربط النطاق المخصص متاح فقط لمشتركي خطة برو",
+      "btnUpgrade": "ترقية إلى برو"
+    },
+    "dns": {
+      "instructions": "أضف السجلات التالية في لوحة إدارة DNS الخاصة بك:",
+      "visitStore": "زيارة المتجر"
+    },
+    "form": {
+      "title": "ربط نطاق جديد",
+      "placeholder": "متجري.com",
+      "btnSubmitting": "جاري الإرسال...",
+      "btnSubmit": "ربط النطاق",
+      "hint": "ستحتاج إلى الوصول لإعدادات DNS لنطاقك لإتمام عملية الربط"
+    },
+    "removeDialog": {
+      "title": "تأكيد الإزالة",
+      "desc": "هل أنت متأكد من إزالة النطاق المخصص؟ سيتوقف المتجر عن العمل على هذا النطاق.",
+      "btnCancel": "إلغاء",
+      "btnRemoving": "جاري الإزالة...",
+      "btnRemove": "إزالة"
+    }
+  },
+  "billing": {
+    "title": "الفوترة والاشتراك",
+    "subtitle": "تفاصيل خطتك الحالية وتجديد الاشتراك",
+    "planNames": {
+      "starter": "ستارتر",
+      "growth": "جروث",
+      "pro": "برو"
+    },
+    "planPrices": {
+      "currency": "ج.م/شهر"
+    },
+    "planFeatures": {
+      "starter": [
+        "50 منتج",
+        "100 طلب/شهر",
+        "دعم أساسي"
+      ],
+      "growth": [
+        "500 منتج",
+        "1000 طلب/شهر",
+        "Paymob",
+        "واتساب"
+      ],
+      "pro": [
+        "غير محدود",
+        "نطاق مخصص",
+        "أولوية الدعم",
+        "تقارير متقدمة"
+      ]
+    },
+    "status": {
+      "active": "نشط",
+      "trial": "تجريبي",
+      "past_due": "متأخر السداد",
+      "suspended": "موقوف",
+      "canceled": "ملغى"
+    },
+    "invStatus": {
+      "draft": "مسودة",
+      "issued": "صادرة",
+      "paid": "مدفوعة",
+      "failed": "فشلت",
+      "voided": "ملغاة"
+    },
+    "transferStatus": {
+      "pending": "قيد المراجعة",
+      "approved": "مقبول",
+      "rejected": "مرفوض"
+    },
+    "banners": {
+      "trialEnded": "انتهت فترتك التجريبية اليوم!",
+      "trialDaysLeft": "تبقّى {{days}} أيام على انتهاء الفترة التجريبية",
+      "trialEndsOn": "تنتهي في {{date}} — حوّل اشتراكك الآن لضمان استمرار متجرك",
+      "suspendedTitle": "متجرك موقوف مؤقتًا",
+      "suspendedDesc": "جدّد اشتراكك بالتحويل البنكي أدناه وسيُعاد تفعيل متجرك فور مراجعة الإدارة."
+    },
+    "bankDetails": {
+      "title": "بيانات التحويل البنكي",
+      "bankName": "اسم البنك",
+      "accountName": "اسم صاحب الحساب",
+      "accountNumber": "رقم الحساب",
+      "instapayText": "أو حوّل عبر Instapay على:"
+    },
+    "form": {
+      "planLabel": "الخطة المراد الاشتراك فيها",
+      "refLabel": "رقم مرجع التحويل *",
+      "refPlaceholder": "مثال: TXN-20240501-123456",
+      "receiptLabel": "إيصال التحويل (صورة — اختياري)",
+      "receiptUploaded": "تم رفع الإيصال",
+      "uploading": "جارٍ الرفع...",
+      "uploadPrompt": "اضغط لرفع صورة الإيصال",
+      "btnSubmitting": "جارٍ الإرسال...",
+      "btnSubmit": "إرسال طلب التجديد",
+      "errUpload": "فشل رفع الصورة، حاول مرة أخرى",
+      "errRefRequired": "أدخل رقم مرجع التحويل",
+      "errSubmit": "فشل إرسال الطلب",
+      "successTitle": "تم إرسال طلبك بنجاح!",
+      "successDesc": "سيتم مراجعته خلال 24 ساعة عمل وسيُعاد تفعيل متجرك فور القبول."
+    },
+    "currentPlan": {
+      "title": "خطتك الحالية",
+      "plan": "الخطة",
+      "status": "الحالة",
+      "price": "السعر الشهري",
+      "trialEnds": "انتهاء التجربة",
+      "nextRenewal": "التجديد القادم",
+      "yourPlan": "خطتك"
+    },
+    "transferRequest": {
+      "title": "إرسال إيصال تحويل بنكي",
+      "pendingBadge": "قيد المراجعة",
+      "pendingNotice": "لديك طلب قيد المراجعة. سيتم تفعيل اشتراكك بعد قبوله."
+    },
+    "transferHistory": {
+      "title": "طلبات التحويل",
+      "ref": "مرجع:"
+    },
+    "invoices": {
+      "title": "سجل الفواتير",
+      "count": "فاتورة",
+      "noInvoices": "لا توجد فواتير بعد"
+    }
+  },
+  "staff": {
+    "title": "إدارة الفريق",
+    "subtitle": "أضف موظفين ومديرين لمتجرك وحدد صلاحياتهم",
+    "inviteLinkBtn": "دعوة برابط",
+    "directInviteBtn": "إضافة مباشر",
+    "roleDesc": {
+      "owner": "وصول كامل — الإعدادات والفوترة وإدارة الفريق",
+      "manager": "إدارة المنتجات والطلبات والعملاء وعرض التقارير",
+      "catalog_manager": "إدارة المنتجات والفئات والمخزون فقط",
+      "order_operator": "عرض الطلبات وتحديث حالتها ومعالجة الشحن",
+      "marketing_analyst": "عرض التقارير والتحليلات والعملاء فقط",
+      "staff": "عرض الطلبات وتحديث حالتها وعرض المنتجات فقط"
+    },
+    "roles": {
+      "owner": "مالك",
+      "manager": "مدير",
+      "catalog_manager": "مدير كتالوج",
+      "order_operator": "موظف طلبات",
+      "marketing_analyst": "محلل تسويق",
+      "staff": "موظف"
+    },
+    "membersList": {
+      "title": "أعضاء الفريق",
+      "memberCount": "عضو",
+      "noMembers": "لا يوجد أعضاء فريق بعد",
+      "addFirst": "أضف أول عضو",
+      "you": "أنت",
+      "joined": "انضم"
+    },
+    "inviteDialog": {
+      "title": "إضافة عضو جديد",
+      "desc": "أدخل بيانات العضو الجديد وحدد دوره في المتجر",
+      "nameLabel": "الاسم (اختياري)",
+      "namePlaceholder": "اسم الموظف",
+      "emailLabel": "البريد الإلكتروني *",
+      "emailPlaceholder": "example@store.com",
+      "passwordLabel": "كلمة المرور *",
+      "passwordPlaceholder": "6 أحرف على الأقل",
+      "roleLabel": "الدور *",
+      "roles": {
+        "manager": "مدير — إدارة كاملة",
+        "catalog_manager": "مدير كتالوج — منتجات ومخزون",
+        "order_operator": "موظف طلبات — معالجة الطلبات",
+        "marketing_analyst": "محلل تسويق — تقارير فقط",
+        "staff": "موظف — صلاحيات محدودة"
+      },
+      "btnInviting": "جارٍ الإضافة...",
+      "btnInvite": "إضافة العضو",
+      "btnCancel": "إلغاء",
+      "error": "حدث خطأ أثناء الإضافة"
+    },
+    "editDialog": {
+      "title": "تغيير الدور",
+      "desc": "حدد الدور الجديد لهذا العضو",
+      "btnSaving": "جارٍ الحفظ...",
+      "btnSave": "حفظ",
+      "error": "حدث خطأ أثناء التحديث"
+    },
+    "linkDialog": {
+      "title": "دعوة برابط",
+      "desc": "أنشئ رابط دعوة لمدة 7 أيام يُرسل للعضو عبر أي قناة",
+      "emailPlaceholder": "employee@store.com",
+      "btnCreating": "جاري الإنشاء...",
+      "btnCreateLink": "إنشاء رابط الدعوة",
+      "successTitle": "تم إنشاء رابط الدعوة!",
+      "btnCopied": "تم النسخ ✓",
+      "btnCopy": "نسخ الرابط",
+      "btnClose": "إغلاق"
+    },
+    "invitations": {
+      "title": "الدعوات المعلّقة",
+      "pendingCount": "معلّقة",
+      "expires": "تنتهي",
+      "status": {
+        "pending": "معلّقة",
+        "accepted": "مقبولة",
+        "expired": "منتهية",
+        "revoked": "ملغاة"
+      }
+    },
+    "deleteDialog": {
+      "title": "تأكيد الحذف",
+      "desc": "هل أنت متأكد من حذف هذا العضو؟ لا يمكن التراجع عن هذا الإجراء.",
+      "btnDeleting": "جارٍ الحذف...",
+      "btnDelete": "حذف",
+      "error": "حدث خطأ أثناء الحذف"
+    }
+  },
+  "settings": {
+    "header": {
+      "title": "إعدادات المتجر",
+      "subtitle": "خصّص مظهر متجرك وبياناته الأساسية",
+      "unsavedChanges": "تغييرات غير محفوظة",
+      "previewStore": "معاينة المتجر",
+      "saving": "جارٍ الحفظ...",
+      "saveChanges": "حفظ التغييرات"
+    },
+    "guide": {
+      "title": "كيف تضبط إعدادات متجرك؟",
+      "desc": "هذه الصفحة تتحكم في كيفية ظهور متجرك للعالم. اضبطها مرة واحدة جيداً وستشعر بالفرق في المبيعات.",
+      "step1Title": "هوية المتجر",
+      "step1Desc": "اسم واضح ووصف جذاب يساعد العملاء على معرفة تخصصك بسرعة.",
+      "step2Title": "الصور والمظهر",
+      "step2Desc": "الشعار وصورة الغلاف هما أول ما يراه العميل — اجعلهما احترافيين.",
+      "step3Title": "اللون الرئيسي",
+      "step3Desc": "اختر لوناً يعكس هوية علامتك وتمسّك به في كل مكان.",
+      "step4Title": "SEO",
+      "step4Desc": "عنوان ووصف البحث يساعدك على الظهور في نتائج Google.",
+      "tip1": "شعار دائري 200×200 بكسل يبدو أفضل في الهاتف.",
+      "tip2": "صورة الغلاف المثالية: 1400×600 بكسل بجودة عالية.",
+      "tip3": "أضف رقم واتساب لزيادة التواصل المباشر مع العملاء."
+    },
+    "nav": {
+      "jumpTo": "انتقل إلى قسم",
+      "sections": "أقسام الإعدادات"
+    },
+    "sections": {
+      "identity": "هوية المتجر",
+      "media": "الصور والمظهر",
+      "colors": "الألوان",
+      "theme": "قالب المتجر",
+      "seo": "تحسين البحث (SEO)",
+      "social": "الروابط الاجتماعية"
+    },
+    "identity": {
+      "storeName": "اسم المتجر *",
+      "storeNamePlaceholder": "بوتيك نور...",
+      "storeLink": "رابط متجرك",
+      "copyLink": "نسخ الرابط",
+      "linkHint": "الرابط ثابت ولا يمكن تغييره بعد إنشاء المتجر",
+      "category": "فئة المتجر",
+      "catFashion": "أزياء 👗",
+      "catCosmetics": "تجميل 💄",
+      "catBoth": "أزياء وتجميل ✨",
+      "city": "المدينة",
+      "cityPlaceholder": "القاهرة...",
+      "desc": "وصف المتجر *",
+      "descPlaceholder": "اكتبي وصفاً يجذب عملاءك — ما الذي يميز متجرك؟",
+      "descHint": "{{count}} / 300 حرف",
+      "fallbackName": "اسم متجرك",
+      "fallbackDesc": "وصف متجرك سيظهر هنا...",
+      "brandColors": "ألوان علامتك التجارية"
+    },
+    "media": {
+      "logo": "شعار المتجر (Logo)",
+      "logoPlaceholder": "رابط صورة الشعار (https://...)",
+      "logoHint": "مربع الأبعاد (مثال: 512x512)",
+      "cover": "صورة الغلاف (Cover)",
+      "coverPlaceholder": "رابط صورة الغلاف",
+      "coverHint": "نسبة 16:9 أو 3:1 (مثال: 1200x400)"
+    },
+    "colors": {
+      "primary": "اللون الرئيسي (Primary Color)",
+      "primaryHint": "لون الأزرار والعناوين والهوية الأساسية",
+      "secondary": "اللون الثانوي (Secondary/Accent Color)",
+      "secondaryHint": "لون التمييز والأيقونات والتفاصيل (اختياري)",
+      "customColor": "أو أدخل كود اللون:",
+      "presetColors": "ألوان مقترحة",
+      "preview": "معاينة:"
+    },
+    "theme": {
+      "title": "قالب المتجر",
+      "desc": "اختر التصميم العام لمتجرك — سيتم تطبيقه على الواجهة فوراً.",
+      "selected": "محدد",
+      "select": "اختيار"
+    },
+    "seo": {
+      "titleTag": "عنوان الصفحة (Title Tag)",
+      "titlePlaceholder": "متجر نور للأزياء — أحدث الموضة المصرية",
+      "titleHint": "{{count}}/70 حرف • يظهر في نتائج Google",
+      "metaDesc": "وصف الصفحة (Meta Description)",
+      "metaPlaceholder": "اكتشفي أحدث صيحات الموضة المصرية...",
+      "metaHint": "{{count}}/160 حرف • يظهر تحت العنوان في Google",
+      "previewTitle": "معاينة Google",
+      "save": "حفظ SEO",
+      "saving": "جارٍ الحفظ...",
+      "success": "تم تحديث إعدادات SEO بنجاح.",
+      "error": "حدث خطأ"
+    },
+    "social": {
+      "title": "الروابط الاجتماعية ومعلومات التواصل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "save": "حفظ الروابط",
+      "saving": "جارٍ الحفظ...",
+      "success": "تم تحديث الروابط الاجتماعية.",
+      "error": "حدث خطأ"
+    },
+    "messages": {
+      "saveSuccess": "تم الحفظ ✓",
+      "saveSuccessDesc": "تم تحديث إعدادات متجرك بنجاح.",
+      "saveError": "حدث خطأ",
+      "saveErrorDesc": "تعذّر حفظ الإعدادات. حاول مرة أخرى."
+    },
+    "themes": {
+      "classic_name": "كلاسيكي",
+      "classic_desc": "تدرج لوني دافئ، بطاقات مستديرة، حيوي وعصري",
+      "luxe_name": "فاخر",
+      "luxe_desc": "أسود راقٍ، تصميم افتتاحي، فاخر وجريء",
+      "minimal_name": "مينيمال",
+      "minimal_desc": "أبيض ناصع، خطوط رفيعة، مسافات واسعة",
+      "vibrant_name": "حيوي",
+      "vibrant_desc": "ألوان جريئة، أشكال دائرية، نابض بالطاقة",
+      "boutique_name": "بوتيك",
+      "boutique_desc": "كريمي دافئ، دائري، أجواء بوتيك راقٍ",
+      "elegant_name": "أنيق",
+      "elegant_desc": "تدرج هادئ، بطاقات طويلة وأنيقة، حديث",
+      "royal_name": "ملكي",
+      "royal_desc": "كحلي غامق، نقوش هندسية، نبرة ملكية فاخرة",
+      "magazine_name": "مجلة",
+      "magazine_desc": "تصميم افتتاحي، مقسّم، مثل غلاف مجلة موضة",
+      "retro_name": "ريترو",
+      "retro_desc": "خمور دافئة، تصميم كلاسيكي، بطاقات بإطار سميك",
+      "pastel_name": "باستيل",
+      "pastel_desc": "ألوان ناعمة وحالمة، بطاقات مستديرة شفافة",
+      "neon_name": "نيون",
+      "neon_desc": "أسود فاحم، بطاقات بتوهج نيون، جريء وحضري",
+      "street_name": "ستريت",
+      "street_desc": "داكن جريء، 2 أعمدة، خامات حضرية شبابية",
+      "summer_name": "صيفي",
+      "summer_desc": "مشرق ومفعم بالحيوية، مربعات ملوّنة، صيفي",
+      "nature_name": "طبيعي",
+      "nature_desc": "خضرة هادئة، بطاقات عضوية، طبيعي وأصيل",
+      "glass_name": "زجاجي",
+      "glass_desc": "خلفية متدرجة، بطاقات زجاجية شفافة مضبّبة",
+      "craft_name": "كرافت",
+      "craft_desc": "خامة كرافت دافئة، حدود منقطة، صنع يدوي",
+      "sporty_name": "رياضي",
+      "sporty_desc": "خطوط قطرية، صور مربعة، طاقة رياضية جريئة",
+      "heritage_name": "تراثي",
+      "heritage_desc": "أخضر تراثي، نقوش هندسية، أصالة وتراث",
+      "salon_name": "صالون",
+      "salon_desc": "تدرج لطيف، صور دائرية، مظهر تجميل أنثوي",
+      "bold_name": "جريء",
+      "bold_desc": "تقسيم افتتاحي ضخم، 2 أعمدة كبيرة، مؤثر"
+    },
+    "livePreview": {
+      "title": "معاينة مباشرة",
+      "pendingChanges": "تغييرات معلّقة",
+      "qrTitle": "QR Code متجرك",
+      "download": "تنزيل بجودة عالية",
+      "qrHint": "ضعي هذا الـ QR Code على منتجاتك أو بطاقاتك الشخصية",
+      "tipsTitle": "💡 نصائح",
+      "tip1": "• الشعار المربع يظهر بشكل أفضل (1:1)",
+      "tip2": "• صورة الغلاف المثالية 1200×400 بكسل",
+      "tip3": "• الوصف القصير والجذاب يزيد المبيعات",
+      "tip4": "• اختر لوناً يعكس هوية علامتك"
+    },
+    "presets": {
+      "pink": "وردي أصيل",
+      "purple": "بنفسجي ملكي",
+      "blue": "أزرق سماوي",
+      "green": "أخضر زمردي",
+      "gold": "ذهبي رملي",
+      "red": "أحمر ياقوت",
+      "lightPink": "وردي فاتح",
+      "navy": "كحلي أنيق",
+      "warmGold": "ذهبي دافئ",
+      "teal": "تيل فيروزي",
+      "orange": "برتقالي",
+      "gray": "رمادي",
+      "black": "أسود",
+      "lightPurple": "بنفسجي فاتح"
+    }
+  },
+  "productDetail": {
+    "notFound": "المنتج غير موجود",
+    "notFoundDesc": "لم يتم العثور على المنتج المطلوب.",
+    "backToProducts": "العودة للمنتجات",
+    "outOfStockBadge": "نفذت الكمية",
+    "discount": "خصم",
+    "size": "المقاس",
+    "color": "اللون",
+    "stock": "المخزون:",
+    "availablePieces": "قطعة متاحة",
+    "outOfStock": "نفذت الكمية",
+    "outOfStockShort": "نفذت",
+    "variantAvailable": "متغيّر متاح",
+    "variantsAvailable": "متغيّر متاح",
+    "selectSizeFirst": "اختاري المقاس أولاً",
+    "selectColor": "اختاري اللون",
+    "selectSizeColorFirst": "اختاري المقاس/اللون أولاً",
+    "addedToCart": "تمت الإضافة للسلة ✓",
+    "addToCart": "أضف للسلة",
+    "orderOnWhatsapp": "اطلب على واتساب",
+    "reviews": "آراء العملاء",
+    "ratings": "تقييم",
+    "noReviewsYet": "لا توجد تقييمات بعد",
+    "beFirstToReview": "كوني أول من يقيّم هذا المنتج",
+    "writeReview": "اكتبي تقييمك",
+    "thanksForReview": "شكراً على تقييمك!",
+    "reviewPendingReview": "سيظهر تقييمك بعد مراجعته",
+    "addAnotherReview": "إضافة تقييم آخر",
+    "ratingLabel": "التقييم *",
+    "nameLabel": "اسمك *",
+    "namePlaceholder": "فاطمة محمد",
+    "emailLabel": "بريدك الإلكتروني *",
+    "emailPlaceholder": "fatima@example.com",
+    "opinionLabel": "رأيك (اختياري)",
+    "opinionPlaceholder": "شاركي تجربتك مع هذا المنتج...",
+    "sendReview": "إرسال التقييم",
+    "sending": "جارٍ الإرسال...",
+    "reviewApprovalNote": "سيظهر تقييمك بعد مراجعته من صاحب المتجر",
+    "whatsappMsgPrefix": "مرحباً 👋، أريد الاستفسار عن المنتج:",
+    "whatsappMsgPrice": "السعر:",
+    "whatsappMsgVariant": "— المقاس/اللون:",
+    "pieces": "قطعة"
+  },
+  "categories": {
+    "types": {
+      "fashion": "أزياء",
+      "cosmetics": "تجميل"
+    },
+    "form": {
+      "nameArLabel": "الاسم العربي",
+      "nameArPlaceholder": "فساتين",
+      "nameLabel": "الاسم الداخلي (إنجليزي)",
+      "namePlaceholder": "Dresses",
+      "typeLabel": "النوع",
+      "parentLabel": "الفئة الأم (اختياري)",
+      "parentPlaceholder": "فئة رئيسية",
+      "parentNone": "بدون (فئة رئيسية)",
+      "imageLabel": "صورة الفئة",
+      "btnEdit": "حفظ التعديلات",
+      "btnAdd": "إضافة الفئة"
+    },
+    "page": {
+      "title": "الفئات",
+      "subtitle": "إدارة فئات المنتجات التي تظهر في المتجر",
+      "btnAdd": "إضافة فئة",
+      "addTitle": "إضافة فئة جديدة",
+      "editTitle": "تعديل الفئة",
+      "empty": "لا توجد فئات بعد"
+    },
+    "card": {
+      "productCount": "منتج",
+      "subOf": "فرعية من:",
+      "btnProducts": "المنتجات",
+      "btnEdit": "تعديل"
+    }
+  },
+  "orders": {
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "shipped": "تم الشحن",
+      "delivered": "تم التوصيل",
+      "cancelled": "ملغي"
+    },
+    "page": {
+      "title": "الطلبات",
+      "subtitle": "إدارة ومتابعة جميع الطلبات الواردة من متجرك"
+    },
+    "guide": {
+      "title": "كيف تدير طلباتك؟",
+      "description": "هنا تجد كل الطلبات التي وردت من متجرك. انقر على أي طلب لعرض تفاصيله وتحديث حالته.",
+      "step1": {
+        "title": "استلام الطلب",
+        "desc": "عند ورود طلب جديد ستصلك إشعار — تأكد من مراجعته خلال 24 ساعة."
+      },
+      "step2": {
+        "title": "تأكيد وتحضير",
+        "desc": "غير الحالة إلى «مؤكد» عند التحقق من الطلب وبدء التحضير."
+      },
+      "step3": {
+        "title": "الشحن والتوصيل",
+        "desc": "عند الإرسال للشحن غير الحالة إلى «تم الشحن» وأضف رقم التتبع."
+      },
+      "step4": {
+        "title": "ما بعد التوصيل",
+        "desc": "تابع مع العميل للتأكد من رضاه وشجعه على ترك تقييم."
+      },
+      "tips": [
+        "رد على طلبات COD خلال ساعتين لتقليل نسبة الإلغاء.",
+        "استخدم فلتر «قيد الانتظار» لعرض الطلبات التي تحتاج اهتماماً فورياً.",
+        "أرسل رسالة واتساب للعميل فور تأكيد طلبه لبناء الثقة."
+      ]
+    },
+    "search": {
+      "placeholder": "بحث بالرقم أو اسم العميل..."
+    },
+    "filter": {
+      "all": "الكل"
+    },
+    "list": {
+      "orderCount": "طلب",
+      "orderNum": "طلب #",
+      "unknownCustomer": "عميل غير معروف",
+      "productCount": "منتج",
+      "empty": "لا توجد طلبات"
+    }
+  },
+  "orderDetail": {
+    "status": {
+      "pending": "قيد الانتظار",
+      "awaiting_confirmation": "بانتظار التأكيد",
+      "confirmed": "مؤكد",
+      "dispatched": "تم الإرسال",
+      "shipped": "تم الشحن",
+      "delivered": "تم التوصيل",
+      "cancelled": "ملغي",
+      "returned": "مُعاد"
+    },
+    "paymentStatus": {
+      "pending": "لم يُدفع بعد",
+      "paid": "تم الدفع",
+      "failed": "فشل الدفع"
+    },
+    "method": {
+      "phone": "مكالمة هاتفية",
+      "whatsapp": "واتساب",
+      "email": "بريد إلكتروني",
+      "other": "أخرى"
+    },
+    "history": {
+      "title": "سجل حالة الطلب",
+      "now": "الآن"
+    },
+    "msgTypes": {
+      "confirmation": "تأكيد الطلب",
+      "shipping": "تحديث الشحن",
+      "followup": "متابعة بعد التوصيل"
+    },
+    "ai": {
+      "title": "مسودة رسالة بالذكاء الاصطناعي",
+      "btnGenerate": "اكتب الرسالة",
+      "btnGenerating": "جاري الكتابة...",
+      "loading": "الذكاء الاصطناعي يكتب رسالة مخصصة...",
+      "error": "حدث خطأ",
+      "btnCopy": "نسخ الرسالة",
+      "btnCopied": "تم النسخ ✅",
+      "btnWhatsapp": "إرسال عبر واتساب"
+    },
+    "contact": {
+      "title": "محاولات التواصل",
+      "btnAdd": "تسجيل محاولة",
+      "notePlaceholder": "ملاحظة اختيارية...",
+      "btnSave": "حفظ المحاولة",
+      "btnSaving": "جارٍ...",
+      "btnCancel": "إلغاء",
+      "empty": "لم يتم تسجيل أي محاولة تواصل بعد"
+    },
+    "cod": {
+      "rate": "معدل تأكيد COD:",
+      "trusted": "عميل موثوق",
+      "medium": "خطر متوسط",
+      "high": "خطر عالٍ!",
+      "confirmed": "مؤكد",
+      "cancelled": "ملغي",
+      "callFirst": "اتصل للتأكيد قبل الشحن",
+      "verifyFirst": "تحقق بعناية قبل الشحن"
+    },
+    "whatsapp": {
+      "title": "تأكيد الطلب على واتساب",
+      "placeholder": "رقم واتساب العميل",
+      "btnSend": "إرسال",
+      "btnSending": "جارٍ...",
+      "help": "إذا كان واتساب Business API مُهيأً سيُرسَل تلقائياً — وإلا سيفتح رابط الإرسال اليدوي",
+      "btnManual": "فتح واتساب وإرسال الرسالة",
+      "successConfigured": "تم إرسال الرسالة تلقائياً عبر واتساب API ✅",
+      "successManual": "افتح رابط واتساب لإرسال التأكيد يدوياً",
+      "error": "حدث خطأ — حاول مرة أخرى",
+      "missingPhone": "أدخل رقم الهاتف أولاً"
+    },
+    "bosta": {
+      "title": "إنشاء شحنة بوسطة",
+      "badge": "مُشحون",
+      "successLabel": "تم إنشاء الشحنة — رقم التتبع:",
+      "btnTrack": "تتبع الشحنة",
+      "phonePlaceholder": "رقم هاتف العميل",
+      "cityPlaceholder": "المدينة (Cairo)",
+      "btnCreate": "إنشاء شحنة بوسطة",
+      "btnCreating": "جارٍ إنشاء الشحنة...",
+      "btnReturn": "فتح قضية إرجاع / استبدال",
+      "missingPhone": "أدخل رقم الهاتف أولاً",
+      "success": "تم إنشاء الشحنة ✅ رقم التتبع: {trackingNumber}",
+      "errorUnconfigured": "Bosta غير مُهيأ — أضف BOSTA_API_KEY",
+      "error": "حدث خطأ أثناء إنشاء الشحنة"
+    },
+    "page": {
+      "back": "العودة للطلبات",
+      "orderId": "طلب #",
+      "notFound": "الطلب غير موجود"
+    },
+    "card": {
+      "customerTitle": "معلومات العميل",
+      "whatsapp": "واتساب",
+      "shippingTitle": "عنوان الشحن",
+      "itemsTitle": "منتجات الطلب",
+      "quantity": "الكمية:",
+      "totalTitle": "الإجمالي",
+      "statusPlaceholder": "تحديث حالة الطلب...",
+      "btnUpdate": "تحديث",
+      "btnUpdating": "جارٍ..."
+    }
+  },
+  "customers": {
+    "page": {
+      "title": "العملاء",
+      "subtitle": "قاعدة بيانات عملاء المتجر مع معدل تأكيد الدفع عند الاستلام"
+    },
+    "guide": {
+      "title": "فهم قاعدة عملائك",
+      "description": "هنا تجد كل عميل سبق وأجرى طلباً. ابحث عن أي عميل واطّلع على سجل مشترياته ومعدل التأكيد.",
+      "tips": [
+        "العملاء ذوو معدل تأكيد منخفض (أقل 50%) — تابع معهم قبل التغليف.",
+        "العملاء المتكررون هم كنزك الحقيقي — أرسل لهم عروضاً خاصة.",
+        "رقم الهاتف المتحقق منه يعني عميلاً أكثر مصداقية لطلبات COD."
+      ]
+    },
+    "search": {
+      "placeholder": "بحث باسم العميل أو البريد الإلكتروني..."
+    },
+    "list": {
+      "customerCount": "عميل",
+      "empty": "لا يوجد عملاء"
+    },
+    "card": {
+      "repeated": "متكرر",
+      "ordersCount": "طلب",
+      "codConfirmTitle": "تأكيد",
+      "codTitle": "طلبات COD: {totalCod} | مؤكدة: {confirmed} | ملغية: {cancelled}",
+      "riskHigh": "خطر عالٍ — معدل إلغاء مرتفع، تأكد قبل الشحن",
+      "riskMedium": "خطر متوسط — اتصل بالعميل قبل الشحن"
+    }
+  },
+  "returns": {
+    "page": {
+      "title": "المرتجعات والاستبدال",
+      "subtitle": "تتبع طلبات الإرجاع والاستبدال لطلباتك"
+    },
+    "status": {
+      "REQUESTED": "مطلوب",
+      "APPROVED": "موافق",
+      "REJECTED": "مرفوض",
+      "RECEIVED": "مستلم",
+      "RESOLVED": "محلول"
+    },
+    "btnNew": "طلب إرجاع جديد",
+    "create": {
+      "title": "طلب إرجاع / استبدال جديد",
+      "orderId": "رقم الطلب",
+      "orderIdPlaceholder": "ادخل رقم الطلب",
+      "reason": "سبب الإرجاع",
+      "reasonPlaceholder": "مثال: منتج تالف / مقاس خاطئ",
+      "note": "ملاحظات (اختياري)",
+      "notePlaceholder": "تفاصيل إضافية...",
+      "btnCancel": "إلغاء",
+      "btnCreate": "إنشاء الطلب"
+    },
+    "update": {
+      "title": "تحديث طلب الإرجاع #{id}",
+      "newStatus": "الحالة الجديدة",
+      "note": "ملاحظة",
+      "btnCancel": "إلغاء",
+      "btnSave": "حفظ التغييرات"
+    },
+    "search": {
+      "placeholder": "بحث برقم الطلب أو اسم العميل أو السبب..."
+    },
+    "list": {
+      "emptySearch": "لا توجد نتائج مطابقة",
+      "empty": "لا توجد طلبات إرجاع بعد",
+      "returnNum": "إرجاع #",
+      "orderNum": "طلب #",
+      "btnOrder": "الطلب",
+      "btnUpdate": "تحديث"
+    },
+    "toast": {
+      "createSuccess": "تم إنشاء طلب الإرجاع",
+      "updateSuccess": "تم تحديث الحالة",
+      "fetchError": "فشل جلب طلبات الإرجاع",
+      "actionError": "فشل"
+    }
+  },
+  "shippingRules": {
+    "page": {
+      "title": "قواعد الشحن",
+      "subtitle": "حدد تكاليف الشحن حسب المحافظة أو المدينة"
+    },
+    "btnAdd": "إضافة منطقة",
+    "form": {
+      "governorate": "المحافظة",
+      "city": "المدينة / المنطقة (اختياري)",
+      "cityPlaceholder": "مثال: مدينة نصر",
+      "cost": "تكلفة الشحن",
+      "days": "أيام التسليم",
+      "enable": "تفعيل هذه المنطقة",
+      "btnCancel": "إلغاء",
+      "btnSave": "حفظ"
+    },
+    "settings": {
+      "title": "الإعدادات العامة للشحن",
+      "defaultCost": "تكلفة الشحن الافتراضية",
+      "freeMin": "الحد الأدنى للشحن المجاني",
+      "freeMinPlaceholder": "اتركه فارغاً لتعطيل",
+      "freeEnable": "تفعيل الشحن المجاني",
+      "freeEnableDesc": "يُطبَّق عند تجاوز قيمة الطلب للحد الأدنى",
+      "btnSave": "حفظ الإعدادات"
+    },
+    "stats": {
+      "totalZones": "إجمالي المناطق",
+      "activeZones": "المناطق المفعّلة",
+      "govCoverage": "تغطية المحافظات"
+    },
+    "list": {
+      "title": "مناطق الشحن",
+      "empty": "لا توجد مناطق شحن بعد",
+      "btnAddFirst": "إضافة أول منطقة",
+      "disabled": "معطّل",
+      "deliveryDays": "أيام تسليم"
+    },
+    "toast": {
+      "createSuccess": "تم إنشاء منطقة الشحن",
+      "updateSuccess": "تم التحديث",
+      "deleteSuccess": "تم حذف المنطقة",
+      "settingsSuccess": "تم حفظ الإعدادات",
+      "fetchError": "فشل",
+      "deleteError": "فشل الحذف"
+    }
+  },
+  "inventoryAlerts": {
+    "page": {
+      "title": "تنبيهات المخزون",
+      "subtitle": "راقب المنتجات منخفضة المخزون وأرسل تذكيراً لنفسك"
+    },
+    "btnSendWhatsApp": "إرسال ملخص واتساب",
+    "stats": {
+      "outOfStock": "نفذ المخزون",
+      "critical": "حرج (1–3 قطع)",
+      "lowStock": "منخفض المخزون",
+      "total": "إجمالي المنتجات"
+    },
+    "settings": {
+      "title": "الحد الافتراضي للتنبيه",
+      "subtitle": "سيتم تنبيهك عندما يصل مخزون أي منتج إلى هذا الرقم أو أقل",
+      "unit": "قطعة",
+      "btnSave": "حفظ"
+    },
+    "empty": {
+      "title": "مخزونك ممتاز!",
+      "subtitle": "جميع منتجاتك فوق الحد الأدنى المحدد ({threshold} قطع)"
+    },
+    "list": {
+      "title": "المنتجات التي تحتاج إعادة تخزين",
+      "productCount": "({count} منتج)",
+      "table": {
+        "product": "المنتج",
+        "stock": "المخزون",
+        "level": "المستوى",
+        "threshold": "الحد",
+        "status": "الحالة",
+        "action": "إجراء"
+      },
+      "defaultThreshold": "(افتراضي)",
+      "btnEdit": "تعديل الحد"
+    },
+    "badge": {
+      "outOfStock": "نفذ",
+      "critical": "حرج",
+      "low": "منخفض"
+    },
+    "dialog": {
+      "title": "تعديل حد التنبيه",
+      "product": "منتج:",
+      "threshold": "الحد الأدنى للمخزون",
+      "unit": "قطعة",
+      "defaultNote": "الحد الافتراضي للمتجر: {threshold} قطع. ",
+      "btnRemove": "حذف التخصيص",
+      "btnCancel": "إلغاء",
+      "btnSave": "حفظ"
+    },
+    "whatsapp": {
+      "title": "إرسال ملخص واتساب",
+      "subtitle": "سيتم إرسال قائمة بـ {count} منتج منخفض المخزون إلى رقم واتساب",
+      "phone": "رقم واتساب",
+      "phoneNote": "أدخلي رقمك لإرسال تذكير لنفسك، أو رقم المورد",
+      "btnCancel": "إلغاء",
+      "btnOpen": "فتح واتساب"
+    }
+  },
+  "analytics": {
+    "page": {
+      "title": "التحليلات والأداء",
+      "subtitle": "نظرة شاملة على أداء متجرك",
+      "requireLogin": "يجب تسجيل الدخول لعرض التحليلات"
+    },
+    "presets": {
+      "days7": "7 أيام",
+      "days30": "30 يوم",
+      "days90": "90 يوم"
+    },
+    "toast": {
+      "fetchError": "فشل جلب التحليلات"
+    },
+    "stockStatus": {
+      "outOfStock": "نفد المخزون",
+      "lowStock": "مخزون منخفض",
+      "ok": "متاح"
+    },
+    "kpi": {
+      "totalOrders": "إجمالي الطلبات",
+      "grossRevenue": "الإيراد الإجمالي",
+      "netRevenue": "الإيراد الصافي",
+      "netRevenueSub": "مستبعداً الملغي والمُعاد",
+      "avgOrderValue": "متوسط قيمة الطلب",
+      "cancellationRate": "معدل الإلغاء",
+      "returnRate": "معدل الإرجاع",
+      "repeatCustomerCount": "عملاء متكررون",
+      "repeatCustomerSub": "طلبوا أكثر من مرة",
+      "openReturnCases": "طلبات إرجاع مفتوحة"
+    },
+    "charts": {
+      "salesByDay": "المبيعات اليومية",
+      "orderStatus": "حالات الطلبات",
+      "revenueTooltip": "الإيراد",
+      "topProducts": "أفضل المنتجات مبيعاً",
+      "noSales": "لا توجد مبيعات في هذه الفترة",
+      "units": "وحدة",
+      "lowStock": "مخزون منخفض / نافد",
+      "noLowStock": "لا توجد منتجات بمخزون منخفض 👍",
+      "remaining": "متبقٍ:",
+      "outOf": "من",
+      "productRevenue": "مقارنة إيرادات المنتجات"
+    }
+  },
+  "discounts": {
+    "page": {
+      "title": "أكواد الخصم",
+      "subtitle": "أنشئ وأدّر أكواد خصم لتشجيع العملاء على الشراء"
+    },
+    "btnNew": "كود جديد",
+    "stats": {
+      "total": "إجمالي الأكواد",
+      "active": "أكواد نشطة",
+      "used": "مرات الاستخدام"
+    },
+    "empty": {
+      "title": "لا توجد أكواد خصم",
+      "subtitle": "أنشئ أول كود خصم لعملائك"
+    },
+    "badge": {
+      "percentage": "{value}% خصم",
+      "fixed": "{value} ج.م خصم",
+      "freeShipping": "شحن مجاني"
+    },
+    "list": {
+      "minOrder": "حد أدنى: {value} {currency}",
+      "usage": "{used}/{max} استخدام",
+      "usageUnlimited": "{used} استخدام",
+      "expired": "منتهي الصلاحية",
+      "expiresAt": "ينتهي {date}",
+      "exhausted": "استُنفد"
+    },
+    "dialog": {
+      "createTitle": "كود خصم جديد",
+      "editTitle": "تعديل كود الخصم",
+      "code": "كود الخصم *",
+      "btnRandom": "عشوائي",
+      "type": "نوع الخصم *",
+      "typePercentage": "نسبة مئوية %",
+      "typeFixed": "مبلغ ثابت ج.م",
+      "typeFreeShipping": "شحن مجاني",
+      "valuePercentage": "نسبة الخصم (1-100) *",
+      "valueFixed": "مبلغ الخصم (ج.م) *",
+      "minOrder": "حد أدنى للطلب (ج.م)",
+      "minOrderPlaceholder": "اختياري",
+      "maxUses": "أقصى عدد استخدامات",
+      "maxUsesPlaceholder": "بلا حدود",
+      "expiresAt": "تاريخ انتهاء الصلاحية",
+      "btnCancel": "إلغاء",
+      "btnCreate": "إنشاء الكود",
+      "btnSave": "حفظ التعديلات"
+    },
+    "delete": {
+      "title": "حذف كود الخصم",
+      "desc": "هل تريد حذف الكود {code}؟ لا يمكن التراجع.",
+      "btnCancel": "إلغاء",
+      "btnConfirm": "حذف"
+    },
+    "errors": {
+      "codeRequired": "الكود مطلوب",
+      "valueRequired": "القيمة مطلوبة",
+      "valueMax": "النسبة لا تتجاوز 100%"
+    },
+    "toast": {
+      "fetchError": "فشل الجلب",
+      "saveError": "فشل الحفظ",
+      "updateError": "فشل التحديث"
+    }
+  },
+  "abandonedCarts": {
+    "page": {
+      "title": "سلات التسوق المتروكة",
+      "subtitle": "تابع العملاء الذين أضافوا منتجات ولم يكملوا الشراء"
+    },
+    "stats": {
+      "abandoned": "سلات متروكة",
+      "lostValue": "قيمة ضائعة ({currency})",
+      "withPhone": "لديهم واتساب",
+      "active": "نشطة الآن"
+    },
+    "tabs": {
+      "abandoned": "متروكة",
+      "active": "نشطة"
+    },
+    "empty": {
+      "abandonedTitle": "لا توجد سلات متروكة",
+      "activeTitle": "لا توجد سلات نشطة حالياً",
+      "abandonedDesc": "ممتاز! جميع العملاء أكملوا طلباتهم",
+      "activeDesc": "لا يوجد عملاء في منتصف التسوق الآن"
+    },
+    "timeAgo": {
+      "minutes": "منذ {minutes} دقيقة",
+      "hours": "منذ {hours} ساعة",
+      "days": "منذ {days} يوم"
+    },
+    "customer": {
+      "anonymous": "زائر مجهول",
+      "noContact": "لا تفاصيل تواصل"
+    },
+    "cart": {
+      "abandoned": "متروكة",
+      "active": "نشطة",
+      "itemsMore": "+{count} منتجات",
+      "emptyCart": "سلة فارغة",
+      "productCount": "{count} منتج",
+      "btnWhatsapp": "واتساب",
+      "btnNoPhone": "لا رقم"
+    },
+    "whatsappTip": {
+      "title": "يمكنك الوصول إلى {count} عميل عبر واتساب",
+      "desc": "اضغط على 'واتساب' بجانب أي سلة لفتح رسالة تذكير جاهزة — سيفتح واتساب ويب مباشرةً في متصفحك"
+    },
+    "toast": {
+      "remindError": "فشل"
+    }
+  },
+  "growth": {
+    "page": {
+      "title": "ارتقِ بمتجرك",
+      "subtitle": "قارن الخطط واختر ما يناسب نشاطك التجاري"
+    },
+    "plans": {
+      "starter": {
+        "name": "ستارتر",
+        "f1": "50 منتج",
+        "f2": "100 طلب/شهر",
+        "f3": "متجر إلكتروني",
+        "f4": "دعم بريد إلكتروني"
+      },
+      "growth": {
+        "name": "جروث",
+        "f1": "500 منتج",
+        "f2": "1000 طلب/شهر",
+        "f3": "تكامل Paymob",
+        "f4": "تكامل واتساب",
+        "f5": "أتمتة الرسائل",
+        "f6": "تقارير متقدمة"
+      },
+      "pro": {
+        "name": "برو",
+        "f1": "منتجات غير محدودة",
+        "f2": "طلبات غير محدودة",
+        "f3": "نطاق مخصص",
+        "f4": "جميع مميزات جروث",
+        "f5": "أولوية الدعم الفني",
+        "f6": "تصدير البيانات"
+      }
+    },
+    "status": {
+      "currentPlan": "خطتك الحالية",
+      "trial": "فترة تجريبية نشطة",
+      "active": "اشتراك نشط"
+    },
+    "cards": {
+      "bestFor": "الأفضل للمتاجر الناجحة ✨",
+      "yourPlan": "خطتك",
+      "currency": "{currency} / شهر",
+      "btnCurrent": "خطتك الحالية",
+      "btnUpgrade": "الترقية الآن",
+      "btnPrevious": "خطة سابقة"
+    },
+    "matrix": {
+      "title": "مقارنة مفصّلة للمميزات",
+      "feature": "الميزة",
+      "yourPlan": "خطتك"
+    },
+    "features": {
+      "products": "عدد المنتجات",
+      "productsV1": "50",
+      "productsV2": "500",
+      "productsV3": "غير محدود",
+      "orders": "الطلبات الشهرية",
+      "ordersV1": "100",
+      "ordersV2": "1,000",
+      "ordersV3": "غير محدود",
+      "paymob": "تكامل Paymob",
+      "whatsapp": "تكامل واتساب",
+      "pixels": "بيكسلات التتبع",
+      "domain": "نطاق مخصص",
+      "export": "تصدير البيانات",
+      "automation": "أتمتة التسويق"
+    }
+  },
+  "affiliates": {
+    "page": {
+      "title": "برنامج المؤثرين والعمولات",
+      "subtitle": "أنشئ كوداً فريداً لكل مؤثر، تتبع مبيعاته، واحسب عمولته تلقائياً",
+      "btnAdd": "إضافة مؤثر"
+    },
+    "stats": {
+      "affiliates": "مؤثرون",
+      "orders": "طلب محوّل",
+      "commissionDue": "عمولة مستحقة {currency}"
+    },
+    "empty": {
+      "title": "لم تضف أي مؤثر بعد",
+      "desc": "أضف مؤثراً وسيُنشأ له كود خصم تلقائياً — تتبع مبيعاته وعمولاته من هنا",
+      "btnAddFirst": "إضافة أول مؤثر"
+    },
+    "list": {
+      "inactive": "متوقف",
+      "promoCode": "كود الخصم:",
+      "uses": "استخدامات",
+      "revenue": "إيرادات",
+      "commission": "العمولة",
+      "due": "مستحق",
+      "toggleActive": "تفعيل",
+      "toggleInactive": "إيقاف",
+      "flatPerOrder": "{value} {currency}/طلب"
+    },
+    "howItWorks": {
+      "title": "كيف يعمل البرنامج؟",
+      "s1Title": "أضف مؤثراً",
+      "s1Desc": "أدخل اسمه وحسابه وكود الخصم الخاص به",
+      "s2Title": "شارك الكود",
+      "s2Desc": "يستخدم متابعوه الكود عند الشراء من متجرك",
+      "s3Title": "تتبع وادفع",
+      "s3Desc": "ترى إيراداته وعمولته تلقائياً — ادفعها له شهرياً"
+    },
+    "form": {
+      "title": "إضافة مؤثر جديد",
+      "name": "اسم المؤثر *",
+      "namePlaceholder": "سارة أحمد",
+      "handle": "حساب التواصل *",
+      "handlePlaceholder": "@sara_style",
+      "platform": "المنصة",
+      "platformOther": "أخرى",
+      "promoSection": "كود الخصم للمؤثر",
+      "promoCode": "كود الخصم (يُنشأ تلقائياً للمؤثر) *",
+      "promoHint": "يُشارَك مع المتابعين — لا يمكن تكراره",
+      "discountType": "نوع الخصم",
+      "discountTypePercent": "نسبة مئوية %",
+      "discountTypeFixed": "مبلغ ثابت {currency}",
+      "discountValue": "قيمة الخصم",
+      "commissionSection": "عمولة المؤثر",
+      "commissionType": "نوع العمولة",
+      "commissionTypePercent": "% من الإيراد",
+      "commissionTypeFlat": "مبلغ ثابت / طلب",
+      "commissionValue": "القيمة",
+      "commissionHintPercent": "المؤثر يحصل على {value}% من قيمة كل طلب يُحوّله",
+      "commissionHintFlat": "المؤثر يحصل على {value} {currency} عن كل طلب مكتمل",
+      "notes": "ملاحظات (اختياري)",
+      "notesPlaceholder": "تعاون شهري، يغطي فئة الفساتين...",
+      "btnCancel": "إلغاء",
+      "btnAdd": "إضافة المؤثر",
+      "btnAdding": "جاري الإنشاء..."
+    },
+    "delete": {
+      "title": "حذف المؤثر",
+      "desc": "سيتم حذف المؤثر من قائمتك. كود الخصم الخاص به سيظل موجوداً في صفحة الخصومات.",
+      "btnCancel": "إلغاء",
+      "btnDelete": "حذف",
+      "btnDeleting": "جاري الحذف..."
+    },
+    "toast": {
+      "fetchError": "فشل تحميل المؤثرين",
+      "createSuccess": "تم إضافة المؤثر",
+      "createSuccessDesc": "تم إنشاء الكود تلقائياً وربطه بالمؤثر",
+      "createError": "فشل الإنشاء",
+      "updateError": "فشل التحديث",
+      "deleteSuccess": "تم الحذف",
+      "deleteError": "فشل الحذف",
+      "errorTitle": "خطأ",
+      "validationError": "الاسم والحساب وكود الخصم مطلوبة"
+    },
+    "copy": {
+      "copy": "نسخ",
+      "copied": "تم النسخ"
+    }
+  },
+  "automation": {
+    "page": {
+      "title": "الأتمتة والقواعد",
+      "subtitle": "أتمتة المهام المتكررة لتوفير وقتك",
+      "btnNewRule": "قاعدة جديدة"
+    },
+    "triggers": {
+      "order_created": "عند إنشاء طلب جديد",
+      "status_changed_to_confirmed": "عند تأكيد الطلب",
+      "status_changed_to_dispatched": "عند شحن الطلب",
+      "status_changed_to_delivered": "عند تسليم الطلب",
+      "status_changed_to_cancelled": "عند إلغاء الطلب",
+      "awaiting_confirmation_timeout": "عند انتهاء مهلة التأكيد",
+      "failed_contact_attempt": "بعد محاولة تواصل فاشلة"
+    },
+    "actions": {
+      "send_whatsapp": "إرسال رسالة واتساب",
+      "mark_follow_up": "إضافة للمتابعة",
+      "alert_merchant": "تنبيه التاجر"
+    },
+    "form": {
+      "ruleName": "اسم القاعدة",
+      "ruleNamePlaceholder": "مثال: تأكيد تلقائي",
+      "trigger": "المُشغِّل",
+      "action": "الإجراء",
+      "enableRule": "تفعيل القاعدة",
+      "btnCancel": "إلغاء",
+      "btnSave": "حفظ"
+    },
+    "planGate": {
+      "title": "هذه الميزة متاحة في خطة جروث وبرو فقط",
+      "desc": "قم بترقية خطتك للاستفادة من أتمتة الطلبات والرسائل"
+    },
+    "info": {
+      "desc": "القواعد لن ترسل رسائل إلا إذا كان مزود واتساب نشطاً. تأكد من إعداد المزود في إعدادات المتجر أولاً."
+    },
+    "empty": {
+      "title": "لا توجد قواعد أتمتة بعد",
+      "btnAddFirst": "إضافة أول قاعدة"
+    },
+    "list": {
+      "disabled": "معطّل"
+    },
+    "toast": {
+      "fetchError": "فشل جلب قواعد الأتمتة",
+      "createSuccess": "تم إنشاء القاعدة",
+      "updateSuccess": "تم التحديث",
+      "deleteSuccess": "تم حذف القاعدة",
+      "errorTitle": "خطأ",
+      "actionFailed": "فشل"
+    }
+  },
+  "tracking": {
+    "title": "بيكسلات التتبع",
+    "subtitle": "تتبع أداء متجرك وحملاتك التسويقية",
+    "hints": {
+      "ga4": "مثال: G-ABC123XYZ",
+      "meta": "10-20 رقم فقط",
+      "tiktok": "سلسلة أحرف وأرقام",
+      "googleAds": "مثال: AW-123456789"
+    },
+    "howToGetIt": "كيفية الحصول عليه",
+    "active": "مفعّل",
+    "saveBtn": "حفظ الإعدادات",
+    "saving": "جاري الحفظ...",
+    "savedSuccess": "تم حفظ إعدادات التتبع بنجاح"
+  },
+  "facebookModerator": {
+    "title": "مشرف Facebook الذكي",
+    "subtitle": "إدارة والرد على تعليقات ورسائل صفحتك بمساعدة الذكاء الاصطناعي",
+    "apiError": "حدث خطأ",
+    "status": {
+      "pending": "قيد الانتظار",
+      "replied": "تم الرد",
+      "ignored": "تجاهل",
+      "flagged": "مُبلَّغ"
+    },
+    "connectPanel": {
+      "title": "ربط صفحة Facebook",
+      "howTo": "كيفية الحصول على بيانات الربط:",
+      "steps": [
+        "افتح Meta Business Suite ← الإعدادات ← الوصول إلى API",
+        "أنشئ رمز وصول دائم Page Access Token بصلاحيات: pages_read_engagement, pages_manage_posts, pages_messaging",
+        "انسخ معرف صفحتك من رابطها: facebook.com/YourPageName ← الإعدادات ← معرف الصفحة"
+      ],
+      "pageIdLabel": "معرف الصفحة (Page ID)",
+      "pageIdPlaceholder": "123456789012345",
+      "tokenLabel": "رمز الوصول (Page Access Token)",
+      "tokenPlaceholder": "EAABsbCS...",
+      "btnConnect": "ربط الصفحة",
+      "connecting": "جاري الربط...",
+      "errorEmpty": "أدخل معرف الصفحة والتوكن",
+      "errorConnect": "فشل الربط",
+      "successConnect": "✅ تم الربط بصفحة \"{name}\""
+    },
+    "itemCard": {
+      "timeMinutes": "منذ {minutes} دقيقة",
+      "timeHours": "منذ {hours} ساعة",
+      "timeDays": "منذ {days} يوم",
+      "showThread": "عرض المحادثة ({count} رسائل)",
+      "hideThread": "إخفاء المحادثة",
+      "btnAiReply": "رد ذكي",
+      "btnDrafting": "يكتب...",
+      "btnManualReply": "رد يدوي",
+      "btnHide": "إخفاء",
+      "btnIgnore": "تجاهل",
+      "btnFlag": "بلّغ",
+      "placeholderTextarea": "اكتب ردك هنا...",
+      "btnCopy": "نسخ",
+      "btnCopied": "تم النسخ",
+      "btnSendFb": "إرسال على Facebook",
+      "btnSending": "جارٍ الإرسال...",
+      "msgDraftFailed": "فشل توليد الرد",
+      "msgSendFailed": "فشل إرسال الرد",
+      "msgSendSuccess": "✅ تم إرسال الرد على Facebook",
+      "repliedLabel": "تم الرد على هذا العنصر"
+    },
+    "filter": {
+      "all": "الكل",
+      "pending": "قيد الانتظار",
+      "replied": "تم الرد",
+      "flagged": "مُبلَّغ",
+      "ignored": "مُتجاهَل"
+    },
+    "main": {
+      "btnRefresh": "تحديث",
+      "btnDisconnect": "قطع الربط",
+      "connectedTo": "مرتبط بصفحة",
+      "tabComments": "التعليقات",
+      "tabMessages": "الرسائل",
+      "emptyComments": "لا توجد تعليقات في آخر 15 منشور",
+      "emptyMessages": "لا توجد محادثات في الصندوق",
+      "emptyFilter": "لا توجد عناصر بهذا الفلتر"
+    }
+  },
+  "storeBuilder": {
+    "loading": "جاري تحميل متجرك...",
+    "noStore": "لا يوجد متجر مرتبط بحسابك.",
+    "createFirst": "أنشئ متجرك أولاً"
+  },
+  "visualEditor": {
+    "toast": {
+      "saveSuccess": "تم الحفظ ✓",
+      "saveSuccessDesc": "تم حفظ جميع التغييرات بنجاح",
+      "saveError": "خطأ في الحفظ",
+      "saveErrorDesc": "حاول مرة أخرى"
+    },
+    "menu": {
+      "openStoreSections": "فتح أقسام المتجر",
+      "storeSections": "أقسام المتجر",
+      "closeSectionsMenu": "إغلاق قائمة الأقسام",
+      "chooseStoryPart": "اختاري جزء من القصة",
+      "chooseStoryPartDesc": "اضغطي على القسم، هنقفل القائمة ونفتح تعديلاته مباشرة."
+    },
+    "canvas": {
+      "editing": "تعديل:",
+      "selectSectionToEdit": "اختاري جزء من المتجر للتعديل",
+      "saveChanges": "حفظ التغييرات"
+    }
+  },
+  "editorCanvas": {
+    "deviceLabels": {
+      "desktop": "سطح المكتب",
+      "tablet": "تابلت",
+      "mobile": "موبايل"
+    },
+    "empty": {
+      "title": "صفحتك الرئيسية فارغة",
+      "desc": "أضيفي أقسام من القائمة الجانبية لتبدأ في تصميم متجرك"
+    }
+  },
+  "inspectorPanel": {
+    "actions": {
+      "title": "إجراءات مرتبطة",
+      "hero": {
+        "label": "تعديل صور وهوية المتجر",
+        "desc": "غيّري الشعار، صورة الغلاف، الاسم، والوصف الذي يغذي أول انطباع في الواجهة."
+      },
+      "newArrivals": {
+        "label": "إدارة المنتجات الجديدة",
+        "desc": "أضيفي المنتجات والصور والمخزون حتى يظهر هذا القسم بمحتوى حقيقي."
+      },
+      "bestSellers": {
+        "label": "إدارة المنتجات والمبيعات",
+        "desc": "راجعي المنتجات المميزة والمخزون حتى يعرض القسم أفضل القطع بثقة."
+      },
+      "categories": {
+        "label": "إدارة الفئات",
+        "desc": "أضيفي صور الفئات، رتبيها، واربطي المنتجات بها من صفحة الفئات."
+      },
+      "offers": {
+        "label": "إدارة أكواد الخصم",
+        "desc": "أنشئي العروض والكوبونات التي تدعم بانرات الخصومات في المتجر."
+      },
+      "testimonials": {
+        "label": "إدارة التقييمات",
+        "desc": "راجعي تقييمات العملاء قبل إبرازها كدليل ثقة على الواجهة."
+      },
+      "about": {
+        "label": "تحديث قصة وهوية المتجر",
+        "desc": "عدّلي وصف المتجر والمدينة والفئة حتى تحكي القصة من مصدر واحد."
+      },
+      "instagram": {
+        "label": "ربط الحسابات الاجتماعية",
+        "desc": "أضيفي روابط إنستجرام وفيسبوك وتيك توك التي تظهر مع هذا القسم."
+      },
+      "lookbook": {
+        "label": "تجهيز صور المنتجات",
+        "desc": "ارفعي صورا قوية للمنتجات حتى يصبح اللوك بوك أكثر إقناعا."
+      },
+      "productCatalog": {
+        "label": "إدارة الكتالوج",
+        "desc": "تحكمي في المنتجات، الأسعار، الصور، الحالات، والمخزون من صفحة المنتجات."
+      },
+      "whatsapp": {
+        "label": "تحديث واتساب وبيانات التواصل",
+        "desc": "أضيفي رقم واتساب وروابط التواصل التي يحتاجها العملاء قبل الطلب."
+      },
+      "newsletter": {
+        "label": "إدارة العملاء",
+        "desc": "راجعي قاعدة العملاء التي ستستفيد من النشرات والعروض لاحقا."
+      },
+      "trustStrip": {
+        "label": "ضبط وعود الشحن",
+        "desc": "راجعي تكلفة الشحن ومدة التوصيل حتى تكون وعود الثقة دقيقة."
+      }
+    },
+    "empty": {
+      "title": "اختاري قسماً",
+      "desc": "اضغطي على أي قسم في المعاينة لتعديله هنا"
+    },
+    "buttons": {
+      "close": "إغلاق لوحة التعديل",
+      "show": "إظهار",
+      "hide": "إخفاء",
+      "duplicate": "تكرار",
+      "delete": "حذف"
+    },
+    "hiddenNotice": "هذا القسم مخفي عن الزوار",
+    "fields": {
+      "heading": "عنوان القسم",
+      "subheading": "النص التوضيحي",
+      "ctaText": "نص الزر",
+      "body": "نص القصة",
+      "imageUrl": "صورة الخلفية",
+      "imageUrlHint": "أدخلي رابط الصورة",
+      "height": "ارتفاع القسم",
+      "heightShort": "قصير",
+      "heightMedium": "متوسط",
+      "heightTall": "طويل",
+      "heightFull": "ملء الشاشة",
+      "textAlign": "محاذاة النص",
+      "textAlignRight": "يمين (RTL)",
+      "textAlignCenter": "وسط",
+      "textAlignLeft": "يسار",
+      "overlayOpacity": "شفافية التعتيم",
+      "productCount": "عدد المنتجات",
+      "cardStyle": "طريقة العرض",
+      "layout": "التخطيط",
+      "layoutGrid": "شبكة",
+      "layoutCarousel": "سلايدر",
+      "layoutEditorial": "تحريري",
+      "layoutWithImage": "نص + صورة",
+      "layoutTextOnly": "نص فقط",
+      "showPrices": "إظهار الأسعار",
+      "showQuickAdd": "زر الإضافة السريعة",
+      "showRating": "إظهار تقييم النجوم",
+      "floatingButton": "زر واتساب عائم",
+      "columns": "عدد الأعمدة",
+      "trustStripNote": "شريط المميزات يعرض وعود الثقة مثل الشحن والإرجاع والجودة. راجعي الإجراء المرتبط أعلاه لضبط البيانات التي تدعم هذه الوعود.",
+      "faqNote": "المحرر الحالي يتحكم في ظهور هذا القسم وعنوانه. تحرير تفاصيل الأسئلة داخل القسم سيحتاج للوحة تحرير موسعة.",
+      "noSettings": "لا توجد إعدادات متاحة لهذا القسم."
+    }
+  },
+  "storeAssistant": {
+    "welcome": "مرحباً! أنا مساعدك الذكي لتحسين متجرك. اختر أحد الإجراءات أدناه أو اكتب طلبك.",
+    "errors": {
+      "connection": "حدث خطأ في الاتصال",
+      "tryAgain": "حدث خطأ — حاول مرة أخرى"
+    },
+    "title": "مساعد المتجر الذكي",
+    "quickActions": "إجراءات سريعة:",
+    "placeholder": "اكتب طلبك هنا...",
+    "poweredBy": "مدعوم بالذكاء الاصطناعي —"
+  },
+  "editorSidebar": {
+    "tabs": {
+      "sections": "الأقسام",
+      "theme": "الثيم",
+      "ai": "مساعد"
+    },
+    "hint": {
+      "female": "👋 اضغطي على أي قسم لتعديله، أو استخدمي أزرار الأسهم لتغيير ترتيبه",
+      "male": "👋 اضغط على أي قسم لتعديله، أو استخدم أزرار الأسهم لتغيير ترتيبه"
+    },
+    "sectionItem": {
+      "hidden": "مخفي",
+      "moveUp": "رفع",
+      "moveDown": "خفض",
+      "show": "إظهار",
+      "hide": "إخفاء",
+      "duplicate": "تكرار",
+      "delete": "حذف"
+    },
+    "addSection": {
+      "button": "إضافة قسم",
+      "titleFemale": "اختاري قسماً لإضافته",
+      "titleMale": "اختار قسماً لإضافته",
+      "descFemale": "انقري على أي قسم لإضافته للصفحة",
+      "descMale": "انقر على أي قسم لإضافته للصفحة"
+    },
+    "themePanel": {
+      "title": "اختاري ثيم متجرك",
+      "buyNow": "اشتري الآن",
+      "customOptions": "تخصيص متقدم",
+      "primaryColor": "اللون الرئيسي",
+      "buttonStyle": {
+        "title": "شكل الأزرار",
+        "pill": "دائري",
+        "rounded": "مدور",
+        "square": "مربع"
+      },
+      "animation": {
+        "title": "مستوى التحريك",
+        "none": "⬜ بدون تحريك (أسرع)",
+        "subtle": "✨ تحريك خفيف (موصى به)",
+        "lively": "🎬 تحريك حيوي (مبهج)"
+      },
+      "themes": {
+        "roseBoutique": {
+          "name": "بوتيك ورديّ",
+          "desc": "أناقة فاخرة بلمسة دافئة"
+        },
+        "midnightGlam": {
+          "name": "جلام ليلي",
+          "desc": "أسود راقٍ مع ذهبي ملكي"
+        },
+        "emeraldFresh": {
+          "name": "أخضر زمردي",
+          "desc": "نضارة طبيعية وعصرية"
+        },
+        "purpleLuxe": {
+          "name": "بنفسجي فاخر",
+          "desc": "غموض وأناقة بنفسجية"
+        },
+        "sandMinimal": {
+          "name": "رملي مينيمال",
+          "desc": "بساطة وأصالة"
+        },
+        "oceanBlue": {
+          "name": "أزرق محيطي",
+          "desc": "هدوء وثقة زرقاء"
+        },
+        "coralPlayful": {
+          "name": "مرجاني شبابي",
+          "desc": "طاقة وألوان زاهية"
+        },
+        "ivoryClassic": {
+          "name": "كلاسيك عاجي",
+          "desc": "تراث وفخامة خالدة"
+        }
+      }
+    }
+  },
+  "readinessChecklist": {
+    "title": "جاهزية المتجر",
+    "status": {
+      "excellent": "ممتاز — جاهز للنشر!",
+      "good": "قريب — أضيفي المزيد",
+      "needsWork": "تحتاجين بعض الإضافات"
+    },
+    "items": {
+      "name": "اسم المتجر مضاف",
+      "products": "3 منتجات على الأقل",
+      "hero": "قسم الصفحة الرئيسي مكتمل",
+      "whatsapp": "رقم واتساب للتواصل",
+      "color": "اللون الرئيسي محدد",
+      "return": "سياسة الإرجاع مضافة",
+      "social": "روابط التواصل الاجتماعي",
+      "about": "قسم قصة المتجر",
+      "sections": "3 أقسام على الأقل في الصفحة",
+      "mobile": "تم التحقق من عرض الموبايل"
+    },
+    "required": "(مطلوب)",
+    "legend": {
+      "done": "مكتمل",
+      "recommended": "موصى به",
+      "missing": "ناقص"
+    },
+    "warning": "أكملي العناصر المطلوبة قبل النشر"
+  },
+  "editorTopBar": {
+    "devices": {
+      "desktop": "مكتب",
+      "tablet": "تابلت",
+      "mobile": "موبايل"
+    },
+    "tooltips": {
+      "unsavedChanges": "يوجد تغييرات غير محفوظة",
+      "undo": "تراجع",
+      "redo": "إعادة",
+      "preview": "معاينة",
+      "saving": "جاري الحفظ...",
+      "saveChanges": "حفظ التغييرات",
+      "saved": "محفوظ"
+    },
+    "hints": {
+      "save": "💾 اضغط هنا لحفظ التعديلات"
+    },
+    "publish": "نشر"
+  },
+  "welcomeOverlay": {
+    "female": {
+      "greeting": "أهلاً بكِ في متجرك! 🎉",
+      "subtitle": "متجرك جاهز وبيستناكِ! دلوقتي تقدري تخصصيه بسهولة.",
+      "step1Title": "اختاري الثيم",
+      "step1Desc": "من تاب \"الثيم\" في القائمة الجانبية، اختاري الستايل اللي يناسب متجرك",
+      "step2Title": "رتّبي أقسام صفحتك",
+      "step2Desc": "من تاب \"الأقسام\"، أضيفي أو احذفي أو غيّري ترتيب الأقسام",
+      "step3Title": "احفظي وانشري",
+      "step3Desc": "بعد ما تخلصي التعديلات، اضغطي 💾 حفظ ثم \"نشر\" عشان متجرك يبقى لايف",
+      "cta": "يلا نبدأ! 🚀",
+      "assistantHint": "لو محتاجة مساعدة في أي وقت، اضغطي على تاب \"مساعد\" ✨"
+    },
+    "male": {
+      "greeting": "أهلاً بك في متجرك! 🎉",
+      "subtitle": "متجرك جاهز وبيستناك! دلوقتي تقدر تخصصه بسهولة.",
+      "step1Title": "اختار الثيم",
+      "step1Desc": "من تاب \"الثيم\" في القائمة الجانبية، اختار الستايل اللي يناسب متجرك",
+      "step2Title": "رتّب أقسام صفحتك",
+      "step2Desc": "من تاب \"الأقسام\"، أضف أو احذف أو غيّر ترتيب الأقسام",
+      "step3Title": "احفظ وانشر",
+      "step3Desc": "بعد ما تخلص التعديلات، اضغط 💾 حفظ ثم \"نشر\" عشان متجرك يبقى لايف",
+      "cta": "يلا نبدأ! 🚀",
+      "assistantHint": "لو محتاج مساعدة في أي وقت، اضغط على تاب \"مساعد\" ✨"
+    },
+    "close": "إغلاق"
+  },
+  "sectionPreview": {
+    "edit": "تعديل",
+    "defaults": {
+      "heroHeading": "العنوان الرئيسي",
+      "heroSubheading": "النص التوضيحي",
+      "heroCta": "تسوقي الآن",
+      "heroNewArrival": "وصل حديثاً",
+      "newArrivalTag": "NEW",
+      "popularTag": "POPULAR",
+      "catalogTag": "CATALOG",
+      "catalogHeading": "جميع المنتجات",
+      "catalogProducts": "منتجات المتجر",
+      "catalogFilters": [
+        "الكل",
+        "أزياء",
+        "جمال",
+        "عطور"
+      ],
+      "categoriesHeading": "الأقسام",
+      "categoriesEmpty": "أضيفي الفئات من تبويب الفئات لتظهر هنا",
+      "categoriesDummy": [
+        {
+          "name": "أزياء",
+          "image": "/images/categories/fashion.png"
+        },
+        {
+          "name": "عناية",
+          "image": "/images/categories/care.png"
+        },
+        {
+          "name": "إكسسوارات",
+          "image": "/images/categories/accessories.png"
+        },
+        {
+          "name": "عطور",
+          "image": "/images/categories/perfumes.png"
+        }
+      ],
+      "offersHeading": "خصم 30%",
+      "offersCta": "احصلي على العرض",
+      "aboutTag": "قصتنا",
+      "newsletterCta": "اشتركي",
+      "whatsappCta": "تواصلي عبر واتساب"
+    }
+  },
+  "storefront": {
+    "announcement": {
+      "freeShipping": "شحن مجاني للطلبات فوق 1000 جنيه",
+      "useCode": "استخدمي كود WELCOME10 لخصم 10% على أول طلب",
+      "close": "إغلاق الإعلان",
+      "msg1": "✦ شحن مجاني على الطلبات فوق 999 ج.م",
+      "msg2": "✦ منتجات أصيلة 100%",
+      "msg3": "✦ وصلت أحدث تشكيلات الصيف",
+      "msg4": "✦ إرجاع مجاني خلال 14 يوم",
+      "msg5": "✦ دفع آمن"
+    },
+    "header": {
+      "search": "بحث",
+      "cart": "السلة",
+      "menu": "القائمة",
+      "links": {
+        "home": "الرئيسية",
+        "products": "المنتجات",
+        "categories": "الأقسام",
+        "offers": "العروض",
+        "fashion": "أزياء",
+        "beauty": "تجميل",
+        "bestSellers": "الأكثر مبيعاً",
+        "allProducts": "جميع المنتجات"
+      }
+    },
+    "footer": {
+      "shop": "تسوقي",
+      "offers": "العروض",
+      "help": "مساعدة",
+      "trackOrder": "تتبع طلبك",
+      "returns": "سياسة الإرجاع",
+      "sizeGuide": "دليل المقاسات",
+      "contactUs": "تواصل معنا",
+      "egypt": "مصر",
+      "weAreHere": "نحن هنا لك",
+      "whatsappDirect": "واتساب مباشر",
+      "allRightsReserved": "جميع الحقوق محفوظة",
+      "poweredBy": "مدعوم بـ"
+    },
+    "hero": {
+      "shopNow": "تسوقي الآن"
+    },
+    "categories": {
+      "viewAll": "تصفح جميع المنتجات"
+    },
+    "products": {
+      "newArrivals": "وصل حديثاً",
+      "bestSellers": "الأكثر مبيعاً",
+      "trending": "رائج الآن",
+      "viewAll": "عرض الكل",
+      "addToCart": "أضف للسلة",
+      "outOfStock": "نفذت الكمية",
+      "soldOut": "مباع بالكامل",
+      "quickAdd": "إضافة سريعة",
+      "selectOptions": "اختيار الخيارات"
+    },
+    "trust": {
+      "shipping": "شحن مجاني",
+      "shippingDesc": "للطلبات فوق 1000 جنيه",
+      "returns": "إرجاع سهل",
+      "returnsDesc": "خلال 14 يوم",
+      "support": "دعم فني",
+      "supportDesc": "متواجدون لمساعدتك",
+      "secure": "دفع آمن",
+      "secureDesc": "حماية 100%"
+    },
+    "newsletter": {
+      "title": "انضمي لنشرتنا البريدية",
+      "subtitle": "احصلي على آخر الأخبار والعروض الحصرية.",
+      "placeholder": "البريد الإلكتروني",
+      "subscribe": "اشتراك",
+      "success": "شكراً لاشتراكك!"
+    },
+    "search": {
+      "placeholder": "ابحث عن منتجات...",
+      "noResults": "لا توجد نتائج لـ",
+      "popular": "عمليات بحث شائعة"
+    },
+    "lookbook": {
+      "title": "إطلالات الموسم",
+      "subtitle": "اكتشفي أحدث صيحات الموضة",
+      "shopLook": "تسوقي الإطلالة"
+    },
+    "promo": {
+      "shopNow": "تسوقي الآن"
+    },
+    "filters": {
+      "sort": "ترتيب",
+      "filter": "تصفية",
+      "clearAll": "مسح الكل",
+      "default": "الافتراضي",
+      "priceLowHigh": "السعر: من الأقل للأعلى",
+      "priceHighLow": "السعر: من الأعلى للأقل",
+      "newest": "الأحدث أولاً",
+      "biggestDiscount": "أكبر خصم",
+      "priceRange": "نطاق السعر",
+      "min": "من",
+      "max": "إلى",
+      "onSale": "عروض",
+      "inStock": "متوفر",
+      "results": "{{count}} منتج",
+      "noResults": "لا توجد منتجات تطابق الفلتر",
+      "apply": "تطبيق",
+      "discountUpTo": "خصم حتى {{pct}}%"
+    },
+    "ugc": {
+      "title": "انضمي لمجتمعنا",
+      "subtitle": "شاركينا صورك على إنستجرام",
+      "follow": "تابعينا"
+    },
+    "beauty": {
+      "title": "روتين جمالك",
+      "subtitle": "منتجات مختارة لعنايتك اليومية",
+      "step1": "تنظيف",
+      "step2": "علاج",
+      "step3": "ترطيب",
+      "step4": "حماية"
+    },
+    "checkout": {
+      "title": "إتمام الطلب",
+      "contact": "معلومات التواصل",
+      "shipping": "عنوان الشحن",
+      "payment": "الدفع",
+      "summary": "ملخص الطلب",
+      "subtotal": "المجموع الفرعي",
+      "shippingFee": "رسوم الشحن",
+      "total": "الإجمالي",
+      "placeOrder": "تأكيد الطلب",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "fullName": "الاسم الكامل",
+      "address": "العنوان",
+      "city": "المدينة",
+      "governorate": "المحافظة",
+      "notes": "ملاحظات الطلب (اختياري)",
+      "cod": "الدفع عند الاستلام",
+      "online": "الدفع الإلكتروني",
+      "applyCode": "تطبيق",
+      "discountCode": "كود الخصم",
+      "backToCart": "العودة للسلة"
+    },
+    "orderConfirmation": {
+      "title": "تم تأكيد طلبك!",
+      "subtitle": "شكراً لتسوقك معنا. أرسلنا تفاصيل الطلب لبريدك الإلكتروني.",
+      "orderId": "رقم الطلب",
+      "trackOrder": "تتبع الطلب",
+      "continueShopping": "مواصلة التسوق",
+      "status": {
+        "pending": "قيد الانتظار",
+        "processing": "قيد التجهيز",
+        "shipped": "تم الشحن",
+        "delivered": "تم التوصيل",
+        "cancelled": "ملغي"
+      },
+      "dear": "عزيزتنا",
+      "thankYou": "شكرًا لكِ، ",
+      "paymentSuccess": "تم استلام دفعتك بنجاح. سيتم تجهيز طلبك وشحنه في أقرب وقت.",
+      "paidOnline": "تم الدفع إلكترونياً عبر Paymob",
+      "orderIds": "أرقام الطلبات",
+      "whatsappTitle": "احصلي على تأكيد الطلب على واتساب",
+      "whatsappDesc": "اضغطي لفتح رسالة التأكيد على",
+      "whatsappBtn": "إرسال تأكيد الطلب على واتساب",
+      "bostaTitle": "التوصيل عبر بوسطة",
+      "bostaDesc": "سيقوم المتجر بإنشاء شحنتكِ خلال 24 ساعة — ستصلكِ رسالة برقم التتبع"
+    },
+    "orderTrack": {
+      "status": {
+        "pending": "قيد المراجعة",
+        "confirmed": "مؤكد",
+        "dispatched": "تم الإرسال",
+        "shipped": "في الطريق",
+        "delivered": "تم التسليم",
+        "cancelled": "ملغي",
+        "returned": "مرتجع"
+      },
+      "invalidLink": "رابط تتبع غير صالح",
+      "home": "الرئيسية",
+      "loading": "جارٍ البحث عن طلبك...",
+      "notFound": "لم يتم العثور على الطلب",
+      "notFoundDesc": "تأكد من رقم الطلب أو تواصل مع المتجر",
+      "title": "تتبع طلبك",
+      "orderNo": "رقم الطلب",
+      "statusLabel": "حالة الطلب",
+      "trackingNo": "رقم التتبع",
+      "timeline": "مراحل الطلب",
+      "details": "تفاصيل الطلب",
+      "total": "الإجمالي",
+      "store": "المتجر",
+      "visitStore": "زيارة المتجر"
+    },
+    "error": {
+      "notFoundTitle": "المتجر غير موجود",
+      "notFoundDesc": "لم نتمكن من العثور على متجر بهذا الرابط.",
+      "browseStores": "استعرضي المتاجر"
+    },
+    "home": {
+      "viewAll": "عرض الكل",
+      "allProducts": "كل المنتجات",
+      "viewAllProducts": "عرض كل المنتجات",
+      "beautyRoutine": {
+        "eyebrow": "روتين العناية",
+        "title1": "روتينك اليومي",
+        "title2": "المثالي",
+        "subtitle": "أربع خطوات بسيطة لبشرة صافية ومشرقة طوال اليوم",
+        "shopRoutine": "تسوقي منتجات العناية",
+        "step1Title": "التنظيف",
+        "step1Desc": "ابدئي روتينك بتنظيف بشرتك بلطف لإزالة الشوائب وإعداد بشرتك للعناية التالية.",
+        "step2Title": "الترطيب",
+        "step2Desc": "رطّبي بشرتك بسيروم مغذٍّ يمنحها نضارة دائمة ويحافظ على توازنها الطبيعي.",
+        "step3Title": "الحماية",
+        "step3Desc": "احمِي بشرتك من أشعة الشمس يومياً بواقٍ شمسي مناسب لنوع بشرتك.",
+        "step4Title": "العناية الليلية",
+        "step4Desc": "دعي بشرتك تتجدد أثناء النوم بكريم ليلي مُركَّز يُعيد إليها حيويتها."
+      },
+      "bestSellers": {
+        "eyebrow": "المفضلة دائماً",
+        "title1": "الأكثر",
+        "title2": "مبيعاً"
+      },
+      "categories": {
+        "eyebrow": "تسوقي بالفئة",
+        "title": "اكتشفي مجموعتنا",
+        "productsCount": "منتج"
+      },
+      "lookbook": {
+        "eyebrow": "إلهامنا",
+        "title1": "لوك بوك",
+        "title2": "الموسم",
+        "discover": "اكتشفي الكولكشن",
+        "panel1": {
+          "tag": "أزياء • Fashion",
+          "title": "الجمال\\nالمصري",
+          "desc": "تشكيلة حصرية مستوحاة من التراث"
+        },
+        "panel2": {
+          "tag": "ربيع 2025",
+          "title": "ألوان\\nالربيع",
+          "desc": "درجات ناعمة لإطلالة مثالية"
+        },
+        "panel3": {
+          "tag": "جمال • Beauty",
+          "title": "سحر\\nالتجميل",
+          "desc": "منتجات عناية فائقة الجودة"
+        }
+      },
+      "testimonials": {
+        "heading": "ماذا يقول عملاؤنا",
+        "items": [
+          {
+            "name": "سارة م.",
+            "text": "منتجات رائعة وجودة عالية! سأشتري مجدداً بالتأكيد.",
+            "rating": "5"
+          },
+          {
+            "name": "هبة ع.",
+            "text": "خدمة ممتازة وتوصيل سريع. أنصح به بشدة.",
+            "rating": "5"
+          },
+          {
+            "name": "نور ك.",
+            "text": "تسوق مريح والمنتجات طبق المنتظر.",
+            "rating": "5"
+          }
+        ]
+      },
+      "faq": {
+        "heading": "أسئلة شائعة",
+        "items": [
+          {
+            "q": "كم مدة التوصيل؟",
+            "a": "يصل طلبك خلال 2-5 أيام عمل داخل المحافظات الكبرى."
+          },
+          {
+            "q": "هل يمكنني الإرجاع؟",
+            "a": "نعم، نقبل الإرجاع خلال 14 يوم من الاستلام."
+          },
+          {
+            "q": "ما هي طرق الدفع المتاحة؟",
+            "a": "نقبل الدفع عند الاستلام، والبطاقات البنكية، وفودافون كاش."
+          }
+        ]
+      },
+      "whatsapp": {
+        "heading": "تحدثي معنا مباشرة",
+        "subheading": "نرد على استفساراتك خلال دقائق",
+        "ctaText": "تواصلي عبر واتساب"
+      },
+      "newsletter": {
+        "heading": "اشتركي في نشرتنا",
+        "subheading": "كوني أول من تعرف بالعروض والمنتجات الجديدة",
+        "ctaText": "اشتركي الآن",
+        "title": "كوني أول من يعرف",
+        "subtitle": "الوصولات الجديدة",
+        "desc": "اشتركي في نشرة {{storeName}} واستمتعي بعروض حصرية وأحدث الموضات مباشرةً على بريدك",
+        "successTitle": "تم الاشتراك بنجاح!",
+        "successDesc": "يسعدنا انضمامك لمجتمع {{storeName}} ✨",
+        "emailPlaceholder": "بريدك الإلكتروني",
+        "subscribe": "اشتركي الآن",
+        "disclaimer": "يمكنك إلغاء الاشتراك في أي وقت • لا بريد مزعج أبداً"
+      },
+      "productCatalog": {
+        "heading": "جميع المنتجات",
+        "subheading": "كتالوج كامل"
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🚚",
+            "title": "توصيل سريع",
+            "text": "خلال 2-5 أيام"
+          },
+          {
+            "icon": "🔒",
+            "title": "دفع آمن",
+            "text": "بطاقة أو كاش"
+          },
+          {
+            "icon": "↩️",
+            "title": "إرجاع مجاني",
+            "text": "خلال 14 يوم"
+          },
+          {
+            "icon": "⭐",
+            "title": "جودة مضمونة",
+            "text": "منتجات أصلية 100%"
+          }
+        ]
+      },
+      "instagram": {
+        "heading": "تابعينا على إنستغرام"
+      },
+      "ugc": {
+        "eyebrow": "مجتمعنا",
+        "title1": "إلهامنا من",
+        "title2": "عملاءنا",
+        "subtitle": "شاركينا لوك اليوم بـ",
+        "hashtag": "نور",
+        "look": "لوك",
+        "followUs": "تابعينا على إنستغرام"
+      },
+      "trust": {
+        "shipping": "شحن سريع",
+        "shippingDesc": "توصيل خلال 2-3 أيام عمل لجميع المحافظات",
+        "secure": "دفع آمن 100%",
+        "secureDesc": "بطاقات ائتمانية، فوري، ومحافظ إلكترونية",
+        "returns": "إرجاع مجاني",
+        "returnsDesc": "استرجاع سهل خلال 14 يوماً بلا تعقيد",
+        "support": "دعم متواصل",
+        "supportDesc": "خدمة عملاء على مدار الساعة عبر واتساب"
+      }
+    }
+  },
+  "exports": {
+    "title": "تصدير البيانات",
+    "subtitle": "حمّل بياناتك كملفات CSV",
+    "newExport": "تصدير جديد",
+    "types": {
+      "orders": {
+        "label": "الطلبات",
+        "desc": "جميع الطلبات مع بياناتها الكاملة"
+      },
+      "products": {
+        "label": "المنتجات",
+        "desc": "قائمة المنتجات مع الأسعار والمخزون"
+      },
+      "customers": {
+        "label": "العملاء",
+        "desc": "بيانات العملاء وبيانات التواصل"
+      },
+      "returns": {
+        "label": "المرتجعات",
+        "desc": "حالات المرتجعات والإرجاع"
+      },
+      "inventory_adjustments": {
+        "label": "تعديلات المخزون",
+        "desc": "سجل تعديلات المخزون"
+      }
+    },
+    "status": {
+      "queued": "في الانتظار",
+      "processing": "جاري المعالجة",
+      "complete": "مكتمل",
+      "failed": "فشل"
+    },
+    "dateFrom": "من تاريخ (اختياري)",
+    "dateTo": "إلى تاريخ (اختياري)",
+    "exportBtn": "تصدير {type}",
+    "exporting": "جاري التصدير...",
+    "history": {
+      "title": "سجل التصدير",
+      "count": "{count} طلب",
+      "empty": "لا توجد عمليات تصدير بعد",
+      "rows": "{count} سطر"
+    },
+    "error": "فشل التصدير"
+  },
+  "pricing": {
+    "badge": "خطط واضحة — بدون رسوم خفية",
+    "title": "اختاري الخطة المناسبة لك",
+    "subtitle": "ابدئي رحلتك بثقة — وترقّي متى شئت مع نمو متجرك",
+    "popular": "الأكثر شيوعاً ⭐",
+    "currencyPerMonth": "{currency} / شهر",
+    "unlimitedProducts": "منتجات غير محدودة",
+    "productsCount": "{count} منتج",
+    "unlimitedOrders": "طلبات غير محدودة / شهر",
+    "ordersCount": "{count} طلب / شهر",
+    "seatOne": "مقعد واحد",
+    "seatsCount": "{count} مقاعد",
+    "forTeam": "للفريق",
+    "features": {
+      "store": "متجر أونلاين كامل",
+      "tracking": "تتبع الطلبات",
+      "whatsappManual": "واتساب يدوي",
+      "analytics": "تحليلات متقدمة",
+      "paymob": "Paymob (بطاقة / فوري)",
+      "whatsappAuto": "واتساب تلقائي"
+    },
+    "soon": "قريباً",
+    "startNow": "ابدأ الآن",
+    "noCreditCard": "لا يلزم بطاقة ائتمان",
+    "faq": {
+      "title": "أسئلة شائعة",
+      "q1": "هل أستطيع تغيير الخطة في أي وقت؟",
+      "a1": "نعم — تواصل مع فريق الدعم وسنقوم بالترقية أو التخفيض فوراً.",
+      "q2": "ماذا يحدث لو تجاوزت حد الطلبات؟",
+      "a2": "لن يتوقف متجرك — سنتواصل معك لترقية الخطة عند الاقتراب من الحد.",
+      "q3": "هل البيانات آمنة؟",
+      "a3": "بالطبع — كل متجر مستقل تماماً ومعزول عن باقي المتاجر."
+    }
+  },
+  "home": {
+    "badge": "منصة نور للتجارة الإلكترونية المصرية",
+    "title_1": "افتح متجرك ",
+    "title_highlight": "الإلكتروني",
+    "title_2": "في دقيقة واحدة",
+    "subtitle": "نور هي منصة SaaS مصرية ١٠٠٪ تُمكّن التجار من إنشاء متاجر أزياء وجمال احترافية — مع Paymob وبوسطة وواتساب جاهزين من أول يوم.",
+    "btnStartFree": "ابدأ مجاناً الآن",
+    "btnMerchantLogin": "دخول التجار",
+    "noCreditCard": "لا بطاقة ائتمان مطلوبة • إلغاء في أي وقت",
+    "dashboardMockup": {
+      "title": "نور — لوحة التحكم",
+      "sidebar": [
+        "لوحة التحكم",
+        "المنتجات",
+        "الطلبات",
+        "العملاء",
+        "الفريق"
+      ],
+      "revenueTitle": "الإيرادات",
+      "revenueVal": "١٢,٤٥٠ ج.م",
+      "ordersTitle": "الطلبات",
+      "ordersVal": "٣٨ طلب",
+      "customersTitle": "العملاء",
+      "customersVal": "٢١ عميل",
+      "recentOrders": "آخر الطلبات",
+      "order1": "فاطمة محمد — عباية زرقاء",
+      "order2": "نور علي — كريم تفتيح",
+      "order3": "ملك عمر — سكارف حرير",
+      "confirmed": "✓ مؤكد"
+    },
+    "stats": {
+      "merchants": "تاجر نشط",
+      "orders": "طلب مُنجز",
+      "satisfaction": "رضا التجار",
+      "minutes": " دقيقة"
+    },
+    "features": {
+      "badge": "المميزات",
+      "title": "كل ما تحتاجه لتنجح",
+      "subtitle": "منصة كاملة مصممة خصيصاً للسوق المصري — لا مساومة على التفاصيل.",
+      "f1_title": "متجرك في دقيقة",
+      "f1_desc": "أنشئ متجرك الإلكتروني الاحترافي فوراً بدون أي خبرة تقنية — رابطك الخاص، تصميمك، علامتك التجارية.",
+      "f2_title": "دفع إلكتروني مصري",
+      "f2_desc": "Paymob جاهز من أول يوم — فيزا، فوري، محافظ إلكترونية، والدفع عند الاستلام. كل وسائل الدفع المصرية في مكان واحد.",
+      "f3_title": "شحن بوسطة",
+      "f3_desc": "أنشئ شحنات بوسطة مباشرة من لوحة تحكمك، تتبع الطلبات، وأدار الكود عند الاستلام بنقرة واحدة.",
+      "f4_title": "واتساب أوتوماتيك",
+      "f4_desc": "أرسل تأكيد الطلب لعملائك على واتساب تلقائياً — الاسم، تفاصيل الطلب، ورقم التتبع.",
+      "f5_title": "تحليلات المبيعات",
+      "f5_desc": "لوحة تحكم بالعربي تعطيك نظرة كاملة: إيراداتك، أكثر المنتجات مبيعاً، وعدد العملاء الجدد.",
+      "f6_title": "إدارة الفريق",
+      "f6_desc": "أضف مدراء وموظفين لمتجرك بصلاحيات مختلفة — مالك، مدير، موظف. تحكم كامل بمن يصل لماذا."
+    },
+    "steps": {
+      "badge": "خطوات بسيطة",
+      "title": "ابدأ في ٣ خطوات فقط",
+      "s1_title": "سجّل حسابك",
+      "s1_desc": "أنشئ حسابك مجاناً في ثواني — لا بطاقة ائتمان مطلوبة.",
+      "s2_title": "خصّص متجرك",
+      "s2_desc": "أضف منتجاتك وصورك وفئاتك وارسم هوية متجرك.",
+      "s3_title": "ابدأ البيع",
+      "s3_desc": "شارك رابط متجرك وابدأ استقبال الطلبات فوراً."
+    },
+    "pricing": {
+      "badge": "الأسعار",
+      "title": "شفاف وبسيط",
+      "subtitle": "لا رسوم خفية — لا عمولة على مبيعاتك.",
+      "free_name": "مجاني",
+      "free_desc": "لبداية قوية",
+      "free_f1": "متجر إلكتروني كامل",
+      "free_f2": "حتى ٢٠ منتج",
+      "free_f3": "دفع عند الاستلام",
+      "free_f4": "واجهة عربية RTL",
+      "free_f5": "دعم واتساب يدوي",
+      "free_cta": "ابدأ مجاناً",
+      "pro_name": "احترافي",
+      "pro_price": "٢٩٩",
+      "pro_desc": "شهرياً / لكل متجر",
+      "pro_badge": "الأكثر شيوعاً",
+      "pro_f1": "منتجات غير محدودة",
+      "pro_f2": "Paymob — دفع إلكتروني",
+      "pro_f3": "شحن بوسطة تلقائي",
+      "pro_f4": "واتساب API أوتوماتيك",
+      "pro_f5": "تحليلات متقدمة",
+      "pro_f6": "إدارة فريق العمل",
+      "pro_f7": "دعم أولوية",
+      "pro_cta": "جرّب ٣٠ يوم مجاناً",
+      "ent_name": "مؤسسي",
+      "ent_price": "٧٩٩",
+      "ent_desc": "شهرياً / متاجر غير محدودة",
+      "ent_f1": "كل مميزات الاحترافي",
+      "ent_f2": "متاجر متعددة",
+      "ent_f3": "API مخصص",
+      "ent_f4": "مدير حساب مخصص",
+      "ent_f5": "تقارير متقدمة",
+      "ent_cta": "تواصل معنا"
+    },
+    "testimonials": {
+      "badge": "تجار نور",
+      "title": "ماذا يقول تجارنا",
+      "t1_name": "سارة محمد",
+      "t1_store": "بوتيك لؤلؤة",
+      "t1_text": "فتحت متجري في أقل من ساعة وأول طلب وصلني في نفس اليوم! نور غيّر حياتي المهنية.",
+      "t2_name": "مي أحمد",
+      "t2_store": "عالم الجمال",
+      "t2_text": "الدفع عبر Paymob وشحن بوسطة بنقرة واحدة — وفّر عليّ ساعات كل يوم.",
+      "t3_name": "نادين حسام",
+      "t3_store": "ستايل هاوس",
+      "t3_text": "رسائل واتساب التلقائية للعملاء رفعت رضاهم ١٠٠٪. منتج استثنائي."
+    },
+    "trust": {
+      "ssl": "SSL مجاني وآمن ١٠٠٪",
+      "uptime": "وقت تشغيل ٩٩.٩٪",
+      "servers": "سيرفرات داخل مصر",
+      "support": "دعم بالعربي ٧ أيام"
+    },
+    "cta": {
+      "title": "جاهزة تفتحي متجرك؟",
+      "subtitle": "انضمي لأكثر من ٥٠٠ تاجرة مصرية تبني مستقبلها التجاري مع نور."
+    }
+  },
+  "assistant": {
+    "tooltip": "مساعد نور الذكي ✨",
+    "title": "مساعد نور الذكي",
+    "storeFallback": "متجرك",
+    "clearHistory": "مسح المحادثة",
+    "welcome": "أهلاً بك في مساعد نور!",
+    "welcomeDesc": "اسألني عن طلباتك، منتجاتك، عملاءك،\\nأو اطلب مني مساعدتك في أي شيء",
+    "quick1": "كم طلبي المعلق اليوم؟",
+    "quick2": "ما أكثر منتج مبيعاً؟",
+    "quick3": "ساعدني أكتب رسالة ترحيب بالعملاء الجدد",
+    "quick4": "ما نصائحك لزيادة المبيعات هذا الشهر؟",
+    "quick5": "كيف حال إيرادات الشهر الحالي؟",
+    "placeholder": "اكتب رسالتك هنا... (Enter للإرسال)",
+    "poweredBy": "مدعوم بـ {model} · Shift+Enter لسطر جديد",
+    "error": "حدث خطأ في الاتصال، حاول مرة أخرى."
+  },
+  "imageUpload": {
+    "url": "رابط URL",
+    "upload": "رفع صورة",
+    "urlPlaceholder": "https://example.com/image.jpg",
+    "uploading": "جاري الرفع...",
+    "dropHere": "اضغط أو اسحب صورة هنا",
+    "supported": "{formats} حتى {max}MB بدون ضغط",
+    "errorSize": "حجم الصورة يجب أن يكون أقل من {max}MB",
+    "errorFormat": "الصيغ المدعومة: {formats}. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.",
+    "errorGeneric": "فشل رفع الصورة"
+  },
+  "productCard": {
+    "featured": "مميز",
+    "outOfStock": "نفد المخزون",
+    "selectOptions": "اختر الخيارات",
+    "addedToBag": "تمت الإضافة",
+    "addToBag": "أضف للسلة",
+    "multipleOptions": "متعدد الخيارات — اختر للإضافة"
+  },
+  "sections": {
+    "hero": "الصورة الرئيسية",
+    "new-arrivals": "وصل حديثاً",
+    "best-sellers": "الأكثر مبيعاً",
+    "categories": "الأقسام",
+    "testimonials": "آراء العملاء",
+    "offers": "عروض وخصومات",
+    "about": "قصة المتجر",
+    "instagram": "معرض الصور",
+    "faq": "أسئلة شائعة",
+    "whatsapp": "تواصل عبر واتساب",
+    "newsletter": "اشترك في النشرة",
+    "lookbook": "لوك بوك",
+    "product-catalog": "جميع المنتجات",
+    "trust-strip": "مميزات المتجر"
+  },
+  "defaultSections": {
+    "hero": {
+      "heading": "اكتشفي أحدث تشكيلة من {{storeName}}",
+      "headingCosmetics": "اكتشفي جمالكِ مع {{storeName}}",
+      "subheading": "أزياء راقية بأسعار تناسبك",
+      "subheadingCosmetics": "مستحضرات عناية وتجميل تبرز جمالك الطبيعي",
+      "ctaText": "تسوقي الآن"
+    },
+    "newArrivals": {
+      "heading": "وصل حديثاً",
+      "subheading": "أحدث المنتجات في مجموعتنا"
+    },
+    "bestSellers": {
+      "heading": "الأكثر مبيعاً",
+      "subheading": "المنتجات المفضلة لعملائنا"
+    },
+    "categories": {
+      "heading": "تسوقي حسب القسم"
+    },
+    "testimonials": {
+      "heading": "ماذا يقول عملاؤنا",
+      "items": [
+        {
+          "name": "سارة م.",
+          "text": "منتجات رائعة وجودة عالية! سأشتري مجدداً بالتأكيد."
+        },
+        {
+          "name": "هبة ع.",
+          "text": "خدمة ممتازة وتوصيل سريع. أنصح به بشدة."
+        },
+        {
+          "name": "نور ك.",
+          "text": "تسوق مريح والمنتجات طبق المنتظر."
+        }
+      ]
+    },
+    "offers": {
+      "promo1Label": "عروض حصرية",
+      "promo1Heading": "خصم يصل إلى",
+      "promo1Desc": "على تشكيلات مختارة — لفترة محدودة",
+      "promo1Cta": "تسوقي الآن",
+      "promo2Label": "توصيل مجاني",
+      "promo2Heading": "شحن مجاني",
+      "promo2Subheading": "لكل طلب فوق",
+      "promo2Cta": "اطلبي الآن"
+    },
+    "about": {
+      "heading": "قصة {{storeName}}",
+      "bodyCosmetics": "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ.",
+      "bodyFashion": "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."
+    },
+    "instagram": {
+      "heading": "تابعينا على إنستغرام"
+    },
+    "faq": {
+      "heading": "أسئلة شائعة",
+      "items": [
+        {
+          "q": "كم مدة التوصيل؟",
+          "a": "يصل طلبك خلال 2-5 أيام عمل داخل المحافظات الكبرى."
+        },
+        {
+          "q": "هل يمكنني الإرجاع؟",
+          "a": "نعم، نقبل الإرجاع خلال 14 يوم من الاستلام."
+        },
+        {
+          "q": "ما هي طرق الدفع المتاحة؟",
+          "a": "نقبل الدفع عند الاستلام، والبطاقات البنكية، وفودافون كاش."
+        }
+      ]
+    },
+    "whatsapp": {
+      "heading": "تحدثي معنا مباشرة",
+      "subheading": "نرد على استفساراتك خلال دقائق",
+      "ctaText": "تواصلي عبر واتساب"
+    },
+    "newsletter": {
+      "heading": "اشتركي في نشرتنا",
+      "subheading": "كوني أول من تعرف بالعروض والمنتجات الجديدة",
+      "ctaText": "اشتركي الآن"
+    },
+    "lookbook": {
+      "heading": "لوك بوك - إلهامي هذا الموسم"
+    },
+    "productCatalog": {
+      "heading": "جميع المنتجات",
+      "subheading": "كتالوج كامل"
+    },
+    "trustStrip": {
+      "items": [
+        {
+          "title": "توصيل سريع",
+          "text": "خلال 2-5 أيام"
+        },
+        {
+          "title": "دفع آمن",
+          "text": "بطاقة أو كاش"
+        },
+        {
+          "title": "إرجاع مجاني",
+          "text": "خلال 14 يوم"
+        },
+        {
+          "title": "جودة مضمونة",
+          "text": "منتجات أصلية 100%"
+        }
+      ]
+    }
+  }
+}

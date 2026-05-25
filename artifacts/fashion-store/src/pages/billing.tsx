@@ -13,48 +13,47 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
 
-const PLAN_NAMES: Record<string, string> = { starter: "ستارتر", growth: "جروث", pro: "برو" };
 const PLAN_PRICES: Record<string, number> = { starter: 299, growth: 699, pro: 1499 };
 const PLAN_COLORS: Record<string, string> = {
   starter: "bg-gray-100 text-gray-700 border-gray-200",
   growth: "bg-blue-100 text-blue-700 border-blue-200",
   pro: "bg-purple-100 text-purple-700 border-purple-200",
 };
-const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  active:   { label: "نشط",              color: "text-green-600 bg-green-50 border-green-200" },
-  trial:    { label: "تجريبي",           color: "text-amber-600 bg-amber-50 border-amber-200" },
-  past_due: { label: "متأخر السداد",     color: "text-red-600 bg-red-50 border-red-200" },
-  suspended:{ label: "موقوف",            color: "text-red-700 bg-red-100 border-red-200" },
-  canceled: { label: "ملغى",             color: "text-gray-500 bg-gray-100 border-gray-200" },
-};
-const INV_STATUS: Record<string, { label: string; color: string }> = {
-  draft:   { label: "مسودة",  color: "text-gray-500 bg-gray-100" },
-  issued:  { label: "صادرة",  color: "text-blue-600 bg-blue-50" },
-  paid:    { label: "مدفوعة", color: "text-green-600 bg-green-50" },
-  failed:  { label: "فشلت",   color: "text-red-600 bg-red-50" },
-  voided:  { label: "ملغاة",  color: "text-gray-400 bg-gray-50" },
-};
-const TRANSFER_STATUS: Record<string, { label: string; color: string }> = {
-  pending:  { label: "قيد المراجعة", color: "text-amber-600 bg-amber-50 border-amber-200" },
-  approved: { label: "مقبول",        color: "text-green-600 bg-green-50 border-green-200" },
-  rejected: { label: "مرفوض",        color: "text-red-600 bg-red-50 border-red-200" },
+
+const STATUS_MAP_COLORS: Record<string, string> = {
+  active: "text-green-600 bg-green-50 border-green-200",
+  trial: "text-amber-600 bg-amber-50 border-amber-200",
+  past_due: "text-red-600 bg-red-50 border-red-200",
+  suspended: "text-red-700 bg-red-100 border-red-200",
+  canceled: "text-gray-500 bg-gray-100 border-gray-200",
 };
 
-const PLAN_FEATURES: Record<string, string[]> = {
-  starter: ["50 منتج", "100 طلب/شهر", "دعم أساسي"],
-  growth:  ["500 منتج", "1000 طلب/شهر", "Paymob", "واتساب"],
-  pro:     ["غير محدود", "نطاق مخصص", "أولوية الدعم", "تقارير متقدمة"],
+const INV_STATUS_COLORS: Record<string, string> = {
+  draft: "text-gray-500 bg-gray-100",
+  issued: "text-blue-600 bg-blue-50",
+  paid: "text-green-600 bg-green-50",
+  failed: "text-red-600 bg-red-50",
+  voided: "text-gray-400 bg-gray-50",
 };
 
-function fmt(d: string | null) {
+const TRANSFER_STATUS_COLORS: Record<string, string> = {
+  pending: "text-amber-600 bg-amber-50 border-amber-200",
+  approved: "text-green-600 bg-green-50 border-green-200",
+  rejected: "text-red-600 bg-red-50 border-red-200",
+};
+
+function fmt(d: string | null, i18nLang: string) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+  return new Date(d).toLocaleDateString(i18nLang === "ar" ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" });
 }
-function fmtAmt(a: string | number) { return `${Number(a).toLocaleString("ar-EG")} ج.م`; }
+function fmtAmt(a: string | number, i18nLang: string) { 
+  return `${Number(a).toLocaleString(i18nLang === "ar" ? "ar-EG" : "en-US")} ${i18nLang === "ar" ? "ج.م" : "EGP"}`; 
+}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -67,6 +66,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 function TrialBanner({ trialEndsAt }: { trialEndsAt: string }) {
+  const { t, i18n } = useTranslation();
   const daysLeft = Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000));
   const urgent = daysLeft <= 3;
   return (
@@ -74,10 +74,10 @@ function TrialBanner({ trialEndsAt }: { trialEndsAt: string }) {
       <Clock className={`w-5 h-5 shrink-0 mt-0.5 ${urgent ? "text-red-500" : "text-amber-500"}`} />
       <div>
         <p className={`text-sm font-semibold ${urgent ? "text-red-800" : "text-amber-800"}`}>
-          {daysLeft === 0 ? "انتهت فترتك التجريبية اليوم!" : `تبقّى ${daysLeft} ${daysLeft === 1 ? "يوم" : "أيام"} على انتهاء الفترة التجريبية`}
+          {daysLeft === 0 ? t("billing.banners.trialEnded") : t("billing.banners.trialDaysLeft", { days: daysLeft })}
         </p>
         <p className={`text-xs mt-0.5 ${urgent ? "text-red-600" : "text-amber-700"}`}>
-          تنتهي في {fmt(trialEndsAt)} — حوّل اشتراكك الآن لضمان استمرار متجرك
+          {t("billing.banners.trialEndsOn", { date: fmt(trialEndsAt, i18n.language) })}
         </p>
       </div>
     </div>
@@ -85,25 +85,27 @@ function TrialBanner({ trialEndsAt }: { trialEndsAt: string }) {
 }
 
 function SuspendedBanner() {
+  const { t } = useTranslation();
   return (
     <div className="flex items-start gap-3 p-4 rounded-xl border bg-red-50 border-red-200">
       <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
       <div>
-        <p className="text-sm font-semibold text-red-800">متجرك موقوف مؤقتًا</p>
-        <p className="text-xs mt-0.5 text-red-600">جدّد اشتراكك بالتحويل البنكي أدناه وسيُعاد تفعيل متجرك فور مراجعة الإدارة.</p>
+        <p className="text-sm font-semibold text-red-800">{t("billing.banners.suspendedTitle")}</p>
+        <p className="text-xs mt-0.5 text-red-600">{t("billing.banners.suspendedDesc")}</p>
       </div>
     </div>
   );
 }
 
 function BankDetailsCard({ details }: { details: any }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   if (!details) return null;
 
   const rows: { label: string; value: string | null }[] = [
-    { label: "اسم البنك", value: details.bankName },
-    { label: "اسم صاحب الحساب", value: details.accountName },
-    { label: "رقم الحساب", value: details.accountNumber },
+    { label: t("billing.bankDetails.bankName"), value: details.bankName },
+    { label: t("billing.bankDetails.accountName"), value: details.accountName },
+    { label: t("billing.bankDetails.accountNumber"), value: details.accountNumber },
     { label: "IBAN", value: details.iban },
   ];
   if (details.instapayNumber) rows.push({ label: "Instapay", value: details.instapayNumber });
@@ -113,7 +115,7 @@ function BankDetailsCard({ details }: { details: any }) {
       <CardHeader className="pb-2 cursor-pointer" onClick={() => setOpen((o) => !o)}>
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-primary" /> بيانات التحويل البنكي
+            <Building2 className="w-4 h-4 text-primary" /> {t("billing.bankDetails.title")}
           </CardTitle>
           {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
         </div>
@@ -132,7 +134,7 @@ function BankDetailsCard({ details }: { details: any }) {
           {details.instapayNumber && (
             <div className="mt-3 flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg p-3">
               <Smartphone className="w-4 h-4 text-green-600 shrink-0" />
-              <span className="text-sm text-green-800">أو حوّل عبر <strong>Instapay</strong> على: <span className="font-mono">{details.instapayNumber}</span></span>
+              <span className="text-sm text-green-800">{t("billing.bankDetails.instapayText")} <span className="font-mono">{details.instapayNumber}</span></span>
               <CopyButton text={details.instapayNumber} />
             </div>
           )}
@@ -143,6 +145,7 @@ function BankDetailsCard({ details }: { details: any }) {
 }
 
 function TransferRequestForm({ currentPlanCode, onSubmitted }: { currentPlanCode: string; onSubmitted: () => void }) {
+  const { t } = useTranslation();
   const [planCode, setPlanCode] = useState(currentPlanCode);
   const [ref, setRef] = useState("");
   const [receiptUrl, setReceiptUrl] = useState("");
@@ -166,7 +169,7 @@ function TransferRequestForm({ currentPlanCode, onSubmitted }: { currentPlanCode
       const data = await res.json();
       setReceiptUrl(data.url ?? "");
     } catch {
-      setError("فشل رفع الصورة، حاول مرة أخرى");
+      setError(t("billing.form.errUpload"));
     } finally {
       setUploading(false);
     }
@@ -175,7 +178,7 @@ function TransferRequestForm({ currentPlanCode, onSubmitted }: { currentPlanCode
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!ref.trim()) { setError("أدخل رقم مرجع التحويل"); return; }
+    if (!ref.trim()) { setError(t("billing.form.errRefRequired")); return; }
     setSubmitting(true);
     try {
       const csrfHeaders: Record<string, string> = { "Content-Type": "application/json" };
@@ -188,11 +191,11 @@ function TransferRequestForm({ currentPlanCode, onSubmitted }: { currentPlanCode
         body: JSON.stringify({ planCode, referenceNumber: ref.trim(), receiptImageUrl: receiptUrl || null }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "حدث خطأ"); return; }
+      if (!res.ok) { setError(data.error ?? t("billing.form.errSubmit")); return; }
       setSuccess(true);
       onSubmitted();
     } catch {
-      setError("فشل إرسال الطلب");
+      setError(t("billing.form.errSubmit"));
     } finally {
       setSubmitting(false);
     }
@@ -202,8 +205,8 @@ function TransferRequestForm({ currentPlanCode, onSubmitted }: { currentPlanCode
     return (
       <div className="flex flex-col items-center gap-2 py-8 text-center">
         <CheckCircle className="w-10 h-10 text-green-500" />
-        <p className="font-semibold text-foreground">تم إرسال طلبك بنجاح!</p>
-        <p className="text-sm text-muted-foreground">سيتم مراجعته خلال 24 ساعة عمل وسيُعاد تفعيل متجرك فور القبول.</p>
+        <p className="font-semibold text-foreground">{t("billing.form.successTitle")}</p>
+        <p className="text-sm text-muted-foreground">{t("billing.form.successDesc")}</p>
       </div>
     );
   }
@@ -211,50 +214,51 @@ function TransferRequestForm({ currentPlanCode, onSubmitted }: { currentPlanCode
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label className="mb-1.5 block text-sm">الخطة المراد الاشتراك فيها</Label>
+        <Label className="mb-1.5 block text-sm">{t("billing.form.planLabel")}</Label>
         <div className="grid grid-cols-3 gap-2">
           {(["starter", "growth", "pro"] as const).map((p) => (
             <button type="button" key={p}
               onClick={() => setPlanCode(p)}
               className={`p-3 rounded-xl border-2 text-center transition-all ${planCode === p ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}>
-              <p className="font-bold text-sm">{PLAN_NAMES[p]}</p>
-              <p className="text-xs text-muted-foreground">{PLAN_PRICES[p]} ج.م/شهر</p>
+              <p className="font-bold text-sm">{t(`billing.planNames.${p}`)}</p>
+              <p className="text-xs text-muted-foreground">{PLAN_PRICES[p]} {t("billing.planPrices.currency")}</p>
             </button>
           ))}
         </div>
       </div>
       <div>
-        <Label htmlFor="ref" className="mb-1.5 block text-sm">رقم مرجع التحويل <span className="text-red-500">*</span></Label>
-        <Input id="ref" value={ref} onChange={(e) => setRef(e.target.value)} placeholder="مثال: TXN-20240501-123456" />
+        <Label htmlFor="ref" className="mb-1.5 block text-sm">{t("billing.form.refLabel")}</Label>
+        <Input id="ref" value={ref} onChange={(e) => setRef(e.target.value)} placeholder={t("billing.form.refPlaceholder")} />
       </div>
       <div>
-        <Label className="mb-1.5 block text-sm">إيصال التحويل (صورة — اختياري)</Label>
+        <Label className="mb-1.5 block text-sm">{t("billing.form.receiptLabel")}</Label>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
         {receiptUrl ? (
           <div className="flex items-center gap-2 p-2 border rounded-lg bg-green-50 border-green-200">
             <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-            <span className="text-xs text-green-700 flex-1 truncate">تم رفع الإيصال</span>
+            <span className="text-xs text-green-700 flex-1 truncate">{t("billing.form.receiptUploaded")}</span>
             <button type="button" onClick={() => setReceiptUrl("")}><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
           </div>
         ) : (
           <button type="button" onClick={() => fileRef.current?.click()}
             className="w-full border-2 border-dashed border-border rounded-xl p-4 text-center hover:border-primary/50 transition-colors">
             {uploading
-              ? <p className="text-sm text-muted-foreground">جارٍ الرفع...</p>
-              : <><Upload className="w-5 h-5 text-muted-foreground mx-auto mb-1" /><p className="text-sm text-muted-foreground">اضغط لرفع صورة الإيصال</p></>}
+              ? <p className="text-sm text-muted-foreground">{t("billing.form.uploading")}</p>
+              : <><Upload className="w-5 h-5 text-muted-foreground mx-auto mb-1" /><p className="text-sm text-muted-foreground">{t("billing.form.uploadPrompt")}</p></>}
           </button>
         )}
       </div>
       {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
       <Button type="submit" disabled={submitting} className="w-full gap-2">
         <Send className="w-4 h-4" />
-        {submitting ? "جارٍ الإرسال..." : "إرسال طلب التجديد"}
+        {submitting ? t("billing.form.btnSubmitting") : t("billing.form.btnSubmit")}
       </Button>
     </form>
   );
 }
 
 export default function BillingPage() {
+  const { t, i18n } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const qc = useQueryClient();
 
@@ -281,10 +285,10 @@ export default function BillingPage() {
   const hasPending = (transfers as any[]).some((t) => t.status === "pending");
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto" dir="rtl">
+    <div className="space-y-6 max-w-3xl mx-auto" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold">الفوترة والاشتراك</h1>
-        <p className="text-muted-foreground mt-1">تفاصيل خطتك الحالية وتجديد الاشتراك</p>
+        <h1 className="text-2xl font-bold">{t("billing.title")}</h1>
+        <p className="text-muted-foreground mt-1">{t("billing.subtitle")}</p>
       </motion.div>
 
       {/* Status banners */}
@@ -296,7 +300,7 @@ export default function BillingPage() {
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-primary" /> خطتك الحالية
+              <TrendingUp className="w-4 h-4 text-primary" /> {t("billing.currentPlan.title")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -305,26 +309,26 @@ export default function BillingPage() {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-muted/50 rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">الخطة</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t("billing.currentPlan.plan")}</p>
                   <Badge variant="outline" className={PLAN_COLORS[status?.planCode] ?? ""}>
-                    {PLAN_NAMES[status?.planCode] ?? status?.planCode}
+                    {t(`billing.planNames.${status?.planCode}`) ?? status?.planCode}
                   </Badge>
                 </div>
                 <div className="bg-muted/50 rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">الحالة</p>
-                  <Badge variant="outline" className={STATUS_MAP[subStatus]?.color ?? ""}>
-                    {STATUS_MAP[subStatus]?.label ?? subStatus}
+                  <p className="text-xs text-muted-foreground mb-1">{t("billing.currentPlan.status")}</p>
+                  <Badge variant="outline" className={STATUS_MAP_COLORS[subStatus] ?? ""}>
+                    {t(`billing.status.${subStatus}`) ?? subStatus}
                   </Badge>
                 </div>
                 <div className="bg-muted/50 rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">السعر الشهري</p>
-                  <p className="font-bold text-sm">{status?.monthlyPrice ? fmtAmt(status.monthlyPrice) : "—"}</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t("billing.currentPlan.price")}</p>
+                  <p className="font-bold text-sm">{status?.monthlyPrice ? fmtAmt(status.monthlyPrice, i18n.language) : "—"}</p>
                 </div>
                 <div className="bg-muted/50 rounded-xl p-3">
                   <p className="text-xs text-muted-foreground mb-1">
-                    {isTrial ? "انتهاء التجربة" : "التجديد القادم"}
+                    {isTrial ? t("billing.currentPlan.trialEnds") : t("billing.currentPlan.nextRenewal")}
                   </p>
-                  <p className="text-sm font-medium">{fmt(isTrial ? status?.trialEndsAt : status?.nextRenewalAt)}</p>
+                  <p className="text-sm font-medium">{fmt(isTrial ? status?.trialEndsAt : status?.nextRenewalAt, i18n.language)}</p>
                 </div>
               </div>
             )}
@@ -335,24 +339,29 @@ export default function BillingPage() {
       {/* Plan options */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
         className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {(["starter", "growth", "pro"] as const).map((code) => (
-          <Card key={code} className={`border-2 transition-all ${status?.planCode === code ? "border-primary shadow-sm" : "border-border/50"}`}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-bold">{PLAN_NAMES[code]}</span>
-                {status?.planCode === code && <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20">خطتك</Badge>}
-              </div>
-              <p className="text-xl font-extrabold mb-3">{PLAN_PRICES[code].toLocaleString("ar-EG")} <span className="text-xs font-normal text-muted-foreground">ج.م/شهر</span></p>
-              <ul className="space-y-1.5">
-                {PLAN_FEATURES[code].map((f) => (
-                  <li key={f} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />{f}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
+        {(["starter", "growth", "pro"] as const).map((code) => {
+          // use static fallback array if translation returns something weird
+          const featTransl = t(`billing.planFeatures.${code}`, { returnObjects: true });
+          const feats = Array.isArray(featTransl) ? featTransl : [];
+          return (
+            <Card key={code} className={`border-2 transition-all ${status?.planCode === code ? "border-primary shadow-sm" : "border-border/50"}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-bold">{t(`billing.planNames.${code}`)}</span>
+                  {status?.planCode === code && <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20">{t("billing.currentPlan.yourPlan")}</Badge>}
+                </div>
+                <p className="text-xl font-extrabold mb-3">{PLAN_PRICES[code].toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} <span className="text-xs font-normal text-muted-foreground">{t("billing.planPrices.currency")}</span></p>
+                <ul className="space-y-1.5">
+                  {feats.map((f: string) => (
+                    <li key={f} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />{f}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          );
+        })}
       </motion.div>
 
       {/* Bank details */}
@@ -366,10 +375,10 @@ export default function BillingPage() {
           <CardHeader className="pb-3 cursor-pointer" onClick={() => setShowForm((o) => !o)}>
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-primary" /> إرسال إيصال تحويل بنكي
+                <CreditCard className="w-4 h-4 text-primary" /> {t("billing.transferRequest.title")}
               </CardTitle>
               <div className="flex items-center gap-2">
-                {hasPending && <Badge className="text-[10px] bg-amber-50 text-amber-700 border-amber-200">قيد المراجعة</Badge>}
+                {hasPending && <Badge className="text-[10px] bg-amber-50 text-amber-700 border-amber-200">{t("billing.transferRequest.pendingBadge")}</Badge>}
                 {showForm ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
               </div>
             </div>
@@ -379,7 +388,7 @@ export default function BillingPage() {
               {hasPending ? (
                 <div className="py-4 text-center text-sm text-muted-foreground">
                   <Clock className="w-8 h-8 mx-auto mb-2 text-amber-400" />
-                  لديك طلب قيد المراجعة. سيتم تفعيل اشتراكك بعد قبوله.
+                  {t("billing.transferRequest.pendingNotice")}
                 </div>
               ) : (
                 <TransferRequestForm
@@ -398,22 +407,23 @@ export default function BillingPage() {
           <Card className="border-border/50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <FileText className="w-4 h-4 text-primary" /> طلبات التحويل
+                <FileText className="w-4 h-4 text-primary" /> {t("billing.transferHistory.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
               {loadingTransfers
                 ? Array(2).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-xl" />)
-                : (transfers as any[]).map((t: any) => {
-                  const s = TRANSFER_STATUS[t.status] ?? TRANSFER_STATUS.pending;
+                : (transfers as any[]).map((tItem: any) => {
+                  const sColor = TRANSFER_STATUS_COLORS[tItem.status] ?? TRANSFER_STATUS_COLORS.pending;
+                  const sLabel = t(`billing.transferStatus.${tItem.status}`);
                   return (
-                    <div key={t.id} className="flex items-center justify-between p-3 bg-muted/40 rounded-xl text-sm gap-3">
+                    <div key={tItem.id} className="flex items-center justify-between p-3 bg-muted/40 rounded-xl text-sm gap-3">
                       <div className="min-w-0">
-                        <p className="font-medium truncate">{PLAN_NAMES[t.planCode]} — {fmtAmt(t.amount)}</p>
-                        <p className="text-xs text-muted-foreground">مرجع: {t.referenceNumber} · {new Date(t.createdAt).toLocaleDateString("ar-EG")}</p>
-                        {t.adminNote && <p className="text-xs text-red-600 mt-0.5">{t.adminNote}</p>}
+                        <p className="font-medium truncate">{t(`billing.planNames.${tItem.planCode}`)} — {fmtAmt(tItem.amount, i18n.language)}</p>
+                        <p className="text-xs text-muted-foreground">{t("billing.transferHistory.ref")} {tItem.referenceNumber} · {new Date(tItem.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US")}</p>
+                        {tItem.adminNote && <p className="text-xs text-red-600 mt-0.5">{tItem.adminNote}</p>}
                       </div>
-                      <Badge variant="outline" className={`shrink-0 ${s.color}`}>{s.label}</Badge>
+                      <Badge variant="outline" className={`shrink-0 ${sColor}`}>{sLabel}</Badge>
                     </div>
                   );
                 })}
@@ -428,9 +438,9 @@ export default function BillingPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-500" /> سجل الفواتير
+                <FileText className="w-4 h-4 text-blue-500" /> {t("billing.invoices.title")}
               </CardTitle>
-              <Badge variant="outline" className="text-[10px] text-muted-foreground mr-auto">{(invoices as any[]).length} فاتورة</Badge>
+              <Badge variant="outline" className={`text-[10px] text-muted-foreground ${i18n.dir() === "rtl" ? "mr-auto" : "ml-auto"}`}>{(invoices as any[]).length} {t("billing.invoices.count")}</Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
@@ -438,21 +448,22 @@ export default function BillingPage() {
               <div className="space-y-2">{[1, 2].map((i) => <Skeleton key={i} className="h-12" />)}</div>
             ) : (invoices as any[]).length === 0 ? (
               <div className="py-8 text-center text-muted-foreground text-sm">
-                <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-30" />لا توجد فواتير بعد
+                <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-30" />{t("billing.invoices.noInvoices")}
               </div>
             ) : (
               <div className="space-y-2">
                 {(invoices as any[]).map((inv: any) => {
-                  const s = INV_STATUS[inv.status] ?? INV_STATUS.issued;
+                  const sColor = INV_STATUS_COLORS[inv.status] ?? INV_STATUS_COLORS.issued;
+                  const sLabel = t(`billing.invStatus.${inv.status}`);
                   return (
                     <div key={inv.id} className="flex items-center justify-between p-3 bg-muted/40 rounded-xl text-sm gap-3">
                       <div className="min-w-0">
                         <p className="font-medium">{inv.invoiceNumber}</p>
-                        <p className="text-xs text-muted-foreground">{PLAN_NAMES[inv.planCode] ?? inv.planCode} · {fmt(inv.createdAt)}</p>
+                        <p className="text-xs text-muted-foreground">{t(`billing.planNames.${inv.planCode}`) ?? inv.planCode} · {fmt(inv.createdAt, i18n.language)}</p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <Badge variant="outline" className={s.color}>{s.label}</Badge>
-                        <span className="font-bold">{fmtAmt(inv.amount)}</span>
+                        <Badge variant="outline" className={sColor}>{sLabel}</Badge>
+                        <span className="font-bold">{fmtAmt(inv.amount, i18n.language)}</span>
                       </div>
                     </div>
                   );

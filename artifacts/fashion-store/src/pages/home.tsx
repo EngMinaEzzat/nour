@@ -4,17 +4,20 @@ import { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 import {
   Store, CreditCard, Truck, MessageCircle, BarChart3, Users,
   ArrowLeft, CheckCircle2, Zap, Globe, ShieldCheck, Sparkles,
   ChevronLeft, Star,
 } from "lucide-react";
+import { getBaseDomain } from "@/lib/utils";
 
 /* ─── animated counter ─── */
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
   const [val, setVal] = useState(0);
+  const { i18n } = useTranslation();
   useEffect(() => {
     if (!inView) return;
     let start = 0;
@@ -26,7 +29,7 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
     }, 16);
     return () => clearInterval(id);
   }, [inView, target]);
-  return <span ref={ref}>{val.toLocaleString("ar-EG")}{suffix}</span>;
+  return <span ref={ref}>{val.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")}{suffix}</span>;
 }
 
 const stagger = {
@@ -35,92 +38,37 @@ const stagger = {
 };
 
 const FEATURES = [
-  {
-    icon: Store,
-    color: "text-primary bg-primary/10",
-    title: "متجرك في دقيقة",
-    desc: "أنشئ متجرك الإلكتروني الاحترافي فوراً بدون أي خبرة تقنية — رابطك الخاص، تصميمك، علامتك التجارية.",
-  },
-  {
-    icon: CreditCard,
-    color: "text-emerald-600 bg-emerald-50",
-    title: "دفع إلكتروني مصري",
-    desc: "Paymob جاهز من أول يوم — فيزا، فوري، محافظ إلكترونية، والدفع عند الاستلام. كل وسائل الدفع المصرية في مكان واحد.",
-  },
-  {
-    icon: Truck,
-    color: "text-blue-600 bg-blue-50",
-    title: "شحن بوسطة",
-    desc: "أنشئ شحنات بوسطة مباشرة من لوحة تحكمك، تتبع الطلبات، وأدار الكود عند الاستلام بنقرة واحدة.",
-  },
-  {
-    icon: MessageCircle,
-    color: "text-green-600 bg-green-50",
-    title: "واتساب أوتوماتيك",
-    desc: "أرسل تأكيد الطلب لعملائك على واتساب تلقائياً — الاسم، تفاصيل الطلب، ورقم التتبع.",
-  },
-  {
-    icon: BarChart3,
-    color: "text-purple-600 bg-purple-50",
-    title: "تحليلات المبيعات",
-    desc: "لوحة تحكم بالعربي تعطيك نظرة كاملة: إيراداتك، أكثر المنتجات مبيعاً، وعدد العملاء الجدد.",
-  },
-  {
-    icon: Users,
-    color: "text-orange-600 bg-orange-50",
-    title: "إدارة الفريق",
-    desc: "أضف مدراء وموظفين لمتجرك بصلاحيات مختلفة — مالك، مدير، موظف. تحكم كامل بمن يصل لماذا.",
-  },
+  { icon: Store, color: "text-primary bg-primary/10", title: "home.features.f1_title", desc: "home.features.f1_desc" },
+  { icon: CreditCard, color: "text-emerald-600 bg-emerald-50", title: "home.features.f2_title", desc: "home.features.f2_desc" },
+  { icon: Truck, color: "text-blue-600 bg-blue-50", title: "home.features.f3_title", desc: "home.features.f3_desc" },
+  { icon: MessageCircle, color: "text-green-600 bg-green-50", title: "home.features.f4_title", desc: "home.features.f4_desc" },
+  { icon: BarChart3, color: "text-purple-600 bg-purple-50", title: "home.features.f5_title", desc: "home.features.f5_desc" },
+  { icon: Users, color: "text-orange-600 bg-orange-50", title: "home.features.f6_title", desc: "home.features.f6_desc" },
 ];
 
 const STEPS = [
-  { num: "١", title: "سجّل حسابك", desc: "أنشئ حسابك مجاناً في ثواني — لا بطاقة ائتمان مطلوبة.", icon: Zap },
-  { num: "٢", title: "خصّص متجرك", desc: "أضف منتجاتك وصورك وفئاتك وارسم هوية متجرك.", icon: Sparkles },
-  { num: "٣", title: "ابدأ البيع", desc: "شارك رابط متجرك وابدأ استقبال الطلبات فوراً.", icon: Globe },
+  { num: "1", title: "home.steps.s1_title", desc: "home.steps.s1_desc", icon: Zap },
+  { num: "2", title: "home.steps.s2_title", desc: "home.steps.s2_desc", icon: Sparkles },
+  { num: "3", title: "home.steps.s3_title", desc: "home.steps.s3_desc", icon: Globe },
 ];
 
 const PLANS = [
-  {
-    name: "مجاني",
-    price: "0",
-    desc: "لبداية قوية",
-    badge: null,
-    features: ["متجر إلكتروني كامل", "حتى ٢٠ منتج", "دفع عند الاستلام", "واجهة عربية RTL", "دعم واتساب يدوي"],
-    cta: "ابدأ مجاناً",
-    href: "/register",
-    variant: "outline" as const,
-  },
-  {
-    name: "احترافي",
-    price: "٢٩٩",
-    desc: "شهرياً / لكل متجر",
-    badge: "الأكثر شيوعاً",
-    features: ["منتجات غير محدودة", "Paymob — دفع إلكتروني", "شحن بوسطة تلقائي", "واتساب API أوتوماتيك", "تحليلات متقدمة", "إدارة فريق العمل", "دعم أولوية"],
-    cta: "جرّب ٣٠ يوم مجاناً",
-    href: "/register",
-    variant: "default" as const,
-  },
-  {
-    name: "مؤسسي",
-    price: "٧٩٩",
-    desc: "شهرياً / متاجر غير محدودة",
-    badge: null,
-    features: ["كل مميزات الاحترافي", "متاجر متعددة", "API مخصص", "مدير حساب مخصص", "تقارير متقدمة"],
-    cta: "تواصل معنا",
-    href: "/register",
-    variant: "outline" as const,
-  },
+  { name: "home.pricing.free_name", price: "0", desc: "home.pricing.free_desc", badge: null, features: ["home.pricing.free_f1", "home.pricing.free_f2", "home.pricing.free_f3", "home.pricing.free_f4", "home.pricing.free_f5"], cta: "home.pricing.free_cta", href: "/register", variant: "outline" as const },
+  { name: "home.pricing.pro_name", price: "home.pricing.pro_price", desc: "home.pricing.pro_desc", badge: "home.pricing.pro_badge", features: ["home.pricing.pro_f1", "home.pricing.pro_f2", "home.pricing.pro_f3", "home.pricing.pro_f4", "home.pricing.pro_f5", "home.pricing.pro_f6", "home.pricing.pro_f7"], cta: "home.pricing.pro_cta", href: "/register", variant: "default" as const },
+  { name: "home.pricing.ent_name", price: "home.pricing.ent_price", desc: "home.pricing.ent_desc", badge: null, features: ["home.pricing.ent_f1", "home.pricing.ent_f2", "home.pricing.ent_f3", "home.pricing.ent_f4", "home.pricing.ent_f5"], cta: "home.pricing.ent_cta", href: "/register", variant: "outline" as const },
 ];
 
 const TESTIMONIALS = [
-  { name: "سارة محمد", store: "بوتيك لؤلؤة", text: "فتحت متجري في أقل من ساعة وأول طلب وصلني في نفس اليوم! نور غيّر حياتي المهنية.", stars: 5 },
-  { name: "مي أحمد", store: "عالم الجمال", text: "الدفع عبر Paymob وشحن بوسطة بنقرة واحدة — وفّر عليّ ساعات كل يوم.", stars: 5 },
-  { name: "نادين حسام", store: "ستايل هاوس", text: "رسائل واتساب التلقائية للعملاء رفعت رضاهم ١٠٠٪. منتج استثنائي.", stars: 5 },
+  { name: "home.testimonials.t1_name", store: "home.testimonials.t1_store", text: "home.testimonials.t1_text", stars: 5 },
+  { name: "home.testimonials.t2_name", store: "home.testimonials.t2_store", text: "home.testimonials.t2_text", stars: 5 },
+  { name: "home.testimonials.t3_name", store: "home.testimonials.t3_store", text: "home.testimonials.t3_text", stars: 5 },
 ];
 
 export default function Home() {
+  const { t, i18n } = useTranslation();
+
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col" dir={i18n.dir()}>
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5 pt-20 pb-28">
         <div className="absolute inset-0 -z-10">
@@ -136,30 +84,30 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <Badge className="mb-6 text-sm px-4 py-1.5 bg-primary/10 text-primary border-primary/20 rounded-full">
               <Sparkles className="w-3.5 h-3.5 me-1.5 inline" />
-              منصة نور للتجارة الإلكترونية المصرية
+              {t("home.badge")}
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
-              افتح متجرك{" "}
+              {t("home.title_1")}
               <span className="text-primary relative">
-                الإلكتروني
+                {t("home.title_highlight")}
                 <svg className="absolute -bottom-2 start-0 w-full" viewBox="0 0 300 12" fill="none">
                   <path d="M2 8 Q75 2 150 8 Q225 14 298 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary opacity-40" />
                 </svg>
               </span>
-              <br />في دقيقة واحدة
+              <br />{t("home.title_2")}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              نور هي منصة SaaS مصرية ١٠٠٪ تُمكّن التجار من إنشاء متاجر أزياء وجمال احترافية — مع Paymob وبوسطة وواتساب جاهزين من أول يوم.
+              {t("home.subtitle")}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button size="lg" className="rounded-full px-10 text-base h-13 shadow-lg shadow-primary/20" asChild>
-                <Link href="/register">ابدأ مجاناً الآن <ArrowLeft className="w-4 h-4 me-2" /></Link>
+                <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
               </Button>
               <Button size="lg" variant="outline" className="rounded-full px-10 text-base h-13" asChild>
-                <Link href="/login">دخول التجار</Link>
+                <Link href="/login">{t("home.btnMerchantLogin")}</Link>
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground mt-4">لا بطاقة ائتمان مطلوبة • إلغاء في أي وقت</p>
+            <p className="text-sm text-muted-foreground mt-4">{t("home.noCreditCard")}</p>
           </motion.div>
 
           {/* Dashboard mockup */}
@@ -178,15 +126,21 @@ export default function Home() {
                 </div>
                 <div className="flex-1 mx-4">
                   <div className="bg-background rounded-md px-3 py-1 text-xs text-muted-foreground border border-border/40 w-fit mx-auto" dir="ltr">
-                    nour.eg/store/boutique-loaloa
+                    boutique-loaloa.{getBaseDomain()}
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-0 p-0">
                 {/* Sidebar */}
                 <div className="col-span-1 bg-muted/20 border-e border-border/40 p-4 space-y-2">
-                  <div className="text-xs font-bold text-primary mb-4">نور — لوحة التحكم</div>
-                  {["لوحة التحكم", "المنتجات", "الطلبات", "العملاء", "الفريق"].map((item, i) => (
+                  <div className="text-xs font-bold text-primary mb-4">{t("home.dashboardMockup.title")}</div>
+                  {[
+                    t("home.dashboardMockup.sidebar.0"),
+                    t("home.dashboardMockup.sidebar.1"),
+                    t("home.dashboardMockup.sidebar.2"),
+                    t("home.dashboardMockup.sidebar.3"),
+                    t("home.dashboardMockup.sidebar.4"),
+                  ].map((item, i) => (
                     <div key={i} className={`text-xs px-3 py-2 rounded-lg ${i === 0 ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
                       {item}
                     </div>
@@ -195,7 +149,7 @@ export default function Home() {
                 {/* Content */}
                 <div className="col-span-2 p-5 space-y-4">
                   <div className="grid grid-cols-3 gap-3">
-                    {[["الإيرادات", "١٢,٤٥٠ ج.م", "text-green-600"], ["الطلبات", "٣٨ طلب", "text-primary"], ["العملاء", "٢١ عميل", "text-purple-600"]].map(([label, val, color]) => (
+                    {[[t("home.dashboardMockup.revenueTitle"), t("home.dashboardMockup.revenueVal"), "text-green-600"], [t("home.dashboardMockup.ordersTitle"), t("home.dashboardMockup.ordersVal"), "text-primary"], [t("home.dashboardMockup.customersTitle"), t("home.dashboardMockup.customersVal"), "text-purple-600"]].map(([label, val, color]) => (
                       <div key={label} className="bg-muted/40 rounded-xl p-3 border border-border/30">
                         <p className="text-[10px] text-muted-foreground">{label}</p>
                         <p className={`text-sm font-bold ${color}`}>{val}</p>
@@ -203,11 +157,11 @@ export default function Home() {
                     ))}
                   </div>
                   <div className="bg-muted/30 rounded-xl p-3 border border-border/30">
-                    <p className="text-[10px] text-muted-foreground mb-2">آخر الطلبات</p>
-                    {["فاطمة محمد — عباية زرقاء", "نور علي — كريم تفتيح", "ملك عمر — سكارف حرير"].map((r, i) => (
+                    <p className="text-[10px] text-muted-foreground mb-2">{t("home.dashboardMockup.recentOrders")}</p>
+                    {[t("home.dashboardMockup.order1"), t("home.dashboardMockup.order2"), t("home.dashboardMockup.order3")].map((r, i) => (
                       <div key={i} className="flex justify-between items-center py-1 text-[11px] border-b border-border/20 last:border-0">
                         <span className="text-foreground">{r}</span>
-                        <span className="text-green-600 font-medium">✓ مؤكد</span>
+                        <span className="text-green-600 font-medium">{t("home.dashboardMockup.confirmed")}</span>
                       </div>
                     ))}
                   </div>
@@ -226,14 +180,14 @@ export default function Home() {
             variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
           >
             {[
-              { value: 500, suffix: "+", label: "تاجر نشط" },
-              { value: 12000, suffix: "+", label: "طلب مُنجز" },
-              { value: 98, suffix: "%", label: "رضا التجار" },
-              { value: 1, suffix: " دقيقة", label: "لفتح متجرك" },
+              { value: 500, suffix: "+", label: t("home.stats.merchants") },
+              { value: 12000, suffix: "+", label: t("home.stats.orders") },
+              { value: 98, suffix: "%", label: t("home.stats.satisfaction") },
+              { value: 1, suffix: t("home.stats.minutes"), label: t("home.stats.minutes") },
             ].map((s) => (
               <motion.div key={s.label} variants={stagger.item}>
                 <p className="text-4xl font-bold text-primary">
-                  <Counter target={s.value} suffix={s.suffix} />
+                  <Counter target={s.value} suffix={s.label === t("home.stats.minutes") ? "" : s.suffix} />
                 </p>
                 <p className="text-muted-foreground text-sm mt-1">{s.label}</p>
               </motion.div>
@@ -248,9 +202,9 @@ export default function Home() {
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
         >
-          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">المميزات</Badge>
-          <h2 className="text-4xl font-bold text-foreground">كل ما تحتاجه لتنجح</h2>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">منصة كاملة مصممة خصيصاً للسوق المصري — لا مساومة على التفاصيل.</p>
+          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">{t("home.features.badge")}</Badge>
+          <h2 className="text-4xl font-bold text-foreground">{t("home.features.title")}</h2>
+          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">{t("home.features.subtitle")}</p>
         </motion.div>
         <motion.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -265,8 +219,8 @@ export default function Home() {
                     <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${f.color} transition-transform group-hover:scale-110 duration-300`}>
                       <Icon className="w-5 h-5" />
                     </div>
-                    <h3 className="font-bold text-foreground text-lg mb-2">{f.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
+                    <h3 className="font-bold text-foreground text-lg mb-2">{t(f.title)}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{t(f.desc)}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -282,8 +236,8 @@ export default function Home() {
             className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           >
-            <Badge className="mb-4 bg-secondary/20 text-secondary-foreground border-secondary/30">خطوات بسيطة</Badge>
-            <h2 className="text-4xl font-bold text-foreground">ابدأ في ٣ خطوات فقط</h2>
+            <Badge className="mb-4 bg-secondary/20 text-secondary-foreground border-secondary/30">{t("home.steps.badge")}</Badge>
+            <h2 className="text-4xl font-bold text-foreground">{t("home.steps.title")}</h2>
           </motion.div>
           <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
@@ -294,14 +248,14 @@ export default function Home() {
               return (
                 <motion.div key={step.num} variants={stagger.item} className="text-center relative">
                   {i < STEPS.length - 1 && (
-                    <div className="hidden md:block absolute top-8 start-[60%] w-full h-px border-t-2 border-dashed border-border/60 -z-0" />
+                    <div className={`hidden md:block absolute top-8 ${i18n.dir() === 'rtl' ? 'start-[60%]' : 'start-[60%]'} w-full h-px border-t-2 border-dashed border-border/60 -z-0`} />
                   )}
                   <div className="relative z-10 w-16 h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mx-auto mb-4 shadow-lg shadow-primary/20">
-                    {step.num}
+                    {i18n.language === "ar" ? ['١', '٢', '٣'][i] : step.num}
                   </div>
                   <Icon className="w-5 h-5 text-primary mx-auto mb-3" />
-                  <h3 className="font-bold text-foreground text-lg mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
+                  <h3 className="font-bold text-foreground text-lg mb-2">{t(step.title)}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{t(step.desc)}</p>
                 </motion.div>
               );
             })}
@@ -315,9 +269,9 @@ export default function Home() {
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
         >
-          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">الأسعار</Badge>
-          <h2 className="text-4xl font-bold text-foreground">شفاف وبسيط</h2>
-          <p className="text-muted-foreground mt-3">لا رسوم خفية — لا عمولة على مبيعاتك.</p>
+          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">{t("home.pricing.badge")}</Badge>
+          <h2 className="text-4xl font-bold text-foreground">{t("home.pricing.title")}</h2>
+          <p className="text-muted-foreground mt-3">{t("home.pricing.subtitle")}</p>
         </motion.div>
         <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
@@ -328,29 +282,29 @@ export default function Home() {
               <Card className={`h-full relative border-2 transition-all duration-300 ${plan.badge ? "border-primary shadow-xl shadow-primary/10" : "border-border/50"}`}>
                 {plan.badge && (
                   <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4 py-1 text-xs">{plan.badge}</Badge>
+                    <Badge className="bg-primary text-primary-foreground px-4 py-1 text-xs">{t(plan.badge)}</Badge>
                   </div>
                 )}
                 <CardContent className="pt-8 pb-6 flex flex-col h-full">
                   <div className="mb-6">
-                    <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
+                    <h3 className="text-xl font-bold text-foreground">{t(plan.name)}</h3>
                     <div className="flex items-baseline gap-1 mt-2">
-                      <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                      {plan.price !== "0" && <span className="text-muted-foreground text-sm">ج.م</span>}
-                      {plan.price === "0" && <span className="text-muted-foreground text-sm">ج.م</span>}
+                      <span className="text-4xl font-bold text-foreground">{t(plan.price) === '0' ? '0' : Number(t(plan.price)).toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}</span>
+                      {plan.price !== "0" && <span className="text-muted-foreground text-sm">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
+                      {plan.price === "0" && <span className="text-muted-foreground text-sm">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
                     </div>
-                    <p className="text-muted-foreground text-sm mt-1">{plan.desc}</p>
+                    <p className="text-muted-foreground text-sm mt-1">{t(plan.desc)}</p>
                   </div>
                   <ul className="space-y-3 flex-1 mb-6">
                     {plan.features.map((f) => (
                       <li key={f} className="flex items-center gap-2 text-sm">
                         <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                        <span className="text-foreground">{f}</span>
+                        <span className="text-foreground">{t(f)}</span>
                       </li>
                     ))}
                   </ul>
                   <Button variant={plan.variant} className="w-full rounded-xl" asChild>
-                    <Link href={plan.href}>{plan.cta}</Link>
+                    <Link href={plan.href}>{t(plan.cta)}</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -366,30 +320,30 @@ export default function Home() {
             className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           >
-            <Badge className="mb-4 bg-secondary/20 text-secondary-foreground border-secondary/30">تجار نور</Badge>
-            <h2 className="text-4xl font-bold text-foreground">ماذا يقول تجارنا</h2>
+            <Badge className="mb-4 bg-secondary/20 text-secondary-foreground border-secondary/30">{t("home.testimonials.badge")}</Badge>
+            <h2 className="text-4xl font-bold text-foreground">{t("home.testimonials.title")}</h2>
           </motion.div>
           <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
             variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
           >
-            {TESTIMONIALS.map((t) => (
-              <motion.div key={t.name} variants={stagger.item}>
+            {TESTIMONIALS.map((tItem) => (
+              <motion.div key={tItem.name} variants={stagger.item}>
                 <Card className="h-full border-border/50 hover:shadow-md transition-all duration-300">
                   <CardContent className="pt-6">
                     <div className="flex mb-3">
-                      {Array(t.stars).fill(0).map((_, i) => (
+                      {Array(tItem.stars).fill(0).map((_, i) => (
                         <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                       ))}
                     </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">"{t.text}"</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">"{t(tItem.text)}"</p>
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                        {t.name[0]}
+                        {t(tItem.name)[0]}
                       </div>
                       <div>
-                        <p className="font-semibold text-sm text-foreground">{t.name}</p>
-                        <p className="text-xs text-muted-foreground">{t.store}</p>
+                        <p className="font-semibold text-sm text-foreground">{t(tItem.name)}</p>
+                        <p className="text-xs text-muted-foreground">{t(tItem.store)}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -407,16 +361,16 @@ export default function Home() {
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
         >
           {[
-            { icon: ShieldCheck, text: "SSL مجاني وآمن ١٠٠٪" },
-            { icon: Zap, text: "وقت تشغيل ٩٩.٩٪" },
-            { icon: Globe, text: "سيرفرات داخل مصر" },
-            { icon: Users, text: "دعم بالعربي ٧ أيام" },
+            { icon: ShieldCheck, text: "home.trust.ssl" },
+            { icon: Zap, text: "home.trust.uptime" },
+            { icon: Globe, text: "home.trust.servers" },
+            { icon: Users, text: "home.trust.support" },
           ].map((item) => {
             const Icon = item.icon;
             return (
               <div key={item.text} className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Icon className="w-4 h-4 text-primary" />
-                {item.text}
+                {t(item.text)}
               </div>
             );
           })}
@@ -429,16 +383,16 @@ export default function Home() {
           className="container mx-auto px-4 text-center"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">جاهزة تفتحي متجرك؟</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("home.cta.title")}</h2>
           <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
-            انضمي لأكثر من ٥٠٠ تاجرة مصرية تبني مستقبلها التجاري مع نور.
+            {t("home.cta.subtitle")}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button size="lg" variant="secondary" className="rounded-full px-10 text-base h-13 shadow-lg" asChild>
-              <Link href="/register">ابدأ مجاناً الآن <ArrowLeft className="w-4 h-4 me-2" /></Link>
+              <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
             </Button>
             <Button size="lg" variant="ghost" className="rounded-full px-10 text-base h-13 text-primary-foreground border border-primary-foreground/30 hover:bg-primary-foreground/10" asChild>
-              <Link href="/login">دخول التجار <ChevronLeft className="w-4 h-4 me-1" /></Link>
+              <Link href="/login">{t("home.btnMerchantLogin")} {i18n.dir() === "rtl" ? <ChevronLeft className="w-4 h-4 me-1" /> : <ChevronLeft className="w-4 h-4 ms-1" style={{transform: 'rotate(180deg)'}} />}</Link>
             </Button>
           </div>
         </motion.div>

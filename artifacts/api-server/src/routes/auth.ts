@@ -5,7 +5,7 @@ import rateLimit from "express-rate-limit";
 import { sendPasswordResetEmail, sendWelcomeEmail, sendNewMerchantNotification } from "../lib/email.js";
 import { db, merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable, shippingZonesTable, shippingSettingsTable, DEFAULT_CATEGORIES, DEFAULT_SHIPPING_ZONES_CONFIG } from "@workspace/db";
 import { RegisterMerchantBody, LoginMerchantBody } from "@workspace/api-zod";
-import { eq, and, gt, ne } from "drizzle-orm";
+import { eq, and, gt, ne, sql } from "drizzle-orm";
 
 const router = Router();
 
@@ -182,6 +182,13 @@ router.post("/auth/register", authLimiter, async (req, res) => {
       return { tenant, merchant };
     });
 
+    await new Promise<void>((resolve, reject) => {
+      req.session.regenerate((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
     req.session.merchantId = result.merchant.id;
     req.log.info({ tenantId: result.tenant.id, slug }, "New merchant registered");
 
@@ -236,9 +243,19 @@ router.post("/auth/register", authLimiter, async (req, res) => {
     }
 
     return res.status(201).json(buildAuthResponse(result.merchant, result.tenant));
-  } catch (err) {
+  } catch (err: any) {
     req.log.error(err);
     console.error("REGISTER ERROR:", err);
+
+    if (err?.code === "23505") {
+      if (err.constraint === "tenants_slug_unique") {
+        return res.status(409).json({ error: "اسم المتجر (الرابط) مستخدم مسبقًا" });
+      }
+      if (err.constraint === "merchants_email_unique") {
+        return res.status(409).json({ error: "البريد الإلكتروني مسجل مسبقًا" });
+      }
+    }
+
     return res.status(500).json({ error: "حدث خطأ أثناء التسجيل", details: err instanceof Error ? err.message : String(err) });
   }
 });
@@ -263,6 +280,13 @@ router.post("/auth/login", authLimiter, async (req, res) => {
       .update(tenantsTable)
       .set({ lastAdminLoginAt: new Date() })
       .where(eq(tenantsTable.id, tenant.id));
+
+    await new Promise<void>((resolve, reject) => {
+      req.session.regenerate((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
 
     req.session.merchantId = merchant.id;
     return res.json(buildAuthResponse(merchant, tenant));
@@ -328,7 +352,7 @@ router.post("/auth/bootstrap-platform-admin", async (req, res) => {
   }
 });
 
-router.post("/auth/forgot-password", async (req, res) => {
+router.post("/auth/forgot-password", authLimiter, async (req, res) => {
   const { email } = req.body as { email?: string };
   if (!email) return res.status(400).json({ error: "البريد الإلكتروني مطلوب" });
 
@@ -362,7 +386,7 @@ router.post("/auth/forgot-password", async (req, res) => {
   }
 });
 
-router.post("/auth/reset-password", async (req, res) => {
+router.post("/auth/reset-password", authLimiter, async (req, res) => {
   const { token, password } = req.body as { token?: string; password?: string };
   if (!token || !password) return res.status(400).json({ error: "البيانات ناقصة" });
   if (password.length < 8) return res.status(400).json({ error: "كلمة المرور قصيرة جدًا" });
@@ -384,6 +408,15 @@ router.post("/auth/reset-password", async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 12);
     await db.update(merchantsTable).set({ passwordHash }).where(eq(merchantsTable.id, record.merchantId));
     await db.update(passwordResetTokensTable).set({ usedAt: new Date() }).where(eq(passwordResetTokensTable.id, record.id));
+
+    // Invalidate existing sessions for this merchant
+    try {
+      await db.execute(
+        sql`DELETE FROM sessions WHERE sess->>'merchantId' = ${record.merchantId.toString()}`
+      );
+    } catch (sessionErr) {
+      req.log.warn({ err: sessionErr, merchantId: record.merchantId }, "Failed to destroy sessions on password reset");
+    }
 
     return res.json({ ok: true });
   } catch (err) {

@@ -425,7 +425,7 @@ router.get("/whatsapp/messages", requireRole("owner", "manager", "staff"), async
 });
 
 /* ─── Provider delivery callback ─── */
-router.post("/whatsapp/messages/:id/callback", requirePlatformAdmin, async (req, res) => {
+router.post("/whatsapp/messages/:id/callback", async (req, res) => {
   const logId = Number(req.params.id);
   if (isNaN(logId)) return res.status(400).json({ error: "معرف غير صالح" });
 
@@ -440,6 +440,29 @@ router.post("/whatsapp/messages/:id/callback", requirePlatformAdmin, async (req,
   }
 
   try {
+    const [logEntry] = await db
+      .select({ tenantId: whatsappMessageLogsTable.tenantId })
+      .from(whatsappMessageLogsTable)
+      .where(eq(whatsappMessageLogsTable.id, logId));
+
+    if (!logEntry) {
+      return res.status(404).json({ error: "سجل الرسالة غير موجود" });
+    }
+
+    const [provider] = await db
+      .select({ webhookSecret: whatsappProvidersTable.webhookSecret })
+      .from(whatsappProvidersTable)
+      .where(eq(whatsappProvidersTable.tenantId, logEntry.tenantId));
+
+    if (!provider || !provider.webhookSecret) {
+       return res.status(401).json({ error: "Webhook secret is not configured" });
+    }
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.split(" ")[1] !== provider.webhookSecret) {
+       return res.status(401).json({ error: "Unauthorized" });
+    }
+
     await db
       .update(whatsappMessageLogsTable)
       .set({

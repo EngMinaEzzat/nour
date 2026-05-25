@@ -6,19 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Store, SlidersHorizontal } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const stagger = {
   container: { hidden: {}, show: { transition: { staggerChildren: 0.07 } } },
   item: { hidden: { opacity: 0, scale: 0.95 }, show: { opacity: 1, scale: 1, transition: { duration: 0.3 } } },
 };
 
-const CATEGORY_MAP: Record<string, string> = {
-  fashion: "أزياء",
-  cosmetics: "تجميل",
-  both: "الاثنان",
-};
-
 export default function Tenants() {
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -31,13 +27,13 @@ export default function Tenants() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
         <div className="flex items-center gap-3 mb-2">
           <Store className="w-6 h-6 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">المتاجر</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t("tenants.title")}</h1>
         </div>
-        <p className="text-muted-foreground mb-8">اكتشفي أرقى المتاجر المصرية للأزياء والتجميل</p>
+        <p className="text-muted-foreground mb-8">{t("tenants.subtitle")}</p>
       </motion.div>
 
       <motion.div
@@ -49,7 +45,7 @@ export default function Tenants() {
         <div className="relative flex-1">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="ابحثي عن متجر..."
+            placeholder={t("tenants.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="ps-10 h-11"
@@ -65,14 +61,14 @@ export default function Tenants() {
               className="rounded-full"
               onClick={() => setSelectedCategory(cat)}
             >
-              {cat ? CATEGORY_MAP[cat] : "الكل"}
+              {cat ? t(`tenants.categories.${cat}`) : t("tenants.all")}
             </Button>
           ))}
         </div>
       </motion.div>
 
       {!isLoading && (
-        <p className="text-sm text-muted-foreground mb-6">{filtered?.length ?? 0} متجر</p>
+        <p className="text-sm text-muted-foreground mb-6">{filtered?.length ?? 0} {t("tenants.count")}</p>
       )}
 
       <motion.div
@@ -100,7 +96,7 @@ export default function Tenants() {
       {!isLoading && filtered?.length === 0 && (
         <div className="text-center py-24">
           <Store className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-          <p className="text-muted-foreground">لا توجد متاجر تطابق البحث</p>
+          <p className="text-muted-foreground">{t("tenants.notFound")}</p>
         </div>
       )}
     </div>

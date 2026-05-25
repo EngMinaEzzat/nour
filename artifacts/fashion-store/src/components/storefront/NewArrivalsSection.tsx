@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { StorefrontProductCard, ProductCardData } from "./StorefrontProductCard";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
@@ -27,6 +28,7 @@ export function NewArrivalsSection({
   onAddToCart,
   onScrollToAll,
 }: NewArrivalsSectionProps) {
+  const { t, i18n } = useTranslation();
   const [selectedCat, setSelectedCat] = useState<number | null>(null);
 
   const filtered = selectedCat
@@ -34,7 +36,7 @@ export function NewArrivalsSection({
     : products.slice(0, 8);
 
   const tabs = [
-    { id: null, label: "الكل" },
+    { id: null, label: t("storefront.home.all", "الكل") },
     ...categories.slice(0, 5).map(c => ({ id: c.id, label: c.name })),
   ];
 
@@ -44,7 +46,7 @@ export function NewArrivalsSection({
     <section
       id="new-arrivals"
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#faf7f4", direction: "rtl" }}
+      style={{ background: "#faf7f4", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -54,13 +56,13 @@ export function NewArrivalsSection({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              أحدث الوصولات
+              {t("storefront.home.newArrivals.eyebrow", "أحدث الوصولات")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              وصل حديثاً
+              {t("storefront.home.newArrivals.title", "وصل حديثاً")}
             </h2>
           </div>
           <button
@@ -68,8 +70,8 @@ export function NewArrivalsSection({
             className="hidden md:flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
             style={{ color: p }}
           >
-            عرض الكل
-            <ArrowLeft className="w-4 h-4" />
+            {t("storefront.home.viewAll", "عرض الكل")}
+            {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
 
@@ -133,8 +135,8 @@ export function NewArrivalsSection({
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold text-white"
             style={{ background: p }}
           >
-            عرض كل المنتجات
-            <ArrowLeft className="w-4 h-4" />
+            {t("storefront.home.viewAllProducts", "عرض كل المنتجات")}
+            {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
       </div>

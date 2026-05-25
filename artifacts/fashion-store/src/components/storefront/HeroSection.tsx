@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, Sparkles } from "lucide-react";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
-
-const FALLBACK_HERO = "/hero-optimized.jpg";
 
 interface HeroSectionProps {
   storeName: string;
@@ -32,14 +31,18 @@ export function HeroSection({
   secondaryColor: s,
   onScrollToProducts,
 }: HeroSectionProps) {
-  const imgSrc = imageUrl || coverUrl || FALLBACK_HERO;
+  const { t, i18n } = useTranslation();
+  const defaultHero = (category === "cosmetics" || category === "both")
+    ? "/hero-cosmetics-optimized.jpg"
+    : "/hero-fashion-optimized.jpg";
+  const imgSrc = imageUrl || coverUrl || defaultHero;
   const tagline =
     eyebrow ||
     category === "cosmetics"
-      ? "جمال حقيقي، عناية فائقة"
+      ? (i18n.language === "ar" ? "جمال حقيقي، عناية فائقة" : "Real Beauty, Ultimate Care")
       : category === "both"
-      ? "أزياء راقية وجمال أصيل"
-      : "أناقة مصرية معاصرة";
+      ? (i18n.language === "ar" ? "أزياء راقية وجمال أصيل" : "Elegant Fashion & Authentic Beauty")
+      : (i18n.language === "ar" ? "أناقة مصرية معاصرة" : "Contemporary Elegance");
 
   return (
     <section
@@ -64,7 +67,7 @@ export function HeroSection({
           <Sparkles className="w-3.5 h-3.5" style={{ color: p }} />
           <span
             className="text-[11px] tracking-[0.25em] uppercase font-semibold"
-            style={{ color: p, direction: "rtl" }}
+            style={{ color: p, direction: i18n.dir() }}
           >
             {tagline}
           </span>
@@ -73,7 +76,7 @@ export function HeroSection({
         {/* Store name as editorial headline */}
         <motion.h1
           className="text-6xl md:text-7xl lg:text-8xl leading-[0.9] text-stone-900 mb-6"
-          style={{ fontFamily: SERIF, fontWeight: 300, direction: "rtl" }}
+          style={{ fontFamily: SERIF, fontWeight: 300, direction: i18n.dir() }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7 }}
@@ -84,7 +87,7 @@ export function HeroSection({
         {description && (
           <motion.p
             className="text-stone-500 text-[15px] leading-relaxed mb-8 max-w-xs"
-            style={{ direction: "rtl" }}
+            style={{ direction: i18n.dir() }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
@@ -96,7 +99,7 @@ export function HeroSection({
         {/* CTAs */}
         <motion.div
           className="flex flex-col sm:flex-row gap-3"
-          style={{ direction: "rtl" }}
+          style={{ direction: i18n.dir() }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -108,7 +111,7 @@ export function HeroSection({
             whileHover={{ scale: 1.03, boxShadow: `0 8px 28px ${p}55` }}
             whileTap={{ scale: 0.97 }}
           >
-            تسوقي الآن
+            {ctaText || t("storefront.hero.shopNow", "تسوقي الآن")}
           </motion.button>
           <motion.button
             onClick={() => document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" })}
@@ -117,7 +120,7 @@ export function HeroSection({
             whileHover={{ borderColor: p, color: p }}
             whileTap={{ scale: 0.97 }}
           >
-            وصل حديثاً
+            {t("storefront.products.newArrivals")}
           </motion.button>
         </motion.div>
 
@@ -154,7 +157,7 @@ export function HeroSection({
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to right, #faf7f4 0%, transparent 18%)",
+              i18n.dir() === "rtl" ? "linear-gradient(to right, #faf7f4 0%, transparent 18%)" : "linear-gradient(to left, #faf7f4 0%, transparent 18%)",
           }}
         />
         {/* Bottom blend on mobile */}
@@ -169,7 +172,7 @@ export function HeroSection({
           style={{
             background: "rgba(250,247,244,0.92)",
             backdropFilter: "blur(16px)",
-            direction: "rtl",
+            direction: i18n.dir(),
           }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -182,9 +185,9 @@ export function HeroSection({
             <Sparkles className="w-4 h-4" style={{ color: p }} />
           </div>
           <div>
-            <p className="text-[11px] text-stone-400 font-medium">تشكيلة جديدة</p>
+            <p className="text-[11px] text-stone-400 font-medium">{i18n.language === "ar" ? "تشكيلة جديدة" : "New Collection"}</p>
             <p className="text-[13px] font-bold text-stone-800" style={{ fontFamily: SERIF }}>
-              صيف 2025
+              {i18n.language === "ar" ? "صيف 2025" : "Summer 2025"}
             </p>
           </div>
         </motion.div>

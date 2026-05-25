@@ -166,11 +166,11 @@ describe("WhatsApp Integration", () => {
 
     // Try without auth
     const res = await ctx.agent.post(`/api/whatsapp/messages/${log.id}/callback`).send({ status: "DELIVERED" });
-    // Should be 401 Unauthorized or 403 Forbidden because requirePlatformAdmin blocks regular merchants
-    expect(res.status).toBe(403);
+    // Should be 401 Unauthorized because of missing webhook Authorization header
+    expect(res.status).toBe(401);
   });
 
-  it("requires CSRF for platform-admin WhatsApp callback in production", async () => {
+  it("rejects production WhatsApp callback without a configured webhook secret", async () => {
     await db.update(merchantsTable)
       .set({ isPlatformAdmin: true })
       .where(eq(merchantsTable.id, ctx.merchantId));
@@ -193,10 +193,51 @@ describe("WhatsApp Integration", () => {
 
     try {
       const res = await ctx.agent.post(`/api/whatsapp/messages/${log.id}/callback`).send({ status: "DELIVERED" });
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(401);
 
       const [unchanged] = await db.select().from(whatsappMessageLogsTable).where(eq(whatsappMessageLogsTable.id, log.id));
       expect(unchanged.status).toBe("SENT");
+    } finally {
+      process.env.NODE_ENV = previousEnv;
+    }
+  });
+
+  it("accepts production WhatsApp callback with a valid webhook bearer secret", async () => {
+    await db.insert(whatsappProvidersTable).values({
+      tenantId: ctx.tenantId,
+      status: "ACTIVE",
+      phoneNumberId: "mock-phone-id",
+      accessToken: "mock-token",
+      webhookSecret: "test-webhook-secret",
+    });
+
+    const prodRes = await createTestProduct(ctx.agent);
+    const orderRes = await createTestOrder(ctx.tenantId, prodRes.body.id);
+
+    const [log] = await db.insert(whatsappMessageLogsTable).values({
+      tenantId: ctx.tenantId,
+      orderId: orderRes.body.id,
+      idempotencyKey: `callback-auth-${Date.now()}`,
+      messageType: "order_confirmed",
+      status: "SENT",
+      customerPhone: "01012345678",
+      renderedMessage: "Test",
+    }).returning();
+
+    const previousEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+
+    try {
+      const res = await ctx.agent
+        .post(`/api/whatsapp/messages/${log.id}/callback`)
+        .set("Authorization", "Bearer test-webhook-secret")
+        .send({ status: "DELIVERED", providerMessageId: "wa-delivered-1" });
+
+      expect(res.status).toBe(200);
+
+      const [updated] = await db.select().from(whatsappMessageLogsTable).where(eq(whatsappMessageLogsTable.id, log.id));
+      expect(updated.status).toBe("DELIVERED");
+      expect(updated.providerMessageId).toBe("wa-delivered-1");
     } finally {
       process.env.NODE_ENV = previousEnv;
     }

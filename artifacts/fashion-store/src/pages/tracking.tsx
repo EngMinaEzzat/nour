@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { BarChart2, Eye, Smartphone, ShoppingBag, CheckCircle, AlertCircle, Save } from "lucide-react";
@@ -18,7 +19,7 @@ const PIXELS = [
     idKey: "ga4MeasurementId",
     enableKey: "ga4Enabled",
     placeholder: "G-XXXXXXXXXX",
-    hint: "مثال: G-ABC123XYZ",
+    hintKey: "ga4",
     docs: "https://support.google.com/analytics/answer/9539598",
   },
   {
@@ -32,7 +33,7 @@ const PIXELS = [
     idKey: "metaPixelId",
     enableKey: "metaEnabled",
     placeholder: "1234567890123",
-    hint: "10-20 رقم فقط",
+    hintKey: "meta",
     docs: "https://www.facebook.com/business/help/952192354843755",
   },
   {
@@ -46,7 +47,7 @@ const PIXELS = [
     idKey: "tiktokPixelId",
     enableKey: "tiktokEnabled",
     placeholder: "XXXXXXXXXXXXXXXXXXXXXXXX",
-    hint: "سلسلة أحرف وأرقام",
+    hintKey: "tiktok",
     docs: "https://ads.tiktok.com/help/article/tiktok-pixel",
   },
   {
@@ -60,12 +61,13 @@ const PIXELS = [
     idKey: "googleAdsConversionId",
     enableKey: "googleAdsEnabled",
     placeholder: "AW-XXXXXXXXX",
-    hint: "مثال: AW-123456789",
+    hintKey: "googleAds",
     docs: "https://support.google.com/google-ads/answer/6095821",
   },
 ];
 
 export default function TrackingPage() {
+  const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [form, setForm] = useState<Record<string, any>>({});
   const [saved, setSaved] = useState(false);
@@ -91,10 +93,10 @@ export default function TrackingPage() {
   const setField = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6" dir={i18n.dir()}>
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold text-gray-900">بيكسلات التتبع</h1>
-        <p className="text-gray-500 mt-1">تتبع أداء متجرك وحملاتك التسويقية</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t("tracking.title")}</h1>
+        <p className="text-gray-500 mt-1">{t("tracking.subtitle")}</p>
       </motion.div>
 
       {isLoading ? (
@@ -136,11 +138,11 @@ export default function TrackingPage() {
                       className="w-full bg-white/80 border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-rose-300"
                       dir="ltr"
                     />
-                    <p className="text-xs text-gray-500">{pixel.hint} • <a href={pixel.docs} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">كيفية الحصول عليه</a></p>
+                    <p className="text-xs text-gray-500">{t(`tracking.hints.${pixel.hintKey}`)} • <a href={pixel.docs} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{t("tracking.howToGetIt")}</a></p>
                   </div>
                   {isEnabled && idValue && (
                     <div className="mt-3 flex items-center gap-1 text-xs text-green-700">
-                      <CheckCircle className="w-3 h-3" /> مفعّل
+                      <CheckCircle className="w-3 h-3" /> {t("tracking.active")}
                     </div>
                   )}
                 </motion.div>
@@ -157,15 +159,15 @@ export default function TrackingPage() {
           {saved && (
             <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-200 rounded-xl p-4 text-sm">
-              <CheckCircle className="w-5 h-5 shrink-0" /> تم حفظ إعدادات التتبع بنجاح
+              <CheckCircle className="w-5 h-5 shrink-0" /> {t("tracking.savedSuccess")}
             </motion.div>
           )}
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="flex justify-end">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className={`flex ${i18n.language === "ar" ? "justify-end" : "justify-start"}`}>
             <button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}
               className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-medium px-6 py-3 rounded-xl transition-colors text-sm">
               <Save className="w-4 h-4" />
-              {saveMutation.isPending ? "جاري الحفظ..." : "حفظ الإعدادات"}
+              {saveMutation.isPending ? t("tracking.saving") : t("tracking.saveBtn")}
             </button>
           </motion.div>
         </>
