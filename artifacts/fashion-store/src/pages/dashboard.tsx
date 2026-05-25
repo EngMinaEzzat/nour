@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
 import {
@@ -38,8 +38,6 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "#ef4444",
   returned: "#6b7280",
 };
-
-const PIE_COLORS = ["#f59e0b", "#f97316", "#3b82f6", "#8b5cf6", "#22c55e", "#ef4444", "#6b7280"];
 
 const SUB_STATUS_COLORS: Record<string, string> = {
   trial:     "bg-blue-100 text-blue-700 border-blue-200",
@@ -491,183 +489,69 @@ export default function Dashboard() {
         }
       </motion.div>
 
-      {/* Revenue chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-        className="mb-6"
-      >
-        <Card className="border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-bold flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-primary" />
-              {t("dashboard.charts.revenue30d")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-56 w-full rounded-xl" />
-            ) : !hasOrders || !analytics?.salesByDay.length ? (
-              <EmptyChart height={224} t={t} />
-            ) : (
-              <ResponsiveContainer width="100%" height={224}>
-                <AreaChart data={analytics.salesByDay} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis
-                    dataKey="day"
-                    tick={{ fontFamily: "inherit", fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                    axisLine={false} tickLine={false}
-                    interval={Math.floor((analytics.salesByDay.length - 1) / 6)}
-                  />
-                  <YAxis
-                    tick={{ fontFamily: "inherit", fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                    axisLine={false} tickLine={false}
-                    tickFormatter={(v) => `${(v / 1000).toFixed(v >= 1000 ? 1 : 0)}${v >= 1000 ? "k" : ""}`}
-                    width={42}
-                  />
-                  <Tooltip
-                    formatter={(v: number) => [`${v.toLocaleString(locale)} ${curr}`, t("dashboard.charts.revenue")]}
-                    labelFormatter={(l) => `${l}`}
-                    contentStyle={{
-                      fontFamily: "inherit", direction: i18n.dir(),
-                      borderRadius: "12px", border: "1px solid hsl(var(--border))",
-                      background: "hsl(var(--background))",
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2.5}
-                    fill="url(#revenueGrad)"
-                    dot={false}
-                    activeDot={{ r: 5, fill: "hsl(var(--primary))" }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Bottom 3-col grid */}
+      {/* Bottom layout: Revenue + Recent Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Top Products */}
+        {/* Revenue chart */}
         <motion.div
-          className="lg:col-span-1"
-          initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
+          className="lg:col-span-2"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
         >
           <Card className="border-border/50 h-full">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <Package className="w-4 h-4 text-primary" />
-                {t("dashboard.charts.topProducts")}
+                <TrendingUp className="w-4 h-4 text-primary" />
+                {t("dashboard.charts.revenue30d")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="space-y-3">{Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
-              ) : !analytics?.topProducts.length ? (
-                <EmptyChart height={200} t={t} />
+                <Skeleton className="h-56 w-full rounded-xl" />
+              ) : !hasOrders || !analytics?.salesByDay.length ? (
+                <EmptyChart height={224} t={t} />
               ) : (
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={analytics.topProducts} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
+                <ResponsiveContainer width="100%" height={224}>
+                  <AreaChart data={analytics.salesByDay} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                     <XAxis
-                      type="number"
-                      tick={{ fontFamily: "inherit", fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                      dataKey="day"
+                      tick={{ fontFamily: "inherit", fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                       axisLine={false} tickLine={false}
-                      tickFormatter={(v) => `${(v / 1000).toFixed(1)}k`}
+                      interval={Math.floor((analytics.salesByDay.length - 1) / 6)}
                     />
                     <YAxis
-                      type="category"
-                      dataKey="name"
-                      width={80}
-                      tick={{ fontFamily: "inherit", fontSize: 10, fill: "hsl(var(--foreground))" }}
+                      tick={{ fontFamily: "inherit", fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                       axisLine={false} tickLine={false}
-                      tickFormatter={(v: string) => v.length > 10 ? v.slice(0, 10) + "…" : v}
+                      tickFormatter={(v) => `${(v / 1000).toFixed(v >= 1000 ? 1 : 0)}${v >= 1000 ? "k" : ""}`}
+                      width={42}
                     />
                     <Tooltip
                       formatter={(v: number) => [`${v.toLocaleString(locale)} ${curr}`, t("dashboard.charts.revenue")]}
+                      labelFormatter={(l) => `${l}`}
                       contentStyle={{
                         fontFamily: "inherit", direction: i18n.dir(),
                         borderRadius: "12px", border: "1px solid hsl(var(--border))",
                         background: "hsl(var(--background))",
                       }}
                     />
-                    <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} />
-                  </BarChart>
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2.5}
+                      fill="url(#revenueGrad)"
+                      dot={false}
+                      activeDot={{ r: 5, fill: "hsl(var(--primary))" }}
+                    />
+                  </AreaChart>
                 </ResponsiveContainer>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Order Status Donut */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.35 }}
-        >
-          <Card className="border-border/50 h-full">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-primary" />
-                {t("dashboard.charts.orderStatus")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <Skeleton className="h-48 w-full rounded-xl" />
-              ) : !hasOrders ? (
-                <EmptyChart height={192} t={t} />
-              ) : (
-                <div>
-                  <ResponsiveContainer width="100%" height={160}>
-                    <PieChart>
-                      <Pie
-                        data={analytics?.orderStatusBreakdown.filter((s) => s.count > 0)}
-                        dataKey="count"
-                        nameKey="label"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={45}
-                        outerRadius={72}
-                        paddingAngle={3}
-                      >
-                        {analytics?.orderStatusBreakdown.filter((s) => s.count > 0).map((entry, index) => (
-                          <Cell key={entry.status} fill={STATUS_COLORS[entry.status] ?? PIE_COLORS[index % PIE_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(v: number, _name: string, props: { payload?: { label?: string, status?: string } }) => [
-                          v, 
-                          props.payload?.status ? t(`dashboard.status.${props.payload.status}`, { defaultValue: props.payload.label }) : (props.payload?.label ?? "")
-                        ]}
-                        contentStyle={{
-                          fontFamily: "inherit", direction: i18n.dir(),
-                          borderRadius: "12px", border: "1px solid hsl(var(--border))",
-                          background: "hsl(var(--background))",
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="grid grid-cols-2 gap-1.5 mt-2">
-                    {analytics?.orderStatusBreakdown.filter((s) => s.count > 0).map((s) => (
-                      <div key={s.status} className="flex items-center gap-1.5 text-xs">
-                        <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: STATUS_COLORS[s.status] ?? "#888" }} />
-                        <span className="text-muted-foreground">{t(`dashboard.status.${s.status}`, { defaultValue: s.label })}</span>
-                        <span className="font-bold text-foreground ms-auto">{s.count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               )}
             </CardContent>
           </Card>
