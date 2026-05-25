@@ -1,4 +1,4 @@
-export type PlanCode = "starter" | "growth" | "pro";
+export type PlanCode = "free" | "starter" | "growth" | "pro";
 
 export interface PlanDefinition {
   code: PlanCode;
@@ -18,6 +18,22 @@ export interface PlanDefinition {
 }
 
 export const PLANS: Record<PlanCode, PlanDefinition> = {
+  free: {
+    code: "free",
+    name: "Free",
+    nameAr: "مجاني",
+    descriptionAr: "للتجار الجدد الذين يبدأون رحلتهم في البيع أونلاين",
+    priceEgp: 0,
+    productLimit: 30,
+    monthlyOrderLimit: 100,
+    staffSeatLimit: 1,
+    customDomainAllowed: false,
+    advancedAnalyticsAllowed: false,
+    paymobAllowed: false,
+    whatsappAutomationAllowed: false,
+    brandingRemovalAllowed: false,
+    isActive: true,
+  },
   starter: {
     code: "starter",
     name: "Starter",
@@ -69,7 +85,7 @@ export const PLANS: Record<PlanCode, PlanDefinition> = {
 };
 
 export function getPlan(code: string): PlanDefinition {
-  return PLANS[code as PlanCode] ?? PLANS.starter;
+  return PLANS[code as PlanCode] || PLANS.free;
 }
 
 export function isNearLimit(current: number, limit: number, threshold = 0.8): boolean {
