@@ -7,15 +7,17 @@ const SERIF = "'Cormorant Garamond', Georgia, serif";
 interface EditorialLookbookProps {
   primaryColor: string;
   onScrollToProducts: () => void;
+  content?: any;
 }
 
 export function EditorialLookbook({
   primaryColor: p,
   onScrollToProducts,
+  content,
 }: EditorialLookbookProps) {
   const { t, i18n } = useTranslation();
 
-  const PANELS = [
+  const defaultPanels = [
     {
       image:
         "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&crop=faces",
@@ -47,6 +49,22 @@ export function EditorialLookbook({
       imgClass: "object-top",
     },
   ];
+
+  const customItems = content?.items;
+  const PANELS = customItems
+    ? customItems.map((item: any, i: number) => {
+        const fallback = defaultPanels[i % defaultPanels.length];
+        return {
+          image: item.imageUrl,
+          tag: item.tag || "",
+          headline: item.title || "",
+          sub: item.desc || "",
+          span: fallback.span,
+          textPos: fallback.textPos,
+          imgClass: fallback.imgClass,
+        };
+      }).filter((p: any) => p.image)
+    : defaultPanels;
 
   return (
     <section

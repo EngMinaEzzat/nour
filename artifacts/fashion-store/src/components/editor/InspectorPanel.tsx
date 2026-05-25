@@ -1,5 +1,5 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
-import { SECTION_ICONS, SECTION_LABELS } from "@/lib/store-config";
+import { SECTION_ICONS, SECTION_LABELS, createDefaultSection } from "@/lib/store-config";
 import { Trash2, EyeOff, Eye, Copy, X, ExternalLink, ChevronUp, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -392,6 +392,8 @@ function SectionFields({ section, patchContent, patchSettings }: {
   onThemeChange: (t: StoreConfig["theme"]) => void;
 }) {
   const { t, i18n } = useTranslation();
+  const defaultSection = createDefaultSection(section.type, "متجري", "fashion", t);
+
   switch (section.type) {
     case "hero":
       return (
@@ -400,15 +402,16 @@ function SectionFields({ section, patchContent, patchSettings }: {
             <Textarea
               value={section.content.heading ?? ""}
               onChange={(e) => patchContent({ heading: e.target.value })}
+              placeholder={defaultSection.content.heading}
               className={`text-xs min-h-[60px] ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
               rows={2}
             />
           </Field>
           <Field label={t("inspectorPanel.fields.subheading")}>
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.subheading ?? ""} placeholder={defaultSection.content.subheading} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.ctaText")}>
-            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.ctaText ?? ""} placeholder={defaultSection.content.ctaText} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SelectField
             label={t("inspectorPanel.fields.height")}
@@ -445,10 +448,10 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.subheading")}>
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.subheading ?? ""} placeholder={defaultSection.content.subheading} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SliderField
             label={t("inspectorPanel.fields.productCount")}
@@ -470,7 +473,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SelectField
             label={t("inspectorPanel.fields.layout")}
@@ -485,7 +488,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SelectField
             label={t("inspectorPanel.fields.layout")}
@@ -511,13 +514,13 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.subheading")}>
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.subheading ?? ""} placeholder={defaultSection.content.subheading} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.ctaText")}>
-            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.ctaText ?? ""} placeholder={defaultSection.content.ctaText} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
         </>
       );
@@ -526,12 +529,13 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.body")}>
             <Textarea
               value={section.content.body ?? ""}
               onChange={(e) => patchContent({ body: e.target.value })}
+              placeholder={defaultSection.content.body}
               className={`text-xs min-h-[100px] ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
               rows={5}
             />
@@ -549,13 +553,13 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.subheading")}>
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.subheading ?? ""} placeholder={defaultSection.content.subheading} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.ctaText")}>
-            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.ctaText ?? ""} placeholder={defaultSection.content.ctaText} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
         </>
       );
@@ -564,10 +568,10 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.subheading")}>
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.subheading ?? ""} placeholder={defaultSection.content.subheading} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <ToggleField label={t("inspectorPanel.fields.showPrices")} value={section.settings.showPrices ?? true} onChange={(v) => patchSettings({ showPrices: v })} />
           <ToggleField label={t("inspectorPanel.fields.showQuickAdd")} value={section.settings.showQuickAdd ?? true} onChange={(v) => patchSettings({ showQuickAdd: v })} />
@@ -578,7 +582,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <ItemListEditor
             label={t("inspectorPanel.fields.faqItems", { defaultValue: "الأسئلة والإجابات" })}
@@ -596,13 +600,13 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.subheading")}>
-            <Input value={section.content.subheading ?? ""} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.subheading ?? ""} placeholder={defaultSection.content.subheading} onChange={(e) => patchContent({ subheading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <Field label={t("inspectorPanel.fields.ctaText")}>
-            <Input value={section.content.ctaText ?? ""} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.ctaText ?? ""} placeholder={defaultSection.content.ctaText} onChange={(e) => patchContent({ ctaText: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <ToggleField label={t("inspectorPanel.fields.floatingButton")} value={section.settings.floatingButton ?? true} onChange={(v) => patchSettings({ floatingButton: v })} />
         </>
@@ -613,7 +617,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <Field label={t("inspectorPanel.fields.heading")}>
-            <Input value={section.content.heading ?? ""} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
+            <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`} />
           </Field>
           <SliderField
             label={t("inspectorPanel.fields.columns")}
@@ -623,7 +627,12 @@ function SectionFields({ section, patchContent, patchSettings }: {
           <ItemListEditor
             label={t("inspectorPanel.fields.imageItems", { defaultValue: "الصور" })}
             items={(section.content.items as any) ?? []}
-            fields={[
+            fields={section.type === "lookbook" ? [
+              { key: "imageUrl", label: t("inspectorPanel.fields.imageUrl", { defaultValue: "رابط الصورة" }), type: "image" },
+              { key: "title", label: t("inspectorPanel.fields.title", { defaultValue: "العنوان" }), type: "text" },
+              { key: "desc", label: t("inspectorPanel.fields.desc", { defaultValue: "الوصف" }), type: "text" },
+              { key: "tag", label: t("inspectorPanel.fields.tag", { defaultValue: "العلامة (Tag)" }), type: "text" }
+            ] : [
               { key: "imageUrl", label: t("inspectorPanel.fields.imageUrl", { defaultValue: "رابط الصورة" }), type: "image" }
             ]}
             onChange={(items) => patchContent({ items })}
