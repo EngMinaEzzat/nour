@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Copy, Palette, LayoutList, Wand2, CheckCircle2 } from "lucide-react";
+import { Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Copy, Palette, LayoutList, Wand2, CheckCircle2, AlertTriangle } from "lucide-react";
 import {
   StoreConfig, SectionConfig, SectionType,
   SECTION_ICONS, SECTION_DESCRIPTIONS,
@@ -9,6 +9,7 @@ import {
 import ReadinessChecklist from "./ReadinessChecklist";
 import type { MerchantGender } from "./WelcomeOverlay";
 import { useTranslation } from "react-i18next";
+import { contrastStatus } from "@/lib/color-contrast";
 
 type SidebarTab = "sections" | "theme" | "ai";
 
@@ -316,6 +317,7 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
   const { t, i18n } = useTranslation();
   const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
   const [showCustom, setShowCustom] = useState(false);
+  const primaryContrast = contrastStatus(config.theme.primaryColor, "#ffffff");
 
   function applyTheme(theme: typeof VISUAL_THEMES[0]) {
     setActiveThemeId(theme.id);
@@ -417,6 +419,23 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
                       style={{ background: c, borderColor: config.theme.primaryColor === c ? "white" : "transparent", boxShadow: config.theme.primaryColor === c ? `0 0 0 3px ${c}` : "none" }} />
                   ))}
                   <input type="color" value={config.theme.primaryColor} onChange={(e) => patchTheme({ primaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" />
+                </div>
+                <div className={`mt-3 rounded-lg border px-3 py-2 text-[11px] ${
+                  primaryContrast.level === "pass"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    : primaryContrast.level === "warning"
+                      ? "border-amber-200 bg-amber-50 text-amber-800"
+                      : "border-red-200 bg-red-50 text-red-700"
+                }`}>
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    {primaryContrast.level === "pass"
+                      ? t("editorSidebar.themePanel.contrast.pass", "Readable CTA contrast")
+                      : t("editorSidebar.themePanel.contrast.risk", "Contrast needs review before publishing")}
+                  </div>
+                  <p className="mt-1 text-[10px] opacity-80">
+                    {t("editorSidebar.themePanel.contrast.ratio", { ratio: primaryContrast.ratio.toFixed(1), defaultValue: "Contrast ratio {{ratio}}:1" })}
+                  </p>
                 </div>
               </div>
 

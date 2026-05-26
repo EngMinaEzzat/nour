@@ -16,6 +16,7 @@ import {
   RotateCcw, Plus, ChevronLeft, Clock, CheckCircle2,
   XCircle, Package, RefreshCcw, Search,
 } from "lucide-react";
+import { StateBlock } from "@/components/admin/state-block";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -236,12 +237,10 @@ export default function Returns({ embedded = false }: { embedded?: boolean }) {
         {isLoading ? (
           <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}</div>
         ) : filtered.length === 0 ? (
-          <Card className="border-0 shadow-md">
-            <CardContent className="py-14 text-center">
-              <RotateCcw className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
-              <p className="text-muted-foreground">{search ? t("returns.list.emptySearch") : t("returns.list.empty")}</p>
-            </CardContent>
-          </Card>
+          <StateBlock
+            icon={<RotateCcw className="h-6 w-6" />}
+            title={search ? t("returns.list.emptySearch") : t("returns.list.empty")}
+          />
         ) : (
           <motion.div variants={stagger.container} initial="hidden" animate="show" className="space-y-3">
             {filtered.map((rc) => {

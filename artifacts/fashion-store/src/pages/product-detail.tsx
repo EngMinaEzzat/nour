@@ -18,28 +18,59 @@ import { usePageMeta } from "@/hooks/use-page-meta";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl } from "@/lib/image-url";
+import { formatCurrency } from "@/lib/ui-format";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 type Review = { id: number; customerName: string; rating: number; body: string | null; createdAt: string };
 type ReviewsData = { reviews: Review[]; avgRating: number | null; totalCount: number };
 
-function StarRow({ rating, interactive = false, onRate }: { rating: number; interactive?: boolean; onRate?: (r: number) => void }) {
+function StarRow({
+  rating,
+  interactive = false,
+  onRate,
+  label,
+}: {
+  rating: number;
+  interactive?: boolean;
+  onRate?: (r: number) => void;
+  label?: string;
+}) {
   const [hovered, setHovered] = useState(0);
+  const { t } = useTranslation();
+
+  if (!interactive) {
+    return (
+      <div className="flex items-center gap-0.5" aria-label={label ?? t("productDetail.ratingReadout", { rating })}>
+        {[1, 2, 3, 4, 5].map((s) => (
+          <Star
+            key={s}
+            aria-hidden="true"
+            className={`w-5 h-5 transition-colors ${
+              s <= rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"
+            }`}
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex items-center gap-0.5">
+    <div className="flex items-center gap-0.5" role="radiogroup" aria-label={label ?? t("productDetail.ratingLabel")}>
       {[1, 2, 3, 4, 5].map((s) => (
         <button
           key={s}
           type="button"
-          disabled={!interactive}
+          role="radio"
+          aria-checked={rating === s}
+          aria-label={t("productDetail.ratingOption", { rating: s })}
           onClick={() => onRate?.(s)}
-          onMouseEnter={() => interactive && setHovered(s)}
-          onMouseLeave={() => interactive && setHovered(0)}
-          className={interactive ? "cursor-pointer transition-transform hover:scale-110" : "cursor-default"}
+          onMouseEnter={() => setHovered(s)}
+          onMouseLeave={() => setHovered(0)}
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
         >
           <Star className={`w-5 h-5 transition-colors ${
-            s <= (interactive ? (hovered || rating) : rating)
+            s <= (hovered || rating)
               ? "fill-amber-400 text-amber-400"
               : "text-muted-foreground/30"
           }`} />
@@ -53,6 +84,7 @@ type Variant = { id: number; size?: string | null; color?: string | null; colorH
 
 export default function ProductDetail() {
   const { t, i18n } = useTranslation();
+  const formatMoney = (value: number | string | null | undefined) => formatCurrency(value, i18n.language);
   const params = useParams<{ id?: string; slug?: string; productSlug?: string }>();
   const productId = idFromPublicSlug(params.id ?? params.productSlug);
 
@@ -314,14 +346,16 @@ export default function ProductDetail() {
           </div>
           {galleryImages.length > 1 && (
             <div className="grid grid-cols-5 gap-2 mt-3">
-              {galleryImages.map((url) => (
+              {galleryImages.map((url, index) => (
                 <button
                   key={url}
                   type="button"
-                  className={`aspect-square rounded-xl overflow-hidden border ${url === imageUrl ? "border-primary" : "border-border/50"}`}
+                  className={`aspect-square min-h-11 rounded-xl overflow-hidden border focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${url === imageUrl ? "border-primary" : "border-border/50"}`}
                   onClick={() => setActiveImage(url)}
+                  aria-label={t("productDetail.galleryImage", { index: index + 1 })}
+                  aria-current={url === imageUrl ? "true" : undefined}
                 >
-                  <img src={url} alt={product.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </button>
               ))}
             </div>
@@ -352,13 +386,13 @@ export default function ProductDetail() {
             <div className="space-y-5 mb-6">
               {/* Size selector */}
               {uniqueSizes.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="font-semibold text-sm flex items-center gap-1.5">
+                <motion.fieldset initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                  <legend className="mb-3 flex w-full items-center justify-between">
+                    <span className="font-semibold text-sm flex items-center gap-1.5">
                       <Layers className="w-3.5 h-3.5 text-primary" /> {t("productDetail.size")}
-                    </p>
-                    {selectedSize && <p className="text-xs text-primary font-medium">{selectedSize}</p>}
-                  </div>
+                    </span>
+                    {selectedSize && <span className="text-xs text-primary font-medium">{selectedSize}</span>}
+                  </legend>
                   <div className="flex flex-wrap gap-2">
                     {uniqueSizes.map((size) => {
                       const sizeVariants = variants.filter((v) =>
@@ -373,7 +407,12 @@ export default function ProductDetail() {
                           whileTap={{ scale: 0.95 }}
                           disabled={outOfStock}
                           onClick={() => setSelectedSize(selected ? null : size)}
-                          className={`min-w-[52px] px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-200 relative ${
+                          aria-pressed={selected}
+                          aria-label={t("productDetail.sizeOption", {
+                            size,
+                            status: outOfStock ? t("productDetail.outOfStock") : t("productDetail.availablePieces"),
+                          })}
+                          className={`min-h-11 min-w-[52px] px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all duration-200 relative focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${
                             outOfStock
                               ? "border-border/30 text-muted-foreground/40 cursor-not-allowed line-through"
                               : selected
@@ -387,16 +426,16 @@ export default function ProductDetail() {
                       );
                     })}
                   </div>
-                </motion.div>
+                </motion.fieldset>
               )}
 
               {/* Color selector */}
               {uniqueColors.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="font-semibold text-sm">{t("productDetail.color")}</p>
-                    {selectedColor && <p className="text-xs text-primary font-medium">{selectedColor}</p>}
-                  </div>
+                <motion.fieldset initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+                  <legend className="mb-3 flex w-full items-center justify-between">
+                    <span className="font-semibold text-sm">{t("productDetail.color")}</span>
+                    {selectedColor && <span className="text-xs text-primary font-medium">{selectedColor}</span>}
+                  </legend>
                   <div className="flex flex-wrap gap-3">
                     {uniqueColors.map((v) => {
                       const colorVariants = variants.filter((cv) =>
@@ -413,7 +452,12 @@ export default function ProductDetail() {
                           disabled={outOfStock}
                           onClick={() => setSelectedColor(selected ? null : (v.color ?? null))}
                           title={v.color ?? ""}
-                          className={`relative w-9 h-9 rounded-full border-2 transition-all duration-200 ${
+                          aria-pressed={selected}
+                          aria-label={t("productDetail.colorOption", {
+                            color: v.color,
+                            status: outOfStock ? t("productDetail.outOfStock") : t("productDetail.availablePieces"),
+                          })}
+                          className={`relative h-11 w-11 rounded-full border-2 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ${
                             outOfStock ? "opacity-30 cursor-not-allowed" : ""
                           } ${selected ? "border-primary scale-110 shadow-lg" : `border-border hover:border-primary/50 ${isLight ? "border-gray-300" : ""}`}`}
                           style={{ backgroundColor: v.colorHex ?? "#000" }}
@@ -430,7 +474,7 @@ export default function ProductDetail() {
                       );
                     })}
                   </div>
-                </motion.div>
+                </motion.fieldset>
               )}
 
               {/* Variant stock info */}
@@ -441,6 +485,7 @@ export default function ProductDetail() {
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="text-sm text-muted-foreground"
+                    aria-live="polite"
                   >
                     {t("productDetail.stock")}{" "}
                     {selectedVariant.stock > 0
@@ -454,6 +499,7 @@ export default function ProductDetail() {
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-2.5"
+                    role="alert"
                   >
                     {t("productDetail.variantUnavailable", "هذا الاختيار غير متوفر حالياً. جرّبي مقاساً أو لوناً آخر.")}
                   </motion.p>
@@ -520,7 +566,7 @@ export default function ProductDetail() {
                   type="button"
                   onClick={() => setQuantity((value) => Math.max(1, value - 1))}
                   disabled={quantity <= 1 || unavailable || !variantSelectionComplete}
-                  className="w-9 h-9 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors"
+                  className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                   aria-label={t("productDetail.decreaseQuantity", "تقليل الكمية")}
                 >
                   <Minus className="w-4 h-4" />
@@ -530,7 +576,7 @@ export default function ProductDetail() {
                   type="button"
                   onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
                   disabled={quantity >= maxQuantity || unavailable || !variantSelectionComplete}
-                  className="w-9 h-9 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors"
+                  className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
                   aria-label={t("productDetail.increaseQuantity", "زيادة الكمية")}
                 >
                   <Plus className="w-4 h-4" />
@@ -736,41 +782,54 @@ export default function ProductDetail() {
                 ) : (
                   <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                     <div className="space-y-1.5">
-                      <Label>{t("productDetail.ratingLabel")}</Label>
-                      <div>
+                      <Label asChild>
+                        <span id="review-rating-label">{t("productDetail.ratingLabel")}</span>
+                      </Label>
+                      <div aria-describedby={reviewErrors.rating ? "review-rating-error" : undefined}>
                         <StarRow
                           rating={reviewForm.rating}
                           interactive
+                          label={t("productDetail.ratingLabel")}
                           onRate={(r) => { setReviewForm((f) => ({ ...f, rating: r })); setReviewErrors((e) => ({ ...e, rating: "" })); }}
                         />
-                        {reviewErrors.rating && <p className="text-xs text-destructive mt-1">{reviewErrors.rating}</p>}
+                        {reviewErrors.rating && <p id="review-rating-error" className="text-xs text-destructive mt-1">{reviewErrors.rating}</p>}
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label>{t("productDetail.nameLabel")}</Label>
+                      <Label htmlFor="review-name">{t("productDetail.nameLabel")}</Label>
                       <Input
+                        id="review-name"
                         placeholder={t("productDetail.namePlaceholder")}
                         value={reviewForm.name}
                         onChange={(e) => setReviewForm((f) => ({ ...f, name: e.target.value }))}
                         className={reviewErrors.name ? "border-destructive" : ""}
+                        autoComplete="name"
+                        aria-invalid={!!reviewErrors.name}
+                        aria-describedby={reviewErrors.name ? "review-name-error" : undefined}
                       />
-                      {reviewErrors.name && <p className="text-xs text-destructive">{reviewErrors.name}</p>}
+                      {reviewErrors.name && <p id="review-name-error" className="text-xs text-destructive">{reviewErrors.name}</p>}
                     </div>
                     <div className="space-y-1.5">
-                      <Label>{t("productDetail.emailLabel")}</Label>
+                      <Label htmlFor="review-email">{t("productDetail.emailLabel")}</Label>
                       <Input
+                        id="review-email"
                         type="email"
                         placeholder={t("productDetail.emailPlaceholder")}
                         value={reviewForm.email}
                         onChange={(e) => setReviewForm((f) => ({ ...f, email: e.target.value }))}
                         className={reviewErrors.email ? "border-destructive" : ""}
+                        autoComplete="email"
+                        inputMode="email"
+                        aria-invalid={!!reviewErrors.email}
+                        aria-describedby={reviewErrors.email ? "review-email-error" : undefined}
                         dir="ltr"
                       />
-                      {reviewErrors.email && <p className="text-xs text-destructive">{reviewErrors.email}</p>}
+                      {reviewErrors.email && <p id="review-email-error" className="text-xs text-destructive">{reviewErrors.email}</p>}
                     </div>
                     <div className="space-y-1.5">
-                      <Label>{t("productDetail.opinionLabel")}</Label>
+                      <Label htmlFor="review-body">{t("productDetail.opinionLabel")}</Label>
                       <textarea
+                        id="review-body"
                         placeholder={t("productDetail.opinionPlaceholder")}
                         value={reviewForm.body}
                         onChange={(e) => setReviewForm((f) => ({ ...f, body: e.target.value }))}
@@ -779,7 +838,7 @@ export default function ProductDetail() {
                       />
                     </div>
                     {submitReview.error && (
-                      <p className="text-xs text-destructive">{(submitReview.error as Error).message}</p>
+                      <p className="text-xs text-destructive" role="alert">{(submitReview.error as Error).message}</p>
                     )}
                     <Button
                       className="w-full rounded-xl"

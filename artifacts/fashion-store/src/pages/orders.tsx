@@ -9,55 +9,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  AlertCircle,
-  CheckCircle2,
   ChevronLeft,
-  Clock,
   FileText,
   MessageCircle,
-  PackageCheck,
   Search,
-  Truck,
-  XCircle,
 } from "lucide-react";
 import GuideCard from "@/components/admin/GuideCard";
 import Returns from "@/pages/returns";
 import FollowUp from "@/pages/follow-up";
-
-const STATUS_META: Record<string, { color: string; icon: React.ElementType }> = {
-  pending: {
-    color: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    icon: Clock,
-  },
-  awaiting_confirmation: {
-    color: "bg-orange-100 text-orange-800 border-orange-200",
-    icon: AlertCircle,
-  },
-  confirmed: {
-    color: "bg-blue-100 text-blue-800 border-blue-200",
-    icon: CheckCircle2,
-  },
-  dispatched: {
-    color: "bg-violet-100 text-violet-800 border-violet-200",
-    icon: Truck,
-  },
-  shipped: {
-    color: "bg-purple-100 text-purple-800 border-purple-200",
-    icon: Truck,
-  },
-  delivered: {
-    color: "bg-green-100 text-green-800 border-green-200",
-    icon: PackageCheck,
-  },
-  cancelled: {
-    color: "bg-red-100 text-red-800 border-red-200",
-    icon: XCircle,
-  },
-  returned: {
-    color: "bg-gray-100 text-gray-700 border-gray-200",
-    icon: XCircle,
-  },
-};
+import { formatCurrency, formatRelativeAge } from "@/lib/ui-format";
+import { AdminPageHeader, AdminToolbar } from "@/components/admin/admin-page";
+import { AdminTable, AdminTableCell, AdminTableRow } from "@/components/admin/admin-table";
+import { StateBlock } from "@/components/admin/state-block";
+import { StatusBadge } from "@/components/admin/status-badge";
+import { orderStatusMeta } from "@/lib/ui-status";
 
 const stagger = {
   container: { hidden: {}, show: { transition: { staggerChildren: 0.06 } } },
@@ -70,8 +35,9 @@ const stagger = {
 export default function Orders() {
   const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
-  const currency = i18n.language === "ar" ? "ج.م" : "EGP";
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [paymentFilter, setPaymentFilter] = useState("all");
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== "undefined") {
@@ -92,6 +58,15 @@ export default function Orders() {
 
   const { data: ordersResponse, isLoading } = useListOrders();
   const orders = ordersResponse?.data ?? [];
+
+  function nextActionFor(status: string) {
+    if (["pending", "awaiting_confirmation"].includes(status)) return t("orders.nextAction.confirm", "Confirm customer");
+    if (status === "confirmed") return t("orders.nextAction.ship", "Create shipment");
+    if (["dispatched", "shipped"].includes(status)) return t("orders.nextAction.track", "Track delivery");
+    if (status === "delivered") return t("orders.nextAction.followUp", "Follow up");
+    if (["cancelled", "returned"].includes(status)) return t("orders.nextAction.review", "Review reason");
+    return t("orders.nextAction.open", "Open order");
+  }
 
   const orderStats = {
     all: orders.length,
@@ -122,8 +97,25 @@ export default function Orders() {
     if (activeTab === "shipping") matchesStatus = ["dispatched", "shipped"].includes(order.status);
     if (activeTab === "done") matchesStatus = ["delivered", "cancelled", "returned"].includes(order.status);
 
-    return matchesSearch && matchesStatus;
+    const matchesStatusFilter = statusFilter === "all" || order.status === statusFilter;
+    const matchesPaymentFilter = paymentFilter === "all" || order.paymentMethod === paymentFilter;
+
+    return matchesSearch && matchesStatus && matchesStatusFilter && matchesPaymentFilter;
   });
+
+  const selectedOrders = filtered.filter((order) => selectedIds.includes(order.id));
+  const allVisibleSelected = filtered.length > 0 && filtered.every((order) => selectedIds.includes(order.id));
+
+  function toggleOrderSelection(orderId: number) {
+    setSelectedIds((current) => current.includes(orderId) ? current.filter((id) => id !== orderId) : [...current, orderId]);
+  }
+
+  function toggleVisibleSelection() {
+    setSelectedIds((current) => {
+      if (allVisibleSelected) return current.filter((id) => !filtered.some((order) => order.id === id));
+      return Array.from(new Set([...current, ...filtered.map((order) => order.id)]));
+    });
+  }
 
   const tabs = [
     { id: "all", label: t("orders.filter.all", "كل الطلبات"), count: orderStats.all },
@@ -144,11 +136,11 @@ export default function Orders() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
       >
-        <div className="flex items-center gap-3 mb-2">
-          <FileText className="w-6 h-6 text-primary" />
-          <h1 className="text-3xl font-bold">{t("orders.page.title")}</h1>
-        </div>
-        <p className="text-muted-foreground mb-4">{t("orders.page.subtitle")}</p>
+        <AdminPageHeader
+          icon={<FileText className="h-5 w-5" />}
+          title={t("orders.page.title")}
+          description={t("orders.page.subtitle")}
+        />
       </motion.div>
 
       <GuideCard
@@ -191,7 +183,7 @@ export default function Orders() {
           <Card className="border-border/50">
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground">{t("orders.metrics.revenue", "قيمة الطلبات")}</p>
-              <p className="text-2xl font-bold text-primary mt-1">{totalRevenue.toLocaleString(locale)} {currency}</p>
+              <p className="text-2xl font-bold text-primary mt-1">{formatCurrency(totalRevenue, i18n.language)}</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -226,7 +218,7 @@ export default function Orders() {
 
       {showOrdersQueue && (
         <>
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <AdminToolbar>
             <div className="relative flex-1 max-w-md">
               <Search className={`absolute ${i18n.dir() === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
               <Input
@@ -236,7 +228,46 @@ export default function Orders() {
                 className="px-10 h-11"
               />
             </div>
-          </div>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              className="h-11 rounded-xl border border-input bg-background px-3 text-sm"
+              aria-label={t("orders.filters.status", "Status")}
+            >
+              <option value="all">{t("orders.filters.allStatuses", "All statuses")}</option>
+              {Object.keys(orderStatusMeta).map((status) => (
+                <option key={status} value={status}>
+                  {t(`orders.status.${status}`, t(`orderDetail.status.${status}`, status))}
+                </option>
+              ))}
+            </select>
+            <select
+              value={paymentFilter}
+              onChange={(event) => setPaymentFilter(event.target.value)}
+              className="h-11 rounded-xl border border-input bg-background px-3 text-sm"
+              aria-label={t("orders.filters.payment", "Payment")}
+            >
+              <option value="all">{t("orders.filters.allPayments", "All payments")}</option>
+              <option value="cod">{t("orders.payment.cod", "COD")}</option>
+              <option value="paymob">{t("orders.payment.paymob", "Online payment")}</option>
+            </select>
+          </AdminToolbar>
+
+          {selectedOrders.length > 0 && (
+            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
+              <span className="font-medium text-primary">
+                {selectedOrders.length} {t("orders.bulk.selected", "selected")}
+              </span>
+              <Button size="sm" variant="outline" className="h-9 rounded-full" onClick={() => setSelectedIds([])}>
+                {t("orders.bulk.clear", "Clear")}
+              </Button>
+              <Button size="sm" className="h-9 rounded-full" asChild>
+                <a href={`data:text/csv;charset=utf-8,${encodeURIComponent(selectedOrders.map((order) => [order.id, order.customerName ?? "", order.customerPhone ?? "", order.status, order.totalAmount ?? 0].join(",")).join("\n"))}`} download="orders-export.csv">
+                  {t("orders.bulk.export", "Export CSV")}
+                </a>
+              </Button>
+            </div>
+          )}
 
           {!isLoading && (
             <p className="text-sm text-muted-foreground mb-4">
@@ -244,8 +275,79 @@ export default function Orders() {
             </p>
           )}
 
+          {!isLoading && filtered.length > 0 && (
+            <div className="hidden lg:block mb-4">
+              <AdminTable
+                headers={[
+                  <input
+                    type="checkbox"
+                    checked={allVisibleSelected}
+                    onChange={toggleVisibleSelection}
+                    aria-label={t("orders.bulk.selectVisible", "Select visible orders")}
+                  />,
+                  t("orders.table.order", "Order"),
+                  t("orders.table.customer", "Customer"),
+                  t("orders.table.status", "Status"),
+                  t("orders.table.payment", "Payment"),
+                  t("orders.table.total", "Total"),
+                  t("orders.table.age", "Age"),
+                  t("orders.table.next", "Next action"),
+                  <span className="sr-only">{t("orders.table.open", "Open")}</span>,
+                ]}
+              >
+                  {filtered.map((order) => {
+                    const statusLabel = t(
+                      `orders.status.${order.status}`,
+                      t(`orderDetail.status.${order.status}`, order.status),
+                    );
+                    const isNeedsAction = ["pending", "awaiting_confirmation"].includes(order.status);
+
+                    return (
+                      <AdminTableRow key={order.id} className={isNeedsAction ? "bg-amber-50/30" : undefined}>
+                        <AdminTableCell>
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(order.id)}
+                            onChange={() => toggleOrderSelection(order.id)}
+                            aria-label={t("orders.bulk.selectOrder", { id: order.id, defaultValue: "Select order {{id}}" })}
+                          />
+                        </AdminTableCell>
+                        <AdminTableCell className="font-semibold">#{order.id}</AdminTableCell>
+                        <AdminTableCell>
+                          <div className="font-medium text-foreground">{order.customerName ?? t("orders.list.unknownCustomer")}</div>
+                          {order.customerPhone && (
+                            <a className="text-xs text-emerald-700 hover:underline" dir="ltr" href={`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer">
+                              {order.customerPhone}
+                            </a>
+                          )}
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <StatusBadge status={order.status} label={statusLabel} />
+                        </AdminTableCell>
+                        <AdminTableCell className="text-muted-foreground">
+                          {order.paymentMethod === "paymob" ? t("orders.payment.paymob", "Online payment") : t("orders.payment.cod", "COD")}
+                        </AdminTableCell>
+                        <AdminTableCell className="font-semibold text-primary">{formatCurrency(order.totalAmount, i18n.language)}</AdminTableCell>
+                        <AdminTableCell className="text-muted-foreground">{formatRelativeAge(order.createdAt, i18n.language)}</AdminTableCell>
+                        <AdminTableCell>
+                          <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
+                            {nextActionFor(order.status)}
+                          </span>
+                        </AdminTableCell>
+                        <AdminTableCell className="text-end">
+                          <Button size="sm" variant={isNeedsAction ? "default" : "ghost"} asChild>
+                            <Link href={`/orders/${order.id}`}>{t("orders.actions.open", "Open")}</Link>
+                          </Button>
+                        </AdminTableCell>
+                      </AdminTableRow>
+                    );
+                  })}
+              </AdminTable>
+            </div>
+          )}
+
           <motion.div
-            className="space-y-3"
+            className="space-y-3 lg:hidden"
             variants={stagger.container}
             initial="hidden"
             animate="show"
@@ -261,8 +363,7 @@ export default function Orders() {
                     `orders.status.${order.status}`,
                     t(`orderDetail.status.${order.status}`, order.status),
                   );
-                  const statusMeta = STATUS_META[order.status] ?? STATUS_META.pending;
-                  const StatusIcon = statusMeta.icon;
+                  const StatusIcon = (orderStatusMeta[order.status] ?? orderStatusMeta.pending).icon;
                   const isNeedsAction = ["pending", "awaiting_confirmation"].includes(order.status);
 
                   return (
@@ -279,9 +380,7 @@ export default function Orders() {
                                   <span className="font-bold text-foreground">
                                     {t("orders.list.orderNum")}{order.id}
                                   </span>
-                                  <Badge className={`text-xs ${statusMeta.color}`}>
-                                    {statusLabel}
-                                  </Badge>
+                                  <StatusBadge status={order.status} label={statusLabel} />
                                   <Badge variant="outline" className="text-[10px]">
                                     {order.paymentMethod === "paymob"
                                       ? t("orders.payment.paymob", "دفع إلكتروني")
@@ -290,7 +389,7 @@ export default function Orders() {
                                 </div>
                                 <p className="text-sm text-muted-foreground mt-1">
                                   {order.customerName ?? t("orders.list.unknownCustomer")} ·{" "}
-                                  {new Date(order.createdAt).toLocaleDateString(locale)}
+                                  {formatRelativeAge(order.createdAt, i18n.language)}
                                 </p>
                                 {order.customerPhone && (
                                   <a
@@ -309,7 +408,7 @@ export default function Orders() {
                             <div className="flex items-center justify-between sm:justify-end gap-4">
                               <div className="text-end">
                                 <p className="font-bold text-primary">
-                                  {Number(order.totalAmount ?? 0).toLocaleString(locale)} {currency}
+                                  {formatCurrency(order.totalAmount, i18n.language)}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
                                   {order.items?.length ?? 0} {t("orders.list.productCount")}
@@ -331,10 +430,7 @@ export default function Orders() {
           </motion.div>
 
           {!isLoading && filtered.length === 0 && (
-            <div className="text-center py-24">
-              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-              <p className="text-muted-foreground">{t("orders.list.empty")}</p>
-            </div>
+            <StateBlock icon={<FileText className="h-6 w-6" />} title={t("orders.list.empty")} />
           )}
         </>
       )}

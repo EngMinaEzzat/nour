@@ -24,6 +24,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { getStoreUrl } from "@/lib/utils";
+import { formatCurrency } from "@/lib/ui-format";
+import { AdminPageHeader } from "@/components/admin/admin-page";
+import { AdminTable, AdminTableCell, AdminTableRow } from "@/components/admin/admin-table";
+import { StatusBadge } from "@/components/admin/status-badge";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -297,19 +301,19 @@ export default function Platform() {
   return (
     <div className="container mx-auto px-4 py-10 max-w-7xl">
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="w-6 h-6 text-primary" />
-            <h1 className="text-3xl font-bold">{t("platform.title")}</h1>
-          </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard">
-              <ChevronLeft className="w-4 h-4 me-1" />
-              {t("platform.backToDashboard", { defaultValue: "العودة للمتجر" })}
-            </Link>
-          </Button>
-        </div>
-        <p className="text-muted-foreground mb-6">{t("platform.subtitle")}</p>
+        <AdminPageHeader
+          icon={<ShieldCheck className="h-5 w-5" />}
+          title={t("platform.title")}
+          description={t("platform.subtitle")}
+          actions={
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard">
+                <ChevronLeft className="w-4 h-4 me-1" />
+                {t("platform.backToDashboard", { defaultValue: "العودة للمتجر" })}
+              </Link>
+            </Button>
+          }
+        />
         <div className="flex gap-2 mb-8 flex-wrap">
           {[
             { id: "merchants", label: t("platform.tabs.merchants"), icon: Store,       badge: merchants.length || null },
@@ -419,7 +423,64 @@ export default function Platform() {
             </div>
           </div>
 
-          <motion.div className="space-y-2" variants={stagger.container} initial="hidden" animate="show">
+          {!merchantsLoading && filteredMerchants.length > 0 && (
+            <div className="hidden lg:block mb-4">
+              <AdminTable
+                headers={[
+                  t("platform.table.store", "Store"),
+                  t("platform.table.owner", "Owner"),
+                  t("platform.table.plan", "Plan"),
+                  t("platform.table.health", "Health"),
+                  t("platform.metrics.orders"),
+                  t("platform.metrics.revenue"),
+                  <span className="sr-only">{t("platform.table.actions", "Actions")}</span>,
+                ]}
+              >
+                  {filteredMerchants.map((m) => {
+                    const healthRisk = m.productCount === 0 || m.orderCount === 0 || m.subscriptionStatus === "past_due";
+                    return (
+                      <AdminTableRow key={m.tenantId}>
+                        <AdminTableCell>
+                          <div className="font-semibold text-foreground">{m.storeName}</div>
+                          <a href={getStoreUrl(m.slug)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                            {m.slug}
+                          </a>
+                        </AdminTableCell>
+                        <AdminTableCell className="text-muted-foreground">{m.ownerEmail || m.ownerName || "-"}</AdminTableCell>
+                        <AdminTableCell>
+                          <div className="flex items-center gap-2">
+                            <StatusBadge status={m.subscriptionStatus ?? "trial"} label={t(SUB_STATUS[m.subscriptionStatus ?? "trial"]?.labelKey ?? "status.trial")} />
+                            <span className="text-muted-foreground">{t(`plans.${m.planCode}`, { defaultValue: m.planCode })}</span>
+                          </div>
+                        </AdminTableCell>
+                        <AdminTableCell>
+                          <StatusBadge
+                            status={healthRisk ? "past_due" : "active"}
+                            label={healthRisk ? t("platform.health.risk", "Needs review") : t("platform.health.ok", "Healthy")}
+                            tone={healthRisk ? "warning" : "success"}
+                          />
+                        </AdminTableCell>
+                        <AdminTableCell>{m.orderCount}</AdminTableCell>
+                        <AdminTableCell className="font-semibold text-primary">{formatCurrency(m.totalRevenue, i18n.language)}</AdminTableCell>
+                        <AdminTableCell>
+                          <div className="flex items-center justify-end gap-2">
+                            <MerchantStatusToggle
+                              m={m}
+                              onToggled={() => queryClient.invalidateQueries({ queryKey: ["platform-merchants"] })}
+                            />
+                            <Button variant="ghost" size="sm" asChild>
+                              <Link href={`/tenants/${m.tenantId}`}>{t("platform.table.open", "Open")}</Link>
+                            </Button>
+                          </div>
+                        </AdminTableCell>
+                      </AdminTableRow>
+                    );
+                  })}
+              </AdminTable>
+            </div>
+          )}
+
+          <motion.div className="space-y-2 lg:hidden" variants={stagger.container} initial="hidden" animate="show">
             {merchantsLoading
               ? Array(6).fill(0).map((_, i) => (
                 <motion.div key={i} variants={stagger.item}>

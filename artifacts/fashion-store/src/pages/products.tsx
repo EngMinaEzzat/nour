@@ -30,11 +30,17 @@ import {
 import {
   Package, Plus, Pencil, Trash2, Search, Star, Eye, EyeOff,
   AlertCircle, Layers, X, Check, Palette, AlertTriangle, Sparkles, Loader2,
-  FileUp, FileDown, CheckCircle2, XCircle, UploadCloud, MoreHorizontal, Filter,
+  FileUp, FileDown, CheckCircle2, XCircle, UploadCloud, MoreHorizontal, Filter, LayoutGrid, List,
 } from "lucide-react";
 import { ImageUpload, ImageUploadList } from "@/components/image-upload";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
 import { useTranslation } from "react-i18next";
+import { formatCurrency } from "@/lib/ui-format";
+import { AdminIconButton } from "@/components/admin/admin-icon-button";
+import { AdminPageHeader, AdminToolbar } from "@/components/admin/admin-page";
+import { AdminTable, AdminTableCell, AdminTableRow } from "@/components/admin/admin-table";
+import { StateBlock } from "@/components/admin/state-block";
+import { StatusBadge } from "@/components/admin/status-badge";
 
 const SELECT_NONE_VALUE = "__none__";
 
@@ -706,6 +712,9 @@ export default function Products() {
 
   const [search, setSearch] = useState("");
   const [filterLowStock, setFilterLowStock] = useState(() => new URLSearchParams(window.location.search).get("filter") === "low-stock");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortMode, setSortMode] = useState("newest");
   const [csvImportOpen, setCsvImportOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -768,7 +777,17 @@ export default function Products() {
   const filtered = products?.filter((p) => {
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (filterLowStock && p.stock > 5) return false;
+    if (statusFilter === "active" && p.status !== "active") return false;
+    if (statusFilter === "hidden" && p.status !== "hidden") return false;
+    if (statusFilter === "out_of_stock" && p.stock > 0 && p.status !== "out_of_stock") return false;
+    if (statusFilter === "missing_image" && p.imageUrl) return false;
+    if (statusFilter === "no_category" && p.categoryName) return false;
     return true;
+  }).sort((a, b) => {
+    if (sortMode === "stock") return (a.stock ?? 0) - (b.stock ?? 0);
+    if (sortMode === "price") return Number(a.price ?? 0) - Number(b.price ?? 0);
+    if (sortMode === "bestsellers") return (b.orderCount ?? 0) - (a.orderCount ?? 0);
+    return b.id - a.id;
   });
 
   function openCreate() {
@@ -868,24 +887,13 @@ export default function Products() {
   return (
     <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10"
-      >
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("products.title")}</h1>
-          <p className="text-muted-foreground mt-2">{t("products.subtitle")}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 sm:w-80">
-            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder={t("products.searchPlaceholder")}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="ps-10 bg-background h-10 rounded-xl"
-            />
-          </div>
+      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
+        <AdminPageHeader
+          icon={<Package className="h-5 w-5" />}
+          title={t("products.title")}
+          description={t("products.subtitle")}
+          actions={
+            <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" className="gap-2 h-10 rounded-xl shadow-sm px-3">
@@ -908,7 +916,9 @@ export default function Products() {
             <Plus className="w-4 h-4" />
             {t("products.btnAdd")}
           </Button>
-        </div>
+            </>
+          }
+        />
       </motion.div>
 
       <GuideCard
@@ -939,6 +949,45 @@ export default function Products() {
         </div>
       )}
 
+      {!isLoading && products && (
+        <AdminToolbar className="mb-6">
+          <div className="relative flex-1 sm:max-w-sm">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder={t("products.searchPlaceholder")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-10 rounded-lg bg-background ps-10"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant={viewMode === "grid" ? "default" : "outline"} className="h-9 rounded-lg gap-1.5" onClick={() => setViewMode("grid")}>
+              <LayoutGrid className="w-3.5 h-3.5" /> {t("products.view.grid", "Grid")}
+            </Button>
+            <Button size="sm" variant={viewMode === "table" ? "default" : "outline"} className="h-9 rounded-lg gap-1.5" onClick={() => setViewMode("table")}>
+              <List className="w-3.5 h-3.5" /> {t("products.view.table", "Table")}
+            </Button>
+            <Button size="sm" variant={filterLowStock ? "default" : "outline"} className="h-9 rounded-lg" onClick={() => setFilterLowStock(!filterLowStock)}>
+              {t("products.filters.lowStock", "Low stock")}
+            </Button>
+            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="h-10 rounded-lg border border-input bg-background px-3 text-sm" aria-label={t("products.filters.status", "Product filter")}>
+              <option value="all">{t("products.filters.all", "All products")}</option>
+              <option value="active">{t("products.status.active")}</option>
+              <option value="hidden">{t("products.status.hidden")}</option>
+              <option value="out_of_stock">{t("products.status.out_of_stock")}</option>
+              <option value="missing_image">{t("products.filters.missingImage", "Missing image")}</option>
+              <option value="no_category">{t("products.filters.noCategory", "No category")}</option>
+            </select>
+            <select value={sortMode} onChange={(event) => setSortMode(event.target.value)} className="h-10 rounded-lg border border-input bg-background px-3 text-sm" aria-label={t("products.sort.label", "Sort products")}>
+              <option value="newest">{t("products.sort.newest", "Newest")}</option>
+              <option value="stock">{t("products.sort.stock", "Stock low-high")}</option>
+              <option value="price">{t("products.sort.price", "Price")}</option>
+              <option value="bestsellers">{t("products.sort.bestsellers", "Best sellers")}</option>
+            </select>
+          </div>
+        </AdminToolbar>
+      )}
+
       {/* Products grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -951,17 +1000,54 @@ export default function Products() {
           ))}
         </div>
       ) : filtered?.length === 0 ? (
-        <div className="text-center py-24">
-          <Package className="w-14 h-14 text-muted-foreground mx-auto mb-4 opacity-30" />
-          <p className="text-muted-foreground font-medium mb-2">
-            {search ? t("products.emptySearch") : t("products.emptyState.title")}
-          </p>
-          {!search && (
-            <Button className="mt-4 gap-2" onClick={openCreate}>
-              <Plus className="w-4 h-4" /> {t("products.btnAdd")}
-            </Button>
-          )}
-        </div>
+        <StateBlock
+          icon={<Package className="h-6 w-6" />}
+          title={search ? t("products.emptySearch") : t("products.emptyState.title")}
+          actionLabel={!search ? t("products.btnAdd") : undefined}
+          onAction={!search ? openCreate : undefined}
+        />
+      ) : viewMode === "table" ? (
+        <AdminTable
+          headers={[
+            t("products.columns.name"),
+            t("products.form.category"),
+            t("products.form.price"),
+            t("products.columns.stock"),
+            t("products.columns.status"),
+            <span className="sr-only">{t("products.columns.actions", "Actions")}</span>,
+          ]}
+        >
+              {filtered?.map((p) => {
+                return (
+                  <AdminTableRow key={p.id}>
+                    <AdminTableCell>
+                      <div className="flex items-center gap-3">
+                        <img src={productImageUrl(p.imageUrl, "/product-fashion.png")} alt={p.name} className="h-12 w-10 rounded-lg object-cover bg-muted" />
+                        <div>
+                          <p className="font-semibold text-foreground line-clamp-1">{p.name}</p>
+                          {!p.imageUrl && <p className="text-xs text-amber-700">{t("products.filters.missingImage", "Missing image")}</p>}
+                        </div>
+                      </div>
+                    </AdminTableCell>
+                    <AdminTableCell className="text-muted-foreground">{p.categoryName || t("products.filters.noCategory", "No category")}</AdminTableCell>
+                    <AdminTableCell className="font-semibold text-primary">{formatCurrency(p.price, i18n.language)}</AdminTableCell>
+                    <AdminTableCell>
+                      <span className={p.stock <= 5 ? "text-amber-700 font-semibold" : "text-foreground"}>{p.stock}</span>
+                    </AdminTableCell>
+                    <AdminTableCell>
+                      <StatusBadge status={p.status} label={t(`products.status.${p.status}`) || p.status} />
+                    </AdminTableCell>
+                    <AdminTableCell>
+                      <div className="flex justify-end gap-2">
+                        <AdminIconButton label={t("products.actions.edit", "Edit")} icon={<Pencil className="w-3.5 h-3.5" />} variant="outline" onClick={() => openEdit(p)} />
+                        <AdminIconButton label={t("products.pricing.btn")} icon={<Sparkles className="w-3.5 h-3.5" />} variant="outline" className="text-amber-700 border-amber-300" onClick={() => openPricingAdvisor(p)} />
+                        <AdminIconButton label={t("products.actions.delete", "Delete")} icon={<Trash2 className="w-3.5 h-3.5" />} variant="destructive" onClick={() => setDeleteId(p.id)} />
+                      </div>
+                    </AdminTableCell>
+                  </AdminTableRow>
+                );
+              })}
+        </AdminTable>
       ) : (
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
@@ -1033,7 +1119,7 @@ export default function Products() {
                     <p className="font-semibold text-sm text-foreground line-clamp-1 mb-1">{p.name}</p>
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-primary font-bold">{Number(p.price).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>
+                        <span className="text-primary font-bold">{formatCurrency(p.price, i18n.language)}</span>
                         {p.originalPrice && p.originalPrice > p.price && (
                           <span className="text-xs text-muted-foreground line-through ms-1.5">
                             {Number(p.originalPrice).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")}
@@ -1058,6 +1144,17 @@ export default function Products() {
                     {p.categoryName && (
                       <p className="text-[10px] text-muted-foreground mt-1">{p.categoryName}</p>
                     )}
+                    <div className="mt-3 flex gap-2 md:hidden">
+                      <Button size="sm" variant="outline" className="h-9 flex-1 gap-1.5" onClick={() => openEdit(p)}>
+                        <Pencil className="w-3.5 h-3.5" /> {t("products.actions.edit", "Edit")}
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-9 text-amber-700 border-amber-300" onClick={() => openPricingAdvisor(p)} aria-label={t("products.pricing.btn")}>
+                        <Sparkles className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button size="sm" variant="destructive" className="h-9" onClick={() => setDeleteId(p.id)} aria-label={t("products.actions.delete", "Delete")}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>

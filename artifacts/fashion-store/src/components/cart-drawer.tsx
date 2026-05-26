@@ -3,9 +3,10 @@ import { useCart } from "@/hooks/use-cart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingBag, Minus, Plus, Trash2, ArrowRight, PackageOpen, Banknote } from "lucide-react";
+import { ShoppingBag, Minus, Plus, Trash2, ArrowRight, PackageOpen, Banknote, Truck, BadgePercent } from "lucide-react";
 import { productImageUrl } from "@/lib/image-url";
 import { useTranslation } from "react-i18next";
+import { formatCurrency } from "@/lib/ui-format";
 
 interface CartDrawerProps {
   open: boolean;
@@ -17,10 +18,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const [, navigate] = useLocation();
   const { t, i18n } = useTranslation();
   const isRtl = i18n.dir() === "rtl";
-  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
-  const currency = i18n.language === "ar" ? "ج.م" : "EGP";
-  const formatMoney = (value: number) =>
-    `${value.toLocaleString(locale, { maximumFractionDigits: 2 })} ${currency}`;
+  const formatMoney = (value: number) => formatCurrency(value, i18n.language);
 
   function handleCheckout() {
     onClose();
@@ -63,7 +61,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             </p>
             <Button
               variant="outline"
-              className="mt-2 rounded-full"
+              className="mt-2 min-h-11 rounded-full"
               onClick={() => { onClose(); navigate("/products"); }}
             >
               {t("cart.empty.cta", { defaultValue: i18n.language === "ar" ? "تصفحي المنتجات" : "Browse Collection" })}
@@ -101,7 +99,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     <div className="flex items-center gap-2 mt-2">
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
-                        className="w-8 h-8 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-colors"
+                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-colors"
                         aria-label={t("cart.actions.decrease", { defaultValue: i18n.language === "ar" ? "تقليل الكمية" : "Decrease quantity" })}
                       >
                         <Minus className="w-3 h-3" />
@@ -109,14 +107,14 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                       <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
-                        className="w-8 h-8 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-colors"
+                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-colors"
                         aria-label={t("cart.actions.increase", { defaultValue: i18n.language === "ar" ? "زيادة الكمية" : "Increase quantity" })}
                       >
                         <Plus className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => removeItem(item.productId, item.variantId)}
-                        className="ms-auto h-8 w-8 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center"
+                        className="ms-auto h-11 w-11 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center"
                         aria-label={t("cart.actions.remove", { defaultValue: i18n.language === "ar" ? "حذف المنتج" : "Remove item" })}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -129,11 +127,37 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
             <div className="px-6 py-6 border-t border-border/50 bg-background space-y-4">
               <Separator />
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  {t("cart.summary.subtotal", { defaultValue: i18n.language === "ar" ? "المجموع الفرعي" : "Subtotal" })}
-                </span>
-                <span className="font-serif text-xl font-bold">{formatMoney(totalPrice)}</span>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    {t("cart.summary.subtotal", { defaultValue: i18n.language === "ar" ? "المجموع الفرعي" : "Subtotal" })}
+                  </span>
+                  <span className="font-medium">{formatMoney(totalPrice)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <Truck className="h-3.5 w-3.5" />
+                    {t("cart.summary.shipping", { defaultValue: i18n.language === "ar" ? "الشحن المتوقع" : "Estimated shipping" })}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {t("cart.summary.shippingNext", { defaultValue: i18n.language === "ar" ? "يُحسب في checkout" : "Calculated at checkout" })}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <BadgePercent className="h-3.5 w-3.5" />
+                    {t("cart.summary.discount", { defaultValue: i18n.language === "ar" ? "الخصم" : "Discount" })}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {t("cart.summary.noDiscount", { defaultValue: i18n.language === "ar" ? "لا يوجد" : "None" })}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between border-t border-border/60 pt-3">
+                  <span className="font-semibold">
+                    {t("cart.summary.total", { defaultValue: i18n.language === "ar" ? "الإجمالي المبدئي" : "Estimated total" })}
+                  </span>
+                  <span className="font-serif text-xl font-bold">{formatMoney(totalPrice)}</span>
+                </div>
               </div>
               <div className="rounded-xl bg-muted/50 px-3 py-2 text-xs text-muted-foreground flex items-start gap-2">
                 <Banknote className="w-4 h-4 text-primary mt-0.5 shrink-0" />
@@ -146,6 +170,13 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   })}
                 </span>
               </div>
+              <Button
+                variant="outline"
+                className="w-full h-11 rounded-2xl"
+                onClick={() => onClose()}
+              >
+                {t("cart.summary.continueShopping", { defaultValue: i18n.language === "ar" ? "متابعة التسوق" : "Continue shopping" })}
+              </Button>
               <Button
                 className="w-full h-14 text-base rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={handleCheckout}

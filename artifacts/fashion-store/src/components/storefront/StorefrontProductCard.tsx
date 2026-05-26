@@ -8,6 +8,7 @@ import { getGetProductQueryKey } from "@workspace/api-client-react";
 import { publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl } from "@/lib/image-url";
 import { getStoreUrl } from "@/lib/utils";
+import { formatCurrency } from "@/lib/ui-format";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -23,6 +24,8 @@ export interface ProductCardData {
   stock?: number;
   featured?: boolean;
   hasVariants?: boolean;
+  avgRating?: number | null;
+  reviewCount?: number | null;
   tenantId: number;
   tenantName: string;
 }
@@ -44,9 +47,10 @@ export function StorefrontProductCard({
   inCart = false,
   onAdd,
   variant = "portrait",
-  showRating = true,
+  showRating = false,
 }: StorefrontProductCardProps) {
   const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
@@ -54,6 +58,8 @@ export function StorefrontProductCard({
 
   const unavailable =
     product.status === "out_of_stock" || (product.stock ?? 1) === 0;
+  const lowStock = !unavailable && typeof product.stock === "number" && product.stock > 0 && product.stock <= 5;
+  const controlsVisible = hovered || focused || wishlisted;
 
   const discount =
     product.originalPrice && product.originalPrice > product.price
@@ -71,6 +77,12 @@ export function StorefrontProductCard({
     ? `${getStoreUrl(storeSlug)}/product/${publicEntitySlug(product.id, product.name)}`
     : `/product/${publicEntitySlug(product.id, product.name)}`;
   const imageUrl = productImageUrl(product.imageUrl);
+  const hasRealRating =
+    showRating &&
+    typeof product.avgRating === "number" &&
+    typeof product.reviewCount === "number" &&
+    product.reviewCount > 0;
+  const roundedRating = hasRealRating ? Math.round(product.avgRating ?? 0) : 0;
 
   function prefetchProduct() {
     queryClient.prefetchQuery({
@@ -131,6 +143,11 @@ export function StorefrontProductCard({
               {t("storefront.products.featured", "مميز")}
             </div>
           )}
+          {lowStock && (
+            <div className="absolute top-3 start-3 text-[10px] px-2.5 py-1 rounded-full font-bold text-amber-900 bg-amber-100 z-10">
+              {t("storefront.products.lowStock", "كمية محدودة")}
+            </div>
+          )}
           {unavailable && (
             <div className="absolute inset-0 bg-stone-900/50 flex items-center justify-center z-10 rounded-2xl">
               <span className="text-white text-xs font-semibold px-4 py-2 bg-stone-900/70 rounded-full">
@@ -142,12 +159,14 @@ export function StorefrontProductCard({
           {/* Wishlist */}
           <button
             onClick={handleWishlist}
-            className={`absolute top-3 ${i18n.dir() === "rtl" ? "start-3" : "start-3"} w-8 h-8 rounded-full flex items-center justify-center z-10 transition-all`}
+            className={`absolute top-3 ${i18n.dir() === "rtl" ? "start-3" : "start-3"} w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2`}
+            aria-label={wishlisted ? t("storefront.products.removeWishlist", "إزالة من المفضلة") : t("storefront.products.addWishlist", "إضافة للمفضلة")}
+            aria-pressed={wishlisted}
             style={{
               background: "rgba(250,247,244,0.88)",
               backdropFilter: "blur(8px)",
-              opacity: hovered || wishlisted ? 1 : 0,
-              transform: hovered || wishlisted ? "scale(1)" : "scale(0.8)",
+              opacity: controlsVisible ? 1 : 0,
+              transform: controlsVisible ? "scale(1)" : "scale(0.8)",
               transition: "all 0.25s ease",
             }}
           >
@@ -163,7 +182,7 @@ export function StorefrontProductCard({
           {/* Add to cart overlay */}
           {!unavailable && (
             <AnimatePresence>
-              {hovered && (
+              {(hovered || focused) && (
                 <motion.div
                   className="absolute bottom-0 left-0 right-0 z-10 hidden sm:block"
                   initial={{ opacity: 0, y: 8 }}
@@ -173,7 +192,8 @@ export function StorefrontProductCard({
                 >
                   <button
                     onClick={handleAdd}
-                    className="w-full py-3 text-xs font-bold flex items-center justify-center gap-2 transition-all"
+                    className="w-full py-3 text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    aria-label={product.hasVariants ? t("storefront.products.chooseOption", "اختاري خيارك") : t("storefront.products.addToCart", "أضيفي للسلة")}
                     style={{
                       background: inCart
                         ? "rgba(250,247,244,0.95)"
@@ -202,14 +222,18 @@ export function StorefrontProductCard({
       className="group flex flex-col"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onFocusCapture={() => setFocused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false);
+      }}
     >
       {/* Image */}
       {storeSlug ? (
-        <a href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+        <a href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct} aria-label={product.name}>
           {imageContent}
         </a>
       ) : (
-        <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
+        <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct} aria-label={product.name}>
           {imageContent}
         </Link>
       )}
@@ -241,25 +265,35 @@ export function StorefrontProductCard({
           </Link>
         )}
 
-        {showRating && (
-          <div className="flex items-center gap-1 mt-1 mb-1.5">
+        {hasRealRating && (
+          <div
+            className="flex items-center gap-1 mt-1 mb-1.5"
+            aria-label={t("storefront.products.ratingSummary", {
+              rating: product.avgRating?.toFixed(1),
+              count: product.reviewCount,
+              defaultValue: "{{rating}} rating from {{count}} reviews",
+            })}
+          >
             {[1, 2, 3, 4, 5].map(s => (
               <Star
                 key={s}
                 className="w-2.5 h-2.5"
+                aria-hidden="true"
                 style={{
-                  color: s <= 4 ? "#c8963a" : "#d5c9bd",
-                  fill: s <= 4 ? "#c8963a" : "none",
+                  color: s <= roundedRating ? "#c8963a" : "#d5c9bd",
+                  fill: s <= roundedRating ? "#c8963a" : "none",
                 }}
               />
             ))}
-            <span className="text-[10px] text-stone-400 mr-1">4.0</span>
+            <span className="text-[10px] text-stone-400 mr-1">
+              {product.avgRating?.toFixed(1)}
+            </span>
           </div>
         )}
 
         <div className="flex items-baseline gap-2">
           <span className="font-bold text-[15px]" style={{ color: p }}>
-            {product.price.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}
+            {formatCurrency(product.price, i18n.language)}
           </span>
           {product.originalPrice && product.originalPrice > product.price && (
             <span className="text-xs text-stone-400 line-through">
@@ -274,11 +308,18 @@ export function StorefrontProductCard({
           </p>
         )}
 
+        {lowStock && (
+          <p className="text-[10px] text-amber-700 mt-1">
+            {t("storefront.products.lowStockCount", { count: product.stock, defaultValue: i18n.language === "ar" ? "متبقي {{count}} فقط" : "Only {{count}} left" })}
+          </p>
+        )}
+
         <button
           type="button"
           onClick={handleAdd}
           disabled={unavailable}
-          className="sm:hidden mt-2 w-full min-h-9 rounded-xl px-3 py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+          className="sm:hidden mt-2 w-full min-h-11 rounded-xl px-3 py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+          aria-label={unavailable ? t("storefront.products.outOfStock", "نفذت الكمية") : product.hasVariants ? t("storefront.products.chooseOption", "اختاري خيارك") : t("storefront.products.addToCart", "أضيفي للسلة")}
           style={{
             background: unavailable
               ? "#e7dfd8"

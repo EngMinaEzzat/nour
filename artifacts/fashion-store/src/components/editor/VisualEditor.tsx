@@ -10,6 +10,7 @@ import InspectorPanel from "./InspectorPanel";
 import StoreAssistant from "./StoreAssistant";
 import WelcomeOverlay, { type MerchantGender } from "./WelcomeOverlay";
 import { Layers3, Menu, Save, X } from "lucide-react";
+import { contrastStatus } from "@/lib/color-contrast";
 
 interface VisualEditorProps {
   initialConfig: StoreConfig;
@@ -65,6 +66,9 @@ export default function VisualEditor({
 
   const selectedSection = selectedId
     ? config.homepage.sections.find((s) => s.id === selectedId) ?? null
+    : null;
+  const publishDisabledReason = contrastStatus(config.theme.primaryColor, "#ffffff").level === "fail"
+    ? t("visualEditor.publishDisabled.lowContrast", "Fix theme contrast before publishing")
     : null;
 
   function selectSection(id: string) {
@@ -162,6 +166,7 @@ export default function VisualEditor({
         onSave={handleSave}
         saving={saving}
         isDirty={isDirty}
+        publishDisabledReason={publishDisabledReason}
       />
 
       <div className="flex-1 flex overflow-hidden">

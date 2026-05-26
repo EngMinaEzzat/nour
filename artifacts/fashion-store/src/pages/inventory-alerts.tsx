@@ -15,6 +15,7 @@ import {
   XCircle, TrendingDown, ShoppingBag, Pencil, ExternalLink, Bell,
   Check,
 } from "lucide-react";
+import { StateBlock } from "@/components/admin/state-block";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -191,11 +192,11 @@ export default function InventoryAlerts() {
         {isLoading ? (
           <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>
         ) : lowStock.length === 0 ? (
-          <div className="text-center py-24 bg-muted/20 rounded-3xl border border-dashed border-border text-muted-foreground">
-            <ShoppingBag className="w-14 h-14 mx-auto mb-4 opacity-30" />
-            <p className="text-xl font-semibold mb-1">{t("inventoryAlerts.empty.title")}</p>
-            <p className="text-sm">{t("inventoryAlerts.empty.subtitle").replace("{threshold}", globalThreshold.toString())}</p>
-          </div>
+          <StateBlock
+            icon={<ShoppingBag className="h-6 w-6" />}
+            title={t("inventoryAlerts.empty.title")}
+            description={t("inventoryAlerts.empty.subtitle").replace("{threshold}", globalThreshold.toString())}
+          />
         ) : (
           <div>
             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">

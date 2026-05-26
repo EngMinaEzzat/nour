@@ -456,28 +456,28 @@ export default function Checkout() {
             <CardContent className="space-y-5">
               <div className="space-y-1.5">
                 <Label htmlFor="name">الاسم الكامل *</Label>
-                <Input id="name" placeholder="فاطمة الحسن" value={name}
+                <Input id="name" autoComplete="name" aria-invalid={!!errors.name} aria-describedby={errors.name ? "name-error" : undefined} placeholder="فاطمة الحسن" value={name}
                   onChange={(e) => { setName(e.target.value); syncContact(e.target.value, email, phone); }}
                   className={errors.name ? "border-destructive" : ""} />
-                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                {errors.name && <p id="name-error" className="text-xs text-destructive">{errors.name}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="email">
                   <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> البريد الإلكتروني <span className="text-muted-foreground text-xs">(اختياري)</span></span>
                 </Label>
-                <Input id="email" type="email" placeholder="fatima@example.com" value={email}
+                <Input id="email" type="email" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-error" : undefined} placeholder="fatima@example.com" value={email}
                   onChange={(e) => { setEmail(e.target.value); syncContact(name, e.target.value, phone); }}
                   className={errors.email ? "border-destructive" : ""} dir="ltr" />
-                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                {errors.email && <p id="email-error" className="text-xs text-destructive">{errors.email}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="phone">
                   <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> رقم الهاتف * <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-600/30 ms-1">للواتساب</Badge></span>
                 </Label>
-                <Input id="phone" type="tel" placeholder="01012345678" value={phone}
+                <Input id="phone" type="tel" autoComplete="tel" inputMode="tel" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? "phone-error" : undefined} placeholder="01012345678" value={phone}
                   onChange={(e) => { setPhone(e.target.value); syncContact(name, email, e.target.value); }}
                   className={errors.phone ? "border-destructive" : ""} dir="ltr" />
-                {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+                {errors.phone && <p id="phone-error" className="text-xs text-destructive">{errors.phone}</p>}
                 <p className="text-xs text-muted-foreground">سيُستخدم لإرسال تأكيد الطلب على واتساب</p>
               </div>
             </CardContent>
@@ -518,8 +518,11 @@ export default function Checkout() {
                     value={area}
                     onChange={(e) => setArea(e.target.value)}
                     className={errors.area ? "border-destructive" : ""}
+                    autoComplete="address-level2"
+                    aria-invalid={!!errors.area}
+                    aria-describedby={errors.area ? "area-error" : undefined}
                   />
-                  {errors.area && <p className="text-xs text-destructive">{errors.area}</p>}
+                  {errors.area && <p id="area-error" className="text-xs text-destructive">{errors.area}</p>}
                 </div>
               </div>
 
@@ -531,8 +534,11 @@ export default function Checkout() {
                   value={streetAddress}
                   onChange={(e) => setStreetAddress(e.target.value)}
                   className={errors.streetAddress ? "border-destructive" : ""}
+                  autoComplete="street-address"
+                  aria-invalid={!!errors.streetAddress}
+                  aria-describedby={errors.streetAddress ? "streetAddress-error" : undefined}
                 />
-                {errors.streetAddress && <p className="text-xs text-destructive">{errors.streetAddress}</p>}
+                {errors.streetAddress && <p id="streetAddress-error" className="text-xs text-destructive">{errors.streetAddress}</p>}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -543,6 +549,7 @@ export default function Checkout() {
                     placeholder="الدور ٣، شقة ٦"
                     value={buildingInfo}
                     onChange={(e) => setBuildingInfo(e.target.value)}
+                    autoComplete="address-line2"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -552,6 +559,7 @@ export default function Checkout() {
                     placeholder="أمام الصيدلية، بجوار البنك..."
                     value={landmark}
                     onChange={(e) => setLandmark(e.target.value)}
+                    autoComplete="off"
                   />
                 </div>
               </div>
@@ -771,7 +779,17 @@ export default function Checkout() {
               </div>
 
               {errors.submit && (
-                <p className="text-sm text-destructive bg-destructive/10 rounded-xl p-3">{errors.submit}</p>
+                <div className="text-sm text-destructive bg-destructive/10 rounded-xl p-3 space-y-2">
+                  <p>{errors.submit}</p>
+                  <button
+                    type="button"
+                    className="text-xs font-semibold underline underline-offset-4"
+                    onClick={handlePlaceOrder}
+                    disabled={isSubmitting}
+                  >
+                    إعادة المحاولة
+                  </button>
+                </div>
               )}
 
               <Button className="w-full h-13 text-base rounded-2xl mt-1" onClick={handlePlaceOrder} disabled={isSubmitting || shippingLoading || !!shippingError}>

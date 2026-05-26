@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import { Bell, Clock, PhoneCall, AlertTriangle, RotateCcw, Package, ChevronLeft, RefreshCcw } from "lucide-react";
+import { StateBlock } from "@/components/admin/state-block";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -135,13 +136,11 @@ export default function FollowUp({ embedded = false }: { embedded?: boolean }) {
         {isLoading ? (
           <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}</div>
         ) : (data?.total ?? 0) === 0 ? (
-          <Card className="border-0 shadow-md">
-            <CardContent className="py-16 text-center">
-              <Bell className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-              <p className="text-muted-foreground font-medium">قائمة المتابعة فارغة</p>
-              <p className="text-sm text-muted-foreground mt-1">لا توجد طلبات تحتاج إجراء في الوقت الحالي</p>
-            </CardContent>
-          </Card>
+          <StateBlock
+            icon={<Bell className="h-6 w-6" />}
+            title="قائمة المتابعة فارغة"
+            description="لا توجد طلبات تحتاج إجراء في الوقت الحالي"
+          />
         ) : (
           <motion.div variants={stagger.container} initial="hidden" animate="show" className="space-y-3">
             {data!.items.map((item) => {

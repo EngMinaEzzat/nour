@@ -3,6 +3,7 @@ import { Check, AlertTriangle, X, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { StoreConfig } from "@/lib/store-config";
 import { useTranslation } from "react-i18next";
+import { contrastStatus } from "@/lib/color-contrast";
 
 interface ChecklistItem {
   id: string;
@@ -19,6 +20,7 @@ interface ReadinessChecklistProps {
 export default function ReadinessChecklist({ config, productCount }: ReadinessChecklistProps) {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
+  const primaryContrast = contrastStatus(config.theme.primaryColor, "#ffffff");
 
   const items: ChecklistItem[] = [
     {
@@ -48,8 +50,8 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
     {
       id: "color",
       label: t("readinessChecklist.items.color"),
-      status: config.theme.primaryColor !== "#8B1A35" || true ? "done" : "recommended",
-      critical: false,
+      status: primaryContrast.level === "pass" ? "done" : primaryContrast.level === "warning" ? "recommended" : "missing",
+      critical: primaryContrast.level === "fail",
     },
     {
       id: "return",

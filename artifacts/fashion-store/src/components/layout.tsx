@@ -1,4 +1,5 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, type ElementType } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AiAssistant } from "@/components/ai-assistant";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,16 +17,37 @@ import { useAuth } from "@/hooks/use-auth";
 import { useTranslation } from "react-i18next";
 import { getStoreUrl } from "@/lib/utils";
 
-function getMerchantNav(merchant: { slug?: string; role?: string; isPlatformAdmin?: boolean } | null) {
-  const groups = [
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const api = (p: string) => `${BASE}/api${p}`;
+
+type NavBadgeKey = "pendingOrders" | "lowStock" | "returns" | "followUp";
+type MerchantNavItem = {
+  name: string;
+  href: string;
+  icon: ElementType;
+  badgeKey?: NavBadgeKey;
+};
+type MerchantNavGroup = {
+  title: string;
+  fallback: string;
+  advanced?: boolean;
+  items: MerchantNavItem[];
+};
+type ShellOrder = { status: string };
+type ShellProduct = { status: string; stock: number };
+
+function getMerchantNav(merchant: { slug?: string; role?: string; isPlatformAdmin?: boolean } | null): MerchantNavGroup[] {
+  const groups: MerchantNavGroup[] = [
     {
       title: "layout.group.storeManagement",
       fallback: "Store Management",
       items: [
         { name: "layout.dashboard", href: "/dashboard", icon: LayoutDashboard },
-        { name: "layout.orders", href: "/orders", icon: FileText },
+        { name: "layout.orders", href: "/orders", icon: FileText, badgeKey: "pendingOrders" },
+        { name: "layout.returns", href: "/orders?tab=returns", icon: RotateCcw, badgeKey: "returns" },
+        { name: "layout.followUp", href: "/orders?tab=follow-up", icon: Bell, badgeKey: "followUp" },
         { name: "layout.shipping", href: "/shipping-rules", icon: Truck },
-        { name: "layout.products", href: "/products", icon: Package },
+        { name: "layout.products", href: "/products", icon: Package, badgeKey: "lowStock" },
         { name: "layout.categories", href: "/categories", icon: Tags },
         { name: "layout.customers", href: "/customers", icon: Users },
       ]
@@ -75,6 +97,20 @@ const PUBLIC_NAV = [
   { name: "common.pricing", href: "/pricing" },
 ];
 
+function NavUrgencyBadge({ count, label }: { count?: number; label: string }) {
+  if (!count) return null;
+  const display = count > 99 ? "99+" : String(count);
+  return (
+    <span
+      className="ms-auto inline-flex min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-destructive-foreground"
+      aria-label={`${label}: ${display}`}
+      title={`${label}: ${display}`}
+    >
+      {display}
+    </span>
+  );
+}
+
 function NavLink({ href, children, active }: { href: string; children: ReactNode; active?: boolean }) {
   return (
     <Link
@@ -102,11 +138,68 @@ export function Layout({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
 
   const merchantNav = getMerchantNav(merchant ?? null);
+  const tenantId = merchant?.tenantId;
+  const { data: ordersResponse } = useQuery<{ data: ShellOrder[] }>({
+    queryKey: ["layout-orders"],
+    queryFn: async () => {
+      const response = await fetch(api("/orders"), { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to load order badges");
+      return response.json();
+    },
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+  const { data: products = [] } = useQuery<ShellProduct[]>({
+    queryKey: ["layout-products", tenantId],
+    queryFn: async () => {
+      const search = tenantId ? `?tenantId=${tenantId}` : "";
+      const response = await fetch(api(`/products${search}`), { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to load product badges");
+      return response.json();
+    },
+    enabled: isAuthenticated && !!tenantId,
+    staleTime: 30_000,
+  });
+  const { data: returns = [] } = useQuery<Array<{ status: string }>>({
+    queryKey: ["returns"],
+    queryFn: async () => {
+      const response = await fetch(api("/returns"), { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to load returns");
+      return response.json();
+    },
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+  const { data: followUpQueue } = useQuery<{ total: number }>({
+    queryKey: ["follow-up-queue"],
+    queryFn: async () => {
+      const response = await fetch(api("/follow-up/queue"), { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to load follow-up queue");
+      return response.json();
+    },
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+  const navBadges: Record<NavBadgeKey, number> = {
+    pendingOrders: (ordersResponse?.data ?? []).filter((order) => ["pending", "awaiting_confirmation"].includes(order.status)).length,
+    lowStock: products.filter((product) => product.status === "out_of_stock" || (product.stock ?? 0) <= 5).length,
+    returns: returns.filter((item) => ["REQUESTED", "APPROVED", "RECEIVED"].includes(item.status)).length,
+    followUp: followUpQueue?.total ?? 0,
+  };
 
   function isActive(href: string) {
+    const [hrefPath, hrefQuery] = href.split("?");
+    const [locationPath, locationQuery = ""] = location.split("?");
+    if (hrefQuery) return locationPath === hrefPath && new URLSearchParams(locationQuery).toString() === hrefQuery;
+    if (hrefPath === "/orders" && new URLSearchParams(locationQuery).has("tab")) return false;
     if (href === "/") return location === "/";
     if (href.startsWith("/#")) return false;
-    return location === href || location.startsWith(href);
+    return locationPath === href || locationPath.startsWith(href);
+  }
+
+  function getBadge(item: MerchantNavItem) {
+    return item.badgeKey ? navBadges[item.badgeKey] : 0;
   }
 
   const toggleLanguage = () => {
@@ -121,9 +214,9 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="container mx-auto flex h-16 items-center px-4 gap-4">
 
           {/* Hamburger menu trigger (all screen sizes) */}
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label={t("layout.menu") || "Menu"}>
+              <Button variant="ghost" size="icon" className="h-11 w-11" aria-label={t("layout.menu") || "Menu"}>
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -132,7 +225,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <Link href="/" onClick={() => setMobileOpen(false)}>
                   <span className="text-2xl font-bold text-primary">{t("common.appName")}</span>
                 </Link>
-                <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
+                <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => setMobileOpen(false)} aria-label={t("common.buttons.close", "Close")}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -159,6 +252,7 @@ export function Layout({ children }: { children: ReactNode }) {
                           <div key={group.title} className="mt-4">
                             <button
                               onClick={() => setAdvancedOpen(!advancedOpen)}
+                              aria-expanded={advancedOpen}
                               className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:bg-muted/50 rounded-lg transition-colors"
                             >
                               {groupTitle}
@@ -170,7 +264,7 @@ export function Layout({ children }: { children: ReactNode }) {
                                   initial={{ height: 0, opacity: 0 }}
                                   animate={{ height: "auto", opacity: 1 }}
                                   exit={{ height: 0, opacity: 0 }}
-                                  className="overflow-hidden flex flex-col space-y-1 mt-1 pl-2 border-l-2 border-border/40 ml-4"
+                                  className={`overflow-hidden flex flex-col space-y-1 mt-1 ${i18n.dir() === "rtl" ? "pr-2 border-r-2 mr-4" : "pl-2 border-l-2 ml-4"} border-border/40`}
                                 >
                                   {group.items.map((item) => {
                                     const active = isActive(item.href);
@@ -181,15 +275,19 @@ export function Layout({ children }: { children: ReactNode }) {
                                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                     }`;
 
+                                    const badge = getBadge(item);
+                                    const label = item.name === "common.pricing" ? "Subscription / Plans" : t(item.name);
                                     return (
                                       <Link
                                         key={item.name}
                                         href={item.href}
                                         onClick={() => setMobileOpen(false)}
                                         className={className}
+                                        aria-current={active ? "page" : undefined}
                                       >
                                         <Icon className="h-4 w-4" />
-                                        {t(item.name)}
+                                        <span>{label}</span>
+                                        <NavUrgencyBadge count={badge} label={label} />
                                       </Link>
                                     );
                                   })}
@@ -215,15 +313,19 @@ export function Layout({ children }: { children: ReactNode }) {
                                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                               }`;
 
+                              const badge = getBadge(item);
+                              const label = item.name === "common.pricing" ? "Subscription / Plans" : t(item.name);
                               return (
                                 <Link
                                   key={item.name}
                                   href={item.href}
                                   onClick={() => setMobileOpen(false)}
                                   className={className}
+                                  aria-current={active ? "page" : undefined}
                                 >
                                   <Icon className="h-4 w-4" />
-                                  {item.name === "common.pricing" ? "Subscription / Plans" : t(item.name)}
+                                  <span>{label}</span>
+                                  <NavUrgencyBadge count={badge} label={label} />
                                 </Link>
                               );
                             })}
@@ -289,6 +391,7 @@ export function Layout({ children }: { children: ReactNode }) {
               variant="ghost"
               size="sm"
               onClick={toggleLanguage}
+              aria-label={t("layout.languageSwitcher", "Switch language")}
               className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105"
             >
               <Globe className="h-4 w-4" />
@@ -317,7 +420,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   </div>
                 )}
                 {merchant?.slug && (
-                  <Button variant="ghost" size="sm" asChild className="flex text-muted-foreground hover:text-primary gap-1.5" title={t("layout.myStore")}>
+                  <Button variant="ghost" size="sm" asChild className="flex text-muted-foreground hover:text-primary gap-1.5" title={t("layout.myStore")} aria-label={t("layout.myStore")}>
                     <a href={getStoreUrl(merchant.slug)} target="_blank" rel="noreferrer">
                       <Eye className="w-4 h-4" />
                     </a>

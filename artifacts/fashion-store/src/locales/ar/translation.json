@@ -951,10 +951,19 @@
     "selectSizeColorFirst": "اختاري المقاس/اللون أولاً",
     "addedToCart": "تمت الإضافة للسلة ✓",
     "addToCart": "أضف للسلة",
-    "orderOnWhatsapp": "اطلب على واتساب",
-    "reviews": "آراء العملاء",
-    "ratings": "تقييم",
-    "noReviewsYet": "لا توجد تقييمات بعد",
+      "orderOnWhatsapp": "اطلب على واتساب",
+      "reviews": "آراء العملاء",
+      "ratings": "تقييم",
+      "ratingReadout": "{{rating}} من 5 نجوم",
+      "ratingOption": "{{rating}} من 5 نجوم",
+      "galleryImage": "عرض صورة المنتج {{index}}",
+      "sizeOption": "مقاس {{size}}، {{status}}",
+      "colorOption": "لون {{color}}، {{status}}",
+      "quantitySummary": "{{count}} قطعة",
+      "chooseOptions": "اختاري الخيارات",
+      "stockLimit": "{{count}} قطعة متاحة",
+      "chooseVariantForStock": "اختاري المقاس واللون لمعرفة المتاح",
+      "noReviewsYet": "لا توجد تقييمات بعد",
     "beFirstToReview": "كوني أول من يقيّم هذا المنتج",
     "writeReview": "اكتبي تقييمك",
     "thanksForReview": "شكراً على تقييمك!",
@@ -969,12 +978,17 @@
     "opinionPlaceholder": "شاركي تجربتك مع هذا المنتج...",
     "sendReview": "إرسال التقييم",
     "sending": "جارٍ الإرسال...",
-    "reviewApprovalNote": "سيظهر تقييمك بعد مراجعته من صاحب المتجر",
-    "whatsappMsgPrefix": "مرحباً 👋، أريد الاستفسار عن المنتج:",
-    "whatsappMsgPrice": "السعر:",
-    "whatsappMsgVariant": "— المقاس/اللون:",
-    "pieces": "قطعة"
-  },
+      "reviewApprovalNote": "سيظهر تقييمك بعد مراجعته من صاحب المتجر",
+      "whatsappMsgPrefix": "مرحباً 👋، أريد الاستفسار عن المنتج:",
+      "whatsappMsgPrice": "السعر:",
+      "whatsappMsgVariant": "— المقاس/اللون:",
+      "trust": {
+        "cod": "الدفع عند الاستلام متاح",
+        "delivery": "تأكيد التوصيل عبر واتساب",
+        "support": "اسألي المتجر قبل الطلب"
+      },
+      "pieces": "قطعة"
+    },
   "categories": {
     "types": {
       "fashion": "أزياء",
@@ -2218,8 +2232,9 @@
       "addToCart": "أضف للسلة",
       "outOfStock": "نفذت الكمية",
       "soldOut": "مباع بالكامل",
-      "quickAdd": "إضافة سريعة",
-      "selectOptions": "اختيار الخيارات"
+        "quickAdd": "إضافة سريعة",
+        "selectOptions": "اختيار الخيارات",
+        "ratingSummary": "تقييم {{rating}} من {{count}} مراجعة"
     },
     "trust": {
       "shipping": "شحن مجاني",

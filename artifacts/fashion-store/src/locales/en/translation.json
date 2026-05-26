@@ -863,10 +863,19 @@
     "selectSizeColorFirst": "Select size/color first",
     "addedToCart": "Added to cart ✓",
     "addToCart": "Add to cart",
-    "orderOnWhatsapp": "Order on WhatsApp",
-    "reviews": "Customer Reviews",
-    "ratings": "rating",
-    "noReviewsYet": "No reviews yet",
+      "orderOnWhatsapp": "Order on WhatsApp",
+      "reviews": "Customer Reviews",
+      "ratings": "rating",
+      "ratingReadout": "{{rating}} out of 5 stars",
+      "ratingOption": "{{rating}} out of 5 stars",
+      "galleryImage": "View product image {{index}}",
+      "sizeOption": "Size {{size}}, {{status}}",
+      "colorOption": "Color {{color}}, {{status}}",
+      "quantitySummary": "{{count}} item",
+      "chooseOptions": "Choose options",
+      "stockLimit": "{{count}} pieces available",
+      "chooseVariantForStock": "Choose size and color to see stock",
+      "noReviewsYet": "No reviews yet",
     "beFirstToReview": "Be the first to review this product",
     "writeReview": "Write your review",
     "thanksForReview": "Thanks for your review!",
@@ -881,12 +890,17 @@
     "opinionPlaceholder": "Share your experience with this product...",
     "sendReview": "Send review",
     "sending": "Sending...",
-    "reviewApprovalNote": "Your review will appear after review by the store owner",
-    "whatsappMsgPrefix": "Hello 👋, I would like to inquire about the product:",
-    "whatsappMsgPrice": "Price:",
-    "whatsappMsgVariant": "— Size/Color:",
-    "pieces": "pieces"
-  },
+      "reviewApprovalNote": "Your review will appear after review by the store owner",
+      "whatsappMsgPrefix": "Hello 👋, I would like to inquire about the product:",
+      "whatsappMsgPrice": "Price:",
+      "whatsappMsgVariant": "— Size/Color:",
+      "trust": {
+        "cod": "Cash on delivery available",
+        "delivery": "Delivery is confirmed via WhatsApp",
+        "support": "Ask the store before ordering"
+      },
+      "pieces": "pieces"
+    },
   "categories": {
     "types": {
       "fashion": "Fashion",
@@ -2122,17 +2136,18 @@
     "categories": {
       "viewAll": "View All Products"
     },
-    "products": {
-      "newArrivals": "New Arrivals",
-      "bestSellers": "Best Sellers",
-      "trending": "Trending Now",
-      "viewAll": "View All",
-      "addToCart": "Add to Cart",
-      "outOfStock": "Out of Stock",
-      "soldOut": "Sold Out",
-      "quickAdd": "Quick Add",
-      "selectOptions": "Select Options"
-    },
+      "products": {
+        "newArrivals": "New Arrivals",
+        "bestSellers": "Best Sellers",
+        "trending": "Trending Now",
+        "viewAll": "View All",
+        "addToCart": "Add to Cart",
+        "outOfStock": "Out of Stock",
+        "soldOut": "Sold Out",
+        "quickAdd": "Quick Add",
+        "selectOptions": "Select Options",
+        "ratingSummary": "{{rating}} rating from {{count}} reviews"
+      },
     "trust": {
       "shipping": "Free Shipping",
       "shippingDesc": "On orders over 1000 EGP",

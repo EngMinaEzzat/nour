@@ -18,6 +18,7 @@ interface EditorTopBarProps {
   onSave: () => void;
   saving: boolean;
   isDirty: boolean;
+  publishDisabledReason?: string | null;
 }
 
 const DEVICES: { key: DeviceType; icon: React.ElementType }[] = [
@@ -31,7 +32,7 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 export default function EditorTopBar({
   storeName, storeSlug, device, onDeviceChange,
   canUndo, canRedo, onUndo, onRedo,
-  onSave, saving, isDirty,
+  onSave, saving, isDirty, publishDisabledReason,
 }: EditorTopBarProps) {
   const { t, i18n } = useTranslation();
   const [saveHintDismissed, setSaveHintDismissed] = useState(() => {
@@ -163,7 +164,9 @@ export default function EditorTopBar({
         <Button
           size="sm"
           variant="outline"
-          className="hidden sm:inline-flex gap-1.5 h-8 px-4 border-[#8B1A35] text-[#8B1A35] hover:bg-rose-50"
+          disabled={!!publishDisabledReason}
+          title={publishDisabledReason ?? t("editorTopBar.publish")}
+          className="hidden sm:inline-flex gap-1.5 h-8 px-4 border-[#8B1A35] text-[#8B1A35] hover:bg-rose-50 disabled:opacity-50"
         >
           <Globe className="w-3.5 h-3.5" />
           {t("editorTopBar.publish")}
