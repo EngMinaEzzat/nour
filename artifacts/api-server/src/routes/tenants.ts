@@ -24,7 +24,7 @@ function serializeTenant(t: Record<string, unknown>) {
   };
 }
 
-router.get("/tenants", async (req, res) => {
+router.get("/tenants", requirePlatformAdmin, async (req, res) => {
   const search = req.query.search as string | undefined;
   try {
     let query = db.select().from(tenantsTable).orderBy(tenantsTable.createdAt).$dynamic();
@@ -42,7 +42,7 @@ router.get("/tenants", async (req, res) => {
   }
 });
 
-router.post("/tenants", async (req, res) => {
+router.post("/tenants", requirePlatformAdmin, async (req, res) => {
   const parsed = CreateTenantBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   try {
@@ -54,7 +54,7 @@ router.post("/tenants", async (req, res) => {
   }
 });
 
-router.get("/tenants/:id", async (req, res) => {
+router.get("/tenants/:id", requirePlatformAdmin, async (req, res) => {
   const parsed = GetTenantParams.safeParse({ id: Number(req.params.id) });
   if (!parsed.success) return res.status(400).json({ error: "معرّف غير صحيح" });
   try {
@@ -107,7 +107,7 @@ router.delete("/tenants/:id", requirePlatformAdmin, async (req, res) => {
   }
 });
 
-router.get("/tenants/:id/stats", async (req, res) => {
+router.get("/tenants/:id/stats", requirePlatformAdmin, async (req, res) => {
   const parsed = GetTenantStatsParams.safeParse({ id: Number(req.params.id) });
   if (!parsed.success) return res.status(400).json({ error: "معرّف غير صحيح" });
   const tenantId = parsed.data.id;

@@ -129,7 +129,7 @@ paths:
         "404":
           description: Not found
 
-  /payments/paymob/init:
+  /paymob/initiate:
     post:
       operationId: initPaymobPayment
       tags: [orders]
@@ -150,7 +150,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/InitPaymobPaymentResponse"
 
-  /payments/paymob/webhook:
+  /paymob/webhook:
     post:
       operationId: paymobWebhook
       tags: [orders]
@@ -158,6 +158,10 @@ paths:
       responses:
         "200":
           description: Webhook acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymobWebhookResponse"
 
   /shipping/bosta/create:
     post:
@@ -413,7 +417,9 @@ paths:
     get:
       operationId: listTenants
       tags: [tenants]
-      summary: List all tenants/stores
+      summary: Platform admin — list all tenants/stores
+      security:
+        - session: []
       responses:
         "200":
           description: List of tenants
@@ -426,7 +432,9 @@ paths:
     post:
       operationId: createTenant
       tags: [tenants]
-      summary: Create a new tenant/store
+      summary: Platform admin — create a new tenant/store
+      security:
+        - session: []
       requestBody:
         required: true
         content:
@@ -445,7 +453,9 @@ paths:
     get:
       operationId: getTenant
       tags: [tenants]
-      summary: Get a tenant by ID
+      summary: Platform admin — get a tenant by ID
+      security:
+        - session: []
       parameters:
         - name: id
           in: path
@@ -465,6 +475,8 @@ paths:
       operationId: updateTenant
       tags: [tenants]
       summary: Update a tenant
+      security:
+        - session: []
       parameters:
         - name: id
           in: path
@@ -487,7 +499,9 @@ paths:
     delete:
       operationId: deleteTenant
       tags: [tenants]
-      summary: Delete a tenant
+      summary: Platform admin — delete a tenant
+      security:
+        - session: []
       parameters:
         - name: id
           in: path
@@ -502,7 +516,9 @@ paths:
     get:
       operationId: getTenantStats
       tags: [tenants]
-      summary: Get stats for a specific tenant
+      summary: Platform admin — get stats for a specific tenant
+      security:
+        - session: []
       parameters:
         - name: id
           in: path
@@ -1937,13 +1953,23 @@ components:
     InitPaymobPaymentResponse:
       type: object
       properties:
-        iframeUrl:
-          type: string
-        paymobOrderId:
+        paymentRecordId:
           type: integer
-        configured:
+        iframeSrc:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+      required: [paymentRecordId, iframeSrc, expiresAt]
+
+    PaymobWebhookResponse:
+      type: object
+      properties:
+        received:
           type: boolean
-      required: [iframeUrl, paymobOrderId, configured]
+        duplicate:
+          type: boolean
+      required: [received]
 
     CreateBostaShipmentBody:
       type: object

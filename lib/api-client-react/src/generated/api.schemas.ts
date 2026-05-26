@@ -462,9 +462,14 @@ export interface InitPaymobPaymentBody {
 }
 
 export interface InitPaymobPaymentResponse {
-  iframeUrl: string;
-  paymobOrderId: number;
-  configured: boolean;
+  paymentRecordId: number;
+  iframeSrc: string;
+  expiresAt: string;
+}
+
+export interface PaymobWebhookResponse {
+  received: boolean;
+  duplicate?: boolean;
 }
 
 export interface CreateBostaShipmentBody {

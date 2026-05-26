@@ -50,6 +50,7 @@ import type {
   Order,
   PatchOnboarding200,
   PatchOnboardingBody,
+  PaymobWebhookResponse,
   Plan,
   PlatformStats,
   Product,
@@ -411,7 +412,7 @@ export const useRemoveStaff = <
  * @summary Initialize a Paymob payment for an order
  */
 export const getInitPaymobPaymentUrl = () => {
-  return `/api/payments/paymob/init`;
+  return `/api/paymob/initiate`;
 };
 
 export const initPaymobPayment = async (
@@ -497,11 +498,13 @@ export const useInitPaymobPayment = <
  * @summary Paymob payment webhook (called by Paymob on payment event)
  */
 export const getPaymobWebhookUrl = () => {
-  return `/api/payments/paymob/webhook`;
+  return `/api/paymob/webhook`;
 };
 
-export const paymobWebhook = async (options?: RequestInit): Promise<void> => {
-  return customFetch<void>(getPaymobWebhookUrl(), {
+export const paymobWebhook = async (
+  options?: RequestInit,
+): Promise<PaymobWebhookResponse> => {
+  return customFetch<PaymobWebhookResponse>(getPaymobWebhookUrl(), {
     ...options,
     method: "POST",
   });
@@ -1722,7 +1725,7 @@ export function useHealthCheck<
 }
 
 /**
- * @summary List all tenants/stores
+ * @summary Platform admin — list all tenants/stores
  */
 export const getListTenantsUrl = () => {
   return `/api/tenants`;
@@ -1771,7 +1774,7 @@ export type ListTenantsQueryResult = NonNullable<
 export type ListTenantsQueryError = ErrorType<unknown>;
 
 /**
- * @summary List all tenants/stores
+ * @summary Platform admin — list all tenants/stores
  */
 
 export function useListTenants<
@@ -1795,7 +1798,7 @@ export function useListTenants<
 }
 
 /**
- * @summary Create a new tenant/store
+ * @summary Platform admin — create a new tenant/store
  */
 export const getCreateTenantUrl = () => {
   return `/api/tenants`;
@@ -1858,7 +1861,7 @@ export type CreateTenantMutationBody = BodyType<CreateTenantBody>;
 export type CreateTenantMutationError = ErrorType<unknown>;
 
 /**
- * @summary Create a new tenant/store
+ * @summary Platform admin — create a new tenant/store
  */
 export const useCreateTenant = <
   TError = ErrorType<unknown>,
@@ -1881,7 +1884,7 @@ export const useCreateTenant = <
 };
 
 /**
- * @summary Get a tenant by ID
+ * @summary Platform admin — get a tenant by ID
  */
 export const getGetTenantUrl = (id: number) => {
   return `/api/tenants/${id}`;
@@ -1939,7 +1942,7 @@ export type GetTenantQueryResult = NonNullable<
 export type GetTenantQueryError = ErrorType<void>;
 
 /**
- * @summary Get a tenant by ID
+ * @summary Platform admin — get a tenant by ID
  */
 
 export function useGetTenant<
@@ -2053,7 +2056,7 @@ export const useUpdateTenant = <
 };
 
 /**
- * @summary Delete a tenant
+ * @summary Platform admin — delete a tenant
  */
 export const getDeleteTenantUrl = (id: number) => {
   return `/api/tenants/${id}`;
@@ -2114,7 +2117,7 @@ export type DeleteTenantMutationResult = NonNullable<
 export type DeleteTenantMutationError = ErrorType<unknown>;
 
 /**
- * @summary Delete a tenant
+ * @summary Platform admin — delete a tenant
  */
 export const useDeleteTenant = <
   TError = ErrorType<unknown>,
@@ -2137,7 +2140,7 @@ export const useDeleteTenant = <
 };
 
 /**
- * @summary Get stats for a specific tenant
+ * @summary Platform admin — get stats for a specific tenant
  */
 export const getGetTenantStatsUrl = (id: number) => {
   return `/api/tenants/${id}/stats`;
@@ -2197,7 +2200,7 @@ export type GetTenantStatsQueryResult = NonNullable<
 export type GetTenantStatsQueryError = ErrorType<unknown>;
 
 /**
- * @summary Get stats for a specific tenant
+ * @summary Platform admin — get stats for a specific tenant
  */
 
 export function useGetTenantStats<

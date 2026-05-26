@@ -65,9 +65,17 @@ export const InitPaymobPaymentBody = zod.object({
 });
 
 export const InitPaymobPaymentResponse = zod.object({
-  iframeUrl: zod.string(),
-  paymobOrderId: zod.number(),
-  configured: zod.boolean(),
+  paymentRecordId: zod.number(),
+  iframeSrc: zod.string(),
+  expiresAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Paymob payment webhook (called by Paymob on payment event)
+ */
+export const PaymobWebhookResponse = zod.object({
+  received: zod.boolean(),
+  duplicate: zod.boolean().optional(),
 });
 
 /**
@@ -255,7 +263,9 @@ export const GetMeResponse = zod.object({
 
 export const registerCustomerBodyPasswordMin = 8;
 
-export const registerCustomerBodyPhoneRegExp = new RegExp("^(?:\\+?20|0020)?\\s*0?1[0125][0-9\\s().-]{8,}$");
+export const registerCustomerBodyPhoneRegExp = new RegExp(
+  "^(?:\\+?20|0020)?\\s\*0?1[0125][0-9\\s().-]{8,}$",
+);
 
 export const RegisterCustomerBody = zod.object({
   name: zod.string().min(1),
@@ -371,7 +381,7 @@ export const HealthCheckResponse = zod.object({
 });
 
 /**
- * @summary List all tenants/stores
+ * @summary Platform admin — list all tenants/stores
  */
 export const listTenantsResponseCategoryDefault = `both`;
 
@@ -400,7 +410,7 @@ export const ListTenantsResponseItem = zod.object({
 export const ListTenantsResponse = zod.array(ListTenantsResponseItem);
 
 /**
- * @summary Create a new tenant/store
+ * @summary Platform admin — create a new tenant/store
  */
 export const createTenantBodyCategoryDefault = `both`;
 
@@ -417,7 +427,7 @@ export const CreateTenantBody = zod.object({
 });
 
 /**
- * @summary Get a tenant by ID
+ * @summary Platform admin — get a tenant by ID
  */
 export const GetTenantParams = zod.object({
   id: zod.coerce.number(),
@@ -494,14 +504,14 @@ export const UpdateTenantResponse = zod.object({
 });
 
 /**
- * @summary Delete a tenant
+ * @summary Platform admin — delete a tenant
  */
 export const DeleteTenantParams = zod.object({
   id: zod.coerce.number(),
 });
 
 /**
- * @summary Get stats for a specific tenant
+ * @summary Platform admin — get stats for a specific tenant
  */
 export const GetTenantStatsParams = zod.object({
   id: zod.coerce.number(),
