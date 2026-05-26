@@ -7,7 +7,7 @@ import {
   Menu, LogOut, LogIn, UserCog, X, Settings, ShieldCheck,
   BarChart2, Truck, Bell, RotateCcw, Zap, CreditCard, Globe,
   Download, TrendingUp, Ticket, Star, ShoppingCart, AlertTriangle, Facebook, Wand2,
-  ChevronDown, ChevronRight, Link as LinkIcon
+  ChevronDown, ChevronRight, Link as LinkIcon, Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -315,6 +315,13 @@ export function Layout({ children }: { children: ReactNode }) {
                       </Badge>
                     )}
                   </div>
+                )}
+                {merchant?.slug && (
+                  <Button variant="ghost" size="sm" asChild className="flex text-muted-foreground hover:text-primary gap-1.5" title={t("layout.myStore")}>
+                    <a href={getStoreUrl(merchant.slug)} target="_blank" rel="noreferrer">
+                      <Eye className="w-4 h-4" />
+                    </a>
+                  </Button>
                 )}
                 <Button
                   variant="ghost"

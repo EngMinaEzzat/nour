@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import { useLocation } from "wouter";
 import { TrendingUp, Zap, Globe, CreditCard, ShieldCheck, BarChart2, Users, Package, CheckCircle, Lock, ArrowRight } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -39,6 +40,7 @@ const FEATURE_MATRIX = (t: any) => [
 ];
 
 export default function GrowthPage() {
+  const [, setLocation] = useLocation();
   const { t, i18n } = useTranslation();
   const { data: billing } = useQuery({
     queryKey: ["billing-status"],
@@ -102,6 +104,7 @@ export default function GrowthPage() {
                 </ul>
                 <button
                   disabled={isCurrent || !isUpgrade}
+                  onClick={() => { if (isUpgrade) setLocation("/billing"); }}
                   className={`w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                     isCurrent ? "bg-gray-100 text-gray-400 cursor-not-allowed" :
                     isUpgrade ? "bg-rose-600 hover:bg-rose-700 text-white shadow-sm hover:shadow-md" :
