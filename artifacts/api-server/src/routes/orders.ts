@@ -7,7 +7,7 @@ import {
   ordersTable, orderItemsTable, orderStatusHistoryTable,
   tenantsTable, customersTable, productsTable, contactAttemptsTable,
   automationRulesTable, cartSessionsTable, productVariantsTable,
-  discountCodesTable, discountCodeUsesTable,
+  discountCodesTable, discountCodeUsesTable, shippingSettingsTable, shippingZonesTable,
 } from "@workspace/db";
 import { checkoutLimiter } from "../lib/rate-limiters";
 import {
@@ -123,6 +123,7 @@ async function fetchOrderWithItems(orderId: number) {
       id: ordersTable.id,
       tenantId: ordersTable.tenantId,
       tenantName: tenantsTable.name,
+      tenantSlug: tenantsTable.slug,
       customerId: ordersTable.customerId,
       customerName: customersTable.name,
       status: ordersTable.status,
@@ -423,6 +424,8 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
     sessionId?: string;
     storefrontSlug?: string;
     discountCode?: unknown;
+    shippingGovernorate?: unknown;
+    shippingCity?: unknown;
   };
   const cartSessionId =
     typeof rawBody.cartSessionId === "string" && rawBody.cartSessionId.trim()
@@ -435,6 +438,14 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
       ? rawBody.storefrontSlug.trim()
       : null;
   const discountCode = normalizeDiscountCode(rawBody.discountCode);
+  const shippingGovernorate =
+    typeof rawBody.shippingGovernorate === "string" && rawBody.shippingGovernorate.trim()
+      ? rawBody.shippingGovernorate.trim()
+      : null;
+  const shippingCity =
+    typeof rawBody.shippingCity === "string" && rawBody.shippingCity.trim()
+      ? rawBody.shippingCity.trim()
+      : null;
 
   // ── Sprint 6: Monthly order limit enforcement ──────────────────────────────
   let orderTenantId = parsed.data.tenantId;
@@ -628,7 +639,55 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
         appliedDiscountCodeId = discount.id;
       }
 
-      const orderTotal = Math.max(0, subtotal - appliedDiscount);
+      let shippingCost = 0;
+      if (shippingGovernorate) {
+        const [settings] = await tx
+          .select()
+          .from(shippingSettingsTable)
+          .where(eq(shippingSettingsTable.tenantId, orderTenantId));
+
+        if (settings?.freeShippingEnabled && settings.freeShippingMinSubtotal) {
+          const threshold = parseFloat(settings.freeShippingMinSubtotal as string);
+          if (subtotal >= threshold) {
+            shippingCost = 0;
+          }
+        }
+
+        if (shippingCost === 0 && !(settings?.freeShippingEnabled && settings.freeShippingMinSubtotal && subtotal >= parseFloat(settings.freeShippingMinSubtotal as string))) {
+          const zones = await tx
+            .select()
+            .from(shippingZonesTable)
+            .where(and(
+              eq(shippingZonesTable.tenantId, orderTenantId),
+              eq(shippingZonesTable.isEnabled, true),
+            ));
+
+          let matchedZone = null;
+          if (shippingCity) {
+            matchedZone = zones.find(
+              (z) =>
+                z.governorate.toLowerCase() === shippingGovernorate.toLowerCase() &&
+                z.city?.toLowerCase() === shippingCity.toLowerCase()
+            );
+          }
+          if (!matchedZone) {
+            matchedZone = zones.find(
+              (z) =>
+                z.governorate.toLowerCase() === shippingGovernorate.toLowerCase() && !z.city
+            );
+          }
+          if (!matchedZone && settings && !settings.isEnabled) {
+            throw new CheckoutHttpError(422, "Shipping is not available for this area");
+          }
+          shippingCost = matchedZone
+            ? parseFloat(matchedZone.shippingCost as string)
+            : settings
+              ? parseFloat(settings.defaultShippingCost as string)
+              : 50;
+        }
+      }
+
+      const orderTotal = Math.max(0, subtotal - appliedDiscount) + shippingCost;
 
       const [order] = await tx
         .insert(ordersTable)
@@ -640,7 +699,7 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
           customerPhone: normalisedPhone,
           paymentMethod,
           totalAmount: String(orderTotal),
-          shippingCost: "0",
+          shippingCost: String(shippingCost),
           // Paymob orders start as pending_payment until webhook confirms; COD starts as pending
           status: "pending",
           paymentStatus: "pending",

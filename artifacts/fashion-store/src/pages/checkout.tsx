@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/hooks/use-cart";
@@ -6,13 +6,15 @@ import { useCreateOrder, useCreateCustomer, useListCustomers } from "@workspace/
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   ChevronRight, ShoppingBag, CheckCircle2, Loader2,
   CreditCard, Banknote, Phone, MapPin, User, Mail,
-  Tag, X, Check,
+  Tag, X, Check, Truck,
 } from "lucide-react";
 import { productImageUrl } from "@/lib/image-url";
 
@@ -24,6 +26,88 @@ const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; desc: string; icon
 ];
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const EGYPT_GOVERNORATES = [
+  "القاهرة",
+  "الجيزة",
+  "الإسكندرية",
+  "الدقهلية",
+  "البحر الأحمر",
+  "البحيرة",
+  "الفيوم",
+  "الغربية",
+  "الإسماعيلية",
+  "المنوفية",
+  "المنيا",
+  "القليوبية",
+  "الوادي الجديد",
+  "السويس",
+  "أسوان",
+  "أسيوط",
+  "بني سويف",
+  "بورسعيد",
+  "دمياط",
+  "الشرقية",
+  "جنوب سيناء",
+  "كفر الشيخ",
+  "مطروح",
+  "الأقصر",
+  "قنا",
+  "شمال سيناء",
+  "سوهاج",
+] as const;
+
+type ShippingQuote = {
+  shippingCost: number;
+  deliveryDays?: number | null;
+  isFreeShipping?: boolean;
+  appliedRule?: string;
+};
+
+const ARABIC_DIGITS: Record<string, string> = {
+  "٠": "0",
+  "١": "1",
+  "٢": "2",
+  "٣": "3",
+  "٤": "4",
+  "٥": "5",
+  "٦": "6",
+  "٧": "7",
+  "٨": "8",
+  "٩": "9",
+  "۰": "0",
+  "۱": "1",
+  "۲": "2",
+  "۳": "3",
+  "۴": "4",
+  "۵": "5",
+  "۶": "6",
+  "۷": "7",
+  "۸": "8",
+  "۹": "9",
+};
+
+function normalizeDigits(value: string) {
+  return value.replace(/[٠-٩۰-۹]/g, (digit) => ARABIC_DIGITS[digit] ?? digit);
+}
+
+function normalizeEgyptianMobileLocal(value: string): string | null {
+  const cleaned = normalizeDigits(value).replace(/[\s().-]/g, "");
+  let local = cleaned;
+  if (/^\+20(1[0125]\d{8})$/.test(cleaned)) local = `0${cleaned.slice(3)}`;
+  else if (/^0020(1[0125]\d{8})$/.test(cleaned)) local = `0${cleaned.slice(4)}`;
+  else if (/^20(1[0125]\d{8})$/.test(cleaned)) local = `0${cleaned.slice(2)}`;
+  else if (/^1[0125]\d{8}$/.test(cleaned)) local = `0${cleaned}`;
+
+  return /^01[0125]\d{8}$/.test(local) ? local : null;
+}
+
+function checkoutEmail(email: string, phone: string) {
+  const trimmed = email.trim().toLowerCase();
+  if (trimmed) return trimmed;
+  const phoneKey = normalizeEgyptianMobileLocal(phone) ?? normalizeDigits(phone).replace(/\D/g, "");
+  return `checkout.${phoneKey || crypto.randomUUID()}@customers.nour.local`;
+}
 
 type CouponState = {
   input: string;
@@ -46,11 +130,19 @@ export default function Checkout() {
   const [name, setName] = useState(authCustomer?.name ?? "");
   const [email, setEmail] = useState(authCustomer?.email ?? "");
   const [phone, setPhone] = useState(authCustomer?.phone ?? "");
-  const [address, setAddress] = useState("");
+  const [governorate, setGovernorate] = useState("");
+  const [area, setArea] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [buildingInfo, setBuildingInfo] = useState("");
+  const [landmark, setLandmark] = useState("");
+  const [deliveryNotes, setDeliveryNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [paymobIframeUrl, setPaymobIframeUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [shippingQuotes, setShippingQuotes] = useState<Record<number, ShippingQuote>>({});
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState<string | null>(null);
 
   const [coupon, setCoupon] = useState<CouponState>({
     input: "", applying: false, valid: null, error: null,
@@ -70,9 +162,59 @@ export default function Checkout() {
 
   const tenantIds = Object.keys(groupedByTenant).map(Number);
   const firstTenantId = tenantIds[0] ?? null;
-  const finalTotal = totalPrice - coupon.discountAmount;
+  const orderSubtotal = Math.max(0, totalPrice - coupon.discountAmount);
+  const shippingTotal = tenantIds.reduce((sum, tenantId) => sum + (shippingQuotes[tenantId]?.shippingCost ?? 0), 0);
+  const hasShippingQuote = tenantIds.length > 0 && tenantIds.every((tenantId) => shippingQuotes[tenantId]);
+  const estimatedTotal = orderSubtotal + (hasShippingQuote ? shippingTotal : 0);
 
   const contactSyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!governorate || tenantIds.length === 0) {
+      setShippingQuotes({});
+      setShippingError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setShippingLoading(true);
+    setShippingError(null);
+
+    Promise.all(
+      tenantIds.map(async (tenantId) => {
+        const group = groupedByTenant[tenantId];
+        const res = await fetch(`${BASE}/api/shipping/calculate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tenantId,
+            governorate,
+            city: area.trim() || undefined,
+            subtotal: group?.subtotal ?? 0,
+          }),
+        });
+        const data = await res.json() as ShippingQuote & { error?: string };
+        if (!res.ok) throw new Error(data.error ?? "تعذر حساب الشحن");
+        return [tenantId, data] as const;
+      }),
+    )
+      .then((entries) => {
+        if (!cancelled) setShippingQuotes(Object.fromEntries(entries) as Record<number, ShippingQuote>);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setShippingQuotes({});
+          setShippingError(error instanceof Error ? error.message : "تعذر حساب الشحن لهذه المنطقة");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setShippingLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [governorate, area, totalPrice, tenantIds.join(",")]);
 
   function syncContact(n: string, e: string, p: string) {
     if (!firstTenantId || (!n && !e && !p)) return;
@@ -97,11 +239,27 @@ export default function Checkout() {
   function validate() {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = "الاسم مطلوب";
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "يرجى إدخال بريد إلكتروني صحيح";
-    if (!phone.trim()) errs.phone = "رقم الهاتف مطلوب للتواصل";
-    if (!address.trim()) errs.address = "عنوان التوصيل مطلوب";
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "يرجى إدخال بريد إلكتروني صحيح أو تركه فارغاً";
+    if (!normalizeEgyptianMobileLocal(phone)) errs.phone = "رقم الهاتف يجب أن يكون رقم موبايل مصري صحيح";
+    if (!governorate) errs.governorate = "المحافظة مطلوبة لحساب الشحن";
+    if (!area.trim()) errs.area = "المنطقة أو المدينة مطلوبة";
+    if (!streetAddress.trim()) errs.streetAddress = "العنوان التفصيلي مطلوب";
     setErrors(errs);
     return Object.keys(errs).length === 0;
+  }
+
+  function composeShippingAddress() {
+    const lines = [
+      `المحافظة: ${governorate}`,
+      `المنطقة/المدينة: ${area.trim()}`,
+      `العنوان: ${streetAddress.trim()}`,
+      buildingInfo.trim() ? `الدور/الشقة: ${buildingInfo.trim()}` : null,
+      landmark.trim() ? `علامة مميزة: ${landmark.trim()}` : null,
+      deliveryNotes.trim() ? `ملاحظات: ${deliveryNotes.trim()}` : null,
+      hasShippingQuote ? `تقدير الشحن: ${shippingTotal.toLocaleString("ar-EG")} ج.م` : null,
+    ].filter(Boolean);
+
+    return lines.join("\n");
   }
 
   const applyCoupon = useCallback(async () => {
@@ -136,20 +294,34 @@ export default function Checkout() {
 
   async function handlePlaceOrder() {
     if (!validate() || items.length === 0) return;
+    if (shippingLoading) {
+      setErrors({ submit: "جاري حساب الشحن. انتظري لحظة ثم أكدي الطلب." });
+      return;
+    }
+    if (shippingError) {
+      setErrors({ submit: shippingError });
+      return;
+    }
+    const normalizedPhone = normalizeEgyptianMobileLocal(phone);
+    if (!normalizedPhone) return;
+    const customerEmail = checkoutEmail(email, normalizedPhone);
+    const shippingAddress = composeShippingAddress();
+
     setIsSubmitting(true);
     try {
       let customerId: number;
       if (isAuthenticated && authCustomer) {
         customerId = authCustomer.id;
       } else {
-        const existing = customers?.find((c) => c.email.toLowerCase() === email.toLowerCase());
+        const existing = customers?.find((c) => c.email.toLowerCase() === customerEmail);
         if (existing) {
           customerId = existing.id;
         } else {
           const newCustomer = await createCustomer.mutateAsync({ data: {
             name: name.trim(),
-            email: email.trim().toLowerCase(),
-            phone: phone.trim(),
+            email: customerEmail,
+            phone: normalizedPhone,
+            city: area.trim() || governorate,
           } });
           customerId = newCustomer.id;
         }
@@ -159,26 +331,24 @@ export default function Checkout() {
       const orderTracks: Array<{ id: number; publicCode?: string; trackingToken?: string }> = [];
 
       for (const [tenantIdStr, group] of Object.entries(groupedByTenant)) {
+        const tenantId = parseInt(tenantIdStr, 10);
         const order = await createOrder.mutateAsync({ data: {
-          tenantId: parseInt(tenantIdStr, 10),
+          tenantId,
           customerId,
-          shippingAddress: address.trim(),
-          customerPhone: phone.trim(),
+          shippingAddress,
+          customerPhone: normalizedPhone,
           paymentMethod,
+          shippingGovernorate: governorate,
+          shippingCity: area.trim(),
+          discountCode: tenantId === firstTenantId && coupon.valid && coupon.input.trim()
+            ? coupon.input.trim().toUpperCase()
+            : undefined,
           cartSessionId: sessionId,
           storefrontSlug: group.items[0]?.tenantSlug,
           items: group.items.map((i) => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
         } as Parameters<typeof createOrder.mutateAsync>[0]["data"] });
         orderIds.push(order.id);
         orderTracks.push({ id: order.id, publicCode: (order as any).publicCode, trackingToken: (order as any).trackingToken });
-      }
-
-      if (coupon.valid && coupon.codeId && orderIds[0]) {
-        await fetch(`${BASE}/api/discounts/use`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ codeId: coupon.codeId, orderId: orderIds[0], customerId, appliedDiscount: coupon.discountAmount }),
-        }).catch(() => {});
       }
 
       // Mark cart sessions as converted
@@ -191,7 +361,7 @@ export default function Checkout() {
       if (paymentMethod === "paymob" && orderIds.length > 0) {
         const trackingToken = orderTracks[0]?.trackingToken;
         if (!trackingToken) {
-          setErrors({ submit: "Missing payment verification token. Please try again." });
+          setErrors({ submit: "تعذر تجهيز رابط الدفع. يرجى المحاولة مرة أخرى أو اختيار الدفع عند الاستلام." });
           return;
         }
 
@@ -293,7 +463,7 @@ export default function Checkout() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="email">
-                  <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> البريد الإلكتروني *</span>
+                  <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> البريد الإلكتروني <span className="text-muted-foreground text-xs">(اختياري)</span></span>
                 </Label>
                 <Input id="email" type="email" placeholder="fatima@example.com" value={email}
                   onChange={(e) => { setEmail(e.target.value); syncContact(name, e.target.value, phone); }}
@@ -310,14 +480,104 @@ export default function Checkout() {
                 {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
                 <p className="text-xs text-muted-foreground">سيُستخدم لإرسال تأكيد الطلب على واتساب</p>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Delivery address */}
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-primary" /> عنوان التوصيل
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="governorate">المحافظة *</Label>
+                  <Select value={governorate} onValueChange={(value) => {
+                    setGovernorate(value);
+                    setErrors((current) => ({ ...current, governorate: "" }));
+                  }}>
+                    <SelectTrigger id="governorate" className={errors.governorate ? "border-destructive" : ""}>
+                      <SelectValue placeholder="اختاري المحافظة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EGYPT_GOVERNORATES.map((gov) => (
+                        <SelectItem key={gov} value={gov}>{gov}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.governorate && <p className="text-xs text-destructive">{errors.governorate}</p>}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="area">المنطقة / المدينة *</Label>
+                  <Input
+                    id="area"
+                    placeholder="مدينة نصر، الهرم، سموحة..."
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    className={errors.area ? "border-destructive" : ""}
+                  />
+                  {errors.area && <p className="text-xs text-destructive">{errors.area}</p>}
+                </div>
+              </div>
+
               <div className="space-y-1.5">
-                <Label htmlFor="address">
-                  <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> عنوان التوصيل *</span>
-                </Label>
-                <Input id="address" placeholder="١٥ ميدان التحرير، القاهرة" value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className={errors.address ? "border-destructive" : ""} />
-                {errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
+                <Label htmlFor="streetAddress">الشارع، رقم العمارة، أقرب تقاطع *</Label>
+                <Input
+                  id="streetAddress"
+                  placeholder="١٥ شارع التحرير، بجوار..."
+                  value={streetAddress}
+                  onChange={(e) => setStreetAddress(e.target.value)}
+                  className={errors.streetAddress ? "border-destructive" : ""}
+                />
+                {errors.streetAddress && <p className="text-xs text-destructive">{errors.streetAddress}</p>}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="buildingInfo">الدور / الشقة</Label>
+                  <Input
+                    id="buildingInfo"
+                    placeholder="الدور ٣، شقة ٦"
+                    value={buildingInfo}
+                    onChange={(e) => setBuildingInfo(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="landmark">علامة مميزة</Label>
+                  <Input
+                    id="landmark"
+                    placeholder="أمام الصيدلية، بجوار البنك..."
+                    value={landmark}
+                    onChange={(e) => setLandmark(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="deliveryNotes">ملاحظات للتوصيل</Label>
+                <Textarea
+                  id="deliveryNotes"
+                  placeholder="أفضل وقت للتواصل أو أي تعليمات للكابتن"
+                  value={deliveryNotes}
+                  onChange={(e) => setDeliveryNotes(e.target.value)}
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+
+              <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <Truck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-primary">تقدير الشحن يظهر بعد اختيار المحافظة والمنطقة</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      سيؤكد المتجر تفاصيل التوصيل معك على واتساب قبل الشحن.
+                    </p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -478,25 +738,43 @@ export default function Checkout() {
                     className="flex items-center justify-between text-sm text-green-600"
                   >
                     <span>الخصم</span>
-                    <span>−{coupon.discountAmount.toLocaleString("ar-EG")} ج.م</span>
+                    <span>-{coupon.discountAmount.toLocaleString("ar-EG")} ج.م</span>
                   </motion.div>
                 )}
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    الشحن
+                    {shippingLoading && <Loader2 className="w-3 h-3 animate-spin" />}
+                  </span>
+                  <span>
+                    {shippingError
+                      ? "غير متاح"
+                      : hasShippingQuote
+                        ? `${shippingTotal.toLocaleString("ar-EG")} ج.م`
+                        : governorate
+                          ? "جاري الحساب..."
+                          : "اختاري المحافظة"}
+                  </span>
+                </div>
+                {shippingError && (
+                  <p className="text-xs text-destructive bg-destructive/10 rounded-lg px-3 py-2">{shippingError}</p>
+                )}
                 <div className="flex items-center justify-between pt-1">
-                  <span className="font-semibold text-foreground">الإجمالي</span>
-                  <span className="text-2xl font-bold text-primary">{finalTotal.toLocaleString("ar-EG")} ج.م</span>
+                  <span className="font-semibold text-foreground">المبلغ المتوقع عند الاستلام</span>
+                  <span className="text-2xl font-bold text-primary">{estimatedTotal.toLocaleString("ar-EG")} ج.م</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 py-2 px-3 bg-muted/50 rounded-xl text-xs text-muted-foreground">
-                <span className="text-base">{paymentMethod === "paymob" ? "💳" : "💵"}</span>
-                <span>{paymentMethod === "paymob" ? "دفع إلكتروني عبر Paymob" : "دفع عند الاستلام"}</span>
+                {paymentMethod === "paymob" ? <CreditCard className="w-4 h-4 text-primary" /> : <Banknote className="w-4 h-4 text-primary" />}
+                <span>{paymentMethod === "paymob" ? "دفع إلكتروني عبر Paymob" : "دفع عند الاستلام مع تأكيد عبر واتساب"}</span>
               </div>
 
               {errors.submit && (
                 <p className="text-sm text-destructive bg-destructive/10 rounded-xl p-3">{errors.submit}</p>
               )}
 
-              <Button className="w-full h-13 text-base rounded-2xl mt-1" onClick={handlePlaceOrder} disabled={isSubmitting}>
+              <Button className="w-full h-13 text-base rounded-2xl mt-1" onClick={handlePlaceOrder} disabled={isSubmitting || shippingLoading || !!shippingError}>
                 {isSubmitting ? (
                   <><Loader2 className="w-4 h-4 me-2 animate-spin" /> جارٍ تنفيذ الطلب...</>
                 ) : paymentMethod === "paymob" ? (

@@ -923,10 +923,13 @@
   "orders": {
     "status": {
       "pending": "Pending",
+      "awaiting_confirmation": "Awaiting confirmation",
       "confirmed": "Confirmed",
+      "dispatched": "Dispatched",
       "shipped": "Shipped",
       "delivered": "Delivered",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "returned": "Returned"
     },
     "page": {
       "title": "Orders",
@@ -958,7 +961,26 @@
       ]
     },
     "search": {
-      "placeholder": "Search by ID or customer name..."
+      "placeholder": "Search by order ID, customer, or phone..."
+    },
+    "queue": {
+      "needsAction": "Needs confirmation",
+      "ready": "Ready to ship",
+      "shipping": "Shipping",
+      "done": "Closed"
+    },
+    "metrics": {
+      "open": "Open orders",
+      "needsContact": "Needs contact",
+      "revenue": "Order value"
+    },
+    "payment": {
+      "cod": "COD",
+      "paymob": "E-payment"
+    },
+    "actions": {
+      "review": "Review",
+      "open": "Open"
     },
     "filter": {
       "all": "All"

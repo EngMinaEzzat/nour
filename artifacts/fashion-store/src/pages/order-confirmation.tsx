@@ -1,28 +1,75 @@
 import { Link, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Package, ChevronLeft, Home, MessageCircle, Truck } from "lucide-react";
+import {
+  Banknote,
+  Check,
+  CheckCircle2,
+  ChevronLeft,
+  Copy,
+  CreditCard,
+  Home,
+  MessageCircle,
+  Package,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+type OrderTrackRef = {
+  id: number;
+  publicCode?: string;
+  trackingToken?: string;
+};
+
+function safeDecode(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
 
 export default function OrderConfirmation() {
   const { t, i18n } = useTranslation();
   const search = useSearch();
   const params = new URLSearchParams(search);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const orderIds = params.get("orders")?.split(",").filter(Boolean) ?? [];
   const orderTracks = (() => {
     try {
-      return JSON.parse(params.get("tracks") ?? "[]") as Array<{ id: number; publicCode?: string; trackingToken?: string }>;
+      return JSON.parse(params.get("tracks") ?? "[]") as OrderTrackRef[];
     } catch {
       return [];
     }
   })();
-  const name = params.get("name") ?? t("storefront.orderConfirmation.dear", "عزيزتنا");
+  const name = safeDecode(params.get("name") ?? t("storefront.orderConfirmation.dear", "عزيزتنا"));
   const phone = params.get("phone") ?? "";
   const paymentMethod = params.get("payment") ?? "cod";
-
   const firstOrderId = orderIds[0];
-  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const isOnlinePayment = paymentMethod === "paymob";
+
+  function trackHref(id: string) {
+    const track = orderTracks.find((item) => String(item.id) === id);
+    return track?.publicCode && track.trackingToken
+      ? `/order-track/${track.publicCode}?token=${track.trackingToken}`
+      : `/orders/${id}`;
+  }
+
+  async function copyTrackingLink(id: string) {
+    const href = `${window.location.origin}${trackHref(id)}`;
+    try {
+      await navigator.clipboard?.writeText(href);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 1800);
+    } catch {
+      setCopiedId(null);
+    }
+  }
 
   async function openWhatsApp() {
     if (!firstOrderId || !phone) return;
@@ -35,137 +82,178 @@ export default function OrderConfirmation() {
     if (data.whatsappLink) window.open(data.whatsappLink, "_blank");
   }
 
+  const nextSteps = [
+    {
+      icon: MessageCircle,
+      title: t("storefront.orderConfirmation.steps.confirm.title", "تأكيد الطلب"),
+      body: t("storefront.orderConfirmation.steps.confirm.body", "سيؤكد المتجر بيانات الطلب والتوصيل على واتساب أو الهاتف."),
+    },
+    {
+      icon: Package,
+      title: t("storefront.orderConfirmation.steps.prepare.title", "تجهيز المنتجات"),
+      body: t("storefront.orderConfirmation.steps.prepare.body", "بعد التأكيد، يبدأ المتجر في تجهيز الطلب ومراجعته قبل الشحن."),
+    },
+    {
+      icon: Truck,
+      title: t("storefront.orderConfirmation.steps.ship.title", "التوصيل والمتابعة"),
+      body: t("storefront.orderConfirmation.steps.ship.body", "عند الشحن سيظهر رقم التتبع ويمكنك الرجوع لهذا الرابط في أي وقت."),
+    },
+  ];
+
   return (
-    <div className="container mx-auto px-4 py-16 max-w-2xl text-center">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
-        className="flex justify-center mb-6"
-      >
-        <div className="bg-primary/10 rounded-full p-6">
-          <CheckCircle2 className="w-16 h-16 text-primary" />
-        </div>
-      </motion.div>
+    <div className="min-h-screen bg-[#faf7f4] px-4 py-10" dir={i18n.dir()}>
+      <div className="max-w-3xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="text-center"
+        >
+          <div className="inline-flex rounded-full bg-primary/10 p-5 mb-5">
+            <CheckCircle2 className="w-14 h-14 text-primary" />
+          </div>
+          <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-3">
+            {t("storefront.orderConfirmation.title", "تم استلام طلبك")}
+          </h1>
+          <p className="text-muted-foreground text-base md:text-lg">
+            {t("storefront.orderConfirmation.thankYou", "شكراً لكِ،")}{" "}
+            <span className="text-foreground font-semibold">{name}</span>
+          </p>
+        </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.15 }}
-      >
-        <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-          {t("storefront.orderConfirmation.title")} 🎉
-        </h1>
-        <p className="text-lg text-muted-foreground mb-2">
-          {t("storefront.orderConfirmation.thankYou", "شكرًا لكِ، ")} <span className="text-foreground font-semibold">{decodeURIComponent(name)}</span>
-        </p>
-        <p className="text-muted-foreground mb-4">
-          {paymentMethod === "paymob"
-            ? t("storefront.orderConfirmation.paymentSuccess", "تم استلام دفعتك بنجاح. سيتم تجهيز طلبك وشحنه في أقرب وقت.")
-            : t("storefront.orderConfirmation.subtitle")}
-        </p>
-
-        {/* Payment badge */}
-        <div className="inline-flex items-center gap-2 bg-muted px-4 py-2 rounded-full text-sm text-muted-foreground mb-8">
-          {paymentMethod === "paymob"
-            ? <><span>💳</span> {t("storefront.orderConfirmation.paidOnline", "تم الدفع إلكترونياً عبر Paymob")}</>
-            : <><span>💵</span> {t("storefront.checkout.cod")}</>}
-        </div>
-      </motion.div>
-
-      {orderIds.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.25 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+          className="mt-8"
         >
-          <Card className="border-border/50 mb-6 text-start">
-            <CardContent className="pt-6 space-y-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground mb-4">
-                <Package className="w-4 h-4" />
-                {orderIds.length === 1 ? t("storefront.orderConfirmation.orderId") : t("storefront.orderConfirmation.orderIds", "أرقام الطلبات")}
-              </div>
-              {orderIds.map((id) => (
-                <div key={id} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
-                  <span className="text-muted-foreground text-sm">{t("storefront.orderConfirmation.orderId")} #{id}</span>
-                  <Link href={(() => {
-                    const track = orderTracks.find((t) => String(t.id) === id);
-                    return track?.publicCode && track.trackingToken
-                      ? `/order-track/${track.publicCode}?token=${track.trackingToken}`
-                      : `/orders/${id}`;
-                  })()} className="text-primary text-sm font-medium hover:underline inline-flex items-center gap-1">
-                    {t("storefront.orderConfirmation.trackOrder")} <ChevronLeft className={`w-3 h-3 ${i18n.dir() === "rtl" ? "" : "rotate-180"}`} />
-                  </Link>
+          <Card className="border-border/60 shadow-sm">
+            <CardContent className="p-5 md:p-6 space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                <div className="inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-sm text-muted-foreground w-fit">
+                  {isOnlinePayment ? <CreditCard className="w-4 h-4 text-primary" /> : <Banknote className="w-4 h-4 text-primary" />}
+                  {isOnlinePayment
+                    ? t("storefront.orderConfirmation.paidOnline", "تم الدفع إلكترونياً عبر Paymob")
+                    : t("storefront.orderConfirmation.codPayment", "الدفع عند الاستلام")}
                 </div>
-              ))}
+                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm text-emerald-700 w-fit">
+                  <ShieldCheck className="w-4 h-4" />
+                  {t("storefront.orderConfirmation.safeNextStep", "المتجر سيتواصل قبل الشحن")}
+                </div>
+              </div>
+
+              {orderIds.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Package className="w-4 h-4 text-primary" />
+                    {orderIds.length === 1
+                      ? t("storefront.orderConfirmation.orderId", "رقم الطلب")
+                      : t("storefront.orderConfirmation.orderIds", "أرقام الطلبات")}
+                  </p>
+
+                  {orderIds.map((id) => (
+                    <div key={id} className="rounded-2xl border border-border/60 bg-background px-4 py-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            {t("storefront.orderConfirmation.orderId", "رقم الطلب")}
+                          </p>
+                          <p className="font-bold text-foreground" dir="ltr">#{id}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button asChild size="sm" className="rounded-full">
+                            <Link href={trackHref(id)} className="inline-flex items-center gap-1">
+                              {t("storefront.orderConfirmation.trackOrder", "تتبع الطلب")}
+                              <ChevronLeft className={`w-3.5 h-3.5 ${i18n.dir() === "rtl" ? "" : "rotate-180"}`} />
+                            </Link>
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="rounded-full h-9 w-9"
+                            onClick={() => copyTrackingLink(id)}
+                            aria-label={t("storefront.orderConfirmation.copyTrackingLink", "نسخ رابط التتبع")}
+                          >
+                            {copiedId === id ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
+        </motion.div>
 
-          {/* WhatsApp confirmation prompt for customer */}
-          {phone && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-            >
-              <Card className="border-emerald-200/60 bg-emerald-50/40 dark:border-emerald-800/30 dark:bg-emerald-900/10 mb-6">
-                <CardContent className="pt-5 pb-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <MessageCircle className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <div className="text-start">
-                      <p className="font-semibold text-sm text-emerald-800 dark:text-emerald-300">{t("storefront.orderConfirmation.whatsappTitle", "احصلي على تأكيد الطلب على واتساب")}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{t("storefront.orderConfirmation.whatsappDesc", "اضغطي لفتح رسالة التأكيد على")} {phone}</p>
-                    </div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.18 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-5"
+        >
+          {nextSteps.map((step) => {
+            const Icon = step.icon;
+            return (
+              <div key={step.title} className="rounded-2xl border border-border/60 bg-background px-4 py-4 text-start">
+                <Icon className="w-5 h-5 text-primary mb-3" />
+                <p className="text-sm font-semibold text-foreground">{step.title}</p>
+                <p className="text-xs text-muted-foreground leading-6 mt-1">{step.body}</p>
+              </div>
+            );
+          })}
+        </motion.div>
+
+        {phone && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.25 }}
+            className="mt-5"
+          >
+            <Card className="border-emerald-200/70 bg-emerald-50/60">
+              <CardContent className="p-5">
+                <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+                  <div className="text-start">
+                    <p className="font-semibold text-sm text-emerald-800 flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4" />
+                      {t("storefront.orderConfirmation.whatsappTitle", "احصلي على تأكيد الطلب على واتساب")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("storefront.orderConfirmation.whatsappDesc", "اضغطي لفتح رسالة التأكيد على")} <span dir="ltr">{phone}</span>
+                    </p>
                   </div>
                   <Button
                     onClick={openWhatsApp}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"
-                    size="sm"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shrink-0"
                   >
-                    <MessageCircle className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-2" : "mr-2"}`} />
-                    {t("storefront.orderConfirmation.whatsappBtn", "إرسال تأكيد الطلب على واتساب")}
+                    <MessageCircle className="w-4 h-4 me-2" />
+                    {t("storefront.orderConfirmation.whatsappBtn", "فتح واتساب")}
                   </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Bosta tracking info */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="border-blue-200/60 bg-blue-50/30 dark:border-blue-800/30 dark:bg-blue-900/10 mb-8">
-              <CardContent className="pt-5 pb-4 text-start">
-                <div className="flex items-center gap-3">
-                  <Truck className="w-5 h-5 text-blue-600 shrink-0" />
-                  <div>
-                    <p className="font-semibold text-sm text-blue-800 dark:text-blue-300">{t("storefront.orderConfirmation.bostaTitle", "التوصيل عبر بوسطة")}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {t("storefront.orderConfirmation.bostaDesc", "سيقوم المتجر بإنشاء شحنتكِ خلال 24 ساعة — ستصلكِ رسالة برقم التتبع")}
-                    </p>
-                  </div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
-        </motion.div>
-      )}
+        )}
 
-      <motion.div
-        className="flex flex-col sm:flex-row gap-4 justify-center"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.45 }}
-      >
-        <Button asChild className="rounded-full px-8">
-          <Link href="/products">{t("storefront.orderConfirmation.continueShopping")}</Link>
-        </Button>
-        <Button asChild variant="outline" className="rounded-full px-8">
-          <Link href="/"><Home className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-2" : "mr-2"}`} /> {t("storefront.header.links.home")}</Link>
-        </Button>
-      </motion.div>
+        <motion.div
+          className="flex flex-col sm:flex-row gap-3 justify-center mt-8"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.32 }}
+        >
+          <Button asChild className="rounded-full px-8">
+            <Link href="/products">{t("storefront.orderConfirmation.continueShopping", "متابعة التسوق")}</Link>
+          </Button>
+          <Button asChild variant="outline" className="rounded-full px-8">
+            <Link href="/">
+              <Home className="w-4 h-4 me-2" />
+              {t("storefront.header.links.home", "الرئيسية")}
+            </Link>
+          </Button>
+        </motion.div>
+      </div>
     </div>
   );
 }

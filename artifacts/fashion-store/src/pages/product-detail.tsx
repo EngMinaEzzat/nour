@@ -8,7 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingBag, AlertCircle, ChevronRight, Store, Tag, Check, Layers, Star, MessageSquare, Loader2, MessageCircle } from "lucide-react";
+import {
+  ShoppingBag, AlertCircle, ChevronRight, Store, Tag, Check, Layers, Star,
+  MessageSquare, Loader2, MessageCircle, Minus, Plus, Truck, ShieldCheck, RotateCcw,
+} from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { usePageMeta } from "@/hooks/use-page-meta";
@@ -169,6 +172,7 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(1);
 
   const hasVariants = variants.length > 0;
   const uniqueSizes = useMemo(() => [...new Set(variants.map((v) => v.size).filter(Boolean))], [variants]) as string[];
@@ -208,22 +212,31 @@ export default function ProductDetail() {
   const effectiveStock = hasVariants
     ? (selectedVariant?.stock ?? 0)
     : (product?.stock ?? 0);
+  const selectionResolved = !hasVariants || variantSelectionComplete;
+  const selectedOptionUnavailable = selectionResolved && effectiveStock === 0;
+  const maxQuantity = Math.max(1, Math.min(effectiveStock || 1, 10));
+
+  useEffect(() => {
+    setQuantity((current) => Math.min(Math.max(current, 1), maxQuantity));
+  }, [maxQuantity]);
 
   const inCart = product ? isInCart(product.id, selectedVariant?.id) : false;
-  const unavailable = effectiveStock === 0;
+  const unavailable = selectedOptionUnavailable;
 
   function handleAddToCart() {
     if (!product || unavailable || !variantSelectionComplete) return;
-    addItem({
+    const item = {
       productId: product.id,
       tenantId: product.tenantId,
+      tenantSlug: productTenantSlug,
       tenantName: product.tenantName,
       name: product.name,
       price: product.price,
       imageUrl: productImageUrl(selectedVariant?.imageUrls?.[0] ?? product.imageUrl),
       variantId: selectedVariant?.id,
       variantLabel: [selectedSize, selectedColor].filter(Boolean).join(" / ") || undefined,
-    });
+    };
+    for (let i = 0; i < quantity; i += 1) addItem(item);
   }
 
   if (error) {
@@ -348,7 +361,9 @@ export default function ProductDetail() {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {uniqueSizes.map((size) => {
-                      const sizeVariants = variants.filter((v) => v.size === size);
+                      const sizeVariants = variants.filter((v) =>
+                        v.size === size && (!selectedColor || v.color === selectedColor)
+                      );
                       const totalStock = sizeVariants.reduce((s, v) => s + v.stock, 0);
                       const outOfStock = totalStock === 0;
                       const selected = selectedSize === size;
@@ -384,7 +399,9 @@ export default function ProductDetail() {
                   </div>
                   <div className="flex flex-wrap gap-3">
                     {uniqueColors.map((v) => {
-                      const colorVariants = variants.filter((cv) => cv.color === v.color);
+                      const colorVariants = variants.filter((cv) =>
+                        cv.color === v.color && (!selectedSize || cv.size === selectedSize)
+                      );
                       const totalStock = colorVariants.reduce((s, cv) => s + cv.stock, 0);
                       const outOfStock = totalStock === 0;
                       const selected = selectedColor === v.color;
@@ -431,6 +448,16 @@ export default function ProductDetail() {
                       : <span className="text-destructive font-medium">{t("productDetail.outOfStock")}</span>}
                   </motion.p>
                 )}
+                {variantSelectionComplete && !selectedVariant && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-2.5"
+                  >
+                    {t("productDetail.variantUnavailable", "هذا الاختيار غير متوفر حالياً. جرّبي مقاساً أو لوناً آخر.")}
+                  </motion.p>
+                )}
               </AnimatePresence>
             </div>
           )}
@@ -474,6 +501,43 @@ export default function ProductDetail() {
               )}
             </AnimatePresence>
 
+            <div className="flex items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/30 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {t("productDetail.quantity", "الكمية")}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {selectionResolved && effectiveStock > 0
+                    ? t("productDetail.stockLimit", {
+                        count: effectiveStock,
+                        defaultValue: "{{count}} قطعة متاحة",
+                      })
+                    : t("productDetail.chooseVariantForStock", "اختاري المقاس واللون لمعرفة المتاح")}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                  disabled={quantity <= 1 || unavailable || !variantSelectionComplete}
+                  className="w-9 h-9 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors"
+                  aria-label={t("productDetail.decreaseQuantity", "تقليل الكمية")}
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-8 text-center text-sm font-bold">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
+                  disabled={quantity >= maxQuantity || unavailable || !variantSelectionComplete}
+                  className="w-9 h-9 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors"
+                  aria-label={t("productDetail.increaseQuantity", "زيادة الكمية")}
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
             <motion.div whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
@@ -494,6 +558,21 @@ export default function ProductDetail() {
                 )}
               </Button>
             </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <span>{t("productDetail.trust.cod", "الدفع عند الاستلام متاح")}</span>
+              </div>
+              <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
+                <Truck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <span>{t("productDetail.trust.delivery", "تأكيد التوصيل عبر واتساب")}</span>
+              </div>
+              <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
+                <RotateCcw className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <span>{t("productDetail.trust.support", "اسألي المتجر قبل الطلب")}</span>
+              </div>
+            </div>
 
             {/* WhatsApp order button */}
             {(product as any).tenantWhatsapp && (
@@ -521,6 +600,39 @@ export default function ProductDetail() {
             )}
           </div>
         </motion.div>
+      </div>
+
+      <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/95 backdrop-blur-xl px-4 py-3 shadow-[0_-12px_30px_rgba(0,0,0,0.08)]" dir={i18n.dir()}>
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] text-muted-foreground">
+              {hasVariants && !variantSelectionComplete
+                ? t("productDetail.selectSizeColorFirst", "اختاري المقاس واللون أولاً")
+                : t("productDetail.quantitySummary", {
+                    count: quantity,
+                    defaultValue: "{{count}} قطعة",
+                  })}
+            </p>
+            <p className="text-base font-bold text-foreground truncate">
+              {(product.price * quantity).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}
+            </p>
+          </div>
+          <Button
+            className={`h-12 rounded-2xl px-5 shrink-0 ${inCart ? "bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20" : ""}`}
+            disabled={unavailable || (hasVariants && !variantSelectionComplete)}
+            onClick={handleAddToCart}
+          >
+            {unavailable ? (
+              <><ShoppingBag className="w-4 h-4 me-2" /> {t("productDetail.outOfStockBadge")}</>
+            ) : hasVariants && !variantSelectionComplete ? (
+              <><Layers className="w-4 h-4 me-2" /> {t("productDetail.chooseOptions", "اختاري الخيارات")}</>
+            ) : inCart ? (
+              <><Check className="w-4 h-4 me-2" /> {t("productDetail.addedToCart")}</>
+            ) : (
+              <><ShoppingBag className="w-4 h-4 me-2" /> {t("productDetail.addToCart")}</>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* ─── Reviews Section ─── */}

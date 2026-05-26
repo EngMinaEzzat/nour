@@ -1011,10 +1011,13 @@
   "orders": {
     "status": {
       "pending": "قيد الانتظار",
+      "awaiting_confirmation": "بانتظار التأكيد",
       "confirmed": "مؤكد",
+      "dispatched": "تم الإرسال",
       "shipped": "تم الشحن",
       "delivered": "تم التوصيل",
-      "cancelled": "ملغي"
+      "cancelled": "ملغي",
+      "returned": "مُعاد"
     },
     "page": {
       "title": "الطلبات",
@@ -1046,7 +1049,26 @@
       ]
     },
     "search": {
-      "placeholder": "بحث بالرقم أو اسم العميل..."
+      "placeholder": "ابحث برقم الطلب أو العميل أو الهاتف..."
+    },
+    "queue": {
+      "needsAction": "تحتاج تأكيد",
+      "ready": "جاهزة للشحن",
+      "shipping": "قيد الشحن",
+      "done": "مغلقة"
+    },
+    "metrics": {
+      "open": "طلبات مفتوحة",
+      "needsContact": "تحتاج تواصل",
+      "revenue": "قيمة الطلبات"
+    },
+    "payment": {
+      "cod": "COD",
+      "paymob": "دفع إلكتروني"
+    },
+    "actions": {
+      "review": "مراجعة",
+      "open": "فتح"
     },
     "filter": {
       "all": "الكل"

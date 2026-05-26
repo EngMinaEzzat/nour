@@ -2,34 +2,138 @@ import { useRoute, useSearch } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { Package, Clock, CheckCircle2, Truck, XCircle, RotateCcw, MapPin, Phone, ArrowRight, ArrowLeft } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Banknote,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  Home,
+  MapPin,
+  Package,
+  Phone,
+  RotateCcw,
+  Store,
+  Truck,
+  XCircle,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { getStoreUrl } from "@/lib/utils";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const getStatusMap = (t: any) => ({
-  pending:    { label: t("storefront.orderTrack.status.pending", "قيد المراجعة"),  icon: Clock,         color: "text-amber-600",  bg: "bg-amber-50 border-amber-200" },
-  confirmed:  { label: t("storefront.orderTrack.status.confirmed", "مؤكد"),          icon: CheckCircle2,  color: "text-blue-600",   bg: "bg-blue-50 border-blue-200" },
-  dispatched: { label: t("storefront.orderTrack.status.dispatched", "تم الإرسال"),    icon: Truck,         color: "text-indigo-600", bg: "bg-indigo-50 border-indigo-200" },
-  shipped:    { label: t("storefront.orderTrack.status.shipped", "في الطريق"),     icon: Truck,         color: "text-indigo-600", bg: "bg-indigo-50 border-indigo-200" },
-  delivered:  { label: t("storefront.orderTrack.status.delivered", "تم التسليم"),   icon: CheckCircle2,  color: "text-green-600",  bg: "bg-green-50 border-green-200" },
-  cancelled:  { label: t("storefront.orderTrack.status.cancelled", "ملغي"),         icon: XCircle,       color: "text-red-600",    bg: "bg-red-50 border-red-200" },
-  returned:   { label: t("storefront.orderTrack.status.returned", "مرتجع"),        icon: RotateCcw,     color: "text-orange-600", bg: "bg-orange-50 border-orange-200" },
-});
+type PublicOrderItem = {
+  id?: number;
+  productId: number;
+  variantId?: number | null;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice?: number;
+};
 
-const TIMELINE_STATUSES = ["pending", "confirmed", "dispatched", "shipped", "delivered"];
+type StatusHistoryItem = {
+  id: number;
+  fromStatus?: string | null;
+  toStatus: string;
+  note?: string | null;
+  createdAt: string;
+};
+
+type PublicOrder = {
+  id: number;
+  publicCode?: string | null;
+  tenantName?: string | null;
+  tenantSlug?: string | null;
+  status: string;
+  paymentMethod?: string | null;
+  paymentStatus?: string | null;
+  totalAmount?: number;
+  shippingCost?: number;
+  shippingAddress?: string | null;
+  customerPhone?: string | null;
+  trackingNumber?: string | null;
+  createdAt?: string;
+  items?: PublicOrderItem[];
+  statusHistory?: StatusHistoryItem[];
+};
+
+const TIMELINE_STATUSES = ["pending", "awaiting_confirmation", "confirmed", "dispatched", "shipped", "delivered"];
+
+function getStatusMap(t: ReturnType<typeof useTranslation>["t"]) {
+  return {
+    pending: {
+      label: t("storefront.orderTrack.status.pending", "قيد المراجعة"),
+      body: t("storefront.orderTrack.statusBody.pending", "تم استلام الطلب وينتظر تأكيد المتجر."),
+      icon: Clock,
+      color: "text-amber-700",
+      bg: "bg-amber-50 border-amber-200",
+    },
+    awaiting_confirmation: {
+      label: t("storefront.orderTrack.status.awaitingConfirmation", "بانتظار التأكيد"),
+      body: t("storefront.orderTrack.statusBody.awaitingConfirmation", "المتجر يراجع بيانات الطلب قبل التجهيز."),
+      icon: Clock,
+      color: "text-amber-700",
+      bg: "bg-amber-50 border-amber-200",
+    },
+    confirmed: {
+      label: t("storefront.orderTrack.status.confirmed", "تم التأكيد"),
+      body: t("storefront.orderTrack.statusBody.confirmed", "المتجر أكد الطلب ويجهزه الآن."),
+      icon: CheckCircle2,
+      color: "text-blue-700",
+      bg: "bg-blue-50 border-blue-200",
+    },
+    dispatched: {
+      label: t("storefront.orderTrack.status.dispatched", "تم الإرسال"),
+      body: t("storefront.orderTrack.statusBody.dispatched", "الطلب خرج من المتجر إلى شركة الشحن."),
+      icon: Truck,
+      color: "text-indigo-700",
+      bg: "bg-indigo-50 border-indigo-200",
+    },
+    shipped: {
+      label: t("storefront.orderTrack.status.shipped", "في الطريق"),
+      body: t("storefront.orderTrack.statusBody.shipped", "الطلب في الطريق إليك."),
+      icon: Truck,
+      color: "text-indigo-700",
+      bg: "bg-indigo-50 border-indigo-200",
+    },
+    delivered: {
+      label: t("storefront.orderTrack.status.delivered", "تم التسليم"),
+      body: t("storefront.orderTrack.statusBody.delivered", "تم تسليم الطلب بنجاح."),
+      icon: CheckCircle2,
+      color: "text-emerald-700",
+      bg: "bg-emerald-50 border-emerald-200",
+    },
+    cancelled: {
+      label: t("storefront.orderTrack.status.cancelled", "ملغي"),
+      body: t("storefront.orderTrack.statusBody.cancelled", "تم إلغاء الطلب."),
+      icon: XCircle,
+      color: "text-red-700",
+      bg: "bg-red-50 border-red-200",
+    },
+    returned: {
+      label: t("storefront.orderTrack.status.returned", "مرتجع"),
+      body: t("storefront.orderTrack.statusBody.returned", "تم تسجيل الطلب كمرتجع."),
+      icon: RotateCcw,
+      color: "text-orange-700",
+      bg: "bg-orange-50 border-orange-200",
+    },
+  };
+}
 
 export default function OrderTrack() {
   const { t, i18n } = useTranslation();
   const [, params] = useRoute("/order-track/:orderId");
   const publicCode = params?.orderId ?? "";
   const token = new URLSearchParams(useSearch()).get("token") ?? "";
+  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const currency = i18n.language === "ar" ? "ج.م" : "EGP";
 
-  const { data: order, isLoading, isError } = useQuery({
+  const { data: order, isLoading, isError } = useQuery<PublicOrder>({
     queryKey: ["public-order", publicCode, token],
     queryFn: () =>
       fetch(`${BASE}/api/orders/track/${encodeURIComponent(publicCode)}?token=${encodeURIComponent(token)}`).then((r) => {
@@ -40,13 +144,20 @@ export default function OrderTrack() {
     retry: false,
   });
 
+  function money(value?: number) {
+    return `${(value ?? 0).toLocaleString(locale)} ${currency}`;
+  }
+
   if (!publicCode || !token) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" dir={i18n.dir()}>
-        <div className="text-center">
-          <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-          <p className="text-lg font-semibold mb-2">{t("storefront.orderTrack.invalidLink", "رابط تتبع غير صالح")}</p>
-          <Button asChild variant="outline"><Link href="/">{t("storefront.orderTrack.home", "الرئيسية")}</Link></Button>
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#faf7f4]" dir={i18n.dir()}>
+        <div className="text-center max-w-sm">
+          <AlertCircle className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+          <p className="text-lg font-semibold mb-2">{t("storefront.orderTrack.invalidLink", "رابط التتبع غير صالح")}</p>
+          <p className="text-sm text-muted-foreground mb-6">{t("storefront.orderTrack.invalidLinkDesc", "افتحي رابط التتبع من صفحة تأكيد الطلب أو رسالة واتساب.")}</p>
+          <Button asChild variant="outline" className="rounded-full">
+            <Link href="/"><Home className="w-4 h-4 me-2" />{t("storefront.orderTrack.home", "الرئيسية")}</Link>
+          </Button>
         </div>
       </div>
     );
@@ -54,10 +165,10 @@ export default function OrderTrack() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" dir={i18n.dir()}>
+      <div className="min-h-screen flex items-center justify-center bg-[#faf7f4]" dir={i18n.dir()}>
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">{t("storefront.orderTrack.loading", "جارٍ البحث عن طلبك...")}</p>
+          <p className="text-muted-foreground text-sm">{t("storefront.orderTrack.loading", "جاري البحث عن طلبك...")}</p>
         </div>
       </div>
     );
@@ -65,12 +176,14 @@ export default function OrderTrack() {
 
   if (isError || !order) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" dir={i18n.dir()}>
-        <div className="text-center">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#faf7f4]" dir={i18n.dir()}>
+        <div className="text-center max-w-sm">
           <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <p className="text-lg font-semibold mb-1">{t("storefront.orderTrack.notFound", "لم يتم العثور على الطلب")}</p>
-          <p className="text-muted-foreground text-sm mb-6">{t("storefront.orderTrack.notFoundDesc", "تأكد من رقم الطلب أو تواصل مع المتجر")}</p>
-          <Button asChild variant="outline"><Link href="/">{t("storefront.orderTrack.home", "الرئيسية")}</Link></Button>
+          <p className="text-muted-foreground text-sm mb-6">{t("storefront.orderTrack.notFoundDesc", "تأكدي من رابط التتبع أو تواصلي مع المتجر.")}</p>
+          <Button asChild variant="outline" className="rounded-full">
+            <Link href="/">{t("storefront.orderTrack.home", "الرئيسية")}</Link>
+          </Button>
         </div>
       </div>
     );
@@ -79,64 +192,81 @@ export default function OrderTrack() {
   const STATUS_MAP = getStatusMap(t);
   const statusInfo = STATUS_MAP[order.status as keyof typeof STATUS_MAP] ?? STATUS_MAP.pending;
   const StatusIcon = statusInfo.icon;
-  const currentIdx = TIMELINE_STATUSES.indexOf(order.status);
+  const currentIdx = Math.max(0, TIMELINE_STATUSES.indexOf(order.status));
   const isCancelled = order.status === "cancelled" || order.status === "returned";
+  const itemsSubtotal = order.items?.reduce((sum, item) => sum + (item.totalPrice ?? item.unitPrice * item.quantity), 0) ?? 0;
+  const storeHref = order.tenantSlug ? getStoreUrl(order.tenantSlug) : "/";
 
   return (
-    <div className="min-h-screen bg-background" dir={i18n.dir()}>
-      {/* Header */}
-      <div className="bg-primary text-primary-foreground px-4 py-6 text-center">
-        <Package className="w-8 h-8 mx-auto mb-2 opacity-80" />
-        <h1 className="text-xl font-bold">{t("storefront.orderTrack.title", "تتبع طلبك")}</h1>
-        <p className="text-primary-foreground/70 text-sm mt-1">{t("storefront.orderTrack.orderNo", "رقم الطلب")} #{order.id}</p>
+    <div className="min-h-screen bg-[#faf7f4]" dir={i18n.dir()}>
+      <div className="bg-primary text-primary-foreground px-4 py-8">
+        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
+          <div>
+            <p className="text-primary-foreground/70 text-sm mb-1">{t("storefront.orderTrack.title", "تتبع طلبك")}</p>
+            <h1 className="text-2xl font-bold" dir="ltr">{order.publicCode ?? `#${order.id}`}</h1>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm w-fit">
+            {order.paymentMethod === "paymob" ? <CreditCard className="w-4 h-4" /> : <Banknote className="w-4 h-4" />}
+            {order.paymentMethod === "paymob"
+              ? t("storefront.orderTrack.paidOnline", "دفع إلكتروني")
+              : t("storefront.orderTrack.cod", "الدفع عند الاستلام")}
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
-        {/* Status card */}
+      <main className="max-w-3xl mx-auto px-4 py-6 space-y-4">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <Card className={`border ${statusInfo.bg}`}>
-            <CardContent className="p-5 flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${statusInfo.bg} shrink-0`}>
+            <CardContent className="p-5 flex items-start gap-4">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-white/70 shrink-0`}>
                 <StatusIcon className={`w-6 h-6 ${statusInfo.color}`} />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs text-muted-foreground mb-0.5">{t("storefront.orderTrack.statusLabel", "حالة الطلب")}</p>
                 <p className={`text-lg font-bold ${statusInfo.color}`}>{statusInfo.label}</p>
+                <p className="text-sm text-muted-foreground mt-1 leading-6">{statusInfo.body}</p>
                 {order.trackingNumber && (
-                  <p className="text-xs text-muted-foreground mt-0.5">{t("storefront.orderTrack.trackingNo", "رقم التتبع")}: {order.trackingNumber}</p>
+                  <p className="text-xs text-muted-foreground mt-2" dir="ltr">
+                    {t("storefront.orderTrack.trackingNo", "رقم التتبع")}: {order.trackingNumber}
+                  </p>
                 )}
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Timeline */}
         {!isCancelled && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
             <Card>
-              <CardHeader className="pb-2 pt-4 px-5">
+              <CardHeader className="pb-2 pt-5 px-5">
                 <CardTitle className="text-sm">{t("storefront.orderTrack.timeline", "مراحل الطلب")}</CardTitle>
               </CardHeader>
-              <CardContent className="px-5 pb-4">
-                <div className="space-y-3">
-                  {TIMELINE_STATUSES.map((s, idx) => {
-                    const info = STATUS_MAP[s as keyof typeof STATUS_MAP];
+              <CardContent className="px-5 pb-5">
+                <div className="space-y-4">
+                  {TIMELINE_STATUSES.map((status, index) => {
+                    const info = STATUS_MAP[status as keyof typeof STATUS_MAP];
                     const Icon = info.icon;
-                    const done = idx <= currentIdx;
-                    const active = idx === currentIdx;
+                    const done = index <= currentIdx;
+                    const active = index === currentIdx;
+                    const history = order.statusHistory?.find((item) => item.toStatus === status);
                     return (
-                      <div key={s} className="flex items-center gap-3">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                      <div key={status} className="flex items-start gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
                           done ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                         } ${active ? "ring-2 ring-primary ring-offset-2" : ""}`}>
-                          <Icon className="w-3.5 h-3.5" />
+                          <Icon className="w-4 h-4" />
                         </div>
-                        <div className="flex-1">
-                          <p className={`text-sm font-medium ${done ? "text-foreground" : "text-muted-foreground"}`}>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-semibold ${done ? "text-foreground" : "text-muted-foreground"}`}>
                             {info.label}
                           </p>
+                          {history?.createdAt && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {new Date(history.createdAt).toLocaleDateString(locale)}
+                            </p>
+                          )}
                         </div>
-                        {done && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
+                        {done && <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-1" />}
                       </div>
                     );
                   })}
@@ -146,32 +276,39 @@ export default function OrderTrack() {
           </motion.div>
         )}
 
-        {/* Order details */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}>
           <Card>
-            <CardHeader className="pb-2 pt-4 px-5">
+            <CardHeader className="pb-2 pt-5 px-5">
               <CardTitle className="text-sm">{t("storefront.orderTrack.details", "تفاصيل الطلب")}</CardTitle>
             </CardHeader>
-            <CardContent className="px-5 pb-4 space-y-2">
-              {order.items?.map((item: { productId: number; productName: string; quantity: number; unitPrice: number }) => (
-                <div key={item.productId} className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{item.productName} × {item.quantity}</span>
-                  <span className="font-medium">{(item.unitPrice * item.quantity).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>
+            <CardContent className="px-5 pb-5 space-y-3">
+              {order.items?.map((item) => (
+                <div key={`${item.productId}-${item.variantId ?? "base"}`} className="flex justify-between gap-3 text-sm">
+                  <span className="text-muted-foreground min-w-0">
+                    {item.productName} x {item.quantity}
+                  </span>
+                  <span className="font-medium shrink-0">{money(item.totalPrice ?? item.unitPrice * item.quantity)}</span>
                 </div>
               ))}
-              <div className="flex justify-between text-sm font-bold border-t pt-2 mt-2">
+              {order.shippingCost != null && order.shippingCost > 0 && (
+                <div className="flex justify-between text-sm text-muted-foreground border-t pt-3">
+                  <span>{t("storefront.orderTrack.shipping", "الشحن")}</span>
+                  <span>{money(order.shippingCost)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-base font-bold border-t pt-3">
                 <span>{t("storefront.orderTrack.total", "الإجمالي")}</span>
-                <span>{order.totalAmount?.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>
+                <span>{money(order.totalAmount ?? itemsSubtotal + (order.shippingCost ?? 0))}</span>
               </div>
               {order.shippingAddress && (
                 <div className="flex items-start gap-2 text-sm text-muted-foreground pt-1">
-                  <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  <span>{order.shippingAddress}</span>
+                  <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span className="whitespace-pre-line">{order.shippingAddress}</span>
                 </div>
               )}
               {order.customerPhone && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Phone className="w-3.5 h-3.5 shrink-0" />
+                  <Phone className="w-4 h-4 shrink-0" />
                   <span dir="ltr">{order.customerPhone}</span>
                 </div>
               )}
@@ -179,25 +316,28 @@ export default function OrderTrack() {
           </Card>
         </motion.div>
 
-        {/* Store info */}
         {order.tenantName && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card className="border-dashed">
-              <CardContent className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">{t("storefront.orderTrack.store", "المتجر")}</p>
-                  <p className="font-semibold text-sm">{order.tenantName}</p>
+              <CardContent className="p-4 flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
+                    <Store className="w-3.5 h-3.5" />
+                    {t("storefront.orderTrack.store", "المتجر")}
+                  </p>
+                  <p className="font-semibold text-sm truncate">{order.tenantName}</p>
                 </div>
-                <Button asChild size="sm" variant="outline">
-                  <a href={getStoreUrl(order.tenantName?.toLowerCase() ?? "")}>
-                    {t("storefront.orderTrack.visitStore", "زيارة المتجر")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-3.5 h-3.5 mr-1" /> : <ArrowRight className="w-3.5 h-3.5 ml-1" />}
+                <Button asChild size="sm" variant="outline" className="rounded-full shrink-0">
+                  <a href={storeHref}>
+                    {t("storefront.orderTrack.visitStore", "زيارة المتجر")}
+                    {i18n.dir() === "rtl" ? <ArrowLeft className="w-3.5 h-3.5 ms-1" /> : <ArrowRight className="w-3.5 h-3.5 ms-1" />}
                   </a>
                 </Button>
               </CardContent>
             </Card>
           </motion.div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

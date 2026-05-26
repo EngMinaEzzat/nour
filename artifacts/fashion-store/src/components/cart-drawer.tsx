@@ -3,8 +3,9 @@ import { useCart } from "@/hooks/use-cart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingBag, Minus, Plus, Trash2, ArrowRight, PackageOpen } from "lucide-react";
+import { ShoppingBag, Minus, Plus, Trash2, ArrowRight, PackageOpen, Banknote } from "lucide-react";
 import { productImageUrl } from "@/lib/image-url";
+import { useTranslation } from "react-i18next";
 
 interface CartDrawerProps {
   open: boolean;
@@ -14,6 +15,12 @@ interface CartDrawerProps {
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { items, totalItems, totalPrice, removeItem, updateQuantity } = useCart();
   const [, navigate] = useLocation();
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.dir() === "rtl";
+  const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+  const currency = i18n.language === "ar" ? "ج.م" : "EGP";
+  const formatMoney = (value: number) =>
+    `${value.toLocaleString(locale, { maximumFractionDigits: 2 })} ${currency}`;
 
   function handleCheckout() {
     onClose();
@@ -22,14 +29,17 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side="right" className="flex flex-col w-full sm:max-w-md p-0">
+      <SheetContent side={isRtl ? "left" : "right"} className="flex flex-col w-full sm:max-w-md p-0" dir={i18n.dir()}>
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-border/50">
           <SheetTitle className="font-serif text-2xl flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-primary" />
-            Your Bag
+            {t("cart.title", { defaultValue: i18n.language === "ar" ? "سلة التسوق" : "Your Bag" })}
             {totalItems > 0 && (
-              <span className="ml-auto text-sm font-sans font-normal text-muted-foreground">
-                {totalItems} {totalItems === 1 ? "item" : "items"}
+              <span className="ms-auto text-sm font-sans font-normal text-muted-foreground">
+                {t("cart.itemCount", {
+                  count: totalItems,
+                  defaultValue: i18n.language === "ar" ? "{{count}} قطعة" : "{{count}} items",
+                })}
               </span>
             )}
           </SheetTitle>
@@ -40,16 +50,23 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             <div className="bg-muted/50 rounded-full p-6">
               <PackageOpen className="w-12 h-12 text-muted-foreground/50" />
             </div>
-            <p className="font-serif text-xl text-foreground">Your bag is empty</p>
+            <p className="font-serif text-xl text-foreground">
+              {t("cart.empty.title", { defaultValue: i18n.language === "ar" ? "السلة فارغة" : "Your bag is empty" })}
+            </p>
             <p className="text-sm text-muted-foreground">
-              Discover our curated collection of Egyptian fashion and beauty.
+              {t("cart.empty.description", {
+                defaultValue:
+                  i18n.language === "ar"
+                    ? "اختاري منتجاتك المفضلة من المتجر قبل إتمام الطلب."
+                    : "Discover the collection before checking out.",
+              })}
             </p>
             <Button
               variant="outline"
               className="mt-2 rounded-full"
               onClick={() => { onClose(); navigate("/products"); }}
             >
-              Browse Collection
+              {t("cart.empty.cta", { defaultValue: i18n.language === "ar" ? "تصفحي المنتجات" : "Browse Collection" })}
             </Button>
           </div>
         ) : (
@@ -79,28 +96,28 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{item.variantLabel}</p>
                     )}
                     <p className="text-sm font-bold text-foreground mt-1">
-                      EGP {(item.price * item.quantity).toFixed(2)}
+                      {formatMoney(item.price * item.quantity)}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
-                        className="w-7 h-7 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-colors"
-                        aria-label="Decrease quantity"
+                        className="w-8 h-8 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-colors"
+                        aria-label={t("cart.actions.decrease", { defaultValue: i18n.language === "ar" ? "تقليل الكمية" : "Decrease quantity" })}
                       >
                         <Minus className="w-3 h-3" />
                       </button>
                       <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
-                        className="w-7 h-7 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-colors"
-                        aria-label="Increase quantity"
+                        className="w-8 h-8 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-colors"
+                        aria-label={t("cart.actions.increase", { defaultValue: i18n.language === "ar" ? "زيادة الكمية" : "Increase quantity" })}
                       >
                         <Plus className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => removeItem(item.productId, item.variantId)}
-                        className="ml-auto text-muted-foreground hover:text-destructive transition-colors"
-                        aria-label="Remove item"
+                        className="ms-auto h-8 w-8 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center"
+                        aria-label={t("cart.actions.remove", { defaultValue: i18n.language === "ar" ? "حذف المنتج" : "Remove item" })}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -113,16 +130,28 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             <div className="px-6 py-6 border-t border-border/50 bg-background space-y-4">
               <Separator />
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-serif text-xl font-bold">EGP {totalPrice.toFixed(2)}</span>
+                <span className="text-muted-foreground">
+                  {t("cart.summary.subtotal", { defaultValue: i18n.language === "ar" ? "المجموع الفرعي" : "Subtotal" })}
+                </span>
+                <span className="font-serif text-xl font-bold">{formatMoney(totalPrice)}</span>
               </div>
-              <p className="text-xs text-muted-foreground">Shipping calculated at checkout</p>
+              <div className="rounded-xl bg-muted/50 px-3 py-2 text-xs text-muted-foreground flex items-start gap-2">
+                <Banknote className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                <span>
+                  {t("cart.summary.codNote", {
+                    defaultValue:
+                      i18n.language === "ar"
+                        ? "سيظهر تقدير الشحن في الخطوة التالية، والدفع يكون عند الاستلام."
+                        : "Shipping is estimated in the next step, with cash on delivery available.",
+                  })}
+                </span>
+              </div>
               <Button
                 className="w-full h-14 text-base rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={handleCheckout}
               >
-                Proceed to Checkout
-                <ArrowRight className="w-4 h-4 ml-2" />
+                {t("cart.summary.checkout", { defaultValue: i18n.language === "ar" ? "إتمام الطلب" : "Proceed to Checkout" })}
+                <ArrowRight className={`w-4 h-4 ms-2 ${isRtl ? "rotate-180" : ""}`} />
               </Button>
             </div>
           </>

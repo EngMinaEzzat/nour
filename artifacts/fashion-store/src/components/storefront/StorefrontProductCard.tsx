@@ -165,7 +165,7 @@ export function StorefrontProductCard({
             <AnimatePresence>
               {hovered && (
                 <motion.div
-                  className="absolute bottom-0 left-0 right-0 z-10"
+                  className="absolute bottom-0 left-0 right-0 z-10 hidden sm:block"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
@@ -273,6 +273,32 @@ export function StorefrontProductCard({
             <Layers className="w-2.5 h-2.5" /> {t("storefront.products.hasVariants", "متعدد الخيارات")}
           </p>
         )}
+
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={unavailable}
+          className="sm:hidden mt-2 w-full min-h-9 rounded-xl px-3 py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+          style={{
+            background: unavailable
+              ? "#e7dfd8"
+              : inCart
+                ? "rgba(250,247,244,0.95)"
+                : p,
+            color: unavailable ? "#7a6060" : inCart ? p : "#fff",
+            border: inCart ? `1px solid ${p}40` : "1px solid transparent",
+          }}
+        >
+          {unavailable ? (
+            <><ShoppingBag className="w-3.5 h-3.5" /> {t("storefront.products.outOfStock", "نفذت الكمية")}</>
+          ) : product.hasVariants ? (
+            <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption", "اختاري خيارك")}</>
+          ) : inCart ? (
+            <><Check className="w-3.5 h-3.5" />{t("storefront.products.inCart", "في السلة")}</>
+          ) : (
+            <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart", "أضيفي للسلة")}</>
+          )}
+        </button>
       </div>
     </div>
   );

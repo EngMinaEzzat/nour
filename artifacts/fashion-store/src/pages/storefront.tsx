@@ -495,6 +495,27 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     }
   }
 
+  const hasCatalogFilters =
+    selectedCategory !== null ||
+    minDiscount !== null ||
+    productFilters.sortBy !== "default" ||
+    productFilters.priceRange.min !== null ||
+    productFilters.priceRange.max !== null ||
+    productFilters.onSaleOnly ||
+    productFilters.inStockOnly;
+
+  function resetCatalogFilters() {
+    setSelectedCategory(null);
+    setMinDiscount(null);
+    setProductFilters({
+      sortBy: "default",
+      priceRange: { min: null, max: null },
+      onSaleOnly: false,
+      inStockOnly: false,
+    });
+    if (store) navigate("/");
+  }
+
   // ── Error state ──
   const selectedCategoryIds = useMemo(() => {
     if (!store || !selectedCategory) return null;
@@ -806,7 +827,22 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     style={{ direction: i18n.dir() }}
                   >
                     <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
-                    <p className="text-stone-400 text-sm">{t("storefront.products.emptyCategory", "لا توجد منتجات في هذه الفئة")}</p>
+                    <p className="text-stone-800 text-sm font-semibold">
+                      {t("storefront.products.emptyCategory", "لا توجد منتجات مطابقة")}
+                    </p>
+                    <p className="text-stone-400 text-xs mt-2 max-w-sm mx-auto leading-6">
+                      {t("storefront.products.emptyHint", "جرّبي مسح الفلاتر أو اختيار فئة أخرى من المتجر.")}
+                    </p>
+                    {hasCatalogFilters && (
+                      <button
+                        type="button"
+                        onClick={resetCatalogFilters}
+                        className="mt-5 px-5 py-2.5 rounded-full text-xs font-bold text-white"
+                        style={{ background: p }}
+                      >
+                        {t("storefront.filters.clearAll", "مسح الفلاتر")}
+                      </button>
+                    )}
                   </motion.div>
                 ) : (
                   <motion.div
@@ -871,6 +907,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
         cartCount={cartCount}
         onSearchOpen={() => setSearchOpen(true)}
         announcementVisible={barVisible}
+        categories={store.categories ?? []}
+        onCategorySelect={handleCategorySelect}
       />
 
       {/* ── Search Overlay ── */}
@@ -878,7 +916,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
         products={store.products}
+        categories={store.categories ?? []}
         primaryColor={p}
+        storeSlug={store.slug}
+        onCategorySelect={handleCategorySelect}
       />
 
       {/* ── Hero ── */}
@@ -1010,7 +1051,22 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 style={{ direction: i18n.dir() }}
               >
                 <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
-                <p className="text-stone-400 text-sm">{t("storefront.products.emptyCategory", "لا توجد منتجات في هذه الفئة")}</p>
+                <p className="text-stone-800 text-sm font-semibold">
+                  {t("storefront.products.emptyCategory", "لا توجد منتجات مطابقة")}
+                </p>
+                <p className="text-stone-400 text-xs mt-2 max-w-sm mx-auto leading-6">
+                  {t("storefront.products.emptyHint", "جرّبي مسح الفلاتر أو اختيار فئة أخرى من المتجر.")}
+                </p>
+                {hasCatalogFilters && (
+                  <button
+                    type="button"
+                    onClick={resetCatalogFilters}
+                    className="mt-5 px-5 py-2.5 rounded-full text-xs font-bold text-white"
+                    style={{ background: p }}
+                  >
+                    {t("storefront.filters.clearAll", "مسح الفلاتر")}
+                  </button>
+                )}
               </motion.div>
             ) : (
               <motion.div
