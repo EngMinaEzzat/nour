@@ -7,6 +7,7 @@ import {
   ordersTable, orderItemsTable, orderStatusHistoryTable,
   tenantsTable, customersTable, productsTable, contactAttemptsTable,
   automationRulesTable, cartSessionsTable, productVariantsTable,
+  discountCodesTable, discountCodeUsesTable,
 } from "@workspace/db";
 import { checkoutLimiter } from "../lib/rate-limiters";
 import {
@@ -16,7 +17,7 @@ import {
   UpdateOrderParams,
   ListOrdersQueryParams,
 } from "@workspace/api-zod";
-import { eq, and, sql, desc, inArray, count, ilike, or } from "drizzle-orm";
+import { eq, and, sql, desc, inArray, count, ilike, or, isNull } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { buildOrderConfirmationMessage, buildDispatchedMessage, buildCancelledMessage, buildDeliveryFollowUpMessage, buildReturnExchangeMessage, buildShippingUpdateMessage, buildWhatsAppLink } from "../lib/whatsapp.js";
 
@@ -64,6 +65,56 @@ function combineCheckoutItems(items: Array<{ productId: number; variantId?: numb
     });
   }
   return [...combined.values()];
+}
+
+type OrderStatus = typeof ordersTable.$inferSelect["status"];
+
+const ALLOWED_ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  pending: ["awaiting_confirmation", "confirmed", "cancelled"],
+  awaiting_confirmation: ["confirmed", "cancelled"],
+  confirmed: ["dispatched", "shipped", "cancelled"],
+  dispatched: ["delivered", "returned"],
+  shipped: ["delivered", "returned"],
+  delivered: ["returned"],
+  cancelled: [],
+  returned: [],
+};
+
+const RESTOCK_STATUSES = new Set<OrderStatus>(["cancelled", "returned"]);
+
+function assertAllowedOrderTransition(params: {
+  from: OrderStatus;
+  to: OrderStatus;
+  paymentMethod: "cod" | "paymob";
+  paymentStatus: "pending" | "paid" | "failed";
+  nextPaymentStatus?: "pending" | "paid" | "failed";
+}) {
+  if (params.from === params.to) return;
+
+  if (!ALLOWED_ORDER_TRANSITIONS[params.from].includes(params.to)) {
+    throw new CheckoutHttpError(409, `Invalid order status transition: ${params.from} -> ${params.to}`);
+  }
+
+  const effectivePaymentStatus = params.nextPaymentStatus ?? params.paymentStatus;
+  if (
+    params.paymentMethod === "paymob" &&
+    ["confirmed", "dispatched", "shipped", "delivered"].includes(params.to) &&
+    effectivePaymentStatus !== "paid"
+  ) {
+    throw new CheckoutHttpError(409, "Paymob orders must be paid before fulfillment status changes");
+  }
+}
+
+function calculateDiscountAmount(type: string, value: number, subtotal: number): number {
+  if (type === "percentage") return Math.min((subtotal * value) / 100, subtotal);
+  if (type === "fixed") return Math.min(value, subtotal);
+  return 0;
+}
+
+function normalizeDiscountCode(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const code = value.trim().toUpperCase();
+  return code.length > 0 ? code : null;
 }
 
 async function fetchOrderWithItems(orderId: number) {
@@ -371,6 +422,7 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
     cartSessionId?: string;
     sessionId?: string;
     storefrontSlug?: string;
+    discountCode?: unknown;
   };
   const cartSessionId =
     typeof rawBody.cartSessionId === "string" && rawBody.cartSessionId.trim()
@@ -382,6 +434,7 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
     typeof rawBody.storefrontSlug === "string" && rawBody.storefrontSlug.trim()
       ? rawBody.storefrontSlug.trim()
       : null;
+  const discountCode = normalizeDiscountCode(rawBody.discountCode);
 
   // ── Sprint 6: Monthly order limit enforcement ──────────────────────────────
   let orderTenantId = parsed.data.tenantId;
@@ -535,6 +588,48 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
         })
       );
 
+      let appliedDiscount = 0;
+      let appliedDiscountCodeId: number | null = null;
+      if (discountCode) {
+        const [discount] = await tx
+          .select()
+          .from(discountCodesTable)
+          .where(
+            and(
+              eq(discountCodesTable.tenantId, orderTenantId),
+              eq(sql`UPPER(${discountCodesTable.code})`, discountCode),
+              eq(discountCodesTable.active, true),
+            ),
+          );
+
+        if (!discount) throw new CheckoutHttpError(404, "Discount code is invalid");
+
+        const now = new Date();
+        if (discount.startsAt && discount.startsAt > now) {
+          throw new CheckoutHttpError(400, "Discount code has not started yet");
+        }
+        if (discount.expiresAt && discount.expiresAt < now) {
+          throw new CheckoutHttpError(410, "Discount code has expired");
+        }
+        if (discount.maxUses !== null && discount.usedCount >= discount.maxUses) {
+          throw new CheckoutHttpError(410, "Discount code usage limit reached");
+        }
+
+        const minOrder = discount.minOrderAmount ? parseFloat(discount.minOrderAmount as string) : 0;
+        if (subtotal < minOrder) {
+          throw new CheckoutHttpError(400, `Minimum order amount for this discount is ${minOrder}`);
+        }
+
+        appliedDiscount = calculateDiscountAmount(
+          discount.type,
+          parseFloat(discount.value as string),
+          subtotal,
+        );
+        appliedDiscountCodeId = discount.id;
+      }
+
+      const orderTotal = Math.max(0, subtotal - appliedDiscount);
+
       const [order] = await tx
         .insert(ordersTable)
         .values({
@@ -544,7 +639,7 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
           shippingAddress: parsed.data.shippingAddress?.trim() || null,
           customerPhone: normalisedPhone,
           paymentMethod,
-          totalAmount: String(subtotal),
+          totalAmount: String(orderTotal),
           shippingCost: "0",
           // Paymob orders start as pending_payment until webhook confirms; COD starts as pending
           status: "pending",
@@ -553,6 +648,35 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
           trackingToken: createTrackingToken(),
         })
         .returning();
+
+      if (appliedDiscountCodeId) {
+        const now = new Date();
+        const [claimed] = await tx
+          .update(discountCodesTable)
+          .set({ usedCount: sql`${discountCodesTable.usedCount} + 1` })
+          .where(
+            and(
+              eq(discountCodesTable.id, appliedDiscountCodeId),
+              eq(discountCodesTable.tenantId, orderTenantId),
+              eq(discountCodesTable.active, true),
+              or(isNull(discountCodesTable.startsAt), sql`${discountCodesTable.startsAt} <= ${now}`)!,
+              or(isNull(discountCodesTable.expiresAt), sql`${discountCodesTable.expiresAt} > ${now}`)!,
+              or(isNull(discountCodesTable.maxUses), sql`${discountCodesTable.usedCount} < ${discountCodesTable.maxUses}`)!,
+            ),
+          )
+          .returning({ id: discountCodesTable.id });
+
+        if (!claimed) {
+          throw new CheckoutHttpError(409, "Discount code could not be applied");
+        }
+
+        await tx.insert(discountCodeUsesTable).values({
+          discountCodeId: appliedDiscountCodeId,
+          orderId: order.id,
+          customerId: parsed.data.customerId,
+          appliedDiscount: String(appliedDiscount),
+        });
+      }
 
       await tx.insert(orderItemsTable).values(
         itemsWithPrices.map((item) => ({
@@ -698,6 +822,8 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
         id: ordersTable.id,
         tenantId: ordersTable.tenantId,
         status: ordersTable.status,
+        paymentMethod: ordersTable.paymentMethod,
+        paymentStatus: ordersTable.paymentStatus,
         customerName: customersTable.name,
         customerPhone: ordersTable.customerPhone,
         totalAmount: ordersTable.totalAmount,
@@ -715,16 +841,40 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
     }
 
     const newStatus = bodyParsed.data.status;
+    assertAllowedOrderTransition({
+      from: existing.status,
+      to: newStatus,
+      paymentMethod: existing.paymentMethod,
+      paymentStatus: existing.paymentStatus,
+      nextPaymentStatus: bodyParsed.data.paymentStatus,
+    });
 
-    // Wrap status update + stock restoration + history in a transaction
-    // to prevent race conditions on concurrent cancels/returns.
-    await db.transaction(async (tx) => {
-      // Stock restoration: when order cancelled or returned, give stock back
-      if (
-        newStatus &&
-        newStatus !== existing.status &&
-        (newStatus === "cancelled" || newStatus === "returned")
-      ) {
+    const transition = await db.transaction(async (tx) => {
+      if (newStatus === existing.status) {
+        await tx
+          .update(ordersTable)
+          .set(bodyParsed.data)
+          .where(and(eq(ordersTable.id, paramsParsed.data.id), eq(ordersTable.tenantId, existing.tenantId)));
+        return null;
+      }
+
+      const [updated] = await tx
+        .update(ordersTable)
+        .set(bodyParsed.data)
+        .where(
+          and(
+            eq(ordersTable.id, paramsParsed.data.id),
+            eq(ordersTable.tenantId, existing.tenantId),
+            eq(ordersTable.status, existing.status),
+          ),
+        )
+        .returning({ id: ordersTable.id });
+
+      if (!updated) {
+        throw new CheckoutHttpError(409, "Order status changed while updating; reload and try again");
+      }
+
+      if (RESTOCK_STATUSES.has(newStatus) && !RESTOCK_STATUSES.has(existing.status)) {
         const items = await tx
           .select({ productId: orderItemsTable.productId, variantId: orderItemsTable.variantId, quantity: orderItemsTable.quantity })
           .from(orderItemsTable)
@@ -745,22 +895,17 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
         }
       }
 
-      await tx
-        .update(ordersTable)
-        .set(bodyParsed.data)
-        .where(eq(ordersTable.id, paramsParsed.data.id));
+      await tx.insert(orderStatusHistoryTable).values({
+        orderId: existing.id,
+        fromStatus: existing.status,
+        toStatus: newStatus,
+        note: null,
+      });
 
-      if (newStatus && newStatus !== existing.status) {
-        await tx.insert(orderStatusHistoryTable).values({
-          orderId: existing.id,
-          fromStatus: existing.status,
-          toStatus: newStatus,
-          note: null,
-        });
-      }
+      return { fromStatus: existing.status, toStatus: newStatus };
     });
 
-    if (newStatus && newStatus !== existing.status) {
+    if (transition) {
       // Fire automation rules for this status change (non-blocking, outside transaction)
       fireAutomationRules({
         tenantId: existing.tenantId!,
@@ -780,7 +925,9 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
     res.json(order);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "فشل تحديث الطلب" });
+    const statusCode = err instanceof CheckoutHttpError ? err.statusCode : 500;
+    const message = err instanceof Error ? err.message : "فشل تحديث الطلب";
+    res.status(statusCode).json({ error: message });
   }
 });
 

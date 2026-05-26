@@ -151,6 +151,14 @@ describe("Orders", () => {
     expect(res.body.trackingNumber).toBe(trackingNum);
   });
 
+  it("❌ invalid order status transition is rejected", async () => {
+    const invalidOrder = await createTestOrder(ctx.tenantId, productId);
+    expect(invalidOrder.status).toBe(201);
+
+    const res = await ctx.agent.put(`/api/orders/${invalidOrder.body.id}`).send({ status: "delivered" });
+    expect(res.status).toBe(409);
+  });
+
   it("✅ GET /orders/:id is a public route — accessible by any agent", async () => {
     const other = await createTestMerchant();
     const res = await other.agent.get(`/api/orders/${orderId}`);
@@ -307,6 +315,9 @@ describe("Orders", () => {
     const beforeReturn = await ctx.agent.get(`/api/products/${productId}`);
     const stockBeforeReturn = beforeReturn.body.stock;
 
+    await ctx.agent.put(`/api/orders/${returnId}`).send({ status: "confirmed" });
+    await ctx.agent.put(`/api/orders/${returnId}`).send({ status: "shipped" });
+    await ctx.agent.put(`/api/orders/${returnId}`).send({ status: "delivered" });
     await ctx.agent.put(`/api/orders/${returnId}`).send({ status: "returned" });
     
     const afterReturn = await ctx.agent.get(`/api/products/${productId}`);

@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { db, discountCodesTable, discountCodeUsesTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 import {
-  request, app, uid, createTestMerchant, cleanupTenant,
+  request, app, uid, createTestMerchant, cleanupTenant, createTestProduct, createTestCustomer,
 } from "./helpers.js";
 
 describe("Discounts", () => {
@@ -53,6 +55,61 @@ describe("Discounts", () => {
     expect(res.status).toBe(200);
     expect(res.body.valid).toBe(true);
     expect(res.body.discountAmount).toBeGreaterThan(0);
+  });
+
+  it("✅ checkout applies and records discount usage atomically", async () => {
+    const product = await createTestProduct(ctx.agent, {
+      name: `Discounted Product ${uid()}`,
+      price: 500,
+      stock: 5,
+      status: "active",
+    });
+    expect(product.status).toBe(201);
+
+    const code = `ORDER${uid().toUpperCase()}`;
+    const discount = await ctx.agent.post("/api/discounts").send({
+      code,
+      type: "percentage",
+      value: 20,
+      maxUses: 1,
+    });
+    expect(discount.status).toBe(201);
+
+    const customer = await createTestCustomer();
+    const order = await request(app).post("/api/orders").send({
+      tenantId: ctx.tenantId,
+      customerId: customer.body.id,
+      customerPhone: "01012345678",
+      paymentMethod: "cod",
+      shippingAddress: "Discount Test Address",
+      discountCode: code,
+      items: [{ productId: product.body.id, quantity: 1 }],
+    });
+
+    expect(order.status).toBe(201);
+    expect(order.body.totalAmount).toBe(400);
+
+    const uses = await db
+      .select()
+      .from(discountCodeUsesTable)
+      .where(eq(discountCodeUsesTable.orderId, order.body.id));
+    expect(uses.length).toBe(1);
+    expect(Number(uses[0].appliedDiscount)).toBe(100);
+
+    const [dbCode] = await db
+      .select()
+      .from(discountCodesTable)
+      .where(eq(discountCodesTable.id, discount.body.id));
+    expect(dbCode.usedCount).toBe(1);
+  });
+
+  it("❌ public discount usage endpoint is disabled", async () => {
+    const res = await request(app).post("/api/discounts/use").send({
+      codeId,
+      orderId: 1,
+      appliedDiscount: 10,
+    });
+    expect(res.status).toBe(410);
   });
 
   it("✅ update discount code (deactivate) returns updated", async () => {

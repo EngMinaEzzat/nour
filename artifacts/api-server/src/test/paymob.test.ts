@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { db, paymobProvidersTable, ordersTable, paymentRecordsTable, paymentWebhooksTable, productsTable, productVariantsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
@@ -36,6 +36,33 @@ function paymobHmac(payload: { obj: Record<string, any> }, secret: string): stri
     String(obj.success ?? ""),
   ].join("");
   return crypto.createHmac("sha512", secret).update(fields).digest("hex");
+}
+
+async function createWebhookPaymentFixture(ctx: Awaited<ReturnType<typeof createTestMerchant>>, productId: number, providerOrderId: string, hmacSecret?: string) {
+  await db.delete(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, ctx.tenantId));
+  await db.insert(paymobProvidersTable).values({
+    tenantId: ctx.tenantId,
+    status: "ACTIVE",
+    integrationId: "123",
+    iframeId: "456",
+    apiKey: "test-api-key",
+    hmacSecret: hmacSecret ?? null,
+  });
+
+  const order = await createTestOrder(ctx.tenantId, productId, { paymentMethod: "paymob" });
+  const [record] = await db.insert(paymentRecordsTable).values({
+    tenantId: ctx.tenantId,
+    orderId: order.body.id,
+    idempotencyKey: `paymob-init-${ctx.tenantId}-${order.body.id}-${providerOrderId}`,
+    amount: "100",
+    status: "pending",
+    providerOrderId,
+    paymentToken: "tok_123",
+    iframeSrc: "https://iframe",
+    expiresAt: new Date(Date.now() + 100000)
+  }).returning();
+
+  return { orderId: order.body.id, record };
 }
 
 describe("Paymob production safety", () => {
@@ -101,6 +128,10 @@ describe("Paymob production safety", () => {
       previousSecret = process.env.PAYMOB_HMAC_SECRET;
     });
 
+    beforeEach(async () => {
+      await db.delete(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, ctx.tenantId));
+    });
+
     afterAll(() => {
       process.env.NODE_ENV = previousEnv;
       if (previousSecret !== undefined) {
@@ -113,41 +144,81 @@ describe("Paymob production safety", () => {
     it("returns 503 if HMAC secret is missing in production", async () => {
       process.env.NODE_ENV = "production";
       delete process.env.PAYMOB_HMAC_SECRET;
-      const res = await ctx.agent.post("/api/paymob/webhook").send({});
+      const transactionId = 200000 + Math.floor(Math.random() * 100000);
+      const providerOrderId = `paymob_order_missing_secret_${transactionId}`;
+      const fixture = await createWebhookPaymentFixture(ctx, productId, providerOrderId);
+      const res = await ctx.agent.post("/api/paymob/webhook").send({
+        obj: {
+          id: transactionId,
+          success: true,
+          order: { id: providerOrderId, merchant_order_id: `NOUR-${fixture.orderId}` }
+        }
+      });
       expect(res.status).toBe(503);
       expect(res.body.error).toBe("Paymob webhook HMAC secret is not configured");
     });
 
     it("returns 401 if HMAC signature is missing when secret is configured", async () => {
       process.env.NODE_ENV = "production";
-      process.env.PAYMOB_HMAC_SECRET = "test-secret";
+      const transactionId = 200000 + Math.floor(Math.random() * 100000);
+      const providerOrderId = `paymob_order_missing_hmac_${transactionId}`;
+      const fixture = await createWebhookPaymentFixture(ctx, productId, providerOrderId, "test-secret");
       // This proves it bypassed CSRF, because missing CSRF token would return 403 Invalid CSRF token
-      const res = await ctx.agent.post("/api/paymob/webhook").send({});
+      const res = await ctx.agent.post("/api/paymob/webhook").send({
+        obj: {
+          id: transactionId,
+          success: true,
+          order: { id: providerOrderId, merchant_order_id: `NOUR-${fixture.orderId}` }
+        }
+      });
       expect(res.status).toBe(401);
       expect(res.body.error).toBe("Missing HMAC signature");
     });
 
     it("returns 401 if HMAC signature is invalid", async () => {
       process.env.NODE_ENV = "production";
-      process.env.PAYMOB_HMAC_SECRET = "test-secret";
+      const transactionId = 200000 + Math.floor(Math.random() * 100000);
+      const providerOrderId = `paymob_order_bad_hmac_${transactionId}`;
+      const fixture = await createWebhookPaymentFixture(ctx, productId, providerOrderId, "test-secret");
       const res = await ctx.agent.post("/api/paymob/webhook?hmac=invalidhash").send({
-        obj: { id: 12345 }
+        obj: {
+          id: transactionId,
+          success: true,
+          order: { id: providerOrderId, merchant_order_id: `NOUR-${fixture.orderId}` }
+        }
       });
       expect(res.status).toBe(401);
       expect(res.body.error).toBe("HMAC verification failed");
     });
 
-    it("accepts valid HMAC signature and processes webhook", async () => {
+    it("rejects unmatched webhooks instead of using a global HMAC fallback", async () => {
       process.env.NODE_ENV = "production";
       process.env.PAYMOB_HMAC_SECRET = "test-secret";
       const transactionId = 200000 + Math.floor(Math.random() * 100000);
-      const providerOrderId = 300000 + Math.floor(Math.random() * 100000);
+      const payload = {
+        obj: {
+          id: transactionId,
+          success: true,
+          order: { id: `unknown_paymob_order_${transactionId}`, merchant_order_id: "NOUR-999999999" }
+        }
+      };
+
+      const res = await ctx.agent.post(`/api/paymob/webhook?hmac=${paymobHmac(payload, "test-secret")}`).send(payload);
+      expect(res.status).toBe(404);
+      expect(res.body.error).toBe("Payment record not found for webhook");
+    });
+
+    it("accepts valid HMAC signature and processes webhook", async () => {
+      process.env.NODE_ENV = "production";
+      const transactionId = 200000 + Math.floor(Math.random() * 100000);
+      const providerOrderId = `paymob_order_valid_${transactionId}`;
+      const fixture = await createWebhookPaymentFixture(ctx, productId, providerOrderId, "test-secret");
       
       const payload = {
         obj: {
           id: transactionId,
           success: true,
-          order: { id: providerOrderId, merchant_order_id: "NOUR-999" }
+          order: { id: providerOrderId, merchant_order_id: `NOUR-${fixture.orderId}` }
         }
       };
 
@@ -162,8 +233,19 @@ describe("Paymob production safety", () => {
   describe("Webhook Idempotency and State Changes", () => {
     let orderId: number;
     let paymentRecordId: number;
+    const webhookSecret = "state-webhook-secret";
 
     beforeAll(async () => {
+      await db.delete(paymobProvidersTable).where(eq(paymobProvidersTable.tenantId, ctx.tenantId));
+      await db.insert(paymobProvidersTable).values({
+        tenantId: ctx.tenantId,
+        status: "ACTIVE",
+        integrationId: "123",
+        iframeId: "456",
+        apiKey: "test-api-key",
+        hmacSecret: webhookSecret,
+      });
+
       const order = await createTestOrder(ctx.tenantId, productId, { paymentMethod: "paymob" });
       orderId = order.body.id;
 
@@ -191,7 +273,7 @@ describe("Paymob production safety", () => {
         }
       };
 
-      const res = await ctx.agent.post("/api/paymob/webhook").send(payload);
+      const res = await ctx.agent.post(`/api/paymob/webhook?hmac=${paymobHmac(payload, webhookSecret)}`).send(payload);
       expect(res.status).toBe(200);
 
       // Verify payment record
@@ -213,7 +295,7 @@ describe("Paymob production safety", () => {
         }
       };
 
-      const res = await ctx.agent.post("/api/paymob/webhook").send(payload);
+      const res = await ctx.agent.post(`/api/paymob/webhook?hmac=${paymobHmac(payload, webhookSecret)}`).send(payload);
       expect(res.status).toBe(200);
       expect(res.body.duplicate).toBe(true);
 
@@ -257,7 +339,7 @@ describe("Paymob production safety", () => {
         }
       };
 
-      const res = await ctx.agent.post("/api/paymob/webhook").send(payload);
+      const res = await ctx.agent.post(`/api/paymob/webhook?hmac=${paymobHmac(payload, webhookSecret)}`).send(payload);
       expect(res.status).toBe(200);
 
       // Verify payment record is failed
@@ -283,7 +365,7 @@ describe("Paymob production safety", () => {
         }
       };
 
-      const duplicateFailure = await ctx.agent.post("/api/paymob/webhook").send(secondPayload);
+      const duplicateFailure = await ctx.agent.post(`/api/paymob/webhook?hmac=${paymobHmac(secondPayload, webhookSecret)}`).send(secondPayload);
       expect(duplicateFailure.status).toBe(200);
 
       const [prodAfterDuplicate] = await db.select().from(productsTable).where(eq(productsTable.id, pv.product.body.id));
@@ -313,7 +395,7 @@ describe("Paymob production safety", () => {
         expiresAt: new Date(Date.now() + 100000)
       });
 
-      const res = await ctx.agent.post("/api/paymob/webhook").send({
+      const payload = {
         obj: {
           id: transactionId,
           success: true,
@@ -321,7 +403,9 @@ describe("Paymob production safety", () => {
           ...flags,
           order: { id: providerOrderId, merchant_order_id: `NOUR-${guardedOrderId}` }
         }
-      });
+      };
+
+      const res = await ctx.agent.post(`/api/paymob/webhook?hmac=${paymobHmac(payload, webhookSecret)}`).send(payload);
 
       expect(res.status).toBe(200);
       const [guardedOrder] = await db.select().from(ordersTable).where(eq(ordersTable.id, guardedOrderId));
@@ -345,14 +429,16 @@ describe("Paymob production safety", () => {
         expiresAt: new Date(Date.now() + 100000)
       }).returning();
 
-      const res = await ctx.agent.post("/api/paymob/webhook").send({
+      const payload = {
         obj: {
           id: transactionId,
           success: true,
           pending: true,
           order: { id: providerOrderId, merchant_order_id: `NOUR-${pendingOrderId}` }
         }
-      });
+      };
+
+      const res = await ctx.agent.post(`/api/paymob/webhook?hmac=${paymobHmac(payload, webhookSecret)}`).send(payload);
 
       expect(res.status).toBe(200);
       const [pendingRecord] = await db.select().from(paymentRecordsTable).where(eq(paymentRecordsTable.id, record.id));

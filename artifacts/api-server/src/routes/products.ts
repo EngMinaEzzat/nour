@@ -60,6 +60,17 @@ function formatVariant(v: Record<string, unknown>) {
   };
 }
 
+async function resolveSessionTenantId(req: { merchantTenantId?: number; session?: { merchantId?: number } }): Promise<number | null> {
+  if (req.merchantTenantId) return req.merchantTenantId;
+  if (!req.session?.merchantId) return null;
+
+  const [merchant] = await db
+    .select({ tenantId: merchantsTable.tenantId })
+    .from(merchantsTable)
+    .where(eq(merchantsTable.id, req.session.merchantId));
+  return merchant?.tenantId ?? null;
+}
+
 async function syncProductVariantSummary(productId: number) {
   const variants = await db
     .select({
@@ -215,14 +226,7 @@ router.get("/products", async (req, res) => {
   // always scope to their own tenant — ignore any tenantId passed in query params.
   // Note: merchantTenantId is only set by requireRole() middleware, so we must
   // also resolve it from the session directly for this public-ish route.
-  let sessionTenantId = req.merchantTenantId ?? null;
-  if (!sessionTenantId && req.session?.merchantId) {
-    const [merchant] = await db
-      .select({ tenantId: merchantsTable.tenantId })
-      .from(merchantsTable)
-      .where(eq(merchantsTable.id, req.session.merchantId));
-    sessionTenantId = merchant?.tenantId ?? null;
-  }
+  const sessionTenantId = await resolveSessionTenantId(req);
   const effectiveTenantId = sessionTenantId ?? queryTenantId;
 
   // Require tenant context — never return unscoped product data
@@ -357,15 +361,15 @@ router.get("/products/:id", async (req, res) => {
   if (!parsed.success)
     return res.status(400).json({ error: "معرّف المنتج غير صحيح" });
   try {
+    const sessionTenantId = await resolveSessionTenantId(req);
     const [row] = await fetchProductsWithJoin([
       eq(productsTable.id, parsed.data.id),
-      eq(tenantsTable.status, 'active'),
     ] as ReturnType<typeof and>[]);
     if (!row) return res.status(404).json({ error: "المنتج غير موجود" });
 
     // Security check: if the product belongs to another tenant, hide it if the tenant is suspended.
     // If it belongs to the current logged-in merchant, they should see it regardless of status.
-    const isPublicQuery = req.merchantTenantId !== row.tenantId;
+    const isPublicQuery = sessionTenantId !== row.tenantId;
     if (isPublicQuery && (row as any).tenantStatus !== "active") {
       return res.status(404).json({ error: "المنتج غير موجود" });
     }
@@ -493,6 +497,21 @@ router.get("/products/:id/variants", async (req, res) => {
   if (isNaN(productId))
     return res.status(400).json({ error: "معرّف المنتج غير صحيح" });
   try {
+    const sessionTenantId = await resolveSessionTenantId(req);
+    const [product] = await db
+      .select({
+        tenantId: productsTable.tenantId,
+        tenantStatus: tenantsTable.status,
+      })
+      .from(productsTable)
+      .leftJoin(tenantsTable, eq(productsTable.tenantId, tenantsTable.id))
+      .where(eq(productsTable.id, productId));
+
+    if (!product) return res.status(404).json({ error: "المنتج غير موجود" });
+    if (sessionTenantId !== product.tenantId && product.tenantStatus !== "active") {
+      return res.status(404).json({ error: "المنتج غير موجود" });
+    }
+
     const variants = await db
       .select()
       .from(productVariantsTable)

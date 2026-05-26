@@ -405,6 +405,8 @@ export interface CreateOrderBody {
   shippingAddress?: string | null;
   customerPhone?: string | null;
   paymentMethod?: CreateOrderBodyPaymentMethod;
+  /** Optional checkout discount code. Applied and recorded atomically during order creation. */
+  discountCode?: string | null;
   /** Whether the user consented to marketing */
   marketingConsent?: boolean;
   items: CreateOrderBodyItemsItem[];

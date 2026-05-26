@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { discountCodesTable, discountCodeUsesTable, tenantsTable } from "@workspace/db";
+import { discountCodesTable, tenantsTable } from "@workspace/db";
 import { eq, and, sql, desc } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 
@@ -163,23 +163,7 @@ router.post("/discounts/validate", async (req, res) => {
 
 // POST /discounts/use — record discount code usage after order creation
 router.post("/discounts/use", async (req, res) => {
-  const { codeId, orderId, customerId, appliedDiscount } = req.body;
-  if (!codeId || !orderId || appliedDiscount === undefined) return res.status(400).json({ error: "codeId, orderId, appliedDiscount مطلوبة" });
-  try {
-    await db.insert(discountCodeUsesTable).values({
-      discountCodeId: codeId,
-      orderId,
-      customerId: customerId ?? null,
-      appliedDiscount: String(appliedDiscount),
-    });
-    await db.update(discountCodesTable)
-      .set({ usedCount: sql`${discountCodesTable.usedCount} + 1` })
-      .where(eq(discountCodesTable.id, codeId));
-    res.json({ success: true });
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "خطأ في السيرفر" });
-  }
+  return res.status(410).json({ error: "Discount usage is recorded during checkout" });
 });
 
 export default router;

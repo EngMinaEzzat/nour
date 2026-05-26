@@ -1866,6 +1866,10 @@ components:
         paymentMethod:
           type: string
           enum: [cod, paymob]
+        discountCode:
+          type: string
+          nullable: true
+          description: Optional checkout discount code. Applied and recorded atomically during order creation.
         marketingConsent:
           type: boolean
           description: Whether the user consented to marketing

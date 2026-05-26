@@ -10,6 +10,7 @@ import {
 import { eq, and, desc } from "drizzle-orm";
 import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
 import { sendWhatsAppMessage } from "../lib/whatsapp";
+import crypto from "crypto";
 
 const router = Router();
 
@@ -59,6 +60,12 @@ function renderTemplate(code: string, vars: Record<string, string>): string | nu
 }
 
 /* ─── Get provider status (no secrets exposed) ─── */
+function timingSafeEqualStrings(left: string, right: string): boolean {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
+}
+
 router.get("/whatsapp/provider", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = req.merchantTenantId!;
   try {
@@ -459,7 +466,8 @@ router.post("/whatsapp/messages/:id/callback", async (req, res) => {
     }
 
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.split(" ")[1] !== provider.webhookSecret) {
+    const providedSecret = authHeader?.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : "";
+    if (!providedSecret || !timingSafeEqualStrings(providedSecret, provider.webhookSecret)) {
        return res.status(401).json({ error: "Unauthorized" });
     }
 
