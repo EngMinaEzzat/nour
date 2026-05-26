@@ -32,6 +32,37 @@ if (process.env.NODE_ENV === "production") {
 
 const PgStore = ConnectPgSimple(session);
 
+type PgSessionStoreWithInternals = session.Store & {
+  quotedTable(): string;
+  _asyncQuery(query: string, params: unknown[], noTableCreation?: boolean): Promise<unknown>;
+  _rawEnsureSessionStoreTable(): Promise<void>;
+};
+
+function patchPgSessionTableBootstrap(store: session.Store): session.Store {
+  const pgStore = store as PgSessionStoreWithInternals;
+
+  // The bundled serverless app cannot rely on connect-pg-simple's sibling table.sql asset.
+  pgStore._rawEnsureSessionStoreTable = async function ensureSessionStoreTable() {
+    const quotedTable = this.quotedTable();
+    await this._asyncQuery(
+      `
+CREATE TABLE IF NOT EXISTS ${quotedTable} (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL,
+  PRIMARY KEY ("sid")
+);
+
+CREATE INDEX IF NOT EXISTS "IDX_sessions_expire" ON ${quotedTable} ("expire");
+      `,
+      [],
+      true,
+    );
+  };
+
+  return store;
+}
+
 // ─── Session store: Redis (when REDIS_URL is set) or PostgreSQL fallback ───
 function buildSessionStore(): session.Store {
   if (process.env.REDIS_URL) {
@@ -46,11 +77,11 @@ function buildSessionStore(): session.Store {
   }
 
   logger.warn("REDIS_URL not set — using PostgreSQL session store");
-  return new PgStore({
+  return patchPgSessionTableBootstrap(new PgStore({
     conString: process.env.DATABASE_URL,
     tableName: "sessions",
     createTableIfMissing: true,
-  });
+  }));
 }
 
 const app: Express = express();
