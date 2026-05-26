@@ -255,7 +255,7 @@ export const GetMeResponse = zod.object({
 
 export const registerCustomerBodyPasswordMin = 8;
 
-export const registerCustomerBodyPhoneRegExp = new RegExp("^01[0125][0-9]{8}$");
+export const registerCustomerBodyPhoneRegExp = new RegExp("^(?:\\+?20|0020)?\\s*0?1[0125][0-9\\s().-]{8,}$");
 
 export const RegisterCustomerBody = zod.object({
   name: zod.string().min(1),

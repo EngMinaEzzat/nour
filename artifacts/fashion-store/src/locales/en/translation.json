@@ -126,6 +126,29 @@
       "gemini": "Gemini 1.5 Pro Analysis",
       "loading": "Analyzing...",
       "error": "An error occurred"
+    },
+    "guide": {
+      "title": "Products Guide",
+      "description": "Quick tips for adding your products professionally",
+      "step1": {
+        "title": "Attractive Image",
+        "desc": "Use clear, high-quality images to show product details."
+      },
+      "step2": {
+        "title": "Smart Pricing",
+        "desc": "Set a competitive price that reflects the true value."
+      },
+      "step3": {
+        "title": "Stock Organization",
+        "desc": "Add size and color variants to simplify ordering."
+      },
+      "step4": {
+        "title": "Comprehensive Description",
+        "desc": "Write a description that accurately answers customers' questions."
+      },
+      "tip1": "Featured products appear at the top of your store.",
+      "tip2": "You can import your product list all at once via CSV.",
+      "tip3": "Make sure to activate your products so they are visible."
     }
   },
   "tenants": {
@@ -261,7 +284,13 @@
     "inventoryAlerts": "Inventory Alerts",
     "facebookModerator": "Facebook Moderator",
     "growth": "Growth",
-    "loggedAs": "Logged in as"
+    "loggedAs": "Logged in as",
+    "group": {
+      "storeManagement": "Store Management",
+      "marketingGrowth": "Marketing & Growth",
+      "settingsPreferences": "Settings & Preferences",
+      "advancedIntegrations": "Advanced / Integrations"
+    }
   },
   "auth": {
     "login": {

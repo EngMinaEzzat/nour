@@ -282,7 +282,7 @@ export interface RegisterCustomerBody {
   email: string;
   /** @minLength 8 */
   password: string;
-  /** @pattern ^01[0125][0-9]{8}$ */
+  /** @pattern ^(?:\+?20|0020)?\s*0?1[0125][0-9\s().-]{8,}$ */
   phone: string;
 }
 

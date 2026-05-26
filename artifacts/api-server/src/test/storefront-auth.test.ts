@@ -12,7 +12,7 @@ describe("Storefront Auth — Registration", () => {
     await cleanupTenant(ctx.tenantId, ctx.merchantId);
   });
 
-  it("✅ successfully registers a new customer with a valid phone number", async () => {
+  it("✅ successfully registers a new customer with a formatted Egypt phone number", async () => {
     const id = uid();
     const email = `customer.${id}@nourtest.invalid`;
     const res = await request(app)
@@ -21,12 +21,12 @@ describe("Storefront Auth — Registration", () => {
         name: `Test Customer ${id}`,
         email,
         password: "TestPass123!",
-        phone: "01012345678",
+        phone: "+20 10 1234 5678",
       });
     expect(res.status).toBe(201);
     expect(res.body.customer).toHaveProperty("id");
     expect(res.body.customer.email).toBe(email);
-    expect(res.body.customer.phone).toBe("01012345678");
+    expect(res.body.customer.phone).toBe("+201012345678");
   });
 
   it("❌ registration fails if phone number is missing", async () => {

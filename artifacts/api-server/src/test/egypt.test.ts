@@ -52,6 +52,10 @@ describe("normaliseEgyptianPhone", () => {
     expect(normaliseEgyptianPhone("+20 10 1234 5678")).toBe("+201012345678");
   });
 
+  it("should normalise Arabic-Indic digits", () => {
+    expect(normaliseEgyptianPhone("\u0660\u0661\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668")).toBe("+201012345678");
+  });
+
   it("should return null for invalid phone prefixes", () => {
     expect(normaliseEgyptianPhone("01312345678")).toBeNull();
     expect(normaliseEgyptianPhone("01412345678")).toBeNull();

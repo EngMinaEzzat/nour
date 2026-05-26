@@ -18,7 +18,10 @@
  *   00201XXXXXXX (13 chars)
  */
 export function normaliseEgyptianPhone(raw: string): string | null {
-  const cleaned = raw.replace(/[\s\-().]/g, "");
+  const asciiDigits = raw
+    .replace(/[\u0660-\u0669]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
+    .replace(/[\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) - 0x06f0));
+  const cleaned = asciiDigits.replace(/[\s\-().]/g, "");
 
   let local: string | null = null;
 

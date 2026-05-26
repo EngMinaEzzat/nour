@@ -7,6 +7,20 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useCustomerAuth } from "@/hooks/use-customer-auth";
 
+function getRegisterErrorMessage(err: unknown): string {
+  const data = (err as { data?: { error?: unknown } } | null)?.data;
+  const error = data?.error;
+
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object" && "fieldErrors" in error) {
+    const fieldErrors = (error as { fieldErrors?: Record<string, string[]> }).fieldErrors;
+    const firstFieldError = Object.values(fieldErrors ?? {}).flat().find(Boolean);
+    if (firstFieldError) return firstFieldError;
+  }
+
+  return (err as { message?: string } | null)?.message || "حدث خطأ غير متوقع";
+}
+
 export default function CustomerRegister() {
   const { t } = useTranslation();
   const [name, setName] = useState("");
@@ -20,7 +34,12 @@ export default function CustomerRegister() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await register({ name, email, password, phone });
+      await register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        phone: phone.trim(),
+      });
       toast({
         title: "تم إنشاء الحساب بنجاح",
         description: "مرحباً بك في متجرنا!",
@@ -29,7 +48,7 @@ export default function CustomerRegister() {
     } catch (err: any) {
       toast({
         title: "خطأ في إنشاء الحساب",
-        description: err.response?.data?.error || "حدث خطأ غير متوقع",
+        description: getRegisterErrorMessage(err),
         variant: "destructive",
       });
     }
@@ -69,8 +88,8 @@ export default function CustomerRegister() {
                 value={phone} 
                 onChange={e => setPhone(e.target.value)}
                 required
-                pattern="01[0125][0-9]{8}"
-                placeholder="01xxxxxxxxx"
+                inputMode="tel"
+                placeholder="01012345678 أو +20 10 1234 5678"
                 title="رقم هاتف مصري صحيح (مثال: 01012345678)"
                 dir="ltr"
               />

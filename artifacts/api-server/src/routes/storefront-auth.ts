@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import { db, customersTable } from "@workspace/db";
 import { RegisterCustomerBody, LoginCustomerBody } from "@workspace/api-zod";
 import { eq } from "drizzle-orm";
+import { normaliseEgyptianPhone, PHONE_ERROR_AR } from "../lib/egypt";
 
 const router = Router();
 
@@ -30,13 +31,29 @@ function buildCustomerResponse(customer: { id: number; name: string; email: stri
 }
 
 router.post("/storefront-auth/register", authLimiter, async (req, res) => {
-  const parsed = RegisterCustomerBody.safeParse(req.body);
+  const rawPhone = typeof req.body?.phone === "string" ? req.body.phone.trim() : "";
+  const parsed = RegisterCustomerBody.safeParse({
+    ...req.body,
+    name: typeof req.body?.name === "string" ? req.body.name.trim() : req.body?.name,
+    email: typeof req.body?.email === "string" ? req.body.email.trim() : req.body?.email,
+    phone: "01012345678",
+  });
   if (!parsed.success) {
     req.log.error({ body: req.body, error: parsed.error.flatten() }, "Validation failed for customer registration");
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const { name, email, password, phone } = parsed.data;
+  const { name, password } = parsed.data;
+  const email = parsed.data.email.toLowerCase();
+  const normalisedPhone = normaliseEgyptianPhone(rawPhone);
+  if (!normalisedPhone) {
+    return res.status(400).json({
+      error: {
+        formErrors: [],
+        fieldErrors: { phone: [PHONE_ERROR_AR] },
+      },
+    });
+  }
 
   try {
     const existing = await db.select().from(customersTable).where(eq(customersTable.email, email));
@@ -50,7 +67,7 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
         name,
         email,
         passwordHash,
-        phone,
+        phone: normalisedPhone,
       })
       .returning();
 
