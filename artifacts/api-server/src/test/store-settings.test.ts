@@ -22,11 +22,13 @@ describe("Store settings", () => {
       primaryColor: "#123456",
       secondaryColor: "#abcdef",
       theme: "luxe",
+      category: "cosmetics",
       city: "Cairo",
     });
     expect(branding.status).toBe(200);
     expect(branding.body.secondaryColor).toBe("#abcdef");
     expect(branding.body.theme).toBe("luxe");
+    expect(branding.body.category).toBe("cosmetics");
 
     const seo = await ctx.agent.put("/api/store-settings/seo").send({
       seoTitle: "Nour Test Store",
@@ -56,6 +58,7 @@ describe("Store settings", () => {
     expect(settings.status).toBe(200);
     expect(settings.body.secondaryColor).toBe("#abcdef");
     expect(settings.body.theme).toBe("luxe");
+    expect(settings.body.category).toBe("cosmetics");
     expect(settings.body.faviconUrl).toBe("/uploads/favicon.png");
     expect(settings.body.seoTitle).toBe("Nour Test Store");
     expect(settings.body.socialLinks.whatsapp).toBe("01012345678");

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useGetTenant, getGetTenantQueryKey, useUpdateTenant } from "@workspace/api-client-react";
 import GuideCard from "@/components/admin/GuideCard";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -68,6 +67,30 @@ type FormState = {
   category: "fashion" | "cosmetics" | "both";
   city: string;
 };
+
+type StoreSettingsResponse = {
+  id: number;
+  name?: string | null;
+  slug?: string | null;
+  description?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  theme?: StoreTheme | string | null;
+  category?: "fashion" | "cosmetics" | "both" | string | null;
+  city?: string | null;
+};
+
+async function fetchStoreSettings(): Promise<StoreSettingsResponse> {
+  const response = await fetch(api("/store-settings"), { credentials: "include" });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = typeof data?.error === "string" ? data.error : `Store settings failed: ${response.status}`;
+    throw new Error(message);
+  }
+  return data as StoreSettingsResponse;
+}
 
 const THEMES: { id: StoreTheme; preview: (p: string, s: string) => React.ReactNode }[] = [
   { id:"classic",  
@@ -414,10 +437,12 @@ export default function StoreSettings() {
   const colorInputRef = useRef<HTMLInputElement>(null);
   const secondaryColorRef = useRef<HTMLInputElement>(null);
 
-  const { data: tenant, isLoading } = useGetTenant(tenantId!, {
-    query: { enabled: !!tenantId, queryKey: getGetTenantQueryKey(tenantId!) },
+  const { data: tenant, isLoading } = useQuery({
+    queryKey: ["store-settings-main", tenantId],
+    queryFn: fetchStoreSettings,
+    enabled: !!tenantId,
+    retry: false,
   });
-  const updateTenant = useUpdateTenant();
 
   const [form, setForm] = useState<FormState>({
     name: "", description: "", logoUrl: "", coverUrl: "",
@@ -456,9 +481,11 @@ export default function StoreSettings() {
     if (!tenantId) return;
     setSaving(true);
     try {
-      await updateTenant.mutateAsync({
-        id: tenantId,
-        data: {
+      const response = await fetch(api("/store-settings/branding"), {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           name: form.name.trim(),
           description: form.description.trim(),
           logoUrl: form.logoUrl.trim() || null,
@@ -468,8 +495,12 @@ export default function StoreSettings() {
           theme: form.theme,
           category: form.category,
           city: form.city.trim() || null,
-        },
+        }),
       });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(typeof data?.error === "string" ? data.error : `Save failed: ${response.status}`);
+      }
       setInitialForm({ ...form });
       toast({ title: t("settings.messages.saveSuccess"), description: t("settings.messages.saveSuccessDesc") });
     } catch {

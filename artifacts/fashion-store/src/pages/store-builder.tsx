@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
-import { useLocation } from "wouter";
-import { getListCategoriesQueryKey, useGetTenant, useListCategories } from "@workspace/api-client-react";
+import { useQuery } from "@tanstack/react-query";
+import { getListCategoriesQueryKey, useListCategories } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import VisualEditor from "@/components/editor/VisualEditor";
 import { StoreConfig, createDefaultConfig, normalizeHomepageSections } from "@/lib/store-config";
 import type { MerchantGender } from "@/components/editor/WelcomeOverlay";
@@ -34,14 +35,61 @@ function loadGender(slug: string): MerchantGender {
   }
 }
 
+type StoreSettingsResponse = {
+  id: number;
+  name?: string | null;
+  slug?: string | null;
+  description?: string | null;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  category?: "fashion" | "cosmetics" | "both" | string | null;
+  city?: string | null;
+  socialLinks?: Record<string, string | undefined> | string | null;
+  storeConfig?: Partial<StoreConfig> | null;
+};
+
+function getSocialLinks(value: StoreSettingsResponse["socialLinks"]) {
+  if (!value) return {};
+  const clean = (links: Record<string, string | undefined>) =>
+    Object.fromEntries(Object.entries(links).filter((entry): entry is [string, string] => typeof entry[1] === "string"));
+  if (typeof value === "object") return clean(value);
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" ? clean(parsed as Record<string, string | undefined>) : {};
+  } catch {
+    return {};
+  }
+}
+
+async function fetchStoreSettings(): Promise<StoreSettingsResponse> {
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const response = await fetch(`${BASE}/api/store-settings`, { credentials: "include" });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = typeof data?.error === "string" ? data.error : `Store settings failed: ${response.status}`;
+    throw new Error(message);
+  }
+  return data as StoreSettingsResponse;
+}
+
 export default function StoreBuilder() {
   const { t, i18n } = useTranslation();
-  const { merchant } = useAuth();
-  const [location] = useLocation();
+  const { merchant, isLoading: authLoading } = useAuth();
   const tenantId = (merchant as any)?.tenantId as number | undefined;
 
-  const { data: tenant, isLoading } = useGetTenant(tenantId!, {
-    query: { queryKey: [`/api/tenants/${tenantId}`], enabled: !!tenantId },
+  const {
+    data: tenant,
+    isLoading: settingsLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["store-builder-settings", tenantId],
+    queryFn: fetchStoreSettings,
+    enabled: !!tenantId,
+    retry: false,
   });
   const { data: categories = [] } = useListCategories({
     query: { queryKey: getListCategoriesQueryKey(), enabled: !!tenantId },
@@ -57,6 +105,7 @@ export default function StoreBuilder() {
     const slug = tenant.slug ?? "store";
     const saved = loadSavedConfig(slug);
     const published = ((tenant as any).storeConfig ?? null) as Partial<StoreConfig> | null;
+    const socialLinks = getSocialLinks(tenant.socialLinks);
 
     const isCosmetics = tenant.category === "cosmetics";
 
@@ -85,14 +134,12 @@ export default function StoreBuilder() {
         sections: normalizeHomepageSections(undefined, tenant.name ?? "متجري", tenant.category ?? "fashion", t),
       },
       business: {
-        whatsapp: (tenant as any).whatsappNumber ?? "",
+        whatsapp: socialLinks.whatsapp ?? "",
         city: (tenant as any).city ?? "",
         deliveryAreas: [],
         paymentMethods: ["cod"],
         returnPolicy: "نقبل الإرجاع خلال 14 يوم من الاستلام",
-        socialLinks: (() => {
-          try { return JSON.parse((tenant as any).socialLinks ?? "{}"); } catch { return {}; }
-        })(),
+        socialLinks,
       },
     };
 
@@ -173,7 +220,7 @@ export default function StoreBuilder() {
     ]);
   }
 
-  if (isLoading || !storeConfig) {
+  if (authLoading || settingsLoading || (!!tenant && !storeConfig)) {
     return (
       <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir={i18n.dir()}>
         <div className="text-center space-y-4">
@@ -188,7 +235,7 @@ export default function StoreBuilder() {
     );
   }
 
-  if (!tenant) {
+  if (!tenantId) {
     return (
       <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center" dir={i18n.dir()}>
         <div className="text-center">
@@ -199,10 +246,38 @@ export default function StoreBuilder() {
     );
   }
 
+  if (isError || !tenant) {
+    return (
+      <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center px-4" dir={i18n.dir()}>
+        <div className="max-w-md text-center rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+            !
+          </div>
+          <h1 className="mb-2 text-lg font-bold text-stone-900">
+            {t("storeBuilder.loadErrorTitle", { defaultValue: "تعذر تحميل محرر المتجر" })}
+          </h1>
+          <p className="mb-5 text-sm leading-6 text-stone-500">
+            {error instanceof Error
+              ? error.message
+              : t("storeBuilder.loadErrorDesc", { defaultValue: "راجعي تسجيل الدخول أو حاولي مرة أخرى." })}
+          </p>
+          <div className="flex flex-col justify-center gap-2 sm:flex-row">
+            <Button onClick={() => refetch()} className="rounded-xl">
+              {t("common.buttons.retry", { defaultValue: "إعادة المحاولة" })}
+            </Button>
+            <Button asChild variant="outline" className="rounded-xl">
+              <a href="/store-settings">{t("layout.storeSettings", { defaultValue: "إعدادات المتجر" })}</a>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <VisualEditor
-      initialConfig={storeConfig}
-      storeSlug={tenant.slug}
+      initialConfig={storeConfig!}
+      storeSlug={tenant.slug ?? "store"}
       productCount={(tenant as any).productCount ?? 0}
       categories={categories}
       onSave={handleSave}
