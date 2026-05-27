@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   useGetMerchantAnalytics, getGetMerchantAnalyticsQueryKey,
-  useGetEntitlements, useGetStorefront
+  useGetEntitlements, useGetStorefront, getGetStorefrontQueryKey
 } from "@workspace/api-client-react";
 import LaunchReadinessFlow from "@/components/launch-readiness-flow";
 import { useAuth } from "@/hooks/use-auth";
@@ -200,7 +200,7 @@ export default function Dashboard() {
   );
 
   const { data: storefront } = useGetStorefront(merchant?.slug ?? "", {
-    query: { enabled: !!merchant?.slug }
+    query: { enabled: !!merchant?.slug, queryKey: getGetStorefrontQueryKey(merchant?.slug ?? "") }
   });
 
   const isLoading = analyticsLoading;
@@ -274,7 +274,7 @@ export default function Dashboard() {
       {/* Launch Readiness Flow */}
       {storefront && (
         <LaunchReadinessFlow 
-          config={storefront.storeConfig} 
+          config={storefront.storeConfig as any} 
           productCount={storefront.totalProducts ?? 0}
           storeSlug={merchant?.slug ?? ""}
         />

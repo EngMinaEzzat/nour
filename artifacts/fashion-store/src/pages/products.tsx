@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -224,10 +225,14 @@ function VariantManager({ productId }: { productId: number }) {
                     placeholder={t("products.variants.colorPlaceholder")}
                     className="h-8 text-xs ps-7"
                   />
-                  <div
-                    className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50 cursor-pointer"
-                    style={{ backgroundColor: row.colorHex || "#000" }}
-                  />
+                  <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50 overflow-hidden">
+                    <input
+                      type="color"
+                      className="absolute -top-2 -left-2 w-8 h-8 cursor-pointer"
+                      value={row.colorHex || "#000000"}
+                      onChange={(e) => updateRow(i, "colorHex", e.target.value)}
+                    />
+                  </div>
                 </div>
                 <div className="relative">
                   <Select onValueChange={(v) => {
@@ -347,7 +352,14 @@ function DraftVariantManager({
               <div className="flex gap-1">
                 <div className="relative flex-1">
                   <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder={t("products.variants.colorPlaceholder")} className="h-8 text-xs ps-7" />
-                  <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50" style={{ backgroundColor: row.colorHex || "#000" }} />
+                  <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50 overflow-hidden">
+                    <input
+                      type="color"
+                      className="absolute -top-2 -left-2 w-8 h-8 cursor-pointer"
+                      value={row.colorHex || "#000000"}
+                      onChange={(e) => updateRow(i, "colorHex", e.target.value)}
+                    />
+                  </div>
                 </div>
                 <Select onValueChange={(v) => {
                   const preset = PRESET_COLORS.find((c) => c.key === v);
@@ -729,6 +741,53 @@ export default function Products() {
   const [saving, setSaving] = useState(false);
   const [hasVariants, setHasVariants] = useState(false);
 
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked && filtered) setSelectedIds(filtered.map(p => p.id));
+    else setSelectedIds([]);
+  };
+
+  const handleSelectOne = (id: number, checked: boolean) => {
+    if (checked) setSelectedIds(prev => [...prev, id]);
+    else setSelectedIds(prev => prev.filter(x => x !== id));
+  };
+
+  const handleBulkHide = async () => {
+    setBulkActionLoading(true);
+    try {
+      await Promise.all(selectedIds.map(id => updateProduct.mutateAsync({ id, data: { status: "hidden" } })));
+      setSelectedIds([]);
+      refetch();
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const handleBulkShow = async () => {
+    setBulkActionLoading(true);
+    try {
+      await Promise.all(selectedIds.map(id => updateProduct.mutateAsync({ id, data: { status: "active" } })));
+      setSelectedIds([]);
+      refetch();
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(t("products.confirmDeleteBulk", "Are you sure you want to delete selected products?"))) return;
+    setBulkActionLoading(true);
+    try {
+      await Promise.all(selectedIds.map(id => deleteProduct.mutateAsync({ id })));
+      setSelectedIds([]);
+      refetch();
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
   // Pricing advisor state
   type PricingProduct = { id: number; name: string; price: number; originalPrice?: number | null; stock: number; orderCount: number; description: string; categoryName?: string | null };
   const [pricingProduct, setPricingProduct] = useState<PricingProduct | null>(null);
@@ -955,6 +1014,36 @@ export default function Products() {
 
       {!isLoading && products && (
         <AdminToolbar className="mb-6">
+          <AnimatePresence>
+            {selectedIds.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="absolute inset-0 z-10 flex items-center justify-between px-4 bg-background border border-border shadow-sm rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <Badge variant="secondary" className="px-2 py-1 text-sm rounded-md">
+                    {selectedIds.length} {t("products.bulk.selected", "selected")}
+                  </Badge>
+                  <Button size="sm" variant="ghost" disabled={bulkActionLoading} onClick={handleBulkHide} className="text-muted-foreground hover:text-foreground hidden sm:flex">
+                    <EyeOff className="w-4 h-4 me-2" /> {t("products.bulk.hide", "Hide")}
+                  </Button>
+                  <Button size="sm" variant="ghost" disabled={bulkActionLoading} onClick={handleBulkShow} className="text-muted-foreground hover:text-foreground hidden sm:flex">
+                    <Eye className="w-4 h-4 me-2" /> {t("products.bulk.show", "Show")}
+                  </Button>
+                  <Button size="sm" variant="ghost" disabled={bulkActionLoading} onClick={handleBulkDelete} className="text-destructive hover:bg-destructive/10">
+                    <Trash2 className="w-4 h-4 me-2" /> {t("products.bulk.delete", "Delete")}
+                  </Button>
+                  {bulkActionLoading && <Loader2 className="w-4 h-4 animate-spin text-primary ms-2" />}
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])} className="px-2">
+                  <X className="w-4 h-4" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
           <div className="relative flex-1 sm:max-w-sm">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -1014,6 +1103,7 @@ export default function Products() {
       ) : viewMode === "table" ? (
         <AdminTable
           headers={[
+            <Checkbox checked={(filtered?.length ?? 0) > 0 && selectedIds.length === (filtered?.length ?? 0)} onCheckedChange={handleSelectAll} />,
             t("products.columns.name"),
             t("products.form.category"),
             t("products.form.price"),
@@ -1023,8 +1113,12 @@ export default function Products() {
           ]}
         >
               {filtered?.map((p) => {
+                const isSelected = selectedIds.includes(p.id);
                 return (
-                  <AdminTableRow key={p.id}>
+                  <AdminTableRow key={p.id} className={isSelected ? "bg-muted/50" : ""}>
+                    <AdminTableCell>
+                      <Checkbox checked={isSelected} onCheckedChange={(c) => handleSelectOne(p.id, !!c)} />
+                    </AdminTableCell>
                     <AdminTableCell>
                       <div className="flex items-center gap-3">
                         <img src={productImageUrl(p.imageUrl, "/product-fashion.png")} alt={p.name} className="h-12 w-10 rounded-lg object-cover bg-muted" />
@@ -1037,7 +1131,22 @@ export default function Products() {
                     <AdminTableCell className="text-muted-foreground">{p.categoryName || t("products.filters.noCategory", "No category")}</AdminTableCell>
                     <AdminTableCell className="font-semibold text-primary">{formatCurrency(p.price, i18n.language)}</AdminTableCell>
                     <AdminTableCell>
-                      <span className={p.stock <= 5 ? "text-amber-700 font-semibold" : "text-foreground"}>{p.stock}</span>
+                      {p.hasVariants ? (
+                        <Badge variant="outline" className="text-[10px]">{t("products.filters.hasVariants", "Has variants")}</Badge>
+                      ) : (
+                        <Input 
+                          type="number" 
+                          min="0"
+                          defaultValue={p.stock}
+                          className={`h-8 w-20 text-xs ${p.stock <= 5 ? "border-amber-500 text-amber-700 font-semibold bg-amber-50" : ""}`}
+                          onBlur={(e) => {
+                            const newStock = parseInt(e.target.value, 10);
+                            if (!isNaN(newStock) && newStock !== p.stock) {
+                              updateProduct.mutateAsync({ id: p.id, data: { stock: newStock } });
+                            }
+                          }}
+                        />
+                      )}
                     </AdminTableCell>
                     <AdminTableCell>
                       <StatusBadge status={p.status} label={t(`products.status.${p.status}`) || p.status} />
@@ -1078,6 +1187,13 @@ export default function Products() {
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                     <div className="absolute top-2 start-2 flex gap-1.5 flex-wrap">
+                      <div onClick={(e) => e.stopPropagation()} className="pointer-events-auto">
+                        <Checkbox 
+                          checked={selectedIds.includes(p.id)} 
+                          onCheckedChange={(c) => handleSelectOne(p.id, !!c)} 
+                          className="bg-white/90 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-transparent rounded shadow-sm w-5 h-5 mt-0.5"
+                        />
+                      </div>
                       <Badge className={`text-[10px] border px-2 py-0.5 ${statusInfo}`}>
                         {t(`products.status.${p.status}`) || p.status}
                       </Badge>
@@ -1177,14 +1293,23 @@ export default function Products() {
             </DialogTitle>
           </DialogHeader>
 
-          <Tabs defaultValue="details" className="w-full mt-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="details">{t("products.tabs.details", "التفاصيل")}</TabsTrigger>
-              <TabsTrigger value="variants">{t("products.tabs.variants", "الأسعار والمخزون")}</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="details" className="space-y-5 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-6 py-4">
+            {form.status === "active" && (!form.imageUrl || (!hasVariants && Number(form.stock) <= 0)) && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm flex gap-2">
+                <AlertTriangle className="w-5 h-5 shrink-0" />
+                <div>
+                  <p className="font-semibold">{t("products.form.warnings.title", "تنبيه: المنتج مفعل ولكن قد لا يظهر بشكل صحيح للعملاء")}</p>
+                  <ul className="list-disc list-inside mt-1 text-amber-700 opacity-90">
+                    {!form.imageUrl && <li>{t("products.form.warnings.noImage", "الصورة مفقودة")}</li>}
+                    {(!hasVariants && Number(form.stock) <= 0) && <li>{t("products.form.warnings.noStock", "المخزون صفر")}</li>}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            <Card className="shadow-sm border-border/50">
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.tabs.details", "التفاصيل الأساسية")}</CardTitle></CardHeader>
+              <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2 space-y-1.5">
                   <Label>{t("products.form.name")} *</Label>
                   <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} />
@@ -1215,9 +1340,9 @@ export default function Products() {
                           {categories
                             ?.filter((child) => child.parentId === parent.id)
                             .map((child) => (
-                              <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
-                                — {i18n.language === "en" ? child.name : child.nameAr}
-                              </SelectItem>
+                               <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
+                                 — {i18n.language === "en" ? child.name : child.nameAr}
+                               </SelectItem>
                             ))}
                         </div>
                       ))}
@@ -1235,6 +1360,12 @@ export default function Products() {
                     </SelectContent>
                   </Select>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-sm border-border/50">
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.image", "الصورة")}</CardTitle></CardHeader>
+              <CardContent>
                 <div className="sm:col-span-2">
                   <ImageUpload
                     label={t("products.form.image")}
@@ -1242,7 +1373,71 @@ export default function Products() {
                     onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
                   />
                 </div>
-                <div className="sm:col-span-2 flex items-center justify-between border border-border/50 rounded-xl px-4 py-3">
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-sm border-border/50">
+              <CardHeader className="pb-3 flex-row items-center justify-between">
+                <CardTitle className="text-base">{t("products.tabs.variants", "الأسعار والمخزون")}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                  <div className="space-y-1.5">
+                    <Label>{t("products.form.price")} *</Label>
+                    <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>{t("products.form.originalPrice")}</Label>
+                    <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} />
+                  </div>
+                  {!hasVariants && (
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label>{t("products.columns.stock")}</Label>
+                      <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" />
+                    </div>
+                  )}
+                </div>
+
+                {!variantsProductId && (
+                  <div className="border-t border-border/50 pt-5">
+                    {hasVariants ? (
+                      <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
+                    ) : (
+                      <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
+                        <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                {variantsProductId && hasVariants && (
+                  <AnimatePresence>
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="border-t border-border/50 pt-5"
+                    >
+                      <VariantManager productId={variantsProductId} />
+                      <p className="text-xs text-muted-foreground mt-3">
+                        💡 كل متغيّر له مخزونه الخاص. اضغط ✓ بعد تعديل كل صف للحفظ.
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
+                )}
+                {variantsProductId && !hasVariants && (
+                  <div className="border-t border-border/50 pt-5">
+                    <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
+                      <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-sm border-border/50">
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.featured", "التميز")}</CardTitle></CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3">
                   <div>
                     <Label className="flex items-center gap-1.5">
                       <Star className="w-3.5 h-3.5 text-amber-500" /> {t("products.form.featured").split("(")[0]}
@@ -1251,84 +1446,20 @@ export default function Products() {
                   </div>
                   <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {formError && (
-                <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2">{formError}</p>
-              )}
+            {formError && (
+              <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2 mt-4">{formError}</p>
+            )}
 
-              <DialogFooter className="gap-2">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
-                <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
-                  {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
-                </Button>
-              </DialogFooter>
-            </TabsContent>
-
-            <TabsContent value="variants" className="space-y-5 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
-                <div className="space-y-1.5">
-                  <Label>{t("products.form.price")} *</Label>
-                  <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>{t("products.form.originalPrice")}</Label>
-                  <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} />
-                </div>
-                {!hasVariants && (
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <Label>{t("products.columns.stock")}</Label>
-                    <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" />
-                  </div>
-                )}
-              </div>
-
-              {!variantsProductId && (
-                <div className="border-t border-border/50 pt-5">
-                  {hasVariants ? (
-                    <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
-                  ) : (
-                    <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
-                      <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              {variantsProductId && hasVariants && (
-                <AnimatePresence>
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="border-t border-border/50 pt-5"
-                  >
-                    <VariantManager productId={variantsProductId} />
-                    <p className="text-xs text-muted-foreground mt-3">
-                      💡 كل متغيّر له مخزونه الخاص. اضغط ✓ بعد تعديل كل صف للحفظ.
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
-              )}
-              {variantsProductId && !hasVariants && (
-                <div className="border-t border-border/50 pt-5">
-                  <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
-                    <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
-                  </Button>
-                </div>
-              )}
-
-              {formError && (
-                <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2 mt-4">{formError}</p>
-              )}
-
-              <DialogFooter className="gap-2 mt-4">
-                <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
-                <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
-                  {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
-                </Button>
-              </DialogFooter>
-            </TabsContent>
-          </Tabs>
+            <DialogFooter className="gap-2 mt-4 sticky bottom-0 bg-background/80 backdrop-blur-md p-4 border-t border-border/50 -mx-4 -mb-4">
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
+              <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
+                {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
