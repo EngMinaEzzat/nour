@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { SEO } from "@/components/seo";
 import { useParams, useLocation } from "wouter";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { motion, AnimatePresence } from "framer-motion";
@@ -887,8 +888,31 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     }
   }
 
+  const seoTitle = storefrontCanonicalPath 
+    ? `${selectedCategoryMeta?.name ?? store.name} - ${(store as any).seoTitle || store.name}`
+    : (store as any).seoTitle || store.name;
+    
+  const seoDesc = (store as any).seoDescription || store.description;
+  const seoImage = (store as any).logoUrl;
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": store.name,
+    "description": seoDesc,
+    "image": seoImage,
+    "url": window.location.href,
+    "telephone": (store as any).whatsappNumber
+  };
+
   return (
     <div style={{ background: "#faf7f4", minHeight: "100vh", direction: i18n.dir() }}>
+      <SEO 
+        title={seoTitle}
+        description={seoDesc}
+        image={seoImage}
+        url={window.location.href}
+        schema={schema}
+      />
 
       {/* ── Admin back button (only visible when logged in as merchant) ── */}
       <AdminBar />

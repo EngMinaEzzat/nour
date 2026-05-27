@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { SEO } from "@/components/seo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
@@ -311,8 +312,34 @@ export default function ProductDetail() {
     productImageUrl(product.imageUrl),
   ].filter((url, index, all) => url && all.indexOf(url) === index);
 
+  const seoTitle = product ? `${product.name} - Nour` : "Product Details";
+  const seoDesc = product?.description || "Product details";
+  const seoImage = product?.imageUrl ? productImageUrl(product.imageUrl) : undefined;
+
   return (
     <div className="container mx-auto px-4 py-8 pb-24" dir={i18n.dir()}>
+      <SEO 
+        title={seoTitle}
+        description={seoDesc}
+        image={seoImage}
+        url={window.location.href}
+        type="product"
+        schema={product ? {
+          "@context": "https://schema.org/",
+          "@type": "Product",
+          "name": product.name,
+          "image": [seoImage],
+          "description": seoDesc,
+          "sku": product.id.toString(),
+          "offers": {
+            "@type": "Offer",
+            "url": window.location.href,
+            "priceCurrency": "EGP",
+            "price": product.price,
+            "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          }
+        } : undefined}
+      />
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <Button variant="ghost" size="sm" asChild className="mb-6 -ms-2">
           <Link href={backHref}><ChevronRight className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-1" : "ms-1 rotate-180"}`} /> {t("productDetail.backToProducts")}</Link>
