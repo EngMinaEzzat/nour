@@ -2,9 +2,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   useGetMerchantAnalytics, getGetMerchantAnalyticsQueryKey,
-  useGetOnboarding, usePatchOnboarding,
-  useGetEntitlements,
+  useGetEntitlements, useGetStorefront
 } from "@workspace/api-client-react";
+import LaunchReadinessFlow from "@/components/launch-readiness-flow";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -47,64 +47,7 @@ const SUB_STATUS_COLORS: Record<string, string> = {
   canceled:  "bg-gray-100 text-gray-600 border-gray-200",
 };
 
-const MANUAL_ONBOARDING_STEPS = ["homepage_message", "shipping_setup", "integrations_review", "launch_review"] as const;
-
-const ONBOARDING_STORY: Record<string, {
-  chapter: string;
-  story: string;
-  href: string;
-  action: string;
-  doneAction?: string;
-  icon: React.ElementType;
-}> = {
-  store_identity: {
-    chapter: "الفصل 1: أول انطباع",
-    story: "العميلة تدخل متجرك وتبحث عن إشارة ثقة: اسم واضح، وصف مطمئن، وشكل يشبه علامتك.",
-    href: "/store-settings#section-identity",
-    action: "تعديل الهوية",
-    icon: Store,
-  },
-  homepage_message: {
-    chapter: "الفصل 2: واجهة تحكي القصة",
-    story: "قبل أن تتصفح العميلة المنتجات، تحتاج جملة وصورة تقولان لها: هذا المتجر مصمم لك.",
-    href: "/store-builder?mode=editor",
-    action: "تخصيص الواجهة",
-    doneAction: "اعتمدت الواجهة",
-    icon: Wand2,
-  },
-  first_product: {
-    chapter: "الفصل 3: أول قطعة تخطف العين",
-    story: "المتجر لا يبدأ حقا إلا عندما ترى العميلة منتجا بصورة وسعر ومخزون واضح.",
-    href: "/products",
-    action: "إضافة منتج",
-    icon: Package,
-  },
-  shipping_setup: {
-    chapter: "الفصل 4: الوصول للباب",
-    story: "بعد الإعجاب بالمنتج، العميلة تسأل: هيوصل امتى وبكام؟ اجعلي الإجابة جاهزة.",
-    href: "/shipping-rules",
-    action: "ضبط الشحن",
-    doneAction: "راجعت الشحن",
-    icon: Truck,
-  },
-  integrations_review: {
-    chapter: "الفصل 5: لحظة الدفع",
-    story: "في آخر خطوة، العميلة تحتاج طريقة دفع واضحة ومطمئنة، خصوصا مع الدفع عند الاستلام.",
-    href: "/billing",
-    action: "مراجعة الدفع",
-    doneAction: "راجعت الدفع",
-    icon: CreditCard,
-  },
-  launch_review: {
-    chapter: "الفصل 6: تجربة العميلة كاملة",
-    story: "افتحي المتجر كأنك عميلة جديدة: الواجهة، المنتج، الشحن، والدفع يجب أن يشعروا كرحلة واحدة.",
-    href: "/store-builder?mode=editor",
-    action: "معاينة وتهذيب",
-    doneAction: "جاهزة للإطلاق",
-    icon: Eye,
-  },
-};
-
+// removed manual onboarding constants
 function KPICard({
   label, value, sub, icon: Icon, color, trend,
 }: {
@@ -244,159 +187,23 @@ function PlanUsageCard() {
   );
 }
 
-function OnboardingChecklist() {
-  const { t } = useTranslation();
-  const { data: onboarding, refetch } = useGetOnboarding();
-  const patch = usePatchOnboarding();
-  const [collapsed, setCollapsed] = useState(true);
-
-  if (!onboarding || onboarding.isComplete) return null;
-
-  const { steps, completedCount, totalCount } = onboarding;
-  const pct = Math.round((completedCount / totalCount) * 100);
-
-  async function markDone(stepKey: string) {
-    if (!MANUAL_ONBOARDING_STEPS.includes(stepKey as (typeof MANUAL_ONBOARDING_STEPS)[number])) return;
-    await patch.mutateAsync({ data: { step: stepKey as "homepage_message" | "shipping_setup" | "integrations_review" | "launch_review", done: true } });
-    refetch();
-  }
-
-  return (
-    <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 overflow-hidden">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Rocket className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-base">{t("dashboard.checklist.title")}</CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {t("dashboard.checklist.desc", { completed: completedCount, total: totalCount })}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-primary border-primary/30 bg-primary/10 font-bold">
-                {pct}%
-              </Badge>
-              <Button size="sm" className="rounded-xl gap-1.5 h-8 text-xs" asChild>
-                <Link href="/store-builder?mode=editor">
-                  <Rocket className="w-3.5 h-3.5" />
-                  {t("dashboard.checklist.improveStore")}
-                </Link>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCollapsed((c) => !c)}>
-                {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-              </Button>
-            </div>
-          </div>
-          <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-primary rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${pct}%` }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            />
-          </div>
-        </CardHeader>
-
-        <AnimatePresence>
-          {!collapsed && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <CardContent className="pt-0 pb-3">
-                <div className="flex flex-col gap-2">
-                  {steps.map((step, i) => {
-                    const fallbackMeta = ONBOARDING_STORY[step.key] ?? {
-                      href: step.href,
-                      icon: Circle,
-                    };
-                    
-                    const chapter = t(`dashboard.onboarding.ch${i+1}`);
-                    const story = t(`dashboard.onboarding.s${i+1}`);
-                    const action = t(`dashboard.onboarding.a${i+1}`);
-                    const doneAction = step.key !== "store_identity" && step.key !== "first_product" ? t(`dashboard.onboarding.d${i+1}`) : undefined;
-                    
-                    const meta = { ...fallbackMeta, chapter, story, action, doneAction };
-                    
-                    const Icon = meta.icon;
-                    const canMarkDone = MANUAL_ONBOARDING_STEPS.includes(step.key as (typeof MANUAL_ONBOARDING_STEPS)[number]);
-
-                    return (
-                      <motion.div
-                        key={step.key}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg border p-3 transition-all duration-200 hover:shadow-sm ${
-                          step.done
-                            ? "border-green-200 bg-green-50/60 dark:border-green-800/30 dark:bg-green-900/10"
-                            : "border-border/50 bg-background/75 hover:border-primary/30"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${step.done ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary"}`}>
-                            {step.done ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs font-semibold leading-tight text-foreground">
-                              {step.label}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 sm:ms-auto shrink-0 w-full sm:w-auto">
-                          <Button size="sm" className="h-8 rounded-xl gap-1.5 text-xs" asChild>
-                            <Link href={meta.href}>
-                              {meta.action}
-                              <ChevronLeft className="h-3.5 w-3.5" />
-                            </Link>
-                          </Button>
-                          {canMarkDone && !step.done && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              className="h-8 rounded-xl text-xs"
-                              disabled={patch.isPending}
-                              onClick={() => markDone(step.key)}
-                            >
-                              {meta.doneAction ?? t("dashboard.checklist.reviewed")}
-                            </Button>
-                          )}
-                          {step.done && (
-                            <span className="inline-flex h-8 items-center rounded-xl bg-green-100 px-2.5 text-xs font-medium text-green-700">
-                              {t("dashboard.checklist.completed")}
-                            </span>
-                          )}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Card>
-    </motion.div>
-  );
-}
+// old onboarding checklist removed
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const tenantId = merchant?.tenantId;
 
-  const { data: analytics, isLoading } = useGetMerchantAnalytics(
+  const { data: analytics, isLoading: analyticsLoading } = useGetMerchantAnalytics(
     { tenantId: tenantId! },
     { query: { enabled: !!tenantId, queryKey: getGetMerchantAnalyticsQueryKey({ tenantId: tenantId! }) } }
   );
+
+  const { data: storefront } = useGetStorefront(merchant?.slug ?? "", {
+    query: { enabled: !!merchant?.slug }
+  });
+
+  const isLoading = analyticsLoading;
 
   const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
   const curr = i18n.language === "ar" ? "ج.م" : "EGP";
@@ -464,8 +271,14 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Onboarding Checklist */}
-      <OnboardingChecklist />
+      {/* Launch Readiness Flow */}
+      {storefront && (
+        <LaunchReadinessFlow 
+          config={storefront.storeConfig} 
+          productCount={storefront.totalProducts ?? 0}
+          storeSlug={merchant?.slug ?? ""}
+        />
+      )}
 
       {/* Plan usage */}
       <PlanUsageCard />

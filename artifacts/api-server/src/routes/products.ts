@@ -15,7 +15,7 @@ import {
   DeleteProductParams,
   ListProductsQueryParams,
 } from "@workspace/api-zod";
-import { eq, and, ilike, desc, count, isNull, or } from "drizzle-orm";
+import { eq, and, ilike, desc, count, isNull, or, exists, not } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { getPlan, isAtLimit } from "../lib/entitlements";
 import { cache } from "../lib/cache.js";
@@ -118,6 +118,11 @@ async function fetchProductsWithJoin(conditions: ReturnType<typeof and>[]) {
       status: productsTable.status,
       orderCount: productsTable.orderCount,
       createdAt: productsTable.createdAt,
+      hasVariants: exists(
+        db.select({ id: productVariantsTable.id })
+          .from(productVariantsTable)
+          .where(eq(productVariantsTable.productId, productsTable.id))
+      ),
     })
     .from(productsTable)
     .leftJoin(tenantsTable, eq(productsTable.tenantId, tenantsTable.id))
@@ -221,6 +226,12 @@ router.get("/products", async (req, res) => {
   if (!parsed.success)
     return res.status(400).json({ error: parsed.error.flatten() });
   const { tenantId: queryTenantId, categoryId, search } = parsed.data;
+  
+  // Safe parsing for boolean query param which might be coerced to true for "false" string
+  let hasVariants: boolean | undefined;
+  if (req.query.hasVariants === "true") hasVariants = true;
+  else if (req.query.hasVariants === "false") hasVariants = false;
+  else hasVariants = parsed.data.hasVariants;
 
   // Tenant isolation: if the request comes from an authenticated merchant session,
   // always scope to their own tenant — ignore any tenantId passed in query params.
@@ -237,6 +248,20 @@ router.get("/products", async (req, res) => {
   const conditions = [eq(productsTable.tenantId, effectiveTenantId)];
   if (categoryId) conditions.push(eq(productsTable.categoryId, categoryId));
   if (search) conditions.push(ilike(productsTable.name, `%${search}%`));
+
+  if (hasVariants === true) {
+    conditions.push(exists(
+      db.select({ id: productVariantsTable.id })
+        .from(productVariantsTable)
+        .where(eq(productVariantsTable.productId, productsTable.id))
+    ));
+  } else if (hasVariants === false) {
+    conditions.push(not(exists(
+      db.select({ id: productVariantsTable.id })
+        .from(productVariantsTable)
+        .where(eq(productVariantsTable.productId, productsTable.id))
+    )));
+  }
 
   if (!sessionTenantId || sessionTenantId !== effectiveTenantId) {
     conditions.push(eq(tenantsTable.status, "active"));

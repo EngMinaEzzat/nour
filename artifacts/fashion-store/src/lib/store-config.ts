@@ -254,11 +254,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     testimonials: {
       content: { 
         heading: tr("defaultSections.testimonials.heading", "ماذا يقول عملاؤنا"), 
-        items: tr("defaultSections.testimonials.items", [
-          { name: "سارة م.", text: "منتجات رائعة وجودة عالية! سأشتري مجدداً بالتأكيد.", rating: "5" },
-          { name: "هبة ع.", text: "خدمة ممتازة وتوصيل سريع. أنصح به بشدة.", rating: "5" },
-          { name: "نور ك.", text: "تسوق مريح والمنتجات طبق المنتظر.", rating: "5" },
-        ])
+        items: []
       },
       settings: { layout: "grid", showRating: true },
     },

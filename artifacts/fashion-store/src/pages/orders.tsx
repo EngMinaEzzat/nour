@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { useListOrders } from "@workspace/api-client-react";
+import { useListOrders, useUpdateOrder } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -44,9 +44,9 @@ export default function Orders() {
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== "undefined") {
       const sp = new URLSearchParams(window.location.search);
-      return sp.get("tab") || "all";
+      return sp.get("tab") || "needsAction";
     }
-    return "all";
+    return "needsAction";
   });
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function Orders() {
     }
   }, [activeTab]);
 
-  const { data: ordersResponse, isLoading } = useListOrders({
+  const { data: ordersResponse, isLoading, refetch } = useListOrders({
     status: statusFilter !== "all" ? statusFilter : undefined,
     search: search ? search : undefined,
     city: cityFilter ? cityFilter : undefined,
@@ -68,6 +68,16 @@ export default function Orders() {
     limit: 100,
   });
   const orders = ordersResponse?.data ?? [];
+  const updateOrder = useUpdateOrder();
+
+  async function handleConfirmOrder(id: number) {
+    try {
+      await updateOrder.mutateAsync({ id, data: { status: "confirmed" } });
+      refetch();
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   function nextActionFor(status: string) {
     if (["pending", "awaiting_confirmation"].includes(status)) return t("orders.nextAction.confirm", "Confirm customer");
@@ -341,9 +351,12 @@ export default function Orders() {
                         <AdminTableCell>
                           <div className="font-medium text-foreground">{order.customerName ?? t("orders.list.unknownCustomer")}</div>
                           {order.customerPhone && (
-                            <a className="text-xs text-emerald-700 hover:underline" dir="ltr" href={`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer">
-                              {order.customerPhone}
-                            </a>
+                            <Button variant="outline" size="sm" className="mt-1 h-7 rounded-lg text-xs text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800" asChild>
+                              <a dir="ltr" href={`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer">
+                                <MessageCircle className="w-3 h-3 me-1.5" />
+                                {order.customerPhone}
+                              </a>
+                            </Button>
                           )}
                         </AdminTableCell>
                         <AdminTableCell>
@@ -370,9 +383,16 @@ export default function Orders() {
                           </span>
                         </AdminTableCell>
                         <AdminTableCell className="text-end">
-                          <Button size="sm" variant={isNeedsAction ? "default" : "ghost"} asChild>
-                            <Link href={`/orders/${order.id}`}>{t("orders.actions.open", "Open")}</Link>
-                          </Button>
+                          <div className="flex justify-end gap-2">
+                            {isNeedsAction && (
+                              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={updateOrder.isPending} onClick={() => handleConfirmOrder(order.id)}>
+                                {t("orders.actions.confirm", "Confirm")}
+                              </Button>
+                            )}
+                            <Button size="sm" variant={isNeedsAction ? "outline" : "default"} asChild>
+                              <Link href={`/orders/${order.id}`}>{t("orders.actions.open", "Open")}</Link>
+                            </Button>
+                          </div>
                         </AdminTableCell>
                       </AdminTableRow>
                     );
@@ -427,16 +447,17 @@ export default function Orders() {
                                   {formatRelativeAge(order.createdAt, i18n.language)}
                                 </p>
                                 {order.customerPhone && (
-                                  <a
-                                    href={`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, "")}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-2 inline-flex items-center gap-1.5 text-xs text-emerald-700 hover:underline"
-                                    dir="ltr"
-                                  >
-                                    <MessageCircle className="w-3.5 h-3.5" />
-                                    {order.customerPhone}
-                                  </a>
+                                  <Button variant="outline" size="sm" className="mt-2 h-7 rounded-lg text-xs text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800" asChild>
+                                    <a
+                                      href={`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, "")}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      dir="ltr"
+                                    >
+                                      <MessageCircle className="w-3.5 h-3.5 me-1.5" />
+                                      {order.customerPhone}
+                                    </a>
+                                  </Button>
                                 )}
                               </div>
                             </div>
@@ -449,12 +470,19 @@ export default function Orders() {
                                   {order.items?.length ?? 0} {t("orders.list.productCount")}
                                 </p>
                               </div>
-                              <Button variant={isNeedsAction ? "default" : "ghost"} size="sm" asChild className="rounded-full">
-                                <Link href={`/orders/${order.id}`} className="inline-flex items-center gap-1.5">
-                                  <span className="hidden sm:inline">{isNeedsAction ? t("orders.actions.review", "مراجعة") : t("orders.actions.open", "فتح")}</span>
-                                  <ChevronLeft className={`w-5 h-5 ${i18n.dir() === "ltr" ? "rotate-180" : ""}`} />
-                                </Link>
-                              </Button>
+                              <div className="flex gap-2">
+                                {isNeedsAction && (
+                                  <Button size="sm" className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white" disabled={updateOrder.isPending} onClick={() => handleConfirmOrder(order.id)}>
+                                    {t("orders.actions.confirm", "Confirm")}
+                                  </Button>
+                                )}
+                                <Button variant={isNeedsAction ? "outline" : "default"} size="sm" asChild className="rounded-full">
+                                  <Link href={`/orders/${order.id}`} className="inline-flex items-center gap-1.5">
+                                    <span className="hidden sm:inline">{isNeedsAction ? t("orders.actions.review", "Review") : t("orders.actions.open", "Open")}</span>
+                                    <ChevronLeft className={`w-5 h-5 ${i18n.dir() === "ltr" ? "rotate-180" : ""}`} />
+                                  </Link>
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </CardContent>

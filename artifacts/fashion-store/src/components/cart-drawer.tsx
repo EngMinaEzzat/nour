@@ -159,6 +159,17 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   <span className="font-serif text-xl font-bold">{formatMoney(totalPrice)}</span>
                 </div>
               </div>
+              <div className="rounded-xl bg-primary/5 border border-primary/10 px-3 py-2 text-xs text-foreground flex items-start gap-2">
+                <Truck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                <span>
+                  {t("cart.summary.deliveryNote", {
+                    defaultValue:
+                      i18n.language === "ar"
+                        ? "التوصيل المتوقع خلال ٢-٥ أيام عمل حسب المحافظة."
+                        : "Expected delivery within 2-5 business days depending on location.",
+                  })}
+                </span>
+              </div>
               <div className="rounded-xl bg-muted/50 px-3 py-2 text-xs text-muted-foreground flex items-start gap-2">
                 <Banknote className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                 <span>

@@ -17,7 +17,7 @@ import {
   UpdateOrderParams,
   ListOrdersQueryParams,
 } from "@workspace/api-zod";
-import { eq, and, sql, desc, inArray, count, ilike, or, isNull } from "drizzle-orm";
+import { eq, and, sql, desc, inArray, count, ilike, or, isNull, exists } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { buildOrderConfirmationMessage, buildDispatchedMessage, buildCancelledMessage, buildDeliveryFollowUpMessage, buildReturnExchangeMessage, buildShippingUpdateMessage, buildWhatsAppLink } from "../lib/whatsapp.js";
 
@@ -294,10 +294,26 @@ router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res)
   const cursorDate = req.query.cursorDate ? new Date(String(req.query.cursorDate)) : null;
   const cursorId = req.query.cursorId ? Number(req.query.cursorId) : null;
 
+  const startDate = parsed.data.startDate ? new Date(parsed.data.startDate) : null;
+  const endDate = parsed.data.endDate ? new Date(parsed.data.endDate) : null;
+  const city = parsed.data.city?.trim();
+  const hasFailedContact = parsed.data.hasFailedContact === true;
+
   const effectiveTenantId = req.merchantTenantId!;
 
   const conditions = [eq(ordersTable.tenantId, effectiveTenantId)];
   if (status) conditions.push(eq(ordersTable.status, status));
+
+  if (startDate) conditions.push(sql`${ordersTable.createdAt} >= ${startDate}`);
+  if (endDate) conditions.push(sql`${ordersTable.createdAt} <= ${endDate}`);
+  if (city) conditions.push(ilike(ordersTable.shippingAddress, `%${city}%`));
+  if (hasFailedContact) {
+    conditions.push(exists(
+      db.select({ id: contactAttemptsTable.id })
+        .from(contactAttemptsTable)
+        .where(eq(contactAttemptsTable.orderId, ordersTable.id))
+    ));
+  }
 
   if (search) {
     const isNumber = /^\d+$/.test(search) && search.length <= 9;

@@ -6,7 +6,8 @@ import {
   SECTION_ICONS, SECTION_DESCRIPTIONS,
   AVAILABLE_SECTIONS, createDefaultSection,
 } from "@/lib/store-config";
-import ReadinessChecklist from "./ReadinessChecklist";
+import LaunchReadinessFlow from "@/components/launch-readiness-flow";
+import { useAuth } from "@/hooks/use-auth";
 import type { MerchantGender } from "./WelcomeOverlay";
 import { useTranslation } from "react-i18next";
 import { contrastStatus } from "@/lib/color-contrast";
@@ -28,6 +29,7 @@ export default function EditorLeftSidebar({
   config, selectedId, onSelect, onConfigChange, onOpenAI, productCount = 0, gender = "female", className = "",
 }: EditorLeftSidebarProps) {
   const { t, i18n } = useTranslation();
+  const { merchant } = useAuth();
   const [tab, setTab] = useState<SidebarTab>("sections");
   const [addingSection, setAddingSection] = useState(false);
   const [sidebarHintDismissed, setSidebarHintDismissed] = useState(() => {
@@ -188,7 +190,7 @@ export default function EditorLeftSidebar({
           </div>
 
           <div className="p-2 border-t border-stone-100 shrink-0">
-            <ReadinessChecklist config={config} productCount={productCount} />
+            <LaunchReadinessFlow config={config} productCount={productCount} storeSlug={merchant?.slug ?? ""} />
           </div>
         </div>
       )}

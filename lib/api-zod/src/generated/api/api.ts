@@ -5,179 +5,169 @@
  * Nour — Egyptian Fashion & Beauty Marketplace API
  * OpenAPI spec version: 0.1.0
  */
-import * as zod from 'zod';
+import * as zod from "zod";
 
 /**
  * @summary List all staff members for the current tenant (owner/manager only)
  */
 export const ListStaffResponseItem = zod.object({
-  "id": zod.number(),
-  "email": zod.string(),
-  "name": zod.string().nullish(),
-  "role": zod.enum(['owner', 'manager', 'staff']),
-  "createdAt": zod.coerce.date()
-})
-export const ListStaffResponse = zod.array(ListStaffResponseItem)
-
+  id: zod.number(),
+  email: zod.string(),
+  name: zod.string().nullish(),
+  role: zod.enum(["owner", "manager", "staff"]),
+  createdAt: zod.coerce.date(),
+});
+export const ListStaffResponse = zod.array(ListStaffResponseItem);
 
 /**
  * @summary Invite a new staff member (owner only)
  */
 export const inviteStaffBodyPasswordMin = 6;
 
-
-
 export const InviteStaffBody = zod.object({
-  "email": zod.string().email(),
-  "name": zod.string().optional(),
-  "role": zod.enum(['owner', 'manager', 'staff']),
-  "password": zod.string().min(inviteStaffBodyPasswordMin)
-})
-
+  email: zod.string().email(),
+  name: zod.string().optional(),
+  role: zod.enum(["owner", "manager", "staff"]),
+  password: zod.string().min(inviteStaffBodyPasswordMin),
+});
 
 /**
  * @summary Update a staff member's role (owner only)
  */
 export const UpdateStaffRoleParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const UpdateStaffRoleBody = zod.object({
-  "role": zod.enum(['owner', 'manager', 'staff'])
-})
+  role: zod.enum(["owner", "manager", "staff"]),
+});
 
 export const UpdateStaffRoleResponse = zod.object({
-  "id": zod.number(),
-  "email": zod.string(),
-  "name": zod.string().nullish(),
-  "role": zod.enum(['owner', 'manager', 'staff']),
-  "createdAt": zod.coerce.date()
-})
-
+  id: zod.number(),
+  email: zod.string(),
+  name: zod.string().nullish(),
+  role: zod.enum(["owner", "manager", "staff"]),
+  createdAt: zod.coerce.date(),
+});
 
 /**
  * @summary Remove a staff member (owner only)
  */
 export const RemoveStaffParams = zod.object({
-  "id": zod.coerce.number()
-})
-
+  id: zod.coerce.number(),
+});
 
 /**
  * @summary Initialize a Paymob payment for an order
  */
 export const InitPaymobPaymentBody = zod.object({
-  "orderId": zod.number()
-})
+  orderId: zod.number(),
+});
 
 export const InitPaymobPaymentResponse = zod.object({
-  "paymentRecordId": zod.number(),
-  "iframeSrc": zod.string(),
-  "expiresAt": zod.coerce.date()
-})
-
+  paymentRecordId: zod.number(),
+  iframeSrc: zod.string(),
+  expiresAt: zod.coerce.date(),
+});
 
 /**
  * @summary Paymob payment webhook (called by Paymob on payment event)
  */
 export const PaymobWebhookResponse = zod.object({
-  "received": zod.boolean(),
-  "duplicate": zod.boolean().optional()
-})
-
+  received: zod.boolean(),
+  duplicate: zod.boolean().optional(),
+});
 
 /**
  * @summary Create a Bosta shipment for an order
  */
 export const CreateBostaShipmentBody = zod.object({
-  "orderId": zod.number(),
-  "customerPhone": zod.string(),
-  "dropOffCity": zod.string().optional()
-})
+  orderId: zod.number(),
+  customerPhone: zod.string(),
+  dropOffCity: zod.string().optional(),
+});
 
 export const CreateBostaShipmentResponse = zod.object({
-  "shipmentId": zod.string(),
-  "trackingNumber": zod.string(),
-  "configured": zod.boolean()
-})
-
+  shipmentId: zod.string(),
+  trackingNumber: zod.string(),
+  configured: zod.boolean(),
+});
 
 /**
  * @summary Track a Bosta shipment
  */
 export const TrackShipmentParams = zod.object({
-  "trackingNumber": zod.coerce.string()
-})
+  trackingNumber: zod.coerce.string(),
+});
 
 export const TrackShipmentResponse = zod.object({
-  "trackingNumber": zod.string(),
-  "status": zod.string(),
-  "timeline": zod.array(zod.object({
-
-}).passthrough()).optional()
-})
-
+  trackingNumber: zod.string(),
+  status: zod.string(),
+  timeline: zod.array(zod.object({}).passthrough()).optional(),
+});
 
 /**
  * @summary Send WhatsApp order confirmation (automated API if configured, link otherwise)
  */
 export const SendWhatsAppBody = zod.object({
-  "orderId": zod.number(),
-  "customerPhone": zod.string()
-})
+  orderId: zod.number(),
+  customerPhone: zod.string(),
+});
 
 export const SendWhatsAppResponse = zod.object({
-  "success": zod.boolean(),
-  "messageId": zod.string().nullish(),
-  "whatsappLink": zod.string(),
-  "configured": zod.boolean()
-})
-
+  success: zod.boolean(),
+  messageId: zod.string().nullish(),
+  whatsappLink: zod.string(),
+  configured: zod.boolean(),
+});
 
 /**
  * @summary Get public merchant storefront by slug
  */
 export const GetStorefrontParams = zod.object({
-  "slug": zod.coerce.string()
-})
+  slug: zod.coerce.string(),
+});
 
 export const GetStorefrontResponse = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "slug": zod.string(),
-  "description": zod.string(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']),
-  "status": zod.string(),
-  "city": zod.string().nullish(),
-  "logoUrl": zod.string().nullish(),
-  "coverUrl": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "products": zod.array(zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "description": zod.string(),
-  "price": zod.number(),
-  "originalPrice": zod.number().nullish(),
-  "imageUrl": zod.string().nullish(),
-  "stock": zod.number(),
-  "status": zod.string(),
-  "categoryId": zod.number().nullish(),
-  "categoryName": zod.string().nullish()
-})),
-  "totalProducts": zod.number(),
-  "totalOrders": zod.number(),
-  "categories": zod.array(zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "nameAr": zod.string().optional(),
-  "parentId": zod.number().nullish(),
-  "type": zod.enum(['fashion', 'cosmetics']).optional(),
-  "imageUrl": zod.string().nullish(),
-  "productCount": zod.number().optional()
-})),
-  "storeConfig": zod.record(zod.string(), zod.unknown()).nullish()
-})
-
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  description: zod.string(),
+  category: zod.enum(["fashion", "cosmetics", "both"]),
+  status: zod.string(),
+  city: zod.string().nullish(),
+  logoUrl: zod.string().nullish(),
+  coverUrl: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  products: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      description: zod.string(),
+      price: zod.number(),
+      originalPrice: zod.number().nullish(),
+      imageUrl: zod.string().nullish(),
+      stock: zod.number(),
+      status: zod.string(),
+      categoryId: zod.number().nullish(),
+      categoryName: zod.string().nullish(),
+    }),
+  ),
+  totalProducts: zod.number(),
+  totalOrders: zod.number(),
+  categories: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      nameAr: zod.string().optional(),
+      parentId: zod.number().nullish(),
+      type: zod.enum(["fashion", "cosmetics"]).optional(),
+      imageUrl: zod.string().nullish(),
+      productCount: zod.number().optional(),
+    }),
+  ),
+  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
+});
 
 /**
  * @summary Register a new merchant and create their store
@@ -186,71 +176,86 @@ export const registerMerchantBodyCategoryDefault = `both`;
 export const registerMerchantBodyPhoneMin = 8;
 export const registerMerchantBodyPhoneMax = 20;
 
-
-export const registerMerchantBodyPhoneRegExp = new RegExp('^\\+?[0-9][0-9\\s-]{7,19}$');
-
+export const registerMerchantBodyPhoneRegExp = new RegExp(
+  "^\\+?[0-9][0-9\\s-]{7,19}$",
+);
 
 export const RegisterMerchantBody = zod.object({
-  "storeName": zod.string(),
-  "slug": zod.string(),
-  "email": zod.string(),
-  "password": zod.string(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']).default(registerMerchantBodyCategoryDefault),
-  "phone": zod.string().min(registerMerchantBodyPhoneMin).max(registerMerchantBodyPhoneMax).regex(registerMerchantBodyPhoneRegExp),
-  "description": zod.string().optional()
-})
-
+  storeName: zod.string(),
+  slug: zod.string(),
+  email: zod.string(),
+  password: zod.string(),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(registerMerchantBodyCategoryDefault),
+  phone: zod
+    .string()
+    .min(registerMerchantBodyPhoneMin)
+    .max(registerMerchantBodyPhoneMax)
+    .regex(registerMerchantBodyPhoneRegExp),
+  description: zod.string().optional(),
+});
 
 /**
  * @summary Log in as a merchant
  */
 export const LoginMerchantBody = zod.object({
-  "email": zod.string(),
-  "password": zod.string()
-})
+  email: zod.string(),
+  password: zod.string(),
+});
 
 export const LoginMerchantResponse = zod.object({
-  "merchantId": zod.number(),
-  "email": zod.string(),
-  "name": zod.string().nullish(),
-  "role": zod.enum(['owner', 'manager', 'staff']),
-  "tenantId": zod.number(),
-  "storeName": zod.string(),
-  "slug": zod.string(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']),
-  "status": zod.string(),
-  "city": zod.string().nullish(),
-  "logoUrl": zod.string().nullish(),
-  "coverUrl": zod.string().nullish(),
-  "description": zod.string(),
-  "isPlatformAdmin": zod.boolean(),
-  "planCode": zod.string(),
-  "subscriptionStatus": zod.enum(['trial', 'active', 'past_due', 'suspended', 'canceled'])
-})
-
+  merchantId: zod.number(),
+  email: zod.string(),
+  name: zod.string().nullish(),
+  role: zod.enum(["owner", "manager", "staff"]),
+  tenantId: zod.number(),
+  storeName: zod.string(),
+  slug: zod.string(),
+  category: zod.enum(["fashion", "cosmetics", "both"]),
+  status: zod.string(),
+  city: zod.string().nullish(),
+  logoUrl: zod.string().nullish(),
+  coverUrl: zod.string().nullish(),
+  description: zod.string(),
+  isPlatformAdmin: zod.boolean(),
+  planCode: zod.string(),
+  subscriptionStatus: zod.enum([
+    "trial",
+    "active",
+    "past_due",
+    "suspended",
+    "canceled",
+  ]),
+});
 
 /**
  * @summary Get current authenticated merchant
  */
 export const GetMeResponse = zod.object({
-  "merchantId": zod.number(),
-  "email": zod.string(),
-  "name": zod.string().nullish(),
-  "role": zod.enum(['owner', 'manager', 'staff']),
-  "tenantId": zod.number(),
-  "storeName": zod.string(),
-  "slug": zod.string(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']),
-  "status": zod.string(),
-  "city": zod.string().nullish(),
-  "logoUrl": zod.string().nullish(),
-  "coverUrl": zod.string().nullish(),
-  "description": zod.string(),
-  "isPlatformAdmin": zod.boolean(),
-  "planCode": zod.string(),
-  "subscriptionStatus": zod.enum(['trial', 'active', 'past_due', 'suspended', 'canceled'])
-})
-
+  merchantId: zod.number(),
+  email: zod.string(),
+  name: zod.string().nullish(),
+  role: zod.enum(["owner", "manager", "staff"]),
+  tenantId: zod.number(),
+  storeName: zod.string(),
+  slug: zod.string(),
+  category: zod.enum(["fashion", "cosmetics", "both"]),
+  status: zod.string(),
+  city: zod.string().nullish(),
+  logoUrl: zod.string().nullish(),
+  coverUrl: zod.string().nullish(),
+  description: zod.string(),
+  isPlatformAdmin: zod.boolean(),
+  planCode: zod.string(),
+  subscriptionStatus: zod.enum([
+    "trial",
+    "active",
+    "past_due",
+    "suspended",
+    "canceled",
+  ]),
+});
 
 /**
  * @summary Register a customer
@@ -258,109 +263,122 @@ export const GetMeResponse = zod.object({
 
 export const registerCustomerBodyPasswordMin = 8;
 
-export const registerCustomerBodyPhoneRegExp = new RegExp('^(?:\\+?20|0020)?\\s\*0?1[0125][0-9\\s().-]{8,}$');
-
+export const registerCustomerBodyPhoneRegExp = new RegExp(
+  "^(?:\\+?20|0020)?\\s\*0?1[0125][0-9\\s().-]{8,}$",
+);
 
 export const RegisterCustomerBody = zod.object({
-  "name": zod.string().min(1),
-  "email": zod.string().email(),
-  "password": zod.string().min(registerCustomerBodyPasswordMin),
-  "phone": zod.string().regex(registerCustomerBodyPhoneRegExp)
-})
-
+  name: zod.string().min(1),
+  email: zod.string().email(),
+  password: zod.string().min(registerCustomerBodyPasswordMin),
+  phone: zod.string().regex(registerCustomerBodyPhoneRegExp),
+});
 
 /**
  * @summary Log in as a customer
  */
 export const LoginCustomerBody = zod.object({
-  "email": zod.string().email(),
-  "password": zod.string()
-})
+  email: zod.string().email(),
+  password: zod.string(),
+});
 
 export const LoginCustomerResponse = zod.object({
-  "customer": zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "email": zod.string(),
-  "phone": zod.string().nullish(),
-  "city": zod.string().nullish(),
-  "totalOrders": zod.number(),
-  "totalSpent": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-})
-
+  customer: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+    phone: zod.string().nullish(),
+    city: zod.string().nullish(),
+    totalOrders: zod.number(),
+    totalSpent: zod.number(),
+    createdAt: zod.coerce.date(),
+  }),
+});
 
 /**
  * @summary Get current authenticated customer
  */
 export const GetCustomerMeResponse = zod.object({
-  "customer": zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "email": zod.string(),
-  "phone": zod.string().nullish(),
-  "city": zod.string().nullish(),
-  "totalOrders": zod.number(),
-  "totalSpent": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-})
-
+  customer: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+    phone: zod.string().nullish(),
+    city: zod.string().nullish(),
+    totalOrders: zod.number(),
+    totalSpent: zod.number(),
+    createdAt: zod.coerce.date(),
+  }),
+});
 
 /**
  * @summary Get authenticated customer orders for store
  */
 export const GetCustomerOrdersParams = zod.object({
-  "slug": zod.coerce.string()
-})
+  slug: zod.coerce.string(),
+});
 
 export const GetCustomerOrdersResponseItem = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
-  "status": zod.enum(['pending', 'awaiting_confirmation', 'confirmed', 'dispatched', 'shipped', 'delivered', 'cancelled', 'returned']),
-  "totalAmount": zod.number(),
-  "shippingCost": zod.number().optional(),
-  "shippingAddress": zod.string().nullish(),
-  "customerPhone": zod.string().nullish(),
-  "paymentMethod": zod.enum(['cod', 'paymob']),
-  "paymentStatus": zod.enum(['pending', 'paid', 'failed']),
-  "paymobOrderId": zod.string().nullish(),
-  "paymobTransactionId": zod.string().nullish(),
-  "bostaShipmentId": zod.string().nullish(),
-  "trackingNumber": zod.string().nullish(),
-  "items": zod.array(zod.object({
-  "id": zod.number(),
-  "productId": zod.number(),
-  "variantId": zod.number().nullish(),
-  "productName": zod.string(),
-  "quantity": zod.number(),
-  "unitPrice": zod.number(),
-  "totalPrice": zod.number()
-})),
-  "statusHistory": zod.array(zod.object({
-  "id": zod.number(),
-  "orderId": zod.number(),
-  "fromStatus": zod.string().nullish(),
-  "toStatus": zod.string(),
-  "note": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})).optional(),
-  "createdAt": zod.coerce.date()
-})
-export const GetCustomerOrdersResponse = zod.array(GetCustomerOrdersResponseItem)
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  customerId: zod.number(),
+  customerName: zod.string(),
+  status: zod.enum([
+    "pending",
+    "awaiting_confirmation",
+    "confirmed",
+    "dispatched",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "returned",
+  ]),
+  totalAmount: zod.number(),
+  shippingCost: zod.number().optional(),
+  shippingAddress: zod.string().nullish(),
+  customerPhone: zod.string().nullish(),
+  paymentMethod: zod.enum(["cod", "paymob"]),
+  paymentStatus: zod.enum(["pending", "paid", "failed"]),
+  paymobOrderId: zod.string().nullish(),
+  paymobTransactionId: zod.string().nullish(),
+  bostaShipmentId: zod.string().nullish(),
+  trackingNumber: zod.string().nullish(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      productId: zod.number(),
+      variantId: zod.number().nullish(),
+      productName: zod.string(),
+      quantity: zod.number(),
+      unitPrice: zod.number(),
+      totalPrice: zod.number(),
+    }),
+  ),
+  statusHistory: zod
+    .array(
+      zod.object({
+        id: zod.number(),
+        orderId: zod.number(),
+        fromStatus: zod.string().nullish(),
+        toStatus: zod.string(),
+        note: zod.string().nullish(),
+        createdAt: zod.coerce.date(),
+      }),
+    )
+    .optional(),
+  createdAt: zod.coerce.date(),
+});
+export const GetCustomerOrdersResponse = zod.array(
+  GetCustomerOrdersResponseItem,
+);
 
 /**
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
-  "status": zod.string()
-})
-
+  status: zod.string(),
+});
 
 /**
  * @summary Platform admin — list all tenants/stores
@@ -368,25 +386,28 @@ export const HealthCheckResponse = zod.object({
 export const listTenantsResponseCategoryDefault = `both`;
 
 export const ListTenantsResponseItem = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "slug": zod.string(),
-  "description": zod.string(),
-  "logoUrl": zod.string().nullish(),
-  "coverUrl": zod.string().nullish(),
-  "primaryColor": zod.string().nullish(),
-  "secondaryColor": zod.string().nullish(),
-  "theme": zod.string().optional(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']).default(listTenantsResponseCategoryDefault),
-  "status": zod.enum(['active', 'inactive', 'pending']),
-  "city": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "planCode": zod.string().optional(),
-  "subscriptionStatus": zod.enum(['trial', 'active', 'past_due', 'suspended', 'canceled']).optional(),
-  "storeConfig": zod.record(zod.string(), zod.unknown()).nullish()
-})
-export const ListTenantsResponse = zod.array(ListTenantsResponseItem)
-
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  description: zod.string(),
+  logoUrl: zod.string().nullish(),
+  coverUrl: zod.string().nullish(),
+  primaryColor: zod.string().nullish(),
+  secondaryColor: zod.string().nullish(),
+  theme: zod.string().optional(),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(listTenantsResponseCategoryDefault),
+  status: zod.enum(["active", "inactive", "pending"]),
+  city: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  planCode: zod.string().optional(),
+  subscriptionStatus: zod
+    .enum(["trial", "active", "past_due", "suspended", "canceled"])
+    .optional(),
+  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
+});
+export const ListTenantsResponse = zod.array(ListTenantsResponseItem);
 
 /**
  * @summary Platform admin — create a new tenant/store
@@ -394,203 +415,205 @@ export const ListTenantsResponse = zod.array(ListTenantsResponseItem)
 export const createTenantBodyCategoryDefault = `both`;
 
 export const CreateTenantBody = zod.object({
-  "name": zod.string(),
-  "slug": zod.string(),
-  "description": zod.string(),
-  "logoUrl": zod.string().nullish(),
-  "coverUrl": zod.string().nullish(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']).default(createTenantBodyCategoryDefault),
-  "city": zod.string().nullish()
-})
-
+  name: zod.string(),
+  slug: zod.string(),
+  description: zod.string(),
+  logoUrl: zod.string().nullish(),
+  coverUrl: zod.string().nullish(),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(createTenantBodyCategoryDefault),
+  city: zod.string().nullish(),
+});
 
 /**
  * @summary Platform admin — get a tenant by ID
  */
 export const GetTenantParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const getTenantResponseCategoryDefault = `both`;
 
 export const GetTenantResponse = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "slug": zod.string(),
-  "description": zod.string(),
-  "logoUrl": zod.string().nullish(),
-  "coverUrl": zod.string().nullish(),
-  "primaryColor": zod.string().nullish(),
-  "secondaryColor": zod.string().nullish(),
-  "theme": zod.string().optional(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']).default(getTenantResponseCategoryDefault),
-  "status": zod.enum(['active', 'inactive', 'pending']),
-  "city": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "planCode": zod.string().optional(),
-  "subscriptionStatus": zod.enum(['trial', 'active', 'past_due', 'suspended', 'canceled']).optional(),
-  "storeConfig": zod.record(zod.string(), zod.unknown()).nullish()
-})
-
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  description: zod.string(),
+  logoUrl: zod.string().nullish(),
+  coverUrl: zod.string().nullish(),
+  primaryColor: zod.string().nullish(),
+  secondaryColor: zod.string().nullish(),
+  theme: zod.string().optional(),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(getTenantResponseCategoryDefault),
+  status: zod.enum(["active", "inactive", "pending"]),
+  city: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  planCode: zod.string().optional(),
+  subscriptionStatus: zod
+    .enum(["trial", "active", "past_due", "suspended", "canceled"])
+    .optional(),
+  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
+});
 
 /**
  * @summary Update a tenant
  */
 export const UpdateTenantParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const UpdateTenantBody = zod.object({
-  "name": zod.string().optional(),
-  "description": zod.string().optional(),
-  "logoUrl": zod.string().nullish(),
-  "coverUrl": zod.string().nullish(),
-  "primaryColor": zod.string().nullish(),
-  "secondaryColor": zod.string().nullish(),
-  "theme": zod.string().optional(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']).optional(),
-  "status": zod.enum(['active', 'inactive', 'pending']).optional(),
-  "city": zod.string().nullish()
-})
+  name: zod.string().optional(),
+  description: zod.string().optional(),
+  logoUrl: zod.string().nullish(),
+  coverUrl: zod.string().nullish(),
+  primaryColor: zod.string().nullish(),
+  secondaryColor: zod.string().nullish(),
+  theme: zod.string().optional(),
+  category: zod.enum(["fashion", "cosmetics", "both"]).optional(),
+  status: zod.enum(["active", "inactive", "pending"]).optional(),
+  city: zod.string().nullish(),
+});
 
 export const updateTenantResponseCategoryDefault = `both`;
 
 export const UpdateTenantResponse = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "slug": zod.string(),
-  "description": zod.string(),
-  "logoUrl": zod.string().nullish(),
-  "coverUrl": zod.string().nullish(),
-  "primaryColor": zod.string().nullish(),
-  "secondaryColor": zod.string().nullish(),
-  "theme": zod.string().optional(),
-  "category": zod.enum(['fashion', 'cosmetics', 'both']).default(updateTenantResponseCategoryDefault),
-  "status": zod.enum(['active', 'inactive', 'pending']),
-  "city": zod.string().nullish(),
-  "createdAt": zod.coerce.date(),
-  "planCode": zod.string().optional(),
-  "subscriptionStatus": zod.enum(['trial', 'active', 'past_due', 'suspended', 'canceled']).optional(),
-  "storeConfig": zod.record(zod.string(), zod.unknown()).nullish()
-})
-
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  description: zod.string(),
+  logoUrl: zod.string().nullish(),
+  coverUrl: zod.string().nullish(),
+  primaryColor: zod.string().nullish(),
+  secondaryColor: zod.string().nullish(),
+  theme: zod.string().optional(),
+  category: zod
+    .enum(["fashion", "cosmetics", "both"])
+    .default(updateTenantResponseCategoryDefault),
+  status: zod.enum(["active", "inactive", "pending"]),
+  city: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  planCode: zod.string().optional(),
+  subscriptionStatus: zod
+    .enum(["trial", "active", "past_due", "suspended", "canceled"])
+    .optional(),
+  storeConfig: zod.record(zod.string(), zod.unknown()).nullish(),
+});
 
 /**
  * @summary Platform admin — delete a tenant
  */
 export const DeleteTenantParams = zod.object({
-  "id": zod.coerce.number()
-})
-
+  id: zod.coerce.number(),
+});
 
 /**
  * @summary Platform admin — get stats for a specific tenant
  */
 export const GetTenantStatsParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const GetTenantStatsResponse = zod.object({
-  "tenantId": zod.number(),
-  "totalProducts": zod.number(),
-  "totalOrders": zod.number(),
-  "totalRevenue": zod.number(),
-  "totalCustomers": zod.number(),
-  "recentOrders": zod.number().describe('Orders in the last 30 days')
-})
-
+  tenantId: zod.number(),
+  totalProducts: zod.number(),
+  totalOrders: zod.number(),
+  totalRevenue: zod.number(),
+  totalCustomers: zod.number(),
+  recentOrders: zod.number().describe("Orders in the last 30 days"),
+});
 
 /**
  * @summary List all categories
  */
 export const ListCategoriesResponseItem = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "nameAr": zod.string().describe('Arabic name'),
-  "parentId": zod.number().nullish().describe('ID of the parent category'),
-  "type": zod.enum(['fashion', 'cosmetics']),
-  "imageUrl": zod.string().nullish(),
-  "productCount": zod.number()
-})
-export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
-
+  id: zod.number(),
+  name: zod.string(),
+  nameAr: zod.string().describe("Arabic name"),
+  parentId: zod.number().nullish().describe("ID of the parent category"),
+  type: zod.enum(["fashion", "cosmetics"]),
+  imageUrl: zod.string().nullish(),
+  productCount: zod.number(),
+});
+export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem);
 
 /**
  * @summary Create a category
  */
 export const CreateCategoryBody = zod.object({
-  "name": zod.string(),
-  "nameAr": zod.string(),
-  "parentId": zod.number().nullish(),
-  "type": zod.enum(['fashion', 'cosmetics']),
-  "imageUrl": zod.string().nullish()
-})
-
+  name: zod.string(),
+  nameAr: zod.string(),
+  parentId: zod.number().nullish(),
+  type: zod.enum(["fashion", "cosmetics"]),
+  imageUrl: zod.string().nullish(),
+});
 
 /**
  * @summary Update a category
  */
 export const UpdateCategoryParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const UpdateCategoryBody = zod.object({
-  "name": zod.string().optional(),
-  "nameAr": zod.string().optional(),
-  "parentId": zod.number().nullish(),
-  "type": zod.enum(['fashion', 'cosmetics']).optional(),
-  "imageUrl": zod.string().nullish()
-})
+  name: zod.string().optional(),
+  nameAr: zod.string().optional(),
+  parentId: zod.number().nullish(),
+  type: zod.enum(["fashion", "cosmetics"]).optional(),
+  imageUrl: zod.string().nullish(),
+});
 
 export const UpdateCategoryResponse = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "nameAr": zod.string().describe('Arabic name'),
-  "parentId": zod.number().nullish().describe('ID of the parent category'),
-  "type": zod.enum(['fashion', 'cosmetics']),
-  "imageUrl": zod.string().nullish(),
-  "productCount": zod.number()
-})
-
+  id: zod.number(),
+  name: zod.string(),
+  nameAr: zod.string().describe("Arabic name"),
+  parentId: zod.number().nullish().describe("ID of the parent category"),
+  type: zod.enum(["fashion", "cosmetics"]),
+  imageUrl: zod.string().nullish(),
+  productCount: zod.number(),
+});
 
 /**
  * @summary Delete a category
  */
 export const DeleteCategoryParams = zod.object({
-  "id": zod.coerce.number()
-})
-
+  id: zod.coerce.number(),
+});
 
 /**
  * @summary List products with optional filters
  */
 export const ListProductsQueryParams = zod.object({
-  "tenantId": zod.coerce.number().optional(),
-  "categoryId": zod.coerce.number().optional(),
-  "search": zod.coerce.string().optional()
-})
+  tenantId: zod.coerce.number().optional(),
+  categoryId: zod.coerce.number().optional(),
+  search: zod.coerce.string().optional(),
+  hasVariants: zod.coerce.boolean().optional(),
+});
 
 export const listProductsResponseDescriptionDefault = ``;
 
 export const ListProductsResponseItem = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "categoryId": zod.number().nullish(),
-  "categoryName": zod.string().nullish(),
-  "name": zod.string(),
-  "description": zod.string().default(listProductsResponseDescriptionDefault),
-  "price": zod.number(),
-  "originalPrice": zod.number().nullish(),
-  "imageUrl": zod.string().nullish(),
-  "stock": zod.number(),
-  "featured": zod.boolean(),
-  "status": zod.enum(['active', 'out_of_stock', 'hidden']),
-  "orderCount": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-export const ListProductsResponse = zod.array(ListProductsResponseItem)
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  categoryId: zod.number().nullish(),
+  categoryName: zod.string().nullish(),
+  name: zod.string(),
+  description: zod.string().default(listProductsResponseDescriptionDefault),
+  price: zod.number(),
+  originalPrice: zod.number().nullish(),
+  imageUrl: zod.string().nullish(),
+  stock: zod.number(),
+  featured: zod.boolean(),
+  status: zod.enum(["active", "out_of_stock", "hidden"]),
+  hasVariants: zod.boolean(),
+  orderCount: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+export const ListProductsResponse = zod.array(ListProductsResponseItem);
 
 /**
  * @summary Create a new product
@@ -600,167 +623,165 @@ export const createProductBodyFeaturedDefault = false;
 export const createProductBodyStatusDefault = `active`;
 
 export const CreateProductBody = zod.object({
-  "tenantId": zod.number().optional(),
-  "categoryId": zod.number().nullish(),
-  "name": zod.string(),
-  "description": zod.string().default(createProductBodyDescriptionDefault),
-  "price": zod.number(),
-  "originalPrice": zod.number().nullish(),
-  "imageUrl": zod.string().nullish(),
-  "stock": zod.number(),
-  "featured": zod.boolean().default(createProductBodyFeaturedDefault),
-  "status": zod.enum(['active', 'out_of_stock', 'hidden']).default(createProductBodyStatusDefault)
-})
-
+  tenantId: zod.number().optional(),
+  categoryId: zod.number().nullish(),
+  name: zod.string(),
+  description: zod.string().default(createProductBodyDescriptionDefault),
+  price: zod.number(),
+  originalPrice: zod.number().nullish(),
+  imageUrl: zod.string().nullish(),
+  stock: zod.number(),
+  featured: zod.boolean().default(createProductBodyFeaturedDefault),
+  status: zod
+    .enum(["active", "out_of_stock", "hidden"])
+    .default(createProductBodyStatusDefault),
+});
 
 /**
  * @summary Get a product by ID
  */
 export const GetProductParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const getProductResponseDescriptionDefault = ``;
 
 export const GetProductResponse = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "categoryId": zod.number().nullish(),
-  "categoryName": zod.string().nullish(),
-  "name": zod.string(),
-  "description": zod.string().default(getProductResponseDescriptionDefault),
-  "price": zod.number(),
-  "originalPrice": zod.number().nullish(),
-  "imageUrl": zod.string().nullish(),
-  "stock": zod.number(),
-  "featured": zod.boolean(),
-  "status": zod.enum(['active', 'out_of_stock', 'hidden']),
-  "orderCount": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  categoryId: zod.number().nullish(),
+  categoryName: zod.string().nullish(),
+  name: zod.string(),
+  description: zod.string().default(getProductResponseDescriptionDefault),
+  price: zod.number(),
+  originalPrice: zod.number().nullish(),
+  imageUrl: zod.string().nullish(),
+  stock: zod.number(),
+  featured: zod.boolean(),
+  status: zod.enum(["active", "out_of_stock", "hidden"]),
+  hasVariants: zod.boolean(),
+  orderCount: zod.number(),
+  createdAt: zod.coerce.date(),
+});
 
 /**
  * @summary Update a product
  */
 export const UpdateProductParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const UpdateProductBody = zod.object({
-  "categoryId": zod.number().nullish(),
-  "name": zod.string().optional(),
-  "description": zod.string().optional(),
-  "price": zod.number().optional(),
-  "originalPrice": zod.number().nullish(),
-  "imageUrl": zod.string().nullish(),
-  "stock": zod.number().optional(),
-  "featured": zod.boolean().optional(),
-  "status": zod.enum(['active', 'out_of_stock', 'hidden']).optional()
-})
+  categoryId: zod.number().nullish(),
+  name: zod.string().optional(),
+  description: zod.string().optional(),
+  price: zod.number().optional(),
+  originalPrice: zod.number().nullish(),
+  imageUrl: zod.string().nullish(),
+  stock: zod.number().optional(),
+  featured: zod.boolean().optional(),
+  status: zod.enum(["active", "out_of_stock", "hidden"]).optional(),
+});
 
 export const updateProductResponseDescriptionDefault = ``;
 
 export const UpdateProductResponse = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "categoryId": zod.number().nullish(),
-  "categoryName": zod.string().nullish(),
-  "name": zod.string(),
-  "description": zod.string().default(updateProductResponseDescriptionDefault),
-  "price": zod.number(),
-  "originalPrice": zod.number().nullish(),
-  "imageUrl": zod.string().nullish(),
-  "stock": zod.number(),
-  "featured": zod.boolean(),
-  "status": zod.enum(['active', 'out_of_stock', 'hidden']),
-  "orderCount": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  categoryId: zod.number().nullish(),
+  categoryName: zod.string().nullish(),
+  name: zod.string(),
+  description: zod.string().default(updateProductResponseDescriptionDefault),
+  price: zod.number(),
+  originalPrice: zod.number().nullish(),
+  imageUrl: zod.string().nullish(),
+  stock: zod.number(),
+  featured: zod.boolean(),
+  status: zod.enum(["active", "out_of_stock", "hidden"]),
+  hasVariants: zod.boolean(),
+  orderCount: zod.number(),
+  createdAt: zod.coerce.date(),
+});
 
 /**
  * @summary Delete a product
  */
 export const DeleteProductParams = zod.object({
-  "id": zod.coerce.number()
-})
-
+  id: zod.coerce.number(),
+});
 
 /**
  * @summary List all variants for a product
  */
 export const ListProductVariantsParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const ListProductVariantsResponseItem = zod.object({
-  "id": zod.number(),
-  "productId": zod.number(),
-  "size": zod.string().nullish(),
-  "color": zod.string().nullish(),
-  "colorHex": zod.string().nullish(),
-  "imageUrls": zod.array(zod.string()).optional(),
-  "stock": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-export const ListProductVariantsResponse = zod.array(ListProductVariantsResponseItem)
-
+  id: zod.number(),
+  productId: zod.number(),
+  size: zod.string().nullish(),
+  color: zod.string().nullish(),
+  colorHex: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).optional(),
+  stock: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+export const ListProductVariantsResponse = zod.array(
+  ListProductVariantsResponseItem,
+);
 
 /**
  * @summary Add a variant to a product
  */
 export const CreateProductVariantParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const CreateProductVariantBody = zod.object({
-  "size": zod.string().nullish(),
-  "color": zod.string().nullish(),
-  "colorHex": zod.string().nullish(),
-  "imageUrls": zod.array(zod.string()).optional(),
-  "stock": zod.number()
-})
-
+  size: zod.string().nullish(),
+  color: zod.string().nullish(),
+  colorHex: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).optional(),
+  stock: zod.number(),
+});
 
 /**
  * @summary Update a product variant
  */
 export const UpdateProductVariantParams = zod.object({
-  "id": zod.coerce.number(),
-  "variantId": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+  variantId: zod.coerce.number(),
+});
 
 export const UpdateProductVariantBody = zod.object({
-  "size": zod.string().nullish(),
-  "color": zod.string().nullish(),
-  "colorHex": zod.string().nullish(),
-  "imageUrls": zod.array(zod.string()).optional(),
-  "stock": zod.number().optional()
-})
+  size: zod.string().nullish(),
+  color: zod.string().nullish(),
+  colorHex: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).optional(),
+  stock: zod.number().optional(),
+});
 
 export const UpdateProductVariantResponse = zod.object({
-  "id": zod.number(),
-  "productId": zod.number(),
-  "size": zod.string().nullish(),
-  "color": zod.string().nullish(),
-  "colorHex": zod.string().nullish(),
-  "imageUrls": zod.array(zod.string()).optional(),
-  "stock": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-
+  id: zod.number(),
+  productId: zod.number(),
+  size: zod.string().nullish(),
+  color: zod.string().nullish(),
+  colorHex: zod.string().nullish(),
+  imageUrls: zod.array(zod.string()).optional(),
+  stock: zod.number(),
+  createdAt: zod.coerce.date(),
+});
 
 /**
  * @summary Delete a product variant
  */
 export const DeleteProductVariantParams = zod.object({
-  "id": zod.coerce.number(),
-  "variantId": zod.coerce.number()
-})
-
+  id: zod.coerce.number(),
+  variantId: zod.coerce.number(),
+});
 
 /**
  * @summary Get featured products across all tenants
@@ -768,24 +789,28 @@ export const DeleteProductVariantParams = zod.object({
 export const listFeaturedProductsResponseDescriptionDefault = ``;
 
 export const ListFeaturedProductsResponseItem = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "categoryId": zod.number().nullish(),
-  "categoryName": zod.string().nullish(),
-  "name": zod.string(),
-  "description": zod.string().default(listFeaturedProductsResponseDescriptionDefault),
-  "price": zod.number(),
-  "originalPrice": zod.number().nullish(),
-  "imageUrl": zod.string().nullish(),
-  "stock": zod.number(),
-  "featured": zod.boolean(),
-  "status": zod.enum(['active', 'out_of_stock', 'hidden']),
-  "orderCount": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-export const ListFeaturedProductsResponse = zod.array(ListFeaturedProductsResponseItem)
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  categoryId: zod.number().nullish(),
+  categoryName: zod.string().nullish(),
+  name: zod.string(),
+  description: zod
+    .string()
+    .default(listFeaturedProductsResponseDescriptionDefault),
+  price: zod.number(),
+  originalPrice: zod.number().nullish(),
+  imageUrl: zod.string().nullish(),
+  stock: zod.number(),
+  featured: zod.boolean(),
+  status: zod.enum(["active", "out_of_stock", "hidden"]),
+  hasVariants: zod.boolean(),
+  orderCount: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+export const ListFeaturedProductsResponse = zod.array(
+  ListFeaturedProductsResponseItem,
+);
 
 /**
  * @summary Get trending products by order count
@@ -793,509 +818,606 @@ export const ListFeaturedProductsResponse = zod.array(ListFeaturedProductsRespon
 export const listTrendingProductsResponseDescriptionDefault = ``;
 
 export const ListTrendingProductsResponseItem = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "categoryId": zod.number().nullish(),
-  "categoryName": zod.string().nullish(),
-  "name": zod.string(),
-  "description": zod.string().default(listTrendingProductsResponseDescriptionDefault),
-  "price": zod.number(),
-  "originalPrice": zod.number().nullish(),
-  "imageUrl": zod.string().nullish(),
-  "stock": zod.number(),
-  "featured": zod.boolean(),
-  "status": zod.enum(['active', 'out_of_stock', 'hidden']),
-  "orderCount": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-export const ListTrendingProductsResponse = zod.array(ListTrendingProductsResponseItem)
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  categoryId: zod.number().nullish(),
+  categoryName: zod.string().nullish(),
+  name: zod.string(),
+  description: zod
+    .string()
+    .default(listTrendingProductsResponseDescriptionDefault),
+  price: zod.number(),
+  originalPrice: zod.number().nullish(),
+  imageUrl: zod.string().nullish(),
+  stock: zod.number(),
+  featured: zod.boolean(),
+  status: zod.enum(["active", "out_of_stock", "hidden"]),
+  hasVariants: zod.boolean(),
+  orderCount: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+export const ListTrendingProductsResponse = zod.array(
+  ListTrendingProductsResponseItem,
+);
 
 /**
  * @summary List all customers
  */
 export const ListCustomersResponseItem = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "email": zod.string(),
-  "phone": zod.string().nullish(),
-  "city": zod.string().nullish(),
-  "totalOrders": zod.number(),
-  "totalSpent": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-export const ListCustomersResponse = zod.array(ListCustomersResponseItem)
-
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  city: zod.string().nullish(),
+  totalOrders: zod.number(),
+  totalSpent: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+export const ListCustomersResponse = zod.array(ListCustomersResponseItem);
 
 /**
  * @summary Create a new customer
  */
-export const createCustomerBodyPhoneRegExp = new RegExp('^01[0125][0-9]{8}$');
-
+export const createCustomerBodyPhoneRegExp = new RegExp("^01[0125][0-9]{8}$");
 
 export const CreateCustomerBody = zod.object({
-  "name": zod.string(),
-  "email": zod.string(),
-  "phone": zod.string().regex(createCustomerBodyPhoneRegExp),
-  "city": zod.string().nullish()
-})
-
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().regex(createCustomerBodyPhoneRegExp),
+  city: zod.string().nullish(),
+});
 
 /**
  * @summary Get a customer by ID
  */
 export const GetCustomerParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const GetCustomerResponse = zod.object({
-  "id": zod.number(),
-  "name": zod.string(),
-  "email": zod.string(),
-  "phone": zod.string().nullish(),
-  "city": zod.string().nullish(),
-  "totalOrders": zod.number(),
-  "totalSpent": zod.number(),
-  "createdAt": zod.coerce.date()
-})
-
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  city: zod.string().nullish(),
+  totalOrders: zod.number(),
+  totalSpent: zod.number(),
+  createdAt: zod.coerce.date(),
+});
 
 /**
  * @summary List orders with optional filters
  */
 export const ListOrdersQueryParams = zod.object({
-  "tenantId": zod.coerce.number().optional(),
-  "status": zod.coerce.string().optional(),
-  "search": zod.coerce.string().optional(),
-  "limit": zod.coerce.number().optional(),
-  "cursorDate": zod.coerce.string().optional(),
-  "cursorId": zod.coerce.number().optional()
-})
+  tenantId: zod.coerce.number().optional(),
+  status: zod.coerce.string().optional(),
+  search: zod.coerce.string().optional(),
+  city: zod.coerce.string().optional(),
+  startDate: zod.coerce.string().optional(),
+  endDate: zod.coerce.string().optional(),
+  hasFailedContact: zod.coerce.boolean().optional(),
+  limit: zod.coerce.number().optional(),
+  cursorDate: zod.coerce.string().optional(),
+  cursorId: zod.coerce.number().optional(),
+});
 
 export const ListOrdersResponse = zod.object({
-  "data": zod.array(zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
-  "status": zod.enum(['pending', 'awaiting_confirmation', 'confirmed', 'dispatched', 'shipped', 'delivered', 'cancelled', 'returned']),
-  "totalAmount": zod.number(),
-  "shippingCost": zod.number().optional(),
-  "shippingAddress": zod.string().nullish(),
-  "customerPhone": zod.string().nullish(),
-  "paymentMethod": zod.enum(['cod', 'paymob']),
-  "paymentStatus": zod.enum(['pending', 'paid', 'failed']),
-  "paymobOrderId": zod.string().nullish(),
-  "paymobTransactionId": zod.string().nullish(),
-  "bostaShipmentId": zod.string().nullish(),
-  "trackingNumber": zod.string().nullish(),
-  "items": zod.array(zod.object({
-  "id": zod.number(),
-  "productId": zod.number(),
-  "variantId": zod.number().nullish(),
-  "productName": zod.string(),
-  "quantity": zod.number(),
-  "unitPrice": zod.number(),
-  "totalPrice": zod.number()
-})),
-  "statusHistory": zod.array(zod.object({
-  "id": zod.number(),
-  "orderId": zod.number(),
-  "fromStatus": zod.string().nullish(),
-  "toStatus": zod.string(),
-  "note": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})).optional(),
-  "createdAt": zod.coerce.date()
-})),
-  "hasMore": zod.boolean(),
-  "nextCursor": zod.object({
-  "cursorDate": zod.string(),
-  "cursorId": zod.number()
-}).nullish()
-})
-
+  data: zod.array(
+    zod.object({
+      id: zod.number(),
+      tenantId: zod.number(),
+      tenantName: zod.string(),
+      customerId: zod.number(),
+      customerName: zod.string(),
+      status: zod.enum([
+        "pending",
+        "awaiting_confirmation",
+        "confirmed",
+        "dispatched",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "returned",
+      ]),
+      totalAmount: zod.number(),
+      shippingCost: zod.number().optional(),
+      shippingAddress: zod.string().nullish(),
+      customerPhone: zod.string().nullish(),
+      paymentMethod: zod.enum(["cod", "paymob"]),
+      paymentStatus: zod.enum(["pending", "paid", "failed"]),
+      paymobOrderId: zod.string().nullish(),
+      paymobTransactionId: zod.string().nullish(),
+      bostaShipmentId: zod.string().nullish(),
+      trackingNumber: zod.string().nullish(),
+      items: zod.array(
+        zod.object({
+          id: zod.number(),
+          productId: zod.number(),
+          variantId: zod.number().nullish(),
+          productName: zod.string(),
+          quantity: zod.number(),
+          unitPrice: zod.number(),
+          totalPrice: zod.number(),
+        }),
+      ),
+      statusHistory: zod
+        .array(
+          zod.object({
+            id: zod.number(),
+            orderId: zod.number(),
+            fromStatus: zod.string().nullish(),
+            toStatus: zod.string(),
+            note: zod.string().nullish(),
+            createdAt: zod.coerce.date(),
+          }),
+        )
+        .optional(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+  hasMore: zod.boolean(),
+  nextCursor: zod
+    .object({
+      cursorDate: zod.string(),
+      cursorId: zod.number(),
+    })
+    .nullish(),
+});
 
 /**
  * @summary Create a new order
  */
 export const CreateOrderBody = zod.object({
-  "tenantId": zod.number(),
-  "customerId": zod.number(),
-  "shippingAddress": zod.string().nullish(),
-  "customerPhone": zod.string().nullish(),
-  "paymentMethod": zod.enum(['cod', 'paymob']).optional(),
-  "discountCode": zod.string().nullish().describe('Optional checkout discount code. Applied and recorded atomically during order creation.'),
-  "marketingConsent": zod.boolean().optional().describe('Whether the user consented to marketing'),
-  "items": zod.array(zod.object({
-  "productId": zod.number(),
-  "variantId": zod.number().nullish(),
-  "quantity": zod.number()
-}))
-})
-
+  tenantId: zod.number(),
+  customerId: zod.number(),
+  shippingAddress: zod.string().nullish(),
+  customerPhone: zod.string().nullish(),
+  paymentMethod: zod.enum(["cod", "paymob"]).optional(),
+  discountCode: zod
+    .string()
+    .nullish()
+    .describe(
+      "Optional checkout discount code. Applied and recorded atomically during order creation.",
+    ),
+  marketingConsent: zod
+    .boolean()
+    .optional()
+    .describe("Whether the user consented to marketing"),
+  items: zod.array(
+    zod.object({
+      productId: zod.number(),
+      variantId: zod.number().nullish(),
+      quantity: zod.number(),
+    }),
+  ),
+});
 
 /**
  * @summary Get an order by ID
  */
 export const GetOrderParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const GetOrderResponse = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
-  "status": zod.enum(['pending', 'awaiting_confirmation', 'confirmed', 'dispatched', 'shipped', 'delivered', 'cancelled', 'returned']),
-  "totalAmount": zod.number(),
-  "shippingCost": zod.number().optional(),
-  "shippingAddress": zod.string().nullish(),
-  "customerPhone": zod.string().nullish(),
-  "paymentMethod": zod.enum(['cod', 'paymob']),
-  "paymentStatus": zod.enum(['pending', 'paid', 'failed']),
-  "paymobOrderId": zod.string().nullish(),
-  "paymobTransactionId": zod.string().nullish(),
-  "bostaShipmentId": zod.string().nullish(),
-  "trackingNumber": zod.string().nullish(),
-  "items": zod.array(zod.object({
-  "id": zod.number(),
-  "productId": zod.number(),
-  "variantId": zod.number().nullish(),
-  "productName": zod.string(),
-  "quantity": zod.number(),
-  "unitPrice": zod.number(),
-  "totalPrice": zod.number()
-})),
-  "statusHistory": zod.array(zod.object({
-  "id": zod.number(),
-  "orderId": zod.number(),
-  "fromStatus": zod.string().nullish(),
-  "toStatus": zod.string(),
-  "note": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})).optional(),
-  "createdAt": zod.coerce.date()
-})
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  customerId: zod.number(),
+  customerName: zod.string(),
+  status: zod.enum([
+    "pending",
+    "awaiting_confirmation",
+    "confirmed",
+    "dispatched",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "returned",
+  ]),
+  totalAmount: zod.number(),
+  shippingCost: zod.number().optional(),
+  shippingAddress: zod.string().nullish(),
+  customerPhone: zod.string().nullish(),
+  paymentMethod: zod.enum(["cod", "paymob"]),
+  paymentStatus: zod.enum(["pending", "paid", "failed"]),
+  paymobOrderId: zod.string().nullish(),
+  paymobTransactionId: zod.string().nullish(),
+  bostaShipmentId: zod.string().nullish(),
+  trackingNumber: zod.string().nullish(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      productId: zod.number(),
+      variantId: zod.number().nullish(),
+      productName: zod.string(),
+      quantity: zod.number(),
+      unitPrice: zod.number(),
+      totalPrice: zod.number(),
+    }),
+  ),
+  statusHistory: zod
+    .array(
+      zod.object({
+        id: zod.number(),
+        orderId: zod.number(),
+        fromStatus: zod.string().nullish(),
+        toStatus: zod.string(),
+        note: zod.string().nullish(),
+        createdAt: zod.coerce.date(),
+      }),
+    )
+    .optional(),
+  createdAt: zod.coerce.date(),
+});
 
 /**
  * @summary Update an order status
  */
 export const UpdateOrderParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const UpdateOrderBody = zod.object({
-  "status": zod.enum(['pending', 'awaiting_confirmation', 'confirmed', 'dispatched', 'shipped', 'delivered', 'cancelled', 'returned']),
-  "paymentStatus": zod.enum(['pending', 'paid', 'failed']).optional(),
-  "paymobTransactionId": zod.string().optional(),
-  "bostaShipmentId": zod.string().optional(),
-  "trackingNumber": zod.string().optional()
-})
+  status: zod.enum([
+    "pending",
+    "awaiting_confirmation",
+    "confirmed",
+    "dispatched",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "returned",
+  ]),
+  paymentStatus: zod.enum(["pending", "paid", "failed"]).optional(),
+  paymobTransactionId: zod.string().optional(),
+  bostaShipmentId: zod.string().optional(),
+  trackingNumber: zod.string().optional(),
+});
 
 export const UpdateOrderResponse = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "tenantName": zod.string(),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
-  "status": zod.enum(['pending', 'awaiting_confirmation', 'confirmed', 'dispatched', 'shipped', 'delivered', 'cancelled', 'returned']),
-  "totalAmount": zod.number(),
-  "shippingCost": zod.number().optional(),
-  "shippingAddress": zod.string().nullish(),
-  "customerPhone": zod.string().nullish(),
-  "paymentMethod": zod.enum(['cod', 'paymob']),
-  "paymentStatus": zod.enum(['pending', 'paid', 'failed']),
-  "paymobOrderId": zod.string().nullish(),
-  "paymobTransactionId": zod.string().nullish(),
-  "bostaShipmentId": zod.string().nullish(),
-  "trackingNumber": zod.string().nullish(),
-  "items": zod.array(zod.object({
-  "id": zod.number(),
-  "productId": zod.number(),
-  "variantId": zod.number().nullish(),
-  "productName": zod.string(),
-  "quantity": zod.number(),
-  "unitPrice": zod.number(),
-  "totalPrice": zod.number()
-})),
-  "statusHistory": zod.array(zod.object({
-  "id": zod.number(),
-  "orderId": zod.number(),
-  "fromStatus": zod.string().nullish(),
-  "toStatus": zod.string(),
-  "note": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})).optional(),
-  "createdAt": zod.coerce.date()
-})
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  tenantName: zod.string(),
+  customerId: zod.number(),
+  customerName: zod.string(),
+  status: zod.enum([
+    "pending",
+    "awaiting_confirmation",
+    "confirmed",
+    "dispatched",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "returned",
+  ]),
+  totalAmount: zod.number(),
+  shippingCost: zod.number().optional(),
+  shippingAddress: zod.string().nullish(),
+  customerPhone: zod.string().nullish(),
+  paymentMethod: zod.enum(["cod", "paymob"]),
+  paymentStatus: zod.enum(["pending", "paid", "failed"]),
+  paymobOrderId: zod.string().nullish(),
+  paymobTransactionId: zod.string().nullish(),
+  bostaShipmentId: zod.string().nullish(),
+  trackingNumber: zod.string().nullish(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      productId: zod.number(),
+      variantId: zod.number().nullish(),
+      productName: zod.string(),
+      quantity: zod.number(),
+      unitPrice: zod.number(),
+      totalPrice: zod.number(),
+    }),
+  ),
+  statusHistory: zod
+    .array(
+      zod.object({
+        id: zod.number(),
+        orderId: zod.number(),
+        fromStatus: zod.string().nullish(),
+        toStatus: zod.string(),
+        note: zod.string().nullish(),
+        createdAt: zod.coerce.date(),
+      }),
+    )
+    .optional(),
+  createdAt: zod.coerce.date(),
+});
 
 /**
  * @summary Get onboarding steps and progress for the authenticated merchant
  */
 export const GetOnboardingResponse = zod.object({
-  "tenantId": zod.number(),
-  "steps": zod.array(zod.object({
-  "key": zod.string(),
-  "label": zod.string(),
-  "description": zod.string(),
-  "done": zod.boolean(),
-  "href": zod.string()
-})),
-  "completedCount": zod.number(),
-  "totalCount": zod.number(),
-  "isComplete": zod.boolean()
-})
-
+  tenantId: zod.number(),
+  steps: zod.array(
+    zod.object({
+      key: zod.string(),
+      label: zod.string(),
+      description: zod.string(),
+      done: zod.boolean(),
+      href: zod.string(),
+    }),
+  ),
+  completedCount: zod.number(),
+  totalCount: zod.number(),
+  isComplete: zod.boolean(),
+});
 
 /**
  * @summary Mark a manual onboarding step as done or not done
  */
 export const PatchOnboardingBody = zod.object({
-  "step": zod.enum(['homepage_message', 'shipping_setup', 'integrations_review', 'launch_review']),
-  "done": zod.boolean()
-})
+  step: zod.enum([
+    "homepage_message",
+    "shipping_setup",
+    "integrations_review",
+    "launch_review",
+  ]),
+  done: zod.boolean(),
+});
 
 export const PatchOnboardingResponse = zod.object({
-  "ok": zod.boolean()
-})
-
+  ok: zod.boolean(),
+});
 
 /**
  * @summary Get overall platform dashboard summary
  */
 export const GetDashboardSummaryResponse = zod.object({
-  "totalTenants": zod.number(),
-  "activeTenants": zod.number(),
-  "totalProducts": zod.number(),
-  "totalOrders": zod.number(),
-  "totalRevenue": zod.number(),
-  "totalCustomers": zod.number(),
-  "pendingOrders": zod.number(),
-  "ordersThisMonth": zod.number(),
-  "revenueThisMonth": zod.number(),
-  "categoryBreakdown": zod.array(zod.object({
-  "category": zod.string(),
-  "count": zod.number()
-}))
-})
-
+  totalTenants: zod.number(),
+  activeTenants: zod.number(),
+  totalProducts: zod.number(),
+  totalOrders: zod.number(),
+  totalRevenue: zod.number(),
+  totalCustomers: zod.number(),
+  pendingOrders: zod.number(),
+  ordersThisMonth: zod.number(),
+  revenueThisMonth: zod.number(),
+  categoryBreakdown: zod.array(
+    zod.object({
+      category: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+});
 
 /**
  * @summary Get merchant-specific analytics for a tenant
  */
 export const GetMerchantAnalyticsQueryParams = zod.object({
-  "tenantId": zod.coerce.number()
-})
+  tenantId: zod.coerce.number(),
+});
 
 export const GetMerchantAnalyticsResponse = zod.object({
-  "totalRevenue": zod.number(),
-  "totalOrders": zod.number(),
-  "avgOrderValue": zod.number(),
-  "totalCustomers": zod.number(),
-  "pendingOrders": zod.number(),
-  "revenueThisMonth": zod.number(),
-  "ordersThisMonth": zod.number(),
-  "orderStatusBreakdown": zod.array(zod.object({
-  "status": zod.string(),
-  "label": zod.string(),
-  "count": zod.number()
-})),
-  "salesByDay": zod.array(zod.object({
-  "day": zod.string(),
-  "date": zod.string(),
-  "revenue": zod.number(),
-  "orders": zod.number()
-})),
-  "topProducts": zod.array(zod.object({
-  "name": zod.string(),
-  "revenue": zod.number(),
-  "quantity": zod.number()
-})),
-  "recentOrders": zod.array(zod.object({
-  "id": zod.number(),
-  "totalAmount": zod.number(),
-  "status": zod.string(),
-  "paymentMethod": zod.string(),
-  "createdAt": zod.coerce.date()
-}))
-})
-
+  totalRevenue: zod.number(),
+  totalOrders: zod.number(),
+  avgOrderValue: zod.number(),
+  totalCustomers: zod.number(),
+  pendingOrders: zod.number(),
+  revenueThisMonth: zod.number(),
+  ordersThisMonth: zod.number(),
+  orderStatusBreakdown: zod.array(
+    zod.object({
+      status: zod.string(),
+      label: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+  salesByDay: zod.array(
+    zod.object({
+      day: zod.string(),
+      date: zod.string(),
+      revenue: zod.number(),
+      orders: zod.number(),
+    }),
+  ),
+  topProducts: zod.array(
+    zod.object({
+      name: zod.string(),
+      revenue: zod.number(),
+      quantity: zod.number(),
+    }),
+  ),
+  recentOrders: zod.array(
+    zod.object({
+      id: zod.number(),
+      totalAmount: zod.number(),
+      status: zod.string(),
+      paymentMethod: zod.string(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
 
 /**
  * @summary Get recent platform activity feed
  */
 export const GetDashboardActivityResponseItem = zod.object({
-  "id": zod.number(),
-  "type": zod.enum(['new_order', 'new_tenant', 'new_customer', 'order_shipped', 'order_delivered']),
-  "message": zod.string(),
-  "tenantName": zod.string().nullish(),
-  "amount": zod.number().nullish(),
-  "createdAt": zod.coerce.date()
-})
-export const GetDashboardActivityResponse = zod.array(GetDashboardActivityResponseItem)
-
+  id: zod.number(),
+  type: zod.enum([
+    "new_order",
+    "new_tenant",
+    "new_customer",
+    "order_shipped",
+    "order_delivered",
+  ]),
+  message: zod.string(),
+  tenantName: zod.string().nullish(),
+  amount: zod.number().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const GetDashboardActivityResponse = zod.array(
+  GetDashboardActivityResponseItem,
+);
 
 /**
  * @summary List all available subscription plans
  */
 export const ListPlansResponseItem = zod.object({
-  "code": zod.string(),
-  "name": zod.string(),
-  "nameAr": zod.string(),
-  "descriptionAr": zod.string(),
-  "priceEgp": zod.number(),
-  "productLimit": zod.number(),
-  "monthlyOrderLimit": zod.number(),
-  "staffSeatLimit": zod.number(),
-  "customDomainAllowed": zod.boolean().optional(),
-  "advancedAnalyticsAllowed": zod.boolean().optional(),
-  "paymobAllowed": zod.boolean().optional(),
-  "whatsappAutomationAllowed": zod.boolean().optional(),
-  "brandingRemovalAllowed": zod.boolean().optional(),
-  "isActive": zod.boolean()
-})
-export const ListPlansResponse = zod.array(ListPlansResponseItem)
-
+  code: zod.string(),
+  name: zod.string(),
+  nameAr: zod.string(),
+  descriptionAr: zod.string(),
+  priceEgp: zod.number(),
+  productLimit: zod.number(),
+  monthlyOrderLimit: zod.number(),
+  staffSeatLimit: zod.number(),
+  customDomainAllowed: zod.boolean().optional(),
+  advancedAnalyticsAllowed: zod.boolean().optional(),
+  paymobAllowed: zod.boolean().optional(),
+  whatsappAutomationAllowed: zod.boolean().optional(),
+  brandingRemovalAllowed: zod.boolean().optional(),
+  isActive: zod.boolean(),
+});
+export const ListPlansResponse = zod.array(ListPlansResponseItem);
 
 /**
  * @summary Get current tenant plan usage and limits
  */
 export const GetEntitlementsResponse = zod.object({
-  "planCode": zod.string(),
-  "subscriptionStatus": zod.enum(['trial', 'active', 'past_due', 'suspended', 'canceled']),
-  "plan": zod.object({
-  "code": zod.string(),
-  "name": zod.string(),
-  "nameAr": zod.string(),
-  "descriptionAr": zod.string(),
-  "priceEgp": zod.number(),
-  "productLimit": zod.number(),
-  "monthlyOrderLimit": zod.number(),
-  "staffSeatLimit": zod.number(),
-  "customDomainAllowed": zod.boolean().optional(),
-  "advancedAnalyticsAllowed": zod.boolean().optional(),
-  "paymobAllowed": zod.boolean().optional(),
-  "whatsappAutomationAllowed": zod.boolean().optional(),
-  "brandingRemovalAllowed": zod.boolean().optional(),
-  "isActive": zod.boolean()
-}),
-  "usage": zod.object({
-  "productCount": zod.number(),
-  "staffCount": zod.number(),
-  "monthlyOrderCount": zod.number()
-}),
-  "atProductLimit": zod.boolean(),
-  "nearProductLimit": zod.boolean(),
-  "atStaffLimit": zod.boolean(),
-  "nearStaffLimit": zod.boolean().optional(),
-  "atMonthlyOrderLimit": zod.boolean().optional()
-})
-
+  planCode: zod.string(),
+  subscriptionStatus: zod.enum([
+    "trial",
+    "active",
+    "past_due",
+    "suspended",
+    "canceled",
+  ]),
+  plan: zod.object({
+    code: zod.string(),
+    name: zod.string(),
+    nameAr: zod.string(),
+    descriptionAr: zod.string(),
+    priceEgp: zod.number(),
+    productLimit: zod.number(),
+    monthlyOrderLimit: zod.number(),
+    staffSeatLimit: zod.number(),
+    customDomainAllowed: zod.boolean().optional(),
+    advancedAnalyticsAllowed: zod.boolean().optional(),
+    paymobAllowed: zod.boolean().optional(),
+    whatsappAutomationAllowed: zod.boolean().optional(),
+    brandingRemovalAllowed: zod.boolean().optional(),
+    isActive: zod.boolean(),
+  }),
+  usage: zod.object({
+    productCount: zod.number(),
+    staffCount: zod.number(),
+    monthlyOrderCount: zod.number(),
+  }),
+  atProductLimit: zod.boolean(),
+  nearProductLimit: zod.boolean(),
+  atStaffLimit: zod.boolean(),
+  nearStaffLimit: zod.boolean().optional(),
+  atMonthlyOrderLimit: zod.boolean().optional(),
+});
 
 /**
  * @summary Platform admin — update tenant plan and subscription status
  */
 export const UpdateTenantPlanParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const UpdateTenantPlanBody = zod.object({
-  "planCode": zod.enum(['starter', 'growth', 'pro']),
-  "subscriptionStatus": zod.enum(['trial', 'active', 'past_due', 'suspended', 'canceled']),
-  "note": zod.string().nullish()
-})
+  planCode: zod.enum(["starter", "growth", "pro"]),
+  subscriptionStatus: zod.enum([
+    "trial",
+    "active",
+    "past_due",
+    "suspended",
+    "canceled",
+  ]),
+  note: zod.string().nullish(),
+});
 
-export const UpdateTenantPlanResponse = zod.object({
-
-}).passthrough()
-
+export const UpdateTenantPlanResponse = zod.object({}).passthrough();
 
 /**
  * @summary Platform admin — list support notes for a tenant
  */
 export const ListTenantSupportNotesParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const ListTenantSupportNotesResponseItem = zod.object({
-  "id": zod.number(),
-  "tenantId": zod.number(),
-  "note": zod.string(),
-  "createdBy": zod.number(),
-  "createdByName": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})
-export const ListTenantSupportNotesResponse = zod.array(ListTenantSupportNotesResponseItem)
-
+  id: zod.number(),
+  tenantId: zod.number(),
+  note: zod.string(),
+  createdBy: zod.number(),
+  createdByName: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListTenantSupportNotesResponse = zod.array(
+  ListTenantSupportNotesResponseItem,
+);
 
 /**
  * @summary Platform admin — add a support note to a tenant
  */
 export const CreateTenantSupportNoteParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const CreateTenantSupportNoteBody = zod.object({
-  "note": zod.string()
-})
-
+  note: zod.string(),
+});
 
 /**
  * @summary List contact attempts for an order
  */
 export const ListContactAttemptsParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const ListContactAttemptsResponseItem = zod.object({
-  "id": zod.number(),
-  "orderId": zod.number(),
-  "tenantId": zod.number(),
-  "merchantId": zod.number(),
-  "method": zod.enum(['phone', 'whatsapp', 'email', 'other']),
-  "note": zod.string().nullish(),
-  "createdAt": zod.coerce.date()
-})
-export const ListContactAttemptsResponse = zod.array(ListContactAttemptsResponseItem)
-
+  id: zod.number(),
+  orderId: zod.number(),
+  tenantId: zod.number(),
+  merchantId: zod.number(),
+  method: zod.enum(["phone", "whatsapp", "email", "other"]),
+  note: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListContactAttemptsResponse = zod.array(
+  ListContactAttemptsResponseItem,
+);
 
 /**
  * @summary Record a contact attempt on an order
  */
 export const CreateContactAttemptParams = zod.object({
-  "id": zod.coerce.number()
-})
+  id: zod.coerce.number(),
+});
 
 export const CreateContactAttemptBody = zod.object({
-  "method": zod.enum(['phone', 'whatsapp', 'email', 'other']),
-  "note": zod.string().nullish()
-})
-
+  method: zod.enum(["phone", "whatsapp", "email", "other"]),
+  note: zod.string().nullish(),
+});
 
 /**
  * @summary Platform admin — activation and usage metrics
  */
 export const GetPlatformStatsResponse = zod.object({
-  "totalTenants": zod.number(),
-  "activeTenants": zod.number(),
-  "trialTenants": zod.number(),
-  "suspendedTenants": zod.number(),
-  "tenantsWithNoProducts": zod.number(),
-  "tenantsWithNoOrders": zod.number(),
-  "tenantsNearProductLimit": zod.number(),
-  "planBreakdown": zod.array(zod.object({
-  "planCode": zod.string(),
-  "count": zod.number()
-})),
-  "onboardingCompletion": zod.object({
-  "complete": zod.number(),
-  "partial": zod.number(),
-  "notStarted": zod.number()
-})
-})
+  totalTenants: zod.number(),
+  activeTenants: zod.number(),
+  trialTenants: zod.number(),
+  suspendedTenants: zod.number(),
+  tenantsWithNoProducts: zod.number(),
+  tenantsWithNoOrders: zod.number(),
+  tenantsNearProductLimit: zod.number(),
+  planBreakdown: zod.array(
+    zod.object({
+      planCode: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+  onboardingCompletion: zod.object({
+    complete: zod.number(),
+    partial: zod.number(),
+    notStarted: zod.number(),
+  }),
+});
