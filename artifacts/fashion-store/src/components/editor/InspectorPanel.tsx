@@ -511,10 +511,17 @@ function SectionFields({ section, patchContent, patchSettings }: {
       );
 
     case "offers":
+      const showPromo1 = section.settings.showPromo1 ?? true;
+      const showPromo2 = section.settings.showPromo2 ?? true;
       return (
         <div className="space-y-4">
           <div className="pb-4 border-b border-border/50 space-y-3">
-            <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo1Title", { defaultValue: "العرض الأول (الخصم)" })}</h4>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo1Title", { defaultValue: "العرض الأول (الخصم)" })}</h4>
+              <ToggleField label="" value={showPromo1 as boolean} onChange={(v) => patchSettings({ showPromo1: v })} />
+            </div>
+            {showPromo1 && (
+              <>
             <Field label={t("inspectorPanel.fields.promo1Label", { defaultValue: "التسمية" })}>
               <Input value={(section.content.promo1Label as string) ?? ""} placeholder={defaultSection.content.promo1Label as string} onChange={(e) => patchContent({ promo1Label: e.target.value })} className={`text-xs text-start`} />
             </Field>
@@ -530,9 +537,16 @@ function SectionFields({ section, patchContent, patchSettings }: {
             <Field label={t("inspectorPanel.fields.promo1Cta", { defaultValue: "نص الزر" })}>
               <Input value={(section.content.promo1Cta as string) ?? ""} placeholder={defaultSection.content.promo1Cta as string} onChange={(e) => patchContent({ promo1Cta: e.target.value })} className={`text-xs text-start`} />
             </Field>
+              </>
+            )}
           </div>
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo2Title", { defaultValue: "العرض الثاني (الشحن)" })}</h4>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo2Title", { defaultValue: "العرض الثاني (الشحن)" })}</h4>
+              <ToggleField label="" value={showPromo2 as boolean} onChange={(v) => patchSettings({ showPromo2: v })} />
+            </div>
+            {showPromo2 && (
+              <>
             <Field label={t("inspectorPanel.fields.promo2Label", { defaultValue: "التسمية" })}>
               <Input value={(section.content.promo2Label as string) ?? ""} placeholder={defaultSection.content.promo2Label as string} onChange={(e) => patchContent({ promo2Label: e.target.value })} className={`text-xs text-start`} />
             </Field>
@@ -548,6 +562,8 @@ function SectionFields({ section, patchContent, patchSettings }: {
             <Field label={t("inspectorPanel.fields.promo2Cta", { defaultValue: "نص الزر" })}>
               <Input value={(section.content.promo2Cta as string) ?? ""} placeholder={defaultSection.content.promo2Cta as string} onChange={(e) => patchContent({ promo2Cta: e.target.value })} className={`text-xs text-start`} />
             </Field>
+              </>
+            )}
           </div>
         </div>
       );
