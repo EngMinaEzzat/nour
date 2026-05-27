@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/hooks/use-cart";
-import { useCreateOrder, useCreateCustomer, useListCustomers } from "@workspace/api-client-react";
+import { useCreateOrder, useCreateCustomer, useListCustomers, useGetStorefront } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -162,10 +162,26 @@ export default function Checkout() {
 
   const tenantIds = Object.keys(groupedByTenant).map(Number);
   const firstTenantId = tenantIds[0] ?? null;
+  const firstTenantSlug = firstTenantId ? groupedByTenant[firstTenantId]?.items[0]?.tenantSlug : null;
+  
+  const { data: storefront } = useGetStorefront(firstTenantSlug as string, {
+    query: { enabled: !!firstTenantSlug } as any
+  });
+  
+  const allowedMethods = (storefront?.storeConfig?.business as any)?.paymentMethods || ["cod"];
+  const availablePaymentOptions = PAYMENT_OPTIONS.filter(opt => allowedMethods.includes(opt.value));
+
   const orderSubtotal = Math.max(0, totalPrice - coupon.discountAmount);
   const shippingTotal = tenantIds.reduce((sum, tenantId) => sum + (shippingQuotes[tenantId]?.shippingCost ?? 0), 0);
   const hasShippingQuote = tenantIds.length > 0 && tenantIds.every((tenantId) => shippingQuotes[tenantId]);
   const estimatedTotal = orderSubtotal + (hasShippingQuote ? shippingTotal : 0);
+
+  useEffect(() => {
+    if (items.length > 0 && typeof window !== "undefined") {
+      (window as any).dataLayer = (window as any).dataLayer || [];
+      (window as any).dataLayer.push({ event: "begin_checkout", value: totalPrice, currency: "EGP" });
+    }
+  }, [items.length]);
 
   const contactSyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -385,9 +401,18 @@ export default function Checkout() {
 
       clearCart();
       const tracks = encodeURIComponent(JSON.stringify(orderTracks));
+      if (typeof window !== "undefined") {
+        (window as any).dataLayer = (window as any).dataLayer || [];
+        (window as any).dataLayer.push({ event: "purchase", transaction_id: orderIds.join(","), value: estimatedTotal, currency: "EGP" });
+      }
       navigate(`/order-confirmation?orders=${orderIds.join(",")}&tracks=${tracks}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&payment=${paymentMethod}`);
-    } catch {
-      setErrors({ submit: "حدث خطأ أثناء تنفيذ الطلب. يرجى المحاولة مرة أخرى." });
+    } catch (error: any) {
+      const msg = error?.message || "حدث خطأ أثناء تنفيذ الطلب. يرجى المحاولة مرة أخرى.";
+      setErrors({ submit: msg });
+      if (typeof window !== "undefined") {
+        (window as any).dataLayer = (window as any).dataLayer || [];
+        (window as any).dataLayer.push({ event: "checkout_error", error_message: msg });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -598,7 +623,7 @@ export default function Checkout() {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {PAYMENT_OPTIONS.map((opt) => {
+              {availablePaymentOptions.map((opt) => {
                 const Icon = opt.icon;
                 const selected = paymentMethod === opt.value;
                 return (

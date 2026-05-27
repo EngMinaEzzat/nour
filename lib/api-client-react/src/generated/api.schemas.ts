@@ -218,6 +218,7 @@ export interface Product {
   stock: number;
   featured: boolean;
   status: ProductStatus;
+  hasVariants: boolean;
   orderCount: number;
   createdAt: string;
 }
@@ -884,12 +885,17 @@ export type ListProductsParams = {
   tenantId?: number;
   categoryId?: number;
   search?: string;
+  hasVariants?: boolean;
 };
 
 export type ListOrdersParams = {
   tenantId?: number;
   status?: string;
   search?: string;
+  city?: string;
+  startDate?: string;
+  endDate?: string;
+  hasFailedContact?: boolean;
   limit?: number;
   cursorDate?: string;
   cursorId?: number;

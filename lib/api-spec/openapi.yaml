@@ -626,6 +626,11 @@ paths:
           required: false
           schema:
             type: string
+        - name: hasVariants
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         "200":
           description: List of products
@@ -902,6 +907,26 @@ paths:
           required: false
           schema:
             type: string
+        - name: city
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: hasFailedContact
+          in: query
+          required: false
+          schema:
+            type: boolean
         - name: limit
           in: query
           required: false
@@ -1559,6 +1584,8 @@ components:
         status:
           type: string
           enum: [active, out_of_stock, hidden]
+        hasVariants:
+          type: boolean
         orderCount:
           type: integer
         createdAt:
@@ -1575,6 +1602,7 @@ components:
           stock,
           featured,
           status,
+          hasVariants,
           orderCount,
           createdAt,
         ]
