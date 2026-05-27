@@ -57,7 +57,7 @@ export default function VisualEditor({
 
   // ─── UI state ──────────────────────────────────────────────────────────────
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [device, setDevice] = useState<DeviceType>("desktop");
+  const [device, setDevice] = useState<DeviceType>("mobile");
   const [saving, setSaving] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);

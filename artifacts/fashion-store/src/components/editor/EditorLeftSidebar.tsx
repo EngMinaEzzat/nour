@@ -138,6 +138,33 @@ export default function EditorLeftSidebar({
             )}
 
             <div className="p-2 space-y-1">
+              {(() => {
+                const healthIssues = [];
+                if (!sections.some(s => s.type === "hero" && s.content.imageUrl)) healthIssues.push(t("editorSidebar.health.noHeroImage", "Missing hero image"));
+                if (!config.business.whatsapp) healthIssues.push(t("editorSidebar.health.noWhatsapp", "Missing WhatsApp number"));
+                if (!sections.some(s => s.type === "product-catalog" || s.type === "best-sellers") || productCount === 0) healthIssues.push(t("editorSidebar.health.noProducts", "No featured products"));
+                if (!sections.some(s => s.type === "trust-strip" || s.type === "about")) healthIssues.push(t("editorSidebar.health.noTrust", "No trust/returns copy"));
+
+                if (healthIssues.length > 0) {
+                  return (
+                    <div className="mb-3 mx-1 p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1.5">
+                      <p className="text-xs font-semibold text-amber-800 flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        {t("editorSidebar.health.title", "Section Health")}
+                      </p>
+                      <ul className="text-[11px] text-amber-700 space-y-1">
+                        {healthIssues.map((issue, i) => (
+                          <li key={i} className="flex items-start gap-1.5">
+                            <span className="mt-0.5">•</span> {issue}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+
               {sections.map((section, idx) => {
                 const isSelected = section.id === selectedId;
                 return (
@@ -242,76 +269,49 @@ export default function EditorLeftSidebar({
 // ─── Visual Theme Panel ─────────────────────────────────────────────────────────
 const VISUAL_THEMES = [
   {
-    id: "rose-boutique",
-    name: "بوتيك ورديّ",
-    desc: "أناقة فاخرة بلمسة دافئة",
-    emoji: "🌸",
-    gradient: "from-rose-400 to-pink-600",
-    preview: { bg: "#fff0f3", accent: "#8B1A35", text: "#1a0a0e" },
-    theme: { primaryColor: "#8B1A35", secondaryColor: "#c8963a", fontPairing: "serif-sans" as const, buttonStyle: "pill" as const, radius: 12, animationLevel: "subtle" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
+    id: "elegant-fashion",
+    name: "أزياء أنيقة",
+    desc: "طابع كلاسيكي أنيق",
+    emoji: "👗",
+    gradient: "from-stone-800 to-black",
+    preview: { bg: "#fdfbf7", accent: "#1a1a1a", text: "#1a1a1a" },
+    theme: { primaryColor: "#1a1a1a", secondaryColor: "#888888", fontPairing: "serif-sans" as const, buttonStyle: "square" as const, radius: 0, animationLevel: "subtle" as const, pageWidth: "wide" as const, cardShadow: "none" as const },
   },
   {
-    id: "midnight-glam",
-    name: "جلام ليلي",
-    desc: "أسود راقٍ مع ذهبي ملكي",
-    emoji: "🌙",
-    gradient: "from-gray-900 to-yellow-700",
-    preview: { bg: "#0d0d0d", accent: "#c8963a", text: "#f5f0e8" },
-    theme: { primaryColor: "#1a1614", secondaryColor: "#c8963a", fontPairing: "serif-serif" as const, buttonStyle: "square" as const, radius: 0, animationLevel: "subtle" as const, pageWidth: "wide" as const, cardShadow: "strong" as const },
+    id: "cosmetics-soft",
+    name: "مستحضرات تجميل ناعمة",
+    desc: "نعومة وألوان هادئة",
+    emoji: "✨",
+    gradient: "from-rose-200 to-pink-300",
+    preview: { bg: "#fff0f3", accent: "#d4a373", text: "#4a3b32" },
+    theme: { primaryColor: "#d4a373", secondaryColor: "#e6ccb2", fontPairing: "serif-sans" as const, buttonStyle: "pill" as const, radius: 16, animationLevel: "subtle" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
   },
   {
-    id: "emerald-fresh",
-    name: "أخضر زمردي",
-    desc: "نضارة طبيعية وعصرية",
-    emoji: "🌿",
-    gradient: "from-emerald-500 to-teal-600",
-    preview: { bg: "#f0fdf4", accent: "#059669", text: "#0a2e1a" },
-    theme: { primaryColor: "#059669", secondaryColor: "#f59e0b", fontPairing: "sans-sans" as const, buttonStyle: "rounded" as const, radius: 8, animationLevel: "lively" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
-  },
-  {
-    id: "purple-luxe",
-    name: "بنفسجي فاخر",
-    desc: "غموض وأناقة بنفسجية",
-    emoji: "💜",
-    gradient: "from-violet-600 to-purple-800",
-    preview: { bg: "#faf5ff", accent: "#7c3aed", text: "#2e1065" },
-    theme: { primaryColor: "#7c3aed", secondaryColor: "#ec4899", fontPairing: "serif-sans" as const, buttonStyle: "pill" as const, radius: 16, animationLevel: "lively" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
-  },
-  {
-    id: "sand-minimal",
-    name: "رملي مينيمال",
-    desc: "بساطة وأصالة",
-    emoji: "🏜️",
-    gradient: "from-amber-300 to-stone-500",
-    preview: { bg: "#faf7f0", accent: "#795548", text: "#2c1810" },
-    theme: { primaryColor: "#795548", secondaryColor: "#c8963a", fontPairing: "serif-sans" as const, buttonStyle: "rounded" as const, radius: 4, animationLevel: "none" as const, pageWidth: "contained" as const, cardShadow: "none" as const },
-  },
-  {
-    id: "ocean-blue",
-    name: "أزرق محيطي",
-    desc: "هدوء وثقة زرقاء",
-    emoji: "🌊",
-    gradient: "from-blue-500 to-cyan-600",
-    preview: { bg: "#eff6ff", accent: "#1d4ed8", text: "#0f172a" },
-    theme: { primaryColor: "#1d4ed8", secondaryColor: "#06b6d4", fontPairing: "sans-sans" as const, buttonStyle: "rounded" as const, radius: 8, animationLevel: "subtle" as const, pageWidth: "wide" as const, cardShadow: "soft" as const },
-  },
-  {
-    id: "coral-playful",
-    name: "مرجاني شبابي",
-    desc: "طاقة وألوان زاهية",
-    emoji: "🎨",
-    gradient: "from-orange-400 to-pink-500",
-    preview: { bg: "#fff7f0", accent: "#ea580c", text: "#431407" },
-    theme: { primaryColor: "#ea580c", secondaryColor: "#ec4899", fontPairing: "sans-sans" as const, buttonStyle: "pill" as const, radius: 20, animationLevel: "lively" as const, pageWidth: "contained" as const, cardShadow: "strong" as const },
-  },
-  {
-    id: "ivory-classic",
-    name: "كلاسيك عاجي",
-    desc: "تراث وفخامة خالدة",
+    id: "minimal-boutique",
+    name: "بوتيك بسيط",
+    desc: "تصميم نظيف وحديث",
     emoji: "🤍",
-    gradient: "from-stone-200 to-stone-600",
-    preview: { bg: "#fdfbf7", accent: "#333333", text: "#111111" },
-    theme: { primaryColor: "#333333", secondaryColor: "#888888", fontPairing: "serif-serif" as const, buttonStyle: "square" as const, radius: 0, animationLevel: "none" as const, pageWidth: "contained" as const, cardShadow: "none" as const },
+    gradient: "from-stone-200 to-stone-400",
+    preview: { bg: "#fafafa", accent: "#000000", text: "#111111" },
+    theme: { primaryColor: "#000000", secondaryColor: "#777777", fontPairing: "sans-sans" as const, buttonStyle: "rounded" as const, radius: 6, animationLevel: "none" as const, pageWidth: "contained" as const, cardShadow: "none" as const },
+  },
+  {
+    id: "bold-streetwear",
+    name: "أزياء شارع جريئة",
+    desc: "حيوية وألوان قوية",
+    emoji: "🔥",
+    gradient: "from-orange-500 to-red-600",
+    preview: { bg: "#f8f9fa", accent: "#ff4500", text: "#111111" },
+    theme: { primaryColor: "#ff4500", secondaryColor: "#111111", fontPairing: "sans-sans" as const, buttonStyle: "square" as const, radius: 0, animationLevel: "lively" as const, pageWidth: "wide" as const, cardShadow: "strong" as const },
+  },
+  {
+    id: "premium-occasion",
+    name: "مناسبات فاخرة",
+    desc: "طابع فخم وراقي",
+    emoji: "👑",
+    gradient: "from-rose-800 to-stone-900",
+    preview: { bg: "#fdfbf7", accent: "#8B1A35", text: "#1a0a0e" },
+    theme: { primaryColor: "#8B1A35", secondaryColor: "#c8963a", fontPairing: "serif-serif" as const, buttonStyle: "rounded" as const, radius: 8, animationLevel: "subtle" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
   },
 ];
 
