@@ -197,7 +197,7 @@ function SectionNav() {
                   <button
                     key={s.id}
                     onClick={() => { scrollToSection(s.id); setOpen(false); }}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors ${i18n.dir() === 'rtl' ? 'text-right' : 'text-left'}`}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-start`}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
                     {t(`settings.sections.${s.key}`)}
@@ -559,7 +559,7 @@ export default function StoreSettings() {
       </motion.div>
 
       {/* ─── Fixed floating action buttons ─── */}
-      <div className={`fixed bottom-6 ${i18n.dir() === 'rtl' ? 'left-6' : 'right-6'} z-[100] flex flex-col gap-2 items-center`} style={{ direction: "ltr" }}>
+      <div className={`fixed bottom-6 end-6 z-[100] flex flex-col gap-2 items-center`} style={{ direction: "ltr" }}>
         {tenant?.slug && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -927,7 +927,7 @@ export default function StoreSettings() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setForm((f) => ({ ...f, theme: th.id }))}
-                        className={`relative ${i18n.dir() === 'rtl' ? 'text-right' : 'text-left'} rounded-2xl border-2 overflow-hidden transition-all duration-200 ${
+                        className={`relative text-start rounded-2xl border-2 overflow-hidden transition-all duration-200 ${
                           active
                             ? "border-primary shadow-md shadow-primary/10"
                             : "border-border/50 hover:border-border"

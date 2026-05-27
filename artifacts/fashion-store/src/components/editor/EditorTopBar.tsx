@@ -155,7 +155,7 @@ export default function EditorTopBar({
               >
                 <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-stone-800 rotate-45" />
                 {t("editorTopBar.hints.save")}
-                <span className={`inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse ${i18n.dir() === "rtl" ? "mr-1.5" : "ml-1.5"}`} />
+                <span className={`inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse ms-1.5`} />
               </motion.div>
             )}
           </AnimatePresence>

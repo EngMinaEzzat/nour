@@ -606,6 +606,41 @@ export default function OrderDetail() {
         </div>
       </motion.div>
 
+      {/* Sticky top action bar for fulfillment */}
+      <motion.div 
+        initial={{ opacity: 0, y: -12 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: 0.1 }}
+        className="sticky top-4 z-20 mb-6 bg-background/90 backdrop-blur-xl rounded-xl border border-border/60 shadow-sm p-4"
+      >
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-primary" />
+            <span className="font-semibold">{t("orderDetail.card.totalTitle")}</span>
+            <span className="text-xl font-bold text-primary ms-2">
+              {Number(order.totalAmount ?? 0).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}
+            </span>
+          </div>
+          {isAuthenticated && (
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <Select value={newStatus} onValueChange={setNewStatus}>
+                <SelectTrigger className="flex-1 sm:w-[200px] h-10" dir={i18n.dir()}>
+                  <SelectValue placeholder={t("orderDetail.card.statusPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent dir={i18n.dir()}>
+                  {Object.keys(STATUS_COLORS).map((key) => (
+                    <SelectItem key={key} value={key}>{t(`orderDetail.status.${key}`)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button onClick={handleStatusUpdate} disabled={!newStatus || updateOrder.isPending} className="shrink-0">
+                {updateOrder.isPending ? t("orderDetail.card.btnUpdating") : t("orderDetail.card.btnUpdate")}
+              </Button>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
       <Tabs defaultValue="overview" className="space-y-5">
         <TabsList className="grid w-full grid-cols-2 max-w-sm mb-4">
           <TabsTrigger value="overview">{t("orderDetail.tabs.overview") || "Overview"}</TabsTrigger>
@@ -698,37 +733,7 @@ export default function OrderDetail() {
           </Card>
         </motion.div>
 
-        {/* Total + status update */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="border-border/50">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-primary" />
-                  <span className="font-semibold">{t("orderDetail.card.totalTitle")}</span>
-                </div>
-                <span className="text-xl font-bold text-primary">{Number(order.totalAmount ?? 0).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}</span>
-              </div>
-              {isAuthenticated && (
-                <div className="flex items-center gap-3">
-                  <Select value={newStatus} onValueChange={setNewStatus}>
-                    <SelectTrigger className="flex-1 h-10" dir={i18n.dir()}>
-                      <SelectValue placeholder={t("orderDetail.card.statusPlaceholder")} />
-                    </SelectTrigger>
-                    <SelectContent dir={i18n.dir()}>
-                      {Object.keys(STATUS_COLORS).map((key) => (
-                        <SelectItem key={key} value={key}>{t(`orderDetail.status.${key}`)}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button onClick={handleStatusUpdate} disabled={!newStatus || updateOrder.isPending} className="shrink-0">
-                    {updateOrder.isPending ? t("orderDetail.card.btnUpdating") : t("orderDetail.card.btnUpdate")}
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+
 
         {/* ─── Merchant-only integration actions (Bosta) ─── */}
         {isAuthenticated && (

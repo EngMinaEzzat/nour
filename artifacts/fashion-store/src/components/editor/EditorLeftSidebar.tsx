@@ -127,7 +127,7 @@ export default function EditorLeftSidebar({
                 >
                   ×
                 </button>
-                <p className={`text-xs text-blue-700 leading-relaxed ${i18n.dir() === "rtl" ? "pr-1" : "pl-1"}`}>
+                <p className={`text-xs text-blue-700 leading-relaxed ps-1`}>
                   {gender === "female"
                     ? t("editorSidebar.hint.female")
                     : t("editorSidebar.hint.male")}
@@ -207,7 +207,7 @@ export default function EditorLeftSidebar({
             />
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
-              className={`fixed bottom-4 ${i18n.dir() === "rtl" ? "right-4" : "left-4"} w-72 bg-white rounded-2xl shadow-2xl border border-stone-200 z-50 max-h-[70vh] overflow-y-auto`}
+              className={`fixed bottom-4 start-4 w-72 bg-white rounded-2xl shadow-2xl border border-stone-200 z-50 max-h-[70vh] overflow-y-auto`}
               dir={i18n.dir()}
             >
               <div className="p-4 border-b border-stone-100">
@@ -219,7 +219,7 @@ export default function EditorLeftSidebar({
                   <button
                     key={type}
                     onClick={() => addSection(type)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl hover:bg-stone-50 ${i18n.dir() === "rtl" ? "text-right" : "text-left"} transition-colors`}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl hover:bg-stone-50 text-start transition-colors`}
                   >
                     <span className="text-xl">{SECTION_ICONS[type]}</span>
                     <div>
@@ -348,7 +348,7 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
                 onClick={() => applyTheme(tTheme)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`relative rounded-xl overflow-hidden border-2 transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"} ${isActive ? "border-[#8B1A35] shadow-lg" : "border-transparent hover:border-stone-300"}`}
+                className={`relative rounded-xl overflow-hidden border-2 transition-all text-start ${isActive ? "border-[#8B1A35] shadow-lg" : "border-transparent hover:border-stone-300"}`}
               >
                 {/* Theme preview swatch */}
                 <div
@@ -440,6 +440,38 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
               </div>
 
               <div>
+                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.secondaryColor", "Secondary Color")}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {COLORS.map((c) => (
+                    <button key={c} onClick={() => patchTheme({ secondaryColor: c })}
+                      className="w-6 h-6 rounded-full border-2 transition-all"
+                      style={{ background: c, borderColor: config.theme.secondaryColor === c ? "white" : "transparent", boxShadow: config.theme.secondaryColor === c ? `0 0 0 3px ${c}` : "none" }} />
+                  ))}
+                  <input type="color" value={config.theme.secondaryColor} onChange={(e) => patchTheme({ secondaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" />
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.fontPairing", "Font Pairing")}</p>
+                <div className="flex flex-col gap-1.5">
+                  {(["sans-sans", "serif-sans", "serif-serif"] as const).map((f) => (
+                    <button key={f} onClick={() => patchTheme({ fontPairing: f })}
+                      className={`py-1.5 px-3 text-xs border-2 rounded-lg transition-all ${config.theme.fontPairing === f ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}>
+                      {f === "sans-sans" ? t("editorSidebar.themePanel.fonts.sans", "Modern (Sans-serif)") : f === "serif-sans" ? t("editorSidebar.themePanel.fonts.serifSans", "Elegant (Serif + Sans)") : t("editorSidebar.themePanel.fonts.serif", "Classic (Serif)")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-medium text-stone-500">{t("editorSidebar.themePanel.radius", "Border Radius")}</p>
+                  <span className="text-xs text-stone-400">{config.theme.radius}px</span>
+                </div>
+                <input type="range" min="0" max="32" step="2" value={config.theme.radius} onChange={(e) => patchTheme({ radius: parseInt(e.target.value) })} className="w-full accent-[#8B1A35]" />
+              </div>
+
+              <div>
                 <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.buttonStyle.title")}</p>
                 <div className="flex gap-2">
                   {(["pill", "rounded", "square"] as const).map((s) => (
@@ -456,10 +488,34 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
                 <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.animation.title")}</p>
                 {(["none", "subtle", "lively"] as const).map((a) => (
                   <button key={a} onClick={() => patchTheme({ animationLevel: a })}
-                    className={`block w-full ${i18n.dir() === "rtl" ? "text-right" : "text-left"} text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.animationLevel === a ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}>
+                    className={`block w-full text-start text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.animationLevel === a ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}>
                     {t(`editorSidebar.themePanel.animation.${a}`)}
                   </button>
                 ))}
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.pageWidth", "Page Width")}</p>
+                <div className="flex gap-2">
+                  {(["contained", "wide", "full"] as const).map((w) => (
+                    <button key={w} onClick={() => patchTheme({ pageWidth: w })}
+                      className={`flex-1 py-1.5 text-xs border-2 rounded-lg transition-all ${config.theme.pageWidth === w ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}>
+                      {t(`editorSidebar.themePanel.width.${w}`, w)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.cardShadow", "Card Shadow")}</p>
+                <div className="flex gap-2">
+                  {(["none", "soft", "strong"] as const).map((s) => (
+                    <button key={s} onClick={() => patchTheme({ cardShadow: s })}
+                      className={`flex-1 py-1.5 text-xs border-2 rounded-lg transition-all ${config.theme.cardShadow === s ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}>
+                      {t(`editorSidebar.themePanel.shadow.${s}`, s)}
+                    </button>
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}

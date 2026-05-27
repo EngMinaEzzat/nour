@@ -1,0 +1,309 @@
+Below is a detailed UX plan for Nour, focused on turning the current feature-rich marketplace into a clearer Arabic-first product that merchants and shoppers can trust, understand, and use quickly.
+
+UX Goal
+Make Nour feel like the easiest way for Egyptian fashion/cosmetics sellers to launch a sellable store, receive COD orders, confirm customers, manage delivery, and grow through WhatsApp/social commerce.
+
+The product should optimize for three jobs:
+
+Shopper: “I want to trust this store, choose the right item, and place a COD order quickly.”
+Merchant: “I want to add products, receive orders, confirm customers, ship, and follow up without losing track.”
+Platform operator: “I want to monitor merchant health, payments, compliance, and operational risk.”
+Phase 1: Shopper Purchase Flow
+Primary objective: reduce checkout friction and increase COD trust.
+
+Work on:
+
+Storefront product card
+
+Make “Add to cart” or “Choose options” visible on mobile without hover.
+Show stock/variant availability earlier.
+Keep product price, discount, variant signal, and CTA visible together.
+Remove any fake/static ratings unless real review data exists.
+Product detail
+
+Make size/color/shade selection feel mandatory but helpful.
+Add clearer low-stock and out-of-stock states.
+Add “Ask on WhatsApp” as secondary, not competing with checkout.
+Add return/exchange reassurance near CTA.
+Cart drawer
+
+Localize fully into Arabic by default.
+Format EGP consistently as ج.م.
+Show subtotal, estimated shipping, expected delivery note, and COD payment note.
+Add “continue shopping” and “checkout” actions with clear hierarchy.
+Checkout
+
+Replace one address field with structured Egyptian fields:
+Full name
+Mobile/WhatsApp number
+Governorate
+Area/city
+Street/building/floor/apartment
+Landmark or notes
+Optional email
+Show shipping cost before confirmation.
+Show total as: products + shipping - discount = final total.
+Add clear COD expectation copy: customer will pay on delivery, merchant may confirm by phone/WhatsApp.
+Add delivery estimate if configured.
+Add failure states for invalid phone, missing address parts, unavailable stock, payment fallback.
+Success metrics:
+
+Checkout completion rate
+Add-to-cart to checkout conversion
+Checkout validation error rate
+Abandoned cart rate
+Customer support questions about shipping/payment
+Phase 2: Merchant Onboarding
+Primary objective: get a merchant to first sellable product and COD-ready store quickly.
+
+Current onboarding should become a “Launch Readiness” flow, not a passive checklist.
+
+Recommended launch sequence:
+
+Store identity
+
+Store name
+Store slug
+Logo/cover
+WhatsApp number
+Category: fashion, cosmetics, both
+First product
+
+Product name
+Price
+Main image
+Stock
+Variant setup if needed: size, color, shade
+Product status: visible/hidden
+Shipping and COD
+
+Delivery areas
+Shipping fees
+Estimated delivery time
+COD enabled by default
+Optional online payment later
+Store preview
+
+Open storefront as a shopper
+Add item to cart
+Confirm checkout fields are ready
+Launch
+
+Copy store link
+Share WhatsApp/Instagram-ready launch message
+QR code/downloadable link card
+UX changes:
+
+Open checklist by default until launch is complete.
+Show progress as “3 of 5 launch steps complete.”
+Make every checklist action route directly to the exact section.
+Add “Mark reviewed” only where the system cannot verify completion.
+Use real readiness checks where possible: product count, shipping configured, WhatsApp present, storefront published.
+Success metrics:
+
+Time to first product
+Time to first published store
+Percentage of merchants who complete launch readiness
+Drop-off by onboarding step
+First 7-day merchant activation rate
+Phase 3: Merchant Order Operations
+Primary objective: make the orders page a daily workbench.
+
+The orders page should shift from a list of cards to an operational queue.
+
+Recommended order queues:
+
+Needs confirmation
+Confirmed, ready to ship
+Awaiting courier
+Shipped
+Delivered
+Failed contact
+Cancelled/returned
+Each order row should show:
+
+Order ID
+Customer name
+Phone/WhatsApp action
+COD risk/confirmation signal
+Total amount
+Payment method/status
+Delivery area
+Current status
+Age/SLA indicator
+Next best action
+Add operational actions:
+
+Bulk confirm
+Bulk export
+Send WhatsApp confirmation
+Create Bosta shipment
+Mark failed contact
+Add contact attempt
+Cancel/return with reason
+Filter by city, status, payment, courier state, date
+Order detail improvements:
+
+Put next action at the top.
+Keep customer, shipping, payment, items, and status history visible but compact.
+Separate “communications” from “fulfillment.”
+Make WhatsApp message generation editable and copy/send friendly.
+Add clear warning before destructive status transitions.
+Success metrics:
+
+Time to confirm order
+Orders shipped within target SLA
+Failed contact rate
+Duplicate contact attempts
+Merchant support tickets about orders/shipping
+Phase 4: Product And Inventory UX
+Primary objective: make catalog management fast for fashion/cosmetics merchants.
+
+Improve product list:
+
+Add table/list mode for dense operations.
+Keep card mode for visual review.
+Add quick filters:
+Active
+Hidden
+Out of stock
+Low stock
+Has variants
+No image
+No category
+Add bulk actions:
+Hide/show
+Change category
+Export
+Delete draft items
+Add quick stock editing.
+Improve product form:
+
+Split into sections:
+Basic info
+Media
+Pricing
+Variants
+Inventory
+Visibility
+For variants, support fashion/cosmetics-specific patterns:
+Size
+Color
+Shade
+Scent
+Volume
+Make variant stock totals obvious.
+Warn when product is visible but has no image, no stock, or incomplete variants.
+Success metrics:
+
+Product creation completion rate
+Time to add product with variants
+Number of products missing image/category/stock
+Low-stock recovery rate
+Phase 5: Store Builder And Theme Safety
+Primary objective: let merchants customize without damaging readability or conversion.
+
+Store builder improvements:
+
+Add “safe theme” constraints.
+Prevent publishing low-contrast primary/secondary colors.
+Preview mobile first by default.
+Add quick presets for:
+Elegant fashion
+Cosmetics soft
+Minimal boutique
+Bold streetwear
+Premium occasion wear
+Add section health indicators:
+Missing hero image
+Missing WhatsApp
+No featured products
+No trust/returns copy
+Storefront structure recommendations:
+
+First viewport:
+Store identity
+Hero product/category signal
+Shop CTA
+Trust/COD/shipping hint
+Product discovery:
+Categories
+New arrivals
+Offers
+All products
+Trust:
+Delivery areas
+COD
+Return/exchange policy
+WhatsApp support
+Success metrics:
+
+Store preview-to-publish rate
+Theme publish errors/prevented contrast issues
+Storefront product click-through rate
+Product section engagement
+Phase 6: Arabic, RTL, And Localization QA
+Primary objective: make Arabic feel native, not translated.
+
+Audit all shopper and admin surfaces for:
+
+Hardcoded English strings
+Garbled Arabic fallback text
+Mixed currency formats
+LTR fields for phone/email/URLs
+RTL icon direction
+Drawer/sidebar opening direction
+Table alignment
+Empty/loading/error Arabic copy
+Button text overflow on mobile
+Specific rules:
+
+Arabic is default.
+English is secondary.
+Phone/email/slug/URL fields use LTR inside RTL layout.
+Currency uses Arabic formatting where Arabic is active.
+Avoid literal English admin labels inside Arabic UI.
+Do not depend on placeholders as labels.
+Success metrics:
+
+Number of hardcoded strings
+RTL layout defects found in QA
+Mobile text overflow defects
+Arabic usability test comprehension
+Phase 7: UX Research Program
+Run research in lightweight weekly cycles.
+
+Study 1: Shopper checkout usability
+
+Participants: 5 Egyptian mobile shoppers
+Tasks: choose product, select variant, add to cart, complete COD checkout
+Watch for: shipping confusion, phone/address errors, trust hesitation
+Output: checkout fixes ranked by severity
+Study 2: Merchant onboarding usability
+
+Participants: 5 Instagram sellers or boutique merchants
+Tasks: create store, add product, configure shipping, preview store
+Watch for: setup confusion, missing terminology, first-product friction
+Output: onboarding fixes and revised launch checklist
+Study 3: Order operations diary
+
+Participants: 3 active sellers over 3 days
+Observe: WhatsApp confirmations, failed contact, courier booking, returns
+Output: order queue design and automation opportunities
+Study 4: Pricing/willingness validation
+
+Participants: 8-10 merchants
+Method: trade-off interviews, not compliments
+Test: what merchants pay for storefront, shipping ops, WhatsApp automation, AI help
+Output: plan packaging and feature priority
+Implementation Priority
+
+Fix Arabic cart and checkout trust.
+Add structured Egyptian address and visible shipping cost.
+Make mobile add-to-cart visible.
+Rework onboarding as launch readiness.
+Upgrade orders into operational queues.
+Add product list/table and quick stock workflows.
+Add theme contrast guardrails.
+Run usability tests after each major flow change.
+This plan keeps the product focused on the real marketplace loop: launch store, add products, receive COD orders, confirm customers, deliver reliably, and learn from repeated merchant behavior.

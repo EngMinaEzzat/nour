@@ -85,7 +85,7 @@ export function CategoryGrid({
                   onCategorySelect(category.id);
                   window.requestAnimationFrame(onScrollToProducts);
                 }}
-                className={`relative overflow-hidden rounded-2xl group cursor-pointer ${i18n.dir() === "rtl" ? "text-right" : "text-left"} bg-stone-100`}
+                className={`relative overflow-hidden rounded-2xl group cursor-pointer text-start bg-stone-100`}
                 style={{ aspectRatio: "3/4" }}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}

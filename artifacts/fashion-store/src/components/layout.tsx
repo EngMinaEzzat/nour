@@ -264,7 +264,7 @@ export function Layout({ children }: { children: ReactNode }) {
                                   initial={{ height: 0, opacity: 0 }}
                                   animate={{ height: "auto", opacity: 1 }}
                                   exit={{ height: 0, opacity: 0 }}
-                                  className={`overflow-hidden flex flex-col space-y-1 mt-1 ${i18n.dir() === "rtl" ? "pr-2 border-r-2 mr-4" : "pl-2 border-l-2 ml-4"} border-border/40`}
+                                  className={`overflow-hidden flex flex-col space-y-1 mt-1 pe-2 border-e-2 me-4 border-border/40`}
                                 >
                                   {group.items.map((item) => {
                                     const active = isActive(item.href);

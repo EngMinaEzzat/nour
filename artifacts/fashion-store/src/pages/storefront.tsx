@@ -255,7 +255,7 @@ function AdminBar() {
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`fixed top-3 ${i18n.dir() === "rtl" ? "right-3" : "left-3"} z-[200]`}
+      className={`fixed top-3 start-3 z-[200]`}
       style={{ direction: i18n.dir() }}
     >
       <Link href="/store-settings">
@@ -310,7 +310,7 @@ function EditorTextSection({
         <h2 className="text-4xl md:text-5xl text-stone-900 mb-4" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
         {body && <p className="text-stone-500 text-sm leading-7 max-w-2xl mx-auto mb-8">{body}</p>}
         {items.length > 0 && (
-          <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
+          <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 text-start`}>
             {items.slice(0, 6).map((item, index) => (
               <div key={index} className="border border-stone-100 rounded-2xl p-5 bg-[#faf7f4]">
                 <p className="font-semibold text-stone-900 mb-2">{item.title ?? item.q ?? item.name ?? ""}</p>

@@ -87,7 +87,7 @@ export default function Customers() {
         transition={{ duration: 0.3, delay: 0.1 }}
         className="relative mb-6 max-w-md"
       >
-        <Search className={`absolute ${i18n.dir() === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+        <Search className={`absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
         <Input
           placeholder={t("customers.search.placeholder")}
           value={search}

@@ -1,0 +1,83 @@
+You’re right. The 6 bullets I gave were grouped implementation areas, not the 15-point UI plan fully completed. After the latest pass, some points moved forward, but the full UI plan still needs a dedicated completion sprint sequence.
+
+Current Reality
+The recent implementation improved:
+
+Cart totals + touch targets.
+Checkout autocomplete/error recovery.
+Product cards: fake rating default removed, low-stock state added.
+Orders: dense desktop table, filters, selection, CSV export, age/next action.
+Products: grid/table mode, filters, sort, visible mobile actions.
+Builder: real contrast check and publish warning/disable.
+Platform admin: first operator-style table.
+Still missing: true design-system governance, app-shell urgency badges, full product detail accessibility polish, dashboard/admin density, product-form tabs, complete state-system standardization, full visual QA matrix, and a systematic accessibility pass.
+
+15-Point Completion Plan
+
+Area	Current Status	Full Implementation Needed
+1. Design system foundation	Partial	Add semantic token layer, status badge component, density/radius rules, admin typography rules, contrast helpers everywhere
+2. App shell/navigation	Partial	Add urgent badges for pending orders, low stock, failed contact, returns, readiness; add aria/tooltips to nav actions
+3. Storefront UI	Good partial	Add stronger missing-image state, keyboard parity, verified real ratings only, product-grid QA mobile/desktop
+4. Cart UI	Good	Polish Arabic copy, ensure all controls 44px on mobile, add shipping/discount/final total consistency with checkout
+5. Checkout UI	Good partial	Add reassurance strip, mobile sticky CTA rules, gate Paymob by settings, improve submit recovery and validation summaries
+6. Product detail UI	Partial-good	Improve swatch aria, unavailable variant semantics, quantity 44px controls, review realism, gallery keyboard support
+7. Merchant dashboard	Partial	Redesign as scan-first command center: compact KPIs, readiness, urgent queues, recent orders, low-stock ops
+8. Orders UI	Better partial	Add city/area/date filters, failed-contact queue, real bulk workflows, courier/shipment columns, SLA severity
+9. Product admin UI	Better partial	Add has-variants filter, bulk actions, quick stock edit, missing-category/image warnings, desktop action visibility
+10. Store builder UI	Better partial	Add contrast preview for buttons/cards/text, accessible icon tooltips, publish readiness modal, theme preset guardrails
+11. Platform admin UI	Partial	Add risk/compliance filters, audit/action logs, incident summaries, merchant health workflow, reduce card-heavy sections
+12. Empty/loading/error states	Partial	Create shared state components and replace one-off states across shopper/admin/builder
+13. Accessibility and QA	Partial	Systematic 44px audit, aria-label audit, keyboard-only checks, reduced-motion support, focus restore checks
+14. Visual QA screens	Partial	Run full matrix across mobile/desktop and capture failures as tickets/fixes
+15. Implementation order	Partial	Reorder remaining work: foundation first, admin ops second, QA last
+Sprint Plan To Fully Finish
+
+Sprint 6A: UI Foundation
+
+Create shared components: StatusBadge, StateBlock, AdminPageHeader, AdminToolbar, AdminTable, IconButton.
+Add design tokens for success/warning/danger/info, COD/payment/order statuses, focus rings, chart colors.
+Add admin density classes: compact headings, 8-12px radius defaults, table spacing.
+Acceptance: new or changed admin screens use shared components, no new one-off badge/status styles.
+Sprint 6B: App Shell + Global States
+
+Add nav badges from real data: pending orders, low stock, returns/follow-up, failed contact if available.
+Add accessible tooltips/labels to shell actions.
+Build shared loading/empty/error states and migrate cart, orders, products, dashboard, builder.
+Acceptance: shell guides merchant work, no major icon-only button lacks accessible name.
+Sprint 6C: Shopper UI Completion
+
+Finish product detail accessibility: swatches, variant disabled states, quantity controls, review display rules.
+Strengthen checkout trust strip and Paymob visibility gating.
+Polish cart copy and totals consistency.
+Acceptance: shopper can browse, choose variant, cart, checkout with keyboard/mobile and no fake social proof.
+Sprint 6D: Merchant Command Center
+
+Redesign dashboard as operational dashboard, not decorative cards.
+Finish orders with city/area/date filters, SLA/age severity, failed-contact queue, courier/tracking columns.
+Improve order detail hierarchy: top action bar, fulfillment vs communication separation.
+Acceptance: merchant can know “what needs action now” within 10 seconds.
+Sprint 6E: Product Admin Completion
+
+Complete filters: active, hidden, out of stock, low stock, has variants, missing image, no category.
+Add quick stock edit and bulk actions where API supports it.
+Convert product form into tabs/accordion: Details, Images, Price, Variants, Inventory, SEO/Visibility.
+Acceptance: visual review and fast operations both work without relying on hover.
+Sprint 6F: Builder + Platform Admin
+
+Builder: contrast preview for text/buttons/cards, preset warnings, publish readiness modal.
+Platform: operator tables, health/risk filters, audit/action log surface, incident/error summary.
+Acceptance: builder prevents unreadable themes; platform admin feels like an operations console.
+Sprint 6G: Full QA Pass
+
+Run the full visual QA matrix from the original UI plan on mobile and desktop.
+Run accessibility audit: keyboard, focus, aria, touch target, contrast, RTL/LTR fields.
+Fix all critical/serious findings before calling the UI plan complete.
+Acceptance: documented pass/fail matrix with screenshots or notes for every planned screen.
+Execution Approach
+Yes, this can be split across multiple agents effectively:
+
+Agent 1: design-system/foundation and shared components.
+Agent 2: shopper flows: storefront, product detail, cart, checkout.
+Agent 3: merchant/admin ops: dashboard, orders, products, platform.
+Agent 4: QA/accessibility sweep after implementation.
+Best next step: start with Sprint 6A, because without shared components and rules, the remaining 14 areas will keep drifting visually.

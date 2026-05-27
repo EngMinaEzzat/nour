@@ -25,61 +25,67 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
   const items: ChecklistItem[] = [
     {
       id: "name",
-      label: t("readinessChecklist.items.name"),
+      label: t("readinessChecklist.items.name", "اسم المتجر"),
       status: config.brand.name.trim() ? "done" : "missing",
       critical: true,
     },
     {
       id: "products",
-      label: t("readinessChecklist.items.products"),
+      label: t("readinessChecklist.items.products", "المنتجات"),
       status: productCount >= 3 ? "done" : productCount > 0 ? "recommended" : "missing",
       critical: true,
     },
     {
       id: "hero",
-      label: t("readinessChecklist.items.hero"),
+      label: t("readinessChecklist.items.hero", "الصورة الرئيسية"),
       status: config.homepage.sections.some((s) => s.type === "hero" && s.content.heading) ? "done" : "recommended",
       critical: false,
     },
     {
       id: "whatsapp",
-      label: t("readinessChecklist.items.whatsapp"),
+      label: t("readinessChecklist.items.whatsapp", "رقم واتساب"),
       status: config.business.whatsapp ? "done" : "recommended",
       critical: false,
     },
     {
       id: "color",
-      label: t("readinessChecklist.items.color"),
+      label: t("readinessChecklist.items.color", "تباين الألوان"),
       status: primaryContrast.level === "pass" ? "done" : primaryContrast.level === "warning" ? "recommended" : "missing",
       critical: primaryContrast.level === "fail",
     },
     {
       id: "return",
-      label: t("readinessChecklist.items.return"),
+      label: t("readinessChecklist.items.return", "سياسة الإرجاع"),
       status: config.business.returnPolicy ? "done" : "recommended",
       critical: false,
     },
     {
+      id: "shipping",
+      label: t("readinessChecklist.items.shipping", "إعدادات الشحن"),
+      status: config.business.deliveryAreas && config.business.deliveryAreas.length > 0 ? "done" : "missing",
+      critical: true,
+    },
+    {
       id: "social",
-      label: t("readinessChecklist.items.social"),
-      status: Object.values(config.business.socialLinks).some(Boolean) ? "done" : "recommended",
+      label: t("readinessChecklist.items.social", "روابط السوشيال ميديا"),
+      status: Object.values(config.business.socialLinks || {}).some(Boolean) ? "done" : "recommended",
       critical: false,
     },
     {
       id: "about",
-      label: t("readinessChecklist.items.about"),
+      label: t("readinessChecklist.items.about", "قصة المتجر"),
       status: config.homepage.sections.some((s) => s.type === "about") ? "done" : "recommended",
       critical: false,
     },
     {
       id: "sections",
-      label: t("readinessChecklist.items.sections"),
+      label: t("readinessChecklist.items.sections", "أقسام الصفحة الرئيسية"),
       status: config.homepage.sections.filter((s) => s.visible).length >= 3 ? "done" : "missing",
       critical: false,
     },
     {
       id: "mobile",
-      label: t("readinessChecklist.items.mobile"),
+      label: t("readinessChecklist.items.mobile", "تجربة الجوال"),
       status: "recommended",
       critical: false,
     },
@@ -113,10 +119,10 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
               {score}%
             </span>
           </div>
-          <div className={i18n.dir() === "rtl" ? "text-right" : "text-left"}>
-            <p className="font-semibold text-stone-800 text-sm">{t("readinessChecklist.title")}</p>
+          <div className={"text-start"}>
+            <p className="font-semibold text-stone-800 text-sm">{t("readinessChecklist.title", "جاهزية المتجر")}</p>
             <p className="text-xs" style={{ color: scoreColor }}>
-              {score >= 80 ? t("readinessChecklist.status.excellent") : score >= 50 ? t("readinessChecklist.status.good") : t("readinessChecklist.status.needsWork")}
+              {score >= 80 ? t("readinessChecklist.status.excellent", "ممتاز") : score >= 50 ? t("readinessChecklist.status.good", "جيد") : t("readinessChecklist.status.needsWork", "يحتاج لعمل")}
             </p>
           </div>
         </div>
@@ -141,10 +147,10 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
                   {item.status === "recommended" && <AlertTriangle className="w-3 h-3 text-amber-600" />}
                   {item.status === "missing" && <X className="w-3 h-3 text-red-500" />}
                 </div>
-                <span className={`text-xs flex-1 ${i18n.dir() === "rtl" ? "text-right" : "text-left"} ${item.status === "done" ? "text-stone-500" : item.status === "recommended" ? "text-stone-700" : "text-stone-800 font-medium"}`}>
+                <span className={`text-xs flex-1 text-start ${item.status === "done" ? "text-stone-500" : item.status === "recommended" ? "text-stone-700" : "text-stone-800 font-medium"}`}>
                   {item.label}
                   {item.critical && item.status === "missing" && (
-                    <span className={`text-[10px] text-red-500 ${i18n.dir() === "rtl" ? "mr-1" : "ml-1"}`}>{t("readinessChecklist.required")}</span>
+                    <span className={`text-[10px] text-red-500 ms-1`}>{t("readinessChecklist.required", "مطلوب")}</span>
                   )}
                 </span>
               </div>
@@ -152,13 +158,13 @@ export default function ReadinessChecklist({ config, productCount }: ReadinessCh
           </div>
 
           <div className="p-3 border-t border-stone-100">
-            <div className={`flex gap-3 text-[10px] text-stone-400 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400" />{t("readinessChecklist.legend.done")}</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />{t("readinessChecklist.legend.recommended")}</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400" />{t("readinessChecklist.legend.missing")}</span>
+            <div className={`flex gap-3 text-[10px] text-stone-400 text-start`}>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400" />{t("readinessChecklist.legend.done", "مكتمل")}</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" />{t("readinessChecklist.legend.recommended", "مستحسن")}</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400" />{t("readinessChecklist.legend.missing", "ناقص")}</span>
             </div>
             {!canPublish && (
-              <p className={`text-xs text-red-500 mt-2 ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>{t("readinessChecklist.warning")}</p>
+              <p className={`text-xs text-red-500 mt-2 text-start`}>{t("readinessChecklist.warning", "يرجى إكمال العناصر المطلوبة للنشر")}</p>
             )}
           </div>
         </motion.div>

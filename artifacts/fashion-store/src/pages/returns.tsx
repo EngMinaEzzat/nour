@@ -215,7 +215,7 @@ export default function Returns({ embedded = false }: { embedded?: boolean }) {
 
         {/* Search */}
         <div className="relative">
-          <Search className={`absolute ${i18n.dir() === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+          <Search className={`absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

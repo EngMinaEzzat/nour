@@ -265,7 +265,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
             placeholder={t("storeAssistant.placeholder")}
-            className={`flex-1 text-xs border border-stone-200 rounded-lg px-3 py-2 ${i18n.dir() === "rtl" ? "text-right" : "text-left"} focus:outline-none focus:ring-2 focus:ring-[#8B1A35]/30`}
+            className={`flex-1 text-xs border border-stone-200 rounded-lg px-3 py-2 text-start focus:outline-none focus:ring-2 focus:ring-[#8B1A35]/30`}
             disabled={loading}
           />
           <button

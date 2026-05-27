@@ -1,0 +1,550 @@
+Below is a detailed UI plan for Nour, focused on making the interface feel polished, Arabic-first, operational for merchants, and trustworthy for shoppers.
+
+UI Direction
+Nour should feel soft, modern, and fashion/cosmetics-aware without becoming decorative or slow. Storefronts can be expressive and visual. Merchant admin should be quieter, denser, and easier to scan.
+
+The visual system should balance:
+
+Warm beauty/fashion identity
+Arabic-first typography and RTL spacing
+Clear COD/shipping/payment trust signals
+Efficient merchant operations
+Strong mobile usability
+Accessible contrast and touch targets
+1. Design System Foundation
+Create a stricter UI foundation before redesigning individual screens.
+
+Core tokens:
+
+Background: warm off-white, but not overly beige
+Surface: white/card
+Text primary: deep neutral
+Text secondary: muted neutral
+Primary: deep rose/magenta
+Accent: restrained gold
+Success: green
+Warning: amber
+Danger: red
+Info: blue
+Border: soft neutral
+Focus ring: primary with visible contrast
+Typography:
+
+Arabic UI: Cairo or Tajawal
+English UI: Inter
+Use one consistent UI font family per language.
+Avoid serif-heavy admin UI.
+Reserve editorial serif styling for storefront heroes and product merchandising only.
+Admin headings should be compact, not hero-sized.
+Recommended scale:
+
+Page title: 28-32px
+Section title: 18-22px
+Card title: 15-17px
+Body: 14-16px
+Meta/helper text: 12-13px
+Table/list text: 13-14px
+Spacing:
+
+Base unit: 4px
+Main gaps: 8, 12, 16, 24, 32
+Admin screens should use tighter spacing.
+Storefront sections can use larger spacing.
+Radius:
+
+Admin cards/buttons: 8-12px
+Storefront imagery/cards: 12-20px when visually useful
+Avoid excessive rounded-3xl in admin workflows.
+Use pill buttons only for shopper CTAs or compact filters, not everywhere.
+2. App Shell And Navigation
+The merchant dashboard shell should feel like an operating system, not a marketing page.
+
+Header:
+
+Keep logo, menu, language switcher, merchant switch/status, store preview, logout.
+Reduce decorative animation.
+Make store preview action clearer with icon + tooltip.
+Ensure language switcher is compact and fully localized.
+Use sticky header with subtle border only.
+Sidebar/drawer:
+
+Group navigation by merchant jobs:
+Overview
+Orders
+Products
+Customers
+Shipping
+Storefront
+Marketing
+Settings
+Highlight the active route strongly.
+Add badges for urgent queues:
+Pending orders
+Low stock
+Failed contact
+Unreviewed returns
+Advanced/integrations should stay collapsed unless configured.
+Mobile nav:
+
+Drawer opens from the correct RTL side.
+Nav items should have 44px minimum touch height.
+Avoid long labels wrapping awkwardly.
+Keep primary actions reachable without scrolling too far.
+3. Shopper Storefront UI
+Storefront UI can be more visual, but it still needs predictable commerce patterns.
+
+Hero:
+
+Show real product/store imagery as first visual signal.
+Keep headline, store value, and CTA readable over image.
+Add compact trust row near CTA:
+COD
+WhatsApp support
+Delivery areas
+Exchange policy
+Avoid overlarge hero height that hides products too far below the fold.
+Header:
+
+Store logo/name visible.
+Search, account, cart, language.
+Category nav should appear when categories exist.
+On mobile, keep cart and search always visible.
+Product grid:
+
+Mobile: 2 columns
+Tablet: 3 columns
+Desktop: 4-5 columns
+Stable product image aspect ratio, preferably 3:4.
+Visible price and discount.
+Visible “Add” or “Choose options” button on mobile.
+Use hover overlays only as enhancement on desktop.
+Show out-of-stock state clearly but keep product readable.
+Product card states:
+
+Default
+Hover/focus
+Added to cart
+Has variants
+Low stock
+Out of stock
+Sale/discount
+Missing image fallback
+Filters:
+
+Use chips for category and common filters.
+Use bottom sheet on mobile.
+Keep active filters visible.
+Use Arabic labels by default.
+Price range should show currency clearly.
+Search overlay:
+
+Search input gets focus immediately.
+Show empty state, loading state, and no-results state.
+Product results should include image, name, price, stock/variant cue.
+Close button must be easy to hit on mobile.
+4. Cart UI
+The cart is currently a major polish opportunity.
+
+Cart drawer:
+
+Fully Arabic-localized by default.
+RTL layout.
+Product rows:
+Image
+Product name
+Variant label
+Quantity controls
+Item total
+Remove icon
+Footer:
+Subtotal
+Estimated shipping
+Discount if any
+Total
+COD/payment note
+Checkout CTA
+Empty state:
+Arabic copy
+“تصفحي المنتجات” CTA
+Quantity buttons:
+32-36px touch target minimum
+Clear minus/plus icons
+Avoid English EGP; use ج.م in Arabic.
+5. Checkout UI
+Checkout should feel calm, short, and trustworthy.
+
+Layout:
+
+Mobile-first single column.
+Desktop two columns:
+Left: form
+Right: sticky order summary
+Keep summary visible but not visually heavier than the form.
+Avoid too many large cards; use simple grouped sections.
+Form sections:
+
+Contact
+
+Name
+Phone/WhatsApp
+Optional email
+Delivery address
+
+Governorate select
+Area/city
+Street/building
+Floor/apartment
+Landmark/notes
+Payment
+
+COD selected by default
+Online payment option if enabled
+Confirmation
+
+Final total
+Delivery estimate
+WhatsApp confirmation note
+Field UI:
+
+Labels always visible.
+Required markers clear.
+Phone/email fields LTR.
+Validation messages directly under fields.
+Use select menus for governorate when possible.
+Use textarea for notes, not a long single input.
+Trust UI:
+
+Add small reassurance strip:
+“الدفع عند الاستلام”
+“تأكيد عبر واتساب”
+“استبدال/إرجاع حسب سياسة المتجر”
+Use icons from lucide.
+Avoid emojis for payment/trust indicators.
+Submit CTA:
+
+Primary button fixed near bottom on mobile only if summary remains visible/understood.
+Loading state with spinner and text.
+Error state above button with recovery action.
+6. Product Detail UI
+Product detail should guide selection before purchase.
+
+Layout:
+
+Mobile:
+Image gallery
+Title/price
+Variant selectors
+CTA
+Details/trust
+Reviews
+Desktop:
+Gallery left
+Product info right
+Gallery:
+
+Main image 3:4.
+Thumbnails below.
+Stable dimensions.
+Support variant-specific images.
+Show discount/out-of-stock badge.
+Variant selectors:
+
+Size buttons
+Color/shade swatches
+Disabled unavailable options
+Selected state with check icon
+Stock message after valid selection
+Error/reminder if user tries to add without selecting
+CTA area:
+
+Primary: add to cart
+Secondary: WhatsApp question/order
+Show return/exchange and delivery note nearby.
+Reviews:
+
+Only show real rating data.
+Empty review state should not imply fake social proof.
+Review form can be lower priority than purchase CTA.
+7. Merchant Dashboard UI
+The dashboard should be scan-first.
+
+Top area:
+
+Welcome line
+Store status
+Launch readiness card
+Quick actions:
+Add product
+View orders
+Preview store
+Configure shipping
+KPI cards:
+
+Revenue
+Orders
+Customers
+Pending orders
+Keep cards compact.
+Use semantic color sparingly.
+Avoid decorative gradients except tiny accents.
+Charts:
+
+Use restrained lines/areas.
+Show empty state with clear next action.
+Use Arabic date formatting.
+Avoid chart clutter when data is low.
+Recent orders:
+
+Should look like a compact operational list.
+Include status, customer, total, age.
+CTA to orders page.
+8. Orders UI
+Orders should become the clearest admin surface.
+
+List layout:
+
+Prefer dense list/table hybrid over large cards.
+Each row:
+Order number
+Customer
+Phone/WhatsApp
+Area
+Status
+Payment
+Total
+Age
+Next action
+Mobile: stacked row cards, still dense.
+Tabs/queues:
+
+Needs confirmation
+Ready to ship
+Shipped
+Delivered
+Failed contact
+Returns
+Follow-up
+Toolbar:
+
+Search by order ID/customer/phone
+Filter status
+Filter payment
+Filter city/area
+Date range
+Bulk actions
+Status badges:
+
+Pending: amber
+Confirmed: blue
+Shipped/dispatched: violet
+Delivered: green
+Cancelled/returned: red/gray
+Payment paid: green
+Payment failed: red
+COD pending: amber/neutral
+Order detail:
+
+Top action bar:
+Update status
+WhatsApp
+Create shipment
+Copy tracking
+Main content:
+Customer
+Delivery
+Items
+Payment
+Status history
+Keep communication tools in a separate tab but make latest contact status visible in overview.
+9. Product Admin UI
+Product management should support both visual review and fast operations.
+
+Product list:
+
+Add view toggle:
+Grid view for visual catalog
+Table view for operations
+Add quick filters:
+Active
+Hidden
+Out of stock
+Low stock
+Has variants
+Missing image
+Add sort:
+Newest
+Stock low-high
+Price
+Best sellers
+Product cards:
+
+Keep image.
+Show status, stock, price, category.
+Make actions visible on mobile; do not rely only on hover.
+Avoid overlay-only edit/delete actions.
+Product form:
+
+Use tabs or sectioned accordion:
+Details
+Images
+Price
+Variants
+Inventory
+SEO/visibility
+Keep save/cancel sticky in dialog footer.
+Variant rows should be compact but readable.
+Use swatches for colors.
+Use steppers or numeric inputs for stock.
+Show total variant stock.
+CSV import:
+
+Give clear upload states:
+selected file
+parsed rows
+validation errors
+import progress
+import result
+Show example template visually, not only as text.
+10. Store Builder UI
+The builder can be expressive, but controls should be precise.
+
+Layout:
+
+Top bar:
+Device preview
+Undo/redo
+Save/publish
+Preview store
+Left sidebar:
+Sections
+Theme
+AI/help
+Canvas:
+Mobile/desktop preview
+Right inspector:
+Selected section settings
+Controls:
+
+Use icons for device, undo, redo, save, preview.
+Use color swatches for theme.
+Use sliders/steppers for radius/spacing.
+Use toggles for visibility.
+Use menus/selects for layout variants.
+Add tooltips for unfamiliar icons.
+Theme presets:
+
+Show palette preview.
+Show accessibility status.
+Disable publish or warn for low contrast.
+Preview button text and card text against chosen colors.
+Readiness UI:
+
+Missing hero image
+No products
+No shipping settings
+No WhatsApp
+No policy text
+Theme contrast risk
+11. Platform Admin UI
+Platform admin should be utilitarian and low-noise.
+
+Screens should use:
+
+Tables
+Filters
+Status badges
+Detail drawers
+Audit/action logs
+Risk scores
+Health indicators
+Avoid:
+
+Marketing cards
+Oversized gradients
+Decorative sections
+Large empty space
+Platform operator needs:
+
+Merchant status
+Subscription/payment state
+Store health
+Order volume
+Risk/compliance flags
+Recent incidents/errors
+12. Empty, Loading, Error States
+Create a consistent state system.
+
+Loading:
+
+Skeletons shaped like final layout.
+Avoid generic spinners for whole pages unless necessary.
+Empty states:
+
+State what is missing.
+Explain why it matters.
+Provide one primary action.
+Examples:
+
+No products:
+“لم تضيفي منتجات بعد”
+CTA: “إضافة أول منتج”
+No orders:
+“لا توجد طلبات بعد”
+CTA: “معاينة المتجر”
+No shipping zones:
+“حددي مناطق وأسعار الشحن”
+CTA: “إضافة منطقة شحن”
+Error states:
+
+Plain Arabic message.
+Recovery action.
+Avoid raw server errors.
+Keep field-level errors close to fields.
+13. Accessibility And QA
+UI acceptance checklist:
+
+All controls keyboard reachable.
+Focus states visible.
+Buttons have accessible names.
+Icon-only buttons have aria-label and tooltip.
+Touch targets at least 44px on mobile.
+Normal text contrast at least 4.5:1.
+Large text contrast at least 3:1.
+Text scales to 200%.
+No text overlap on mobile.
+RTL and LTR both checked.
+Phone/email/URL fields use LTR.
+No action depends only on hover.
+Motion respects reduced-motion preference.
+14. Visual QA Screens
+Before shipping major UI changes, check these at mobile and desktop:
+
+Storefront home
+Product detail with variants
+Empty cart
+Cart with items
+Checkout with validation errors
+Checkout with COD selected
+Order confirmation
+Merchant dashboard empty
+Merchant dashboard with data
+Orders list
+Order detail
+Products empty
+Products with many products
+Product form with variants
+Store builder mobile preview
+Store settings/theme
+15. Implementation Order
+
+Create UI state/token checklist and contrast guardrails.
+Localize cart drawer and make RTL/currency correct.
+Redesign checkout UI with structured sections.
+Make product card mobile CTAs visible.
+Tighten dashboard and orders admin density.
+Add product table/list mode and better visible actions.
+Improve store builder controls and theme accessibility.
+Run RTL/mobile visual QA across core screens.
+The UI target is simple: storefronts should sell beautifully, checkout should reassure, and merchant admin should feel like a fast daily command center.
+
+

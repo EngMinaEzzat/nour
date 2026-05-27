@@ -21,6 +21,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  Tabs, TabsContent, TabsList, TabsTrigger,
+} from "@/components/ui/tabs";
+import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -782,6 +785,7 @@ export default function Products() {
     if (statusFilter === "out_of_stock" && p.stock > 0 && p.status !== "out_of_stock") return false;
     if (statusFilter === "missing_image" && p.imageUrl) return false;
     if (statusFilter === "no_category" && p.categoryName) return false;
+    if (statusFilter === "has_variants" && !p.hasVariants) return false;
     return true;
   }).sort((a, b) => {
     if (sortMode === "stock") return (a.stock ?? 0) - (b.stock ?? 0);
@@ -812,7 +816,7 @@ export default function Products() {
     // Let hasVariants trigger after fetching if variants exist, or just rely on variant length.
     // For simplicity, we assume they have variants if their stock doesn't perfectly match product stock, 
     // or we'll let VariantManager handle it. Actually, just set it true for now and hide if 0 in effect.
-    setHasVariants(true); 
+    setHasVariants(p.hasVariants || false); 
     setFormError(null);
     setEditingId(p.id);
     setVariantsProductId(p.id);
@@ -977,6 +981,7 @@ export default function Products() {
               <option value="out_of_stock">{t("products.status.out_of_stock")}</option>
               <option value="missing_image">{t("products.filters.missingImage", "Missing image")}</option>
               <option value="no_category">{t("products.filters.noCategory", "No category")}</option>
+              <option value="has_variants">{t("products.filters.hasVariants", "له متغيرات")}</option>
             </select>
             <select value={sortMode} onChange={(event) => setSortMode(event.target.value)} className="h-10 rounded-lg border border-input bg-background px-3 text-sm" aria-label={t("products.sort.label", "Sort products")}>
               <option value="newest">{t("products.sort.newest", "Newest")}</option>
@@ -1088,7 +1093,7 @@ export default function Products() {
                       )}
                     </div>
                     {/* Quick actions overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="absolute inset-0 hidden md:flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <Button
                         size="sm"
                         className="h-8 gap-1.5 shadow-lg text-xs"
@@ -1172,139 +1177,158 @@ export default function Products() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-5 py-2">
-            {/* Basic info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="sm:col-span-2 space-y-1.5">
-                <Label>{t("products.form.name")} *</Label>
-                <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} />
-              </div>
-              <div className="sm:col-span-2 space-y-1.5">
-                <Label>{t("products.form.description")} *</Label>
-                <Textarea value={form.description} onChange={field("description")} placeholder={t("products.form.descriptionPlaceholder")} rows={3} className="resize-none" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>{t("products.form.price")} *</Label>
-                <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} />
-              </div>
-              <div className="space-y-1.5">
-                <Label>{t("products.form.originalPrice")}</Label>
-                <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} />
-              </div>
-              {!hasVariants && (
+          <Tabs defaultValue="details" className="w-full mt-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="details">{t("products.tabs.details", "التفاصيل")}</TabsTrigger>
+              <TabsTrigger value="variants">{t("products.tabs.variants", "الأسعار والمخزون")}</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="details" className="space-y-5 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2 space-y-1.5">
+                  <Label>{t("products.form.name")} *</Label>
+                  <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} />
+                </div>
+                <div className="sm:col-span-2 space-y-1.5">
+                  <Label>{t("products.form.description")} *</Label>
+                  <Textarea value={form.description} onChange={field("description")} placeholder={t("products.form.descriptionPlaceholder")} rows={3} className="resize-none" />
+                </div>
                 <div className="space-y-1.5">
-                  <Label>{t("products.columns.stock")}</Label>
-                  <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" />
+                  <Label>{t("products.form.category").split(" ")[0]}</Label>
+                  <Select
+                    value={form.categoryId || SELECT_NONE_VALUE}
+                    onValueChange={(v) =>
+                      setForm((f) => ({
+                        ...f,
+                        categoryId: v === SELECT_NONE_VALUE ? "" : v,
+                      }))
+                    }
+                  >
+                    <SelectTrigger><SelectValue placeholder="اختاري..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={SELECT_NONE_VALUE}>{t("products.form.noCategory")}</SelectItem>
+                      {categories?.filter(c => !c.parentId).map((parent) => (
+                        <div key={parent.id}>
+                          <SelectItem value={String(parent.id)} className="font-semibold">
+                            {i18n.language === "en" ? parent.name : parent.nameAr}
+                          </SelectItem>
+                          {categories
+                            ?.filter((child) => child.parentId === parent.id)
+                            .map((child) => (
+                              <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
+                                — {i18n.language === "en" ? child.name : child.nameAr}
+                              </SelectItem>
+                            ))}
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{t("products.form.status")}</Label>
+                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as ProductForm["status"] }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">{t("products.status.active")}</SelectItem>
+                      <SelectItem value="out_of_stock">{t("products.status.out_of_stock")}</SelectItem>
+                      <SelectItem value="hidden">{t("products.status.hidden")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="sm:col-span-2">
+                  <ImageUpload
+                    label={t("products.form.image")}
+                    value={form.imageUrl}
+                    onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
+                  />
+                </div>
+                <div className="sm:col-span-2 flex items-center justify-between border border-border/50 rounded-xl px-4 py-3">
+                  <div>
+                    <Label className="flex items-center gap-1.5">
+                      <Star className="w-3.5 h-3.5 text-amber-500" /> {t("products.form.featured").split("(")[0]}
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t("products.form.featured").split("(")[1]?.replace(")", "")}</p>
+                  </div>
+                  <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
+                </div>
+              </div>
+
+              {formError && (
+                <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2">{formError}</p>
+              )}
+
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
+                <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
+                  {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+
+            <TabsContent value="variants" className="space-y-5 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                <div className="space-y-1.5">
+                  <Label>{t("products.form.price")} *</Label>
+                  <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>{t("products.form.originalPrice")}</Label>
+                  <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} />
+                </div>
+                {!hasVariants && (
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label>{t("products.columns.stock")}</Label>
+                    <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" />
+                  </div>
+                )}
+              </div>
+
+              {!variantsProductId && (
+                <div className="border-t border-border/50 pt-5">
+                  {hasVariants ? (
+                    <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
+                  ) : (
+                    <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
+                      <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
+                    </Button>
+                  )}
                 </div>
               )}
-              <div className="space-y-1.5">
-                <Label>{t("products.form.category").split(" ")[0]}</Label>
-                <Select
-                  value={form.categoryId || SELECT_NONE_VALUE}
-                  onValueChange={(v) =>
-                    setForm((f) => ({
-                      ...f,
-                      categoryId: v === SELECT_NONE_VALUE ? "" : v,
-                    }))
-                  }
-                >
-                  <SelectTrigger><SelectValue placeholder="اختاري..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={SELECT_NONE_VALUE}>{t("products.form.noCategory")}</SelectItem>
-                    {categories?.filter(c => !c.parentId).map((parent) => (
-                      <div key={parent.id}>
-                        <SelectItem value={String(parent.id)} className="font-semibold">
-                          {i18n.language === "en" ? parent.name : parent.nameAr}
-                        </SelectItem>
-                        {categories
-                          ?.filter((child) => child.parentId === parent.id)
-                          .map((child) => (
-                            <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
-                              — {i18n.language === "en" ? child.name : child.nameAr}
-                            </SelectItem>
-                          ))}
-                      </div>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="sm:col-span-2">
-                <ImageUpload
-                  label={t("products.form.image")}
-                  value={form.imageUrl}
-                  onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>{t("products.form.status")}</Label>
-                <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as ProductForm["status"] }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">{t("products.status.active")}</SelectItem>
-                    <SelectItem value="out_of_stock">{t("products.status.out_of_stock")}</SelectItem>
-                    <SelectItem value="hidden">{t("products.status.hidden")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3">
-                <div>
-                  <Label className="flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 text-amber-500" /> {t("products.form.featured").split("(")[0]}
-                  </Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">{t("products.form.featured").split("(")[1]?.replace(")", "")}</p>
-                </div>
-                <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
-              </div>
-            </div>
 
-            {!variantsProductId && (
-              <div className="border-t border-border/50 pt-5">
-                {hasVariants ? (
-                  <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
-                ) : (
+              {variantsProductId && hasVariants && (
+                <AnimatePresence>
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="border-t border-border/50 pt-5"
+                  >
+                    <VariantManager productId={variantsProductId} />
+                    <p className="text-xs text-muted-foreground mt-3">
+                      💡 كل متغيّر له مخزونه الخاص. اضغط ✓ بعد تعديل كل صف للحفظ.
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              )}
+              {variantsProductId && !hasVariants && (
+                <div className="border-t border-border/50 pt-5">
                   <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
                     <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
                   </Button>
-                )}
-              </div>
-            )}
+                </div>
+              )}
 
-            {formError && (
-              <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2">{formError}</p>
-            )}
+              {formError && (
+                <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2 mt-4">{formError}</p>
+              )}
 
-            {/* Save basic info first before showing variants */}
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
-              <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
-                {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
-              </Button>
-            </DialogFooter>
-
-            {/* Variants section — shown after product exists */}
-            {variantsProductId && hasVariants && (
-              <AnimatePresence>
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="border-t border-border/50 pt-5"
-                >
-                  <VariantManager productId={variantsProductId} />
-                  <p className="text-xs text-muted-foreground mt-3">
-                    💡 كل متغيّر له مخزونه الخاص. اضغط ✓ بعد تعديل كل صف للحفظ.
-                  </p>
-                </motion.div>
-              </AnimatePresence>
-            )}
-            {variantsProductId && !hasVariants && (
-              <div className="border-t border-border/50 pt-5">
-                <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
-                  <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
+              <DialogFooter className="gap-2 mt-4">
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
+                <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
+                  {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
                 </Button>
-              </div>
-            )}
-
-          </div>
+              </DialogFooter>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 

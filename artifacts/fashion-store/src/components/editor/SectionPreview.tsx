@@ -41,7 +41,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
           </div>
         )}
         {!selected && (
-          <div className={`absolute top-2 ${i18n.dir() === "rtl" ? "right-2" : "left-2"} z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-stone-600 text-[10px] px-2 py-0.5 rounded-md shadow-sm border border-stone-200`}>
+          <div className={`absolute top-2 start-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-stone-600 text-[10px] px-2 py-0.5 rounded-md shadow-sm border border-stone-200`}>
             {t("sectionPreview.edit")}
           </div>
         )}

@@ -37,6 +37,8 @@ export default function Orders() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const [activeTab, setActiveTab] = useState(() => {
@@ -56,7 +58,15 @@ export default function Orders() {
     }
   }, [activeTab]);
 
-  const { data: ordersResponse, isLoading } = useListOrders();
+  const { data: ordersResponse, isLoading } = useListOrders({
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    search: search ? search : undefined,
+    city: cityFilter ? cityFilter : undefined,
+    startDate: dateRange.start ? dateRange.start : undefined,
+    endDate: dateRange.end ? dateRange.end : undefined,
+    hasFailedContact: activeTab === "failedContact" ? true : undefined,
+    limit: 100,
+  });
   const orders = ordersResponse?.data ?? [];
 
   function nextActionFor(status: string) {
@@ -83,24 +93,15 @@ export default function Orders() {
   ).length;
 
   const filtered = orders.filter((order) => {
-    const normalizedSearch = search.trim().toLowerCase();
-    const phoneSearch = normalizedSearch.replace(/\D/g, "");
-    const matchesSearch =
-      !normalizedSearch ||
-      String(order.id).includes(normalizedSearch) ||
-      order.customerName?.toLowerCase().includes(normalizedSearch) ||
-      order.customerPhone?.replace(/\D/g, "").includes(phoneSearch);
-
     let matchesStatus = true;
     if (activeTab === "needsAction") matchesStatus = ["pending", "awaiting_confirmation"].includes(order.status);
     if (activeTab === "ready") matchesStatus = order.status === "confirmed";
     if (activeTab === "shipping") matchesStatus = ["dispatched", "shipped"].includes(order.status);
     if (activeTab === "done") matchesStatus = ["delivered", "cancelled", "returned"].includes(order.status);
 
-    const matchesStatusFilter = statusFilter === "all" || order.status === statusFilter;
     const matchesPaymentFilter = paymentFilter === "all" || order.paymentMethod === paymentFilter;
 
-    return matchesSearch && matchesStatus && matchesStatusFilter && matchesPaymentFilter;
+    return matchesStatus && matchesPaymentFilter;
   });
 
   const selectedOrders = filtered.filter((order) => selectedIds.includes(order.id));
@@ -123,6 +124,7 @@ export default function Orders() {
     { id: "ready", label: t("orders.queue.ready", "جاهزة للشحن"), count: orderStats.ready },
     { id: "shipping", label: t("orders.queue.shipping", "قيد الشحن"), count: orderStats.shipping },
     { id: "done", label: t("orders.queue.done", "مغلقة"), count: orderStats.done },
+    { id: "failedContact", label: t("orders.queue.failedContact", "تعذر التواصل") },
     { id: "returns", label: t("layout.returns", "المرتجعات") },
     { id: "follow-up", label: t("layout.followUp", "المتابعة") },
   ];
@@ -220,7 +222,7 @@ export default function Orders() {
         <>
           <AdminToolbar>
             <div className="relative flex-1 max-w-md">
-              <Search className={`absolute ${i18n.dir() === "rtl" ? "right-3" : "left-3"} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
+              <Search className={`absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
               <Input
                 placeholder={t("orders.search.placeholder", "ابحث برقم الطلب أو العميل أو الهاتف")}
                 value={search}
@@ -228,29 +230,51 @@ export default function Orders() {
                 className="px-10 h-11"
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-              className="h-11 rounded-xl border border-input bg-background px-3 text-sm"
-              aria-label={t("orders.filters.status", "Status")}
-            >
-              <option value="all">{t("orders.filters.allStatuses", "All statuses")}</option>
-              {Object.keys(orderStatusMeta).map((status) => (
-                <option key={status} value={status}>
-                  {t(`orders.status.${status}`, t(`orderDetail.status.${status}`, status))}
-                </option>
-              ))}
-            </select>
-            <select
-              value={paymentFilter}
-              onChange={(event) => setPaymentFilter(event.target.value)}
-              className="h-11 rounded-xl border border-input bg-background px-3 text-sm"
-              aria-label={t("orders.filters.payment", "Payment")}
-            >
-              <option value="all">{t("orders.filters.allPayments", "All payments")}</option>
-              <option value="cod">{t("orders.payment.cod", "COD")}</option>
-              <option value="paymob">{t("orders.payment.paymob", "Online payment")}</option>
-            </select>
+            <div className="flex gap-2 w-full flex-wrap sm:flex-nowrap">
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className="h-11 rounded-xl border border-input bg-background px-3 text-sm flex-1 sm:flex-none"
+                aria-label={t("orders.filters.status", "Status")}
+              >
+                <option value="all">{t("orders.filters.allStatuses", "All statuses")}</option>
+                {Object.keys(orderStatusMeta).map((status) => (
+                  <option key={status} value={status}>
+                    {t(`orders.status.${status}`, t(`orderDetail.status.${status}`, status))}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={paymentFilter}
+                onChange={(event) => setPaymentFilter(event.target.value)}
+                className="h-11 rounded-xl border border-input bg-background px-3 text-sm flex-1 sm:flex-none"
+                aria-label={t("orders.filters.payment", "Payment")}
+              >
+                <option value="all">{t("orders.filters.allPayments", "All payments")}</option>
+                <option value="cod">{t("orders.payment.cod", "COD")}</option>
+                <option value="paymob">{t("orders.payment.paymob", "Online payment")}</option>
+              </select>
+              <Input
+                placeholder={t("orders.filters.city", "المدينة/المنطقة")}
+                value={cityFilter}
+                onChange={(event) => setCityFilter(event.target.value)}
+                className="h-11 w-32 shrink-0"
+              />
+              <Input
+                type="date"
+                value={dateRange.start}
+                onChange={(event) => setDateRange((prev) => ({ ...prev, start: event.target.value }))}
+                className="h-11 w-36 shrink-0"
+                aria-label={t("orders.filters.startDate", "Start date")}
+              />
+              <Input
+                type="date"
+                value={dateRange.end}
+                onChange={(event) => setDateRange((prev) => ({ ...prev, end: event.target.value }))}
+                className="h-11 w-36 shrink-0"
+                aria-label={t("orders.filters.endDate", "End date")}
+              />
+            </div>
           </AdminToolbar>
 
           {selectedOrders.length > 0 && (
@@ -290,6 +314,7 @@ export default function Orders() {
                   t("orders.table.status", "Status"),
                   t("orders.table.payment", "Payment"),
                   t("orders.table.total", "Total"),
+                  t("orders.table.tracking", "Tracking"),
                   t("orders.table.age", "Age"),
                   t("orders.table.next", "Next action"),
                   <span className="sr-only">{t("orders.table.open", "Open")}</span>,
@@ -328,6 +353,16 @@ export default function Orders() {
                           {order.paymentMethod === "paymob" ? t("orders.payment.paymob", "Online payment") : t("orders.payment.cod", "COD")}
                         </AdminTableCell>
                         <AdminTableCell className="font-semibold text-primary">{formatCurrency(order.totalAmount, i18n.language)}</AdminTableCell>
+                        <AdminTableCell className="text-muted-foreground text-xs">
+                          {order.trackingNumber ? (
+                            <div className="flex flex-col">
+                              <span>{order.bostaShipmentId ? "Bosta" : "Courier"}</span>
+                              <span className="font-mono">{order.trackingNumber}</span>
+                            </div>
+                          ) : (
+                            "-"
+                          )}
+                        </AdminTableCell>
                         <AdminTableCell className="text-muted-foreground">{formatRelativeAge(order.createdAt, i18n.language)}</AdminTableCell>
                         <AdminTableCell>
                           <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground">

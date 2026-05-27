@@ -115,12 +115,12 @@ function KPICard({
     <motion.div variants={stagger.item}>
       <Card className="border-border/50 hover:shadow-lg transition-all duration-300 overflow-hidden relative group">
         <div className={`absolute inset-x-0 top-0 h-1 ${color} opacity-60 group-hover:opacity-100 transition-opacity`} />
-        <CardContent className="pt-5 pb-5">
+        <CardContent className="p-4">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1.5 font-medium">{label}</p>
-              <p className="text-2xl font-bold text-foreground truncate">{value}</p>
-              {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
+              <p className="text-[11px] text-muted-foreground mb-1 font-medium">{label}</p>
+              <p className="text-xl font-bold text-foreground truncate">{value}</p>
+              {sub && <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>}
               {trend !== undefined && (
                 <div className={`flex items-center gap-1 mt-1.5 text-xs font-medium ${trend >= 0 ? "text-green-600" : "text-red-500"}`}>
                   <ArrowUpRight className={`w-3 h-3 ${trend < 0 ? "rotate-180" : ""}`} />
@@ -128,8 +128,8 @@ function KPICard({
                 </div>
               )}
             </div>
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 shrink-0">
-              <Icon className="w-5 h-5 text-primary" />
+            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 shrink-0">
+              <Icon className="w-4 h-4 text-primary" />
             </div>
           </div>
         </CardContent>
@@ -310,8 +310,8 @@ function OnboardingChecklist() {
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <CardContent className="pt-0 pb-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              <CardContent className="pt-0 pb-3">
+                <div className="flex flex-col gap-2">
                   {steps.map((step, i) => {
                     const fallbackMeta = ONBOARDING_STORY[step.key] ?? {
                       href: step.href,
@@ -334,27 +334,23 @@ function OnboardingChecklist() {
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
-                        className={`flex h-full flex-col gap-3 rounded-2xl border p-4 transition-all duration-200 hover:shadow-sm ${
+                        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg border p-3 transition-all duration-200 hover:shadow-sm ${
                           step.done
                             ? "border-green-200 bg-green-50/60 dark:border-green-800/30 dark:bg-green-900/10"
                             : "border-border/50 bg-background/75 hover:border-primary/30"
                         }`}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${step.done ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary"}`}>
-                            {step.done ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                        <div className="flex items-center gap-3">
+                          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${step.done ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary"}`}>
+                            {step.done ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-[11px] font-semibold text-primary/80">{meta.chapter}</p>
-                            <p className={`mt-1 text-sm font-semibold leading-tight ${step.done ? "text-green-700 dark:text-green-400" : "text-foreground"}`}>
+                            <p className="text-xs font-semibold leading-tight text-foreground">
                               {step.label}
-                            </p>
-                            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                              {meta.story}
                             </p>
                           </div>
                         </div>
-                        <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
+                        <div className="flex items-center gap-2 sm:ms-auto shrink-0 w-full sm:w-auto">
                           <Button size="sm" className="h-8 rounded-xl gap-1.5 text-xs" asChild>
                             <Link href={meta.href}>
                               {meta.action}
@@ -585,12 +581,12 @@ export default function Dashboard() {
               ) : (
                 analytics.recentOrders.map((order) => (
                   <Link key={order.id} href={`/orders/${order.id}`}>
-                    <div className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer group border border-transparent hover:border-border/40">
+                    <div className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group border border-transparent hover:border-border/40">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-sm font-semibold text-foreground">#{order.id}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[13px] font-semibold text-foreground">#{order.id}</span>
                           <Badge
-                            className="text-[10px] px-1.5 py-0 border"
+                            className="text-[9px] px-1.5 py-0 border leading-tight"
                             style={{
                               backgroundColor: `${STATUS_COLORS[order.status]}15`,
                               color: STATUS_COLORS[order.status],
@@ -600,17 +596,17 @@ export default function Dashboard() {
                             {t(`dashboard.status.${order.status}`, { defaultValue: order.status })}
                           </Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[10px] text-muted-foreground">
                           {t(`dashboard.payment.${order.paymentMethod}`, { defaultValue: order.paymentMethod })}
                           {" · "}
                           {new Date(order.createdAt).toLocaleDateString(locale, { month: "short", day: "numeric" })}
                         </p>
                       </div>
                       <div className="text-end shrink-0">
-                        <p className="text-sm font-bold text-primary">
+                        <p className="text-[13px] font-bold text-primary">
                           {Number(order.totalAmount ?? 0).toLocaleString(locale)} {curr}
                         </p>
-                        <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground ms-auto mt-0.5 group-hover:text-primary transition-colors rtl:-scale-x-100" />
+                        <ChevronLeft className="w-3 h-3 text-muted-foreground ms-auto mt-0.5 group-hover:text-primary transition-colors rtl:-scale-x-100" />
                       </div>
                     </div>
                   </Link>

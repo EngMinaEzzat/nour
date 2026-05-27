@@ -213,19 +213,19 @@ export function StoreHeader({
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={onSearchOpen}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
+              className="w-11 h-11 md:w-9 md:h-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
               aria-label="بحث"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-5 h-5 md:w-4 md:h-4" />
             </button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="h-9 px-2 min-w-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                  className="h-11 md:h-9 px-2 min-w-[44px] md:min-w-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
                   aria-label={t("storefront.header.actions.language", "Language")}
                 >
-                  <span className="font-semibold text-xs uppercase tracking-wider">
+                  <span className="font-semibold text-xs md:text-xs uppercase tracking-wider">
                     {i18n.language === "ar" ? "العربية" : "EN"}
                   </span>
                 </button>
@@ -245,7 +245,7 @@ export function StoreHeader({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="h-9 px-3 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all text-[13px] font-medium"
+                  className="h-11 md:h-9 px-3 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all text-sm md:text-[13px] font-medium"
                 >
                   {t("storefront.header.actions.account", "حسابي")}
                 </button>
@@ -262,14 +262,14 @@ export function StoreHeader({
 
             <button
               onClick={() => navigate("/checkout")}
-              className="relative w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100"
+              className="relative w-11 h-11 md:w-9 md:h-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100"
               style={{ color: p }}
               aria-label={t("storefront.header.actions.cart")}
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-5 h-5 md:w-4 md:h-4" />
               {cartCount > 0 && (
                 <span
-                  className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] font-black text-white flex items-center justify-center"
+                  className="absolute top-1.5 right-1.5 md:-top-0.5 md:-right-0.5 w-4 h-4 rounded-full text-[9px] font-black text-white flex items-center justify-center"
                   style={{ background: p }}
                 >
                   {cartCount > 9 ? "9+" : cartCount}
@@ -280,10 +280,10 @@ export function StoreHeader({
             {/* Mobile hamburger */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className="md:hidden w-9 h-9 rounded-xl flex items-center justify-center text-stone-600 hover:bg-stone-100 transition-all"
+              className="md:hidden w-11 h-11 rounded-xl flex items-center justify-center text-stone-600 hover:bg-stone-100 transition-all"
               aria-label="القائمة"
             >
-              <Menu className="w-4 h-4" />
+              <Menu className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -301,7 +301,7 @@ export function StoreHeader({
               onClick={() => setDrawerOpen(false)}
             />
             <motion.aside
-              className={`fixed top-0 ${i18n.dir() === "rtl" ? "left-0" : "right-0"} h-full w-[280px] z-[70] flex flex-col`}
+              className={`fixed top-0 end-0 h-full w-[280px] z-[70] flex flex-col`}
               style={{
                 background: "#faf7f4",
                 direction: i18n.dir(),
@@ -336,7 +336,7 @@ export function StoreHeader({
                 <nav className="px-4 py-6 flex flex-col gap-1">
                   <motion.button
                     onClick={() => scrollTo("new-arrivals")}
-                    className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                    className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all text-start`}
                     initial={{ opacity: 0, x: i18n.dir() === "rtl" ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
                   >
@@ -350,13 +350,13 @@ export function StoreHeader({
                     if (children.length > 0) {
                       return (
                         <div key={cat.id} className="py-1">
-                          <div className={`px-3 py-2 text-stone-900 font-semibold text-[15px] ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}>
+                          <div className={`px-3 py-2 text-stone-900 font-semibold text-[15px] text-start`}>
                             {label}
                           </div>
                           <div className="flex flex-col gap-1 pl-4 pr-4 border-l-2 border-stone-100 ml-3">
                             <button
                               onClick={() => handleNavClick(cat.id)}
-                              className={`py-2 px-3 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                              className={`py-2 px-3 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition-all text-start`}
                             >
                               {t("storefront.home.allProducts")}
                             </button>
@@ -364,7 +364,7 @@ export function StoreHeader({
                               <button
                                 key={child.id}
                                 onClick={() => handleNavClick(child.id)}
-                                className={`py-2 px-3 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                                className={`py-2 px-3 rounded-lg text-stone-600 hover:bg-stone-100 font-medium text-sm transition-all text-start`}
                               >
                                 {i18n.language === "ar" ? (child.nameAr || child.name) : child.name}
                               </button>
@@ -378,7 +378,7 @@ export function StoreHeader({
                       <motion.button
                         key={cat.id}
                         onClick={() => handleNavClick(cat.id)}
-                        className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                        className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all text-start`}
                         initial={{ opacity: 0, x: i18n.dir() === "rtl" ? 20 : -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.04 }}
@@ -390,7 +390,7 @@ export function StoreHeader({
 
                   <motion.button
                     onClick={() => scrollTo("products-section")}
-                    className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all ${i18n.dir() === "rtl" ? "text-right" : "text-left"}`}
+                    className={`py-3 px-3 rounded-xl text-stone-700 hover:bg-stone-100 hover:text-stone-900 font-medium text-[15px] transition-all text-start`}
                     initial={{ opacity: 0, x: i18n.dir() === "rtl" ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
                   >
@@ -445,7 +445,7 @@ export function StoreHeader({
                     <MapPin className="w-3 h-3" />{city}
                   </span>
                 )}
-                <div className={`flex gap-2 ${i18n.dir() === "rtl" ? "mr-auto" : "ml-auto"}`}>
+                <div className={`flex gap-2 me-auto`}>
                   {sl.instagram && (
                     <a href={sl.instagram} target="_blank" rel="noreferrer"
                       className="w-7 h-7 rounded-lg flex items-center justify-center"
