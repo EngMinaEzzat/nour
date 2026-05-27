@@ -116,11 +116,12 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
               >
                 <input
                   type="email"
+                  dir="ltr"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder={t("storefront.home.newsletter.emailPlaceholder", "بريدك الإلكتروني")}
                   required
-                  className="flex-1 px-5 py-3.5 rounded-full text-sm outline-none text-stone-900 placeholder:text-stone-400"
+                  className="flex-1 px-5 py-3.5 rounded-full text-sm outline-none text-stone-900 placeholder:text-stone-400 text-left"
                   style={{
                     background: "rgba(250,247,244,0.95)",
                     direction: "ltr",
