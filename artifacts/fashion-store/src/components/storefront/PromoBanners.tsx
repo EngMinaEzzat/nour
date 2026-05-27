@@ -8,9 +8,10 @@ interface PromoBannersProps {
   primaryColor: string;
   onScrollToProducts: (discount?: number) => void;
   content?: any;
+  settings?: any;
 }
 
-export function PromoBanners({ primaryColor: p, onScrollToProducts, content }: PromoBannersProps) {
+export function PromoBanners({ primaryColor: p, onScrollToProducts, content, settings }: PromoBannersProps) {
   const { t, i18n } = useTranslation();
   
   // Use content or fallback to translation defaults
@@ -26,13 +27,19 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content }: P
   const promo2Threshold = content?.promo2Threshold || "999";
   const promo2Cta = content?.promo2Cta || t("storefront.home.promos.orderNow", "اطلبي الآن");
 
+  const showPromo1 = settings?.showPromo1 ?? true;
+  const showPromo2 = settings?.showPromo2 ?? true;
+
+  if (!showPromo1 && !showPromo2) return null;
+
   return (
     <section
       className="py-10 px-4 sm:px-6"
       style={{ background: "#fff", direction: i18n.dir() }}
     >
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className={`max-w-7xl mx-auto grid grid-cols-1 ${showPromo1 && showPromo2 ? "md:grid-cols-2" : ""} gap-4`}>
         {/* Promo 1 — discount */}
+        {showPromo1 && (
         <motion.div
           className="relative overflow-hidden rounded-3xl cursor-pointer group"
           style={{
@@ -82,8 +89,10 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content }: P
             </div>
           </div>
         </motion.div>
+        )}
 
         {/* Promo 2 — shipping */}
+        {showPromo2 && (
         <motion.div
           className="relative overflow-hidden rounded-3xl cursor-pointer group"
           style={{
@@ -147,6 +156,7 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content }: P
             </div>
           </div>
         </motion.div>
+        )}
       </div>
     </section>
   );

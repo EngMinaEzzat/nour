@@ -763,7 +763,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           />
         );
       case "offers":
-        return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} />;
+        return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} settings={section.settings} />;
       case "lookbook":
         return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} />;
       case "instagram":
@@ -979,7 +979,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       />
 
       {/* ── Promo Banners ── */}
-      <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} />
+      <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} content={(store as any).homepage?.sections?.find((s: any) => s.type === "offers")?.content} settings={(store as any).homepage?.sections?.find((s: any) => s.type === "offers")?.settings} />
 
       {/* ── Editorial Lookbook ── */}
       <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} />
