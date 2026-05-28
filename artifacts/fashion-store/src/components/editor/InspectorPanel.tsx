@@ -499,7 +499,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
           <ToggleField label={t("inspectorPanel.fields.showRating")} value={section.settings.showRating ?? true} onChange={(v) => patchSettings({ showRating: v })} />
           <ItemListEditor
             label={t("inspectorPanel.fields.testimonialItems", { defaultValue: "الآراء" })}
-            items={(section.content.items as any) ?? []}
+            items={section.content.items ?? []}
             fields={[
               { key: "name", label: t("inspectorPanel.fields.testimonialName", { defaultValue: "اسم العميل" }), type: "text" },
               { key: "text", label: t("inspectorPanel.fields.testimonialText", { defaultValue: "الرأي" }), type: "textarea" },
@@ -613,7 +613,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
           </Field>
           <ItemListEditor
             label={t("inspectorPanel.fields.faqItems", { defaultValue: "الأسئلة والإجابات" })}
-            items={(section.content.items as any) ?? []}
+            items={section.content.items ?? []}
             fields={[
               { key: "q", label: t("inspectorPanel.fields.faqQ", { defaultValue: "السؤال" }), type: "text" },
               { key: "a", label: t("inspectorPanel.fields.faqA", { defaultValue: "الإجابة" }), type: "textarea" }
@@ -653,7 +653,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
           />
           <ItemListEditor
             label={t("inspectorPanel.fields.imageItems", { defaultValue: "الصور" })}
-            items={(section.content.items as any) ?? []}
+            items={section.content.items ?? []}
             fields={section.type === "lookbook" ? [
               { key: "imageUrl", label: t("inspectorPanel.fields.imageUrl", { defaultValue: "رابط الصورة" }), type: "image" },
               { key: "title", label: t("inspectorPanel.fields.title", { defaultValue: "العنوان" }), type: "text" },
@@ -672,7 +672,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
         <>
           <ItemListEditor
             label={t("inspectorPanel.fields.trustStripItems", { defaultValue: "مميزات المتجر (Store Features)" })}
-            items={(section.content.items as any) ?? []}
+            items={section.content.items ?? []}
             fields={[
               { key: "icon", label: t("inspectorPanel.fields.trustStripIcon", { defaultValue: "الأيقونة (إيموجي)" }), type: "text" },
               { key: "title", label: t("inspectorPanel.fields.trustStripTitle", { defaultValue: "العنوان" }), type: "text" },

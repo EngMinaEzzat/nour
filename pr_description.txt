@@ -1,0 +1,4 @@
+🎯 **What:** Removed the unsafe `(section.content.items as any)` type cast in the `ItemListEditor` component within `InspectorPanel.tsx`.
+💡 **Why:** `section.content.items` is defined as `Array<Record<string, string>> | undefined` in `store-config.ts`. The `ItemListEditor` expects `Array<Record<string, string>>`. By removing the `as any` cast and replacing the prop with `section.content.items ?? []`, we correctly utilize TypeScript's inference, maintain type safety, and eliminate a dangerous `any` cast that could hide future schema changes. This improves codebase maintainability and readability.
+✅ **Verification:** Verified by compiling the workspace locally (`pnpm run typecheck`), building the frontend (`pnpm run build`), and running all tests (`pnpm run --filter @workspace/fashion-store test`) successfully.
+✨ **Result:** Improved type safety in `InspectorPanel.tsx` without changing runtime behavior.
