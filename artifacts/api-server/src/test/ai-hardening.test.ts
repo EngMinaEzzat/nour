@@ -166,6 +166,16 @@ describe("AI Hardening — Rate Limits", () => {
     // 21 < 50, so still allowed on the 22nd
     expect(checkAiRateLimit(fakeTenantId, "growth").allowed).toBe(true);
 
+    // Pro: unlimited (-1)
+    resetAiRateLimit(fakeTenantId);
+    for (let i = 0; i < 200; i++) checkAiRateLimit(fakeTenantId, "pro");
+    expect(checkAiRateLimit(fakeTenantId, "pro").allowed).toBe(true);
+
+    // Free: 10/hour (free is 10, starter is 20)
+    resetAiRateLimit(fakeTenantId);
+    for (let i = 0; i < 10; i++) checkAiRateLimit(fakeTenantId, "free");
+    expect(checkAiRateLimit(fakeTenantId, "free").allowed).toBe(false);
+
     resetAiRateLimit(fakeTenantId);
   });
 
