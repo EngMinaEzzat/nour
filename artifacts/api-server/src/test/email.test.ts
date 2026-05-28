@@ -130,6 +130,25 @@ describe("Email System", () => {
     expect(callArgs.html).toContain("&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;");
   });
 
+
+  it("should send password reset email with reset link", async () => {
+    const to = "user@example.com";
+    const resetLink = "https://nour.example/reset?token=123";
+
+    const result = await sendPasswordResetEmail(to, resetLink);
+
+    expect(result).toEqual({ sent: true });
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "user@example.com",
+        subject: "إعادة تعيين كلمة المرور — نور",
+      })
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain(resetLink);
+  });
+
   it("should escape user-controlled admin notification fields", async () => {
     await sendNewMerchantNotification(
       ["admin@example.com"],
