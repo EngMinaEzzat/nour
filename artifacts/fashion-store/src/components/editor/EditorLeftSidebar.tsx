@@ -1,3 +1,4 @@
+import i18n from "i18next";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Copy, Palette, LayoutList, Wand2, CheckCircle2, AlertTriangle } from "lucide-react";
@@ -125,7 +126,7 @@ export default function EditorLeftSidebar({
                 <button
                   onClick={dismissSidebarHint}
                   className="absolute top-1.5 left-1.5 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-100 text-blue-400 hover:text-blue-600 transition-colors"
-                  aria-label="إغلاق"
+                  aria-label={t("common.close")}
                 >
                   ×
                 </button>
@@ -267,11 +268,11 @@ export default function EditorLeftSidebar({
 }
 
 // ─── Visual Theme Panel ─────────────────────────────────────────────────────────
-const VISUAL_THEMES = [
+const getVisualThemes = (t: any) => ([
   {
     id: "elegant-fashion",
-    name: "أزياء أنيقة",
-    desc: "طابع كلاسيكي أنيق",
+    name: t("editorSidebar.themePanel.presets.elegantFashion.name"),
+    desc: t("editorSidebar.themePanel.presets.elegantFashion.desc"),
     emoji: "👗",
     gradient: "from-stone-800 to-black",
     preview: { bg: "#fdfbf7", accent: "#1a1a1a", text: "#1a1a1a" },
@@ -279,8 +280,8 @@ const VISUAL_THEMES = [
   },
   {
     id: "cosmetics-soft",
-    name: "مستحضرات تجميل ناعمة",
-    desc: "نعومة وألوان هادئة",
+    name: t("editorSidebar.themePanel.presets.softCosmetics.name"),
+    desc: t("editorSidebar.themePanel.presets.softCosmetics.desc"),
     emoji: "✨",
     gradient: "from-rose-200 to-pink-300",
     preview: { bg: "#fff0f3", accent: "#d4a373", text: "#4a3b32" },
@@ -288,8 +289,8 @@ const VISUAL_THEMES = [
   },
   {
     id: "minimal-boutique",
-    name: "بوتيك بسيط",
-    desc: "تصميم نظيف وحديث",
+    name: t("editorSidebar.themePanel.presets.simpleBoutique.name"),
+    desc: t("editorSidebar.themePanel.presets.simpleBoutique.desc"),
     emoji: "🤍",
     gradient: "from-stone-200 to-stone-400",
     preview: { bg: "#fafafa", accent: "#000000", text: "#111111" },
@@ -297,8 +298,8 @@ const VISUAL_THEMES = [
   },
   {
     id: "bold-streetwear",
-    name: "أزياء شارع جريئة",
-    desc: "حيوية وألوان قوية",
+    name: t("editorSidebar.themePanel.presets.streetWear.name"),
+    desc: t("editorSidebar.themePanel.presets.streetWear.desc"),
     emoji: "🔥",
     gradient: "from-orange-500 to-red-600",
     preview: { bg: "#f8f9fa", accent: "#ff4500", text: "#111111" },
@@ -306,14 +307,14 @@ const VISUAL_THEMES = [
   },
   {
     id: "premium-occasion",
-    name: "مناسبات فاخرة",
-    desc: "طابع فخم وراقي",
+    name: t("editorSidebar.themePanel.presets.luxuryEvents.name"),
+    desc: t("editorSidebar.themePanel.presets.luxuryEvents.desc"),
     emoji: "👑",
     gradient: "from-rose-800 to-stone-900",
     preview: { bg: "#fdfbf7", accent: "#8B1A35", text: "#1a0a0e" },
     theme: { primaryColor: "#8B1A35", secondaryColor: "#c8963a", fontPairing: "serif-serif" as const, buttonStyle: "rounded" as const, radius: 8, animationLevel: "subtle" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
   },
-];
+]);
 
 function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigChange: (c: StoreConfig) => void }) {
   const { t, i18n } = useTranslation();
@@ -321,7 +322,7 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
   const [showCustom, setShowCustom] = useState(false);
   const primaryContrast = contrastStatus(config.theme.primaryColor, "#ffffff");
 
-  function applyTheme(theme: typeof VISUAL_THEMES[0]) {
+  function applyTheme(theme: any) {
     setActiveThemeId(theme.id);
     onConfigChange({ ...config, theme: { ...config.theme, ...theme.theme } });
   }
@@ -338,7 +339,7 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
       <div className="p-3">
         <p className="text-xs font-semibold text-stone-500 mb-2 uppercase tracking-wide">{t("editorSidebar.themePanel.title")}</p>
         <div className="grid grid-cols-2 gap-2">
-          {VISUAL_THEMES.map((tTheme) => {
+          {getVisualThemes(t).map((tTheme) => {
             const isActive = activeThemeId === tTheme.id || (
               !activeThemeId &&
               config.theme.primaryColor === tTheme.theme.primaryColor &&

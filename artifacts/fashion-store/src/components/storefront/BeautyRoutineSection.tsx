@@ -28,32 +28,32 @@ export function BeautyRoutineSection({
     {
       icon: <Droplets className="w-5 h-5" />,
       step: "01",
-      title: t("storefront.home.beautyRoutine.step1Title", "التنظيف"),
-      desc: t("storefront.home.beautyRoutine.step1Desc", "ابدئي روتينك بتنظيف بشرتك بلطف لإزالة الشوائب وإعداد بشرتك للعناية التالية."),
+      title: t("storefront.home.beautyRoutine.step1Title"),
+      desc: t("storefront.home.beautyRoutine.step1Desc"),
       color: "#8B1A35",
       bg: "rgba(139,26,53,0.06)",
     },
     {
       icon: <Sparkles className="w-5 h-5" />,
       step: "02",
-      title: t("storefront.home.beautyRoutine.step2Title", "الترطيب"),
-      desc: t("storefront.home.beautyRoutine.step2Desc", "رطّبي بشرتك بسيروم مغذٍّ يمنحها نضارة دائمة ويحافظ على توازنها الطبيعي."),
+      title: t("storefront.home.beautyRoutine.step2Title"),
+      desc: t("storefront.home.beautyRoutine.step2Desc"),
       color: "#c97b8b",
       bg: "rgba(201,123,139,0.07)",
     },
     {
       icon: <Sun className="w-5 h-5" />,
       step: "03",
-      title: t("storefront.home.beautyRoutine.step3Title", "الحماية"),
-      desc: t("storefront.home.beautyRoutine.step3Desc", "احمِي بشرتك من أشعة الشمس يومياً بواقٍ شمسي مناسب لنوع بشرتك."),
+      title: t("storefront.home.beautyRoutine.step3Title"),
+      desc: t("storefront.home.beautyRoutine.step3Desc"),
       color: "#c8963a",
       bg: "rgba(200,150,58,0.07)",
     },
     {
       icon: <Moon className="w-5 h-5" />,
       step: "04",
-      title: t("storefront.home.beautyRoutine.step4Title", "العناية الليلية"),
-      desc: t("storefront.home.beautyRoutine.step4Desc", "دعي بشرتك تتجدد أثناء النوم بكريم ليلي مُركَّز يُعيد إليها حيويتها."),
+      title: t("storefront.home.beautyRoutine.step4Title"),
+      desc: t("storefront.home.beautyRoutine.step4Desc"),
       color: "#7a5c9e",
       bg: "rgba(122,92,158,0.07)",
     },
@@ -75,18 +75,18 @@ export function BeautyRoutineSection({
             className="text-[11px] tracking-[0.25em] uppercase mb-3 font-medium"
             style={{ color: p }}
           >
-            {t("storefront.home.beautyRoutine.eyebrow", "روتين العناية")}
+            {t("storefront.home.beautyRoutine.eyebrow")}
           </p>
           <h2
             className="text-4xl md:text-5xl text-stone-900 mb-4"
             style={{ fontFamily: SERIF, fontWeight: 400 }}
           >
-            {t("storefront.home.beautyRoutine.title1", "روتينك اليومي")}
+            {t("storefront.home.beautyRoutine.title1")}
             <br />
-            <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.beautyRoutine.title2", "المثالي")}</span>
+            <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.beautyRoutine.title2")}</span>
           </h2>
           <p className="text-stone-500 text-[15px] max-w-md mx-auto leading-relaxed">
-            {t("storefront.home.beautyRoutine.subtitle", "أربع خطوات بسيطة لبشرة صافية ومشرقة طوال اليوم")}
+            {t("storefront.home.beautyRoutine.subtitle")}
           </p>
         </div>
 
@@ -155,7 +155,7 @@ export function BeautyRoutineSection({
             style={{ background: `linear-gradient(135deg, ${p}, #c97b8b)` }}
           >
             <Sparkles className="w-4 h-4" />
-            {t("storefront.home.beautyRoutine.shopRoutine", "تسوقي منتجات العناية")}
+            {t("storefront.home.beautyRoutine.shopRoutine")}
           </button>
         </motion.div>
       </div>

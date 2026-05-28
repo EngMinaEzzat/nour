@@ -34,21 +34,21 @@ export function StoreFooter({
 
   const NAV_SECTIONS = [
     {
-      title: t("storefront.footer.shop", "تسوقي"),
+      title: t("storefront.footer.shop"),
       links: [
-        { label: t("storefront.products.newArrivals", "وصل حديثاً"), action: () => document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" }) },
-        { label: t("storefront.header.links.bestSellers", "الأكثر مبيعاً"), action: () => document.getElementById("best-sellers")?.scrollIntoView({ behavior: "smooth" }) },
-        { label: t("storefront.header.links.allProducts", "جميع المنتجات"), action: onScrollToProducts },
-        { label: t("storefront.footer.offers", "العروض"), action: onScrollToProducts },
+        { label: t("storefront.products.newArrivals"), action: () => document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" }) },
+        { label: t("storefront.header.links.bestSellers"), action: () => document.getElementById("best-sellers")?.scrollIntoView({ behavior: "smooth" }) },
+        { label: t("storefront.header.links.allProducts"), action: onScrollToProducts },
+        { label: t("storefront.footer.offers"), action: onScrollToProducts },
       ],
     },
     {
-      title: t("storefront.footer.help", "مساعدة"),
+      title: t("storefront.footer.help"),
       links: [
-        { label: t("storefront.footer.trackOrder", "تتبع طلبك"), action: () => {} },
-        { label: t("storefront.footer.returns", "سياسة الإرجاع"), action: () => {} },
-        { label: t("storefront.footer.sizeGuide", "دليل المقاسات"), action: () => {} },
-        { label: t("storefront.footer.contactUs", "تواصل معنا"), action: () => waNum && window.open(`https://wa.me/${waNum}`) },
+        { label: t("storefront.footer.trackOrder"), action: () => {} },
+        { label: t("storefront.footer.returns"), action: () => {} },
+        { label: t("storefront.footer.sizeGuide"), action: () => {} },
+        { label: t("storefront.footer.contactUs"), action: () => waNum && window.open(`https://wa.me/${waNum}`) },
       ],
     },
   ];
@@ -98,7 +98,7 @@ export function StoreFooter({
             )}
             {city && (
               <p className="text-xs flex items-center gap-1.5 mb-5">
-                <MapPin className="w-3.5 h-3.5" />{city}، {t("storefront.footer.egypt", "مصر")}
+                <MapPin className="w-3.5 h-3.5" />{city}، {t("storefront.footer.egypt")}
               </p>
             )}
 
@@ -173,7 +173,7 @@ export function StoreFooter({
               className="text-white font-semibold text-sm mb-5"
               style={{ fontFamily: SERIF }}
             >
-              {t("storefront.footer.weAreHere", "نحن هنا لك")}
+              {t("storefront.footer.weAreHere")}
             </h5>
             {waNum && (
               <a
@@ -184,15 +184,15 @@ export function StoreFooter({
                 style={{ background: "rgba(37,211,102,0.1)", color: "#25D366" }}
               >
                 <MessageCircle className="w-4 h-4" />
-                {t("storefront.footer.whatsappDirect", "واتساب مباشر")}
+                {t("storefront.footer.whatsappDirect")}
               </a>
             )}
             <div className="flex flex-wrap gap-2">
               {[
-                i18n.language === "ar" ? "🔒 دفع آمن" : "🔒 Secure Payment",
-                i18n.language === "ar" ? "📦 شحن سريع" : "📦 Fast Shipping",
-                i18n.language === "ar" ? "↩️ إرجاع مجاني" : "↩️ Free Returns",
-                i18n.language === "ar" ? "⭐ 100% أصلي" : "⭐ 100% Authentic"
+                t("storefront.trust.secure_badge", { defaultValue: "🔒 Secure Payment" }),
+                t("storefront.trust.shipping_badge", { defaultValue: "📦 Fast Shipping" }),
+                t("storefront.trust.returns_badge", { defaultValue: "↩️ Free Returns" }),
+                t("storefront.trust.authentic_badge", { defaultValue: "⭐ 100% Authentic" })
               ].map(badge => (
                 <span
                   key={badge}
@@ -211,10 +211,10 @@ export function StoreFooter({
           className="mt-12 pt-6 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-xs"
           style={{ borderColor: "rgba(255,255,255,0.06)" }}
         >
-          <span>© {new Date().getFullYear()} {storeName} — {t("storefront.footer.allRightsReserved", "جميع الحقوق محفوظة")}</span>
+          <span>© {new Date().getFullYear()} {storeName} — {t("storefront.footer.allRightsReserved")}</span>
           <div className="flex items-center gap-4">
             <a href="/" className="opacity-40 hover:opacity-70 transition-opacity">
-              {t("storefront.footer.poweredBy", "مدعوم بـ")} <span className="font-black" style={{ color: p }}>نور</span>
+              {t("storefront.footer.poweredBy")} <span className="font-black" style={{ color: p }}>Nour</span>
             </a>
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

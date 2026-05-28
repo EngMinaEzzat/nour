@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, X, ChevronDown, Lightbulb, BookOpen } from "lucide-react";
@@ -20,6 +22,7 @@ interface GuideCardProps {
 export default function GuideCard({
   title, description, steps, tips, storageKey, variant = "guide",
 }: GuideCardProps) {
+  const { t } = useTranslation();
   const [dismissed, setDismissed] = useState(() => {
     try { return localStorage.getItem(`guide_dismissed_${storageKey}`) === "1"; } catch { return false; }
   });
@@ -71,7 +74,7 @@ export default function GuideCard({
               onClick={() => setExpanded((e) => !e)}
               className={`flex items-center gap-1 mt-2 text-xs font-medium ${colors.btn} px-2 py-1 rounded-lg transition-colors`}
             >
-              {expanded ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+              {expanded ? t("common.buttons.hideDetails", { defaultValue: "Hide Details" }) : t("common.buttons.showDetails", { defaultValue: "Show Details" })}
               <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                 <ChevronDown className="w-3 h-3" />
               </motion.span>

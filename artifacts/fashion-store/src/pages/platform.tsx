@@ -309,7 +309,7 @@ export default function Platform() {
             <Button variant="outline" size="sm" asChild>
               <Link href="/dashboard">
                 <ChevronLeft className="w-4 h-4 me-1" />
-                {t("platform.backToDashboard", { defaultValue: "العودة للمتجر" })}
+                {t("platform.backToDashboard")}
               </Link>
             </Button>
           }

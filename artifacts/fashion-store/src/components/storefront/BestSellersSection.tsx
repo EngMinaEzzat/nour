@@ -40,15 +40,15 @@ export function BestSellersSection({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              {t("storefront.home.bestSellers.eyebrow", "المفضلة دائماً")}
+              {t("storefront.home.bestSellers.eyebrow")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              {t("storefront.home.bestSellers.title1", "الأكثر")}
+              {t("storefront.home.bestSellers.title1")}
               <br />
-              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.bestSellers.title2", "مبيعاً")}</span>
+              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.bestSellers.title2")}</span>
             </h2>
           </div>
           <button
@@ -56,7 +56,7 @@ export function BestSellersSection({
             className="hidden md:flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
             style={{ color: p }}
           >
-            {t("storefront.home.viewAll", "عرض الكل")}
+            {t("storefront.home.viewAll")}
             {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
@@ -100,7 +100,7 @@ export function BestSellersSection({
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold border-2"
             style={{ borderColor: p, color: p }}
           >
-            {t("storefront.home.viewAllProducts", "عرض كل المنتجات")}
+            {t("storefront.home.viewAllProducts")}
           </button>
         </div>
       </div>

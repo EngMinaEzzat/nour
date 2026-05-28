@@ -214,7 +214,7 @@ export function StoreHeader({
             <button
               onClick={onSearchOpen}
               className="w-11 h-11 md:w-9 md:h-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
-              aria-label="بحث"
+              aria-label={t("storefront.header.search")}
             >
               <Search className="w-5 h-5 md:w-4 md:h-4" />
             </button>
@@ -247,15 +247,15 @@ export function StoreHeader({
                 <button
                   className="h-11 md:h-9 px-3 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all text-sm md:text-[13px] font-medium"
                 >
-                  {t("storefront.header.actions.account", "حسابي")}
+                  {t("storefront.header.actions.account")}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => navigate("/customer/orders")}>
-                  {t("storefront.header.actions.myOrders", "طلباتي")}
+                  {t("storefront.header.actions.myOrders")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/customer/login")}>
-                  {t("storefront.header.actions.login", "تسجيل الدخول")}
+                  {t("storefront.header.actions.login")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -406,7 +406,7 @@ export function StoreHeader({
                     style={{ background: "rgba(37,211,102,0.08)" }}
                   >
                     <MessageCircle className="w-4 h-4 text-green-600" />
-                    {i18n.language === "ar" ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
+                    {t("storefront.header.whatsapp", { defaultValue: "Contact on WhatsApp" })}
                   </a>
                 )}
 
@@ -414,7 +414,7 @@ export function StoreHeader({
                   <div className="flex items-center justify-between py-2 px-3 bg-stone-100 rounded-xl">
                     <span className="text-sm font-medium text-stone-600 flex items-center gap-2">
                       <Languages className="w-4 h-4" />
-                      {i18n.language === "ar" ? "اللغة" : "Language"}
+                      {t("storefront.header.language", { defaultValue: "Language" })}
                     </span>
                     <div className="flex bg-white rounded-lg p-0.5 shadow-sm">
                       <button

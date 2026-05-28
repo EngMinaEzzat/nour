@@ -267,13 +267,13 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
             <div className="px-4 py-6 text-center text-white relative overflow-hidden rounded-xl" style={{ background: "linear-gradient(135deg, #1a1614 0%, #2d2420 100%)" }}>
               <div className="absolute -bottom-6 -end-6 w-20 h-20 rounded-full opacity-10" style={{ background: "#c8963a" }} />
               <p className="text-sm font-bold mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                {(section.content.promo2Heading as string) ?? "شحن مجاني"}
+                {(section.content.promo2Heading as string) ?? t("defaultSections.offers.promo2Heading")}
               </p>
               <span
                 className="text-[10px] px-2 py-1 font-semibold inline-block rounded"
                 style={{ color: "#c8963a", border: "1px solid #c8963a" }}
               >
-                {(section.content.promo2Cta as string) ?? "اطلبي الآن"}
+                {(section.content.promo2Cta as string) ?? t("defaultSections.offers.promo2Cta")}
               </span>
             </div>
           )}

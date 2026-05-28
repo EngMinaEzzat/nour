@@ -63,7 +63,7 @@ async function normalizeUploadFile(file: File) {
     canvas.width = image.width;
     canvas.height = image.height;
     const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("تعذر تجهيز الصورة للرفع");
+    if (!ctx) throw new Error("Could not process image");
     ctx.drawImage(image, 0, 0);
 
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));

@@ -528,7 +528,7 @@ export default function ProductDetail() {
                     className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-4 py-2.5"
                     role="alert"
                   >
-                    {t("productDetail.variantUnavailable", "هذا الاختيار غير متوفر حالياً. جرّبي مقاساً أو لوناً آخر.")}
+                    {t("productDetail.variantUnavailable")}
                   </motion.p>
                 )}
               </AnimatePresence>
@@ -547,14 +547,14 @@ export default function ProductDetail() {
                 <div className="text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-full border border-border/50">
                   {t("productDetail.stock")}{" "}
                   {product.stock > 0
-                    ? <span className="text-foreground font-medium">{product.stock} {t("productDetail.pieces", "قطعة")}</span>
+                    ? <span className="text-foreground font-medium">{product.stock} {t("productDetail.pieces")}</span>
                     : <span className="text-destructive font-medium">{t("productDetail.outOfStockShort")}</span>}
                 </div>
               )}
               {hasVariants && (
                 <div className="text-sm text-muted-foreground bg-primary/5 px-4 py-2 rounded-full border border-primary/20 flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-primary" />
-                  {variants.length} {t("productDetail.variantsAvailable", "متغيّر متاح")}
+                  {variants.length} {t("productDetail.variantsAvailable")}
                 </div>
               )}
             </div>
@@ -577,7 +577,7 @@ export default function ProductDetail() {
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/30 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-foreground">
-                  {t("productDetail.quantity", "الكمية")}
+                  {t("productDetail.quantity")}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {selectionResolved && effectiveStock > 0
@@ -585,7 +585,7 @@ export default function ProductDetail() {
                         count: effectiveStock,
                         defaultValue: "{{count}} قطعة متاحة",
                       })
-                    : t("productDetail.chooseVariantForStock", "اختاري المقاس واللون لمعرفة المتاح")}
+                    : t("productDetail.chooseVariantForStock")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -594,7 +594,7 @@ export default function ProductDetail() {
                   onClick={() => setQuantity((value) => Math.max(1, value - 1))}
                   disabled={quantity <= 1 || unavailable || !variantSelectionComplete}
                   className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
-                  aria-label={t("productDetail.decreaseQuantity", "تقليل الكمية")}
+                  aria-label={t("productDetail.decreaseQuantity")}
                 >
                   <Minus className="w-4 h-4" />
                 </button>
@@ -604,7 +604,7 @@ export default function ProductDetail() {
                   onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
                   disabled={quantity >= maxQuantity || unavailable || !variantSelectionComplete}
                   className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
-                  aria-label={t("productDetail.increaseQuantity", "زيادة الكمية")}
+                  aria-label={t("productDetail.increaseQuantity")}
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -635,15 +635,15 @@ export default function ProductDetail() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>{t("productDetail.trust.cod", "الدفع عند الاستلام متاح")}</span>
+                <span>{t("productDetail.trust.cod")}</span>
               </div>
               <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
                 <Truck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>{t("productDetail.trust.delivery", "تأكيد التوصيل عبر واتساب")}</span>
+                <span>{t("productDetail.trust.delivery")}</span>
               </div>
               <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
                 <RotateCcw className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>{t("productDetail.trust.support", "اسألي المتجر قبل الطلب")}</span>
+                <span>{t("productDetail.trust.support")}</span>
               </div>
             </div>
 
@@ -680,7 +680,7 @@ export default function ProductDetail() {
           <div className="min-w-0 flex-1">
             <p className="text-[11px] text-muted-foreground">
               {hasVariants && !variantSelectionComplete
-                ? t("productDetail.selectSizeColorFirst", "اختاري المقاس واللون أولاً")
+                ? t("productDetail.selectSizeColorFirst")
                 : t("productDetail.quantitySummary", {
                     count: quantity,
                     defaultValue: "{{count}} قطعة",
@@ -698,7 +698,7 @@ export default function ProductDetail() {
             {unavailable ? (
               <><ShoppingBag className="w-4 h-4 me-2" /> {t("productDetail.outOfStockBadge")}</>
             ) : hasVariants && !variantSelectionComplete ? (
-              <><Layers className="w-4 h-4 me-2" /> {t("productDetail.chooseOptions", "اختاري الخيارات")}</>
+              <><Layers className="w-4 h-4 me-2" /> {t("productDetail.chooseOptions")}</>
             ) : inCart ? (
               <><Check className="w-4 h-4 me-2" /> {t("productDetail.addedToCart")}</>
             ) : (

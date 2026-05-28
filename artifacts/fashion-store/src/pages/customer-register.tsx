@@ -18,7 +18,7 @@ function getRegisterErrorMessage(err: unknown, t: any): string {
     if (firstFieldError) return firstFieldError;
   }
 
-  return (err as { message?: string } | null)?.message || t("customerAuth.unknownError", "حدث خطأ غير متوقع");
+  return (err as { message?: string } | null)?.message || t("customerAuth.unknownError");
 }
 
 export default function CustomerRegister() {
@@ -41,13 +41,13 @@ export default function CustomerRegister() {
         phone: phone.trim(),
       });
       toast({
-        title: t("customerAuth.registerSuccess", "تم إنشاء الحساب بنجاح"),
-        description: t("customerAuth.registerSuccessDesc", "مرحباً بك في متجرنا!"),
+        title: t("customerAuth.registerSuccess"),
+        description: t("customerAuth.registerSuccessDesc"),
       });
       setLocation("/");
     } catch (err: any) {
       toast({
-        title: t("customerAuth.registerError", "خطأ في إنشاء الحساب"),
+        title: t("customerAuth.registerError"),
         description: getRegisterErrorMessage(err, t),
         variant: "destructive",
       });
@@ -58,13 +58,13 @@ export default function CustomerRegister() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>{t("customerAuth.registerTitle", "إنشاء حساب جديد")}</CardTitle>
-          <CardDescription>{t("customerAuth.registerDesc", "أدخل بياناتك لإنشاء حساب عميل للمتجر")}</CardDescription>
+          <CardTitle>{t("customerAuth.registerTitle")}</CardTitle>
+          <CardDescription>{t("customerAuth.registerDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("customerAuth.nameLabel", "الاسم الكامل")}</label>
+              <label className="text-sm font-medium">{t("customerAuth.nameLabel")}</label>
               <Input 
                 value={name} 
                 onChange={e => setName(e.target.value)}
@@ -72,7 +72,7 @@ export default function CustomerRegister() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("customerAuth.emailLabel", "البريد الإلكتروني")}</label>
+              <label className="text-sm font-medium">{t("customerAuth.emailLabel")}</label>
               <Input 
                 type="email" 
                 value={email} 
@@ -83,7 +83,7 @@ export default function CustomerRegister() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("customerAuth.phoneLabel", "رقم الهاتف")}</label>
+              <label className="text-sm font-medium">{t("customerAuth.phoneLabel")}</label>
               <Input 
                 type="tel" 
                 value={phone} 
@@ -91,13 +91,13 @@ export default function CustomerRegister() {
                 required
                 inputMode="tel"
                 placeholder="01012345678"
-                title={t("customerAuth.phoneDesc", "رقم هاتف محمول صحيح")}
+                title={t("customerAuth.phoneDesc")}
                 dir="ltr"
                 className="text-left"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("customerAuth.passwordLabel", "كلمة المرور")}</label>
+              <label className="text-sm font-medium">{t("customerAuth.passwordLabel")}</label>
               <Input 
                 type="password" 
                 value={password} 
@@ -109,12 +109,12 @@ export default function CustomerRegister() {
               />
             </div>
             <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading ? t("customerAuth.registering", "جاري الإنشاء...") : t("customerAuth.registerBtn", "إنشاء حساب")}
+              {isLoading ? t("customerAuth.registering") : t("customerAuth.registerBtn")}
             </Button>
             <div className="text-center text-sm text-gray-500 mt-4">
-              {t("customerAuth.haveAccount", "لديك حساب بالفعل؟")}{" "}
+              {t("customerAuth.haveAccount")}{" "}
               <Link href="/customer/login" className="text-primary hover:underline">
-                {t("customerAuth.loginBtn", "تسجيل الدخول")}
+                {t("customerAuth.loginBtn")}
               </Link>
             </div>
           </form>

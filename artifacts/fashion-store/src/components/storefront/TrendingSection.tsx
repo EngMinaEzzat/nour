@@ -1,3 +1,4 @@
+import i18n from "i18next";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -6,16 +7,6 @@ import { StorefrontProductCard, ProductCardData } from "./StorefrontProductCard"
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
-const TREND_TAGS = [
-  "كوتشي",
-  "باليرينا",
-  "ميني",
-  "ستريت ستايل",
-  "ناعم وفخم",
-  "بوهو",
-  "مونوكروم",
-  "فلورال",
-];
 
 interface TrendingSectionProps {
   products: ProductCardData[];
@@ -60,15 +51,15 @@ export function TrendingSection({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              {t("storefront.home.trending.eyebrow", "ترند الآن")}
+              {t("storefront.home.trending.eyebrow")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              {t("storefront.home.trending.title1", "الأكثر")}
+              {t("storefront.home.trending.title1")}
               <br />
-              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.trending.title2", "رواجاً")}</span>
+              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.trending.title2")}</span>
             </h2>
           </div>
           {/* Scroll arrows */}
@@ -93,14 +84,14 @@ export function TrendingSection({
         {/* Trend tags */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-none">
           {(t("storefront.home.trending.tags", { returnObjects: true, defaultValue: [
-            "كوتشي",
-            "باليرينا",
-            "ميني",
-            "ستريت ستايل",
-            "ناعم وفخم",
-            "بوهو",
-            "مونوكروم",
-            "فلورال",
+            t("storefront.trending.tags.sneakers", { defaultValue: "Sneakers" }),
+            t("storefront.trending.tags.ballerina", { defaultValue: "Ballerina" }),
+            t("storefront.trending.tags.mini", { defaultValue: "Mini" }),
+            t("storefront.trending.tags.streetStyle", { defaultValue: "Street Style" }),
+            t("storefront.trending.tags.softLuxury", { defaultValue: "Soft Luxury" }),
+            t("storefront.trending.tags.boho", { defaultValue: "Boho" }),
+            t("storefront.trending.tags.monochrome", { defaultValue: "Monochrome" }),
+            t("storefront.trending.tags.floral", { defaultValue: "Floral" }),
           ] }) as string[]).map((tag, i) => (
             <motion.span
               key={tag}

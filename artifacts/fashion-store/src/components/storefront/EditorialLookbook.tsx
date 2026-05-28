@@ -21,9 +21,9 @@ export function EditorialLookbook({
     {
       image:
         "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&crop=faces",
-      tag: t("storefront.home.lookbook.panel1.tag", "أزياء • Fashion"),
-      headline: t("storefront.home.lookbook.panel1.title", "الجمال\nالمصري"),
-      sub: t("storefront.home.lookbook.panel1.desc", "تشكيلة حصرية مستوحاة من التراث"),
+      tag: t("storefront.home.lookbook.panel1.tag"),
+      headline: t("storefront.home.lookbook.panel1.title"),
+      sub: t("storefront.home.lookbook.panel1.desc"),
       span: "col-span-2 md:col-span-1 row-span-2",
       textPos: i18n.dir() === "rtl" ? "bottom-8 start-6" : "bottom-8 left-6",
       imgClass: "object-center",
@@ -31,9 +31,9 @@ export function EditorialLookbook({
     {
       image:
         "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&fit=crop&crop=faces",
-      tag: t("storefront.home.lookbook.panel2.tag", "ربيع 2025"),
-      headline: t("storefront.home.lookbook.panel2.title", "ألوان\nالربيع"),
-      sub: t("storefront.home.lookbook.panel2.desc", "درجات ناعمة لإطلالة مثالية"),
+      tag: t("storefront.home.lookbook.panel2.tag"),
+      headline: t("storefront.home.lookbook.panel2.title"),
+      sub: t("storefront.home.lookbook.panel2.desc"),
       span: "col-span-2 md:col-span-1",
       textPos: i18n.dir() === "rtl" ? "bottom-5 start-5" : "bottom-5 left-5",
       imgClass: "object-top",
@@ -41,9 +41,9 @@ export function EditorialLookbook({
     {
       image:
         "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fit=crop&crop=faces",
-      tag: t("storefront.home.lookbook.panel3.tag", "جمال • Beauty"),
-      headline: t("storefront.home.lookbook.panel3.title", "سحر\nالتجميل"),
-      sub: t("storefront.home.lookbook.panel3.desc", "منتجات عناية فائقة الجودة"),
+      tag: t("storefront.home.lookbook.panel3.tag"),
+      headline: t("storefront.home.lookbook.panel3.title"),
+      sub: t("storefront.home.lookbook.panel3.desc"),
       span: "col-span-2 md:col-span-1",
       textPos: i18n.dir() === "rtl" ? "bottom-5 start-5" : "bottom-5 left-5",
       imgClass: "object-top",
@@ -79,15 +79,15 @@ export function EditorialLookbook({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              {t("storefront.home.lookbook.eyebrow", "إلهامنا")}
+              {t("storefront.home.lookbook.eyebrow")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              {t("storefront.home.lookbook.title1", "لوك بوك")}
+              {t("storefront.home.lookbook.title1")}
               <br />
-              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.lookbook.title2", "الموسم")}</span>
+              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.lookbook.title2")}</span>
             </h2>
           </div>
           <button
@@ -95,7 +95,7 @@ export function EditorialLookbook({
             className="hidden md:flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
             style={{ color: p }}
           >
-            {t("storefront.home.lookbook.discover", "اكتشفي الكولكشن")}
+            {t("storefront.home.lookbook.discover")}
             {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
@@ -155,7 +155,7 @@ export function EditorialLookbook({
                   className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{ color: "#f5d6a0" }}
                 >
-                  {t("storefront.hero.shopNow", "تسوقي الآن")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
+                  {t("storefront.hero.shopNow")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
                 </div>
               </div>
             </motion.div>

@@ -1,3 +1,4 @@
+import i18n from "i18next";
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
 import { SECTION_ICONS, SECTION_LABELS, createDefaultSection } from "@/lib/store-config";
 import { Trash2, EyeOff, Eye, Copy, X, ExternalLink, ChevronUp, ChevronDown } from "lucide-react";
@@ -22,77 +23,75 @@ interface InspectorPanelProps {
   onClose?: () => void;
 }
 
-const SECTION_RELATED_ACTIONS: Partial<Record<SectionConfig["type"], {
-  href: string;
-  label: string;
-  description: string;
-}>> = {
+const SECTION_RELATED_ACTIONS: Partial<Record<SectionConfig["type"], { href: string; label: string; desc: string; }>> = {
   hero: {
     href: "/store-settings#section-media",
-    label: "تعديل صور وهوية المتجر",
-    description: "غيّري الشعار، صورة الغلاف، الاسم، والوصف الذي يغذي أول انطباع في الواجهة.",
+    label: ("inspectorPanel.actions.hero.label"),
+    desc: ("inspectorPanel.actions.hero.desc"),
   },
   "new-arrivals": {
     href: "/products",
-    label: "إدارة المنتجات الجديدة",
-    description: "أضيفي المنتجات والصور والمخزون حتى يظهر هذا القسم بمحتوى حقيقي.",
+    label: ("inspectorPanel.actions.newArrivals.label"),
+    desc: ("inspectorPanel.actions.newArrivals.desc"),
   },
   "best-sellers": {
     href: "/products",
-    label: "إدارة المنتجات والمبيعات",
-    description: "راجعي المنتجات المميزة والمخزون حتى يعرض القسم أفضل القطع بثقة.",
+    label: ("inspectorPanel.actions.bestSellers.label"),
+    desc: ("inspectorPanel.actions.bestSellers.desc"),
   },
   categories: {
     href: "/categories",
-    label: "إدارة الفئات",
-    description: "أضيفي صور الفئات، رتبيها، واربطي المنتجات بها من صفحة الفئات.",
+    label: ("inspectorPanel.actions.categories.label"),
+    desc: ("inspectorPanel.actions.categories.desc"),
   },
   offers: {
     href: "/discounts",
-    label: "إدارة أكواد الخصم",
-    description: "أنشئي العروض والكوبونات التي تدعم بانرات الخصومات في المتجر.",
+    label: ("inspectorPanel.actions.offers.label"),
+    desc: ("inspectorPanel.actions.offers.desc"),
   },
   testimonials: {
     href: "/reviews",
-    label: "إدارة التقييمات",
-    description: "راجعي تقييمات العملاء قبل إبرازها كدليل ثقة على الواجهة.",
+    label: ("inspectorPanel.actions.testimonials.label"),
+    desc: ("inspectorPanel.actions.testimonials.desc"),
   },
   about: {
     href: "/store-settings#section-identity",
-    label: "تحديث قصة وهوية المتجر",
-    description: "عدّلي وصف المتجر والمدينة والفئة حتى تحكي القصة من مصدر واحد.",
+    label: ("inspectorPanel.actions.about.label"),
+    desc: ("inspectorPanel.actions.about.desc"),
   },
   instagram: {
     href: "/store-settings#section-social",
-    label: "ربط الحسابات الاجتماعية",
-    description: "أضيفي روابط إنستجرام وفيسبوك وتيك توك التي تظهر مع هذا القسم.",
+    label: ("inspectorPanel.actions.instagram.label"),
+    desc: ("inspectorPanel.actions.instagram.desc"),
   },
   lookbook: {
     href: "/products",
-    label: "تجهيز صور المنتجات",
-    description: "ارفعي صورا قوية للمنتجات حتى يصبح اللوك بوك أكثر إقناعا.",
+    label: ("inspectorPanel.actions.lookbook.label"),
+    desc: ("inspectorPanel.actions.lookbook.desc"),
   },
   "product-catalog": {
     href: "/products",
-    label: "إدارة الكتالوج",
-    description: "تحكمي في المنتجات، الأسعار، الصور، الحالات، والمخزون من صفحة المنتجات.",
+    label: ("inspectorPanel.actions.productCatalog.label"),
+    desc: ("inspectorPanel.actions.productCatalog.desc"),
   },
   whatsapp: {
     href: "/store-settings#section-social",
-    label: "تحديث واتساب وبيانات التواصل",
-    description: "أضيفي رقم واتساب وروابط التواصل التي يحتاجها العملاء قبل الطلب.",
+    label: ("inspectorPanel.actions.whatsapp.label"),
+    desc: ("inspectorPanel.actions.whatsapp.desc"),
   },
   newsletter: {
     href: "/customers",
-    label: "إدارة العملاء",
-    description: "راجعي قاعدة العملاء التي ستستفيد من النشرات والعروض لاحقا.",
+    label: ("inspectorPanel.actions.newsletter.label"),
+    desc: ("inspectorPanel.actions.newsletter.desc"),
   },
   "trust-strip": {
     href: "/shipping-rules",
-    label: "ضبط وعود الشحن",
-    description: "راجعي تكلفة الشحن ومدة التوصيل حتى تكون وعود الثقة دقيقة.",
+    label: ("inspectorPanel.actions.trustStrip.label"),
+    desc: ("inspectorPanel.actions.trustStrip.desc"),
   },
 };
+
+
 
 export default function InspectorPanel({
   section, theme, onSectionChange, onThemeChange, onDelete, onDuplicate, onToggleVisibility,
@@ -139,8 +138,8 @@ export default function InspectorPanel({
               <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-500 transition-colors"
-                aria-label="إغلاق لوحة التعديل"
-                title="إغلاق"
+                aria-label={t("inspectorPanel.buttons.close")}
+                title={t("inspectorPanel.buttons.close")}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -217,19 +216,19 @@ function RelatedSectionAction({ section }: { section: SectionConfig }) {
   const { t } = useTranslation();
   const getAction = (type: string) => {
     switch(type) {
-      case "hero": return { href: "/store-settings#section-media", label: t("inspectorPanel.actions.hero.label"), desc: t("inspectorPanel.actions.hero.desc") };
-      case "new-arrivals": return { href: "/products", label: t("inspectorPanel.actions.newArrivals.label"), desc: t("inspectorPanel.actions.newArrivals.desc") };
-      case "best-sellers": return { href: "/products", label: t("inspectorPanel.actions.bestSellers.label"), desc: t("inspectorPanel.actions.bestSellers.desc") };
-      case "categories": return { href: "/categories", label: t("inspectorPanel.actions.categories.label"), desc: t("inspectorPanel.actions.categories.desc") };
-      case "offers": return { href: "/discounts", label: t("inspectorPanel.actions.offers.label"), desc: t("inspectorPanel.actions.offers.desc") };
-      case "testimonials": return { href: "/reviews", label: t("inspectorPanel.actions.testimonials.label"), desc: t("inspectorPanel.actions.testimonials.desc") };
-      case "about": return { href: "/store-settings#section-identity", label: t("inspectorPanel.actions.about.label"), desc: t("inspectorPanel.actions.about.desc") };
-      case "instagram": return { href: "/store-settings#section-social", label: t("inspectorPanel.actions.instagram.label"), desc: t("inspectorPanel.actions.instagram.desc") };
-      case "lookbook": return { href: "/products", label: t("inspectorPanel.actions.lookbook.label"), desc: t("inspectorPanel.actions.lookbook.desc") };
-      case "product-catalog": return { href: "/products", label: t("inspectorPanel.actions.productCatalog.label"), desc: t("inspectorPanel.actions.productCatalog.desc") };
-      case "whatsapp": return { href: "/store-settings#section-social", label: t("inspectorPanel.actions.whatsapp.label"), desc: t("inspectorPanel.actions.whatsapp.desc") };
-      case "newsletter": return { href: "/customers", label: t("inspectorPanel.actions.newsletter.label"), desc: t("inspectorPanel.actions.newsletter.desc") };
-      case "trust-strip": return { href: "/shipping-rules", label: t("inspectorPanel.actions.trustStrip.label"), desc: t("inspectorPanel.actions.trustStrip.desc") };
+      case "hero": return { href: "/store-settings#section-media", label: ("inspectorPanel.actions.hero.label"), desc: ("inspectorPanel.actions.hero.desc") };
+      case "new-arrivals": return { href: "/products", label: ("inspectorPanel.actions.newArrivals.label"), desc: ("inspectorPanel.actions.newArrivals.desc") };
+      case "best-sellers": return { href: "/products", label: ("inspectorPanel.actions.bestSellers.label"), desc: ("inspectorPanel.actions.bestSellers.desc") };
+      case "categories": return { href: "/categories", label: ("inspectorPanel.actions.categories.label"), desc: ("inspectorPanel.actions.categories.desc") };
+      case "offers": return { href: "/discounts", label: ("inspectorPanel.actions.offers.label"), desc: ("inspectorPanel.actions.offers.desc") };
+      case "testimonials": return { href: "/reviews", label: ("inspectorPanel.actions.testimonials.label"), desc: ("inspectorPanel.actions.testimonials.desc") };
+      case "about": return { href: "/store-settings#section-identity", label: ("inspectorPanel.actions.about.label"), desc: ("inspectorPanel.actions.about.desc") };
+      case "instagram": return { href: "/store-settings#section-social", label: ("inspectorPanel.actions.instagram.label"), desc: ("inspectorPanel.actions.instagram.desc") };
+      case "lookbook": return { href: "/products", label: ("inspectorPanel.actions.lookbook.label"), desc: ("inspectorPanel.actions.lookbook.desc") };
+      case "product-catalog": return { href: "/products", label: ("inspectorPanel.actions.productCatalog.label"), desc: ("inspectorPanel.actions.productCatalog.desc") };
+      case "whatsapp": return { href: "/store-settings#section-social", label: ("inspectorPanel.actions.whatsapp.label"), desc: ("inspectorPanel.actions.whatsapp.desc") };
+      case "newsletter": return { href: "/customers", label: ("inspectorPanel.actions.newsletter.label"), desc: ("inspectorPanel.actions.newsletter.desc") };
+      case "trust-strip": return { href: "/shipping-rules", label: ("inspectorPanel.actions.trustStrip.label"), desc: ("inspectorPanel.actions.trustStrip.desc") };
       default: return null;
     }
   };
@@ -377,7 +376,7 @@ function ItemListEditor({
         className="w-full py-2.5 border border-dashed border-stone-300 rounded-lg text-xs font-medium text-stone-600 hover:bg-stone-50 hover:text-stone-900 hover:border-stone-400 transition-colors flex items-center justify-center gap-2"
       >
         <span className="text-lg leading-none">+</span>
-        {t("inspectorPanel.buttons.addItem", { defaultValue: "إضافة عنصر جديد" })}
+        {t("inspectorPanel.buttons.addItem")}
       </button>
     </div>
   );
@@ -392,7 +391,7 @@ function SectionFields({ section, patchContent, patchSettings }: {
   onThemeChange: (t: StoreConfig["theme"]) => void;
 }) {
   const { t, i18n } = useTranslation();
-  const defaultSection = createDefaultSection(section.type, "متجري", "fashion", t);
+  const defaultSection = createDefaultSection(section.type, t("common.appName"), "fashion", t);
 
   switch (section.type) {
     case "hero":
@@ -498,12 +497,12 @@ function SectionFields({ section, patchContent, patchSettings }: {
           />
           <ToggleField label={t("inspectorPanel.fields.showRating")} value={section.settings.showRating ?? true} onChange={(v) => patchSettings({ showRating: v })} />
           <ItemListEditor
-            label={t("inspectorPanel.fields.testimonialItems", { defaultValue: "الآراء" })}
+            label={t("inspectorPanel.fields.testimonialItems")}
             items={(section.content.items as any) ?? []}
             fields={[
-              { key: "name", label: t("inspectorPanel.fields.testimonialName", { defaultValue: "اسم العميل" }), type: "text" },
-              { key: "text", label: t("inspectorPanel.fields.testimonialText", { defaultValue: "الرأي" }), type: "textarea" },
-              { key: "rating", label: t("inspectorPanel.fields.testimonialRating", { defaultValue: "التقييم (1-5)" }), type: "text" }
+              { key: "name", label: t("inspectorPanel.fields.testimonialName"), type: "text" },
+              { key: "text", label: t("inspectorPanel.fields.testimonialText"), type: "textarea" },
+              { key: "rating", label: t("inspectorPanel.fields.testimonialRating"), type: "text" }
             ]}
             onChange={(items) => patchContent({ items })}
           />
@@ -517,24 +516,24 @@ function SectionFields({ section, patchContent, patchSettings }: {
         <div className="space-y-4">
           <div className="pb-4 border-b border-border/50 space-y-3">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo1Title", { defaultValue: "العرض الأول (الخصم)" })}</h4>
+              <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo1Title")}</h4>
               <ToggleField label="" value={showPromo1 as boolean} onChange={(v) => patchSettings({ showPromo1: v })} />
             </div>
             {showPromo1 && (
               <>
-            <Field label={t("inspectorPanel.fields.promo1Label", { defaultValue: "التسمية" })}>
+            <Field label={t("inspectorPanel.fields.promo1Label")}>
               <Input value={(section.content.promo1Label as string) ?? ""} placeholder={defaultSection.content.promo1Label as string} onChange={(e) => patchContent({ promo1Label: e.target.value })} className={`text-xs text-start`} />
             </Field>
-            <Field label={t("inspectorPanel.fields.promo1Heading", { defaultValue: "العنوان" })}>
+            <Field label={t("inspectorPanel.fields.promo1Heading")}>
               <Input value={(section.content.promo1Heading as string) ?? ""} placeholder={defaultSection.content.promo1Heading as string} onChange={(e) => patchContent({ promo1Heading: e.target.value })} className={`text-xs text-start`} />
             </Field>
-            <Field label={t("inspectorPanel.fields.promo1Discount", { defaultValue: "نسبة الخصم (%)" })}>
+            <Field label={t("inspectorPanel.fields.promo1Discount")}>
               <Input type="number" value={(section.content.promo1Discount as string) ?? ""} placeholder={defaultSection.content.promo1Discount as string} onChange={(e) => patchContent({ promo1Discount: e.target.value })} className={`text-xs text-start`} />
             </Field>
-            <Field label={t("inspectorPanel.fields.promo1Desc", { defaultValue: "الوصف" })}>
+            <Field label={t("inspectorPanel.fields.promo1Desc")}>
               <Input value={(section.content.promo1Desc as string) ?? ""} placeholder={defaultSection.content.promo1Desc as string} onChange={(e) => patchContent({ promo1Desc: e.target.value })} className={`text-xs text-start`} />
             </Field>
-            <Field label={t("inspectorPanel.fields.promo1Cta", { defaultValue: "نص الزر" })}>
+            <Field label={t("inspectorPanel.fields.promo1Cta")}>
               <Input value={(section.content.promo1Cta as string) ?? ""} placeholder={defaultSection.content.promo1Cta as string} onChange={(e) => patchContent({ promo1Cta: e.target.value })} className={`text-xs text-start`} />
             </Field>
               </>
@@ -542,24 +541,24 @@ function SectionFields({ section, patchContent, patchSettings }: {
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo2Title", { defaultValue: "العرض الثاني (الشحن)" })}</h4>
+              <h4 className="text-xs font-semibold text-muted-foreground">{t("inspectorPanel.fields.promo2Title")}</h4>
               <ToggleField label="" value={showPromo2 as boolean} onChange={(v) => patchSettings({ showPromo2: v })} />
             </div>
             {showPromo2 && (
               <>
-            <Field label={t("inspectorPanel.fields.promo2Label", { defaultValue: "التسمية" })}>
+            <Field label={t("inspectorPanel.fields.promo2Label")}>
               <Input value={(section.content.promo2Label as string) ?? ""} placeholder={defaultSection.content.promo2Label as string} onChange={(e) => patchContent({ promo2Label: e.target.value })} className={`text-xs text-start`} />
             </Field>
-            <Field label={t("inspectorPanel.fields.promo2Heading", { defaultValue: "العنوان" })}>
+            <Field label={t("inspectorPanel.fields.promo2Heading")}>
               <Input value={(section.content.promo2Heading as string) ?? ""} placeholder={defaultSection.content.promo2Heading as string} onChange={(e) => patchContent({ promo2Heading: e.target.value })} className={`text-xs text-start`} />
             </Field>
-            <Field label={t("inspectorPanel.fields.promo2Subheading", { defaultValue: "العنوان الفرعي" })}>
+            <Field label={t("inspectorPanel.fields.promo2Subheading")}>
               <Input value={(section.content.promo2Subheading as string) ?? ""} placeholder={defaultSection.content.promo2Subheading as string} onChange={(e) => patchContent({ promo2Subheading: e.target.value })} className={`text-xs text-start`} />
             </Field>
-            <Field label={t("inspectorPanel.fields.promo2Threshold", { defaultValue: "قيمة الطلب" })}>
+            <Field label={t("inspectorPanel.fields.promo2Threshold")}>
               <Input type="number" value={(section.content.promo2Threshold as string) ?? ""} placeholder={defaultSection.content.promo2Threshold as string} onChange={(e) => patchContent({ promo2Threshold: e.target.value })} className={`text-xs text-start`} />
             </Field>
-            <Field label={t("inspectorPanel.fields.promo2Cta", { defaultValue: "نص الزر" })}>
+            <Field label={t("inspectorPanel.fields.promo2Cta")}>
               <Input value={(section.content.promo2Cta as string) ?? ""} placeholder={defaultSection.content.promo2Cta as string} onChange={(e) => patchContent({ promo2Cta: e.target.value })} className={`text-xs text-start`} />
             </Field>
               </>
@@ -628,11 +627,11 @@ function SectionFields({ section, patchContent, patchSettings }: {
             <Input value={section.content.heading ?? ""} placeholder={defaultSection.content.heading} onChange={(e) => patchContent({ heading: e.target.value })} className={`text-xs text-start`} />
           </Field>
           <ItemListEditor
-            label={t("inspectorPanel.fields.faqItems", { defaultValue: "الأسئلة والإجابات" })}
+            label={t("inspectorPanel.fields.faqItems")}
             items={(section.content.items as any) ?? []}
             fields={[
-              { key: "q", label: t("inspectorPanel.fields.faqQ", { defaultValue: "السؤال" }), type: "text" },
-              { key: "a", label: t("inspectorPanel.fields.faqA", { defaultValue: "الإجابة" }), type: "textarea" }
+              { key: "q", label: t("inspectorPanel.fields.faqQ"), type: "text" },
+              { key: "a", label: t("inspectorPanel.fields.faqA"), type: "textarea" }
             ]}
             onChange={(items) => patchContent({ items })}
           />
@@ -668,15 +667,15 @@ function SectionFields({ section, patchContent, patchSettings }: {
             onChange={(v) => patchSettings({ columns: v })}
           />
           <ItemListEditor
-            label={t("inspectorPanel.fields.imageItems", { defaultValue: "الصور" })}
+            label={t("inspectorPanel.fields.imageItems")}
             items={(section.content.items as any) ?? []}
             fields={section.type === "lookbook" ? [
-              { key: "imageUrl", label: t("inspectorPanel.fields.imageUrl", { defaultValue: "رابط الصورة" }), type: "image" },
-              { key: "title", label: t("inspectorPanel.fields.title", { defaultValue: "العنوان" }), type: "text" },
-              { key: "desc", label: t("inspectorPanel.fields.desc", { defaultValue: "الوصف" }), type: "text" },
-              { key: "tag", label: t("inspectorPanel.fields.tag", { defaultValue: "العلامة (Tag)" }), type: "text" }
+              { key: "imageUrl", label: t("inspectorPanel.fields.imageUrl"), type: "image" },
+              { key: "title", label: t("inspectorPanel.fields.title"), type: "text" },
+              { key: "desc", label: t("inspectorPanel.fields.desc"), type: "text" },
+              { key: "tag", label: t("inspectorPanel.fields.tag"), type: "text" }
             ] : [
-              { key: "imageUrl", label: t("inspectorPanel.fields.imageUrl", { defaultValue: "رابط الصورة" }), type: "image" }
+              { key: "imageUrl", label: t("inspectorPanel.fields.imageUrl"), type: "image" }
             ]}
             onChange={(items) => patchContent({ items })}
           />
@@ -687,12 +686,12 @@ function SectionFields({ section, patchContent, patchSettings }: {
       return (
         <>
           <ItemListEditor
-            label={t("inspectorPanel.fields.trustStripItems", { defaultValue: "مميزات المتجر (Store Features)" })}
+            label={t("inspectorPanel.fields.trustStripItems")}
             items={(section.content.items as any) ?? []}
             fields={[
-              { key: "icon", label: t("inspectorPanel.fields.trustStripIcon", { defaultValue: "الأيقونة (إيموجي)" }), type: "text" },
-              { key: "title", label: t("inspectorPanel.fields.trustStripTitle", { defaultValue: "العنوان" }), type: "text" },
-              { key: "text", label: t("inspectorPanel.fields.trustStripText", { defaultValue: "الوصف" }), type: "text" }
+              { key: "icon", label: t("inspectorPanel.fields.trustStripIcon"), type: "text" },
+              { key: "title", label: t("inspectorPanel.fields.trustStripTitle"), type: "text" },
+              { key: "text", label: t("inspectorPanel.fields.trustStripText"), type: "text" }
             ]}
             onChange={(items) => patchContent({ items })}
           />

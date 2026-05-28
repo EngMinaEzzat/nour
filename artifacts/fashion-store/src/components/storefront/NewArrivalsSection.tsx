@@ -36,7 +36,7 @@ export function NewArrivalsSection({
     : products.slice(0, 8);
 
   const tabs = [
-    { id: null, label: t("storefront.home.all", "الكل") },
+    { id: null, label: t("storefront.home.all") },
     ...categories.slice(0, 5).map(c => ({ id: c.id, label: c.name })),
   ];
 
@@ -56,13 +56,13 @@ export function NewArrivalsSection({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              {t("storefront.home.newArrivals.eyebrow", "أحدث الوصولات")}
+              {t("storefront.home.newArrivals.eyebrow")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              {t("storefront.home.newArrivals.title", "وصل حديثاً")}
+              {t("storefront.home.newArrivals.title")}
             </h2>
           </div>
           <button
@@ -70,7 +70,7 @@ export function NewArrivalsSection({
             className="hidden md:flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
             style={{ color: p }}
           >
-            {t("storefront.home.viewAll", "عرض الكل")}
+            {t("storefront.home.viewAll")}
             {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
@@ -135,7 +135,7 @@ export function NewArrivalsSection({
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold text-white"
             style={{ background: p }}
           >
-            {t("storefront.home.viewAllProducts", "عرض كل المنتجات")}
+            {t("storefront.home.viewAllProducts")}
             {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>

@@ -140,18 +140,18 @@ export function StorefrontProductCard({
               className={`absolute top-3 ${i18n.dir() === "rtl" ? "end-3" : "end-3"} text-[10px] px-2.5 py-1 rounded-full font-bold text-white z-10`}
               style={{ background: "#c8963a" }}
             >
-              {t("storefront.products.featured", "مميز")}
+              {t("storefront.products.featured")}
             </div>
           )}
           {lowStock && (
             <div className="absolute top-3 start-3 text-[10px] px-2.5 py-1 rounded-full font-bold text-amber-900 bg-amber-100 z-10">
-              {t("storefront.products.lowStock", "كمية محدودة")}
+              {t("storefront.products.lowStock")}
             </div>
           )}
           {unavailable && (
             <div className="absolute inset-0 bg-stone-900/50 flex items-center justify-center z-10 rounded-2xl">
               <span className="text-white text-xs font-semibold px-4 py-2 bg-stone-900/70 rounded-full">
-                {t("storefront.products.outOfStock", "نفذت الكمية")}
+                {t("storefront.products.outOfStock")}
               </span>
             </div>
           )}
@@ -160,7 +160,7 @@ export function StorefrontProductCard({
           <button
             onClick={handleWishlist}
             className={`absolute top-3 ${i18n.dir() === "rtl" ? "start-3" : "start-3"} w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2`}
-            aria-label={wishlisted ? t("storefront.products.removeWishlist", "إزالة من المفضلة") : t("storefront.products.addWishlist", "إضافة للمفضلة")}
+            aria-label={wishlisted ? t("storefront.products.removeWishlist") : t("storefront.products.addWishlist")}
             aria-pressed={wishlisted}
             style={{
               background: "rgba(250,247,244,0.88)",
@@ -193,7 +193,7 @@ export function StorefrontProductCard({
                   <button
                     onClick={handleAdd}
                     className="w-full py-3 text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                    aria-label={product.hasVariants ? t("storefront.products.chooseOption", "اختاري خيارك") : t("storefront.products.addToCart", "أضيفي للسلة")}
+                    aria-label={product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
                     style={{
                       background: inCart
                         ? "rgba(250,247,244,0.95)"
@@ -203,11 +203,11 @@ export function StorefrontProductCard({
                     }}
                   >
                     {product.hasVariants ? (
-                      <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption", "اختري خيارك")}</>
+                      <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
                     ) : inCart ? (
-                      <><Check className="w-3.5 h-3.5" />{t("storefront.products.inCart", "في السلة")}</>
+                      <><Check className="w-3.5 h-3.5" />{t("storefront.products.inCart")}</>
                     ) : (
-                      <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart", "أضفي للسلة")}</>
+                      <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
                     )}
                   </button>
                 </motion.div>
@@ -304,7 +304,7 @@ export function StorefrontProductCard({
 
         {product.hasVariants && (
           <p className="text-[10px] text-stone-400 mt-1 flex items-center gap-1">
-            <Layers className="w-2.5 h-2.5" /> {t("storefront.products.hasVariants", "متعدد الخيارات")}
+            <Layers className="w-2.5 h-2.5" /> {t("storefront.products.hasVariants")}
           </p>
         )}
 
@@ -319,7 +319,7 @@ export function StorefrontProductCard({
           onClick={handleAdd}
           disabled={unavailable}
           className="sm:hidden mt-2 w-full min-h-11 rounded-xl px-3 py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
-          aria-label={unavailable ? t("storefront.products.outOfStock", "نفذت الكمية") : product.hasVariants ? t("storefront.products.chooseOption", "اختاري خيارك") : t("storefront.products.addToCart", "أضيفي للسلة")}
+          aria-label={unavailable ? t("storefront.products.outOfStock") : product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
           style={{
             background: unavailable
               ? "#e7dfd8"
@@ -331,13 +331,13 @@ export function StorefrontProductCard({
           }}
         >
           {unavailable ? (
-            <><ShoppingBag className="w-3.5 h-3.5" /> {t("storefront.products.outOfStock", "نفذت الكمية")}</>
+            <><ShoppingBag className="w-3.5 h-3.5" /> {t("storefront.products.outOfStock")}</>
           ) : product.hasVariants ? (
-            <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption", "اختاري خيارك")}</>
+            <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
           ) : inCart ? (
-            <><Check className="w-3.5 h-3.5" />{t("storefront.products.inCart", "في السلة")}</>
+            <><Check className="w-3.5 h-3.5" />{t("storefront.products.inCart")}</>
           ) : (
-            <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart", "أضيفي للسلة")}</>
+            <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
           )}
         </button>
       </div>

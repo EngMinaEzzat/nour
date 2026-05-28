@@ -44,13 +44,13 @@ export function CategoryGrid({
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
               style={{ color: p }}
             >
-              {t("storefront.home.categories.eyebrow", "تسوقي بالفئة")}
+              {t("storefront.home.categories.eyebrow")}
             </p>
             <h2
               className="text-4xl md:text-5xl text-stone-900"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
-              {t("storefront.home.categories.title", "اكتشفي مجموعتنا")}
+              {t("storefront.home.categories.title")}
             </h2>
           </div>
           <button
@@ -58,7 +58,7 @@ export function CategoryGrid({
             className="hidden md:flex items-center gap-2 text-sm font-medium transition-all hover:gap-3"
             style={{ color: p }}
           >
-            {t("storefront.home.allProducts", "كل المنتجات")}
+            {t("storefront.home.allProducts")}
             {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
@@ -128,7 +128,7 @@ export function CategoryGrid({
 
                 <div className="absolute bottom-0 left-0 right-0 p-4">
                   <p className="text-white/60 text-[10px] tracking-widest uppercase mb-0.5 font-medium">
-                    {category.productCount ?? 0} {t("storefront.home.categories.productsCount", "منتج")}
+                    {category.productCount ?? 0} {t("storefront.home.categories.productsCount")}
                   </p>
                   <h3
                     className="text-white text-xl md:text-2xl"
@@ -140,7 +140,7 @@ export function CategoryGrid({
                     className="mt-2 flex items-center gap-1 text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{ color: accent }}
                   >
-                    {t("storefront.hero.shopNow", "تسوقي الآن")}
+                    {t("storefront.hero.shopNow")}
                     {i18n.dir() === "rtl" ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
                   </div>
                 </div>

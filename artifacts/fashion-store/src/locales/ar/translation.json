@@ -18,7 +18,8 @@
       "details": "التفاصيل",
       "edit": "تعديل",
       "delete": "حذف",
-      "confirm": "تأكيد"
+      "confirm": "تأكيد",
+      "retry": "إعادة المحاولة"
     },
     "currency": "ج.م",
     "pricing": "الأسعار",
@@ -36,7 +37,8 @@
       "title": "الصفحة غير موجودة",
       "desc": "عذرًا، لم نتمكن من العثور على الصفحة التي تبحثين عنها.",
       "backToHome": "العودة للرئيسية"
-    }
+    },
+    "close": "إغلاق"
   },
   "roles": {
     "owner": "مالك",
@@ -364,7 +366,26 @@
       "orderStatus": "حالة الطلبات",
       "recentOrders": "آخر الطلبات",
       "viewAll": "عرض الكل",
-      "noOrders": "لا توجد طلبات بعد"
+      "noOrders": "لا توجد طلبات بعد",
+      "status": "الحالة",
+      "price": "السعر الشهري",
+      "trialEnds": "انتهاء الفترة التجريبية",
+      "nextRenewal": "التجديد القادم",
+      "yourPlan": "خطتك"
+    },
+    "transferRequest": {
+      "title": "إرسال إيصال التحويل",
+      "pendingBadge": "قيد المراجعة",
+      "pendingNotice": "لديك طلب قيد المراجعة. سيتم تفعيل اشتراكك فور الموافقة عليه."
+    },
+    "transferHistory": {
+      "title": "طلبات التحويل",
+      "ref": "رقم المرجع:"
+    },
+    "invoices": {
+      "title": "سجل الفواتير",
+      "count": "فواتير",
+      "noInvoices": "لا توجد فواتير"
     }
   },
   "products": {
@@ -434,7 +455,12 @@
       "btnSave": "حفظ",
       "btnSaving": "جارٍ الحفظ...",
       "btnCancel": "إلغاء",
-      "saveError": "يجب إضافة متغير واحد على الأقل للمنتج."
+      "saveError": "يجب إضافة متغير واحد على الأقل للمنتج.",
+      "warnings": {
+        "title": "تنبيه: المنتج مفعل ولكن قد لا يظهر بشكل صحيح للعملاء",
+        "noImage": "الصورة مفقودة",
+        "noStock": "المخزون صفر"
+      }
     },
     "variants": {
       "title": "المقاسات والألوان",
@@ -517,6 +543,13 @@
       "tip1": "المنتجات المميزة (Featured) تظهر في صدارة متجرك.",
       "tip2": "يمكنك استيراد قائمة منتجاتك دفعة واحدة عبر ملف CSV.",
       "tip3": "تأكد من تفعيل المنتجات لتظهر للعملاء."
+    },
+    "filters": {
+      "hasVariants": "له متغيرات"
+    },
+    "tabs": {
+      "details": "التفاصيل الأساسية",
+      "variants": "الأسعار والمخزون"
     }
   },
   "tenants": {
@@ -650,7 +683,8 @@
       "price": "السعر الشهري",
       "trialEnds": "انتهاء التجربة",
       "nextRenewal": "التجديد القادم",
-      "yourPlan": "خطتك"
+      "yourPlan": "خطتك",
+      "btnViewPlans": "استعراض الباقات"
     },
     "transferRequest": {
       "title": "إرسال إيصال تحويل بنكي",
@@ -951,19 +985,19 @@
     "selectSizeColorFirst": "اختاري المقاس/اللون أولاً",
     "addedToCart": "تمت الإضافة للسلة ✓",
     "addToCart": "أضف للسلة",
-      "orderOnWhatsapp": "اطلب على واتساب",
-      "reviews": "آراء العملاء",
-      "ratings": "تقييم",
-      "ratingReadout": "{{rating}} من 5 نجوم",
-      "ratingOption": "{{rating}} من 5 نجوم",
-      "galleryImage": "عرض صورة المنتج {{index}}",
-      "sizeOption": "مقاس {{size}}، {{status}}",
-      "colorOption": "لون {{color}}، {{status}}",
-      "quantitySummary": "{{count}} قطعة",
-      "chooseOptions": "اختاري الخيارات",
-      "stockLimit": "{{count}} قطعة متاحة",
-      "chooseVariantForStock": "اختاري المقاس واللون لمعرفة المتاح",
-      "noReviewsYet": "لا توجد تقييمات بعد",
+    "orderOnWhatsapp": "اطلب على واتساب",
+    "reviews": "آراء العملاء",
+    "ratings": "تقييم",
+    "ratingReadout": "{{rating}} من 5 نجوم",
+    "ratingOption": "{{rating}} من 5 نجوم",
+    "galleryImage": "عرض صورة المنتج {{index}}",
+    "sizeOption": "مقاس {{size}}، {{status}}",
+    "colorOption": "لون {{color}}، {{status}}",
+    "quantitySummary": "{{count}} قطعة",
+    "chooseOptions": "اختاري الخيارات",
+    "stockLimit": "{{count}} قطعة متاحة",
+    "chooseVariantForStock": "اختاري المقاس واللون لمعرفة المتاح",
+    "noReviewsYet": "لا توجد تقييمات بعد",
     "beFirstToReview": "كوني أول من يقيّم هذا المنتج",
     "writeReview": "اكتبي تقييمك",
     "thanksForReview": "شكراً على تقييمك!",
@@ -978,17 +1012,21 @@
     "opinionPlaceholder": "شاركي تجربتك مع هذا المنتج...",
     "sendReview": "إرسال التقييم",
     "sending": "جارٍ الإرسال...",
-      "reviewApprovalNote": "سيظهر تقييمك بعد مراجعته من صاحب المتجر",
-      "whatsappMsgPrefix": "مرحباً 👋، أريد الاستفسار عن المنتج:",
-      "whatsappMsgPrice": "السعر:",
-      "whatsappMsgVariant": "— المقاس/اللون:",
-      "trust": {
-        "cod": "الدفع عند الاستلام متاح",
-        "delivery": "تأكيد التوصيل عبر واتساب",
-        "support": "اسألي المتجر قبل الطلب"
-      },
-      "pieces": "قطعة"
+    "reviewApprovalNote": "سيظهر تقييمك بعد مراجعته من صاحب المتجر",
+    "whatsappMsgPrefix": "مرحباً 👋، أريد الاستفسار عن المنتج:",
+    "whatsappMsgPrice": "السعر:",
+    "whatsappMsgVariant": "— المقاس/اللون:",
+    "trust": {
+      "cod": "الدفع عند الاستلام متاح",
+      "delivery": "تأكيد التوصيل عبر واتساب",
+      "support": "اسألي المتجر قبل الطلب"
     },
+    "pieces": "قطعة",
+    "variantUnavailable": "هذا الاختيار غير متوفر حالياً. جرّبي مقاساً أو لوناً آخر.",
+    "quantity": "الكمية",
+    "decreaseQuantity": "تقليل الكمية",
+    "increaseQuantity": "زيادة الكمية"
+  },
   "categories": {
     "types": {
       "fashion": "أزياء",
@@ -1005,7 +1043,8 @@
       "parentNone": "بدون (فئة رئيسية)",
       "imageLabel": "صورة الفئة",
       "btnEdit": "حفظ التعديلات",
-      "btnAdd": "إضافة الفئة"
+      "btnAdd": "إضافة الفئة",
+      "errorGeneric": "حدث خطأ غير متوقع"
     },
     "page": {
       "title": "الفئات",
@@ -1013,13 +1052,16 @@
       "btnAdd": "إضافة فئة",
       "addTitle": "إضافة فئة جديدة",
       "editTitle": "تعديل الفئة",
-      "empty": "لا توجد فئات بعد"
+      "empty": "لا توجد فئات بعد",
+      "orphans": "أقسام أخرى"
     },
     "card": {
       "productCount": "منتج",
       "subOf": "فرعية من:",
       "btnProducts": "المنتجات",
-      "btnEdit": "تعديل"
+      "btnEdit": "تعديل",
+      "subcategories": "أقسام فرعية",
+      "noSubcategories": "لا توجد أقسام فرعية. يمكنك إضافتها باختيار هذا القسم كقسم رئيسي."
     }
   },
   "orders": {
@@ -1069,7 +1111,8 @@
       "needsAction": "تحتاج تأكيد",
       "ready": "جاهزة للشحن",
       "shipping": "قيد الشحن",
-      "done": "مغلقة"
+      "done": "مغلقة",
+      "failedContact": "تعذر التواصل"
     },
     "metrics": {
       "open": "طلبات مفتوحة",
@@ -1093,6 +1136,9 @@
       "unknownCustomer": "عميل غير معروف",
       "productCount": "منتج",
       "empty": "لا توجد طلبات"
+    },
+    "filters": {
+      "city": "المدينة/المنطقة"
     }
   },
   "orderDetail": {
@@ -1833,7 +1879,9 @@
   "storeBuilder": {
     "loading": "جاري تحميل متجرك...",
     "noStore": "لا يوجد متجر مرتبط بحسابك.",
-    "createFirst": "أنشئ متجرك أولاً"
+    "createFirst": "أنشئ متجرك أولاً",
+    "loadErrorTitle": "تعذر تحميل محرر المتجر",
+    "loadErrorDesc": "راجعي تسجيل الدخول أو حاولي مرة أخرى."
   },
   "visualEditor": {
     "toast": {
@@ -1931,7 +1979,8 @@
       "show": "إظهار",
       "hide": "إخفاء",
       "duplicate": "تكرار",
-      "delete": "حذف"
+      "delete": "حذف",
+      "addItem": "إضافة عنصر جديد"
     },
     "hiddenNotice": "هذا القسم مخفي عن الزوار",
     "fields": {
@@ -1966,7 +2015,34 @@
       "columns": "عدد الأعمدة",
       "trustStripNote": "شريط المميزات يعرض وعود الثقة مثل الشحن والإرجاع والجودة. راجعي الإجراء المرتبط أعلاه لضبط البيانات التي تدعم هذه الوعود.",
       "faqNote": "المحرر الحالي يتحكم في ظهور هذا القسم وعنوانه. تحرير تفاصيل الأسئلة داخل القسم سيحتاج للوحة تحرير موسعة.",
-      "noSettings": "لا توجد إعدادات متاحة لهذا القسم."
+      "noSettings": "لا توجد إعدادات متاحة لهذا القسم.",
+      "testimonialItems": "الآراء",
+      "testimonialName": "اسم العميل",
+      "testimonialText": "الرأي",
+      "testimonialRating": "التقييم (1-5)",
+      "promo1Title": "العرض الأول (الخصم)",
+      "promo1Label": "التسمية",
+      "promo1Heading": "العنوان",
+      "promo1Discount": "نسبة الخصم (%)",
+      "promo1Desc": "الوصف",
+      "promo1Cta": "نص الزر",
+      "promo2Title": "العرض الثاني (الشحن)",
+      "promo2Label": "التسمية",
+      "promo2Heading": "العنوان",
+      "promo2Subheading": "العنوان الفرعي",
+      "promo2Threshold": "قيمة الطلب",
+      "promo2Cta": "نص الزر",
+      "faqItems": "الأسئلة والإجابات",
+      "faqQ": "السؤال",
+      "faqA": "الإجابة",
+      "imageItems": "الصور",
+      "title": "العنوان",
+      "desc": "الوصف",
+      "tag": "العلامة (Tag)",
+      "trustStripItems": "مميزات المتجر (Store Features)",
+      "trustStripIcon": "الأيقونة (إيموجي)",
+      "trustStripTitle": "العنوان",
+      "trustStripText": "الوصف"
     }
   },
   "storeAssistant": {
@@ -2055,6 +2131,28 @@
         "ivoryClassic": {
           "name": "كلاسيك عاجي",
           "desc": "تراث وفخامة خالدة"
+        }
+      },
+      "presets": {
+        "elegantFashion": {
+          "name": "أزياء أنيقة",
+          "desc": "طابع كلاسيكي أنيق"
+        },
+        "softCosmetics": {
+          "name": "مستحضرات تجميل ناعمة",
+          "desc": "نعومة وألوان هادئة"
+        },
+        "simpleBoutique": {
+          "name": "بوتيك بسيط",
+          "desc": "تصميم نظيف وحديث"
+        },
+        "streetWear": {
+          "name": "أزياء شارع جريئة",
+          "desc": "حيوية وألوان قوية"
+        },
+        "luxuryEvents": {
+          "name": "مناسبات فاخرة",
+          "desc": "طابع فخم وراقي"
         }
       }
     }
@@ -2202,7 +2300,14 @@
         "beauty": "تجميل",
         "bestSellers": "الأكثر مبيعاً",
         "allProducts": "جميع المنتجات"
-      }
+      },
+      "actions": {
+        "account": "حسابي",
+        "myOrders": "طلباتي",
+        "login": "تسجيل الدخول"
+      },
+      "whatsapp": "تواصل عبر واتساب",
+      "language": "اللغة"
     },
     "footer": {
       "shop": "تسوقي",
@@ -2219,7 +2324,10 @@
       "poweredBy": "مدعوم بـ"
     },
     "hero": {
-      "shopNow": "تسوقي الآن"
+      "shopNow": "تسوقي الآن",
+      "beautyDesc": "جمال حقيقي، عناية فائقة",
+      "bothDesc": "أزياء راقية وجمال أصيل",
+      "fashionDesc": "أناقة مصرية معاصرة"
     },
     "categories": {
       "viewAll": "تصفح جميع المنتجات"
@@ -2232,9 +2340,19 @@
       "addToCart": "أضف للسلة",
       "outOfStock": "نفذت الكمية",
       "soldOut": "مباع بالكامل",
-        "quickAdd": "إضافة سريعة",
-        "selectOptions": "اختيار الخيارات",
-        "ratingSummary": "تقييم {{rating}} من {{count}} مراجعة"
+      "quickAdd": "إضافة سريعة",
+      "selectOptions": "اختيار الخيارات",
+      "ratingSummary": "تقييم {{rating}} من {{count}} مراجعة",
+      "featured": "مميز",
+      "lowStock": "كمية محدودة",
+      "removeWishlist": "إزالة من المفضلة",
+      "addWishlist": "إضافة للمفضلة",
+      "chooseOption": "اختاري خيارك",
+      "inCart": "في السلة",
+      "hasVariants": "متعدد الخيارات",
+      "productCount": "منتج",
+      "emptyCategory": "لا توجد منتجات مطابقة",
+      "emptyHint": "جرّبي مسح الفلاتر أو اختيار فئة أخرى من المتجر."
     },
     "trust": {
       "shipping": "شحن مجاني",
@@ -2244,7 +2362,11 @@
       "support": "دعم فني",
       "supportDesc": "متواجدون لمساعدتك",
       "secure": "دفع آمن",
-      "secureDesc": "حماية 100%"
+      "secureDesc": "حماية 100%",
+      "shipping_badge": "📦 شحن سريع",
+      "authentic_badge": "⭐ 100% أصلي",
+      "secure_badge": "🔒 دفع آمن",
+      "returns_badge": "↩️ إرجاع مجاني"
     },
     "newsletter": {
       "title": "انضمي لنشرتنا البريدية",
@@ -2256,7 +2378,13 @@
     "search": {
       "placeholder": "ابحث عن منتجات...",
       "noResults": "لا توجد نتائج لـ",
-      "popular": "عمليات بحث شائعة"
+      "popular": "عمليات بحث شائعة",
+      "label": "بحث في المتجر",
+      "suggestions": "اقتراحات",
+      "noResultsTitle": "لا توجد نتائج مطابقة",
+      "noResultsDesc": "جرّبي كلمة أبسط أو افتحي كل المنتجات لاختيار الفئة المناسبة.",
+      "clear": "مسح البحث",
+      "categories": "فئات"
     },
     "lookbook": {
       "title": "إطلالات الموسم",
@@ -2319,7 +2447,9 @@
       "online": "الدفع الإلكتروني",
       "applyCode": "تطبيق",
       "discountCode": "كود الخصم",
-      "backToCart": "العودة للسلة"
+      "backToCart": "العودة للسلة",
+      "continueShopping": "متابعة التسوق",
+      "pageTitle": "الدفع والتوصيل"
     },
     "orderConfirmation": {
       "title": "تم تأكيد طلبك!",
@@ -2343,7 +2473,24 @@
       "whatsappDesc": "اضغطي لفتح رسالة التأكيد على",
       "whatsappBtn": "إرسال تأكيد الطلب على واتساب",
       "bostaTitle": "التوصيل عبر بوسطة",
-      "bostaDesc": "سيقوم المتجر بإنشاء شحنتكِ خلال 24 ساعة — ستصلكِ رسالة برقم التتبع"
+      "bostaDesc": "سيقوم المتجر بإنشاء شحنتكِ خلال 24 ساعة — ستصلكِ رسالة برقم التتبع",
+      "steps": {
+        "confirm": {
+          "title": "تأكيد الطلب",
+          "body": "سيؤكد المتجر بيانات الطلب والتوصيل على واتساب أو الهاتف."
+        },
+        "prepare": {
+          "title": "تجهيز المنتجات",
+          "body": "بعد التأكيد، يبدأ المتجر في تجهيز الطلب ومراجعته قبل الشحن."
+        },
+        "ship": {
+          "title": "التوصيل والمتابعة",
+          "body": "عند الشحن سيظهر رقم التتبع ويمكنك الرجوع لهذا الرابط في أي وقت."
+        }
+      },
+      "codPayment": "الدفع عند الاستلام",
+      "safeNextStep": "المتجر سيتواصل قبل الشحن",
+      "copyTrackingLink": "نسخ رابط التتبع"
     },
     "orderTrack": {
       "status": {
@@ -2353,7 +2500,8 @@
         "shipped": "في الطريق",
         "delivered": "تم التسليم",
         "cancelled": "ملغي",
-        "returned": "مرتجع"
+        "returned": "مرتجع",
+        "awaitingConfirmation": "بانتظار التأكيد"
       },
       "invalidLink": "رابط تتبع غير صالح",
       "home": "الرئيسية",
@@ -2368,7 +2516,21 @@
       "details": "تفاصيل الطلب",
       "total": "الإجمالي",
       "store": "المتجر",
-      "visitStore": "زيارة المتجر"
+      "visitStore": "زيارة المتجر",
+      "statusBody": {
+        "pending": "تم استلام الطلب وينتظر تأكيد المتجر.",
+        "awaitingConfirmation": "المتجر يراجع بيانات الطلب قبل التجهيز.",
+        "confirmed": "المتجر أكد الطلب ويجهزه الآن.",
+        "dispatched": "الطلب خرج من المتجر إلى شركة الشحن.",
+        "shipped": "الطلب في الطريق إليك.",
+        "delivered": "تم تسليم الطلب بنجاح.",
+        "cancelled": "تم إلغاء الطلب.",
+        "returned": "تم تسجيل الطلب كمرتجع."
+      },
+      "invalidLinkDesc": "افتحي رابط التتبع من صفحة تأكيد الطلب أو رسالة واتساب.",
+      "paidOnline": "دفع إلكتروني",
+      "cod": "الدفع عند الاستلام",
+      "shipping": "الشحن"
     },
     "error": {
       "notFoundTitle": "المتجر غير موجود",
@@ -2402,7 +2564,8 @@
       "categories": {
         "eyebrow": "تسوقي بالفئة",
         "title": "اكتشفي مجموعتنا",
-        "productsCount": "منتج"
+        "productsCount": "منتج",
+        "all": "الكل"
       },
       "lookbook": {
         "eyebrow": "إلهامنا",
@@ -2478,7 +2641,8 @@
         "successDesc": "يسعدنا انضمامك لمجتمع {{storeName}} ✨",
         "emailPlaceholder": "بريدك الإلكتروني",
         "subscribe": "اشتركي الآن",
-        "disclaimer": "يمكنك إلغاء الاشتراك في أي وقت • لا بريد مزعج أبداً"
+        "disclaimer": "يمكنك إلغاء الاشتراك في أي وقت • لا بريد مزعج أبداً",
+        "eyebrow": "نشرتنا البريدية"
       },
       "productCatalog": {
         "heading": "جميع المنتجات",
@@ -2529,6 +2693,40 @@
         "returnsDesc": "استرجاع سهل خلال 14 يوماً بلا تعقيد",
         "support": "دعم متواصل",
         "supportDesc": "خدمة عملاء على مدار الساعة عبر واتساب"
+      },
+      "trending": {
+        "eyebrow": "ترند الآن",
+        "title1": "الأكثر",
+        "title2": "رواجاً"
+      },
+      "all": "الكل",
+      "newArrivals": {
+        "eyebrow": "أحدث الوصولات",
+        "title": "وصل حديثاً"
+      },
+      "promos": {
+        "exclusiveOffers": "عروض حصرية",
+        "discountUpTo": "خصم يصل إلى",
+        "discountDesc": "على تشكيلات مختارة — لفترة محدودة",
+        "freeShipping": "توصيل مجاني",
+        "freeShippingText": "شحن مجاني",
+        "forOrdersOver": "لكل طلب فوق",
+        "orderNow": "اطلبي الآن"
+      }
+    },
+    "adminBar": {
+      "dashboard": "لوحة التحكم"
+    },
+    "trending": {
+      "tags": {
+        "sneakers": "كوتشي",
+        "ballerina": "باليرينا",
+        "mini": "ميني",
+        "streetStyle": "ستريت ستايل",
+        "softLuxury": "ناعم وفخم",
+        "boho": "بوهو",
+        "monochrome": "مونوكروم",
+        "floral": "فلورال"
       }
     }
   },
@@ -2608,7 +2806,8 @@
       "a2": "لن يتوقف متجرك — سنتواصل معك لترقية الخطة عند الاقتراب من الحد.",
       "q3": "هل البيانات آمنة؟",
       "a3": "بالطبع — كل متجر مستقل تماماً ومعزول عن باقي المتاجر."
-    }
+    },
+    "btnUpgrade": "اختر الباقة"
   },
   "home": {
     "badge": "منصة نور للتجارة الإلكترونية المصرية",
@@ -2890,5 +3089,63 @@
         }
       ]
     }
+  },
+  "launchReadiness": {
+    "linkCopied": "تم نسخ رابط المتجر",
+    "step": {
+      "identity": "هوية المتجر",
+      "product": "أول منتج",
+      "shipping": "التوصيل والدفع",
+      "preview": "تجربة العميلة"
+    },
+    "desc": {
+      "identity": "اسم المتجر، رقم واتساب، والصورة الرئيسية",
+      "product": "أضف منتجاً واحداً على الأقل لتبدأ البيع",
+      "shipping": "أضف مناطق التوصيل لتفعيل الدفع عند الاستلام",
+      "preview": "تصفح متجرك كعميلة للتأكد من جاهزيته"
+    },
+    "action": {
+      "identity": "إعداد الهوية",
+      "product": "إضافة منتج",
+      "shipping": "إعداد التوصيل",
+      "preview": "معاينة المتجر",
+      "copyLink": "نسخ رابط المتجر"
+    },
+    "title": {
+      "ready": "متجرك جاهز للانطلاق!",
+      "pending": "خطوات جاهزية المتجر"
+    },
+    "subtitle": {
+      "ready": "شارك رابط متجرك وابدأ في استقبال الطلبات"
+    },
+    "status": {
+      "done": "مكتمل"
+    }
+  },
+  "customerAuth": {
+    "unknownError": "حدث خطأ غير متوقع",
+    "registerSuccess": "تم إنشاء الحساب بنجاح",
+    "registerSuccessDesc": "مرحباً بك في متجرنا!",
+    "registerError": "خطأ في إنشاء الحساب",
+    "registerTitle": "إنشاء حساب جديد",
+    "registerDesc": "أدخل بياناتك لإنشاء حساب عميل للمتجر",
+    "nameLabel": "الاسم الكامل",
+    "emailLabel": "البريد الإلكتروني",
+    "phoneLabel": "رقم الهاتف",
+    "phoneDesc": "رقم هاتف محمول صحيح",
+    "passwordLabel": "كلمة المرور",
+    "registering": "جاري الإنشاء...",
+    "registerBtn": "إنشاء حساب",
+    "haveAccount": "لديك حساب بالفعل؟",
+    "loginBtn": "تسجيل الدخول",
+    "loginSuccess": "تم تسجيل الدخول بنجاح",
+    "loginSuccessDesc": "مرحباً بك مجدداً!",
+    "loginError": "خطأ في تسجيل الدخول",
+    "invalidCreds": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "loginTitle": "تسجيل الدخول للعملاء",
+    "loginDesc": "أدخل بريدك الإلكتروني وكلمة المرور للمتابعة",
+    "loggingIn": "جاري تسجيل الدخول...",
+    "noAccount": "ليس لديك حساب؟",
+    "registerNow": "سجل الآن"
   }
 }

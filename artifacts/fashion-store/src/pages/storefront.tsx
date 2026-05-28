@@ -122,7 +122,7 @@ function CategoryFilter({
                 }
           }
         >
-          {store.categories.length > 0 ? t("storefront.home.categories.all", "الكل") : ""}
+          {store.categories.length > 0 ? t("storefront.home.categories.all") : ""}
         </button>
         {parents.map(cat => {
           const isParentSelected = selected === cat.id || (selectedCategory?.parentId === cat.id);
@@ -165,7 +165,7 @@ function CategoryFilter({
                   : { background: "transparent", color: "#8a7b7b", border: "1px solid rgba(122,96,96,0.15)" }
               }
             >
-              {t("storefront.home.categories.all", "الكل")}
+              {t("storefront.home.categories.all")}
             </button>
             {children.map(cat => {
               const isChildSelected = selected === cat.id;
@@ -266,7 +266,7 @@ function AdminBar() {
           className="flex items-center gap-2 bg-gray-900/90 text-white text-xs font-semibold px-3.5 py-2 rounded-full shadow-xl backdrop-blur-sm border border-white/10 hover:bg-gray-900 transition-colors"
         >
           <LayoutDashboard className="w-3.5 h-3.5" />
-          {t("storefront.adminBar.dashboard", "لوحة التحكم")}
+          {t("storefront.adminBar.dashboard")}
         </motion.button>
       </Link>
     </motion.div>
@@ -298,7 +298,7 @@ function EditorTextSection({
           <h2 className="text-4xl text-stone-900 mb-3" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
           {body && <p className="text-stone-500 text-sm mb-6">{body}</p>}
           <button onClick={onScrollToProducts} className="px-8 py-3 rounded-full text-white text-sm font-semibold" style={{ background: primaryColor }}>
-            {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow", "تسوقي الآن")}
+            {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow")}
           </button>
         </div>
       </section>
@@ -543,17 +543,17 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             className="text-3xl font-bold mb-2 text-stone-900"
             style={{ fontFamily: SERIF }}
           >
-            {t("storefront.error.notFoundTitle", "المتجر غير موجود")}
+            {t("storefront.error.notFoundTitle")}
           </h1>
           <p className="text-stone-400 mb-8 max-w-sm text-sm">
-            {t("storefront.error.notFoundDesc", "لم نتمكن من العثور على متجر بهذا الرابط.")}
+            {t("storefront.error.notFoundDesc")}
           </p>
           <Link
             href="/tenants"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white text-sm font-semibold"
             style={{ background: "#8B1A35" }}
           >
-            {t("storefront.error.browseStores", "استعرضي المتاجر")}
+            {t("storefront.error.browseStores")}
           </Link>
         </motion.div>
       </div>
@@ -795,7 +795,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 </div>
                 <div className="flex-1 h-px bg-stone-100 mx-4" />
                 <span className="text-sm text-stone-400 shrink-0">
-                  {liveStore.products.length} {t("storefront.products.productCount", "منتج")}
+                  {liveStore.products.length} {t("storefront.products.productCount")}
                 </span>
               </div>
 
@@ -829,10 +829,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                   >
                     <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
                     <p className="text-stone-800 text-sm font-semibold">
-                      {t("storefront.products.emptyCategory", "لا توجد منتجات مطابقة")}
+                      {t("storefront.products.emptyCategory")}
                     </p>
                     <p className="text-stone-400 text-xs mt-2 max-w-sm mx-auto leading-6">
-                      {t("storefront.products.emptyHint", "جرّبي مسح الفلاتر أو اختيار فئة أخرى من المتجر.")}
+                      {t("storefront.products.emptyHint")}
                     </p>
                     {hasCatalogFilters && (
                       <button
@@ -841,7 +841,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                         className="mt-5 px-5 py-2.5 rounded-full text-xs font-bold text-white"
                         style={{ background: p }}
                       >
-                        {t("storefront.filters.clearAll", "مسح الفلاتر")}
+                        {t("storefront.filters.clearAll")}
                       </button>
                     )}
                   </motion.div>
@@ -1040,7 +1040,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             </div>
             <div className="flex-1 h-px bg-stone-100 mx-4" />
             <span className="text-sm text-stone-400 shrink-0">
-              {store.products.length} {t("storefront.products.productCount", "منتج")}
+              {store.products.length} {t("storefront.products.productCount")}
             </span>
           </div>
 
@@ -1076,10 +1076,10 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
               >
                 <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
                 <p className="text-stone-800 text-sm font-semibold">
-                  {t("storefront.products.emptyCategory", "لا توجد منتجات مطابقة")}
+                  {t("storefront.products.emptyCategory")}
                 </p>
                 <p className="text-stone-400 text-xs mt-2 max-w-sm mx-auto leading-6">
-                  {t("storefront.products.emptyHint", "جرّبي مسح الفلاتر أو اختيار فئة أخرى من المتجر.")}
+                  {t("storefront.products.emptyHint")}
                 </p>
                 {hasCatalogFilters && (
                   <button
@@ -1088,7 +1088,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     className="mt-5 px-5 py-2.5 rounded-full text-xs font-bold text-white"
                     style={{ background: p }}
                   >
-                    {t("storefront.filters.clearAll", "مسح الفلاتر")}
+                    {t("storefront.filters.clearAll")}
                   </button>
                 )}
               </motion.div>

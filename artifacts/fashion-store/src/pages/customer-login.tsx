@@ -20,14 +20,14 @@ export default function CustomerLogin() {
     try {
       await login({ email, password });
       toast({
-        title: t("customerAuth.loginSuccess", "تم تسجيل الدخول بنجاح"),
-        description: t("customerAuth.loginSuccessDesc", "مرحباً بك مجدداً!"),
+        title: t("customerAuth.loginSuccess"),
+        description: t("customerAuth.loginSuccessDesc"),
       });
       setLocation("/");
     } catch (err: any) {
       toast({
-        title: t("customerAuth.loginError", "خطأ في تسجيل الدخول"),
-        description: err.response?.data?.error || t("customerAuth.invalidCreds", "البريد الإلكتروني أو كلمة المرور غير صحيحة"),
+        title: t("customerAuth.loginError"),
+        description: err.response?.data?.error || t("customerAuth.invalidCreds"),
         variant: "destructive",
       });
     }
@@ -37,13 +37,13 @@ export default function CustomerLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>{t("customerAuth.loginTitle", "تسجيل الدخول للعملاء")}</CardTitle>
-          <CardDescription>{t("customerAuth.loginDesc", "أدخل بريدك الإلكتروني وكلمة المرور للمتابعة")}</CardDescription>
+          <CardTitle>{t("customerAuth.loginTitle")}</CardTitle>
+          <CardDescription>{t("customerAuth.loginDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("customerAuth.emailLabel", "البريد الإلكتروني")}</label>
+              <label className="text-sm font-medium">{t("customerAuth.emailLabel")}</label>
               <Input 
                 type="email" 
                 value={email} 
@@ -54,7 +54,7 @@ export default function CustomerLogin() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("customerAuth.passwordLabel", "كلمة المرور")}</label>
+              <label className="text-sm font-medium">{t("customerAuth.passwordLabel")}</label>
               <Input 
                 type="password" 
                 value={password} 
@@ -65,12 +65,12 @@ export default function CustomerLogin() {
               />
             </div>
             <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading ? t("customerAuth.loggingIn", "جاري تسجيل الدخول...") : t("customerAuth.loginBtn", "تسجيل الدخول")}
+              {isLoading ? t("customerAuth.loggingIn") : t("customerAuth.loginBtn")}
             </Button>
             <div className="text-center text-sm text-gray-500 mt-4">
-              {t("customerAuth.noAccount", "ليس لديك حساب؟")}{" "}
+              {t("customerAuth.noAccount")}{" "}
               <Link href="/customer/register" className="text-primary hover:underline">
-                {t("customerAuth.registerNow", "سجل الآن")}
+                {t("customerAuth.registerNow")}
               </Link>
             </div>
           </form>
