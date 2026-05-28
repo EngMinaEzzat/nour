@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { tenantAuditEventsTable, tenantsTable } from "@workspace/db";
+import { tenantAuditEventsTable, tenantsTable, auditEventTypeEnum } from "@workspace/db";
 import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
 import { eq, desc, and } from "drizzle-orm";
 
@@ -12,7 +12,10 @@ router.get("/audit/events", requirePlatformAdmin, async (req, res) => {
     const { tenantId, eventType, limit = 100 } = req.query;
     const conds: any[] = [];
     if (tenantId) conds.push(eq(tenantAuditEventsTable.tenantId, Number(tenantId)));
-    if (eventType) conds.push(eq(tenantAuditEventsTable.eventType, eventType as any));
+
+    if (typeof eventType === "string" && (auditEventTypeEnum.enumValues as readonly string[]).includes(eventType)) {
+      conds.push(eq(tenantAuditEventsTable.eventType, eventType as (typeof auditEventTypeEnum.enumValues)[number]));
+    }
 
     const events = await db.select({
       id: tenantAuditEventsTable.id,
