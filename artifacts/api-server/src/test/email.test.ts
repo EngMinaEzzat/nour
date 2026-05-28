@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { sendEmail, sendNewMerchantNotification, sendOrderConfirmationEmail, sendWelcomeEmail } from "../lib/email.js";
+import { sendEmail, sendNewMerchantNotification, sendOrderConfirmationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "../lib/email.js";
 
 const mockSend = vi.fn().mockResolvedValue({ data: { id: "mock-email-id" }, error: null });
 
@@ -147,5 +147,33 @@ describe("Email System", () => {
     expect(callArgs.html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
     expect(callArgs.html).toContain("&lt;owner@example.com&gt;");
     expect(callArgs.html).toContain("&lt;b&gt;Cairo&lt;/b&gt;");
+  });
+
+  it("should send password reset email with reset link", async () => {
+    const result = await sendPasswordResetEmail(
+      "user@example.com",
+      "https://nour.example/reset-password?token=12345"
+    );
+
+    expect(result).toEqual({ sent: true });
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "user@example.com",
+        subject: "إعادة تعيين كلمة المرور — نور",
+      })
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain("https://nour.example/reset-password?token=12345");
+    expect(callArgs.html).toContain("إعادة تعيين كلمة المرور");
+  });
+
+  it("should handle malicious input in reset link by relying on direct interpolation", async () => {
+    await sendPasswordResetEmail(
+      "user@example.com",
+      "https://nour.example/reset-password?token=\"><script>alert(1)</script>"
+    );
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain("https://nour.example/reset-password?token=\"><script>alert(1)</script>");
   });
 });
