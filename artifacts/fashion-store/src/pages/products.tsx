@@ -448,7 +448,7 @@ function parseCsv(text: string, t: any): CsvRow[] {
       rawStatus === "out_of_stock" ? "out_of_stock" : rawStatus === "hidden" ? "hidden" : "active";
     const featured = get("featured").toLowerCase() === "true" || get("featured") === "1";
     const name = get("name");
-    const error = !name ? t("products.csv.errors.nameReq", "الاسم مطلوب") : isNaN(price) || price <= 0 ? t("products.csv.errors.priceInv", "السعر غير صالح") : undefined;
+    const error = !name ? t("products.csv.errors.nameReq") : isNaN(price) || price <= 0 ? t("products.csv.errors.priceInv") : undefined;
     return {
       name, description: get("description"),
       price: isNaN(price) ? 0 : price,
@@ -1070,7 +1070,7 @@ export default function Products() {
               <option value="out_of_stock">{t("products.status.out_of_stock")}</option>
               <option value="missing_image">{t("products.filters.missingImage", "Missing image")}</option>
               <option value="no_category">{t("products.filters.noCategory", "No category")}</option>
-              <option value="has_variants">{t("products.filters.hasVariants", "له متغيرات")}</option>
+              <option value="has_variants">{t("products.filters.hasVariants")}</option>
             </select>
             <select value={sortMode} onChange={(event) => setSortMode(event.target.value)} className="h-10 rounded-lg border border-input bg-background px-3 text-sm" aria-label={t("products.sort.label", "Sort products")}>
               <option value="newest">{t("products.sort.newest", "Newest")}</option>
@@ -1298,17 +1298,17 @@ export default function Products() {
               <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm flex gap-2">
                 <AlertTriangle className="w-5 h-5 shrink-0" />
                 <div>
-                  <p className="font-semibold">{t("products.form.warnings.title", "تنبيه: المنتج مفعل ولكن قد لا يظهر بشكل صحيح للعملاء")}</p>
+                  <p className="font-semibold">{t("products.form.warnings.title")}</p>
                   <ul className="list-disc list-inside mt-1 text-amber-700 opacity-90">
-                    {!form.imageUrl && <li>{t("products.form.warnings.noImage", "الصورة مفقودة")}</li>}
-                    {(!hasVariants && Number(form.stock) <= 0) && <li>{t("products.form.warnings.noStock", "المخزون صفر")}</li>}
+                    {!form.imageUrl && <li>{t("products.form.warnings.noImage")}</li>}
+                    {(!hasVariants && Number(form.stock) <= 0) && <li>{t("products.form.warnings.noStock")}</li>}
                   </ul>
                 </div>
               </div>
             )}
 
             <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.tabs.details", "التفاصيل الأساسية")}</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.tabs.details")}</CardTitle></CardHeader>
               <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2 space-y-1.5">
                   <Label>{t("products.form.name")} *</Label>
@@ -1364,7 +1364,7 @@ export default function Products() {
             </Card>
 
             <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.image", "الصورة")}</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.image")}</CardTitle></CardHeader>
               <CardContent>
                 <div className="sm:col-span-2">
                   <ImageUpload
@@ -1378,7 +1378,7 @@ export default function Products() {
 
             <Card className="shadow-sm border-border/50">
               <CardHeader className="pb-3 flex-row items-center justify-between">
-                <CardTitle className="text-base">{t("products.tabs.variants", "الأسعار والمخزون")}</CardTitle>
+                <CardTitle className="text-base">{t("products.tabs.variants")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
@@ -1435,7 +1435,7 @@ export default function Products() {
             </Card>
 
             <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.featured", "التميز")}</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.featured")}</CardTitle></CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3">
                   <div>

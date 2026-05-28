@@ -39,10 +39,10 @@ export function HeroSection({
   const tagline =
     eyebrow ||
     category === "cosmetics"
-      ? (i18n.language === "ar" ? "جمال حقيقي، عناية فائقة" : "Real Beauty, Ultimate Care")
+      ? t("storefront.hero.beautyDesc", { defaultValue: "Real Beauty, Ultimate Care" })
       : category === "both"
-      ? (i18n.language === "ar" ? "أزياء راقية وجمال أصيل" : "Elegant Fashion & Authentic Beauty")
-      : (i18n.language === "ar" ? "أناقة مصرية معاصرة" : "Contemporary Elegance");
+      ? t("storefront.hero.bothDesc", { defaultValue: "Elegant Fashion & Authentic Beauty" })
+      : t("storefront.hero.fashionDesc", { defaultValue: "Contemporary Elegance" });
 
   return (
     <section
@@ -111,7 +111,7 @@ export function HeroSection({
             whileHover={{ scale: 1.03, boxShadow: `0 8px 28px ${p}55` }}
             whileTap={{ scale: 0.97 }}
           >
-            {ctaText || t("storefront.hero.shopNow", "تسوقي الآن")}
+            {ctaText || t("storefront.hero.shopNow")}
           </motion.button>
           <motion.button
             onClick={() => document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" })}
@@ -185,9 +185,9 @@ export function HeroSection({
             <Sparkles className="w-4 h-4" style={{ color: p }} />
           </div>
           <div>
-            <p className="text-[11px] text-stone-400 font-medium">{i18n.language === "ar" ? "تشكيلة جديدة" : "New Collection"}</p>
+            <p className="text-[11px] text-stone-400 font-medium">{t("storefront.hero.newCollection", { defaultValue: "New Collection" })}</p>
             <p className="text-[13px] font-bold text-stone-800" style={{ fontFamily: SERIF }}>
-              {i18n.language === "ar" ? "صيف 2025" : "Summer 2025"}
+              {t("storefront.hero.seasonName", { defaultValue: "Summer 2025" })}
             </p>
           </div>
         </motion.div>

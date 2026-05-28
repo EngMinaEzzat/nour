@@ -121,7 +121,7 @@ function CategoryForm({
     } catch (err: any) {
       console.error("Failed to save category:", err);
       // Try to extract the error message from the response
-      const message = err.response?.data?.error || err.message || t("categories.form.errorGeneric", { defaultValue: "حدث خطأ غير متوقع" });
+      const message = err.response?.data?.error || err.message || t("categories.form.errorGeneric");
       setError(typeof message === "string" ? message : JSON.stringify(message));
     }
   }
@@ -305,7 +305,7 @@ export default function Categories() {
                   <h3 className="font-bold text-lg text-foreground">{i18n.language === "ar" ? category.nameAr : category.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant="secondary" className="text-[10px]">{t(`categories.types.${category.type}`) ?? category.type}</Badge>
-                    <span className="text-xs text-muted-foreground">{children.length} {t("categories.card.subcategories", { defaultValue: "أقسام فرعية" })} • {category.productCount} {t("categories.card.productCount")}</span>
+                    <span className="text-xs text-muted-foreground">{children.length} {t("categories.card.subcategories")} • {category.productCount} {t("categories.card.productCount")}</span>
                   </div>
                 </div>
               </div>
@@ -344,7 +344,7 @@ export default function Categories() {
               </div>
             ) : (
               <div className="text-center py-6 border border-dashed border-border rounded-lg bg-background">
-                <p className="text-sm text-muted-foreground">{t("categories.card.noSubcategories", { defaultValue: "لا توجد أقسام فرعية. يمكنك إضافتها باختيار هذا القسم كقسم رئيسي." })}</p>
+                <p className="text-sm text-muted-foreground">{t("categories.card.noSubcategories")}</p>
               </div>
             )}
           </AccordionContent>
@@ -403,7 +403,7 @@ export default function Categories() {
 
           {orphanCategories.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-xl font-bold mb-4">{t("categories.page.orphans", { defaultValue: "أقسام أخرى" })}</h2>
+              <h2 className="text-xl font-bold mb-4">{t("categories.page.orphans")}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                 {orphanCategories.map((child) => renderCategoryCard(child))}
               </div>

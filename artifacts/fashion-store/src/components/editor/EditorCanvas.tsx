@@ -1,3 +1,4 @@
+import i18n from "i18next";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -20,9 +21,9 @@ const DEVICE_WIDTHS: Record<DeviceType, number | string> = {
 };
 
 const DEVICE_LABELS: Record<DeviceType, string> = {
-  desktop: "سطح المكتب",
-  tablet: "تابلت",
-  mobile: "موبايل",
+  desktop: "editorCanvas.deviceLabels.desktop",
+  tablet: "editorCanvas.deviceLabels.tablet",
+  mobile: "editorCanvas.deviceLabels.mobile",
 };
 
 export default function EditorCanvas({
@@ -54,7 +55,7 @@ export default function EditorCanvas({
       }}
     >
       {/* Device label */}
-      <div className="py-3 text-xs text-stone-400 font-medium">{t(`editorCanvas.deviceLabels.${device}`)}</div>
+      <div className="py-3 text-xs text-stone-400 font-medium">{t(DEVICE_LABELS[device])}</div>
 
       {/* Canvas frame */}
       <motion.div

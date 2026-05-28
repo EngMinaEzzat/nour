@@ -169,7 +169,7 @@ export default function Pricing() {
                     <div className="mt-auto">
                       <Button className={`w-full rounded-xl h-11 font-semibold ${c.btn}`} asChild>
                         <Link href={isAuthenticated ? `/billing` : "/register"}>
-                          {isAuthenticated ? t("pricing.btnUpgrade", { defaultValue: "اختر الباقة" }) : t("pricing.startNow")}
+                          {isAuthenticated ? t("pricing.btnUpgrade") : t("pricing.startNow")}
                         </Link>
                       </Button>
                       {!isAuthenticated && (

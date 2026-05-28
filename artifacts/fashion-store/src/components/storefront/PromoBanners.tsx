@@ -15,17 +15,17 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content, set
   const { t, i18n } = useTranslation();
   
   // Use content or fallback to translation defaults
-  const promo1Label = content?.promo1Label || t("storefront.home.promos.exclusiveOffers", "عروض حصرية");
-  const promo1Heading = content?.promo1Heading || t("storefront.home.promos.discountUpTo", "خصم يصل إلى");
+  const promo1Label = content?.promo1Label || t("storefront.home.promos.exclusiveOffers");
+  const promo1Heading = content?.promo1Heading || t("storefront.home.promos.discountUpTo");
   const promo1Discount = content?.promo1Discount || "40";
-  const promo1Desc = content?.promo1Desc || t("storefront.home.promos.discountDesc", "على تشكيلات مختارة — لفترة محدودة");
-  const promo1Cta = content?.promo1Cta || t("storefront.hero.shopNow", "تسوقي الآن");
+  const promo1Desc = content?.promo1Desc || t("storefront.home.promos.discountDesc");
+  const promo1Cta = content?.promo1Cta || t("storefront.hero.shopNow");
   
-  const promo2Label = content?.promo2Label || t("storefront.home.promos.freeShipping", "توصيل مجاني");
-  const promo2Heading = content?.promo2Heading || t("storefront.home.promos.freeShippingText", "شحن مجاني");
-  const promo2Subheading = content?.promo2Subheading || t("storefront.home.promos.forOrdersOver", "لكل طلب فوق");
+  const promo2Label = content?.promo2Label || t("storefront.home.promos.freeShipping");
+  const promo2Heading = content?.promo2Heading || t("storefront.home.promos.freeShippingText");
+  const promo2Subheading = content?.promo2Subheading || t("storefront.home.promos.forOrdersOver");
   const promo2Threshold = content?.promo2Threshold || "999";
-  const promo2Cta = content?.promo2Cta || t("storefront.home.promos.orderNow", "اطلبي الآن");
+  const promo2Cta = content?.promo2Cta || t("storefront.home.promos.orderNow");
 
   const showPromo1 = settings?.showPromo1 ?? true;
   const showPromo2 = settings?.showPromo2 ?? true;

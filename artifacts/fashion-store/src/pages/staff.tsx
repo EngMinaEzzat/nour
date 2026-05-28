@@ -148,7 +148,7 @@ export default function Staff() {
         {isOwner && (
           <div className="flex gap-2 shrink-0">
             <Button className="rounded-full gap-2" onClick={() => { setInvLinkOpen(true); setInvLinkResult(null); }}>
-              <UserPlus className="w-4 h-4" /> {t("staff.inviteLinkBtn", { defaultValue: "دعوة عضو" })}
+              <UserPlus className="w-4 h-4" /> {t("staff.inviteLinkBtn")}
             </Button>
           </div>
         )}

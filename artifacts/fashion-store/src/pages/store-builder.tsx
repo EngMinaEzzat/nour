@@ -254,19 +254,19 @@ export default function StoreBuilder() {
             !
           </div>
           <h1 className="mb-2 text-lg font-bold text-stone-900">
-            {t("storeBuilder.loadErrorTitle", { defaultValue: "تعذر تحميل محرر المتجر" })}
+            {t("storeBuilder.loadErrorTitle")}
           </h1>
           <p className="mb-5 text-sm leading-6 text-stone-500">
             {error instanceof Error
               ? error.message
-              : t("storeBuilder.loadErrorDesc", { defaultValue: "راجعي تسجيل الدخول أو حاولي مرة أخرى." })}
+              : t("storeBuilder.loadErrorDesc")}
           </p>
           <div className="flex flex-col justify-center gap-2 sm:flex-row">
             <Button onClick={() => refetch()} className="rounded-xl">
-              {t("common.buttons.retry", { defaultValue: "إعادة المحاولة" })}
+              {t("common.buttons.retry")}
             </Button>
             <Button asChild variant="outline" className="rounded-xl">
-              <a href="/store-settings">{t("layout.storeSettings", { defaultValue: "إعدادات المتجر" })}</a>
+              <a href="/store-settings">{t("layout.storeSettings")}</a>
             </Button>
           </div>
         </div>

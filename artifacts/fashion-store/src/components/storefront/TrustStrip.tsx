@@ -14,26 +14,26 @@ export function TrustStrip({ primaryColor: p }: TrustStripProps) {
   const TRUST_ITEMS = [
     {
       icon: <Truck className="w-6 h-6" />,
-      title: t("storefront.home.trust.shipping", "شحن سريع"),
-      desc: t("storefront.home.trust.shippingDesc", "توصيل خلال 2-3 أيام عمل لجميع المحافظات"),
+      title: t("storefront.home.trust.shipping"),
+      desc: t("storefront.home.trust.shippingDesc"),
       accent: "#8B1A35",
     },
     {
       icon: <Shield className="w-6 h-6" />,
-      title: t("storefront.home.trust.secure", "دفع آمن 100%"),
-      desc: t("storefront.home.trust.secureDesc", "بطاقات ائتمانية، فوري، ومحافظ إلكترونية"),
+      title: t("storefront.home.trust.secure"),
+      desc: t("storefront.home.trust.secureDesc"),
       accent: "#c8963a",
     },
     {
       icon: <RotateCcw className="w-6 h-6" />,
-      title: t("storefront.home.trust.returns", "إرجاع مجاني"),
-      desc: t("storefront.home.trust.returnsDesc", "استرجاع سهل خلال 14 يوماً بلا تعقيد"),
+      title: t("storefront.home.trust.returns"),
+      desc: t("storefront.home.trust.returnsDesc"),
       accent: "#c97b8b",
     },
     {
       icon: <Headphones className="w-6 h-6" />,
-      title: t("storefront.home.trust.support", "دعم متواصل"),
-      desc: t("storefront.home.trust.supportDesc", "خدمة عملاء على مدار الساعة عبر واتساب"),
+      title: t("storefront.home.trust.support"),
+      desc: t("storefront.home.trust.supportDesc"),
       accent: "#7a5c9e",
     },
   ];

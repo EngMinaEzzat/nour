@@ -34,44 +34,44 @@ export default function LaunchReadinessFlow({ config, productCount, storeSlug }:
   const copyStoreLink = () => {
     const url = `${window.location.origin}/store/${storeSlug}`;
     navigator.clipboard.writeText(url);
-    toast.success(t("launchReadiness.linkCopied", { defaultValue: "تم نسخ رابط المتجر" }));
+    toast.success(t("launchReadiness.linkCopied"));
   };
 
   const steps = [
     {
       id: "identity",
-      label: t("launchReadiness.step.identity", { defaultValue: "هوية المتجر" }),
-      desc: t("launchReadiness.desc.identity", { defaultValue: "اسم المتجر، رقم واتساب، والصورة الرئيسية" }),
+      label: t("launchReadiness.step.identity"),
+      desc: t("launchReadiness.desc.identity"),
       icon: Store,
       done: Boolean(config.brand.name && config.business.whatsapp && config.homepage.sections.some(s => s.type === "hero" && s.content.heading)),
-      action: t("launchReadiness.action.identity", { defaultValue: "إعداد الهوية" }),
+      action: t("launchReadiness.action.identity"),
       href: "/store-settings#section-identity",
     },
     {
       id: "product",
-      label: t("launchReadiness.step.product", { defaultValue: "أول منتج" }),
-      desc: t("launchReadiness.desc.product", { defaultValue: "أضف منتجاً واحداً على الأقل لتبدأ البيع" }),
+      label: t("launchReadiness.step.product"),
+      desc: t("launchReadiness.desc.product"),
       icon: Package,
       done: productCount > 0,
-      action: t("launchReadiness.action.product", { defaultValue: "إضافة منتج" }),
+      action: t("launchReadiness.action.product"),
       href: "/products",
     },
     {
       id: "shipping",
-      label: t("launchReadiness.step.shipping", { defaultValue: "التوصيل والدفع" }),
-      desc: t("launchReadiness.desc.shipping", { defaultValue: "أضف مناطق التوصيل لتفعيل الدفع عند الاستلام" }),
+      label: t("launchReadiness.step.shipping"),
+      desc: t("launchReadiness.desc.shipping"),
       icon: Truck,
       done: Boolean(config.business.deliveryAreas && config.business.deliveryAreas.length > 0),
-      action: t("launchReadiness.action.shipping", { defaultValue: "إعداد التوصيل" }),
+      action: t("launchReadiness.action.shipping"),
       href: "/shipping-rules",
     },
     {
       id: "preview",
-      label: t("launchReadiness.step.preview", { defaultValue: "تجربة العميلة" }),
-      desc: t("launchReadiness.desc.preview", { defaultValue: "تصفح متجرك كعميلة للتأكد من جاهزيته" }),
+      label: t("launchReadiness.step.preview"),
+      desc: t("launchReadiness.desc.preview"),
       icon: Eye,
       done: hasPreviewed,
-      action: t("launchReadiness.action.preview", { defaultValue: "معاينة المتجر" }),
+      action: t("launchReadiness.action.preview"),
       href: `/store/${storeSlug}`,
       external: true,
       onClick: handlePreviewClick,
@@ -97,12 +97,12 @@ export default function LaunchReadinessFlow({ config, productCount, storeSlug }:
               <div>
                 <CardTitle className="text-base">
                   {isFullyReady 
-                    ? t("launchReadiness.title.ready", { defaultValue: "متجرك جاهز للانطلاق!" }) 
-                    : t("launchReadiness.title.pending", { defaultValue: "خطوات جاهزية المتجر" })}
+                    ? t("launchReadiness.title.ready")
+                    : t("launchReadiness.title.pending")}
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {isFullyReady
-                    ? t("launchReadiness.subtitle.ready", { defaultValue: "شارك رابط متجرك وابدأ في استقبال الطلبات" })
+                    ? t("launchReadiness.subtitle.ready")
                     : t("launchReadiness.subtitle.pending", { defaultValue: `${completedCount} من أصل ${steps.length} خطوات مكتملة` })}
                 </p>
               </div>
@@ -116,7 +116,7 @@ export default function LaunchReadinessFlow({ config, productCount, storeSlug }:
               {isFullyReady && (
                 <Button size="sm" className="rounded-xl gap-1.5 h-8 text-xs bg-green-600 hover:bg-green-700 text-white" onClick={copyStoreLink}>
                   <LinkIcon className="w-3.5 h-3.5" />
-                  {t("launchReadiness.action.copyLink", { defaultValue: "نسخ رابط المتجر" })}
+                  {t("launchReadiness.action.copyLink")}
                 </Button>
               )}
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCollapsed((c) => !c)}>
@@ -174,7 +174,7 @@ export default function LaunchReadinessFlow({ config, productCount, storeSlug }:
                         <div className="flex items-center gap-2 sm:ms-auto shrink-0 w-full sm:w-auto">
                           {step.done ? (
                             <span className="inline-flex h-8 items-center rounded-xl bg-green-100 px-2.5 text-xs font-medium text-green-700">
-                              {t("launchReadiness.status.done", { defaultValue: "مكتمل" })}
+                              {t("launchReadiness.status.done")}
                             </span>
                           ) : (
                             step.external ? (

@@ -47,7 +47,7 @@ export default function OrderConfirmation() {
       return [];
     }
   })();
-  const name = safeDecode(params.get("name") ?? t("storefront.orderConfirmation.dear", "عزيزتنا"));
+  const name = safeDecode(params.get("name") ?? t("storefront.orderConfirmation.dear"));
   const phone = params.get("phone") ?? "";
   const paymentMethod = params.get("payment") ?? "cod";
   const firstOrderId = orderIds[0];
@@ -85,18 +85,18 @@ export default function OrderConfirmation() {
   const nextSteps = [
     {
       icon: MessageCircle,
-      title: t("storefront.orderConfirmation.steps.confirm.title", "تأكيد الطلب"),
-      body: t("storefront.orderConfirmation.steps.confirm.body", "سيؤكد المتجر بيانات الطلب والتوصيل على واتساب أو الهاتف."),
+      title: t("storefront.orderConfirmation.steps.confirm.title"),
+      body: t("storefront.orderConfirmation.steps.confirm.body"),
     },
     {
       icon: Package,
-      title: t("storefront.orderConfirmation.steps.prepare.title", "تجهيز المنتجات"),
-      body: t("storefront.orderConfirmation.steps.prepare.body", "بعد التأكيد، يبدأ المتجر في تجهيز الطلب ومراجعته قبل الشحن."),
+      title: t("storefront.orderConfirmation.steps.prepare.title"),
+      body: t("storefront.orderConfirmation.steps.prepare.body"),
     },
     {
       icon: Truck,
-      title: t("storefront.orderConfirmation.steps.ship.title", "التوصيل والمتابعة"),
-      body: t("storefront.orderConfirmation.steps.ship.body", "عند الشحن سيظهر رقم التتبع ويمكنك الرجوع لهذا الرابط في أي وقت."),
+      title: t("storefront.orderConfirmation.steps.ship.title"),
+      body: t("storefront.orderConfirmation.steps.ship.body"),
     },
   ];
 
@@ -113,10 +113,10 @@ export default function OrderConfirmation() {
             <CheckCircle2 className="w-14 h-14 text-primary" />
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-3">
-            {t("storefront.orderConfirmation.title", "تم استلام طلبك")}
+            {t("storefront.orderConfirmation.title")}
           </h1>
           <p className="text-muted-foreground text-base md:text-lg">
-            {t("storefront.orderConfirmation.thankYou", "شكراً لكِ،")}{" "}
+            {t("storefront.orderConfirmation.thankYou")}{" "}
             <span className="text-foreground font-semibold">{name}</span>
           </p>
         </motion.div>
@@ -133,12 +133,12 @@ export default function OrderConfirmation() {
                 <div className="inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-sm text-muted-foreground w-fit">
                   {isOnlinePayment ? <CreditCard className="w-4 h-4 text-primary" /> : <Banknote className="w-4 h-4 text-primary" />}
                   {isOnlinePayment
-                    ? t("storefront.orderConfirmation.paidOnline", "تم الدفع إلكترونياً عبر Paymob")
-                    : t("storefront.orderConfirmation.codPayment", "الدفع عند الاستلام")}
+                    ? t("storefront.orderConfirmation.paidOnline")
+                    : t("storefront.orderConfirmation.codPayment")}
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm text-emerald-700 w-fit">
                   <ShieldCheck className="w-4 h-4" />
-                  {t("storefront.orderConfirmation.safeNextStep", "المتجر سيتواصل قبل الشحن")}
+                  {t("storefront.orderConfirmation.safeNextStep")}
                 </div>
               </div>
 
@@ -147,8 +147,8 @@ export default function OrderConfirmation() {
                   <p className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Package className="w-4 h-4 text-primary" />
                     {orderIds.length === 1
-                      ? t("storefront.orderConfirmation.orderId", "رقم الطلب")
-                      : t("storefront.orderConfirmation.orderIds", "أرقام الطلبات")}
+                      ? t("storefront.orderConfirmation.orderId")
+                      : t("storefront.orderConfirmation.orderIds")}
                   </p>
 
                   {orderIds.map((id) => (
@@ -156,14 +156,14 @@ export default function OrderConfirmation() {
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
                         <div>
                           <p className="text-xs text-muted-foreground">
-                            {t("storefront.orderConfirmation.orderId", "رقم الطلب")}
+                            {t("storefront.orderConfirmation.orderId")}
                           </p>
                           <p className="font-bold text-foreground" dir="ltr">#{id}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button asChild size="sm" className="rounded-full">
                             <Link href={trackHref(id)} className="inline-flex items-center gap-1">
-                              {t("storefront.orderConfirmation.trackOrder", "تتبع الطلب")}
+                              {t("storefront.orderConfirmation.trackOrder")}
                               <ChevronLeft className={`w-3.5 h-3.5 ${i18n.dir() === "rtl" ? "" : "rotate-180"}`} />
                             </Link>
                           </Button>
@@ -173,7 +173,7 @@ export default function OrderConfirmation() {
                             size="icon"
                             className="rounded-full h-9 w-9"
                             onClick={() => copyTrackingLink(id)}
-                            aria-label={t("storefront.orderConfirmation.copyTrackingLink", "نسخ رابط التتبع")}
+                            aria-label={t("storefront.orderConfirmation.copyTrackingLink")}
                           >
                             {copiedId === id ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
                           </Button>
@@ -218,10 +218,10 @@ export default function OrderConfirmation() {
                   <div className="text-start">
                     <p className="font-semibold text-sm text-emerald-800 flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
-                      {t("storefront.orderConfirmation.whatsappTitle", "احصلي على تأكيد الطلب على واتساب")}
+                      {t("storefront.orderConfirmation.whatsappTitle")}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {t("storefront.orderConfirmation.whatsappDesc", "اضغطي لفتح رسالة التأكيد على")} <span dir="ltr">{phone}</span>
+                      {t("storefront.orderConfirmation.whatsappDesc")} <span dir="ltr">{phone}</span>
                     </p>
                   </div>
                   <Button
@@ -229,7 +229,7 @@ export default function OrderConfirmation() {
                     className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl shrink-0"
                   >
                     <MessageCircle className="w-4 h-4 me-2" />
-                    {t("storefront.orderConfirmation.whatsappBtn", "فتح واتساب")}
+                    {t("storefront.orderConfirmation.whatsappBtn")}
                   </Button>
                 </div>
               </CardContent>
@@ -244,12 +244,12 @@ export default function OrderConfirmation() {
           transition={{ duration: 0.3, delay: 0.32 }}
         >
           <Button asChild className="rounded-full px-8">
-            <Link href="/products">{t("storefront.orderConfirmation.continueShopping", "متابعة التسوق")}</Link>
+            <Link href="/products">{t("storefront.orderConfirmation.continueShopping")}</Link>
           </Button>
           <Button asChild variant="outline" className="rounded-full px-8">
             <Link href="/">
               <Home className="w-4 h-4 me-2" />
-              {t("storefront.header.links.home", "الرئيسية")}
+              {t("storefront.header.links.home")}
             </Link>
           </Button>
         </motion.div>

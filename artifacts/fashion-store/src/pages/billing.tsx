@@ -304,7 +304,7 @@ export default function BillingPage() {
               <TrendingUp className="w-4 h-4 text-primary" /> {t("billing.currentPlan.title")}
             </CardTitle>
             <Button variant="outline" size="sm" asChild className="h-8 text-xs">
-              <Link href="/pricing">{t("billing.currentPlan.btnViewPlans", { defaultValue: "استعراض الباقات" })}</Link>
+              <Link href="/pricing">{t("billing.currentPlan.btnViewPlans")}</Link>
             </Button>
           </CardHeader>
           <CardContent>

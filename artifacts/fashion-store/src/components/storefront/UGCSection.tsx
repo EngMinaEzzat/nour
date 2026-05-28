@@ -50,18 +50,18 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
             className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
             style={{ color: p }}
           >
-            {t("storefront.home.ugc.eyebrow", "مجتمعنا")}
+            {t("storefront.home.ugc.eyebrow")}
           </p>
           <h2
             className="text-4xl md:text-5xl text-stone-900 mb-3"
             style={{ fontFamily: SERIF, fontWeight: 400 }}
           >
-            {t("storefront.home.ugc.title1", "إلهامنا من")}
+            {t("storefront.home.ugc.title1")}
             <br />
-            <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.ugc.title2", "عملاءنا")}</span>
+            <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.ugc.title2")}</span>
           </h2>
           <p className="text-stone-400 text-sm max-w-sm mx-auto">
-            {t("storefront.home.ugc.subtitle", "شاركينا لوك اليوم بـ")} <span className="font-semibold text-stone-600">#{t("storefront.home.ugc.hashtag", "نور")}</span>
+            {t("storefront.home.ugc.subtitle")} <span className="font-semibold text-stone-600">#{t("storefront.home.ugc.hashtag")}</span>
           </p>
         </div>
 
@@ -79,7 +79,7 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
             >
               <img
                 src={item.src}
-                alt={`${t("storefront.home.ugc.look", "لوك")} ${i + 1}`}
+                alt={`${t("storefront.home.ugc.look")} ${i + 1}`}
                 loading="lazy"
                 decoding="async"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -114,7 +114,7 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
               style={{ borderColor: "#c13584", color: "#c13584" }}
             >
               <Instagram className="w-4 h-4" />
-              {t("storefront.home.ugc.followUs", "تابعينا على إنستغرام")}
+              {t("storefront.home.ugc.followUs")}
             </a>
           </div>
         )}

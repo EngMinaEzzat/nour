@@ -66,7 +66,17 @@
       "btnSave": "Save",
       "btnSaving": "Saving...",
       "btnCancel": "Cancel",
-      "saveError": "An error occurred while saving."
+      "saveError": "An error occurred while saving.",
+      "warnings": {
+        "title": "Warning: Product is active but may not display correctly",
+        "noImage": "Image missing",
+        "noStock": "Zero stock",
+        "noSubcategories": "No Subcategories"
+      },
+      "errors": {
+        "slugInvalid": "Invalid product URL",
+        "slugTaken": "Product URL already taken"
+      }
     },
     "variants": {
       "title": "Sizes and Colors",
@@ -149,6 +159,13 @@
       "tip1": "Featured products appear at the top of your store.",
       "tip2": "You can import your product list all at once via CSV.",
       "tip3": "Make sure to activate your products so they are visible."
+    },
+    "filters": {
+      "hasVariants": "Has variants"
+    },
+    "tabs": {
+      "details": "Basic Details",
+      "variants": "Prices and Stock"
     }
   },
   "tenants": {
@@ -215,7 +232,8 @@
       "details": "Details",
       "edit": "Edit",
       "delete": "Delete",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "retry": "Retry"
     },
     "currency": "EGP",
     "pricing": "Pricing",
@@ -233,7 +251,8 @@
       "title": "Page not found",
       "desc": "Sorry, we couldn't find the page you are looking for.",
       "backToHome": "Back to Home"
-    }
+    },
+    "close": "Close"
   },
   "roles": {
     "owner": "Owner",
@@ -562,12 +581,16 @@
       "price": "Monthly Price",
       "trialEnds": "Trial Ends",
       "nextRenewal": "Next Renewal",
-      "yourPlan": "Your Plan"
+      "yourPlan": "Your Plan",
+      "orderStatus": "Order Status",
+      "recentOrders": "Recent Orders",
+      "viewAll": "View All",
+      "noOrders": "No orders yet"
     },
     "transferRequest": {
       "title": "Submit Bank Transfer Receipt",
       "pendingBadge": "Pending",
-      "pendingNotice": "You have a pending request. Your subscription will be activated upon approval."
+      "pendingNotice": "You have a pending transfer request. Your subscription will be activated upon approval."
     },
     "transferHistory": {
       "title": "Transfer Requests",
@@ -743,7 +766,8 @@
       "title": "Store Theme",
       "desc": "Choose the general design of your store — it will be applied to the interface immediately.",
       "selected": "Selected",
-      "select": "Select"
+      "select": "Select",
+      "preview": "Preview"
     },
     "seo": {
       "titleTag": "Page Title (Title Tag)",
@@ -863,19 +887,19 @@
     "selectSizeColorFirst": "Select size/color first",
     "addedToCart": "Added to cart ✓",
     "addToCart": "Add to cart",
-      "orderOnWhatsapp": "Order on WhatsApp",
-      "reviews": "Customer Reviews",
-      "ratings": "rating",
-      "ratingReadout": "{{rating}} out of 5 stars",
-      "ratingOption": "{{rating}} out of 5 stars",
-      "galleryImage": "View product image {{index}}",
-      "sizeOption": "Size {{size}}, {{status}}",
-      "colorOption": "Color {{color}}, {{status}}",
-      "quantitySummary": "{{count}} item",
-      "chooseOptions": "Choose options",
-      "stockLimit": "{{count}} pieces available",
-      "chooseVariantForStock": "Choose size and color to see stock",
-      "noReviewsYet": "No reviews yet",
+    "orderOnWhatsapp": "Order on WhatsApp",
+    "reviews": "Customer Reviews",
+    "ratings": "rating",
+    "ratingReadout": "{{rating}} out of 5 stars",
+    "ratingOption": "{{rating}} out of 5 stars",
+    "galleryImage": "View product image {{index}}",
+    "sizeOption": "Size {{size}}, {{status}}",
+    "colorOption": "Color {{color}}, {{status}}",
+    "quantitySummary": "{{count}} item",
+    "chooseOptions": "Choose options",
+    "stockLimit": "{{count}} pieces available",
+    "chooseVariantForStock": "Choose size and color to see stock",
+    "noReviewsYet": "No reviews yet",
     "beFirstToReview": "Be the first to review this product",
     "writeReview": "Write your review",
     "thanksForReview": "Thanks for your review!",
@@ -890,17 +914,21 @@
     "opinionPlaceholder": "Share your experience with this product...",
     "sendReview": "Send review",
     "sending": "Sending...",
-      "reviewApprovalNote": "Your review will appear after review by the store owner",
-      "whatsappMsgPrefix": "Hello 👋, I would like to inquire about the product:",
-      "whatsappMsgPrice": "Price:",
-      "whatsappMsgVariant": "— Size/Color:",
-      "trust": {
-        "cod": "Cash on delivery available",
-        "delivery": "Delivery is confirmed via WhatsApp",
-        "support": "Ask the store before ordering"
-      },
-      "pieces": "pieces"
+    "reviewApprovalNote": "Your review will appear after review by the store owner",
+    "whatsappMsgPrefix": "Hello 👋, I would like to inquire about the product:",
+    "whatsappMsgPrice": "Price:",
+    "whatsappMsgVariant": "— Size/Color:",
+    "trust": {
+      "cod": "Cash on delivery available",
+      "delivery": "Delivery is confirmed via WhatsApp",
+      "support": "Ask the store before ordering"
     },
+    "pieces": "pieces",
+    "variantUnavailable": "Variant Unavailable",
+    "quantity": "Quantity",
+    "decreaseQuantity": "Decrease Quantity",
+    "increaseQuantity": "Increase Quantity"
+  },
   "categories": {
     "types": {
       "fashion": "Fashion",
@@ -917,7 +945,8 @@
       "parentNone": "None (Main Category)",
       "imageLabel": "Category Image",
       "btnEdit": "Save Changes",
-      "btnAdd": "Add Category"
+      "btnAdd": "Add Category",
+      "errorGeneric": "Generic Error"
     },
     "page": {
       "title": "Categories",
@@ -925,13 +954,16 @@
       "btnAdd": "Add Category",
       "addTitle": "Add New Category",
       "editTitle": "Edit Category",
-      "empty": "No categories yet"
+      "empty": "No categories yet",
+      "orphans": "Orphans"
     },
     "card": {
       "productCount": "product",
       "subOf": "Sub of:",
       "btnProducts": "Products",
-      "btnEdit": "Edit"
+      "btnEdit": "Edit",
+      "subcategories": "Subcategories",
+      "noSubcategories": "No Subcategories"
     }
   },
   "orders": {
@@ -975,29 +1007,30 @@
       ]
     },
     "search": {
-      "placeholder": "Search by order ID, customer, or phone..."
+      "placeholder": "Search by order ID, customer, or phone"
     },
     "queue": {
-      "needsAction": "Needs confirmation",
-      "ready": "Ready to ship",
+      "needsAction": "Needs Confirmation",
+      "ready": "Ready to Ship",
       "shipping": "Shipping",
-      "done": "Closed"
+      "done": "Closed",
+      "failedContact": "Failed Contact"
     },
     "metrics": {
-      "open": "Open orders",
-      "needsContact": "Needs contact",
-      "revenue": "Order value"
+      "open": "Open Orders",
+      "needsContact": "Needs Contact",
+      "revenue": "Revenue"
     },
     "payment": {
       "cod": "COD",
-      "paymob": "E-payment"
+      "paymob": "Online Payment"
     },
     "actions": {
       "review": "Review",
       "open": "Open"
     },
     "filter": {
-      "all": "All"
+      "all": "All Orders"
     },
     "list": {
       "orderCount": "order(s)",
@@ -1005,6 +1038,9 @@
       "unknownCustomer": "Unknown Customer",
       "productCount": "product(s)",
       "empty": "No orders yet"
+    },
+    "filters": {
+      "city": "City/Region"
     }
   },
   "orderDetail": {
@@ -1025,7 +1061,7 @@
     },
     "method": {
       "phone": "Phone call",
-      "whatsapp": "WhatsApp",
+      "whatsapp": "Whats App",
       "email": "Email",
       "other": "Other"
     },
@@ -1101,7 +1137,7 @@
     },
     "card": {
       "customerTitle": "Customer Information",
-      "whatsapp": "WhatsApp",
+      "whatsapp": "Whats App",
       "shippingTitle": "Shipping Address",
       "itemsTitle": "Order Items",
       "quantity": "Quantity:",
@@ -1442,7 +1478,7 @@
       "itemsMore": "+{count} more items",
       "emptyCart": "Empty cart",
       "productCount": "{count} product(s)",
-      "btnWhatsapp": "WhatsApp",
+      "btnWhatsapp": "Whats App",
       "btnNoPhone": "No phone"
     },
     "whatsappTip": {
@@ -1522,8 +1558,8 @@
   },
   "affiliates": {
     "page": {
-      "title": "Affiliates and Commissions Program",
-      "subtitle": "Create a unique code for each affiliate, track their sales, and calculate their commission automatically",
+      "title": "Affiliates",
+      "subtitle": "Manage your affiliates and commissions",
       "btnAdd": "Add Affiliate"
     },
     "stats": {
@@ -1609,8 +1645,8 @@
   },
   "automation": {
     "page": {
-      "title": "Automation and Rules",
-      "subtitle": "Automate repetitive tasks to save your time",
+      "title": "Automation",
+      "subtitle": "Automate tasks and workflows",
       "btnNewRule": "New Rule"
     },
     "triggers": {
@@ -1745,7 +1781,9 @@
   "storeBuilder": {
     "loading": "Loading your store...",
     "noStore": "No store connected to your account.",
-    "createFirst": "Create your store first"
+    "createFirst": "Create your store first",
+    "loadErrorTitle": "Load Error Title",
+    "loadErrorDesc": "Loaderrordesc"
   },
   "visualEditor": {
     "toast": {
@@ -1843,7 +1881,8 @@
       "show": "Show",
       "hide": "Hide",
       "duplicate": "Duplicate",
-      "delete": "Delete"
+      "delete": "Delete",
+      "addItem": "Add New Item"
     },
     "hiddenNotice": "This section is hidden from visitors",
     "fields": {
@@ -1878,7 +1917,40 @@
       "columns": "Number of Columns",
       "trustStripNote": "The features strip displays trust promises such as shipping, returns, and quality. Review the associated action above to adjust the data supporting these promises.",
       "faqNote": "The current editor controls the visibility of this section and its title. Editing question details requires an extended editing panel.",
-      "noSettings": "No settings available for this section."
+      "noSettings": "No settings available for this section.",
+      "testimonialItems": "Testimonials",
+      "testimonialName": "Customer Name",
+      "testimonialText": "Review",
+      "testimonialRating": "Rating (1-5)",
+      "promo1Title": "First Offer (Discount)",
+      "promo1Label": "Label",
+      "promo1Heading": "Heading",
+      "promo1Discount": "Discount Percentage (%)",
+      "promo1Desc": "Description",
+      "promo1Cta": "Button Text",
+      "promo2Title": "Second Offer (Shipping)",
+      "promo2Label": "Label",
+      "promo2Heading": "Heading",
+      "promo2Subheading": "Subheading",
+      "promo2Threshold": "Promo2 Threshold",
+      "promo2Cta": "Button Text",
+      "faqItems": "Questions and Answers",
+      "faqQ": "FAQ Question",
+      "faqA": "FAQ Answer",
+      "imageItems": "Images",
+      "title": "Title",
+      "desc": "Desc",
+      "tag": "Tag",
+      "trustStripItems": "Store Features",
+      "trustStripIcon": "Icon (Emoji)",
+      "trustStripTitle": "Title",
+      "trustStripText": "Description",
+      "features": "Features",
+      "featureTitle": "Title",
+      "featureText": "Text",
+      "featureIcon": "Icon (Emoji)",
+      "faqQuestion": "Question",
+      "faqAnswer": "Answer"
     }
   },
   "storeAssistant": {
@@ -1968,7 +2040,48 @@
           "name": "Ivory Classic",
           "desc": "Heritage and timeless luxury"
         }
+      },
+      "presets": {
+        "elegantFashion": {
+          "name": "Elegant Fashion",
+          "desc": "Classic elegant style"
+        },
+        "softCosmetics": {
+          "name": "Soft Cosmetics",
+          "desc": "Softness and calm colors"
+        },
+        "simpleBoutique": {
+          "name": "Simple Boutique",
+          "desc": "Clean and modern design"
+        },
+        "streetWear": {
+          "name": "Bold Street Wear",
+          "desc": "Vibrant and strong colors"
+        },
+        "luxuryEvents": {
+          "name": "Luxury Events",
+          "desc": "Luxurious and refined style"
+        }
+      },
+      "contrast": {
+        "ratio": "Contrast ratio {{ratio}}:1"
       }
+    },
+    "sections": {
+      "hero": "Hero Image",
+      "new-arrivals": "New Arrivals",
+      "best-sellers": "Best Sellers",
+      "categories": "Categories",
+      "testimonials": "Testimonials",
+      "offers": "Offers & Discounts",
+      "about": "Our Story",
+      "instagram": "Photo Gallery",
+      "faq": "FAQ",
+      "whatsapp": "WhatsApp Contact",
+      "newsletter": "Newsletter",
+      "lookbook": "Lookbook",
+      "product-catalog": "All Products",
+      "trust-strip": "Store Features"
     }
   },
   "readinessChecklist": {
@@ -1982,7 +2095,7 @@
       "name": "Store name added",
       "products": "At least 3 products",
       "hero": "Hero section completed",
-      "whatsapp": "WhatsApp number for contact",
+      "whatsapp": "WhatsApp number",
       "color": "Primary color selected",
       "return": "Return policy added",
       "social": "Social media links",
@@ -2114,7 +2227,14 @@
         "beauty": "Beauty",
         "bestSellers": "Best Sellers",
         "allProducts": "All Products"
-      }
+      },
+      "actions": {
+        "account": "Account",
+        "myOrders": "Myorders",
+        "login": "Login"
+      },
+      "whatsapp": "Contact on WhatsApp",
+      "language": "Language"
     },
     "footer": {
       "shop": "Shop",
@@ -2131,23 +2251,38 @@
       "poweredBy": "Powered by"
     },
     "hero": {
-      "shopNow": "Shop Now"
+      "shopNow": "Shop Now",
+      "newCollection": "New Collection",
+      "seasonName": "Summer 2025",
+      "beautyDesc": "Real Beauty, Ultimate Care",
+      "bothDesc": "Elegant Fashion & Authentic Beauty",
+      "fashionDesc": "Contemporary Elegance"
     },
     "categories": {
       "viewAll": "View All Products"
     },
-      "products": {
-        "newArrivals": "New Arrivals",
-        "bestSellers": "Best Sellers",
-        "trending": "Trending Now",
-        "viewAll": "View All",
-        "addToCart": "Add to Cart",
-        "outOfStock": "Out of Stock",
-        "soldOut": "Sold Out",
-        "quickAdd": "Quick Add",
-        "selectOptions": "Select Options",
-        "ratingSummary": "{{rating}} rating from {{count}} reviews"
-      },
+    "products": {
+      "newArrivals": "New Arrivals",
+      "bestSellers": "Best Sellers",
+      "trending": "Trending Now",
+      "viewAll": "View All",
+      "addToCart": "Add to Cart",
+      "outOfStock": "Out of Stock",
+      "soldOut": "Sold Out",
+      "quickAdd": "Quick Add",
+      "selectOptions": "Select Options",
+      "ratingSummary": "{{rating}} rating from {{count}} reviews",
+      "featured": "Featured",
+      "lowStock": "Low Stock",
+      "removeWishlist": "Remove from Wishlist",
+      "addWishlist": "Add to Wishlist",
+      "chooseOption": "Choose Option",
+      "inCart": "In Cart",
+      "hasVariants": "Has Variants",
+      "productCount": "Product",
+      "emptyCategory": "No matching products",
+      "emptyHint": "Try clearing filters or choosing another category."
+    },
     "trust": {
       "shipping": "Free Shipping",
       "shippingDesc": "On orders over 1000 EGP",
@@ -2156,7 +2291,11 @@
       "support": "24/7 Support",
       "supportDesc": "We're here to help",
       "secure": "Secure Payments",
-      "secureDesc": "100% protected"
+      "secureDesc": "100% protected",
+      "shipping_badge": "📦 Fast Shipping",
+      "authentic_badge": "⭐ 100% Authentic",
+      "secure_badge": "🔒 Secure Payment",
+      "returns_badge": "↩️ Free Returns"
     },
     "newsletter": {
       "title": "Join Our Newsletter",
@@ -2168,7 +2307,13 @@
     "search": {
       "placeholder": "Search for products...",
       "noResults": "No results found for",
-      "popular": "Popular Searches"
+      "popular": "Popular Searches",
+      "label": "Label",
+      "suggestions": "Suggestions",
+      "noResultsTitle": "No matching results",
+      "noResultsDesc": "Try a simpler keyword or clear filters.",
+      "clear": "Clear",
+      "categories": "Categories"
     },
     "lookbook": {
       "title": "Editorial Lookbook",
@@ -2231,10 +2376,12 @@
       "online": "Online Payment",
       "applyCode": "Apply Code",
       "discountCode": "Discount Code",
-      "backToCart": "Back to Cart"
+      "backToCart": "Back to Cart",
+      "continueShopping": "Continue Shopping",
+      "pageTitle": "Payment and Delivery"
     },
     "orderConfirmation": {
-      "title": "Order Confirmed!",
+      "title": "Your order has been received",
       "subtitle": "Thank you for your order. We've sent a confirmation email.",
       "orderId": "Order ID",
       "trackOrder": "Track Order",
@@ -2252,20 +2399,38 @@
       "paidOnline": "Paid online via Paymob",
       "orderIds": "Order IDs",
       "whatsappTitle": "Get order confirmation on WhatsApp",
-      "whatsappDesc": "Tap to open confirmation message for",
-      "whatsappBtn": "Send confirmation on WhatsApp",
+      "whatsappDesc": "Tap to open the confirmation message to",
+      "whatsappBtn": "Send WhatsApp Confirmation",
       "bostaTitle": "Delivery by Bosta",
-      "bostaDesc": "The store will create your shipment within 24 hours — you'll receive a tracking number"
+      "bostaDesc": "The store will create your shipment within 24 hours — you'll receive a tracking number",
+      "steps": {
+        "confirm": {
+          "title": "Order Confirmation",
+          "body": "The store will confirm the order and delivery details via WhatsApp or Phone."
+        },
+        "prepare": {
+          "title": "Preparing Products",
+          "body": "After confirmation, the store will prepare and review your order before shipping."
+        },
+        "ship": {
+          "title": "Delivery and Tracking",
+          "body": "Once shipped, a tracking number will be provided. You can check this link anytime."
+        }
+      },
+      "codPayment": "Cash on Delivery",
+      "safeNextStep": "The store will contact you before shipping",
+      "copyTrackingLink": "Copy tracking link"
     },
     "orderTrack": {
       "status": {
         "pending": "Pending Review",
         "confirmed": "Confirmed",
         "dispatched": "Dispatched",
-        "shipped": "On the way",
+        "shipped": "On the Way",
         "delivered": "Delivered",
         "cancelled": "Cancelled",
-        "returned": "Returned"
+        "returned": "Returned",
+        "awaitingConfirmation": "Awaiting Confirmation"
       },
       "invalidLink": "Invalid order link",
       "home": "Home",
@@ -2280,7 +2445,21 @@
       "details": "Order Details",
       "total": "Total",
       "store": "Store",
-      "visitStore": "Visit Store"
+      "visitStore": "Visit Store",
+      "statusBody": {
+        "pending": "Order received and awaiting store confirmation.",
+        "awaitingConfirmation": "The store is reviewing your order details before preparation.",
+        "confirmed": "The store confirmed the order and is preparing it now.",
+        "dispatched": "The order has left the store to the shipping company.",
+        "shipped": "The order is on its way to you.",
+        "delivered": "The order was delivered successfully.",
+        "cancelled": "The order has been cancelled.",
+        "returned": "Returned"
+      },
+      "invalidLinkDesc": "Open the tracking link from the confirmation page or WhatsApp message.",
+      "paidOnline": "Paid Online",
+      "cod": "Cod",
+      "shipping": "Shipping"
     },
     "error": {
       "notFoundTitle": "Store Not Found",
@@ -2297,11 +2476,11 @@
         "title2": "Ideal Routine",
         "subtitle": "Four simple steps for clear, glowing skin all day long",
         "shopRoutine": "Shop Care Products",
-        "step1Title": "Cleansing",
+        "step1Title": "Cleanse",
         "step1Desc": "Start your routine by gently cleansing your skin to remove impurities.",
-        "step2Title": "Moisturizing",
+        "step2Title": "Moisturize",
         "step2Desc": "Hydrate your skin with a nourishing serum that gives it lasting freshness.",
-        "step3Title": "Protection",
+        "step3Title": "Protect",
         "step3Desc": "Protect your skin from the sun daily with a suitable sunscreen.",
         "step4Title": "Night Care",
         "step4Desc": "Let your skin regenerate while you sleep with a concentrated night cream."
@@ -2314,7 +2493,8 @@
       "categories": {
         "eyebrow": "Shop By Category",
         "title": "Discover Our Collection",
-        "productsCount": "products"
+        "productsCount": "products",
+        "all": "All"
       },
       "lookbook": {
         "eyebrow": "Our Inspiration",
@@ -2323,17 +2503,17 @@
         "discover": "Discover the Collection",
         "panel1": {
           "tag": "Fashion",
-          "title": "Egyptian\\nBeauty",
+          "title": "Egyptian\\n Beauty",
           "desc": "An exclusive collection inspired by heritage"
         },
         "panel2": {
           "tag": "Spring 2025",
-          "title": "Spring\\nColors",
+          "title": "Spring\\n Colors",
           "desc": "Soft shades for a perfect look"
         },
         "panel3": {
           "tag": "Beauty",
-          "title": "Beauty\\nMagic",
+          "title": "Beauty\\n Magic",
           "desc": "High quality care products"
         }
       },
@@ -2385,12 +2565,13 @@
         "ctaText": "Subscribe Now",
         "title": "Be the first to know",
         "subtitle": "New Arrivals",
-        "desc": "Subscribe to {{storeName}} newsletter and enjoy exclusive offers and the latest fashion right in your inbox",
+        "desc": "Subscribe to {{storeName}} newsletter to get exclusive offers and updates",
         "successTitle": "Subscribed Successfully!",
-        "successDesc": "We are glad to have you in the {{storeName}} community ✨",
+        "successDesc": "Welcome to the {{storeName}} community ✨",
         "emailPlaceholder": "Your Email Address",
         "subscribe": "Subscribe Now",
-        "disclaimer": "You can unsubscribe at any time • No spam ever"
+        "disclaimer": "You can unsubscribe at any time • No spam ever",
+        "eyebrow": "Eyebrow"
       },
       "productCatalog": {
         "heading": "All Products",
@@ -2440,7 +2621,41 @@
         "returns": "Free Returns",
         "returnsDesc": "Easy return within 14 days without complications",
         "support": "Continuous Support",
-        "supportDesc": "Customer service around the clock via WhatsApp"
+        "supportDesc": "24/7 Customer Support via WhatsApp"
+      },
+      "trending": {
+        "eyebrow": "Eyebrow",
+        "title1": "Title1",
+        "title2": "Title2"
+      },
+      "all": "All",
+      "newArrivals": {
+        "eyebrow": "Eyebrow",
+        "title": "Title"
+      },
+      "promos": {
+        "exclusiveOffers": "Exclusive Offers",
+        "discountUpTo": "Discount up to",
+        "discountDesc": "On selected collections — limited time",
+        "freeShipping": "Free Shipping",
+        "freeShippingText": "Free Shipping",
+        "forOrdersOver": "On orders over",
+        "orderNow": "Ordernow"
+      }
+    },
+    "adminBar": {
+      "dashboard": "Dashboard"
+    },
+    "trending": {
+      "tags": {
+        "sneakers": "Sneakers",
+        "ballerina": "Ballerina",
+        "mini": "Mini",
+        "streetStyle": "Street Style",
+        "softLuxury": "Soft Luxury",
+        "boho": "Boho",
+        "monochrome": "Monochrome",
+        "floral": "Floral"
       }
     }
   },
@@ -2520,7 +2735,8 @@
       "a2": "Your store will not stop — we will contact you to upgrade your plan when you approach the limit.",
       "q3": "Is the data safe?",
       "a3": "Of course — each store is completely independent and isolated from the rest."
-    }
+    },
+    "btnUpgrade": "Select Plan"
   },
   "home": {
     "badge": "Nour Egyptian E-Commerce Platform",
@@ -2569,7 +2785,7 @@
       "f3_title": "Bosta Shipping",
       "f3_desc": "Create Bosta shipments directly from your dashboard, track orders, and manage COD with one click.",
       "f4_title": "Automated WhatsApp",
-      "f4_desc": "Send order confirmations to your customers on WhatsApp automatically — name, order details, and tracking number.",
+      "f4_desc": "Send order confirmations to your customers automatically via WhatsApp.",
       "f5_title": "Sales Analytics",
       "f5_desc": "An Arabic dashboard giving you a complete overview: your revenue, top selling products, and new customers count.",
       "f6_title": "Team Management",
@@ -2595,9 +2811,9 @@
       "free_f2": "Up to 20 products",
       "free_f3": "Cash on delivery",
       "free_f4": "Arabic RTL interface",
-      "free_f5": "Manual WhatsApp support",
+      "free_f5": "Manual WhatsApp Support",
       "free_cta": "Start Free",
-      "pro_name": "Professional",
+      "pro_name": "Pro",
       "pro_price": "299",
       "pro_desc": "Monthly / per store",
       "pro_badge": "Most Popular",
@@ -2630,7 +2846,7 @@
       "t2_text": "Payment via Paymob and Bosta shipping with one click — saved me hours every day.",
       "t3_name": "Nadine Hossam",
       "t3_store": "Style House",
-      "t3_text": "Automated WhatsApp messages for customers increased their satisfaction 100%. Exceptional product."
+      "t3_text": "Automated WhatsApp messages doubled customer satisfaction. Exceptional product."
     },
     "trust": {
       "ssl": "Free 100% secure SSL",
@@ -2667,8 +2883,9 @@
     "dropHere": "Click or drag image here",
     "supported": "{formats} up to {max}MB without compression",
     "errorSize": "Image size must be less than {max}MB",
-    "errorFormat": "Supported formats: {formats}. On iPhone choose JPG if the image appears as HEIC.",
-    "errorGeneric": "Failed to upload image"
+    "errorFormat": "Supported formats: {formats}. On iPhone, choose JPG.",
+    "errorGeneric": "Failed to upload image",
+    "errorProcessing": "Could not process image"
   },
   "productCard": {
     "featured": "Featured",
@@ -2802,5 +3019,200 @@
         }
       ]
     }
-  }
+  },
+  "billing": {
+    "title": "Billing & Subscriptions",
+    "subtitle": "Manage your store plan, invoices, and bank transfer receipts",
+    "planNames": {
+      "starter": "Starter",
+      "growth": "Growth",
+      "pro": "Pro"
+    },
+    "planPrices": {
+      "currency": "EGP / Month"
+    },
+    "planFeatures": {
+      "starter": [
+        "50 منتج",
+        "100 طلب/شهر",
+        "دعم أساسي"
+      ],
+      "growth": [
+        "500 منتج",
+        "1000 طلب/شهر",
+        "Paymob",
+        "واتساب"
+      ],
+      "pro": [
+        "غير محدود",
+        "نطاق مخصص",
+        "أولوية الدعم",
+        "تقارير متقدمة"
+      ]
+    },
+    "status": {
+      "active": "Active",
+      "trial": "Trial",
+      "past_due": "Past Due",
+      "suspended": "Suspended",
+      "canceled": "Canceled"
+    },
+    "invStatus": {
+      "draft": "Draft",
+      "issued": "Issued",
+      "paid": "Paid",
+      "failed": "Failed",
+      "voided": "Voided"
+    },
+    "transferStatus": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "banners": {
+      "trialEnded": "Trial Ended",
+      "trialDaysLeft": "days left in your trial.",
+      "trialEndsOn": "Trial ends on",
+      "suspendedTitle": "Store Suspended",
+      "suspendedDesc": "Your store is currently suspended. Please renew your subscription to reactivate it."
+    },
+    "bankDetails": {
+      "title": "Bank Transfer Details",
+      "bankName": "Bank:",
+      "accountName": "Account Name:",
+      "accountNumber": "Account Number:",
+      "instapayText": "Or via Instapay:"
+    },
+    "form": {
+      "planLabel": "Select Plan",
+      "refLabel": "Transfer Reference Number",
+      "refPlaceholder": "e.g. 123456789",
+      "receiptLabel": "Upload Receipt",
+      "receiptUploaded": "Receipt uploaded",
+      "uploading": "Uploading...",
+      "uploadPrompt": "Click to upload image or PDF",
+      "btnSubmitting": "Submitting...",
+      "btnSubmit": "Submit Receipt",
+      "errUpload": "Failed to upload receipt.",
+      "errRefRequired": "Reference number is required.",
+      "errSubmit": "Failed to submit request.",
+      "successTitle": "Request Submitted",
+      "successDesc": "Your transfer request has been submitted and is pending review."
+    },
+    "currentPlan": {
+      "title": "Current Plan",
+      "plan": "Plan:",
+      "status": "Status:",
+      "price": "Price:",
+      "trialEnds": "Trial Ends:",
+      "nextRenewal": "Next Renewal:",
+      "yourPlan": "Your Plan",
+      "btnViewPlans": "View Plans"
+    },
+    "transferRequest": {
+      "title": "Submit Transfer Request",
+      "pendingBadge": "Pending",
+      "pendingNotice": "You have a pending request. Your subscription will be activated upon approval."
+    },
+    "transferHistory": {
+      "title": "Transfer History",
+      "ref": "Ref:"
+    },
+    "invoices": {
+      "title": "Invoices",
+      "count": "invoices",
+      "noInvoices": "No invoices"
+    }
+  },
+  "launchReadiness": {
+    "linkCopied": "Store link copied",
+    "step": {
+      "identity": "Store Identity",
+      "product": "First Product",
+      "shipping": "Delivery and Payment",
+      "preview": "Customer Experience"
+    },
+    "desc": {
+      "identity": "Store name, WhatsApp number, and main image",
+      "product": "Add at least one product to start selling",
+      "shipping": "Add delivery zones to enable cash on delivery",
+      "preview": "Browse your store as a customer to ensure it is ready"
+    },
+    "action": {
+      "identity": "Setup Identity",
+      "product": "Add Product",
+      "shipping": "Setup Delivery",
+      "preview": "Preview Store",
+      "copyLink": "Copy Store Link"
+    },
+    "title": {
+      "ready": "Your store is ready to launch!",
+      "pending": "Store Readiness Steps"
+    },
+    "subtitle": {
+      "ready": "Share your store link and start receiving orders",
+      "pending": "{completedCount} out of {total} steps completed"
+    },
+    "status": {
+      "done": "Completed"
+    }
+  },
+  "customerAuth": {
+    "unknownError": "An unexpected error occurred",
+    "registerSuccess": "Account created successfully",
+    "registerSuccessDesc": "Welcome to our store!",
+    "registerError": "Error creating account",
+    "registerTitle": "Create a new account",
+    "registerDesc": "Enter your details to create a customer account",
+    "nameLabel": "Full Name",
+    "emailLabel": "Email Address",
+    "phoneLabel": "Phone Number",
+    "phoneDesc": "Valid mobile number",
+    "passwordLabel": "Password",
+    "registering": "Creating account...",
+    "registerBtn": "Create Account",
+    "haveAccount": "Already have an account?",
+    "loginBtn": "Login Button",
+    "loginSuccess": "Successfully logged in",
+    "loginSuccessDesc": "Welcome back!",
+    "loginError": "Error logging in",
+    "invalidCreds": "Invalid email or password",
+    "loginTitle": "Customer Login",
+    "loginDesc": "Enter your email and password to continue",
+    "loggingIn": "Logging in...",
+    "noAccount": "Don't have an account?",
+    "registerNow": "Register now"
+  },
+  "cart": {
+    "title": "Your Bag",
+    "empty": {
+      "title": "Your bag is empty",
+      "cta": "Browse Collection"
+    },
+    "actions": {
+      "decrease": "Decrease quantity",
+      "increase": "Increase quantity",
+      "remove": "Remove item"
+    },
+    "summary": {
+      "subtotal": "Subtotal",
+      "shipping": "Estimated shipping",
+      "shippingNext": "Calculated at checkout",
+      "discount": "Discount",
+      "noDiscount": "None",
+      "total": "Estimated total",
+      "continueShopping": "Continue shopping",
+      "checkout": "Proceed to Checkout"
+    }
+  },
+  "storeSettings": {
+    "domain": {
+      "verify": "Verify Domain",
+      "remove": "Remove Domain",
+      "status": "Status"
+    }
+  },
+  "faqQ": "FAQ Question",
+  "errorGeneric": "Generic Error",
+  "invalidDomainDesc": "Invalid Domain Description"
 }

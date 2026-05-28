@@ -153,15 +153,15 @@ export function SearchOverlay({
               ref={inputRef}
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder={t("storefront.search.placeholder", "ابحثي عن منتج أو فئة...")}
+              placeholder={t("storefront.search.placeholder")}
               className="flex-1 bg-transparent outline-none text-lg font-medium text-stone-800 placeholder:text-stone-300 min-w-0"
               style={{ fontFamily: SERIF, fontSize: "1.2rem" }}
-              aria-label={t("storefront.search.label", "بحث في المتجر")}
+              aria-label={t("storefront.search.label")}
             />
             <button
               onClick={onClose}
               className="w-10 h-10 rounded-xl flex items-center justify-center text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-all"
-              aria-label={t("common.close", "إغلاق")}
+              aria-label={t("common.close")}
             >
               <X className="w-5 h-5" />
             </button>
@@ -171,7 +171,7 @@ export function SearchOverlay({
             {q.trim().length === 0 ? (
               <div className="max-w-2xl mx-auto">
                 <p className="text-[11px] tracking-widest uppercase text-stone-400 mb-4 font-medium">
-                  {t("storefront.search.suggestions", "اقتراحات")}
+                  {t("storefront.search.suggestions")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {suggestions.map((suggestion) => (
@@ -193,17 +193,17 @@ export function SearchOverlay({
               <div className="text-center mt-16 max-w-sm mx-auto">
                 <PackageSearch className="w-12 h-12 mx-auto mb-4 text-stone-200" />
                 <p className="text-stone-700 text-sm font-semibold">
-                  {t("storefront.search.noResultsTitle", "لا توجد نتائج مطابقة")}
+                  {t("storefront.search.noResultsTitle")}
                 </p>
                 <p className="text-stone-400 text-xs mt-2 leading-6">
-                  {t("storefront.search.noResultsDesc", "جرّبي كلمة أبسط أو افتحي كل المنتجات لاختيار الفئة المناسبة.")}
+                  {t("storefront.search.noResultsDesc")}
                 </p>
                 <button
                   onClick={() => setQ("")}
                   className="mt-5 px-5 py-2.5 rounded-full text-xs font-bold text-white"
                   style={{ background: p }}
                 >
-                  {t("storefront.search.clear", "مسح البحث")}
+                  {t("storefront.search.clear")}
                 </button>
               </div>
             ) : (
@@ -211,7 +211,7 @@ export function SearchOverlay({
                 {categoryMatches.length > 0 && (
                   <div>
                     <p className="text-[11px] tracking-widest uppercase text-stone-400 mb-2 font-medium">
-                      {t("storefront.search.categories", "فئات")}
+                      {t("storefront.search.categories")}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {categoryMatches.map((category) => (
@@ -275,7 +275,7 @@ export function SearchOverlay({
                               </p>
                               {unavailable && (
                                 <span className="text-[10px] text-stone-500 bg-stone-100 px-2 py-0.5 rounded-full">
-                                  {t("storefront.products.outOfStock", "نفذت الكمية")}
+                                  {t("storefront.products.outOfStock")}
                                 </span>
                               )}
                             </div>

@@ -56,15 +56,15 @@ function useSortLabel(t: ReturnType<typeof useTranslation>["t"]) {
   return (opt: SortOption) => {
     switch (opt) {
       case "price-asc":
-        return t("storefront.filters.priceLowHigh", { defaultValue: "السعر: من الأقل للأعلى" });
+        return t("storefront.filters.priceLowHigh");
       case "price-desc":
-        return t("storefront.filters.priceHighLow", { defaultValue: "السعر: من الأعلى للأقل" });
+        return t("storefront.filters.priceHighLow");
       case "newest":
-        return t("storefront.filters.newest", { defaultValue: "الأحدث أولاً" });
+        return t("storefront.filters.newest");
       case "discount":
-        return t("storefront.filters.biggestDiscount", { defaultValue: "أكبر خصم" });
+        return t("storefront.filters.biggestDiscount");
       default:
-        return t("storefront.filters.default", { defaultValue: "الترتيب الافتراضي" });
+        return t("storefront.filters.default");
     }
   };
 }
@@ -261,7 +261,7 @@ function PriceRangePopover({
 
   const label = isActive
     ? `${value.min ?? 0} – ${value.max ?? "∞"} ${currency}`
-    : t("storefront.filters.priceRange", "نطاق السعر");
+    : t("storefront.filters.priceRange");
 
   return (
     <div ref={ref} className="relative">
@@ -294,13 +294,13 @@ function PriceRangePopover({
             className="absolute top-full mt-2 start-0 z-50 bg-white rounded-2xl shadow-xl border border-stone-100 p-4 min-w-[240px]"
           >
             <p className="text-xs font-semibold text-stone-700 mb-3">
-              {t("storefront.filters.priceRange", "نطاق السعر")} ({currency})
+              {t("storefront.filters.priceRange")} ({currency})
             </p>
             <div className="flex items-center gap-2 mb-3">
               <input
                 type="number"
                 min="0"
-                placeholder={t("storefront.filters.min", "من")}
+                placeholder={t("storefront.filters.min")}
                 value={localMin}
                 onChange={(e) => setLocalMin(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
@@ -311,7 +311,7 @@ function PriceRangePopover({
               <input
                 type="number"
                 min="0"
-                placeholder={t("storefront.filters.max", "إلى")}
+                placeholder={t("storefront.filters.max")}
                 value={localMax}
                 onChange={(e) => setLocalMax(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
@@ -324,7 +324,7 @@ function PriceRangePopover({
               className="w-full py-2 rounded-xl text-xs font-bold text-white transition-opacity hover:opacity-90"
               style={{ background: p }}
             >
-              {t("storefront.filters.apply", "تطبيق")}
+              {t("storefront.filters.apply")}
             </button>
           </motion.div>
         )}
@@ -423,22 +423,22 @@ function MobileFilterSheet({
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-stone-900">
-                  {t("storefront.filters.filter", "فلترة")} &{" "}
-                  {t("storefront.filters.sort", "ترتيب")}
+                  {t("storefront.filters.filter")} &{" "}
+                  {t("storefront.filters.sort")}
                 </h3>
                 <button
                   onClick={handleClearAll}
                   className="text-xs font-semibold transition-colors"
                   style={{ color: p }}
                 >
-                  {t("storefront.filters.clearAll", "مسح الكل")}
+                  {t("storefront.filters.clearAll")}
                 </button>
               </div>
 
               {/* Sort */}
               <div className="mb-6">
                 <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
-                  {t("storefront.filters.sort", "ترتيب")}
+                  {t("storefront.filters.sort")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {SORT_OPTIONS.map((opt) => (
@@ -464,14 +464,14 @@ function MobileFilterSheet({
               {/* Price Range */}
               <div className="mb-6">
                 <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
-                  {t("storefront.filters.priceRange", "نطاق السعر")} (
+                  {t("storefront.filters.priceRange")} (
                   {currency})
                 </p>
                 <div className="flex items-center gap-3">
                   <input
                     type="number"
                     min="0"
-                    placeholder={t("storefront.filters.min", "من")}
+                    placeholder={t("storefront.filters.min")}
                     value={localMin}
                     onChange={(e) => setLocalMin(e.target.value)}
                     className="flex-1 px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 text-stone-800"
@@ -483,7 +483,7 @@ function MobileFilterSheet({
                   <input
                     type="number"
                     min="0"
-                    placeholder={t("storefront.filters.max", "إلى")}
+                    placeholder={t("storefront.filters.max")}
                     value={localMax}
                     onChange={(e) => setLocalMax(e.target.value)}
                     className="flex-1 px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 text-stone-800"
@@ -497,12 +497,12 @@ function MobileFilterSheet({
               {/* Toggle filters */}
               <div className="mb-8">
                 <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
-                  {t("storefront.filters.filter", "فلترة")}
+                  {t("storefront.filters.filter")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <FilterChip
                     active={filters.onSaleOnly}
-                    label={t("storefront.filters.onSale", "عروض")}
+                    label={t("storefront.filters.onSale")}
                     icon={<Percent className="w-3.5 h-3.5" />}
                     onClick={() =>
                       onChange({
@@ -514,7 +514,7 @@ function MobileFilterSheet({
                   />
                   <FilterChip
                     active={filters.inStockOnly}
-                    label={t("storefront.filters.inStock", "متوفر")}
+                    label={t("storefront.filters.inStock")}
                     icon={<PackageCheck className="w-3.5 h-3.5" />}
                     onClick={() =>
                       onChange({
@@ -545,7 +545,7 @@ function MobileFilterSheet({
                 className="w-full py-3.5 rounded-2xl text-sm font-bold text-white transition-opacity hover:opacity-90"
                 style={{ background: p }}
               >
-                {t("storefront.filters.apply", "تطبيق")}
+                {t("storefront.filters.apply")}
               </button>
             </div>
           </motion.div>
@@ -597,14 +597,14 @@ export function ProductToolbar({
   if (filters.onSaleOnly) {
     tags.push({
       key: "sale",
-      label: t("storefront.filters.onSale", "عروض"),
+      label: t("storefront.filters.onSale"),
       onRemove: () => onChange({ ...filters, onSaleOnly: false }),
     });
   }
   if (filters.inStockOnly) {
     tags.push({
       key: "stock",
-      label: t("storefront.filters.inStock", "متوفر"),
+      label: t("storefront.filters.inStock"),
       onRemove: () => onChange({ ...filters, inStockOnly: false }),
     });
   }
@@ -644,7 +644,7 @@ export function ProductToolbar({
           />
           <FilterChip
             active={filters.onSaleOnly}
-            label={t("storefront.filters.onSale", "عروض")}
+            label={t("storefront.filters.onSale")}
             icon={<Percent className="w-3.5 h-3.5" />}
             onClick={() =>
               onChange({ ...filters, onSaleOnly: !filters.onSaleOnly })
@@ -653,7 +653,7 @@ export function ProductToolbar({
           />
           <FilterChip
             active={filters.inStockOnly}
-            label={t("storefront.filters.inStock", "متوفر")}
+            label={t("storefront.filters.inStock")}
             icon={<PackageCheck className="w-3.5 h-3.5" />}
             onClick={() =>
               onChange({
@@ -699,7 +699,7 @@ export function ProductToolbar({
             }}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
-            {t("storefront.filters.filter", "فلترة")}
+            {t("storefront.filters.filter")}
             {tags.length > 0 && (
               <span
                 className="w-4 h-4 rounded-full text-[10px] flex items-center justify-center text-white font-bold"
@@ -745,7 +745,7 @@ export function ProductToolbar({
                 onClick={clearAll}
                 className="text-[11px] font-semibold text-stone-400 hover:text-stone-600 transition-colors ms-1"
               >
-                {t("storefront.filters.clearAll", "مسح الكل")}
+                {t("storefront.filters.clearAll")}
               </button>
             )}
           </motion.div>

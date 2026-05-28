@@ -129,14 +129,14 @@ export default function Orders() {
   }
 
   const tabs = [
-    { id: "all", label: t("orders.filter.all", "كل الطلبات"), count: orderStats.all },
-    { id: "needsAction", label: t("orders.queue.needsAction", "تحتاج تأكيد"), count: orderStats.needsAction },
-    { id: "ready", label: t("orders.queue.ready", "جاهزة للشحن"), count: orderStats.ready },
-    { id: "shipping", label: t("orders.queue.shipping", "قيد الشحن"), count: orderStats.shipping },
-    { id: "done", label: t("orders.queue.done", "مغلقة"), count: orderStats.done },
-    { id: "failedContact", label: t("orders.queue.failedContact", "تعذر التواصل") },
-    { id: "returns", label: t("layout.returns", "المرتجعات") },
-    { id: "follow-up", label: t("layout.followUp", "المتابعة") },
+    { id: "all", label: t("orders.filter.all"), count: orderStats.all },
+    { id: "needsAction", label: t("orders.queue.needsAction"), count: orderStats.needsAction },
+    { id: "ready", label: t("orders.queue.ready"), count: orderStats.ready },
+    { id: "shipping", label: t("orders.queue.shipping"), count: orderStats.shipping },
+    { id: "done", label: t("orders.queue.done"), count: orderStats.done },
+    { id: "failedContact", label: t("orders.queue.failedContact") },
+    { id: "returns", label: t("layout.returns") },
+    { id: "follow-up", label: t("layout.followUp") },
   ];
 
   const showOrdersQueue = activeTab !== "returns" && activeTab !== "follow-up";
@@ -182,19 +182,19 @@ export default function Orders() {
         >
           <Card className="border-border/50">
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{t("orders.metrics.open", "طلبات مفتوحة")}</p>
+              <p className="text-xs text-muted-foreground">{t("orders.metrics.open")}</p>
               <p className="text-2xl font-bold text-foreground mt-1">{orderStats.needsAction + orderStats.ready + orderStats.shipping}</p>
             </CardContent>
           </Card>
           <Card className="border-border/50">
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{t("orders.metrics.needsContact", "تحتاج تواصل")}</p>
+              <p className="text-xs text-muted-foreground">{t("orders.metrics.needsContact")}</p>
               <p className="text-2xl font-bold text-amber-700 mt-1">{needsContact}</p>
             </CardContent>
           </Card>
           <Card className="border-border/50">
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{t("orders.metrics.revenue", "قيمة الطلبات")}</p>
+              <p className="text-xs text-muted-foreground">{t("orders.metrics.revenue")}</p>
               <p className="text-2xl font-bold text-primary mt-1">{formatCurrency(totalRevenue, i18n.language)}</p>
             </CardContent>
           </Card>
@@ -234,7 +234,7 @@ export default function Orders() {
             <div className="relative flex-1 max-w-md">
               <Search className={`absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
               <Input
-                placeholder={t("orders.search.placeholder", "ابحث برقم الطلب أو العميل أو الهاتف")}
+                placeholder={t("orders.search.placeholder")}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 className="px-10 h-11"
@@ -265,7 +265,7 @@ export default function Orders() {
                 <option value="paymob">{t("orders.payment.paymob", "Online payment")}</option>
               </select>
               <Input
-                placeholder={t("orders.filters.city", "المدينة/المنطقة")}
+                placeholder={t("orders.filters.city")}
                 value={cityFilter}
                 onChange={(event) => setCityFilter(event.target.value)}
                 className="h-11 w-32 shrink-0"
@@ -438,7 +438,7 @@ export default function Orders() {
                                   <StatusBadge status={order.status} label={statusLabel} />
                                   <Badge variant="outline" className="text-[10px]">
                                     {order.paymentMethod === "paymob"
-                                      ? t("orders.payment.paymob", "دفع إلكتروني")
+                                      ? t("orders.payment.paymob")
                                       : t("orders.payment.cod", "COD")}
                                   </Badge>
                                 </div>

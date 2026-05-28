@@ -462,9 +462,9 @@ export default function Checkout() {
     <div className="container mx-auto px-4 py-10 pb-24 max-w-5xl">
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <Button variant="ghost" size="sm" asChild className="mb-6 -ms-2">
-          <Link href="/products"><ChevronRight className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-1" : "ms-1 rotate-180"}`} /> {t("storefront.checkout.continueShopping", "متابعة التسوق")}</Link>
+          <Link href="/products"><ChevronRight className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-1" : "ms-1 rotate-180"}`} /> {t("storefront.checkout.continueShopping")}</Link>
         </Button>
-        <h1 className="text-4xl font-bold text-foreground mb-10">{t("storefront.checkout.pageTitle", "الدفع والتوصيل")}</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-10">{t("storefront.checkout.pageTitle")}</h1>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
