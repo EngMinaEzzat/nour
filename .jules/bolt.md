@@ -9,3 +9,7 @@
 ## 2026-05-28 - [Drizzle migration failure due to duplicated column addition]
 **Learning:** Duplicate migrations modifying the same column without \`IF NOT EXISTS\` across different files causes \`drizzle-kit migrate\` to fail. In this case, \`store_config\` was added in both 0004 and 0005 migrations.
 **Action:** When manually fixing migrations or merging branches, always check if a column was already added in an earlier migration file and remove the redundant addition to avoid \`error: column "store_config" of relation "tenants" already exists\`.
+
+## 2026-05-28 - [Fix duplicated column additions across migration files]
+**Learning:** We had another failure where `image_url` and `variant_id` were added in multiple migrations, just like `store_config`. This caused `drizzle-kit migrate` to crash.
+**Action:** Always scan through previous migrations when regenerating or modifying them. It is important to remove any duplicate column additions across migration files to prevent SQL execution failures during CI build and deploy steps.

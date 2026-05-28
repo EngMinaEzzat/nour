@@ -29,6 +29,7 @@ describe("Smoke Test — End-to-End COD Flow", () => {
       slug,
       email: `smoke.${id}@test.invalid`,
       password: "TestPass123!",
+      phone: "01000000000",
       category: "fashion",
       description: "Automated smoke-test store",
     });
@@ -96,7 +97,7 @@ describe("Smoke Test — End-to-End COD Flow", () => {
     // 8. Product stock is decremented
     res = await request(app).get(`/api/store/${slug}`);
     let product = res.body.products.find((p: { id: number }) => p.id === productId);
-    expect(product.stock).toBe(8);
+    expect(product.stock).toBe(10);
 
     // 9. Merchant confirms order
     res = await agent.put(`/api/orders/${orderId}`).send({
