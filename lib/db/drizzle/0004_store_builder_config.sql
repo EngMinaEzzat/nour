@@ -1,1 +1,1 @@
-ALTER TABLE "tenants" ADD COLUMN IF NOT EXISTS "store_config" jsonb;
+ALTER TABLE "tenants" ADD COLUMN "store_config" jsonb;
