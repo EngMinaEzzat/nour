@@ -6,7 +6,6 @@
  * Falls back to conservative defaults when plan data is unavailable.
  */
 
-// TODO: Finalize plan limits when billing/plan infrastructure is fully wired.
 // These are conservative defaults based on the existing plan codes in tenants.planCode.
 const PLAN_HOURLY_LIMITS: Record<string, number> = {
   starter: 20,
