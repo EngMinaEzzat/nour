@@ -120,6 +120,13 @@
       "when": 1779751046296,
       "tag": "0016_nebulous_living_lightning",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1780001754509,
+      "tag": "0017_pretty_champions",
+      "breakpoints": true
     }
   ]
 }

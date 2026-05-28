@@ -20,6 +20,7 @@ import {
 import { eq, and, sql, desc, inArray, count, ilike, or, isNull, exists } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { buildOrderConfirmationMessage, buildDispatchedMessage, buildCancelledMessage, buildDeliveryFollowUpMessage, buildReturnExchangeMessage, buildShippingUpdateMessage, buildWhatsAppLink } from "../lib/whatsapp.js";
+import { cache } from "../lib/cache.js";
 
 const router = Router();
 
@@ -828,6 +829,7 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
     });
 
     const fullOrder = await fetchOrderWithItems(createdOrder.id);
+    await cache.invalidateTenant(orderTenantId);
     res.status(201).json(fullOrder);
   } catch (err) {
     req.log.error(err);
@@ -997,6 +999,7 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
 
     const order = await fetchOrderWithItems(paramsParsed.data.id);
     if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
+    await cache.invalidateTenant(existing.tenantId);
     res.json(order);
   } catch (err) {
     req.log.error(err);

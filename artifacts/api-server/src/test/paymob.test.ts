@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { db, paymobProvidersTable, ordersTable, paymentRecordsTable, paymentWebhooksTable, productsTable, productVariantsTable } from "@workspace/db";
+import { db, paymobProvidersTable, ordersTable, paymentRecordsTable, paymentWebhooksTable, productsTable, productVariantsTable, tenantsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import {
@@ -71,6 +71,7 @@ describe("Paymob production safety", () => {
 
   beforeAll(async () => {
     ctx = await createTestMerchant();
+    await db.update(tenantsTable).set({ planCode: "growth" }).where(eq(tenantsTable.id, ctx.tenantId));
     const product = await createTestProduct(ctx.agent, { stock: 5 });
     productId = product.body.id;
   });

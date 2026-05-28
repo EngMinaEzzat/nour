@@ -8,7 +8,7 @@ const router = Router();
 
 // GET /affiliates — list with computed stats
 router.get("/affiliates", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
+  const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
 
   try {
@@ -76,7 +76,7 @@ router.get("/affiliates", requireRole("owner", "manager"), async (req, res) => {
 
 // POST /affiliates — create affiliate + auto-create promo code
 router.post("/affiliates", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
+  const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
 
   const { name, handle, platform, promoCode, discountType, discountValue, commissionType, commissionValue, notes } = req.body;
@@ -142,7 +142,7 @@ router.post("/affiliates", requireRole("owner", "manager"), async (req, res) => 
 
 // PUT /affiliates/:id — update active / commission / notes
 router.put("/affiliates/:id", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
+  const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
   const id = parseInt(String(req.params.id), 10);
 
@@ -171,7 +171,7 @@ router.put("/affiliates/:id", requireRole("owner", "manager"), async (req, res) 
 
 // DELETE /affiliates/:id
 router.delete("/affiliates/:id", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = (req.session as { merchantTenantId?: number }).merchantTenantId;
+  const tenantId = req.merchantTenantId;
   if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
   const id = parseInt(String(req.params.id), 10);
 

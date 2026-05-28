@@ -394,7 +394,7 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
     default:
       return wrap(
         <div className="bg-stone-50 px-6 py-8 text-center">
-          <p className="text-sm text-stone-500">{t(`sections.${section.type}` as any)}</p>
+          <p className="text-sm text-stone-500">{section.label}</p>
         </div>
       );
   }

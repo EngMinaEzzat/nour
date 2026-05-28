@@ -1,18 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { request, app, createTestMerchant, createTestProduct, createTestOrder, cleanupTenant } from "./helpers.js";
+import { db, merchantsTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
 
 describe("Dashboard API", () => {
   describe("GET /api/dashboard/merchant-analytics", () => {
-    it("rejects request with missing tenantId", async () => {
+    it("rejects unauthenticated request with 401", async () => {
       const res = await request(app).get("/api/dashboard/merchant-analytics");
-      expect(res.status).toBe(400);
-      expect(res.body.error).toBe("tenantId مطلوب");
-    });
-
-    it("rejects request with invalid tenantId", async () => {
-      const res = await request(app).get("/api/dashboard/merchant-analytics?tenantId=invalid");
-      expect(res.status).toBe(400);
-      expect(res.body.error).toBe("tenantId مطلوب");
+      expect(res.status).toBe(401);
     });
   });
 });
@@ -60,6 +55,7 @@ describe("Dashboard — Summary and Activity", () => {
 
   beforeAll(async () => {
     ctx = await createTestMerchant();
+    await db.update(merchantsTable).set({ isPlatformAdmin: true }).where(eq(merchantsTable.id, ctx.merchantId));
     const prodRes = await createTestProduct(ctx.agent, { name: "Dashboard Test Product", price: 200, stock: 50 });
     productId = prodRes.body.id;
     await createTestOrder(ctx.tenantId, productId);

@@ -28,7 +28,7 @@ export interface TestCtx {
   storeName: string;
 }
 
-export async function createTestMerchant(opts?: { slug?: string }): Promise<TestCtx> {
+export async function createTestMerchant(opts?: { slug?: string; category?: string }): Promise<TestCtx> {
   const id = uid();
   const slug = opts?.slug ?? `test${id}`;
   const email = `test.${id}@nourtest.invalid`;
@@ -40,7 +40,7 @@ export async function createTestMerchant(opts?: { slug?: string }): Promise<Test
     slug,
     email,
     password: "TestPass123!",
-    category: "fashion",
+    category: opts?.category ?? "fashion",
     phone: "01000000000",
     description: "Auto-generated test store for automated testing",
   });

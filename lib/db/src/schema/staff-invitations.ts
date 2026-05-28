@@ -1,6 +1,6 @@
 import { pgTable, text, serial, integer, timestamp, pgEnum } from "drizzle-orm/pg-core";
 import { tenantsTable } from "./tenants";
-import { merchantsTable } from "./merchants";
+import { merchantsTable, merchantRoleEnum } from "./merchants";
 
 export const invitationStatusEnum = pgEnum("invitation_status", [
   "pending",
@@ -13,7 +13,7 @@ export const staffInvitationsTable = pgTable("staff_invitations", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").notNull().references(() => tenantsTable.id, { onDelete: "cascade" }),
   invitedEmail: text("invited_email").notNull(),
-  role: text("role").notNull().default("staff"),
+  role: merchantRoleEnum("role").notNull().default("staff"),
   token: text("token").notNull().unique(),
   status: invitationStatusEnum("status").notNull().default("pending"),
   invitedBy: integer("invited_by").references(() => merchantsTable.id),

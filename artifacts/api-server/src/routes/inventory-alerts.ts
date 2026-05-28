@@ -135,7 +135,16 @@ router.post("/inventory-alerts/notify", requireRole("owner", "manager"), async (
       .map((p) => `• ${p.name} — ${p.stock === 0 ? "⚠️ نفذ المخزون" : `${p.stock} قطعة متبقية`}`)
       .join("\n");
 
-    const message = `🛍️ تنبيه مخزون — ${storeName}\n📅 ${date}\n\nالمنتجات التي تحتاج لإعادة تخزين:\n\n${lines}\n\nإجمالي المنتجات: ${lowStock.length} منتج`;
+    const message = [
+      `🛍️ تنبيه مخزون — ${storeName}`,
+      `📅 ${date}`,
+      "",
+      "المنتجات التي تحتاج لإعادة تخزين:",
+      "",
+      lines,
+      "",
+      `إجمالي المنتجات: ${lowStock.length} منتج`
+    ].join("\n");
 
     const cleanPhone = phone.replace(/\D/g, "");
     const waPhone = cleanPhone.startsWith("0") ? "2" + cleanPhone : cleanPhone;

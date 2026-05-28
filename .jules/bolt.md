@@ -13,3 +13,7 @@
 ## 2026-05-28 - Removed Unsafe Cast in Audit Routes
 **Learning:** Found an `as any` cast that could lead to unexpected or unsafe values in database query generation if external query input happens to be malformed. Using explicit allowed enum values prevents unexpected SQL queries.
 **Action:** Replaced the `as any` cast with an enum value validation check before adding condition to the query array, checking if the string is among valid eventType enums using `auditEventTypeEnum.enumValues`.
+
+## 2026-05-28 - [Replace 'as any' casts with available domain variables]
+**Learning:** Resorting to 'as any' with complex external library configurations like i18next can mask runtime errors. Instead, examine the domain objects directly; they often already contain the required localized strings or strictly-typed formats.
+**Action:** Prefer extracting strings directly from pre-translated domain objects (e.g., `section.label`) rather than dynamically concatenating translation keys with `as any` casts.

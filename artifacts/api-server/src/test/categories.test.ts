@@ -8,7 +8,7 @@ describe("Categories", () => {
   let categoryId: number;
   let childCategoryId: number;
 
-  beforeAll(async () => { ctx = await createTestMerchant(); });
+  beforeAll(async () => { ctx = await createTestMerchant({ category: "both" }); });
   afterAll(async () => { await cleanupTenant(ctx.tenantId, ctx.merchantId); });
 
   it("✅ GET /categories — public, returns array (all categories when no tenant param)", async () => {

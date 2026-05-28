@@ -81,6 +81,13 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
     req.session.customerId = customer.id;
     req.log.info({ customerId: customer.id }, "New customer registered");
 
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
     return res.status(201).json(buildCustomerResponse(customer));
   } catch (err: any) {
     req.log.error(err);
@@ -114,6 +121,12 @@ router.post("/storefront-auth/login", authLimiter, async (req, res) => {
     });
 
     req.session.customerId = customer.id;
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
     return res.json(buildCustomerResponse(customer));
   } catch (err) {
     req.log.error(err);

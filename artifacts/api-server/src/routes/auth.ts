@@ -242,6 +242,13 @@ router.post("/auth/register", authLimiter, async (req, res) => {
       req.log.warn({ err }, "Email processing failed — non-fatal");
     }
 
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
     return res.status(201).json(buildAuthResponse(result.merchant, result.tenant));
   } catch (err: any) {
     req.log.error(err);
@@ -289,6 +296,12 @@ router.post("/auth/login", authLimiter, async (req, res) => {
     });
 
     req.session.merchantId = merchant.id;
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
     return res.json(buildAuthResponse(merchant, tenant));
   } catch (err) {
     req.log.error(err);
