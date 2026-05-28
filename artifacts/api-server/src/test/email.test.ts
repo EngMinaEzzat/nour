@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { sendEmail, sendNewMerchantNotification, sendOrderConfirmationEmail, sendWelcomeEmail } from "../lib/email.js";
+import { sendEmail, sendNewMerchantNotification, sendOrderConfirmationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "../lib/email.js";
 
 const mockSend = vi.fn().mockResolvedValue({ data: { id: "mock-email-id" }, error: null });
 
@@ -128,6 +128,25 @@ describe("Email System", () => {
     expect(callArgs.html).not.toContain("<img src=x");
     expect(callArgs.html).toContain("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
     expect(callArgs.html).toContain("&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;");
+  });
+
+
+  it("should send password reset email with reset link", async () => {
+    const to = "user@example.com";
+    const resetLink = "https://nour.example/reset?token=123";
+
+    const result = await sendPasswordResetEmail(to, resetLink);
+
+    expect(result).toEqual({ sent: true });
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "user@example.com",
+        subject: "إعادة تعيين كلمة المرور — نور",
+      })
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain(resetLink);
   });
 
   it("should escape user-controlled admin notification fields", async () => {
