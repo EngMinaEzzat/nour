@@ -290,20 +290,23 @@ export async function sendSubscriptionSuspendedEmail(
   storeName: string,
   reactivateUrl: string,
 ): Promise<void> {
+  const safeStoreName = escapeHtml(storeName);
+  const safeReactivateUrl = escapeHtml(reactivateUrl);
+
   await sendEmail({
     to,
-    subject: `🔴 تم إيقاف متجرك مؤقتًا — ${storeName}`,
+    subject: `🔴 تم إيقاف متجرك مؤقتًا — ${safeStoreName}`,
     html: emailLayout(`
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1a1a1a;">تم إيقاف متجرك مؤقتًا</h1>
       <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.7;">
-        نأسف لإبلاغك بأن متجر <strong>${storeName}</strong> على منصة نور قد تم إيقافه مؤقتًا
+        نأسف لإبلاغك بأن متجر <strong>${safeStoreName}</strong> على منصة نور قد تم إيقافه مؤقتًا
         بسبب انتهاء فترة الاشتراك.
       </p>
       <p style="margin:0 0 28px;font-size:15px;color:#555;line-height:1.7;">
         بياناتك ومنتجاتك محفوظة بأمان. جدّد اشتراكك لإعادة تفعيل متجرك فورًا.
       </p>
       <div style="text-align:center;margin:32px 0;">
-        <a href="${reactivateUrl}"
+        <a href="${safeReactivateUrl}"
            style="display:inline-block;background:#8b1a2e;color:#fff;text-decoration:none;padding:14px 40px;border-radius:14px;font-size:16px;font-weight:700;">
           إعادة تفعيل المتجر
         </a>
