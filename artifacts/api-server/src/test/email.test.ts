@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { sendEmail, sendNewMerchantNotification, sendOrderConfirmationEmail, sendWelcomeEmail } from "../lib/email.js";
+import { sendEmail, sendNewMerchantNotification, sendOrderConfirmationEmail, sendWelcomeEmail, sendSubscriptionReminderEmail } from "../lib/email.js";
 
 const mockSend = vi.fn().mockResolvedValue({ data: { id: "mock-email-id" }, error: null });
 
@@ -147,5 +147,47 @@ describe("Email System", () => {
     expect(callArgs.html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
     expect(callArgs.html).toContain("&lt;owner@example.com&gt;");
     expect(callArgs.html).toContain("&lt;b&gt;Cairo&lt;/b&gt;");
+  });
+
+  it("should send subscription reminder email with plural days", async () => {
+    await sendSubscriptionReminderEmail(
+      "merchant@example.com",
+      "My Boutique",
+      3,
+      "https://nour.example/renew"
+    );
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "merchant@example.com",
+        subject: "⏰ اشتراكك في نور ينتهي خلال 3 أيام",
+      })
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain("My Boutique");
+    expect(callArgs.html).toContain("3 أيام");
+    expect(callArgs.html).toContain("https://nour.example/renew");
+  });
+
+  it("should send subscription reminder email with singular day", async () => {
+    await sendSubscriptionReminderEmail(
+      "merchant@example.com",
+      "My Boutique",
+      1,
+      "https://nour.example/renew"
+    );
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "merchant@example.com",
+        subject: "⏰ اشتراكك في نور ينتهي خلال 1 يوم",
+      })
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain("My Boutique");
+    expect(callArgs.html).toContain("1 يوم");
+    expect(callArgs.html).toContain("https://nour.example/renew");
   });
 });
