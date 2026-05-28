@@ -1,0 +1,1 @@
+-- Drop the erroneous migration trying to add store_config again
