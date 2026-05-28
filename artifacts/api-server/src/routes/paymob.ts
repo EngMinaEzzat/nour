@@ -24,11 +24,50 @@ class PaymobHttpError extends Error {
   }
 }
 
+export interface PaymobTransactionObj extends Record<string, unknown> {
+  id?: number | string;
+  amount_cents?: number | string;
+  created_at?: string;
+  currency?: string;
+  error_occured?: boolean | string | number;
+  has_parent_transaction?: boolean | string | number;
+  integration_id?: number | string;
+  is_3d_secure?: boolean | string | number;
+  is_auth?: boolean | string | number;
+  is_capture?: boolean | string | number;
+  is_refunded?: boolean | string | number;
+  is_standalone_payment?: boolean | string | number;
+  is_voided?: boolean | string | number;
+  owner?: number | string;
+  pending?: boolean | string | number;
+  success?: boolean | string | number;
+  order?: {
+    id?: number | string;
+    merchant_order_id?: string;
+  };
+  source_data?: {
+    type?: string;
+    pan?: string;
+    sub_type?: string;
+  };
+  data?: {
+    message?: string;
+  };
+}
+
+export interface PaymobWebhookPayload {
+  type?: string;
+  transaction_id?: string | number;
+  success?: boolean | string | number;
+  obj?: PaymobTransactionObj;
+}
+
+
 function asPaymobBoolean(value: unknown): boolean {
   return value === true || value === "true" || value === 1 || value === "1";
 }
 
-function isPaymobPaidPayload(obj: Record<string, unknown>): boolean {
+function isPaymobPaidPayload(obj: PaymobTransactionObj): boolean {
   return (
     asPaymobBoolean(obj.success) &&
     !asPaymobBoolean(obj.pending) &&
@@ -38,7 +77,7 @@ function isPaymobPaidPayload(obj: Record<string, unknown>): boolean {
   );
 }
 
-function isPaymobFailedPayload(obj: Record<string, unknown>): boolean {
+function isPaymobFailedPayload(obj: PaymobTransactionObj): boolean {
   if (asPaymobBoolean(obj.pending)) return false;
   return (
     !asPaymobBoolean(obj.success) ||
@@ -296,10 +335,10 @@ router.post("/paymob/initiate", requireRole("owner", "manager", "staff"), async 
 router.post("/paymob/webhook", async (req, res) => {
   try {
     const { hmac } = req.query;
-    const body = req.body;
+    const body = req.body as PaymobWebhookPayload;
 
     const transactionId = String(body?.obj?.id ?? body?.transaction_id ?? "unknown");
-    const obj = (body?.obj ?? body ?? {}) as Record<string, unknown>;
+    const obj = (body?.obj ?? body ?? {}) as PaymobTransactionObj;
     const isPaid = isPaymobPaidPayload(obj);
     const isFailed = isPaymobFailedPayload(obj);
     const success = String(body?.obj?.success ?? body?.success ?? "false");
@@ -344,7 +383,7 @@ router.post("/paymob/webhook", async (req, res) => {
         String(obj.currency ?? ""),
         String(obj.error_occured ?? ""),
         String(obj.has_parent_transaction ?? ""),
-        String((body?.obj as any)?.id ?? ""),
+        String(obj.id ?? ""),
         String(obj.integration_id ?? ""),
         String(obj.is_3d_secure ?? ""),
         String(obj.is_auth ?? ""),
@@ -352,12 +391,12 @@ router.post("/paymob/webhook", async (req, res) => {
         String(obj.is_refunded ?? ""),
         String(obj.is_standalone_payment ?? ""),
         String(obj.is_voided ?? ""),
-        String((obj as any).order?.id ?? ""),
+        String(obj.order?.id ?? ""),
         String(obj.owner ?? ""),
         String(obj.pending ?? ""),
-        String((body?.obj?.source_data as any)?.pan ?? ""),
-        String((body?.obj?.source_data as any)?.sub_type ?? ""),
-        String((body?.obj?.source_data as any)?.type ?? ""),
+        String(obj.source_data?.pan ?? ""),
+        String(obj.source_data?.sub_type ?? ""),
+        String(obj.source_data?.type ?? ""),
         String(obj.success ?? ""),
       ].join("");
 
@@ -366,7 +405,7 @@ router.post("/paymob/webhook", async (req, res) => {
       const hmacBuf = Buffer.from(String(hmac));
 
       if (computedBuf.length !== hmacBuf.length || !crypto.timingSafeEqual(computedBuf, hmacBuf)) {
-        req.log.warn({ transactionId: (obj as any).id }, "Paymob webhook HMAC mismatch â€” rejected");
+        req.log.warn({ transactionId: obj.id }, "Paymob webhook HMAC mismatch â€” rejected");
         return res.status(401).json({ error: "HMAC verification failed" });
       }
     } else if (tenantHmacSecret && !hmac) {
