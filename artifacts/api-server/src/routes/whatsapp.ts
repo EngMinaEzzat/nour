@@ -6,6 +6,7 @@ import {
   ordersTable,
   customersTable,
   tenantsTable,
+  type WhatsappMessageLog,
 } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
@@ -373,7 +374,7 @@ router.post("/whatsapp/messages/send", requireRole("owner", "manager"), async (r
       .values({
         tenantId,
         orderId,
-        messageType: templateCode as any,
+        messageType: templateCode as WhatsappMessageLog["messageType"],
         status: logStatus,
         customerPhone: order.customerPhone,
         idempotencyKey,
