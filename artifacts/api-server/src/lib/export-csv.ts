@@ -25,7 +25,7 @@ export type ExportDateRange = {
   dateTo?: Date | null;
 };
 
-function buildConditions(
+export function buildConditions(
   tableTenantIdCol: any,
   tableDateCol: any,
   tenantId: number,
