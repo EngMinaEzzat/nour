@@ -1,4 +1,4 @@
-ALTER TABLE "tenants" ADD COLUMN "store_config" jsonb;--> statement-breakpoint
+ALTER TABLE "tenants" ADD COLUMN IF NOT EXISTS "store_config" jsonb;--> statement-breakpoint
 ALTER TABLE "categories" ADD COLUMN "parent_id" integer;--> statement-breakpoint
 ALTER TABLE "categories" ADD COLUMN "image_url" text;--> statement-breakpoint
 ALTER TABLE "product_variants" ADD COLUMN "image_urls" text DEFAULT '[]' NOT NULL;--> statement-breakpoint
