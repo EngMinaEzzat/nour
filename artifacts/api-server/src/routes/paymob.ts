@@ -430,18 +430,20 @@ router.post("/paymob/webhook", async (req, res) => {
               .select({ productId: orderItemsTable.productId, variantId: orderItemsTable.variantId, quantity: orderItemsTable.quantity })
               .from(orderItemsTable)
               .where(eq(orderItemsTable.orderId, paymentRecord.orderId));
-            for (const item of items) {
-              await tx
-                .update(productsTable)
-                .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
-                .where(eq(productsTable.id, item.productId));
-              if (item.variantId) {
-                await tx
-                  .update(productVariantsTable)
-                  .set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` })
-                  .where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId)));
-              }
-            }
+
+            await Promise.all(
+              items.flatMap((item) => {
+                const updates: any[] = [
+                  tx.update(productsTable).set({ stock: sql`${productsTable.stock} + ${item.quantity}` }).where(eq(productsTable.id, item.productId))
+                ];
+                if (item.variantId) {
+                  updates.push(
+                    tx.update(productVariantsTable).set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` }).where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId)))
+                  );
+                }
+                return updates;
+              })
+            );
           }
         });
       }

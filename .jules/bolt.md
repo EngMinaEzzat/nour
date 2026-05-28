@@ -1,7 +1,3 @@
-## 2026-05-21 - [Parallelize DB queries in analytics endpoints]
-**Learning:** Sequential database queries in dashboard/analytics endpoints can cause significant N+1 delays.
-**Action:** Always group independent, read-only analytics queries using Promise.all to fetch them concurrently and reduce network round-trips.
-
-## 2026-05-22 - [Parallelize DB queries in analytics endpoints]
-**Learning:** Found an endpoint (`/analytics/merchant`) making 7 sequential database queries. Sequential queries block the main thread and add unnecessary round-trip latency.
-**Action:** Used `Promise.all()` to fetch independent data sources concurrently, reducing 7 sequential round trips to 2 (dependent on tenantRow).
+## 2024-05-28 - N+1 Webhook DB Update Fix
+**Learning:** Sequential database updates inside loops (e.g. `await tx.update()` in `for...of` loops for restocking items) create unnecessary Node.js-to-PostgreSQL round trips, slowing down webhook execution linearly with the order item count.
+**Action:** Use `.flatMap` to gather an array of Promise updates for Drizzle ORM queries, and then execute them using a single `Promise.all()`, ensuring concurrent execution over the same PG pool connection/transaction without blocking.
