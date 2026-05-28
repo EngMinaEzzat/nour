@@ -255,7 +255,7 @@ router.post("/staff/invitations/:token/accept", async (req, res) => {
       name,
       passwordHash,
       tenantId: invitation.tenantId,
-      role: invitation.role as any,
+      role: invitation.role,
     }).returning();
 
     await db.update(staffInvitationsTable).set({

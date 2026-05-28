@@ -1,0 +1,2 @@
+ALTER TABLE "staff_invitations" ALTER COLUMN "role" SET DEFAULT 'staff'::"public"."merchant_role";--> statement-breakpoint
+ALTER TABLE "staff_invitations" ALTER COLUMN "role" SET DATA TYPE "public"."merchant_role" USING "role"::"public"."merchant_role";
