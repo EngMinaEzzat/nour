@@ -53,7 +53,7 @@ jobs:
         run: pnpm run build
 
       - name: Apply DB Migrations
-        run: pnpm --filter @workspace/db run migrate
+        run: pnpm --filter @workspace/db run push
 
       - name: DB Schema Check
         run: pnpm --filter @workspace/db run check
