@@ -230,6 +230,7 @@ export async function sendPasswordResetEmail(
   to: string,
   resetLink: string,
 ): Promise<{ sent: boolean }> {
+  const safeResetLink = escapeHtml(resetLink);
   const res = await sendEmail({
     to,
     subject: "إعادة تعيين كلمة المرور — نور",
@@ -240,7 +241,7 @@ export async function sendPasswordResetEmail(
         انقر على الزر أدناه لاختيار كلمة مرور جديدة.
       </p>
       <div style="text-align:center;margin:32px 0;">
-        <a href="${resetLink}"
+        <a href="${safeResetLink}"
            style="display:inline-block;background:#8b1a2e;color:#fff;text-decoration:none;padding:14px 40px;border-radius:14px;font-size:16px;font-weight:700;">
           إعادة تعيين كلمة المرور
         </a>

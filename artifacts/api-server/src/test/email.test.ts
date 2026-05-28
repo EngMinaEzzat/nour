@@ -133,7 +133,7 @@ describe("Email System", () => {
 
   it("should send password reset email with reset link", async () => {
     const to = "user@example.com";
-    const resetLink = "https://nour.example/reset?token=123";
+    const resetLink = "https://nour.example/reset-password?token=12345";
 
     const result = await sendPasswordResetEmail(to, resetLink);
 
@@ -147,6 +147,7 @@ describe("Email System", () => {
 
     const callArgs = mockSend.mock.calls[0][0];
     expect(callArgs.html).toContain(resetLink);
+    expect(callArgs.html).toContain("إعادة تعيين كلمة المرور");
   });
 
   it("should escape user-controlled admin notification fields", async () => {
@@ -168,31 +169,13 @@ describe("Email System", () => {
     expect(callArgs.html).toContain("&lt;b&gt;Cairo&lt;/b&gt;");
   });
 
-  it("should send password reset email with reset link", async () => {
-    const result = await sendPasswordResetEmail(
-      "user@example.com",
-      "https://nour.example/reset-password?token=12345"
-    );
-
-    expect(result).toEqual({ sent: true });
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: "user@example.com",
-        subject: "إعادة تعيين كلمة المرور — نور",
-      })
-    );
-
-    const callArgs = mockSend.mock.calls[0][0];
-    expect(callArgs.html).toContain("https://nour.example/reset-password?token=12345");
-    expect(callArgs.html).toContain("إعادة تعيين كلمة المرور");
-  });
-
-  it("should handle malicious input in reset link by relying on direct interpolation", async () => {
+  it("should handle malicious input in reset link by escaping it", async () => {
     await sendPasswordResetEmail(
       "user@example.com",
       "https://nour.example/reset-password?token=\"><script>alert(1)</script>"
     );
     const callArgs = mockSend.mock.calls[0][0];
-    expect(callArgs.html).toContain("https://nour.example/reset-password?token=\"><script>alert(1)</script>");
+    expect(callArgs.html).not.toContain("<script>");
+    expect(callArgs.html).toContain("https://nour.example/reset-password?token=&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;");
   });
 });
