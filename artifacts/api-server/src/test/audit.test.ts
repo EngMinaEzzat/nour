@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { app, createTestMerchant, cleanupTenant, type TestCtx, unauthAgent } from "./helpers.js";
+import { recordAuditEvent } from "../lib/audit.js";
 import { db } from "@workspace/db";
 import { tenantAuditEventsTable, merchantsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -92,7 +93,7 @@ describe("Audit Routes", () => {
       expect(res.status).toBe(200);
       const events = res.body;
 
-      expect(events.length).toBeGreaterThanOrEqual(1);
+      expect(events.length).toBe(1);
       expect(events.every((e: any) => e.eventType === "plan_changed")).toBe(true);
     });
 
@@ -101,7 +102,7 @@ describe("Audit Routes", () => {
       expect(res.status).toBe(200);
       const events = res.body;
 
-      expect(events.length).toBeGreaterThanOrEqual(1);
+      expect(events.length).toBe(1);
       expect(events.every((e: any) => e.tenantId === merchantCtx.tenantId && e.eventType === "product_deleted")).toBe(true);
     });
 
@@ -113,6 +114,57 @@ describe("Audit Routes", () => {
     it("❌ unauthenticated request is rejected", async () => {
       const res = await unauthAgent().get("/api/audit/events");
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe("recordAuditEvent", () => {
+    it("✅ should safely record an audit event", async () => {
+      const logMock = { warn: vi.fn() };
+      await recordAuditEvent({
+        tenantId: merchantCtx.tenantId,
+        actorId: merchantCtx.merchantId,
+        eventType: "plan_changed",
+        summary: "Test safe record",
+        log: logMock,
+      });
+
+      // Verify it was actually inserted
+      const events = await db
+        .select()
+        .from(tenantAuditEventsTable)
+        .where(eq(tenantAuditEventsTable.summary, "Test safe record"));
+
+      expect(events.length).toBe(1);
+      expect(events[0].eventType).toBe("plan_changed");
+      expect(events[0].tenantId).toBe(merchantCtx.tenantId);
+    });
+
+    it("✅ should catch and log error on db failure without throwing", async () => {
+      // Mock db.insert to throw
+      const spy = vi.spyOn(db, "insert").mockImplementationOnce(() => {
+        throw new Error("Simulated DB error");
+      });
+
+      const logMock = { warn: vi.fn() };
+
+      await recordAuditEvent({
+        tenantId: merchantCtx.tenantId,
+        actorId: merchantCtx.merchantId,
+        eventType: "plan_changed",
+        summary: "Test safe record failure",
+        log: logMock,
+      });
+
+      // The spy should have been called
+      expect(spy).toHaveBeenCalled();
+      // The error should have been caught and log.warn should have been called
+      expect(logMock.warn).toHaveBeenCalledWith(
+        { err: expect.any(Error), eventType: "plan_changed" },
+        "Failed to write audit event"
+      );
+
+      // Restore spy
+      spy.mockRestore();
     });
   });
 });
