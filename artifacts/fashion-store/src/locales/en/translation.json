@@ -2885,7 +2885,8 @@
     "errorSize": "Image size must be less than {max}MB",
     "errorFormat": "Supported formats: {formats}. On iPhone, choose JPG.",
     "errorGeneric": "Failed to upload image",
-    "errorProcessing": "Could not process image"
+    "errorProcessing": "Could not process image",
+    "removeImage": "Remove image"
   },
   "productCard": {
     "featured": "Featured",

@@ -957,19 +957,19 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
           .from(orderItemsTable)
           .where(eq(orderItemsTable.orderId, paramsParsed.data.id));
 
-        for (const item of items) {
-          await tx
-            .update(productsTable)
-            .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
-            .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, existing.tenantId)));
-
+        await Promise.all(items.map(async (item) => {
+          const updates: Promise<any>[] = [
+            tx.update(productsTable)
+              .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
+              .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, existing.tenantId)))
+          ];
           if (item.variantId) {
-            await tx
-              .update(productVariantsTable)
+            updates.push(tx.update(productVariantsTable)
               .set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` })
-              .where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId)));
+              .where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId))));
           }
-        }
+          return Promise.all(updates);
+        }));
       }
 
       await tx.insert(orderStatusHistoryTable).values({
