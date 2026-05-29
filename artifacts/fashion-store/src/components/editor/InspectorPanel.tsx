@@ -200,9 +200,14 @@ export default function InspectorPanel({
       </div>
 
       {/* Fields */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <SectionFields section={section} patchContent={patchContent} patchSettings={patchSettings} theme={theme} categories={categories} onThemeChange={onThemeChange} />
-        <RelatedSectionAction section={section} />
+      <div className="flex-1 overflow-y-auto p-4 pb-12">
+        <AssistantNote sectionType={section.type} />
+        <div className="space-y-4">
+          <SectionFields section={section} patchContent={patchContent} patchSettings={patchSettings} theme={theme} categories={categories} onThemeChange={onThemeChange} />
+        </div>
+        <div className="mt-6">
+          <RelatedSectionAction section={section} />
+        </div>
       </div>
     </div>
   );
@@ -215,6 +220,20 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
       <label className="block text-xs font-medium text-stone-600 mb-1">{label}</label>
       {hint && <p className="text-[11px] text-stone-400 mb-1.5">{hint}</p>}
       {children}
+    </div>
+  );
+}
+
+function AssistantNote({ sectionType }: { sectionType: SectionConfig["type"] }) {
+  const { t } = useTranslation();
+  return (
+    <div className="mb-5 rounded-xl bg-rose-50 border border-rose-100 p-3 flex gap-2">
+      <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+        <span className="text-xs">✨</span>
+      </div>
+      <p className="text-[11px] text-rose-800 leading-relaxed pt-0.5">
+        {t(`storeStoryGuide.assistantNotes.${sectionType}`)}
+      </p>
     </div>
   );
 }

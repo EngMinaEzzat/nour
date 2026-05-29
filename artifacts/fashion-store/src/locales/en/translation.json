@@ -3183,6 +3183,16 @@
       "done": "Completed"
     }
   },
+  "publishReview": {
+    "title": "Final Store Review",
+    "readyTitle": "Your store is ready for the world!",
+    "notReadyTitle": "Your store story is almost complete",
+    "readyDesc": "All sections are fully configured. You are good to go.",
+    "notReadyDesc": "We found a few missing pieces in your store's story. It's highly recommended to complete them before publishing.",
+    "readinessScore": "Readiness Score",
+    "continueEditing": "Continue Editing",
+    "publishAnyway": "Publish Anyway"
+  },
   "customerAuth": {
     "unknownError": "An unexpected error occurred",
     "registerSuccess": "Account created successfully",

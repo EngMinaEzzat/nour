@@ -16,6 +16,7 @@ interface EditorTopBarProps {
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
+  onPublish: () => void;
   saving: boolean;
   isDirty: boolean;
   publishDisabledReason?: string | null;
@@ -32,7 +33,7 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 export default function EditorTopBar({
   storeName, storeSlug, device, onDeviceChange,
   canUndo, canRedo, onUndo, onRedo,
-  onSave, saving, isDirty, publishDisabledReason,
+  onSave, onPublish, saving, isDirty, publishDisabledReason,
 }: EditorTopBarProps) {
   const { t, i18n } = useTranslation();
   const [saveHintDismissed, setSaveHintDismissed] = useState(() => {
@@ -164,6 +165,7 @@ export default function EditorTopBar({
         <Button
           size="sm"
           variant="outline"
+          onClick={onPublish}
           disabled={!!publishDisabledReason}
           title={publishDisabledReason ?? t("editorTopBar.publish")}
           className="hidden sm:inline-flex gap-1.5 h-8 px-4 border-[#8B1A35] text-[#8B1A35] hover:bg-rose-50 disabled:opacity-50"

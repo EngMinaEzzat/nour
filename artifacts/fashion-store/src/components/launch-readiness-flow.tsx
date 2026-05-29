@@ -82,8 +82,8 @@ export default function LaunchReadinessFlow({ config, productCount, storeSlug }:
   const isFullyReady = completedCount === steps.length;
   const pct = Math.round((completedCount / steps.length) * 100);
 
-  // Auto-collapse only if fully ready
-  const [collapsed, setCollapsed] = useState(isFullyReady);
+  // Auto-collapse by default
+  const [collapsed, setCollapsed] = useState(true);
 
   return (
     <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="mb-6">

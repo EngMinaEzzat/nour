@@ -9,6 +9,7 @@ import EditorCanvas from "./EditorCanvas";
 import InspectorPanel from "./InspectorPanel";
 import StoreAssistant from "./StoreAssistant";
 import WelcomeOverlay, { type MerchantGender } from "./WelcomeOverlay";
+import PublishReviewModal from "./PublishReviewModal";
 import { Layers3, Menu, Save, X } from "lucide-react";
 import { contrastStatus } from "@/lib/color-contrast";
 
@@ -62,6 +63,7 @@ export default function VisualEditor({
   const [aiOpen, setAiOpen] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(isFirstVisit);
+  const [showPublishReview, setShowPublishReview] = useState(false);
   const { toast } = useToast();
 
   const selectedSection = selectedId
@@ -164,6 +166,7 @@ export default function VisualEditor({
         onUndo={undo}
         onRedo={redo}
         onSave={handleSave}
+        onPublish={() => setShowPublishReview(true)}
         saving={saving}
         isDirty={isDirty}
         publishDisabledReason={publishDisabledReason}
@@ -351,6 +354,21 @@ export default function VisualEditor({
               gender={gender}
               onDismiss={() => setShowWelcome(false)}
               onOpenAssistant={() => setAiOpen(true)}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Publish Review Modal */}
+        <AnimatePresence>
+          {showPublishReview && (
+            <PublishReviewModal
+              config={config}
+              productCount={productCount}
+              onClose={() => setShowPublishReview(false)}
+              onConfirmPublish={async () => {
+                await handleSave();
+                setShowPublishReview(false);
+              }}
             />
           )}
         </AnimatePresence>

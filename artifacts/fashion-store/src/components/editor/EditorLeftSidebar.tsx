@@ -7,11 +7,10 @@ import {
   SECTION_ICONS, SECTION_DESCRIPTIONS,
   AVAILABLE_SECTIONS, createDefaultSection,
 } from "@/lib/store-config";
-import LaunchReadinessFlow from "@/components/launch-readiness-flow";
-import { useAuth } from "@/hooks/use-auth";
-import type { MerchantGender } from "./WelcomeOverlay";
 import { useTranslation } from "react-i18next";
 import { contrastStatus } from "@/lib/color-contrast";
+import { STORY_CHAPTERS, getChapterForSection, getChapterProgress } from "@/lib/store-story-guide";
+import { evaluateReadiness } from "@/lib/store-readiness";
 
 type SidebarTab = "sections" | "theme" | "ai";
 
@@ -122,84 +121,93 @@ export default function EditorLeftSidebar({
 
             {/* First-visit hint banner */}
             {!sidebarHintDismissed && (
-              <div className="mx-2 mt-2 p-3 rounded-xl bg-blue-50 border border-blue-100 relative">
+              <div className="mx-2 mt-2 p-3 rounded-xl bg-rose-50 border border-rose-100 relative">
                 <button
                   onClick={dismissSidebarHint}
-                  className="absolute top-1.5 left-1.5 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-100 text-blue-400 hover:text-blue-600 transition-colors"
+                  className="absolute top-1.5 left-1.5 w-5 h-5 flex items-center justify-center rounded-full hover:bg-rose-100 text-rose-400 hover:text-rose-600 transition-colors"
                   aria-label={t("common.close")}
                 >
                   ×
                 </button>
-                <p className={`text-xs text-blue-700 leading-relaxed ps-1`}>
-                  {gender === "female"
-                    ? t("editorSidebar.hint.female")
-                    : t("editorSidebar.hint.male")}
-                </p>
+                <div className="flex gap-2">
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                    <span className="text-sm">✨</span>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-rose-900">{t("storeStoryGuide.title", "Your store story")}</p>
+                    <p className={`text-[11px] text-rose-700 leading-relaxed mt-0.5`}>
+                      {t("storeStoryGuide.intro", "I'll help you shape what customers see before they order.")}
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
-            <div className="p-2 space-y-1">
-              {(() => {
-                const healthIssues = [];
-                if (!sections.some(s => s.type === "hero" && s.content.imageUrl)) healthIssues.push(t("editorSidebar.health.noHeroImage", "Missing hero image"));
-                if (!config.business.whatsapp) healthIssues.push(t("editorSidebar.health.noWhatsapp", "Missing WhatsApp number"));
-                if (!sections.some(s => s.type === "product-catalog" || s.type === "best-sellers") || productCount === 0) healthIssues.push(t("editorSidebar.health.noProducts", "No featured products"));
-                if (!sections.some(s => s.type === "trust-strip" || s.type === "about")) healthIssues.push(t("editorSidebar.health.noTrust", "No trust/returns copy"));
-
-                if (healthIssues.length > 0) {
-                  return (
-                    <div className="mb-3 mx-1 p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1.5">
-                      <p className="text-xs font-semibold text-amber-800 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5" />
-                        {t("editorSidebar.health.title", "Section Health")}
-                      </p>
-                      <ul className="text-[11px] text-amber-700 space-y-1">
-                        {healthIssues.map((issue, i) => (
-                          <li key={i} className="flex items-start gap-1.5">
-                            <span className="mt-0.5">•</span> {issue}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-
-              {sections.map((section, idx) => {
-                const isSelected = section.id === selectedId;
+            <div className="p-2 space-y-4 mt-2">
+              {STORY_CHAPTERS.map(chapter => {
+                const chapterSections = sections.filter(s => getChapterForSection(s.type)?.id === chapter.id);
+                // We evaluate readiness silently to show progress/status
+                const readiness = evaluateReadiness(config, productCount, false);
+                const progress = getChapterProgress(chapter, readiness);
+                
                 return (
-                  <div
-                    key={section.id}
-                    onClick={() => onSelect(section.id)}
-                    className={`group relative rounded-xl p-3 cursor-pointer transition-all ${isSelected ? "bg-rose-50 border border-[#8B1A35]/20" : "hover:bg-stone-50 border border-transparent"}`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-base shrink-0">{SECTION_ICONS[section.type]}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-xs font-medium truncate ${section.visible ? "text-stone-800" : "text-stone-400"}`}>
-                          {t(`sections.${section.type}`)}
-                        </p>
-                        {!section.visible && <p className="text-[10px] text-stone-400">{t("editorSidebar.sectionItem.hidden")}</p>}
-                      </div>
+                  <div key={chapter.id} className="space-y-1">
+                    <div className="px-2 py-1 flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wide">
+                        {t(chapter.titleKey)}
+                      </span>
+                      {progress.total > 0 && (
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: progress.total }).map((_, i) => (
+                            <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < progress.done ? "bg-green-500" : "bg-stone-200"}`} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <p className="px-2 text-[10px] text-stone-400 mb-2 leading-relaxed">
+                      {t(chapter.assistantKey)}
+                    </p>
 
-                      <div className={`flex items-center gap-0.5 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}>
-                        <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }} disabled={idx === 0} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30" title={t("editorSidebar.sectionItem.moveUp")}>
-                          <ChevronUp className="w-3 h-3" />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }} disabled={idx === sections.length - 1} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200 disabled:opacity-30" title={t("editorSidebar.sectionItem.moveDown")}>
-                          <ChevronDown className="w-3 h-3" />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={section.visible ? t("editorSidebar.sectionItem.hide") : t("editorSidebar.sectionItem.show")}>
-                          {section.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3 text-stone-400" />}
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={t("editorSidebar.sectionItem.duplicate")}>
-                          <Copy className="w-3 h-3" />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500" title={t("editorSidebar.sectionItem.delete")}>
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
+                    <div className="space-y-1">
+                      {chapterSections.map((section, idx) => {
+                        const isSelected = section.id === selectedId;
+                        return (
+                          <div
+                            key={section.id}
+                            onClick={() => onSelect(section.id)}
+                            className={`group relative rounded-xl p-3 cursor-pointer transition-all ${isSelected ? "bg-rose-50 border border-[#8B1A35]/20" : "hover:bg-stone-50 border border-transparent"}`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-base shrink-0">{SECTION_ICONS[section.type]}</span>
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-xs font-medium truncate ${section.visible ? "text-stone-800" : "text-stone-400"}`}>
+                                  {t(`sections.${section.type}`)}
+                                </p>
+                                {!section.visible && <p className="text-[10px] text-stone-400">{t("editorSidebar.sectionItem.hidden")}</p>}
+                              </div>
+
+                              <div className={`flex items-center gap-0.5 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}>
+                                <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={t("editorSidebar.sectionItem.moveUp")}>
+                                  <ChevronUp className="w-3 h-3" />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={t("editorSidebar.sectionItem.moveDown")}>
+                                  <ChevronDown className="w-3 h-3" />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={section.visible ? t("editorSidebar.sectionItem.hide") : t("editorSidebar.sectionItem.show")}>
+                                  {section.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3 text-stone-400" />}
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={t("editorSidebar.sectionItem.duplicate")}>
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500" title={t("editorSidebar.sectionItem.delete")}>
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -215,10 +223,6 @@ export default function EditorLeftSidebar({
                 {t("editorSidebar.addSection.button")}
               </button>
             </div>
-          </div>
-
-          <div className="p-2 border-t border-stone-100 shrink-0">
-            <LaunchReadinessFlow config={config} productCount={productCount} storeSlug={merchant?.slug ?? ""} />
           </div>
         </div>
       )}

@@ -3148,6 +3148,16 @@
       "done": "مكتمل"
     }
   },
+  "publishReview": {
+    "title": "مراجعة المتجر النهائية",
+    "readyTitle": "متجرك جاهز للعالم!",
+    "notReadyTitle": "قصة متجرك شبه مكتملة",
+    "readyDesc": "جميع الأقسام معدة بالكامل. أنتِ جاهزة للانطلاق.",
+    "notReadyDesc": "وجدنا بعض القطع الناقصة في قصة متجرك. يُنصح بشدة بإكمالها قبل النشر.",
+    "readinessScore": "نسبة الجاهزية",
+    "continueEditing": "متابعة التعديل",
+    "publishAnyway": "النشر على أي حال"
+  },
   "customerAuth": {
     "unknownError": "حدث خطأ غير متوقع",
     "registerSuccess": "تم إنشاء الحساب بنجاح",
