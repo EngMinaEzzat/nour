@@ -247,14 +247,10 @@ function Router() {
                 </ProtectedRoute>
               </Route>
               <Route path="/follow-up">
-                <ProtectedRoute>
-                  <FollowUp />
-                </ProtectedRoute>
+                <Redirect to="/orders?tab=follow-up" />
               </Route>
               <Route path="/returns">
-                <ProtectedRoute>
-                  <Returns />
-                </ProtectedRoute>
+                <Redirect to="/orders?tab=returns" />
               </Route>
               <Route path="/shipping-rules">
                 <ProtectedRoute>

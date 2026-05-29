@@ -44,8 +44,8 @@ function getMerchantNav(merchant: { slug?: string; role?: string; isPlatformAdmi
       items: [
         { name: "layout.dashboard", href: "/dashboard", icon: LayoutDashboard },
         { name: "layout.orders", href: "/orders", icon: FileText, badgeKey: "pendingOrders" },
-        { name: "layout.returns", href: "/returns", icon: RotateCcw, badgeKey: "returns" },
-        { name: "layout.followUp", href: "/follow-up", icon: Bell, badgeKey: "followUp" },
+        { name: "layout.returns", href: "/orders?tab=returns", icon: RotateCcw, badgeKey: "returns" },
+        { name: "layout.followUp", href: "/orders?tab=follow-up", icon: Bell, badgeKey: "followUp" },
         { name: "layout.shipping", href: "/shipping-rules", icon: Truck },
         { name: "layout.products", href: "/products", icon: Package, badgeKey: "lowStock" },
         { name: "layout.categories", href: "/categories", icon: Tags },

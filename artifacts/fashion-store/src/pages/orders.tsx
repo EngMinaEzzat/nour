@@ -89,6 +89,8 @@ export default function Orders() {
     ready: orders.filter((order) => order.status === "confirmed").length,
     shipping: orders.filter((order) => ["dispatched", "shipped"].includes(order.status)).length,
     done: orders.filter((order) => ["delivered", "cancelled", "returned"].includes(order.status)).length,
+    returns: orders.filter((order) => order.status === "returned").length,
+    followUp: orders.filter((order) => order.status === "delivered").length,
   };
   const totalRevenue = orders
     .filter((order) => !["cancelled", "returned"].includes(order.status))
@@ -103,6 +105,8 @@ export default function Orders() {
     if (activeTab === "ready") matchesStatus = order.status === "confirmed";
     if (activeTab === "shipping") matchesStatus = ["dispatched", "shipped"].includes(order.status);
     if (activeTab === "done") matchesStatus = ["delivered", "cancelled", "returned"].includes(order.status);
+    if (activeTab === "returns") matchesStatus = order.status === "returned";
+    if (activeTab === "follow-up") matchesStatus = order.status === "delivered";
 
     const matchesPaymentFilter = paymentFilter === "all" || order.paymentMethod === paymentFilter;
 
@@ -130,8 +134,8 @@ export default function Orders() {
     { id: "shipping", label: t("orders.queue.shipping"), count: orderStats.shipping },
     { id: "done", label: t("orders.queue.done"), count: orderStats.done },
     { id: "failedContact", label: t("orders.queue.failedContact") },
-    { id: "returns", label: t("layout.returns"), href: "/returns" },
-    { id: "follow-up", label: t("layout.followUp"), href: "/follow-up" },
+    { id: "returns", label: t("layout.returns"), count: orderStats.returns },
+    { id: "follow-up", label: t("layout.followUp"), count: orderStats.followUp },
   ];
 
   const showOrdersQueue = true;
@@ -203,22 +207,6 @@ export default function Orders() {
         className="flex items-center gap-2 flex-wrap mb-8 border-b border-border/40 pb-4"
       >
         {tabs.map((tab) => {
-          if ("href" in tab && tab.href) {
-            return (
-              <Button
-                key={tab.id}
-                size="sm"
-                variant="outline"
-                className="rounded-full"
-                asChild
-              >
-                <Link href={tab.href}>
-                  {tab.label}
-                </Link>
-              </Button>
-            );
-          }
-
           return (
             <Button
               key={tab.id}
