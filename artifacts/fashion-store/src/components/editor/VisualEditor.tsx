@@ -241,6 +241,7 @@ export default function VisualEditor({
           <InspectorPanel
             section={selectedSection}
             theme={config.theme}
+            categories={categories}
             onSectionChange={updateSection}
             onThemeChange={(theme) => pushConfig({ ...config, theme })}
             onDelete={deleteSection}
@@ -317,6 +318,7 @@ export default function VisualEditor({
               <InspectorPanel
                 section={selectedSection}
                 theme={config.theme}
+                categories={categories}
                 onSectionChange={updateSection}
                 onThemeChange={(theme) => pushConfig({ ...config, theme })}
                 onDelete={deleteSection}

@@ -2039,6 +2039,8 @@
       "title": "العنوان",
       "desc": "الوصف",
       "tag": "العلامة (Tag)",
+      "allProducts": "كل المنتجات",
+      "categoryLink": "ربط بقسم",
       "trustStripItems": "مميزات المتجر (Store Features)",
       "trustStripIcon": "الأيقونة (إيموجي)",
       "trustStripTitle": "العنوان",

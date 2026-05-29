@@ -765,7 +765,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       case "offers":
         return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} settings={section.settings} />;
       case "lookbook":
-        return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} />;
+        return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} onCategorySelect={handleCategorySelect} content={section.content} />;
       case "instagram":
         return <UGCSection primaryColor={p} instagramUrl={sl.instagram ?? null} />;
       case "newsletter":

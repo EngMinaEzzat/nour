@@ -1941,6 +1941,8 @@
       "title": "Title",
       "desc": "Desc",
       "tag": "Tag",
+      "allProducts": "All Products",
+      "categoryLink": "Link to Category",
       "trustStripItems": "Store Features",
       "trustStripIcon": "Icon (Emoji)",
       "trustStripTitle": "Title",

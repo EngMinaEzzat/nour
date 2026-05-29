@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -7,12 +8,14 @@ const SERIF = "'Cormorant Garamond', Georgia, serif";
 interface EditorialLookbookProps {
   primaryColor: string;
   onScrollToProducts: () => void;
+  onCategorySelect?: (categoryId: number) => void;
   content?: any;
 }
 
 export function EditorialLookbook({
   primaryColor: p,
   onScrollToProducts,
+  onCategorySelect,
   content,
 }: EditorialLookbookProps) {
   const { t, i18n } = useTranslation();
@@ -54,17 +57,29 @@ export function EditorialLookbook({
   const PANELS = customItems
     ? customItems.map((item: any, i: number) => {
         const fallback = defaultPanels[i % defaultPanels.length];
+        const categoryId = Number.parseInt(String(item.categoryId ?? ""), 10);
         return {
           image: item.imageUrl,
           tag: item.tag || "",
           headline: item.title || "",
           sub: item.desc || "",
+          categoryId: Number.isFinite(categoryId) && categoryId > 0 ? categoryId : undefined,
           span: fallback.span,
           textPos: fallback.textPos,
           imgClass: fallback.imgClass,
         };
       }).filter((p: any) => p.image)
     : defaultPanels;
+
+  const handlePanelClick = (categoryId?: number) => {
+    if (categoryId && onCategorySelect) {
+      onCategorySelect(categoryId);
+      window.requestAnimationFrame(onScrollToProducts);
+      return;
+    }
+
+    onScrollToProducts();
+  };
 
   return (
     <section
@@ -111,7 +126,7 @@ export function EditorialLookbook({
               viewport={{ once: true, amount: 0.15 }}
               transition={{ delay: i * 0.12, duration: 0.6 }}
               whileHover={{ y: -4 }}
-              onClick={onScrollToProducts}
+              onClick={() => handlePanelClick(panel.categoryId)}
             >
               {/* Image */}
               <img
