@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useListOrders, useUpdateOrder } from "@workspace/api-client-react";
@@ -34,6 +34,8 @@ const stagger = {
 
 export default function Orders() {
   const { t, i18n } = useTranslation();
+  const searchString = useSearch();
+  const [locationPath, setLocation] = useLocation();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
@@ -41,22 +43,15 @@ export default function Orders() {
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window !== "undefined") {
-      const sp = new URLSearchParams(window.location.search);
-      return sp.get("tab") || "needsAction";
-    }
-    return "needsAction";
-  });
+  const activeTab = new URLSearchParams(searchString).get("tab") || "needsAction";
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      if (activeTab === "all") url.searchParams.delete("tab");
-      else url.searchParams.set("tab", activeTab);
-      window.history.replaceState({}, "", url.toString());
-    }
-  }, [activeTab]);
+  const setActiveTab = (tabId: string) => {
+    const sp = new URLSearchParams(searchString);
+    if (tabId === "all") sp.delete("tab");
+    else sp.set("tab", tabId);
+    const newSearch = sp.toString();
+    setLocation(`${locationPath}${newSearch ? "?" + newSearch : ""}`, { replace: true });
+  };
 
   const { data: ordersResponse, isLoading, refetch } = useListOrders({
     status: statusFilter !== "all" ? statusFilter : undefined,
@@ -135,11 +130,11 @@ export default function Orders() {
     { id: "shipping", label: t("orders.queue.shipping"), count: orderStats.shipping },
     { id: "done", label: t("orders.queue.done"), count: orderStats.done },
     { id: "failedContact", label: t("orders.queue.failedContact") },
-    { id: "returns", label: t("layout.returns") },
-    { id: "follow-up", label: t("layout.followUp") },
+    { id: "returns", label: t("layout.returns"), href: "/returns" },
+    { id: "follow-up", label: t("layout.followUp"), href: "/follow-up" },
   ];
 
-  const showOrdersQueue = activeTab !== "returns" && activeTab !== "follow-up";
+  const showOrdersQueue = true;
 
   return (
     <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
@@ -207,26 +202,41 @@ export default function Orders() {
         transition={{ duration: 0.3, delay: 0.1 }}
         className="flex items-center gap-2 flex-wrap mb-8 border-b border-border/40 pb-4"
       >
-        {tabs.map((tab) => (
-          <Button
-            key={tab.id}
-            size="sm"
-            variant={activeTab === tab.id ? "default" : "outline"}
-            className="rounded-full"
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-            {"count" in tab && (
-              <span className={`ms-1 rounded-full px-1.5 text-[10px] ${activeTab === tab.id ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"}`}>
-                {tab.count}
-              </span>
-            )}
-          </Button>
-        ))}
-      </motion.div>
+        {tabs.map((tab) => {
+          if ("href" in tab && tab.href) {
+            return (
+              <Button
+                key={tab.id}
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                asChild
+              >
+                <Link href={tab.href}>
+                  {tab.label}
+                </Link>
+              </Button>
+            );
+          }
 
-      {activeTab === "returns" && <Returns embedded />}
-      {activeTab === "follow-up" && <FollowUp embedded />}
+          return (
+            <Button
+              key={tab.id}
+              size="sm"
+              variant={activeTab === tab.id ? "default" : "outline"}
+              className="rounded-full"
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+              {"count" in tab && (
+                <span className={`ms-1 rounded-full px-1.5 text-[10px] ${activeTab === tab.id ? "bg-primary-foreground/20" : "bg-muted text-muted-foreground"}`}>
+                  {tab.count}
+                </span>
+              )}
+            </Button>
+          );
+        })}
+      </motion.div>
 
       {showOrdersQueue && (
         <>
