@@ -21,11 +21,20 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
 
 type NavBadgeKey = "pendingOrders" | "lowStock" | "returns" | "followUp";
+
+const BADGE_CONFIG: Record<NavBadgeKey, { icon?: ElementType; colorClass?: string }> = {
+  pendingOrders: { colorClass: "bg-primary text-primary-foreground" },
+  lowStock: { colorClass: "bg-destructive text-destructive-foreground" },
+  returns: { icon: RotateCcw, colorClass: "bg-amber-500 text-white" },
+  followUp: { icon: Bell, colorClass: "bg-red-500 text-white" },
+};
+
 type MerchantNavItem = {
   name: string;
   href: string;
   icon: ElementType;
   badgeKey?: NavBadgeKey;
+  badgeKeys?: NavBadgeKey[];
 };
 type MerchantNavGroup = {
   title: string;
@@ -43,9 +52,7 @@ function getMerchantNav(merchant: { slug?: string; role?: string; isPlatformAdmi
       fallback: "Store Management",
       items: [
         { name: "layout.dashboard", href: "/dashboard", icon: LayoutDashboard },
-        { name: "layout.orders", href: "/orders", icon: FileText, badgeKey: "pendingOrders" },
-        { name: "layout.returns", href: "/orders?tab=returns", icon: RotateCcw, badgeKey: "returns" },
-        { name: "layout.followUp", href: "/orders?tab=follow-up", icon: Bell, badgeKey: "followUp" },
+        { name: "layout.orders", href: "/orders", icon: FileText, badgeKeys: ["pendingOrders", "returns", "followUp"] },
         { name: "layout.shipping", href: "/shipping-rules", icon: Truck },
         { name: "layout.products", href: "/products", icon: Package, badgeKey: "lowStock" },
         { name: "layout.categories", href: "/categories", icon: Tags },
@@ -97,15 +104,16 @@ const PUBLIC_NAV = [
   { name: "common.pricing", href: "/pricing" },
 ];
 
-function NavUrgencyBadge({ count, label }: { count?: number; label: string }) {
+function NavUrgencyBadge({ count, label, icon: Icon, colorClass = "bg-destructive text-destructive-foreground" }: { count?: number; label: string; icon?: ElementType; colorClass?: string }) {
   if (!count) return null;
   const display = count > 99 ? "99+" : String(count);
   return (
     <span
-      className="ms-auto inline-flex min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-destructive-foreground"
+      className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none gap-0.5 ${colorClass}`}
       aria-label={`${label}: ${display}`}
       title={`${label}: ${display}`}
     >
+      {Icon && <Icon className="w-3 h-3" />}
       {display}
     </span>
   );
@@ -287,7 +295,17 @@ export function Layout({ children }: { children: ReactNode }) {
                                       >
                                         <Icon className="h-4 w-4" />
                                         <span>{label}</span>
-                                        <NavUrgencyBadge count={badge} label={label} />
+                                        <div className="ms-auto flex items-center gap-1">
+                                          {(item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).map((key) => (
+                                            <NavUrgencyBadge
+                                              key={key}
+                                              count={navBadges[key]}
+                                              label={key}
+                                              icon={BADGE_CONFIG[key]?.icon}
+                                              colorClass={BADGE_CONFIG[key]?.colorClass}
+                                            />
+                                          ))}
+                                        </div>
                                       </Link>
                                     );
                                   })}
@@ -325,7 +343,17 @@ export function Layout({ children }: { children: ReactNode }) {
                                 >
                                   <Icon className="h-4 w-4" />
                                   <span>{label}</span>
-                                  <NavUrgencyBadge count={badge} label={label} />
+                                  <div className="ms-auto flex items-center gap-1">
+                                    {(item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).map((key) => (
+                                      <NavUrgencyBadge
+                                        key={key}
+                                        count={navBadges[key]}
+                                        label={key}
+                                        icon={BADGE_CONFIG[key]?.icon}
+                                        colorClass={BADGE_CONFIG[key]?.colorClass}
+                                      />
+                                    ))}
+                                  </div>
                                 </Link>
                               );
                             })}
