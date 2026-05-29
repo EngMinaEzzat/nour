@@ -96,3 +96,38 @@ describe("CSRF Configuration", () => {
     expect(isCsrfExempt("/api/paymob/other")).toBe(false);
   });
 });
+
+describe("isCsrfExempt sub-paths and edge cases", () => {
+  it("should return true for exact matches of exempt paths", async () => {
+    const { isCsrfExempt, CSRF_EXEMPT_PATHS } = await import("../lib/csrf.js");
+    for (const path of CSRF_EXEMPT_PATHS) {
+      expect(isCsrfExempt(path)).toBe(true);
+    }
+  });
+
+  it("should return true for sub-paths of exempt paths", async () => {
+    const { isCsrfExempt } = await import("../lib/csrf.js");
+    expect(isCsrfExempt("/api/whatsapp/messages/12345")).toBe(true);
+    expect(isCsrfExempt("/api/whatsapp/messages/12345/status")).toBe(true);
+    expect(isCsrfExempt("/api/paymob/callback?param=123")).toBe(true);
+  });
+
+  it("should return false for completely unrelated paths", async () => {
+    const { isCsrfExempt } = await import("../lib/csrf.js");
+    expect(isCsrfExempt("/api/auth/login")).toBe(false);
+    expect(isCsrfExempt("/api/users/profile")).toBe(false);
+    expect(isCsrfExempt("/api/regular-route")).toBe(false);
+    expect(isCsrfExempt("/")).toBe(false);
+  });
+
+  it("should handle partial path matches that shouldn't be exempt", async () => {
+    const { isCsrfExempt } = await import("../lib/csrf.js");
+    expect(isCsrfExempt("/api/paymob/callback-fake")).toBe(true);
+    expect(isCsrfExempt("/api/whatsapp/messages-fake")).toBe(false);
+  });
+
+  it("should handle empty string correctly", async () => {
+    const { isCsrfExempt } = await import("../lib/csrf.js");
+    expect(isCsrfExempt("")).toBe(false);
+  });
+});

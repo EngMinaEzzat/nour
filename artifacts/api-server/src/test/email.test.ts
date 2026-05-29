@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { sendEmail, sendNewMerchantNotification, sendOrderConfirmationEmail, sendWelcomeEmail, sendPasswordResetEmail } from "../lib/email.js";
+import {
+  sendEmail,
+  sendNewMerchantNotification,
+  sendOrderConfirmationEmail,
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+  sendSubscriptionReminderEmail,
+  sendSubscriptionSuspendedEmail,
+} from "../lib/email.js";
 
 const mockSend = vi.fn().mockResolvedValue({ data: { id: "mock-email-id" }, error: null });
 
@@ -177,5 +185,79 @@ describe("Email System", () => {
     const callArgs = mockSend.mock.calls[0][0];
     expect(callArgs.html).not.toContain("<script>");
     expect(callArgs.html).toContain("https://nour.example/reset-password?token=&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;");
+  });
+
+  it("should send subscription reminder email with plural days", async () => {
+    await sendSubscriptionReminderEmail(
+      "merchant@example.com",
+      "My Boutique",
+      3,
+      "https://nour.example/renew"
+    );
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "merchant@example.com",
+        subject: "⏰ اشتراكك في نور ينتهي خلال 3 أيام",
+      })
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain("My Boutique");
+    expect(callArgs.html).toContain("3 أيام");
+    expect(callArgs.html).toContain("https://nour.example/renew");
+  });
+
+  it("should send subscription reminder email with singular day", async () => {
+    await sendSubscriptionReminderEmail(
+      "merchant@example.com",
+      "My Boutique",
+      1,
+      "https://nour.example/renew"
+    );
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "merchant@example.com",
+        subject: "⏰ اشتراكك في نور ينتهي خلال 1 يوم",
+      })
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain("My Boutique");
+    expect(callArgs.html).toContain("1 يوم");
+    expect(callArgs.html).toContain("https://nour.example/renew");
+  });
+
+  it("should send subscription suspended email with correct details", async () => {
+    await sendSubscriptionSuspendedEmail(
+      "merchant@example.com",
+      "My Boutique",
+      "https://nour.example/reactivate"
+    );
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "merchant@example.com",
+        subject: expect.stringContaining("My Boutique"),
+      })
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).toContain("My Boutique");
+    expect(callArgs.html).toContain("https://nour.example/reactivate");
+  });
+
+  it("should escape user-controlled subscription suspended email fields", async () => {
+    await sendSubscriptionSuspendedEmail(
+      "merchant@example.com",
+      "<script>alert(1)</script>",
+      "https://nour.example/reactivate?x=\"><script>alert(1)</script>"
+    );
+
+    const callArgs = mockSend.mock.calls[0][0];
+    expect(callArgs.html).not.toContain("<script>");
+    expect(callArgs.html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(callArgs.html).toContain("&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;");
   });
 });

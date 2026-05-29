@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { resolveAiModel } from "../lib/ai-provider.js";
+import { resolveAiModel, providerToClientModel } from "../lib/ai-provider.js";
 
 describe("ai-provider", () => {
   const originalEnv = process.env;
@@ -52,6 +52,20 @@ describe("ai-provider", () => {
       // Any other fallback also resolves to claude-sonnet-4-6 in current implementation
       // @ts-ignore - testing fallback
       expect(resolveAiModel("unknown")).toBe("claude-sonnet-4-6");
+    });
+  });
+
+  describe("providerToClientModel", () => {
+    it("returns 'claude' when provider is 'anthropic'", () => {
+      expect(providerToClientModel("anthropic")).toBe("claude");
+    });
+
+    it("returns 'gemini' when provider is 'gemini'", () => {
+      expect(providerToClientModel("gemini")).toBe("gemini");
+    });
+
+    it("returns 'openai' when provider is 'openai'", () => {
+      expect(providerToClientModel("openai")).toBe("openai");
     });
   });
 });
