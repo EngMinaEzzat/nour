@@ -3150,6 +3150,28 @@
       "noInvoices": "No invoices"
     }
   },
+  "storeStoryGuide": {
+    "title": "Your store story",
+    "intro": "I'll help you shape what customers see before they order.",
+    "chapters": {
+      "intro": {
+        "title": "1. First Impression",
+        "assistant": "A clear name, a reassuring description, and a layout that matches your brand."
+      },
+      "products": {
+        "title": "2. Products Display",
+        "assistant": "Showcase your products with clear images and prices."
+      },
+      "trust": {
+        "title": "3. Trust Signals",
+        "assistant": "Build confidence with FAQ and clear contact info."
+      },
+      "ordering": {
+        "title": "4. Checkout Experience",
+        "assistant": "Guide them smoothly from cart to confirmation."
+      }
+    }
+  },
   "launchReadiness": {
     "linkCopied": "Store link copied",
     "step": {
