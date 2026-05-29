@@ -11,6 +11,8 @@ import { useTranslation } from "react-i18next";
 import { contrastStatus } from "@/lib/color-contrast";
 import { STORY_CHAPTERS, getChapterForSection, getChapterProgress } from "@/lib/store-story-guide";
 import { evaluateReadiness } from "@/lib/store-readiness";
+import type { MerchantGender } from "./WelcomeOverlay";
+import { useAuth } from "@/hooks/use-auth";
 
 type SidebarTab = "sections" | "theme" | "ai";
 
