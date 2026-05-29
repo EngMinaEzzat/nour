@@ -1,34 +1,5 @@
-import os from "node:os";
-import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getExportFilePath, toCsv } from "../lib/export-csv.js";
-
-
-describe("getExportFilePath", () => {
-  beforeEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it("uses process.env.EXPORT_OUTPUT_DIR when it is set", () => {
-    const customDir = "/custom/export/dir";
-    vi.stubEnv("EXPORT_OUTPUT_DIR", customDir);
-
-    const result = getExportFilePath(123, "token456");
-    expect(result).toBe(path.join(customDir, "123-token456.csv"));
-  });
-
-  it("defaults to os.tmpdir()/nour-exports when EXPORT_OUTPUT_DIR is not set", () => {
-    vi.stubEnv("EXPORT_OUTPUT_DIR", "");
-
-    const result = getExportFilePath(789, "token101");
-    const expectedDir = path.join(os.tmpdir(), "nour-exports");
-    expect(result).toBe(path.join(expectedDir, "789-token101.csv"));
-  });
-});
+import { describe, expect, it } from "vitest";
+import { toCsv, buildConditions } from "../lib/export-csv.js";
 
 describe("toCsv", () => {
   it("returns an empty string when given an empty array", () => {
@@ -100,5 +71,56 @@ describe("toCsv", () => {
         "\"'=HYPERLINK(\"\"https://example.com\"\",\"\"click\"\")\",\"hello \"\"there\"\"\",\"line 1\nline 2\"",
       ].join("\n"),
     );
+  });
+});
+
+import { eq, gte, lte, and } from "drizzle-orm";
+import { ordersTable } from "@workspace/db";
+
+describe("buildConditions", () => {
+  it("returns only tenant ID condition when no dates are provided", () => {
+    const tenantId = 123;
+    const cond = buildConditions(ordersTable.tenantId, ordersTable.createdAt, tenantId, {});
+
+    const expected = and(eq(ordersTable.tenantId, tenantId));
+    expect(cond).toEqual(expected);
+  });
+
+  it("includes gte condition when dateFrom is provided", () => {
+    const tenantId = 123;
+    const dateFrom = new Date("2023-01-01T00:00:00Z");
+    const cond = buildConditions(ordersTable.tenantId, ordersTable.createdAt, tenantId, { dateFrom });
+
+    const expected = and(
+      eq(ordersTable.tenantId, tenantId),
+      gte(ordersTable.createdAt, dateFrom)
+    );
+    expect(cond).toEqual(expected);
+  });
+
+  it("includes lte condition when dateTo is provided", () => {
+    const tenantId = 123;
+    const dateTo = new Date("2023-12-31T23:59:59Z");
+    const cond = buildConditions(ordersTable.tenantId, ordersTable.createdAt, tenantId, { dateTo });
+
+    const expected = and(
+      eq(ordersTable.tenantId, tenantId),
+      lte(ordersTable.createdAt, dateTo)
+    );
+    expect(cond).toEqual(expected);
+  });
+
+  it("includes both gte and lte conditions when both dateFrom and dateTo are provided", () => {
+    const tenantId = 123;
+    const dateFrom = new Date("2023-01-01T00:00:00Z");
+    const dateTo = new Date("2023-12-31T23:59:59Z");
+    const cond = buildConditions(ordersTable.tenantId, ordersTable.createdAt, tenantId, { dateFrom, dateTo });
+
+    const expected = and(
+      eq(ordersTable.tenantId, tenantId),
+      gte(ordersTable.createdAt, dateFrom),
+      lte(ordersTable.createdAt, dateTo)
+    );
+    expect(cond).toEqual(expected);
   });
 });

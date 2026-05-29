@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import {
   tenantsTable, ordersTable, productsTable, orderItemsTable, merchantsTable,
-  tenantSupportNotesTable, planAuditLogTable,
+  tenantSupportNotesTable, planAuditLogTable, type Tenant,
 } from "@workspace/db";
 import {
   CreateTenantBody, UpdateTenantBody, GetTenantParams,
@@ -14,13 +14,13 @@ import { getPlan } from "../lib/entitlements";
 
 const router = Router();
 
-function serializeTenant(t: Record<string, unknown>) {
+function serializeTenant(t: Tenant) {
   return {
     ...t,
-    createdAt: (t.createdAt as Date).toISOString(),
-    subscriptionStartedAt: t.subscriptionStartedAt ? (t.subscriptionStartedAt as Date).toISOString() : null,
-    trialEndsAt: t.trialEndsAt ? (t.trialEndsAt as Date).toISOString() : null,
-    lastAdminLoginAt: t.lastAdminLoginAt ? (t.lastAdminLoginAt as Date).toISOString() : null,
+    createdAt: t.createdAt.toISOString(),
+    subscriptionStartedAt: t.subscriptionStartedAt ? t.subscriptionStartedAt.toISOString() : null,
+    trialEndsAt: t.trialEndsAt ? t.trialEndsAt.toISOString() : null,
+    lastAdminLoginAt: t.lastAdminLoginAt ? t.lastAdminLoginAt.toISOString() : null,
   };
 }
 
@@ -47,7 +47,7 @@ router.post("/tenants", requirePlatformAdmin, async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   try {
     const [tenant] = await db.insert(tenantsTable).values(parsed.data).returning();
-    res.status(201).json(serializeTenant(tenant as unknown as Record<string, unknown>));
+    res.status(201).json(serializeTenant(tenant));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل إنشاء المتجر" });
@@ -60,7 +60,7 @@ router.get("/tenants/:id", requirePlatformAdmin, async (req, res) => {
   try {
     const [tenant] = await db.select().from(tenantsTable).where(eq(tenantsTable.id, parsed.data.id));
     if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
-    res.json(serializeTenant(tenant as unknown as Record<string, unknown>));
+    res.json(serializeTenant(tenant));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب بيانات المتجر" });
@@ -88,7 +88,7 @@ router.put("/tenants/:id", requireRole("owner", "manager"), async (req, res) => 
       .where(eq(tenantsTable.id, paramsParsed.data.id))
       .returning();
     if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
-    res.json(serializeTenant(tenant as unknown as Record<string, unknown>));
+    res.json(serializeTenant(tenant));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل تحديث بيانات المتجر" });
@@ -201,7 +201,7 @@ router.put("/tenants/:id/plan", requirePlatformAdmin, async (req, res) => {
       note: note ?? null,
     });
 
-    res.json(serializeTenant(updated as unknown as Record<string, unknown>));
+    res.json(serializeTenant(updated));
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل تحديث خطة المتجر" });

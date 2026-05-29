@@ -151,14 +151,14 @@ router.put("/affiliates/:id", requireRole("owner", "manager"), async (req, res) 
       .where(and(eq(affiliatesTable.id, id), eq(affiliatesTable.tenantId, tenantId)));
     if (!existing) return res.status(404).json({ error: "المؤثر غير موجود" });
 
-    const updates: Record<string, unknown> = {};
+    const updates: Partial<typeof affiliatesTable.$inferInsert> = {};
     if (req.body.active !== undefined) updates.active = req.body.active;
     if (req.body.commissionValue !== undefined) updates.commissionValue = String(req.body.commissionValue);
     if (req.body.commissionType !== undefined) updates.commissionType = req.body.commissionType;
     if (req.body.notes !== undefined) updates.notes = req.body.notes;
 
     const [updated] = await db.update(affiliatesTable)
-      .set(updates as any)
+      .set(updates)
       .where(eq(affiliatesTable.id, id))
       .returning();
 
