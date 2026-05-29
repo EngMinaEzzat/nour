@@ -1,5 +1,6 @@
 import { SectionConfig, StoreConfig } from "@/lib/store-config";
 import { normalizeStoredImageUrl } from "@/lib/image-url";
+import { EditorialLookbook } from "@/components/storefront/EditorialLookbook";
 import { useTranslation } from "react-i18next";
 
 interface PreviewProps {
@@ -356,8 +357,17 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
       );
     }
 
-    case "instagram":
     case "lookbook": {
+      return wrap(
+        <EditorialLookbook
+          primaryColor={p}
+          onScrollToProducts={() => undefined}
+          content={section.content}
+        />
+      );
+    }
+
+    case "instagram": {
       const cols = section.settings.columns ?? 3;
       const items = (section.content.items ?? []) as Array<{ imageUrl?: string }>;
       const displayItems = Array.from({ length: cols * 2 }).map((_, i) => items[i] || {});

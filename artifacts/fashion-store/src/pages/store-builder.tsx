@@ -168,7 +168,7 @@ export default function StoreBuilder() {
           ...(source.business?.socialLinks ?? {}),
         },
       } as StoreConfig["business"],
-    });
+    }, t);
     setStoreConfig(merged);
 
     // Detect first visit: no published config and no local draft

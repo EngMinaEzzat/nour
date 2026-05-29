@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { normalizeStoredImageUrl } from "@/lib/image-url";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -59,7 +60,7 @@ export function EditorialLookbook({
         const fallback = defaultPanels[i % defaultPanels.length];
         const categoryId = Number.parseInt(String(item.categoryId ?? ""), 10);
         return {
-          image: item.imageUrl,
+          image: normalizeStoredImageUrl(item.imageUrl ?? item.image),
           tag: item.tag || "",
           headline: item.title || "",
           sub: item.desc || "",

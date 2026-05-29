@@ -179,13 +179,20 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const content = section.content ?? {};
+    const shouldBackfillLookbookItems =
+      section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
+
     normalized.push({
       ...section,
       id: section.id || `${section.type}-${Date.now()}-${index}`,
       label: section.label || SECTION_LABELS[section.type],
       visible: section.visible ?? true,
       order: Number.isFinite(section.order) ? section.order : index,
-      content: section.content ?? {},
+      content: shouldBackfillLookbookItems
+        ? { ...content, items: defaultSection.content.items }
+        : content,
       settings: section.settings ?? {},
     });
   });
@@ -317,7 +324,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم") 
+        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
+        items: tr("defaultSections.lookbook.items", [
+          {
+            imageUrl: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&crop=faces",
+            tag: "Fashion",
+            title: "Egyptian\\n Beauty",
+            desc: "An exclusive collection inspired by heritage",
+            categoryId: "",
+          },
+          {
+            imageUrl: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&fit=crop&crop=faces",
+            tag: "Spring 2025",
+            title: "Spring\\n Colors",
+            desc: "Soft shades for a perfect look",
+            categoryId: "",
+          },
+          {
+            imageUrl: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fit=crop&crop=faces",
+            tag: "Beauty",
+            title: "Beauty\\n Magic",
+            desc: "High quality care products",
+            categoryId: "",
+          },
+        ])
       },
       settings: { columns: 3 },
     },
@@ -430,14 +460,14 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
-export function createDefaultConfig(partial?: Partial<StoreConfig>): StoreConfig {
+export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: any): StoreConfig {
   const name = partial?.brand?.name ?? "متجري";
   const category = partial?.brand?.category ?? "fashion";
   return {
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, undefined),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };
