@@ -268,14 +268,31 @@ router.get("/products", async (req, res) => {
   }
 
   try {
+    const cacheKey = `tenant:${effectiveTenantId}:products:cat=${categoryId || 'all'}:search=${search || 'none'}:variants=${hasVariants ?? 'any'}`;
+    
+    // Only cache active tenant products for public consumers
+    const canCache = !sessionTenantId || sessionTenantId !== effectiveTenantId;
+    if (canCache) {
+      const cached = await cache.get(cacheKey);
+      if (cached) {
+        return res.json(JSON.parse(cached));
+      }
+    }
+
     const rows = await fetchProductsWithJoin(
       conditions as ReturnType<typeof and>[],
     );
     // Strip tenantStatus from the response
-    res.json(rows.map((r: any) => {
+    const result = rows.map((r: any) => {
       const { tenantStatus: _, ...safeRow } = r;
       return safeRow;
-    }));
+    });
+
+    if (canCache) {
+      await cache.set(cacheKey, JSON.stringify(result), 300); // 5 minutes TTL
+    }
+
+    res.json(result);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب المنتجات" });

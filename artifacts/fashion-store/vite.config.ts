@@ -78,6 +78,11 @@ export default defineConfig({
           assetInfo.name?.endsWith(".css")
             ? "assets/[name]-[hash][extname]"
             : "assets/[name]-[hash][extname]",
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          ui: ["lucide-react", "clsx", "tailwind-merge"],
+          query: ["@tanstack/react-query"]
+        }
       },
     },
   },
