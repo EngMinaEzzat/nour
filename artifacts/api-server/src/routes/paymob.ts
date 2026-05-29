@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { db } from "@workspace/db";
 import {
   paymobProvidersTable, paymentRecordsTable, paymentWebhooksTable,
@@ -24,11 +24,50 @@ class PaymobHttpError extends Error {
   }
 }
 
+export interface PaymobTransactionObj extends Record<string, unknown> {
+  id?: number | string;
+  amount_cents?: number | string;
+  created_at?: string;
+  currency?: string;
+  error_occured?: boolean | string | number;
+  has_parent_transaction?: boolean | string | number;
+  integration_id?: number | string;
+  is_3d_secure?: boolean | string | number;
+  is_auth?: boolean | string | number;
+  is_capture?: boolean | string | number;
+  is_refunded?: boolean | string | number;
+  is_standalone_payment?: boolean | string | number;
+  is_voided?: boolean | string | number;
+  owner?: number | string;
+  pending?: boolean | string | number;
+  success?: boolean | string | number;
+  order?: {
+    id?: number | string;
+    merchant_order_id?: string;
+  };
+  source_data?: {
+    type?: string;
+    pan?: string;
+    sub_type?: string;
+  };
+  data?: {
+    message?: string;
+  };
+}
+
+export interface PaymobWebhookPayload {
+  type?: string;
+  transaction_id?: string | number;
+  success?: boolean | string | number;
+  obj?: PaymobTransactionObj;
+}
+
+
 function asPaymobBoolean(value: unknown): boolean {
   return value === true || value === "true" || value === 1 || value === "1";
 }
 
-function isPaymobPaidPayload(obj: Record<string, unknown>): boolean {
+function isPaymobPaidPayload(obj: PaymobTransactionObj): boolean {
   return (
     asPaymobBoolean(obj.success) &&
     !asPaymobBoolean(obj.pending) &&
@@ -38,7 +77,7 @@ function isPaymobPaidPayload(obj: Record<string, unknown>): boolean {
   );
 }
 
-function isPaymobFailedPayload(obj: Record<string, unknown>): boolean {
+function isPaymobFailedPayload(obj: PaymobTransactionObj): boolean {
   if (asPaymobBoolean(obj.pending)) return false;
   return (
     !asPaymobBoolean(obj.success) ||
@@ -46,39 +85,6 @@ function isPaymobFailedPayload(obj: Record<string, unknown>): boolean {
     asPaymobBoolean(obj.is_voided) ||
     asPaymobBoolean(obj.is_refunded)
   );
-}
-
-function computePaymobHmac(body: Record<string, any>, obj: Record<string, unknown>, secret: string): string {
-  const fields = [
-    String(obj.amount_cents ?? ""),
-    String(obj.created_at ?? ""),
-    String(obj.currency ?? ""),
-    String(obj.error_occured ?? ""),
-    String(obj.has_parent_transaction ?? ""),
-    String((body.obj as any)?.id ?? ""),
-    String(obj.integration_id ?? ""),
-    String(obj.is_3d_secure ?? ""),
-    String(obj.is_auth ?? ""),
-    String(obj.is_capture ?? ""),
-    String(obj.is_refunded ?? ""),
-    String(obj.is_standalone_payment ?? ""),
-    String(obj.is_voided ?? ""),
-    String((obj as any).order?.id ?? ""),
-    String(obj.owner ?? ""),
-    String(obj.pending ?? ""),
-    String((body.obj?.source_data as any)?.pan ?? ""),
-    String((body.obj?.source_data as any)?.sub_type ?? ""),
-    String((body.obj?.source_data as any)?.type ?? ""),
-    String(obj.success ?? ""),
-  ].join("");
-
-  return crypto.createHmac("sha512", secret).update(fields).digest("hex");
-}
-
-function timingSafeEqualStrings(left: string, right: string): boolean {
-  const leftBuffer = Buffer.from(left);
-  const rightBuffer = Buffer.from(right);
-  return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
 }
 
 async function initiatePaymobPaymentForOrder(params: {
@@ -329,14 +335,20 @@ router.post("/paymob/initiate", requireRole("owner", "manager", "staff"), async 
 router.post("/paymob/webhook", async (req, res) => {
   try {
     const { hmac } = req.query;
-    const body = req.body as Record<string, any>;
+    const body = req.body as PaymobWebhookPayload;
 
     const transactionId = String(body?.obj?.id ?? body?.transaction_id ?? "unknown");
-    const obj = (body?.obj ?? body ?? {}) as Record<string, unknown>;
+    const obj = (body?.obj ?? body ?? {}) as PaymobTransactionObj;
     const isPaid = isPaymobPaidPayload(obj);
     const isFailed = isPaymobFailedPayload(obj);
     const success = String(body?.obj?.success ?? body?.success ?? "false");
     const idempotencyKey = `paymob-wh-${transactionId}`;
+
+    const existing = await db.select().from(paymentWebhooksTable).where(eq(paymentWebhooksTable.idempotencyKey, idempotencyKey));
+    if (existing.length > 0) {
+      req.log.info({ transactionId }, "Duplicate Paymob webhook â€” idempotent skip");
+      return res.json({ received: true, duplicate: true });
+    }
 
     const providerOrderId = String(body?.obj?.order?.id ?? "");
     const merchantOrderId = String(body?.obj?.order?.merchant_order_id ?? "");
@@ -353,34 +365,61 @@ router.post("/paymob/webhook", async (req, res) => {
       return res.status(404).json({ error: "Payment record not found for webhook" });
     }
 
-    const [provider] = await db.select({ hmacSecret: paymobProvidersTable.hmacSecret })
-      .from(paymobProvidersTable)
-      .where(eq(paymobProvidersTable.tenantId, paymentRecord.tenantId));
+    // HMAC verification
+    let tenantHmacSecret = process.env.PAYMOB_HMAC_SECRET;
+    if (paymentRecord && paymentRecord.tenantId) {
+      const [provider] = await db.select({ hmacSecret: paymobProvidersTable.hmacSecret })
+        .from(paymobProvidersTable)
+        .where(eq(paymobProvidersTable.tenantId, paymentRecord.tenantId));
+      if (provider && provider.hmacSecret) {
+        tenantHmacSecret = provider.hmacSecret;
+      }
+    }
 
-    const tenantHmacSecret = provider?.hmacSecret;
-    if (!tenantHmacSecret) {
+    if (process.env.NODE_ENV === "production" && !tenantHmacSecret) {
       return res.status(503).json({ error: "Paymob webhook HMAC secret is not configured" });
     }
 
-    if (!hmac) {
+    if (tenantHmacSecret && hmac) {
+      // Paymob HMAC: SHA512 of concatenated transaction fields
+      const fields = [
+        String(obj.amount_cents ?? ""),
+        String(obj.created_at ?? ""),
+        String(obj.currency ?? ""),
+        String(obj.error_occured ?? ""),
+        String(obj.has_parent_transaction ?? ""),
+        String(obj.id ?? ""),
+        String(obj.integration_id ?? ""),
+        String(obj.is_3d_secure ?? ""),
+        String(obj.is_auth ?? ""),
+        String(obj.is_capture ?? ""),
+        String(obj.is_refunded ?? ""),
+        String(obj.is_standalone_payment ?? ""),
+        String(obj.is_voided ?? ""),
+        String(obj.order?.id ?? ""),
+        String(obj.owner ?? ""),
+        String(obj.pending ?? ""),
+        String(obj.source_data?.pan ?? ""),
+        String(obj.source_data?.sub_type ?? ""),
+        String(obj.source_data?.type ?? ""),
+        String(obj.success ?? ""),
+      ].join("");
+
+      const computed = crypto.createHmac("sha512", tenantHmacSecret).update(fields).digest("hex");
+      const computedBuf = Buffer.from(computed);
+      const hmacBuf = Buffer.from(String(hmac));
+
+      if (computedBuf.length !== hmacBuf.length || !crypto.timingSafeEqual(computedBuf, hmacBuf)) {
+        req.log.warn({ transactionId: obj.id }, "Paymob webhook HMAC mismatch â€” rejected");
+        return res.status(401).json({ error: "HMAC verification failed" });
+      }
+    } else if (tenantHmacSecret && !hmac) {
       req.log.warn("Paymob webhook received without HMAC â€” rejected");
       return res.status(401).json({ error: "Missing HMAC signature" });
     }
 
-    const computed = computePaymobHmac(body, obj, tenantHmacSecret);
-    if (!timingSafeEqualStrings(computed, String(hmac))) {
-      req.log.warn({ transactionId: (obj as any).id }, "Paymob webhook HMAC mismatch â€” rejected");
-      return res.status(401).json({ error: "HMAC verification failed" });
-    }
-
-    const existing = await db.select().from(paymentWebhooksTable).where(eq(paymentWebhooksTable.idempotencyKey, idempotencyKey));
-    if (existing.length > 0) {
-      req.log.info({ transactionId }, "Duplicate Paymob webhook â€” idempotent skip");
-      return res.json({ received: true, duplicate: true });
-    }
-
     await db.insert(paymentWebhooksTable).values({
-      tenantId: paymentRecord.tenantId,
+      tenantId: paymentRecord?.tenantId ?? null,
       provider: "paymob",
       idempotencyKey,
       eventType: body?.type ?? "transaction",

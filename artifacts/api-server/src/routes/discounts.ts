@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { discountCodesTable, tenantsTable } from "@workspace/db";
+import { discountCodesTable, discountCodeUsesTable, tenantsTable } from "@workspace/db";
 import { eq, and, sql, desc } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 
@@ -81,7 +81,7 @@ router.put("/discounts/:id", requireRole("owner", "manager"), async (req, res) =
       .where(and(eq(discountCodesTable.id, id), eq(discountCodesTable.tenantId, tenantId)));
     if (!existing) return res.status(404).json({ error: "الكود غير موجود" });
 
-    const updates: Record<string, unknown> = {};
+    const updates: Partial<typeof discountCodesTable.$inferInsert> = {};
     if (active !== undefined) updates.active = active;
     if (value !== undefined) updates.value = String(value);
     if (minOrderAmount !== undefined) updates.minOrderAmount = minOrderAmount ? String(minOrderAmount) : null;
@@ -90,7 +90,7 @@ router.put("/discounts/:id", requireRole("owner", "manager"), async (req, res) =
     if (type !== undefined) updates.type = type;
 
     const [updated] = await db.update(discountCodesTable)
-      .set(updates as any)
+      .set(updates)
       .where(eq(discountCodesTable.id, id))
       .returning();
     res.json({ ...updated, value: parseFloat(updated.value as string) });

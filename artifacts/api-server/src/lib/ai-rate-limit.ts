@@ -6,15 +6,14 @@
  * Falls back to conservative defaults when plan data is unavailable.
  */
 
-// TODO: Finalize plan limits when billing/plan infrastructure is fully wired.
-// These are conservative defaults based on the existing plan codes in tenants.planCode.
 const PLAN_HOURLY_LIMITS: Record<string, number> = {
+  free: 10,
   starter: 20,
   growth: 50,
-  pro: 100,
+  pro: -1, // No limit for Pro plan
 };
 
-const DEFAULT_HOURLY_LIMIT = 20;
+const DEFAULT_HOURLY_LIMIT = 10;
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
 interface RateLimitEntry {
@@ -36,6 +35,10 @@ export function checkAiRateLimit(
   const limit = planCode
     ? (PLAN_HOURLY_LIMITS[planCode] ?? DEFAULT_HOURLY_LIMIT)
     : DEFAULT_HOURLY_LIMIT;
+
+  if (limit === -1) {
+    return { allowed: true };
+  }
 
   const now = Date.now();
   const entry = rateLimitMap.get(tenantId);
