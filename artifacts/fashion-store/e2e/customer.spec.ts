@@ -29,11 +29,11 @@ test.describe('Customer COD Flow', () => {
   });
 
   test('should complete a COD order', async ({ page }) => {
-    await page.goto('/product/1');
+    await page.goto('/store/test-store/product/1');
     await page.waitForTimeout(2000);
     await page.screenshot({ path: 'public/qa-screenshots/product-page.png', fullPage: true });
 
-    await page.goto('/checkout');
+    await page.goto('/store/test-store/checkout');
     await page.waitForTimeout(2000);
     await page.screenshot({ path: 'public/qa-screenshots/checkout-page.png', fullPage: true });
   });

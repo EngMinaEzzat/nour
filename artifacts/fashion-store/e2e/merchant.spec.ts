@@ -6,7 +6,7 @@ test.describe('Merchant Flow', () => {
     await page.route('**/api/auth/me', async (route) => {
       await route.fulfill({
         status: 200,
-        json: { id: 1, email: 'admin@example.com', role: 'tenant_admin', tenantId: 1 }
+        json: { id: 1, email: 'admin@example.com', role: 'owner', name: 'Admin', storeName: 'Test Store', slug: 'test-store', tenantId: 1 }
       });
     });
 
@@ -32,7 +32,7 @@ test.describe('Merchant Flow', () => {
     await page.waitForTimeout(2000);
     await page.screenshot({ path: 'public/qa-screenshots/dashboard-home.png', fullPage: true });
 
-    await page.goto('/dashboard/products');
+    await page.goto('/products');
     await page.waitForTimeout(2000);
     await page.screenshot({ path: 'public/qa-screenshots/dashboard-products.png', fullPage: true });
   });
