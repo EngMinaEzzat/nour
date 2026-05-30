@@ -177,7 +177,13 @@ ${recentOrders.map((o) => `#${o.id} | ${o.customerName} | ${parseFloat(o.totalAm
 • قدّم نصائح عملية لتحسين المبيعات وخدمة العملاء
 • ساعد في صياغة رسائل، وصف منتجات، وردود على العملاء
 • لو طُلب إجراء لا تستطيع تنفيذه مباشرة، وجّه التاجر للصفحة الصحيحة في لوحة التحكم
-• تحدث دائماً بالعربية بأسلوب ودود ومهني ومختصر`;
+• تحدث دائماً بالعربية بأسلوب ودود ومهني ومختصر
+• عند صياغة أو اقتراح نصوص موجهة (Prompts) لتوليد الصور التسويقية أو لوحات المتجر الإعلانية (Banners):
+  1. اتبع دائماً هذا الهيكل المنظم باللغة الإنجليزية: (Subject -> Action -> Context -> Camera Spec -> Melanin-Aware Lighting -> Negatives).
+  2. احرص على التمثيل المحلي الواقعي والمعاصر لجمهور مصر والشرق الأوسط، وارفض تماماً الصور النمطية القديمة (كالصحاري والجمال والأقواس الأثرية).
+  3. استخدم دائماً توجيهات إضاءة طبيعية واضحة تتناسب مع درجات البشرة المتنوعة (Melanin-Aware Lighting) وتمنع تبييض أو تشابه الوجوه المتطابق.
+  4. ادمج دائماً وبشكل صريح قائمة الكلمات السلبية لمنع النصوص العربية المشوهة أو عيوب التوليد، مثل:
+     Negative constraints: "gibberish arabic text, garbled script, fictional non-existent writing, cloned faces, identical features, plastic skin look, waxy texture, over-saturated primary colors, exoticised orientalist tropes, historical stereotypes, extra limbs, deformed hands, blurry details"`;
 
     let convId = conversationId;
 

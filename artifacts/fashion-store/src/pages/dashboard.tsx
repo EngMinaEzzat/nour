@@ -55,24 +55,28 @@ function KPICard({
   icon: React.ElementType; color: string; trend?: number;
 }) {
   return (
-    <motion.div variants={stagger.item}>
-      <Card className="border-border/50 hover:shadow-lg transition-all duration-300 overflow-hidden relative group">
-        <div className={`absolute inset-x-0 top-0 h-1 ${color} opacity-60 group-hover:opacity-100 transition-opacity`} />
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
+    <motion.div
+      variants={stagger.item}
+      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 350, damping: 25 }}
+    >
+      <Card className="border-border/60 hover:border-primary/30 bg-card/60 backdrop-blur-md shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden relative group">
+        <div className={`absolute inset-y-0 start-0 w-1.5 ${color} opacity-80 group-hover:opacity-100 transition-opacity`} />
+        <CardContent className="p-5 ps-6">
+          <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-muted-foreground mb-1 font-medium">{label}</p>
-              <p className="text-xl font-bold text-foreground truncate">{value}</p>
-              {sub && <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>}
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1 font-bold">{label}</p>
+              <p className="text-2xl font-black text-foreground truncate tracking-tight">{value}</p>
+              {sub && <p className="text-xs text-muted-foreground/80 mt-1 font-medium leading-relaxed">{sub}</p>}
               {trend !== undefined && (
-                <div className={`flex items-center gap-1 mt-1.5 text-xs font-medium ${trend >= 0 ? "text-green-600" : "text-red-500"}`}>
-                  <ArrowUpRight className={`w-3 h-3 ${trend < 0 ? "rotate-180" : ""}`} />
-                  {label === "thisMonth" ? undefined : trend}
+                <div className={`flex items-center gap-1 mt-2 text-xs font-semibold ${trend >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}>
+                  <ArrowUpRight className={`w-3.5 h-3.5 ${trend < 0 ? "rotate-180" : ""}`} strokeWidth={2.5} />
+                  <span>{trend >= 0 ? "+" : ""}{trend}%</span>
                 </div>
               )}
             </div>
-            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 shrink-0">
-              <Icon className="w-4 h-4 text-primary" />
+            <div className="p-3 rounded-xl bg-primary/10 dark:bg-primary/20 shrink-0 group-hover:bg-primary/20 transition-colors">
+              <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
             </div>
           </div>
         </CardContent>
@@ -83,14 +87,23 @@ function KPICard({
 
 function EmptyChart({ height = 200, t }: { height?: number; t: any }) {
   return (
-    <div
-      className="flex flex-col items-center justify-center text-muted-foreground/40 border-2 border-dashed border-border/30 rounded-xl"
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center justify-center text-muted-foreground/60 border border-dashed border-border/60 rounded-2xl bg-muted/10 p-6 text-center"
       style={{ height }}
     >
-      <BarChart2 className="w-10 h-10 mb-2" />
-      <p className="text-sm">{t("dashboard.kpi.noData")}</p>
-      <p className="text-xs mt-1">{t("dashboard.kpi.noDataSub")}</p>
-    </div>
+      <motion.div
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className="mb-3 p-3 rounded-full bg-primary/5 text-primary shrink-0"
+      >
+        <BarChart2 className="w-8 h-8" strokeWidth={1.5} />
+      </motion.div>
+      <h3 className="text-sm font-bold text-foreground mb-1 leading-normal px-4">{t("dashboard.kpi.noData")}</h3>
+      <p className="text-xs text-muted-foreground/80 leading-relaxed max-w-[280px] px-4">{t("dashboard.kpi.noDataSub")}</p>
+    </motion.div>
   );
 }
 

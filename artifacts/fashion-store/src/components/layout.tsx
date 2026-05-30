@@ -8,7 +8,7 @@ import {
   Menu, LogOut, LogIn, UserCog, X, Settings, ShieldCheck,
   BarChart2, Truck, Bell, RotateCcw, Zap, CreditCard, Globe,
   Download, TrendingUp, Ticket, Star, ShoppingCart, AlertTriangle, Facebook, Wand2,
-  ChevronDown, ChevronRight, Link as LinkIcon, Eye
+  ChevronDown, ChevronRight, ChevronLeft, Link as LinkIcon, Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslation } from "react-i18next";
 import { getStoreUrl } from "@/lib/utils";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -144,6 +145,18 @@ export function Layout({ children }: { children: ReactNode }) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const { isAuthenticated, logout, merchant } = useAuth();
   const { t, i18n } = useTranslation();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("sidebar-collapsed") === "true";
+    }
+    return false;
+  });
+
+  const toggleSidebar = () => {
+    const newVal = !sidebarCollapsed;
+    setSidebarCollapsed(newVal);
+    localStorage.setItem("sidebar-collapsed", String(newVal));
+  };
 
   const merchantNav = getMerchantNav(merchant ?? null);
   const tenantId = merchant?.tenantId;
@@ -215,193 +228,442 @@ export function Layout({ children }: { children: ReactNode }) {
     i18n.changeLanguage(nextLang);
   };
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* ─── Header ─── */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center px-4 gap-4">
+  const renderSidebarNav = (isCollapsed: boolean) => {
+    return merchantNav.map((group) => {
+      const groupTitle = t(group.title) === group.title ? group.fallback : t(group.title);
 
-          {/* Hamburger menu trigger (all screen sizes) */}
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-11 w-11" aria-label={t("layout.menu") || "Menu"}>
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side={i18n.dir() === 'rtl' ? 'right' : 'left'} className="w-72 p-0 flex flex-col">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 shrink-0">
-                <Link href="/" onClick={() => setMobileOpen(false)}>
-                  <span className="text-2xl font-bold text-primary">{t("common.appName")}</span>
-                </Link>
-                <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => setMobileOpen(false)} aria-label={t("common.buttons.close", "Close")}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-col p-4 space-y-1 overflow-y-auto flex-1">
-                {isAuthenticated ? (
-                  <>
-                    <div className="flex flex-col mb-4">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 border-b border-border/40 pb-3 mb-2 flex items-center justify-between">
-                        {merchant?.name ?? t("layout.myStore")}
-                        {merchant?.slug && (
-                           <a href={getStoreUrl(merchant.slug)} target="_blank" rel="noreferrer" className="text-primary flex items-center gap-1 normal-case hover:underline">
-                             <Store className="w-3 h-3" />
-                             {t("layout.myStore")}
-                           </a>
-                        )}
-                      </p>
-                    </div>
+      if (group.advanced) {
+        return (
+          <div key={group.title} className="mt-4 shrink-0">
+            {!isCollapsed ? (
+              <button
+                onClick={() => setAdvancedOpen(!advancedOpen)}
+                aria-expanded={advancedOpen}
+                className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider hover:bg-muted/50 rounded-lg transition-colors"
+              >
+                {groupTitle}
+                {advancedOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </button>
+            ) : (
+              <div className="h-px bg-border/40 my-2 mx-3" />
+            )}
+            
+            <AnimatePresence initial={false}>
+              {(!isCollapsed ? advancedOpen : true) && (
+                <motion.div
+                  initial={!isCollapsed ? { height: 0, opacity: 0 } : undefined}
+                  animate={!isCollapsed ? { height: "auto", opacity: 1 } : undefined}
+                  exit={!isCollapsed ? { height: 0, opacity: 0 } : undefined}
+                  className={`overflow-hidden flex flex-col space-y-1 mt-1 ${
+                    !isCollapsed ? "pe-2 border-e-2 me-4 border-border/40" : ""
+                  }`}
+                >
+                  {group.items.map((item) => {
+                    const active = isActive(item.href);
+                    const Icon = item.icon;
+                    const label = item.name === "common.pricing" ? "Subscription / Plans" : t(item.name);
+                    const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors relative ${
+                      active
+                        ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    } ${isCollapsed ? "justify-center" : ""}`;
 
-                    {merchantNav.map((group, groupIdx) => {
-                      const groupTitle = t(group.title) === group.title ? group.fallback : t(group.title);
-                      
-                      if (group.advanced) {
-                        return (
-                          <div key={group.title} className="mt-4">
-                            <button
-                              onClick={() => setAdvancedOpen(!advancedOpen)}
-                              aria-expanded={advancedOpen}
-                              className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:bg-muted/50 rounded-lg transition-colors"
-                            >
-                              {groupTitle}
-                              {advancedOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-                            </button>
-                            <AnimatePresence>
-                              {advancedOpen && (
-                                <motion.div
-                                  initial={{ height: 0, opacity: 0 }}
-                                  animate={{ height: "auto", opacity: 1 }}
-                                  exit={{ height: 0, opacity: 0 }}
-                                  className={`overflow-hidden flex flex-col space-y-1 mt-1 pe-2 border-e-2 me-4 border-border/40`}
-                                >
-                                  {group.items.map((item) => {
-                                    const active = isActive(item.href);
-                                    const Icon = item.icon;
-                                    const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                                      active
-                                        ? "bg-primary text-primary-foreground"
-                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                    }`;
+                    const badgeCount = (item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).reduce(
+                      (acc, key) => acc + (navBadges[key] || 0),
+                      0
+                    );
 
-                                    const badge = getBadge(item);
-                                    const label = item.name === "common.pricing" ? "Subscription / Plans" : t(item.name);
-                                    return (
-                                      <Link
-                                        key={item.name}
-                                        href={item.href}
-                                        onClick={() => setMobileOpen(false)}
-                                        className={className}
-                                        aria-current={active ? "page" : undefined}
-                                      >
-                                        <Icon className="h-4 w-4" />
-                                        <span>{label}</span>
-                                        <div className="ms-auto flex items-center gap-1">
-                                          {(item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).map((key) => (
-                                            <NavUrgencyBadge
-                                              key={key}
-                                              count={navBadges[key]}
-                                              label={key}
-                                              icon={BADGE_CONFIG[key]?.icon}
-                                              colorClass={BADGE_CONFIG[key]?.colorClass}
-                                            />
-                                          ))}
-                                        </div>
-                                      </Link>
-                                    );
-                                  })}
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <div key={group.title} className="mb-4">
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
-                            {groupTitle}
-                          </p>
-                          <div className="flex flex-col space-y-1">
-                            {group.items.map((item) => {
-                              const active = isActive(item.href);
-                              const Icon = item.icon;
-                              const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                                active
-                                  ? "bg-primary text-primary-foreground"
-                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                              }`;
-
-                              const badge = getBadge(item);
-                              const label = item.name === "common.pricing" ? "Subscription / Plans" : t(item.name);
-                              return (
-                                <Link
-                                  key={item.name}
-                                  href={item.href}
-                                  onClick={() => setMobileOpen(false)}
-                                  className={className}
-                                  aria-current={active ? "page" : undefined}
-                                >
-                                  <Icon className="h-4 w-4" />
-                                  <span>{label}</span>
-                                  <div className="ms-auto flex items-center gap-1">
-                                    {(item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).map((key) => (
-                                      <NavUrgencyBadge
-                                        key={key}
-                                        count={navBadges[key]}
-                                        label={key}
-                                        icon={BADGE_CONFIG[key]?.icon}
-                                        colorClass={BADGE_CONFIG[key]?.colorClass}
-                                      />
-                                    ))}
-                                  </div>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <div className="pt-4 border-t border-border/40 mt-2">
-                      <button
-                        onClick={() => { logout(); setMobileOpen(false); }}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors w-full"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        {t("common.buttons.logout")}
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {PUBLIC_NAV.map((item) => (
+                    const content = (
                       <Link
                         key={item.name}
                         href={item.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        className={className}
+                        aria-current={active ? "page" : undefined}
                       >
-                        {t(item.name)}
+                        <motion.div
+                          whileHover={{ rotate: 8, scale: 1.15, y: -1 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                          className="shrink-0"
+                        >
+                          <Icon className="h-4 w-4" />
+                        </motion.div>
+                        {!isCollapsed && <span>{label}</span>}
+                        
+                        {isCollapsed ? (
+                          badgeCount > 0 && (
+                            <span className="absolute top-2.5 end-2.5 w-1.5 h-1.5 rounded-full bg-destructive border border-card" />
+                          )
+                        ) : (
+                          <div className="ms-auto flex items-center gap-1">
+                            {(item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).map((key) => (
+                              <NavUrgencyBadge
+                                key={key}
+                                count={navBadges[key]}
+                                label={key}
+                                icon={BADGE_CONFIG[key]?.icon}
+                                colorClass={BADGE_CONFIG[key]?.colorClass}
+                              />
+                            ))}
+                          </div>
+                        )}
                       </Link>
-                    ))}
-                    <div className="pt-4 border-t border-border/40 mt-2 space-y-2">
-                      <Button className="w-full rounded-xl" asChild>
-                        <Link href="/register" onClick={() => setMobileOpen(false)}>{t("common.buttons.register")}</Link>
-                      </Button>
-                      <Button variant="outline" className="w-full rounded-xl" asChild>
-                        <Link href="/login" onClick={() => setMobileOpen(false)}>
-                          <LogIn className="w-4 h-4 me-1.5" />
-                          {t("common.buttons.login")}
-                        </Link>
-                      </Button>
+                    );
+
+                    if (isCollapsed) {
+                      return (
+                        <Tooltip key={item.name}>
+                          <TooltipTrigger asChild>{content}</TooltipTrigger>
+                          <TooltipContent side={i18n.dir() === "rtl" ? "left" : "right"}>
+                            {label}
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    }
+
+                    return content;
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      }
+
+      return (
+        <div key={group.title} className="mb-4 shrink-0">
+          {!isCollapsed && (
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-3 mb-2">
+              {groupTitle}
+            </p>
+          )}
+          <div className="flex flex-col space-y-1">
+            {group.items.map((item) => {
+              const active = isActive(item.href);
+              const Icon = item.icon;
+              const label = item.name === "common.pricing" ? "Subscription / Plans" : t(item.name);
+              const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors relative ${
+                active
+                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              } ${isCollapsed ? "justify-center" : ""}`;
+
+              const badgeCount = (item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).reduce(
+                (acc, key) => acc + (navBadges[key] || 0),
+                0
+              );
+
+              const content = (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={className}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <motion.div
+                    whileHover={{ rotate: 8, scale: 1.15, y: -1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    className="shrink-0"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </motion.div>
+                  {!isCollapsed && <span>{label}</span>}
+                  
+                  {isCollapsed ? (
+                    badgeCount > 0 && (
+                      <span className="absolute top-2.5 end-2.5 w-1.5 h-1.5 rounded-full bg-destructive border border-card" />
+                    )
+                  ) : (
+                    <div className="ms-auto flex items-center gap-1">
+                      {(item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).map((key) => (
+                        <NavUrgencyBadge
+                          key={key}
+                          count={navBadges[key]}
+                          label={key}
+                          icon={BADGE_CONFIG[key]?.icon}
+                          colorClass={BADGE_CONFIG[key]?.colorClass}
+                        />
+                      ))}
                     </div>
-                  </>
-                )}
+                  )}
+                </Link>
+              );
+
+              if (isCollapsed) {
+                return (
+                  <Tooltip key={item.name}>
+                    <TooltipTrigger asChild>{content}</TooltipTrigger>
+                    <TooltipContent side={i18n.dir() === "rtl" ? "left" : "right"}>
+                      {label}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+
+              return content;
+            })}
+          </div>
+        </div>
+      );
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex">
+      {/* ─── Persistent Desktop Sidebar ─── */}
+      {isAuthenticated && (
+        <motion.aside
+          animate={{ width: sidebarCollapsed ? 68 : 240 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="hidden lg:flex flex-col border-e border-border/40 bg-card h-screen sticky top-0 overflow-y-auto shrink-0 select-none z-40 overflow-x-hidden"
+        >
+          {/* Store Info Banner */}
+          <div className="flex flex-col p-4 border-b border-border/40 shrink-0 h-16 justify-center">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
+                {merchant?.storeName ? merchant.storeName[0].toUpperCase() : "N"}
               </div>
+              {!sidebarCollapsed && (
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-foreground truncate">{merchant?.storeName ?? t("common.appName")}</p>
+                  {merchant?.slug && (
+                    <a
+                      href={getStoreUrl(merchant.slug)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[10px] text-primary flex items-center gap-0.5 hover:underline"
+                    >
+                      <Globe className="w-3 h-3" />
+                      <span>{t("layout.myStore")}</span>
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Navigation Items */}
+          <div className="flex-1 flex flex-col p-4 space-y-1 overflow-y-auto min-h-0">
+            {renderSidebarNav(sidebarCollapsed)}
+          </div>
+
+          {/* Collapse & Logout Buttons */}
+          <div className="mt-auto border-t border-border/40 p-2 flex flex-col gap-1 shrink-0 bg-card">
+            <Button
+              variant="ghost"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-foreground ${
+                sidebarCollapsed ? "justify-center" : "justify-start"
+              }`}
+              onClick={toggleSidebar}
+              title={sidebarCollapsed ? t("layout.expand", "Expand") : t("layout.collapse", "Collapse")}
+            >
+              {sidebarCollapsed ? (
+                i18n.dir() === 'rtl' ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+              ) : (
+                i18n.dir() === 'rtl' ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />
+              )}
+              {!sidebarCollapsed && <span>{t("layout.collapse", "Collapse")}</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 ${
+                sidebarCollapsed ? "justify-center" : "justify-start"
+              }`}
+              onClick={logout}
+              title={t("common.buttons.logout")}
+            >
+              <LogOut className="h-4 w-4" />
+              {!sidebarCollapsed && <span>{t("common.buttons.logout")}</span>}
+            </Button>
+          </div>
+        </motion.aside>
+      )}
+
+      {/* ─── Main Content Stack ─── */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        {/* ─── Header ─── */}
+        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container mx-auto flex h-16 items-center px-4 gap-4">
+
+            {/* Hamburger menu trigger (mobile/tablet only) */}
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-11 w-11 lg:hidden" aria-label={t("layout.menu") || "Menu"}>
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side={i18n.dir() === 'rtl' ? 'right' : 'left'} className="w-72 p-0 flex flex-col">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 shrink-0">
+                  <Link href="/" onClick={() => setMobileOpen(false)}>
+                    <span className="text-2xl font-bold text-primary">{t("common.appName")}</span>
+                  </Link>
+                  <Button variant="ghost" size="icon" className="h-11 w-11" onClick={() => setMobileOpen(false)} aria-label={t("common.buttons.close", "Close")}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex flex-col p-4 space-y-1 overflow-y-auto flex-1">
+                  {isAuthenticated ? (
+                    <>
+                      <div className="flex flex-col mb-4">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 border-b border-border/40 pb-3 mb-2 flex items-center justify-between">
+                          {merchant?.name ?? t("layout.myStore")}
+                          {merchant?.slug && (
+                             <a href={getStoreUrl(merchant.slug)} target="_blank" rel="noreferrer" className="text-primary flex items-center gap-1 normal-case hover:underline">
+                               <Store className="w-3 h-3" />
+                               {t("layout.myStore")}
+                             </a>
+                          )}
+                        </p>
+                      </div>
+
+                      {merchantNav.map((group, groupIdx) => {
+                        const groupTitle = t(group.title) === group.title ? group.fallback : t(group.title);
+                        
+                        if (group.advanced) {
+                          return (
+                            <div key={group.title} className="mt-4">
+                              <button
+                                onClick={() => setAdvancedOpen(!advancedOpen)}
+                                aria-expanded={advancedOpen}
+                                className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:bg-muted/50 rounded-lg transition-colors"
+                              >
+                                {groupTitle}
+                                {advancedOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                              </button>
+                              <AnimatePresence>
+                                {advancedOpen && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden flex flex-col space-y-1 mt-1 pe-2 border-e-2 me-4 border-border/40"
+                                  >
+                                    {group.items.map((item) => {
+                                      const active = isActive(item.href);
+                                      const Icon = item.icon;
+                                      const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                                        active
+                                          ? "bg-primary text-primary-foreground"
+                                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                      }`;
+
+                                      const label = item.name === "common.pricing" ? "Subscription / Plans" : t(item.name);
+                                      return (
+                                        <Link
+                                          key={item.name}
+                                          href={item.href}
+                                          onClick={() => setMobileOpen(false)}
+                                          className={className}
+                                          aria-current={active ? "page" : undefined}
+                                        >
+                                          <Icon className="h-4 w-4" />
+                                          <span>{label}</span>
+                                          <div className="ms-auto flex items-center gap-1">
+                                            {(item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).map((key) => (
+                                              <NavUrgencyBadge
+                                                key={key}
+                                                count={navBadges[key]}
+                                                label={key}
+                                                icon={BADGE_CONFIG[key]?.icon}
+                                                colorClass={BADGE_CONFIG[key]?.colorClass}
+                                              />
+                                            ))}
+                                          </div>
+                                        </Link>
+                                      );
+                                    })}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div key={group.title} className="mb-4">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
+                              {groupTitle}
+                            </p>
+                            <div className="flex flex-col space-y-1">
+                              {group.items.map((item) => {
+                                const active = isActive(item.href);
+                                const Icon = item.icon;
+                                const className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                                  active
+                                    ? "bg-primary text-primary-foreground"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                }`;
+
+                                const label = item.name === "common.pricing" ? "Subscription / Plans" : t(item.name);
+                                return (
+                                  <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    onClick={() => setMobileOpen(false)}
+                                    className={className}
+                                    aria-current={active ? "page" : undefined}
+                                  >
+                                    <Icon className="h-4 w-4" />
+                                    <span>{label}</span>
+                                    <div className="ms-auto flex items-center gap-1">
+                                      {(item.badgeKeys || (item.badgeKey ? [item.badgeKey] : [])).map((key) => (
+                                        <NavUrgencyBadge
+                                          key={key}
+                                          count={navBadges[key]}
+                                          label={key}
+                                          icon={BADGE_CONFIG[key]?.icon}
+                                          colorClass={BADGE_CONFIG[key]?.colorClass}
+                                        />
+                                      ))}
+                                    </div>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div className="pt-4 border-t border-border/40 mt-2">
+                        <button
+                          onClick={() => { logout(); setMobileOpen(false); }}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors w-full"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          {t("common.buttons.logout")}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {PUBLIC_NAV.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        >
+                          {t(item.name)}
+                        </Link>
+                      ))}
+                      <div className="pt-4 border-t border-border/40 mt-2 space-y-2">
+                        <Button className="w-full rounded-xl" asChild>
+                          <Link href="/register" onClick={() => setMobileOpen(false)}>{t("common.buttons.register")}</Link>
+                        </Button>
+                        <Button variant="outline" className="w-full rounded-xl" asChild>
+                          <Link href="/login" onClick={() => setMobileOpen(false)}>
+                            <LogIn className="w-4 h-4 me-1.5" />
+                            {t("common.buttons.login")}
+                          </Link>
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
             </SheetContent>
           </Sheet>
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
+          {/* Logo (mobile/tablet only) */}
+          <Link href="/" className="flex lg:hidden items-center gap-2 shrink-0">
             <motion.span
               className="text-2xl font-bold text-primary"
               whileHover={{ scale: 1.05 }}
@@ -514,6 +776,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 }

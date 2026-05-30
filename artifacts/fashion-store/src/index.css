@@ -112,11 +112,53 @@
   --app-font-mono: Menlo, monospace;
   
   --radius: 0.5rem;
+
+  /* Brand Primary & Helper Variables */
+  --brand-primary: hsl(174, 84%, 41%);
+  --brand-primary-hover: hsl(174, 84%, 35%);
+  --brand-primary-light: hsl(174, 84%, 95%);
+  --brand-primary-dark: hsl(174, 95%, 20%);
+
+  /* Sidebar Layout Metrics */
+  --sidebar-width-expanded: 240px;
+  --sidebar-width-collapsed: 68px;
+
+  /* Typography Families */
+  --brand-font-sans: 'Inter', system-ui, sans-serif;
+  --brand-font-arabic: 'Outfit', 'Noto Sans Arabic', system-ui, sans-serif;
+
+  /* Layout Spacing scale (4px base) */
+  --brand-space-xs: 0.25rem;  /* 4px */
+  --brand-space-sm: 0.5rem;   /* 8px */
+  --brand-space-md: 1.0rem;   /* 16px */
+  --brand-space-lg: 1.5rem;   /* 24px */
+  --brand-space-xl: 2.0rem;   /* 32px */
 }
 
 :root.ltr {
-  --app-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --app-font-sans: var(--brand-font-sans), system-ui, -apple-system, sans-serif;
   --app-font-serif: 'Cormorant Garamond', serif;
+}
+
+/* LTR specific typography line-heights */
+html[dir="ltr"] td,
+html[dir="ltr"] .text-muted-foreground,
+html[dir="ltr"] p,
+html[dir="ltr"] span {
+  line-height: 1.5;
+}
+
+/* RTL (Arabic) specific typography and line-heights */
+html[dir="rtl"] {
+  --app-font-sans: 'Cairo', 'Tajawal', var(--brand-font-arabic), sans-serif;
+  --app-font-serif: 'Cairo', 'Tajawal', var(--brand-font-arabic), sans-serif;
+}
+
+html[dir="rtl"] td,
+html[dir="rtl"] .text-muted-foreground,
+html[dir="rtl"] p,
+html[dir="rtl"] span {
+  line-height: 1.65;
 }
 
 .dark {

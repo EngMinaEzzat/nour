@@ -60,6 +60,7 @@ export function StoreHeader({
       const timer = setTimeout(() => setAnimateBadge(false), 400);
       return () => clearTimeout(timer);
     }
+    return;
   }, [cartCount]);
 
   useEffect(() => {

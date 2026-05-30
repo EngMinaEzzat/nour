@@ -543,8 +543,8 @@
     },
     "kpi": {
       "thisMonth": "This Month",
-      "noData": "No data yet",
-      "noDataSub": "Will appear here when orders arrive",
+      "noData": "No data yet, but your journey is just beginning. Your first sale is right around the corner! ✨",
+      "noDataSub": "This dashboard is ready to showcase your success. Let's get those orders rolling!",
       "plan": "Plan",
       "reachedLimit": "Reached Limit",
       "unlimited": "Unlimited Products",
@@ -585,7 +585,7 @@
       "orderStatus": "Order Status",
       "recentOrders": "Recent Orders",
       "viewAll": "View All",
-      "noOrders": "No orders yet"
+      "noOrders": "All caught up! Time for a quick coffee break ☕"
     },
     "transferRequest": {
       "title": "Submit Bank Transfer Receipt",
