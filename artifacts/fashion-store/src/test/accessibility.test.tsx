@@ -81,7 +81,8 @@ vi.mock('@workspace/api-client-react', () => ({
       name: 'Test Store',
       totalProducts: 5,
       storeConfig: {
-        business: { paymentMethods: ['cod'] },
+        brand: { name: 'Test Store' },
+        business: { whatsapp: '201000000000', paymentMethods: ['cod'] },
         onboarding: { checklist: [] }
       }
     },

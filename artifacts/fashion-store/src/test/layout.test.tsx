@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Layout } from '../components/layout';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { TooltipProvider } from '../components/ui/tooltip';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
@@ -59,9 +60,11 @@ describe('Layout Collapsible Sidebar', () => {
   it('should render expanded by default and store state in localStorage when toggled', async () => {
     render(
       <QueryClientProvider client={queryClient}>
-        <Layout>
-          <div data-testid="child">Dashboard Content</div>
-        </Layout>
+        <TooltipProvider>
+          <Layout>
+            <div data-testid="child">Dashboard Content</div>
+          </Layout>
+        </TooltipProvider>
       </QueryClientProvider>
     );
 
@@ -92,9 +95,11 @@ describe('Layout Collapsible Sidebar', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <Layout>
-          <div data-testid="child">Dashboard Content</div>
-        </Layout>
+        <TooltipProvider>
+          <Layout>
+            <div data-testid="child">Dashboard Content</div>
+          </Layout>
+        </TooltipProvider>
       </QueryClientProvider>
     );
 
@@ -106,9 +111,11 @@ describe('Layout Collapsible Sidebar', () => {
   it('should pass accessibility checks', async () => {
     const { container } = render(
       <QueryClientProvider client={queryClient}>
-        <Layout>
-          <div data-testid="child">Dashboard Content</div>
-        </Layout>
+        <TooltipProvider>
+          <Layout>
+            <div data-testid="child">Dashboard Content</div>
+          </Layout>
+        </TooltipProvider>
       </QueryClientProvider>
     );
 
