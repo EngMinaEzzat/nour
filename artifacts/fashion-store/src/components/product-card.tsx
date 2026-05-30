@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Check, Layers } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
-import { productImageUrl } from "@/lib/image-url";
+import { getResponsiveImageProps } from "@/lib/image-url";
 import { useTranslation } from "react-i18next";
 
 interface ProductCardProps {
@@ -42,7 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-none bg-card group h-full flex flex-col" dir={i18n.dir()}>
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">
           <img
-            src={productImageUrl(product.imageUrl)}
+            {...getResponsiveImageProps(product.imageUrl)}
             alt={product.name}
             width={600}
             height={800}

@@ -41,6 +41,7 @@ import affiliatesRouter from "./affiliates";
 import seoRouter from "./seo";
 import egyptRouter from "./egypt";
 import privacyRouter from "./privacy";
+import imagesRouter from "./images";
 
 // Subscription enforcement is built into requireRole() in require-role.ts —
 // every route that calls requireRole() automatically checks the tenant's subscription status.
@@ -79,6 +80,7 @@ router.use(exportsRouter);
 router.use(auditRouter);
 router.use(storeSettingsRouter);
 router.use(uploadsRouter);
+router.use(imagesRouter);
 router.use(discountsRouter);
 router.use(reviewsRouter);
 router.use(abandonedCartsRouter);

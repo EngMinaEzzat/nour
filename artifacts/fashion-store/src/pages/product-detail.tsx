@@ -14,11 +14,10 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { SEO } from "@/components/seo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
-import { productImageUrl } from "@/lib/image-url";
+import { productImageUrl, getResponsiveImageProps } from "@/lib/image-url";
 import { formatCurrency } from "@/lib/ui-format";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -318,28 +317,6 @@ export default function ProductDetail() {
 
   return (
     <div className="container mx-auto px-4 py-8 pb-24" dir={i18n.dir()}>
-      <SEO 
-        title={seoTitle}
-        description={seoDesc}
-        image={seoImage}
-        url={window.location.href}
-        type="product"
-        schema={product ? {
-          "@context": "https://schema.org/",
-          "@type": "Product",
-          "name": product.name,
-          "image": [seoImage],
-          "description": seoDesc,
-          "sku": product.id.toString(),
-          "offers": {
-            "@type": "Offer",
-            "url": window.location.href,
-            "priceCurrency": "EGP",
-            "price": product.price,
-            "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-          }
-        } : undefined}
-      />
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <Button variant="ghost" size="sm" asChild className="mb-6 -ms-2">
           <Link href={backHref}><ChevronRight className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-1" : "ms-1 rotate-180"}`} /> {t("productDetail.backToProducts")}</Link>
@@ -351,7 +328,7 @@ export default function ProductDetail() {
         <motion.div className="w-full lg:w-1/2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
           <div className="aspect-[3/4] bg-muted rounded-3xl overflow-hidden relative border border-border/50">
             <img
-              src={imageUrl}
+              {...getResponsiveImageProps(imageUrl)}
               alt={product.name}
               width={900}
               height={1200}
@@ -382,7 +359,7 @@ export default function ProductDetail() {
                   aria-label={t("productDetail.galleryImage", { index: index + 1 })}
                   aria-current={url === imageUrl ? "true" : undefined}
                 >
-                  <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img {...getResponsiveImageProps(url)} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </button>
               ))}
             </div>

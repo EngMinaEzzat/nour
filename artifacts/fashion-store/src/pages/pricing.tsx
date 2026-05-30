@@ -6,6 +6,7 @@ import { Link } from "wouter";
 import { Check, Zap, TrendingUp, Crown, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
+import { SEO } from "@/components/seo";
 
 const PLAN_ICONS: Record<string, React.ElementType> = {
   starter: Zap,
@@ -51,7 +52,18 @@ export default function Pricing() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir={i18n.dir()}>
+      <SEO 
+        title={t("pricing.title") + " — نور"}
+        description={t("pricing.subtitle")}
+        url={window.location.href}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": t("pricing.title"),
+          "description": t("pricing.subtitle")
+        }}
+      />
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-b from-primary/5 via-background to-background pt-16 pb-10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_60%)]" />

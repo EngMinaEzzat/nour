@@ -36,10 +36,11 @@ export const tenantsTable = pgTable("tenants", {
   customDomainVerified: boolean("custom_domain_verified").notNull().default(false),
   storeConfig: jsonb("store_config"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [
   index("idx_tenants_slug").on(table.slug)
 ]);
 
-export const insertTenantSchema = createInsertSchema(tenantsTable).omit({ id: true, createdAt: true });
+export const insertTenantSchema = createInsertSchema(tenantsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertTenant = z.infer<typeof insertTenantSchema>;
 export type Tenant = typeof tenantsTable.$inferSelect;

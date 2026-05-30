@@ -9,9 +9,12 @@ interface SEOProps {
   schema?: any;
   price?: number;
   availability?: string;
+  noindex?: boolean;
+  imageWidth?: string;
+  imageHeight?: string;
 }
 
-export function SEO({ title, description, image, url, type = "website", schema, price, availability }: SEOProps) {
+export function SEO({ title, description, image, url, type = "website", schema, price, availability, noindex, imageWidth, imageHeight }: SEOProps) {
   const siteName = "Nour Platform"; // Or could be passed via context
   
   return (
@@ -19,12 +22,15 @@ export function SEO({ title, description, image, url, type = "website", schema, 
       {/* Primary Meta Tags */}
       <title>{title}</title>
       {description && <meta name="description" content={description} />}
+      {noindex && <meta name="robots" content="noindex,nofollow" />}
 
       {/* Open Graph / Facebook / WhatsApp */}
       <meta property="og:type" content={type} />
       <meta property="og:title" content={title} />
       {description && <meta property="og:description" content={description} />}
       {image && <meta property="og:image" content={image} />}
+      {image && imageWidth && <meta property="og:image:width" content={imageWidth} />}
+      {image && imageHeight && <meta property="og:image:height" content={imageHeight} />}
       {url && <meta property="og:url" content={url} />}
       <meta property="og:site_name" content={siteName} />
 

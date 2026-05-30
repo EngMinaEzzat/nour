@@ -6,7 +6,7 @@ import { ShoppingBag, Check, Layers, Heart, Star } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetProductQueryKey } from "@workspace/api-client-react";
 import { publicEntitySlug } from "@/lib/seo-slugs";
-import { productImageUrl } from "@/lib/image-url";
+import { productImageUrl, getResponsiveImageProps } from "@/lib/image-url";
 import { getStoreUrl } from "@/lib/utils";
 import { formatCurrency } from "@/lib/ui-format";
 
@@ -117,7 +117,7 @@ export function StorefrontProductCard({
   const imageContent = (
     <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-stone-100`}>
           <img
-            src={imageUrl}
+            {...getResponsiveImageProps(product.imageUrl)}
             alt={product.name}
             width={600}
             height={800}

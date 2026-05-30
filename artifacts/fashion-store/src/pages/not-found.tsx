@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Home, Compass, ShoppingBag } from "lucide-react";
+import { SEO } from "@/components/seo";
 
 export default function NotFound() {
   const { t, i18n } = useTranslation();
@@ -10,6 +11,7 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center px-4 relative overflow-hidden" dir={i18n.dir()}>
+      <SEO title="Not Found — Nour" noindex />
       {/* Decorative soft-pink blur backgrounds */}
       <div className="absolute top-10 left-10 w-32 h-32 bg-rose-100 rounded-full blur-3xl opacity-60 animate-pulse" />
       <div className="absolute bottom-10 right-10 w-40 h-40 bg-[#8B1A35]/5 rounded-full blur-3xl opacity-60" />

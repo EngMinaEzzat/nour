@@ -377,19 +377,24 @@ function renderDocument(opts: {
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(opts.title)}</title>
   <meta name="description" content="${esc(opts.description)}" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${esc(opts.canonical)}" />
+  <link rel="alternate" hreflang="ar" href="${esc(opts.canonical)}" />
+  <link rel="alternate" hreflang="en" href="${esc(opts.canonical)}?lang=en" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" />
   ${preload}
   <meta property="og:type" content="${opts.ogType ?? "website"}" />
   <meta property="og:title" content="${esc(opts.title)}" />
   <meta property="og:description" content="${esc(opts.description)}" />
-  ${opts.image ? `<meta property="og:image" content="${esc(opts.image)}" />` : ""}
+  ${opts.image ? `<meta property="og:image" content="${esc(opts.image)}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />` : ""}
   <meta property="og:url" content="${esc(opts.canonical)}" />
   <meta property="og:locale" content="ar_EG" />
-  <meta property="og:site_name" content="نــور" />
+  <meta property="og:site_name" content="نور" />
   <meta name="twitter:card" content="${twitterCard}" />
   <meta name="twitter:title" content="${esc(opts.title)}" />
   <meta name="twitter:description" content="${esc(opts.description)}" />
@@ -481,10 +486,11 @@ function renderStorePage(req: Request, tenant: TenantPublic, products: ProductPu
   const cards = products
     .map((product, index) => {
       const productImage = absoluteUrl(req, productImageUrl(product.imageUrl));
+      const srcset = productImage && productImage.startsWith(requestBase(req)) ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"` : "";
       const availability = product.stock > 0 ? "متاح" : "نفذت الكمية";
       const imagePriority = index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
       return `<a class="ssr-card" href="${esc(productUrl(req, tenant, product))}">
-        <img src="${esc(productImage)}" alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
+        <img src="${esc(productImage)}" ${srcset} alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
         <div class="ssr-card-body">
           ${product.categoryNameAr || product.categoryName ? `<p class="ssr-muted">${esc(product.categoryNameAr || product.categoryName)}</p>` : ""}
           <h2 class="ssr-card-title">${esc(product.name)}</h2>
@@ -538,6 +544,11 @@ function renderProductPage(req: Request, tenant: TenantPublic, product: ProductP
         "@type": "Product",
         name: product.name,
         description,
+        sku: String(product.id),
+        brand: {
+          "@type": "Brand",
+          name: tenant.name
+        },
         url: canonical,
         ...(image ? { image } : {}),
         ...(categoryName ? { category: categoryName } : {}),
@@ -565,10 +576,12 @@ function renderProductPage(req: Request, tenant: TenantPublic, product: ProductP
     ],
   };
 
+  const srcset = image && image.startsWith(requestBase(req)) ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(image).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(image).pathname)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"` : "";
+
   const body = `<main class="ssr-public-page">
     <section class="ssr-wrap ssr-product">
       <div>
-        <img src="${esc(image)}" alt="${esc(product.name)}" width="900" height="1200" fetchpriority="high" />
+        <img src="${esc(image)}" ${srcset} alt="${esc(product.name)}" width="900" height="1200" fetchpriority="high" />
       </div>
       <article>
         <p class="ssr-kicker"><a href="${esc(storeUrl(req, tenant))}">${esc(tenant.name)}</a>${categoryName ? ` / ${esc(categoryName)}` : ""}</p>
@@ -608,9 +621,10 @@ function renderCategoryPage(
   const cards = products
     .map((product, index) => {
       const productImage = absoluteUrl(req, productImageUrl(product.imageUrl));
+      const srcset = productImage && productImage.startsWith(requestBase(req)) ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"` : "";
       const imagePriority = index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
       return `<a class="ssr-card" href="${esc(productUrl(req, tenant, product))}">
-        <img src="${esc(productImage)}" alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
+        <img src="${esc(productImage)}" ${srcset} alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
         <div class="ssr-card-body">
           <h2 class="ssr-card-title">${esc(product.name)}</h2>
           <p class="ssr-price">${esc(formatPrice(product.price))}</p>
@@ -768,6 +782,20 @@ router.get("/robots.txt", (req, res) => {
 });
 
 router.get("/sitemap.xml", async (req, res) => {
+  const base = requestBase(req);
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${esc(base)}/sitemap-1.xml</loc>
+  </sitemap>
+</sitemapindex>`;
+
+  res.type("application/xml");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.send(xml);
+});
+
+router.get("/sitemap-1.xml", async (req, res) => {
   try {
     const tenants = await db
       .select({
@@ -784,7 +812,7 @@ router.get("/sitemap.xml", async (req, res) => {
         status: tenantsTable.status,
         customDomain: tenantsTable.customDomain,
         customDomainVerified: tenantsTable.customDomainVerified,
-        createdAt: tenantsTable.createdAt,
+        updatedAt: tenantsTable.updatedAt,
       })
       .from(tenantsTable)
       .where(eq(tenantsTable.status, "active"));
@@ -795,7 +823,7 @@ router.get("/sitemap.xml", async (req, res) => {
         name: productsTable.name,
         tenantId: productsTable.tenantId,
         categoryId: productsTable.categoryId,
-        createdAt: productsTable.createdAt,
+        updatedAt: productsTable.updatedAt,
       })
       .from(productsTable)
       .where(eq(productsTable.status, "active"));
@@ -810,7 +838,7 @@ router.get("/sitemap.xml", async (req, res) => {
       })
       .from(categoriesTable);
 
-    const tenantMap = new Map(tenants.map((tenant) => [tenant.id, tenant as TenantPublic & { createdAt: Date }]));
+    const tenantMap = new Map(tenants.map((tenant) => [tenant.id, tenant as TenantPublic & { updatedAt: Date }]));
     const categoryMap = new Map(categories.map((category) => [category.id, category]));
     const seenCategoryTenant = new Set<string>();
     const now = new Date().toISOString().split("T")[0];
@@ -826,7 +854,7 @@ router.get("/sitemap.xml", async (req, res) => {
     for (const tenant of tenants) {
       urls.push(`  <url>
     <loc>${esc(storeUrl(req, tenant as TenantPublic))}</loc>
-    <lastmod>${tenant.createdAt ? new Date(tenant.createdAt).toISOString().split("T")[0] : now}</lastmod>
+    <lastmod>${tenant.updatedAt ? new Date(tenant.updatedAt).toISOString().split("T")[0] : now}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>`);
@@ -837,7 +865,7 @@ router.get("/sitemap.xml", async (req, res) => {
       if (!tenant) continue;
       urls.push(`  <url>
     <loc>${esc(productUrl(req, tenant, product))}</loc>
-    <lastmod>${product.createdAt ? new Date(product.createdAt).toISOString().split("T")[0] : now}</lastmod>
+    <lastmod>${product.updatedAt ? new Date(product.updatedAt).toISOString().split("T")[0] : now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`);
@@ -850,7 +878,7 @@ router.get("/sitemap.xml", async (req, res) => {
             seenCategoryTenant.add(key);
             urls.push(`  <url>
     <loc>${esc(categoryUrl(req, tenant, category))}</loc>
-    <lastmod>${product.createdAt ? new Date(product.createdAt).toISOString().split("T")[0] : now}</lastmod>
+    <lastmod>${product.updatedAt ? new Date(product.updatedAt).toISOString().split("T")[0] : now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.65</priority>
   </url>`);

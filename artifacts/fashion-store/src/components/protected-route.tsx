@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -23,5 +24,12 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!isAuthenticated) return null;
 
-  return <>{children}</>;
+  return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
+      {children}
+    </>
+  );
 }

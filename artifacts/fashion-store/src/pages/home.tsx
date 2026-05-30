@@ -11,6 +11,7 @@ import {
   ChevronLeft, Star,
 } from "lucide-react";
 import { getBaseDomain } from "@/lib/utils";
+import { SEO } from "@/components/seo";
 
 /* ─── animated counter ─── */
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
@@ -69,6 +70,17 @@ export default function Home() {
 
   return (
     <div className="flex flex-col" dir={i18n.dir()}>
+      <SEO 
+        title={i18n.language === "ar" ? "نور — إنشاء متجرك الإلكتروني في ثوانٍ" : "Nour — Create your online store in seconds"}
+        description={i18n.language === "ar" ? "منصة نور للتجارة الإلكترونية تتيح لك إطلاق متجرك الخاص بسهولة وسرعة." : "Nour e-commerce platform allows you to launch your own store easily and quickly."}
+        url={window.location.href}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "نور",
+          "url": window.location.origin
+        }}
+      />
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5 pt-20 pb-28">
         <div className="absolute inset-0 -z-10">

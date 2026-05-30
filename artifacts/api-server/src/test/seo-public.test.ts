@@ -62,6 +62,9 @@ describe("Public storefront SSR and SEO", () => {
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toContain("text/html");
     expect(res.text).toContain(ctx.storeName);
+    expect(res.text).toContain(`rel="alternate" hreflang="ar"`);
+    expect(res.text).toContain(`rel="alternate" hreflang="en"`);
+    expect(res.text).toContain(`rel="preload" as="style" href="https://fonts.googleapis.com`);
     expect(res.text).toContain(product.name);
     expect(res.text).not.toContain(hiddenProduct.name);
     expect(res.text).toContain(`rel="canonical"`);
@@ -81,7 +84,10 @@ describe("Public storefront SSR and SEO", () => {
     expect(res.text).toContain("499");
     expect(res.text).toContain("InStock");
     expect(res.text).toContain("/uploads/lcp-dress.webp");
+    expect(res.text).toContain('srcset="/api/images/resize');
     expect(res.text).toContain('"@type":"Product"');
+    expect(res.text).toContain('"sku":"' + product.id + '"');
+    expect(res.text).toContain('"brand":{');
     expect(res.text).toContain("BreadcrumbList");
   });
 
@@ -97,9 +103,13 @@ describe("Public storefront SSR and SEO", () => {
     expect(res.text).toContain("ItemList");
   });
 
-  it("keeps sitemap public-only and keeps admin/API routes out", async () => {
-    const res = await request(app).get("/sitemap.xml");
+  it("keeps sitemap public-only and handles sitemap chunking", async () => {
+    const resIndex = await request(app).get("/sitemap.xml");
+    expect(resIndex.status).toBe(200);
+    expect(resIndex.text).toContain("<sitemapindex");
+    expect(resIndex.text).toContain("/sitemap-1.xml");
 
+    const res = await request(app).get("/sitemap-1.xml");
     expect(res.status).toBe(200);
     expect(res.text).toContain(`/store/${ctx.slug}`);
     expect(res.text).toContain(`/store/${ctx.slug}/product/${publicSlug(product.id, product.name)}`);

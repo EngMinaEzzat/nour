@@ -24,6 +24,7 @@ export const productsTable = pgTable(
     orderCount: integer("order_count").notNull().default(0),
     lowStockThreshold: integer("low_stock_threshold"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [
     // High-traffic: product listing by status per tenant
@@ -46,7 +47,7 @@ export const productVariantsTable = pgTable("product_variants", {
   index("idx_product_variants_product_id").on(table.productId)
 ]);
 
-export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true, orderCount: true });
+export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true, updatedAt: true, orderCount: true });
 export const insertProductVariantSchema = createInsertSchema(productVariantsTable).omit({ id: true, createdAt: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type InsertProductVariant = z.infer<typeof insertProductVariantSchema>;
