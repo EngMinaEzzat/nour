@@ -182,7 +182,7 @@ function CategoryForm({
           <Label>{t("categories.form.parentLabel")}</Label>
           <Select
             value={form.parentId?.toString() ?? "none"}
-            onValueChange={(value) => setForm((current) => ({ ...current, parentId: value === "none" ? null : Number(value) }))}
+            onValueChange={(value) => setForm((current) => ({ ...current, parentId: value === "none" ? null : Number(value), imageUrl: value !== "none" ? "" : current.imageUrl }))}
           >
             <SelectTrigger>
               <SelectValue placeholder={t("categories.form.parentPlaceholder")} />
@@ -197,11 +197,13 @@ function CategoryForm({
         </div>
       </div>
 
-      <ImageUpload
-        label={t("categories.form.imageLabel")}
-        value={form.imageUrl}
-        onChange={(imageUrl) => setForm((current) => ({ ...current, imageUrl }))}
-      />
+      {form.parentId === null && (
+        <ImageUpload
+          label={t("categories.form.imageLabel")}
+          value={form.imageUrl}
+          onChange={(imageUrl) => setForm((current) => ({ ...current, imageUrl }))}
+        />
+      )}
 
       {error && <p className="text-sm text-destructive font-medium">{error}</p>}
 
@@ -234,23 +236,26 @@ export default function Categories() {
   ) || [];
 
   const renderCategoryCard = (cat: Category) => {
+    const isRoot = !cat.parentId;
     const canEdit = isAuthenticated && (cat as Category & { tenantId?: number | null }).tenantId !== null;
     return (
       <motion.div key={cat.id} variants={stagger.item} className="h-full">
         <Card className="border-border/50 overflow-hidden hover:shadow-sm transition-shadow h-full flex flex-col">
-          <div className="relative h-36 bg-muted shrink-0">
-            {cat.imageUrl ? (
-              <img
-                src={productImageUrl(cat.imageUrl)}
-                alt={cat.nameAr}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-primary/10">
-                <ImageIcon className="w-10 h-10 text-primary/40" />
-              </div>
-            )}
-          </div>
+          {(cat.imageUrl || isRoot) && (
+            <div className="relative h-36 bg-muted shrink-0">
+              {cat.imageUrl ? (
+                <img
+                  src={productImageUrl(cat.imageUrl)}
+                  alt={cat.nameAr}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-primary/10">
+                  <ImageIcon className="w-10 h-10 text-primary/40" />
+                </div>
+              )}
+            </div>
+          )}
           <CardContent className="p-4 flex flex-col flex-1">
             <div className="flex items-start justify-between gap-3 mb-2">
               <div className="min-w-0">
@@ -329,14 +334,14 @@ export default function Categories() {
           
           <AccordionContent className="p-4 bg-muted/30 border-t">
             {children.length > 0 ? (
-              <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {children.map((child) => {
                   const grandChildren = childrenMap.get(child.id) || [];
                   if (grandChildren.length > 0) {
-                    return <CategoryAccordionNode key={child.id} category={child} />;
+                    return <div key={child.id} className="col-span-full"><CategoryAccordionNode category={child} /></div>;
                   }
                   return (
-                    <div key={child.id} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+                    <div key={child.id} className="w-full h-full">
                       {renderCategoryCard(child)}
                     </div>
                   );
