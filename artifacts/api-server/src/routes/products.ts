@@ -118,6 +118,7 @@ async function fetchProductsWithJoin(conditions: ReturnType<typeof and>[]) {
       status: productsTable.status,
       orderCount: productsTable.orderCount,
       createdAt: productsTable.createdAt,
+      isSample: productsTable.isSample,
       hasVariants: exists(
         db.select({ id: productVariantsTable.id })
           .from(productVariantsTable)
@@ -396,6 +397,157 @@ router.post(
       res.status(500).json({ error: "فشل إنشاء المنتج" });
     }
   },
+);
+
+router.post(
+  "/products/seed-samples",
+  requireRole("owner", "manager", "staff"),
+  async (req, res) => {
+    const sessionTenantId = req.merchantTenantId!;
+    try {
+      const categories = await db
+        .select()
+        .from(categoriesTable)
+        .where(
+          or(
+            eq(categoriesTable.tenantId, sessionTenantId),
+            isNull(categoriesTable.tenantId)
+          )
+        );
+
+      const findCategoryId = (nameAr: string) => {
+        const cat = categories.find(
+          c => c.nameAr === nameAr || c.name?.toLowerCase() === nameAr.toLowerCase()
+        );
+        return cat ? cat.id : null;
+      };
+
+      const sampleProducts = [
+        {
+          name: "معطف شتوي أنيق",
+          description: "معطف شتوي طويل أنيق ومصنوع من أجود أنواع الصوف التركي الفاخر. يتميز بتصميم عصري يناسب الإطلالات الرسمية واليومية مع بطانة داخلية دافئة.",
+          price: "1450.00",
+          originalPrice: "1850.00",
+          imageUrl: "/product-fashion-optimized.jpg",
+          stock: 15,
+          featured: true,
+          status: "active" as const,
+          categoryNameAr: "ملابس",
+        },
+        {
+          name: "فستان صيفي زهري",
+          description: "فستان صيفي خفيف وأنيق بنقشة زهور مميزة. مصنوع من خامة قطنية ناعمة وباردة لتوفر لكِ أقصى درجات الراحة والأناقة في الأيام الحارة.",
+          price: "850.00",
+          originalPrice: "1100.00",
+          imageUrl: "/images/categories/fashion.png",
+          stock: 22,
+          featured: false,
+          status: "active" as const,
+          categoryNameAr: "ملابس",
+        },
+        {
+          name: "حقيبة يد جلدية فاخرة",
+          description: "حقيبة يد كلاسيكية مصنوعة من الجلد الطبيعي المقاوم للخدش. تحتوي على جيوب متعددة لتنظيم أغراضك اليومية بكل سهولة وأناقة.",
+          price: "720.00",
+          originalPrice: "950.00",
+          imageUrl: "/images/categories/accessories.png",
+          stock: 8,
+          featured: true,
+          status: "active" as const,
+          categoryNameAr: "إكسسوارات",
+        },
+        {
+          name: "سيروم العناية بالبشرة الطبيعي",
+          description: "سيروم مغذي غني بفيتامين C وحمض الهيالورونيك لترطيب البشرة بعمق، توحيد لونها وإعادة النضارة والإشراق الطبيعي.",
+          price: "380.00",
+          originalPrice: "500.00",
+          imageUrl: "/images/categories/care.png",
+          stock: 45,
+          featured: false,
+          status: "active" as const,
+          categoryNameAr: "مستحضرات تجميل",
+        },
+        {
+          name: "عطر الياسمين والمسك",
+          description: "مزيج عطري ساحر يجمع بين رقة زهور الياسمين الشرقي وفخامة المسك الأبيض. عطر ثابت ويدوم طويلاً ليعطيك جاذبية فريدة في كل مناسبة.",
+          price: "950.00",
+          originalPrice: "1200.00",
+          imageUrl: "/images/categories/perfumes.png",
+          stock: 12,
+          featured: true,
+          status: "active" as const,
+          categoryNameAr: "عطور",
+        },
+      ];
+
+      for (const sp of sampleProducts) {
+        const categoryId = findCategoryId(sp.categoryNameAr);
+        await db.insert(productsTable).values({
+          tenantId: sessionTenantId,
+          categoryId,
+          name: sp.name,
+          description: sp.description,
+          price: sp.price,
+          originalPrice: sp.originalPrice,
+          imageUrl: sp.imageUrl,
+          stock: sp.stock,
+          featured: sp.featured,
+          status: sp.status,
+          isSample: true,
+        });
+      }
+
+      await recordAuditEvent({
+        tenantId: sessionTenantId,
+        actorId: req.session.merchantId,
+        actorLabel: "merchant",
+        eventType: "sample_products_seeded",
+        summary: `Seeded 5 sample products`,
+        metadata: {},
+        log: req.log,
+      });
+
+      await cache.invalidateTenant(sessionTenantId);
+      res.status(201).json({ success: true });
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "فشل إضافة المنتجات التجريبية" });
+    }
+  }
+);
+
+router.delete(
+  "/products/clear-samples",
+  requireRole("owner", "manager", "staff"),
+  async (req, res) => {
+    const sessionTenantId = req.merchantTenantId!;
+    try {
+      await db
+        .delete(productsTable)
+        .where(
+          and(
+            eq(productsTable.tenantId, sessionTenantId),
+            eq(productsTable.isSample, true)
+          )
+        );
+
+      await recordAuditEvent({
+        tenantId: sessionTenantId,
+        actorId: req.session.merchantId,
+        actorLabel: "merchant",
+        eventType: "sample_products_cleared",
+        summary: `Cleared sample products`,
+        metadata: {},
+        log: req.log,
+      });
+
+      await cache.invalidateTenant(sessionTenantId);
+      res.status(204).send();
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "فشل حذف المنتجات التجريبية" });
+    }
+  }
 );
 
 router.get("/products/:id", async (req, res) => {

@@ -115,6 +115,29 @@ describe("Products — CRUD", () => {
 
     await cleanupTenant(other.tenantId, other.merchantId);
   });
+
+  it("✅ seed sample products and clear them", async () => {
+    // Seed
+    const seedRes = await ctx.agent.post("/api/products/seed-samples").send();
+    expect(seedRes.status).toBe(201);
+    expect(seedRes.body.success).toBe(true);
+
+    // List products and verify some have isSample === true
+    const listRes = await ctx.agent.get("/api/products");
+    expect(listRes.status).toBe(200);
+    const samples = listRes.body.filter((p: { isSample: boolean }) => p.isSample);
+    expect(samples.length).toBe(5);
+
+    // Clear sample products
+    const clearRes = await ctx.agent.delete("/api/products/clear-samples").send();
+    expect(clearRes.status).toBe(204);
+
+    // List products and verify 0 sample products left
+    const listAfterRes = await ctx.agent.get("/api/products");
+    expect(listAfterRes.status).toBe(200);
+    const samplesAfter = listAfterRes.body.filter((p: { isSample: boolean }) => p.isSample);
+    expect(samplesAfter.length).toBe(0);
+  });
 });
 
 describe("Products — Public Featured / Trending", () => {

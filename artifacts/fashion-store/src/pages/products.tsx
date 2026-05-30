@@ -5,6 +5,7 @@ import {
   useListCategories, useListProductVariants, useCreateProductVariant,
   useUpdateProductVariant, useDeleteProductVariant,
   type ProductVariant,
+  customFetch,
 } from "@workspace/api-client-react";
 import GuideCard from "@/components/admin/GuideCard";
 import { useAuth } from "@/hooks/use-auth";
@@ -744,6 +745,34 @@ export default function Products() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
 
+  const [actionLoading, setActionLoading] = useState(false);
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
+
+  const handleSeedSamples = async () => {
+    setActionLoading(true);
+    try {
+      await customFetch(`${BASE}/api/products/seed-samples`, { method: "POST" });
+      refetch();
+    } catch (e) {
+      alert(t("products.seedSamples.error", "فشل إضافة المنتجات التجريبية"));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleClearSamples = async () => {
+    setClearConfirmOpen(false);
+    setActionLoading(true);
+    try {
+      await customFetch(`${BASE}/api/products/clear-samples`, { method: "DELETE" });
+      refetch();
+    } catch (e) {
+      alert(t("products.clearSamples.error", "فشل حذف المنتجات التجريبية"));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleSelectAll = (checked: boolean) => {
     if (checked && filtered) setSelectedIds(filtered.map(p => p.id));
     else setSelectedIds([]);
@@ -973,6 +1002,20 @@ export default function Products() {
                 <FileUp className="w-4 h-4 me-2 text-muted-foreground" />
                 {t("products.btnImport")}
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSeedSamples} disabled={actionLoading}>
+                <Sparkles className="w-4 h-4 me-2 text-muted-foreground" />
+                {t("products.seedSamples.btn", "إضافة منتجات تجريبية")}
+              </DropdownMenuItem>
+              {products && products.some(p => p.isSample) && (
+                <DropdownMenuItem 
+                  onClick={() => setClearConfirmOpen(true)}
+                  disabled={actionLoading}
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <Trash2 className="w-4 h-4 me-2 text-destructive" />
+                  {t("products.clearSamples.btn", "حذف المنتجات التجريبية")}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
           <Button onClick={openCreate} className="gap-2 h-10 rounded-xl shadow-sm">
@@ -1094,12 +1137,37 @@ export default function Products() {
           ))}
         </div>
       ) : filtered?.length === 0 ? (
-        <StateBlock
-          icon={<Package className="h-6 w-6" />}
-          title={search ? t("products.emptySearch") : t("products.emptyState.title")}
-          actionLabel={!search ? t("products.btnAdd") : undefined}
-          onAction={!search ? openCreate : undefined}
-        />
+        <div className="flex flex-col items-center justify-center py-6 w-full">
+          <StateBlock
+            icon={<Package className="h-6 w-6" />}
+            title={search ? t("products.emptySearch") : t("products.emptyState.title")}
+            actionLabel={!search ? t("products.btnAdd") : undefined}
+            onAction={!search ? openCreate : undefined}
+          />
+          {!search && products?.length === 0 && (
+            <motion.div 
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-md w-full mt-8 bg-gradient-to-br from-amber-500/5 to-amber-500/10 border border-amber-500/20 p-6 rounded-2xl text-center space-y-4 shadow-sm"
+            >
+              <Sparkles className="w-6 h-6 mx-auto text-amber-600 animate-pulse" />
+              <h4 className="font-semibold text-stone-900 text-sm">
+                {t("products.emptyState.seedPromo")}
+              </h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t("products.emptyState.subtitle")}
+              </p>
+              <Button 
+                onClick={handleSeedSamples} 
+                disabled={actionLoading}
+                className="w-full gap-2 h-10 rounded-xl text-xs bg-amber-600 hover:bg-amber-700 text-white border-transparent"
+              >
+                {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                {t("products.seedSamples.btn")}
+              </Button>
+            </motion.div>
+          )}
+        </div>
       ) : viewMode === "table" ? (
         <AdminTable
           headers={[
@@ -1478,6 +1546,26 @@ export default function Products() {
             <AlertDialogCancel>{t("products.delete.btnCancel")}</AlertDialogCancel>
             <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={handleDelete}>
               {t("products.delete.btnConfirm").replace("نعم، ", "")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ─── Clear samples confirm ─── */}
+      <AlertDialog open={clearConfirmOpen} onOpenChange={setClearConfirmOpen}>
+        <AlertDialogContent dir={i18n.dir()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-destructive" /> {t("products.clearSamples.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("products.clearSamples.desc")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("products.delete.btnCancel")}</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={handleClearSamples}>
+              {t("products.clearSamples.btnConfirm").replace("نعم، ", "")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

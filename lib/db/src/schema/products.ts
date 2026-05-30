@@ -19,6 +19,7 @@ export const productsTable = pgTable(
     imageUrl: text("image_url"),
     stock: integer("stock").notNull().default(0),
     featured: boolean("featured").notNull().default(false),
+    isSample: boolean("is_sample").notNull().default(false),
     status: productStatusEnum("status").notNull().default("active"),
     orderCount: integer("order_count").notNull().default(0),
     lowStockThreshold: integer("low_stock_threshold"),

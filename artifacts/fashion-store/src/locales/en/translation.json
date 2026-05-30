@@ -8,7 +8,9 @@
     "emptySearch": "No products match your search",
     "emptyState": {
       "title": "No products yet",
-      "subtitle": "Add your first product to start selling"
+      "subtitle": "Add your first product to start selling",
+      "seedPromo": "Want to try out the store? Add sample products in one click to preview the look, and you can delete them completely later.",
+      "btnSeed": "Add Sample Products"
     },
     "sizes": {
       "xs": "XS",
@@ -128,6 +130,21 @@
       "btnCancel": "Cancel",
       "btnConfirm": "Yes, delete product",
       "btnDeleting": "Deleting..."
+    },
+    "clearSamples": {
+      "btn": "Delete Sample Products",
+      "title": "Are you sure you want to delete sample products?",
+      "desc": "All products added automatically as samples will be deleted. Your real products will not be affected.",
+      "btnConfirm": "Yes, delete samples",
+      "btnDeleting": "Deleting...",
+      "success": "Sample products cleared successfully",
+      "error": "Failed to clear sample products"
+    },
+    "seedSamples": {
+      "btn": "Add Sample Products",
+      "success": "Sample products added successfully",
+      "error": "Failed to add sample products",
+      "seeding": "Seeding products..."
     },
     "pricing": {
       "title": "Smart Pricing Advisor",
@@ -1943,6 +1960,7 @@
       "tag": "Tag",
       "allProducts": "All Products",
       "categoryLink": "Link to Category",
+      "lookbookHint": "💡 Linking the image to a category allows customers to browse products of this category directly when clicking the image. Use \\n in the title to start a new line.",
       "trustStripItems": "Store Features",
       "trustStripIcon": "Icon (Emoji)",
       "trustStripTitle": "Title",

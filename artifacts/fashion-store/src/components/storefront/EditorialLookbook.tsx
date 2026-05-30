@@ -62,7 +62,7 @@ export function EditorialLookbook({
         return {
           image: normalizeStoredImageUrl(item.imageUrl ?? item.image),
           tag: item.tag || "",
-          headline: item.title || "",
+          headline: (item.title || "").replace(/\\n/g, "\n").replace(/\/n/g, "\n"),
           sub: item.desc || "",
           categoryId: Number.isFinite(categoryId) && categoryId > 0 ? categoryId : undefined,
           span: fallback.span,
@@ -70,7 +70,10 @@ export function EditorialLookbook({
           imgClass: fallback.imgClass,
         };
       }).filter((p: any) => p.image)
-    : defaultPanels;
+    : defaultPanels.map((p) => ({
+        ...p,
+        headline: p.headline.replace(/\\n/g, "\n").replace(/\/n/g, "\n"),
+      }));
 
   const handlePanelClick = (categoryId?: number) => {
     if (categoryId && onCategorySelect) {

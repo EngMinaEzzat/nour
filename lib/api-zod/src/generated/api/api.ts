@@ -611,6 +611,7 @@ export const ListProductsResponseItem = zod.object({
   status: zod.enum(["active", "out_of_stock", "hidden"]),
   hasVariants: zod.boolean(),
   orderCount: zod.number(),
+  isSample: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
 export const ListProductsResponse = zod.array(ListProductsResponseItem);
@@ -662,6 +663,7 @@ export const GetProductResponse = zod.object({
   status: zod.enum(["active", "out_of_stock", "hidden"]),
   hasVariants: zod.boolean(),
   orderCount: zod.number(),
+  isSample: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
 
@@ -702,6 +704,7 @@ export const UpdateProductResponse = zod.object({
   status: zod.enum(["active", "out_of_stock", "hidden"]),
   hasVariants: zod.boolean(),
   orderCount: zod.number(),
+  isSample: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
 
@@ -806,6 +809,7 @@ export const ListFeaturedProductsResponseItem = zod.object({
   status: zod.enum(["active", "out_of_stock", "hidden"]),
   hasVariants: zod.boolean(),
   orderCount: zod.number(),
+  isSample: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
 export const ListFeaturedProductsResponse = zod.array(
@@ -835,6 +839,7 @@ export const ListTrendingProductsResponseItem = zod.object({
   status: zod.enum(["active", "out_of_stock", "hidden"]),
   hasVariants: zod.boolean(),
   orderCount: zod.number(),
+  isSample: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
 export const ListTrendingProductsResponse = zod.array(

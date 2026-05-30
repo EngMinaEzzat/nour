@@ -1588,6 +1588,8 @@ components:
           type: boolean
         orderCount:
           type: integer
+        isSample:
+          type: boolean
         createdAt:
           type: string
           format: date-time
@@ -1604,6 +1606,7 @@ components:
           status,
           hasVariants,
           orderCount,
+          isSample,
           createdAt,
         ]
 

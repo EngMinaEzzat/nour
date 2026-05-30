@@ -127,6 +127,13 @@
       "when": 1780001754509,
       "tag": "0017_pretty_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1780131189009,
+      "tag": "0018_wakeful_grandmaster",
+      "breakpoints": true
     }
   ]
 }

@@ -220,6 +220,7 @@ export interface Product {
   status: ProductStatus;
   hasVariants: boolean;
   orderCount: number;
+  isSample: boolean;
   createdAt: string;
 }
 

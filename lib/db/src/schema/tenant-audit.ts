@@ -28,7 +28,9 @@ export const auditEventTypeEnum = pgEnum("audit_event_type", [
   "customer_data_exported",
   "product_deleted",
   "variant_stock_changed",
-  "order_status_changed"
+  "order_status_changed",
+  "sample_products_seeded",
+  "sample_products_cleared"
 ]);
 
 export const tenantAuditEventsTable = pgTable("tenant_audit_events", {

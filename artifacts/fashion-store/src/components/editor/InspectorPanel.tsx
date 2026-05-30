@@ -723,6 +723,11 @@ function SectionFields({ section, patchContent, patchSettings, categories }: {
             categories={categories}
             onChange={(items) => patchContent({ items })}
           />
+          {section.type === "lookbook" && (
+            <p className="text-[11px] text-stone-500 mt-2 bg-stone-50 border border-stone-150 p-2.5 rounded-lg leading-relaxed">
+              {t("inspectorPanel.fields.lookbookHint", "💡 ربط الصورة بقسم يتيح للعملاء تصفح منتجات هذا القسم مباشرة عند النقر على الصورة في المتجر. استخدمي \\n في العنوان لسطر جديد.")}
+            </p>
+          )}
         </>
       );
 
