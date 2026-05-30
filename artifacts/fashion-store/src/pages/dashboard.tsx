@@ -148,6 +148,12 @@ function PlanUsageCard() {
   const unlimited = productLimit === -1;
   const atLimit = ent.atProductLimit;
   const nearLimit = ent.nearProductLimit;
+  const { merchant } = useAuth();
+  
+  const daysLeft = (merchant as any)?.trialEndsAt 
+    ? Math.max(0, Math.ceil((new Date((merchant as any).trialEndsAt).getTime() - Date.now()) / 86400000))
+    : 0;
+  const isTrial = ent.subscriptionStatus === "trial";
 
   return (
     <motion.div
@@ -167,6 +173,11 @@ function PlanUsageCard() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-foreground">{t("dashboard.kpi.plan")} {t(`dashboard.plan.${ent.planCode}`, { defaultValue: ent.planCode })}</span>
                   <Badge className={`text-[10px] px-1.5 py-0 border ${subColor}`}>{subLabel}</Badge>
+                  {isTrial && (merchant as any)?.trialEndsAt && (
+                    <span className="text-xs text-muted-foreground ms-1">
+                      ({daysLeft} {t("billing.banners.trialDaysLeft", { days: "" }).replace(/\d+/, "").trim()} · {t("billing.banners.trialEndsOn", { date: new Date((merchant as any).trialEndsAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US") }).replace("Trial ends on ", "")})
+                    </span>
+                  )}
                   {atLimit && (
                     <Badge className="text-[10px] px-1.5 py-0 border bg-red-100 text-red-700 border-red-200">
                       <AlertTriangle className="w-2.5 h-2.5 me-0.5" /> {t("dashboard.kpi.reachedLimit")}

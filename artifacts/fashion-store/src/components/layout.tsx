@@ -1,4 +1,4 @@
-import { ReactNode, useState, type ElementType } from "react";
+import { ReactNode, useState, useEffect, type ElementType } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AiAssistant } from "@/components/ai-assistant";
 import { Link, useLocation } from "wouter";
@@ -357,6 +357,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   key={item.name}
                   href={item.href}
                   className={className}
+                  data-active={active}
                   aria-current={active ? "page" : undefined}
                 >
                   <motion.div
@@ -407,78 +408,19 @@ export function Layout({ children }: { children: ReactNode }) {
     });
   };
 
+  useEffect(() => {
+    if (mobileOpen) {
+      setTimeout(() => {
+        const activeEl = document.querySelector('[data-active="true"]');
+        if (activeEl) {
+          activeEl.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
+      }, 50);
+    }
+  }, [mobileOpen]);
+
   return (
     <div className="min-h-screen bg-background flex">
-      {/* ─── Persistent Desktop Sidebar ─── */}
-      {isAuthenticated && (
-        <motion.aside
-          animate={{ width: sidebarCollapsed ? 68 : 240 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="hidden lg:flex flex-col border-e border-border/40 bg-card h-screen sticky top-0 overflow-y-auto shrink-0 select-none z-40 overflow-x-hidden"
-        >
-          {/* Store Info Banner */}
-          <div className="flex flex-col p-4 border-b border-border/40 shrink-0 h-16 justify-center">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
-                {merchant?.storeName ? merchant.storeName[0].toUpperCase() : "N"}
-              </div>
-              {!sidebarCollapsed && (
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-foreground truncate">{merchant?.storeName ?? t("common.appName")}</p>
-                  {merchant?.slug && (
-                    <a
-                      href={getStoreUrl(merchant.slug)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[10px] text-primary flex items-center gap-0.5 hover:underline"
-                    >
-                      <Globe className="w-3 h-3" />
-                      <span>{t("layout.myStore")}</span>
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Navigation Items */}
-          <div className="flex-1 flex flex-col p-4 space-y-1 overflow-y-auto min-h-0">
-            {renderSidebarNav(sidebarCollapsed)}
-          </div>
-
-          {/* Collapse & Logout Buttons */}
-          <div className="mt-auto border-t border-border/40 p-2 flex flex-col gap-1 shrink-0 bg-card">
-            <Button
-              variant="ghost"
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-foreground ${
-                sidebarCollapsed ? "justify-center" : "justify-start"
-              }`}
-              onClick={toggleSidebar}
-              title={sidebarCollapsed ? t("layout.expand", "Expand") : t("layout.collapse", "Collapse")}
-            >
-              {sidebarCollapsed ? (
-                i18n.dir() === 'rtl' ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
-              ) : (
-                i18n.dir() === 'rtl' ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />
-              )}
-              {!sidebarCollapsed && <span>{t("layout.collapse", "Collapse")}</span>}
-            </Button>
-
-            <Button
-              variant="ghost"
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 ${
-                sidebarCollapsed ? "justify-center" : "justify-start"
-              }`}
-              onClick={logout}
-              title={t("common.buttons.logout")}
-            >
-              <LogOut className="h-4 w-4" />
-              {!sidebarCollapsed && <span>{t("common.buttons.logout")}</span>}
-            </Button>
-          </div>
-        </motion.aside>
-      )}
-
       {/* ─── Main Content Stack ─── */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* ─── Header ─── */}
@@ -488,7 +430,7 @@ export function Layout({ children }: { children: ReactNode }) {
             {/* Hamburger menu trigger (mobile/tablet only) */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-11 w-11 lg:hidden" aria-label={t("layout.menu") || "Menu"}>
+                <Button variant="ghost" size="icon" className="h-11 w-11" aria-label={t("layout.menu") || "Menu"}>
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -554,6 +496,7 @@ export function Layout({ children }: { children: ReactNode }) {
                                           href={item.href}
                                           onClick={() => setMobileOpen(false)}
                                           className={className}
+                                          data-active={active}
                                           aria-current={active ? "page" : undefined}
                                         >
                                           <Icon className="h-4 w-4" />
@@ -601,6 +544,7 @@ export function Layout({ children }: { children: ReactNode }) {
                                     href={item.href}
                                     onClick={() => setMobileOpen(false)}
                                     className={className}
+                                    data-active={active}
                                     aria-current={active ? "page" : undefined}
                                   >
                                     <Icon className="h-4 w-4" />
@@ -663,7 +607,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </Sheet>
 
           {/* Logo (mobile/tablet only) */}
-          <Link href="/" className="flex lg:hidden items-center gap-2 shrink-0">
+          <Link href="/" className="flex items-center gap-2 shrink-0">
             <motion.span
               className="text-2xl font-bold text-primary"
               whileHover={{ scale: 1.05 }}

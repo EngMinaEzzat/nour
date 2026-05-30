@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCustomerAuth } from "@/hooks/use-customer-auth";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -47,6 +48,7 @@ export function StoreHeader({
   const [animateBadge, setAnimateBadge] = useState(false);
   const [, navigate] = useLocation();
   const { t, i18n } = useTranslation();
+  const { isAuthenticated } = useCustomerAuth();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -252,23 +254,12 @@ export function StoreHeader({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="h-11 md:h-9 px-3 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all text-sm md:text-[13px] font-medium"
-                >
-                  {t("storefront.header.actions.account")}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate("/customer/orders")}>
-                  {t("storefront.header.actions.myOrders")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/customer/login")}>
-                  {t("storefront.header.actions.login")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button
+              onClick={() => navigate(isAuthenticated ? "/customer/orders" : "/customer/login")}
+              className="h-11 md:h-9 px-3 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all text-sm md:text-[13px] font-medium"
+            >
+              {isAuthenticated ? t("storefront.header.actions.account") : t("storefront.header.actions.login")}
+            </button>
 
             <button
               onClick={() => navigate("/checkout")}
@@ -277,7 +268,7 @@ export function StoreHeader({
               aria-label={t("storefront.header.actions.cart")}
             >
               <ShoppingBag className="w-5 h-5 md:w-4 md:h-4" />
-              {cartCount > 0 && (
+              {cartCount >= 0 && (
                 <span
                   className={`absolute top-1.5 right-1.5 md:-top-0.5 md:-right-0.5 w-4 h-4 rounded-full text-[9px] font-black text-white flex items-center justify-center ${animateBadge ? "animate-pulse-badge" : ""}`}
                   style={{ background: p }}
