@@ -169,7 +169,8 @@ app.use(
 
 const uploadsDir = process.env.VERCEL ? path.join(os.tmpdir(), "uploads") : path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-app.use("/api/uploads", (_req, res, next) => {
+app.use("/api/uploads", (req, res, next) => {
+  void req;
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Cache-Control", "public, max-age=86400, immutable");
   next();

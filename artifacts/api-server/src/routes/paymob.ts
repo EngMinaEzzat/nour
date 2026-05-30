@@ -141,7 +141,7 @@ async function initiatePaymobPaymentForOrder(params: {
   }
 
   const mockAllowed = provider.isMockAllowed === "true";
-  const paymobConfig = { apiKey: decrypt(provider.apiKey), integrationId: provider.integrationId, iframeId: provider.iframeId };
+  const paymobConfig = { apiKey: provider.apiKey ? decrypt(provider.apiKey) : "", integrationId: provider.integrationId, iframeId: provider.iframeId };
   if (!isPlatformPaymobConfigured(paymobConfig) && (process.env.NODE_ENV === "production" || !mockAllowed)) {
     throw new PaymobHttpError(503, "Paymob live credentials are not configured");
   }

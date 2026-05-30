@@ -28,8 +28,6 @@ const EMAIL_DELIVERY_TIMEOUT_MS =
 
 // ── Per-account login lockout (in-memory; resets on restart) ──
 const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();
-const MAX_FAILED_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutes
 
 function checkAccountLockout(email: string): { locked: boolean; retryAfterSeconds?: number } {
   const entry = loginAttempts.get(email);
@@ -43,8 +41,8 @@ function checkAccountLockout(email: string): { locked: boolean; retryAfterSecond
 function recordFailedLogin(email: string): void {
   const entry = loginAttempts.get(email) ?? { count: 0, lockedUntil: 0 };
   entry.count++;
-  if (entry.count >= MAX_FAILED_ATTEMPTS) {
-    entry.lockedUntil = Date.now() + LOCKOUT_DURATION_MS;
+  if (entry.count >= 5) {
+    entry.lockedUntil = Date.now() + 30 * 60 * 1000; // 30 min lockout after 5 failures
   }
   loginAttempts.set(email, entry);
 }

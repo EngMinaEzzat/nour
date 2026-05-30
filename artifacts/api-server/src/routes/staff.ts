@@ -5,8 +5,8 @@ import { merchantsTable, staffInvitationsTable, tenantAuditEventsTable, tenantsT
 import { requireRole } from "../middleware/require-role";
 import { InviteStaffBody, UpdateStaffRoleBody } from "@workspace/api-zod";
 import { eq, and } from "drizzle-orm";
-import rateLimit from "express-rate-limit";
 import crypto from "crypto";
+import { rateLimit } from "express-rate-limit";
 
 const inviteAcceptLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -242,7 +242,7 @@ router.get("/staff/invitations/preview/:token", async (req, res) => {
 // POST /staff/invitations/:token/accept — accept invitation
 router.post("/staff/invitations/:token/accept", inviteAcceptLimiter, async (req, res) => {
   try {
-    const { token } = req.params;
+    const token = String(req.params.token);
     const { name, password } = req.body;
     if (!name || !password) return res.status(400).json({ error: "الاسم وكلمة المرور مطلوبان" });
 
