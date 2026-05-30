@@ -7,9 +7,11 @@ interface SEOProps {
   url?: string;
   type?: "website" | "product" | "article";
   schema?: any;
+  price?: number;
+  availability?: string;
 }
 
-export function SEO({ title, description, image, url, type = "website", schema }: SEOProps) {
+export function SEO({ title, description, image, url, type = "website", schema, price, availability }: SEOProps) {
   const siteName = "Nour Platform"; // Or could be passed via context
   
   return (
@@ -25,6 +27,16 @@ export function SEO({ title, description, image, url, type = "website", schema }
       {image && <meta property="og:image" content={image} />}
       {url && <meta property="og:url" content={url} />}
       <meta property="og:site_name" content={siteName} />
+
+      {type === "product" && price != null && (
+        <meta property="product:price:amount" content={price.toString()} />
+      )}
+      {type === "product" && price != null && (
+        <meta property="product:price:currency" content="EGP" />
+      )}
+      {type === "product" && availability && (
+        <meta property="product:availability" content={availability === "https://schema.org/InStock" ? "instock" : "oos"} />
+      )}
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />

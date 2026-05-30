@@ -129,7 +129,7 @@ export function StorefrontProductCard({
           {/* Badges */}
           {discount > 0 && (
             <div
-              className="absolute top-3 end-3 text-[10px] px-2.5 py-1 rounded-full font-bold text-white z-10"
+              className="absolute top-3 end-3 text-[10px] px-2.5 py-1.5 rounded-full font-bold text-white z-10 shadow-sm"
               style={{ background: p }}
             >
               -{discount}%
@@ -137,20 +137,20 @@ export function StorefrontProductCard({
           )}
           {product.featured && !discount && (
             <div
-              className={`absolute top-3 ${i18n.dir() === "rtl" ? "end-3" : "end-3"} text-[10px] px-2.5 py-1 rounded-full font-bold text-white z-10`}
+              className={`absolute top-3 ${i18n.dir() === "rtl" ? "end-3" : "end-3"} text-[10px] px-2.5 py-1.5 rounded-full font-bold text-white z-10 shadow-sm`}
               style={{ background: "#c8963a" }}
             >
               {t("storefront.products.featured")}
             </div>
           )}
           {lowStock && (
-            <div className="absolute top-3 start-3 text-[10px] px-2.5 py-1 rounded-full font-bold text-amber-900 bg-amber-100 z-10">
+            <div className="absolute top-3 start-3 text-[10px] px-2.5 py-1.5 rounded-full font-bold text-amber-900 bg-amber-100/90 backdrop-blur-md z-10 shadow-sm">
               {t("storefront.products.lowStock")}
             </div>
           )}
           {unavailable && (
-            <div className="absolute inset-0 bg-stone-900/50 flex items-center justify-center z-10 rounded-2xl">
-              <span className="text-white text-xs font-semibold px-4 py-2 bg-stone-900/70 rounded-full">
+            <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px] flex items-center justify-center z-10 rounded-2xl">
+              <span className="text-white text-xs font-bold px-4 py-2 bg-stone-900/80 rounded-full shadow-lg">
                 {t("storefront.products.outOfStock")}
               </span>
             </div>
@@ -159,11 +159,11 @@ export function StorefrontProductCard({
           {/* Wishlist */}
           <button
             onClick={handleWishlist}
-            className={`absolute top-3 ${i18n.dir() === "rtl" ? "start-3" : "start-3"} w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2`}
+            className={`absolute top-3 ${i18n.dir() === "rtl" ? "start-3" : "start-3"} w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:scale-105 active:scale-95 shadow-sm`}
             aria-label={wishlisted ? t("storefront.products.removeWishlist") : t("storefront.products.addWishlist")}
             aria-pressed={wishlisted}
             style={{
-              background: "rgba(250,247,244,0.88)",
+              background: "rgba(250,247,244,0.92)",
               backdropFilter: "blur(8px)",
               opacity: controlsVisible ? 1 : 0,
               transform: controlsVisible ? "scale(1)" : "scale(0.8)",
@@ -192,7 +192,7 @@ export function StorefrontProductCard({
                 >
                   <button
                     onClick={handleAdd}
-                    className="w-full py-3 text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="w-full py-3.5 text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                     aria-label={product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
                     style={{
                       background: inCart
@@ -219,7 +219,7 @@ export function StorefrontProductCard({
 
   return (
     <div
-      className="group flex flex-col"
+      className="group flex flex-col transition-all duration-300 hover:-translate-y-0.5"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocusCapture={() => setFocused(true)}
@@ -309,7 +309,7 @@ export function StorefrontProductCard({
         )}
 
         {lowStock && (
-          <p className="text-[10px] text-amber-700 mt-1">
+          <p className="text-[10px] text-amber-700 mt-1 font-medium">
             {t("storefront.products.lowStockCount", { count: product.stock, defaultValue: i18n.language === "ar" ? "متبقي {{count}} فقط" : "Only {{count}} left" })}
           </p>
         )}
@@ -318,11 +318,11 @@ export function StorefrontProductCard({
           type="button"
           onClick={handleAdd}
           disabled={unavailable}
-          className="sm:hidden mt-2 w-full min-h-11 rounded-xl px-3 py-2 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+          className="sm:hidden mt-2.5 w-full min-h-11 rounded-xl px-4 py-2.5 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
           aria-label={unavailable ? t("storefront.products.outOfStock") : product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
           style={{
             background: unavailable
-              ? "#e7dfd8"
+              ? "rgba(231, 223, 216, 0.5)"
               : inCart
                 ? "rgba(250,247,244,0.95)"
                 : p,

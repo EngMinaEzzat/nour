@@ -1,7 +1,7 @@
 import { Link, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -39,6 +39,20 @@ export default function OrderConfirmation() {
   const search = useSearch();
   const params = new URLSearchParams(search);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [particles, setParticles] = useState<Array<{ id: number; left: number; delay: number; scale: number; emoji: string }>>([]);
+
+  useEffect(() => {
+    const emojis = ["🎉", "✨", "🛍️", "💖", "🌸", "⭐", "💃", "🎀"];
+    const list = Array.from({ length: 45 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 2.5,
+      scale: 0.5 + Math.random() * 0.8,
+      emoji: emojis[Math.floor(Math.random() * emojis.length)],
+    }));
+    setParticles(list);
+  }, []);
+
   const orderIds = params.get("orders")?.split(",").filter(Boolean) ?? [];
   const orderTracks = (() => {
     try {
@@ -101,7 +115,21 @@ export default function OrderConfirmation() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#faf7f4] px-4 py-10" dir={i18n.dir()}>
+    <div className="min-h-screen bg-[#faf7f4] px-4 py-10 overflow-hidden relative" dir={i18n.dir()}>
+      {/* Visual Confetti Celebration */}
+      {particles.map((p) => (
+        <span
+          key={p.id}
+          className="particle-emoji"
+          style={{
+            left: `${p.left}%`,
+            animationDelay: `${p.delay}s`,
+            transform: `scale(${p.scale})`,
+          }}
+        >
+          {p.emoji}
+        </span>
+      ))}
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -109,7 +137,7 @@ export default function OrderConfirmation() {
           transition={{ duration: 0.35 }}
           className="text-center"
         >
-          <div className="inline-flex rounded-full bg-primary/10 p-5 mb-5">
+          <div className="inline-flex rounded-full bg-primary/10 p-5 mb-5 animate-pulse-badge">
             <CheckCircle2 className="w-14 h-14 text-primary" />
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-3">

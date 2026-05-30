@@ -44,6 +44,7 @@ export function StoreHeader({
 }: StoreHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [animateBadge, setAnimateBadge] = useState(false);
   const [, navigate] = useLocation();
   const { t, i18n } = useTranslation();
 
@@ -52,6 +53,14 @@ export function StoreHeader({
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  useEffect(() => {
+    if (cartCount > 0) {
+      setAnimateBadge(true);
+      const timer = setTimeout(() => setAnimateBadge(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [cartCount]);
 
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
@@ -262,14 +271,14 @@ export function StoreHeader({
 
             <button
               onClick={() => navigate("/checkout")}
-              className="relative w-11 h-11 md:w-9 md:h-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100"
+              className="relative w-11 h-11 md:w-9 md:h-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100 cursor-pointer"
               style={{ color: p }}
               aria-label={t("storefront.header.actions.cart")}
             >
               <ShoppingBag className="w-5 h-5 md:w-4 md:h-4" />
               {cartCount > 0 && (
                 <span
-                  className="absolute top-1.5 right-1.5 md:-top-0.5 md:-right-0.5 w-4 h-4 rounded-full text-[9px] font-black text-white flex items-center justify-center"
+                  className={`absolute top-1.5 right-1.5 md:-top-0.5 md:-right-0.5 w-4 h-4 rounded-full text-[9px] font-black text-white flex items-center justify-center ${animateBadge ? "animate-pulse-badge" : ""}`}
                   style={{ background: p }}
                 >
                   {cartCount > 9 ? "9+" : cartCount}

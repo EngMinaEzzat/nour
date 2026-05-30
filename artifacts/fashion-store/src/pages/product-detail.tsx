@@ -574,6 +574,26 @@ export default function ProductDetail() {
               )}
             </AnimatePresence>
 
+            {/* Low-stock warning alert banner */}
+            <AnimatePresence>
+              {selectionResolved && effectiveStock > 0 && effectiveStock <= 3 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="animate-slide-down bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold px-4 py-3 rounded-2xl flex items-center gap-2"
+                  role="alert"
+                >
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>
+                    {i18n.language === "ar"
+                      ? `عجل! متبقي فقط ${effectiveStock} قطع في المخزون!`
+                      : `Hurry! Only ${effectiveStock} items left in stock!`}
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/30 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-foreground">
@@ -593,7 +613,7 @@ export default function ProductDetail() {
                   type="button"
                   onClick={() => setQuantity((value) => Math.max(1, value - 1))}
                   disabled={quantity <= 1 || unavailable || !variantSelectionComplete}
-                  className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                  className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 cursor-pointer"
                   aria-label={t("productDetail.decreaseQuantity")}
                 >
                   <Minus className="w-4 h-4" />
@@ -603,7 +623,7 @@ export default function ProductDetail() {
                   type="button"
                   onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
                   disabled={quantity >= maxQuantity || unavailable || !variantSelectionComplete}
-                  className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                  className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 cursor-pointer"
                   aria-label={t("productDetail.increaseQuantity")}
                 >
                   <Plus className="w-4 h-4" />
@@ -614,8 +634,8 @@ export default function ProductDetail() {
             <motion.div whileTap={{ scale: 0.98 }}>
               <Button
                 size="lg"
-                className={`w-full h-14 text-lg rounded-2xl transition-all ${
-                  inCart ? "bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20" : ""
+                className={`w-full h-14 text-lg rounded-2xl transition-all shimmer-btn-effect cursor-pointer ${
+                  inCart ? "bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20" : "bg-primary text-primary-foreground hover:scale-[1.01] active:scale-[0.99] shadow-md hover:shadow-lg"
                 }`}
                 disabled={unavailable || (hasVariants && !variantSelectionComplete)}
                 onClick={handleAddToCart}
@@ -633,16 +653,16 @@ export default function ProductDetail() {
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <div className="rounded-2xl bg-[#c97b8b]/5 border border-[#c97b8b]/15 px-3 py-3 text-xs text-stone-600 flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#c97b8b] shrink-0 mt-0.5" />
                 <span>{t("productDetail.trust.cod")}</span>
               </div>
-              <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
-                <Truck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <div className="rounded-2xl bg-[#c97b8b]/5 border border-[#c97b8b]/15 px-3 py-3 text-xs text-stone-600 flex items-start gap-2">
+                <Truck className="w-4 h-4 text-[#c97b8b] shrink-0 mt-0.5" />
                 <span>{t("productDetail.trust.delivery")}</span>
               </div>
-              <div className="rounded-2xl bg-muted/40 border border-border/50 px-3 py-3 text-xs text-muted-foreground flex items-start gap-2">
-                <RotateCcw className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <div className="rounded-2xl bg-[#c97b8b]/5 border border-[#c97b8b]/15 px-3 py-3 text-xs text-stone-600 flex items-start gap-2">
+                <RotateCcw className="w-4 h-4 text-[#c97b8b] shrink-0 mt-0.5" />
                 <span>{t("productDetail.trust.support")}</span>
               </div>
             </div>
@@ -653,7 +673,7 @@ export default function ProductDetail() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full h-12 rounded-2xl border-green-500/40 text-green-700 hover:bg-green-50 hover:border-green-500 gap-2 transition-all"
+                  className="w-full h-12 rounded-2xl border-green-500/30 text-green-700 hover:bg-green-50/50 hover:border-green-500/80 gap-2 transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99] font-medium"
                   onClick={() => {
                     const wa = (product as any).tenantWhatsapp as string;
                     const num = wa.replace(/\D/g, "");

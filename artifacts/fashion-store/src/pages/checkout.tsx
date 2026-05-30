@@ -461,11 +461,29 @@ export default function Checkout() {
   return (
     <div className="container mx-auto px-4 py-10 pb-24 max-w-5xl">
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <Button variant="ghost" size="sm" asChild className="mb-6 -ms-2">
+        <Button variant="ghost" size="sm" asChild className="mb-6 -ms-2 cursor-pointer">
           <Link href="/products"><ChevronRight className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-1" : "ms-1 rotate-180"}`} /> {t("storefront.checkout.continueShopping")}</Link>
         </Button>
-        <h1 className="text-4xl font-bold text-foreground mb-10">{t("storefront.checkout.pageTitle")}</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-6">{t("storefront.checkout.pageTitle")}</h1>
       </motion.div>
+
+      {/* Step Indicator */}
+      <div className="w-full mb-8 bg-[#c97b8b]/5 border border-[#c97b8b]/10 rounded-2xl p-4 flex items-center justify-between text-xs sm:text-sm font-semibold max-w-5xl mx-auto shadow-sm" dir={i18n.dir()}>
+        <div className="flex items-center gap-2 text-primary">
+          <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">١</div>
+          <span>{i18n.language === "ar" ? "بيانات العميل" : "Customer Details"}</span>
+        </div>
+        <div className="flex-1 h-px bg-[#c97b8b]/20 mx-4" />
+        <div className="flex items-center gap-2 text-[#c97b8b]">
+          <div className="w-6 h-6 rounded-full bg-[#c97b8b]/15 text-[#c97b8b] flex items-center justify-center font-bold text-xs">٢</div>
+          <span>{i18n.language === "ar" ? "عنوان التوصيل" : "Delivery Address"}</span>
+        </div>
+        <div className="flex-1 h-px bg-[#c97b8b]/20 mx-4" />
+        <div className="flex items-center gap-2 text-stone-400">
+          <div className="w-6 h-6 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center font-bold text-xs">٣</div>
+          <span>{i18n.language === "ar" ? "تأكيد الدفع" : "Payment & Order"}</span>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
         {/* Form */}
@@ -485,7 +503,7 @@ export default function Checkout() {
                 <Label htmlFor="name">الاسم الكامل *</Label>
                 <Input id="name" autoComplete="name" aria-invalid={!!errors.name} aria-describedby={errors.name ? "name-error" : undefined} placeholder="فاطمة الحسن" value={name}
                   onChange={(e) => { setName(e.target.value); syncContact(e.target.value, email, phone); }}
-                  className={errors.name ? "border-destructive" : ""} />
+                  className={errors.name ? "border-destructive focus-visible:ring-destructive rounded-xl h-12" : name ? "border-green-500/50 bg-green-50/5 focus-visible:border-green-500 rounded-xl h-12" : "rounded-xl h-12"} />
                 {errors.name && <p id="name-error" className="text-xs text-destructive">{errors.name}</p>}
               </div>
               <div className="space-y-1.5">
@@ -494,7 +512,7 @@ export default function Checkout() {
                 </Label>
                 <Input id="email" type="email" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-error" : undefined} placeholder="fatima@example.com" value={email}
                   onChange={(e) => { setEmail(e.target.value); syncContact(name, e.target.value, phone); }}
-                  className={`text-left ${errors.email ? "border-destructive" : ""}`} dir="ltr" />
+                  className={`text-left rounded-xl h-12 ${errors.email ? "border-destructive focus-visible:ring-destructive" : email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "border-green-500/50 bg-green-50/5 focus-visible:border-green-500" : ""}`} dir="ltr" />
                 {errors.email && <p id="email-error" className="text-xs text-destructive">{errors.email}</p>}
               </div>
               <div className="space-y-1.5">
@@ -503,7 +521,7 @@ export default function Checkout() {
                 </Label>
                 <Input id="phone" type="tel" autoComplete="tel" inputMode="tel" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? "phone-error" : undefined} placeholder="01012345678" value={phone}
                   onChange={(e) => { setPhone(e.target.value); syncContact(name, email, e.target.value); }}
-                  className={errors.phone ? "border-destructive" : ""} dir="ltr" />
+                  className={errors.phone ? "border-destructive focus-visible:ring-destructive rounded-xl h-12" : normalizeEgyptianMobileLocal(phone) ? "border-green-500/50 bg-green-50/5 focus-visible:border-green-500 rounded-xl h-12" : "rounded-xl h-12"} dir="ltr" />
                 {errors.phone && <p id="phone-error" className="text-xs text-destructive">{errors.phone}</p>}
                 <p className="text-xs text-muted-foreground">سيُستخدم لإرسال تأكيد الطلب على واتساب</p>
               </div>
@@ -525,12 +543,12 @@ export default function Checkout() {
                     setGovernorate(value);
                     setErrors((current) => ({ ...current, governorate: "" }));
                   }}>
-                    <SelectTrigger id="governorate" className={errors.governorate ? "border-destructive" : ""}>
+                    <SelectTrigger id="governorate" className={`${errors.governorate ? "border-destructive focus-visible:ring-destructive" : governorate ? "border-green-500/50 bg-green-50/5" : ""} rounded-xl h-12 cursor-pointer`}>
                       <SelectValue placeholder="اختاري المحافظة" />
                     </SelectTrigger>
                     <SelectContent>
                       {EGYPT_GOVERNORATES.map((gov) => (
-                        <SelectItem key={gov} value={gov}>{gov}</SelectItem>
+                        <SelectItem key={gov} value={gov} className="cursor-pointer">{gov}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -544,7 +562,7 @@ export default function Checkout() {
                     placeholder="مدينة نصر، الهرم، سموحة..."
                     value={area}
                     onChange={(e) => setArea(e.target.value)}
-                    className={errors.area ? "border-destructive" : ""}
+                    className={errors.area ? "border-destructive focus-visible:ring-destructive rounded-xl h-12" : area.trim() ? "border-green-500/50 bg-green-50/5 focus-visible:border-green-500 rounded-xl h-12" : "rounded-xl h-12"}
                     autoComplete="address-level2"
                     aria-invalid={!!errors.area}
                     aria-describedby={errors.area ? "area-error" : undefined}
@@ -560,7 +578,7 @@ export default function Checkout() {
                   placeholder="١٥ شارع التحرير، بجوار..."
                   value={streetAddress}
                   onChange={(e) => setStreetAddress(e.target.value)}
-                  className={errors.streetAddress ? "border-destructive" : ""}
+                  className={errors.streetAddress ? "border-destructive focus-visible:ring-destructive rounded-xl h-12" : streetAddress.trim() ? "border-green-500/50 bg-green-50/5 focus-visible:border-green-500 rounded-xl h-12" : "rounded-xl h-12"}
                   autoComplete="street-address"
                   aria-invalid={!!errors.streetAddress}
                   aria-describedby={errors.streetAddress ? "streetAddress-error" : undefined}
@@ -577,6 +595,7 @@ export default function Checkout() {
                     value={buildingInfo}
                     onChange={(e) => setBuildingInfo(e.target.value)}
                     autoComplete="address-line2"
+                    className="rounded-xl h-12"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -587,6 +606,7 @@ export default function Checkout() {
                     value={landmark}
                     onChange={(e) => setLandmark(e.target.value)}
                     autoComplete="off"
+                    className="rounded-xl h-12"
                   />
                 </div>
               </div>
@@ -599,7 +619,7 @@ export default function Checkout() {
                   value={deliveryNotes}
                   onChange={(e) => setDeliveryNotes(e.target.value)}
                   rows={3}
-                  className="resize-none"
+                  className="resize-none rounded-xl"
                 />
               </div>
 
@@ -819,7 +839,7 @@ export default function Checkout() {
                 </div>
               )}
 
-              <Button className="w-full h-13 text-base rounded-2xl mt-1" onClick={handlePlaceOrder} disabled={isSubmitting || shippingLoading || !!shippingError}>
+              <Button className="w-full h-13 text-base rounded-2xl mt-1 cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-all shimmer-btn-effect font-semibold shadow-md hover:shadow-lg" onClick={handlePlaceOrder} disabled={isSubmitting || shippingLoading || !!shippingError}>
                 {isSubmitting ? (
                   <><Loader2 className="w-4 h-4 me-2 animate-spin" /> جارٍ تنفيذ الطلب...</>
                 ) : paymentMethod === "paymob" ? (

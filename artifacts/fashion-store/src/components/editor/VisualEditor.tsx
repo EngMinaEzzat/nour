@@ -10,6 +10,7 @@ import InspectorPanel from "./InspectorPanel";
 import StoreAssistant from "./StoreAssistant";
 import WelcomeOverlay, { type MerchantGender } from "./WelcomeOverlay";
 import PublishReviewModal from "./PublishReviewModal";
+import PromptHelperWidget from "./PromptHelperWidget";
 import { Layers3, Menu, Save, X } from "lucide-react";
 import { contrastStatus } from "@/lib/color-contrast";
 
@@ -372,6 +373,9 @@ export default function VisualEditor({
             />
           )}
         </AnimatePresence>
+
+        {/* AI Image Prompt Helper Widget */}
+        <PromptHelperWidget />
       </div>
     </div>
   );
