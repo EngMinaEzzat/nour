@@ -420,7 +420,7 @@ export function Layout({ children }: { children: ReactNode }) {
   }, [mobileOpen]);
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className={`min-h-screen bg-background flex ${location === "/" ? "home-theme" : ""}`}>
       {/* ─── Main Content Stack ─── */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* ─── Header ─── */}

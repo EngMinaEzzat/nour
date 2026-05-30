@@ -40,11 +40,11 @@ const stagger = {
 
 const FEATURES = [
   { icon: Store, color: "text-primary bg-primary/10", title: "home.features.f1_title", desc: "home.features.f1_desc" },
-  { icon: CreditCard, color: "text-emerald-600 bg-emerald-50", title: "home.features.f2_title", desc: "home.features.f2_desc" },
-  { icon: Truck, color: "text-blue-600 bg-blue-50", title: "home.features.f3_title", desc: "home.features.f3_desc" },
-  { icon: MessageCircle, color: "text-green-600 bg-green-50", title: "home.features.f4_title", desc: "home.features.f4_desc" },
-  { icon: BarChart3, color: "text-purple-600 bg-purple-50", title: "home.features.f5_title", desc: "home.features.f5_desc" },
-  { icon: Users, color: "text-orange-600 bg-orange-50", title: "home.features.f6_title", desc: "home.features.f6_desc" },
+  { icon: CreditCard, color: "text-accent-foreground bg-accent/15", title: "home.features.f2_title", desc: "home.features.f2_desc" },
+  { icon: Truck, color: "text-secondary-foreground bg-secondary", title: "home.features.f3_title", desc: "home.features.f3_desc" },
+  { icon: MessageCircle, color: "text-primary bg-primary/10", title: "home.features.f4_title", desc: "home.features.f4_desc" },
+  { icon: BarChart3, color: "text-accent-foreground bg-accent/15", title: "home.features.f5_title", desc: "home.features.f5_desc" },
+  { icon: Users, color: "text-secondary-foreground bg-secondary", title: "home.features.f6_title", desc: "home.features.f6_desc" },
 ];
 
 const STEPS = [
@@ -69,7 +69,7 @@ export default function Home() {
   const { t, i18n } = useTranslation();
 
   return (
-    <div className="flex flex-col" dir={i18n.dir()}>
+    <div className="home-theme flex flex-col bg-background text-foreground" dir={i18n.dir()}>
       <SEO 
         title={i18n.language === "ar" ? "نور — إنشاء متجرك الإلكتروني في ثوانٍ" : "Nour — Create your online store in seconds"}
         description={i18n.language === "ar" ? "منصة نور للتجارة الإلكترونية تتيح لك إطلاق متجرك الخاص بسهولة وسرعة." : "Nour e-commerce platform allows you to launch your own store easily and quickly."}
@@ -82,10 +82,10 @@ export default function Home() {
         }}
       />
       {/* ─── Hero ─── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5 pt-20 pb-28">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary/8 via-background to-accent/8 pt-20 pb-28">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 end-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute bottom-10 start-10 w-96 h-96 rounded-full bg-secondary/10 blur-3xl" />
+          <div className="absolute top-20 end-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute bottom-10 start-10 w-96 h-96 rounded-full bg-accent/15 blur-3xl" />
           <div
             className="absolute inset-0 opacity-[0.015]"
             style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "28px 28px" }}
@@ -94,8 +94,8 @@ export default function Home() {
 
         <div className="container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <Badge className="mb-6 text-sm px-4 py-1.5 bg-primary/10 text-primary border-primary/20 rounded-full">
-              <Sparkles className="w-3.5 h-3.5 me-1.5 inline" />
+            <Badge className="mb-6 text-sm px-4 py-1.5 bg-accent/15 text-accent-foreground border-accent/30 rounded-full">
+              <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-accent-foreground" />
               {t("home.badge")}
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
@@ -161,7 +161,7 @@ export default function Home() {
                 {/* Content */}
                 <div className="col-span-2 p-5 space-y-4">
                   <div className="grid grid-cols-3 gap-3">
-                    {[[t("home.dashboardMockup.revenueTitle"), t("home.dashboardMockup.revenueVal"), "text-green-600"], [t("home.dashboardMockup.ordersTitle"), t("home.dashboardMockup.ordersVal"), "text-primary"], [t("home.dashboardMockup.customersTitle"), t("home.dashboardMockup.customersVal"), "text-purple-600"]].map(([label, val, color]) => (
+                    {[[t("home.dashboardMockup.revenueTitle"), t("home.dashboardMockup.revenueVal"), "text-primary"], [t("home.dashboardMockup.ordersTitle"), t("home.dashboardMockup.ordersVal"), "text-accent-foreground"], [t("home.dashboardMockup.customersTitle"), t("home.dashboardMockup.customersVal"), "text-secondary-foreground"]].map(([label, val, color]) => (
                       <div key={label} className="bg-muted/40 rounded-xl p-3 border border-border/30">
                         <p className="text-[10px] text-muted-foreground">{label}</p>
                         <p className={`text-sm font-bold ${color}`}>{val}</p>
@@ -173,7 +173,7 @@ export default function Home() {
                     {[t("home.dashboardMockup.order1"), t("home.dashboardMockup.order2"), t("home.dashboardMockup.order3")].map((r, i) => (
                       <div key={i} className="flex justify-between items-center py-1 text-[11px] border-b border-border/20 last:border-0">
                         <span className="text-foreground">{r}</span>
-                        <span className="text-green-600 font-medium">{t("home.dashboardMockup.confirmed")}</span>
+                        <span className="text-primary font-medium">{t("home.dashboardMockup.confirmed")}</span>
                       </div>
                     ))}
                   </div>

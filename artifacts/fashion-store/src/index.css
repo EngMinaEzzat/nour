@@ -211,6 +211,74 @@ html[dir="rtl"] span {
   --ring: 344 64% 45%;
 }
 
+/* ───────────────────────────────────────────────────────────
+   Home landing page ONLY — scoped "Emerald Premium" palette.
+   These custom-property overrides cascade to every descendant of
+   .home-theme, so all shadcn components (Button, Card, Badge, …)
+   re-theme automatically without affecting the rest of the app.
+   ─────────────────────────────────────────────────────────── */
+.home-theme {
+  /* Neutrals */
+  --background: 160 30% 98%;        /* soft mint-white */
+  --foreground: 200 33% 11%;        /* deep ink */
+  --border: 168 22% 88%;
+  --input: 168 22% 88%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 200 33% 11%;
+  --card-border: 168 22% 90%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 200 33% 11%;
+  --popover-border: 168 22% 90%;
+
+  /* Deep Emerald primary */
+  --primary: 167 78% 27%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Soft mint secondary */
+  --secondary: 165 42% 92%;
+  --secondary-foreground: 167 62% 17%;
+
+  --muted: 165 28% 95%;
+  --muted-foreground: 196 13% 40%;
+
+  /* Warm Amber accent */
+  --accent: 36 95% 52%;
+  --accent-foreground: 28 45% 12%;
+
+  --ring: 167 78% 27%;
+}
+
+.dark .home-theme {
+  --background: 200 32% 8%;         /* deep ink */
+  --foreground: 160 30% 96%;
+  --border: 196 18% 18%;
+  --input: 196 18% 18%;
+
+  --card: 200 28% 11%;
+  --card-foreground: 160 30% 96%;
+  --card-border: 196 18% 18%;
+
+  --popover: 200 28% 11%;
+  --popover-foreground: 160 30% 96%;
+  --popover-border: 196 18% 18%;
+
+  --primary: 167 68% 42%;
+  --primary-foreground: 200 40% 7%;
+
+  --secondary: 167 30% 18%;
+  --secondary-foreground: 160 40% 90%;
+
+  --muted: 200 20% 15%;
+  --muted-foreground: 165 16% 68%;
+
+  --accent: 36 92% 56%;
+  --accent-foreground: 28 45% 10%;
+
+  --ring: 167 68% 42%;
+}
+
 @layer base {
   * {
     @apply border-border;
