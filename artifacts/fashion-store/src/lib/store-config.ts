@@ -285,7 +285,8 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
         heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
         body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
-          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.") 
+          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
+        imageUrl: "https://images.unsplash.com/photo-1560243563-062bfc001d68?w=800&auto=format&fit=crop"
       },
       settings: { layout: "with-image" },
     },

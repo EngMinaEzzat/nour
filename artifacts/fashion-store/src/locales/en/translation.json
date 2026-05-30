@@ -3189,6 +3189,22 @@
         "title": "4. Checkout Experience",
         "assistant": "Guide them smoothly from cart to confirmation."
       }
+    },
+    "assistantNotes": {
+      "hero": "The main image and text give the first impression of your store.",
+      "about": "Tell your customers about your story and vision to build trust.",
+      "new-arrivals": "Showcase the latest products to grab attention.",
+      "best-sellers": "Best-selling products increase the desire to buy.",
+      "categories": "Help customers browse your store easily.",
+      "trust-strip": "Assure customers of your product quality and easy shipping/returns.",
+      "testimonials": "Customer reviews increase the credibility of your store.",
+      "newsletter": "Collect emails for continuous communication with your customers.",
+      "whatsapp": "Easy communication increases the chance of completing an order.",
+      "lookbook": "Showcase your products in an attractive and inspiring way.",
+      "instagram": "Connect your store to your social media accounts.",
+      "faq": "Answer common questions to facilitate the buying process.",
+      "offers": "Offers encourage customers to buy now.",
+      "product-catalog": "Display all your products in an organized way."
     }
   },
   "launchReadiness": {

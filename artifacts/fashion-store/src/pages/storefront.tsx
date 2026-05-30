@@ -304,6 +304,27 @@ function EditorTextSection({
     );
   }
 
+  if (section.type === "about") {
+    const imageUrl = section.content.imageUrl as string | undefined;
+    return (
+      <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: i18n.dir() }}>
+        <div className="max-w-5xl mx-auto">
+          <div className={`grid gap-12 items-center ${imageUrl ? "md:grid-cols-2" : "grid-cols-1"}`}>
+            {imageUrl && (
+              <div className="aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden bg-stone-100 order-first">
+                <img src={imageUrl} alt={heading} className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div className={!imageUrl ? "text-center max-w-3xl mx-auto" : ""}>
+              <h2 className="text-4xl md:text-5xl text-stone-900 mb-6" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
+              {body && <p className="text-stone-500 text-base leading-relaxed whitespace-pre-wrap">{body}</p>}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: i18n.dir() }}>
       <div className="max-w-4xl mx-auto text-center">
