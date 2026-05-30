@@ -624,6 +624,15 @@ function SectionFields({ section, patchContent, patchSettings, categories }: {
               rows={5}
             />
           </Field>
+          <Field label={t("inspectorPanel.fields.imageUrl")} hint={t("inspectorPanel.fields.imageUrlHint")}>
+            <Input
+              value={section.content.imageUrl ?? ""}
+              onChange={(e) => patchContent({ imageUrl: e.target.value })}
+              className="text-xs"
+              dir="ltr"
+              placeholder="https://..."
+            />
+          </Field>
           <SelectField
             label={t("inspectorPanel.fields.layout")}
             value={section.settings.layout ?? "with-image"}

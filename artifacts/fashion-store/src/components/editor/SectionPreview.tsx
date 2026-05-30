@@ -286,7 +286,11 @@ export function SectionPreview({ section, theme, brand, categories = [], selecte
       return wrap(
         <div className="bg-white px-6 py-8">
           <div className="grid grid-cols-2 gap-6 items-center">
-            <div className="aspect-[4/3] rounded-xl bg-stone-100" style={{ background: `${p}18` }} />
+            {section.content.imageUrl ? (
+              <img src={section.content.imageUrl} alt="" className="aspect-[4/3] w-full rounded-xl object-cover bg-stone-100" />
+            ) : (
+              <div className="aspect-[4/3] w-full rounded-xl bg-stone-100" style={{ background: `${p}18` }} />
+            )}
             <div>
               <p className="text-[10px] tracking-widest uppercase mb-2" style={{ color: p }}>{t("sectionPreview.defaults.aboutTag")}</p>
               <h3 className="text-lg font-semibold text-stone-900 mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
