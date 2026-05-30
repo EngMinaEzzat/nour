@@ -1,6 +1,12 @@
 import { Router } from "express";
 import crypto from "crypto";
 import { isValidEgyptianPhone, PHONE_ERROR_AR, normaliseEgyptianPhone } from "../lib/egypt";
+
+/** Escape SQL ILIKE wildcard characters to prevent pattern injection */
+function escapeIlike(input: string): string {
+  return input.replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
+
 import { getPlan, isAtLimit } from "../lib/entitlements";
 import { db } from "@workspace/db";
 import {
@@ -307,7 +313,7 @@ router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res)
 
   if (startDate) conditions.push(sql`${ordersTable.createdAt} >= ${startDate}`);
   if (endDate) conditions.push(sql`${ordersTable.createdAt} <= ${endDate}`);
-  if (city) conditions.push(ilike(ordersTable.shippingAddress, `%${city}%`));
+  if (city) conditions.push(ilike(ordersTable.shippingAddress, `%${escapeIlike(city)}%`));
   if (hasFailedContact) {
     conditions.push(exists(
       db.select({ id: contactAttemptsTable.id })
@@ -320,10 +326,10 @@ router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res)
     const isNumber = /^\d+$/.test(search) && search.length <= 9;
     const searchConditions = [];
     if (isNumber) searchConditions.push(eq(ordersTable.id, Number(search)));
-    searchConditions.push(ilike(customersTable.name, `%${search}%`));
-    searchConditions.push(ilike(ordersTable.customerPhone, `%${search}%`));
-    searchConditions.push(ilike(ordersTable.publicCode, `%${search}%`));
-    searchConditions.push(ilike(ordersTable.trackingNumber, `%${search}%`));
+    searchConditions.push(ilike(customersTable.name, `%${escapeIlike(search)}%`));
+    searchConditions.push(ilike(ordersTable.customerPhone, `%${escapeIlike(search)}%`));
+    searchConditions.push(ilike(ordersTable.publicCode, `%${escapeIlike(search)}%`));
+    searchConditions.push(ilike(ordersTable.trackingNumber, `%${escapeIlike(search)}%`));
     
     conditions.push(or(...searchConditions)!);
   }
@@ -427,6 +433,11 @@ router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res)
 router.post("/orders", checkoutLimiter, async (req, res) => {
   const parsed = CreateOrderBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  // Security: if customer is authenticated, enforce session-based customer ID
+  if (req.session.customerId && parsed.data.customerId !== req.session.customerId) {
+    return res.status(403).json({ error: "لا يمكنك إنشاء طلب لعميل آخر" });
+  }
 
   // ── Sprint 5: Egyptian phone validation ────────────────────────────────────
   const rawPhone = (parsed.data as { customerPhone?: string }).customerPhone;

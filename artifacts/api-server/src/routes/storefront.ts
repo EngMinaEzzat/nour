@@ -41,7 +41,7 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
       eq(productsTable.tenantId, tenant.id),
       eq(productsTable.status, "active"),
     ];
-    if (searchQ) conditions.push(ilike(productsTable.name, `%${searchQ}%`));
+    if (searchQ) conditions.push(ilike(productsTable.name, `%${searchQ.replace(/%/g, "\\%").replace(/_/g, "\\_")}%`));
 
     if (categoryIdQ) {
       const subcategories = await db

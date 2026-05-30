@@ -4,8 +4,9 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
+      # WARNING: Override via environment variables for non-local deployments
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pass}
       POSTGRES_DB: nour
     ports:
       - "5432:5432"
@@ -28,9 +29,9 @@ services:
       - "8080:8080"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgres://user:pass@db:5432/nour
-      - REDIS_URL=redis://redis:6379
-      - SESSION_SECRET=local-development-secret-only
+      - DATABASE_URL=${DATABASE_URL:-postgres://user:pass@db:5432/nour}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - SESSION_SECRET=${SESSION_SECRET:-local-development-secret-only}
     depends_on:
       db:
         condition: service_healthy
@@ -42,8 +43,8 @@ services:
     build: .
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgres://user:pass@db:5432/nour
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=${DATABASE_URL:-postgres://user:pass@db:5432/nour}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
     depends_on:
       db:
         condition: service_healthy

@@ -105,14 +105,35 @@ app.use(
 // Security headers
 app.use(
   helmet({
-    crossOriginEmbedderPolicy: false, // allow iframes for Paymob
-    contentSecurityPolicy: false,     // managed by frontend
+    crossOriginEmbedderPolicy: false, // Required for Paymob payment iframes
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        connectSrc: ["'self'", "https:", "wss:"],
+        frameSrc: ["https://accept.paymob.com", "https://accept.paymobsolutions.com"],
+        frameAncestors: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
   }),
 );
 
 // CORS — restrict to configured origins; defaults to permissive in dev
 const rawAllowed = process.env.ALLOWED_ORIGINS;
 const allowedOrigins = rawAllowed ? rawAllowed.split(",").map((s) => s.trim()) : null;
+if (process.env.NODE_ENV === "production" && !allowedOrigins) {
+  logger.warn("ALLOWED_ORIGINS not set — CORS will reject all cross-origin requests in production");
+}
 
 app.use(
   cors({
@@ -128,8 +149,8 @@ app.use(
 );
 
 app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 app.use(
   session({
@@ -141,21 +162,24 @@ app.use(
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development" && process.env.NODE_ENV !== "test",
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: process.env.NODE_ENV !== "development" && process.env.NODE_ENV !== "test" ? "none" : "lax",
+      sameSite: "lax",
     },
   }),
 );
 
 const uploadsDir = process.env.VERCEL ? path.join(os.tmpdir(), "uploads") : path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-app.use("/api/uploads", express.static(uploadsDir));
+app.use("/api/uploads", (_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+  next();
+}, express.static(uploadsDir));
 
-// CSRF protection — applies to all state-mutating requests in production.
-// In development the double-submit cookie pattern can't bind reliably across
-// the dev proxy, so we skip the check. Production always enforces it.
-// Webhook endpoints that use provider HMAC validation are exempt.
+// CSRF protection — enforced in development and production.
+// Only skipped in test mode to allow integration tests without token ceremony.
+// Webhook endpoints that use provider HMAC validation are exempt (see CSRF_EXEMPT_PATHS).
 const csrfMiddleware: RequestHandler = (req, res, next) => {
-  if (process.env.NODE_ENV !== "production") return next();
+  if (process.env.NODE_ENV === "test") return next();
   if (isCsrfExempt(req.path)) return next();
   return doubleCsrfProtection(req, res, next);
 };
@@ -226,7 +250,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   if (err.name === "MulterError") {
     return res.status(400).json({ error: "خطأ في رفع الملف: " + err.message });
   }
-  res.status(500).json({ error: "حدث خطأ داخلي في الخادم", details: err.message });
+  res.status(500).json({ error: "حدث خطأ داخلي في الخادم" });
 });
 
 export default app;

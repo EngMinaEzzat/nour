@@ -16,7 +16,7 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "محاولات كثيرة جداً — انتظر 15 دقيقة وحاول مجدداً" },
-  skip: () => process.env.NODE_ENV === "test",
+  skip: () => process.env.NODE_ENV === "test" && !process.env.VERCEL,
 });
 
 const RESERVED_SLUGS = ["admin", "api", "www", "app", "nour", "support", "help", "store", "login", "register"];
@@ -25,6 +25,33 @@ const EMAIL_DELIVERY_TIMEOUT_MS =
   Number.isFinite(configuredEmailTimeoutMs) && configuredEmailTimeoutMs > 0
     ? configuredEmailTimeoutMs
     : 3000;
+
+// ── Per-account login lockout (in-memory; resets on restart) ──
+const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+
+function checkAccountLockout(email: string): { locked: boolean; retryAfterSeconds?: number } {
+  const entry = loginAttempts.get(email);
+  if (!entry || entry.lockedUntil <= Date.now()) {
+    if (entry?.lockedUntil && entry.lockedUntil <= Date.now()) loginAttempts.delete(email);
+    return { locked: false };
+  }
+  return { locked: true, retryAfterSeconds: Math.ceil((entry.lockedUntil - Date.now()) / 1000) };
+}
+
+function recordFailedLogin(email: string): void {
+  const entry = loginAttempts.get(email) ?? { count: 0, lockedUntil: 0 };
+  entry.count++;
+  if (entry.count >= MAX_FAILED_ATTEMPTS) {
+    entry.lockedUntil = Date.now() + LOCKOUT_DURATION_MS;
+  }
+  loginAttempts.set(email, entry);
+}
+
+function clearFailedLogins(email: string): void {
+  loginAttempts.delete(email);
+}
 
 function normalizeSlug(raw: string): string {
   return raw
@@ -252,7 +279,6 @@ router.post("/auth/register", authLimiter, async (req, res) => {
     return res.status(201).json(buildAuthResponse(result.merchant, result.tenant));
   } catch (err: any) {
     req.log.error(err);
-    console.error("REGISTER ERROR:", err);
 
     if (err?.code === "23505") {
       if (err.constraint === "tenants_slug_unique") {
@@ -263,7 +289,7 @@ router.post("/auth/register", authLimiter, async (req, res) => {
       }
     }
 
-    return res.status(500).json({ error: "حدث خطأ أثناء التسجيل", details: err instanceof Error ? err.message : String(err) });
+    return res.status(500).json({ error: "حدث خطأ أثناء التسجيل" });
   }
 });
 
@@ -273,12 +299,26 @@ router.post("/auth/login", authLimiter, async (req, res) => {
 
   const { email, password } = parsed.data;
 
+  // Per-account lockout check
+  const lockout = checkAccountLockout(email);
+  if (lockout.locked) {
+    return res.status(429).json({ error: `تم قفل الحساب مؤقتاً — حاول بعد ${lockout.retryAfterSeconds} ثانية` });
+  }
+
   try {
     const [merchant] = await db.select().from(merchantsTable).where(eq(merchantsTable.email, email));
-    if (!merchant) return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    if (!merchant) {
+      recordFailedLogin(email);
+      return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    }
 
     const valid = await bcrypt.compare(password, merchant.passwordHash);
-    if (!valid) return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    if (!valid) {
+      recordFailedLogin(email);
+      return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    }
+
+    clearFailedLogins(email);
 
     const [tenant] = await db.select().from(tenantsTable).where(eq(tenantsTable.id, merchant.tenantId));
     if (!tenant) return res.status(500).json({ error: "لم يتم العثور على المتجر" });
@@ -311,6 +351,7 @@ router.post("/auth/login", authLimiter, async (req, res) => {
 
 router.post("/auth/logout", (req, res) => {
   req.session.destroy(() => {
+    res.clearCookie("connect.sid");
     res.status(204).send();
   });
 });
@@ -347,7 +388,11 @@ router.post("/auth/bootstrap-platform-admin", async (req, res) => {
   if (!secret) return res.status(403).json({ error: "PLATFORM_ADMIN_SECRET غير مُهيأ" });
 
   const { secret: provided, merchantId } = req.body as { secret?: string; merchantId?: number };
-  if (provided !== secret) return res.status(403).json({ error: "السر غير صحيح" });
+  const providedBuf = Buffer.from(String(provided ?? ""));
+  const secretBuf = Buffer.from(secret);
+  if (providedBuf.length !== secretBuf.length || !crypto.timingSafeEqual(providedBuf, secretBuf)) {
+    return res.status(403).json({ error: "السر غير صحيح" });
+  }
   if (!merchantId) return res.status(400).json({ error: "merchantId مطلوب" });
 
   try {
@@ -378,9 +423,10 @@ router.post("/auth/forgot-password", authLimiter, async (req, res) => {
     await db.delete(passwordResetTokensTable).where(eq(passwordResetTokensTable.merchantId, merchant.id));
 
     const token = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-    await db.insert(passwordResetTokensTable).values({ merchantId: merchant.id, token, expiresAt });
+    await db.insert(passwordResetTokensTable).values({ merchantId: merchant.id, token: tokenHash, expiresAt });
 
     const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
     const resetLink = `${baseUrl}/reset-password?token=${token}`;
@@ -405,12 +451,13 @@ router.post("/auth/reset-password", authLimiter, async (req, res) => {
   if (password.length < 8) return res.status(400).json({ error: "كلمة المرور قصيرة جدًا" });
 
   try {
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     const [record] = await db
       .select()
       .from(passwordResetTokensTable)
       .where(
         and(
-          eq(passwordResetTokensTable.token, token),
+          eq(passwordResetTokensTable.token, tokenHash),
           gt(passwordResetTokensTable.expiresAt, new Date()),
         ),
       );
@@ -422,13 +469,18 @@ router.post("/auth/reset-password", authLimiter, async (req, res) => {
     await db.update(merchantsTable).set({ passwordHash }).where(eq(merchantsTable.id, record.merchantId));
     await db.update(passwordResetTokensTable).set({ usedAt: new Date() }).where(eq(passwordResetTokensTable.id, record.id));
 
-    // Invalidate existing sessions for this merchant
+    // Invalidate sessions — works for PG session store
     try {
       await db.execute(
         sql`DELETE FROM sessions WHERE sess->>'merchantId' = ${record.merchantId.toString()}`
       );
-    } catch (sessionErr) {
-      req.log.warn({ err: sessionErr, merchantId: record.merchantId }, "Failed to destroy sessions on password reset");
+    } catch {
+      // If using Redis session store, PG sessions table may not exist.
+      // Redis sessions will expire naturally based on TTL.
+      req.log.warn(
+        { merchantId: record.merchantId },
+        "PG session cleanup skipped — if using Redis, old sessions expire based on TTL"
+      );
     }
 
     return res.json({ ok: true });

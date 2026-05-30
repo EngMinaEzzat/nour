@@ -42,4 +42,7 @@ EXPOSE 8080
 ENV PORT=8080
 ENV NODE_ENV=production
 
+RUN addgroup -S appuser && adduser -S appuser -G appuser
+USER appuser
+
 CMD ["pnpm", "--filter", "@workspace/api-server", "run", "start"]

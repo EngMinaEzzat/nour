@@ -14,7 +14,7 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "محاولات كثيرة جداً — انتظر 15 دقيقة وحاول مجدداً" },
-  skip: () => process.env.NODE_ENV === "test",
+  skip: () => process.env.NODE_ENV === "test" && !process.env.VERCEL,
 });
 
 function buildCustomerResponse(customer: { id: number; name: string; email: string; phone: string | null; marketingConsent: boolean; createdAt: Date }) {

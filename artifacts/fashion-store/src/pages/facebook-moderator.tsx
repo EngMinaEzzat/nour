@@ -103,7 +103,7 @@ function ConnectPanel({ onConnected, t, i18n }: { onConnected: () => void, t: an
             <p className="font-semibold">{t("facebookModerator.connectPanel.howTo")}</p>
             <ol className="space-y-1 list-decimal list-inside text-xs leading-relaxed">
               {(t("facebookModerator.connectPanel.steps", { returnObjects: true }) as string[]).map((step, idx) => (
-                <li key={idx} dangerouslySetInnerHTML={{ __html: step }} />
+                <li key={idx}>{step}</li>
               ))}
             </ol>
           </div>

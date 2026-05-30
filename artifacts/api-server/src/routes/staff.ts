@@ -5,7 +5,16 @@ import { merchantsTable, staffInvitationsTable, tenantAuditEventsTable, tenantsT
 import { requireRole } from "../middleware/require-role";
 import { InviteStaffBody, UpdateStaffRoleBody } from "@workspace/api-zod";
 import { eq, and } from "drizzle-orm";
+import rateLimit from "express-rate-limit";
 import crypto from "crypto";
+
+const inviteAcceptLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "محاولات كثيرة جداً — انتظر 15 دقيقة وحاول مجدداً" },
+});
 
 const router = Router();
 
@@ -231,7 +240,7 @@ router.get("/staff/invitations/preview/:token", async (req, res) => {
 });
 
 // POST /staff/invitations/:token/accept — accept invitation
-router.post("/staff/invitations/:token/accept", async (req, res) => {
+router.post("/staff/invitations/:token/accept", inviteAcceptLimiter, async (req, res) => {
   try {
     const { token } = req.params;
     const { name, password } = req.body;

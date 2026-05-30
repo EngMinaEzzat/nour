@@ -9,6 +9,7 @@ import { eq, and, desc, lt, sql, inArray } from "drizzle-orm";
 import { initPayment, isConfigured as isPlatformPaymobConfigured } from "../lib/paymob";
 import { checkoutLimiter } from "../lib/rate-limiters";
 import crypto from "crypto";
+import { encrypt, decrypt } from "../lib/encryption.js";
 
 const router = Router();
 
@@ -140,7 +141,7 @@ async function initiatePaymobPaymentForOrder(params: {
   }
 
   const mockAllowed = provider.isMockAllowed === "true";
-  const paymobConfig = { apiKey: provider.apiKey, integrationId: provider.integrationId, iframeId: provider.iframeId };
+  const paymobConfig = { apiKey: decrypt(provider.apiKey), integrationId: provider.integrationId, iframeId: provider.iframeId };
   if (!isPlatformPaymobConfigured(paymobConfig) && (process.env.NODE_ENV === "production" || !mockAllowed)) {
     throw new PaymobHttpError(503, "Paymob live credentials are not configured");
   }
@@ -245,15 +246,15 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
       return res.status(400).json({ error: "integration_id Ùˆ iframe_id Ù…Ø·Ù„ÙˆØ¨Ø§Ù†" });
     }
 
-    // Store raw apiKey in apiKey column
-    const apiKeyRaw = apiKey || undefined;
+    // Encrypt sensitive credentials before storage
+    const apiKeyEncrypted = apiKey ? encrypt(apiKey) : undefined;
     const status = enabled ? "ACTIVE" : "CONFIGURED_DISABLED";
 
     const existing = await db
       .select({ id: paymobProvidersTable.id, apiKey: paymobProvidersTable.apiKey })
       .from(paymobProvidersTable)
       .where(eq(paymobProvidersTable.tenantId, tenantId));
-    if (enabled && !apiKeyRaw && !existing[0]?.apiKey) {
+    if (enabled && !apiKeyEncrypted && !existing[0]?.apiKey) {
       return res.status(400).json({ error: "apiKey is required before enabling Paymob" });
     }
     if (existing.length > 0) {
@@ -261,8 +262,8 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
         status,
         integrationId,
         iframeId,
-        ...(apiKeyRaw ? { apiKey: apiKeyRaw } : {}),
-        ...(hmacSecret ? { hmacSecret } : {}),
+        ...(apiKeyEncrypted ? { apiKey: apiKeyEncrypted } : {}),
+        ...(hmacSecret ? { hmacSecret: encrypt(hmacSecret) } : {}),
         updatedAt: new Date(),
       }).where(eq(paymobProvidersTable.tenantId, tenantId));
     } else {
@@ -271,8 +272,8 @@ router.put("/paymob/configure", requireRole("owner"), async (req, res) => {
         status,
         integrationId,
         iframeId,
-        apiKey: apiKeyRaw ?? "",
-        hmacSecret: hmacSecret ?? "",
+        apiKey: apiKeyEncrypted ?? "",
+        hmacSecret: hmacSecret ? encrypt(hmacSecret) : "",
       });
     }
 
@@ -372,7 +373,7 @@ router.post("/paymob/webhook", async (req, res) => {
         .from(paymobProvidersTable)
         .where(eq(paymobProvidersTable.tenantId, paymentRecord.tenantId));
       if (provider && provider.hmacSecret) {
-        tenantHmacSecret = provider.hmacSecret;
+        tenantHmacSecret = decrypt(provider.hmacSecret);
       }
     }
 
