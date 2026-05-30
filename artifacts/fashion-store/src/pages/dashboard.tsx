@@ -101,7 +101,7 @@ function EmptyChart({ height = 200, t }: { height?: number; t: any }) {
       >
         <BarChart2 className="w-8 h-8" strokeWidth={1.5} />
       </motion.div>
-      <h3 className="text-sm font-bold text-foreground mb-1 leading-normal px-4">{t("dashboard.kpi.noData")}</h3>
+      <p className="text-sm font-bold text-foreground mb-1 leading-normal px-4">{t("dashboard.kpi.noData")}</p>
       <p className="text-xs text-muted-foreground/80 leading-relaxed max-w-[280px] px-4">{t("dashboard.kpi.noDataSub")}</p>
     </motion.div>
   );

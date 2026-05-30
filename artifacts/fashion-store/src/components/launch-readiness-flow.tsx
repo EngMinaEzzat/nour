@@ -119,7 +119,13 @@ export default function LaunchReadinessFlow({ config, productCount, storeSlug }:
                   {t("launchReadiness.action.copyLink")}
                 </Button>
               )}
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCollapsed((c) => !c)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setCollapsed((c) => !c)}
+                aria-label={t("launchReadiness.collapseToggle", { defaultValue: "Toggle checklist" })}
+              >
                 {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
               </Button>
             </div>
