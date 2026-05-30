@@ -161,23 +161,7 @@ function CategoryForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label>{t("categories.form.typeLabel")}</Label>
-          <Select
-            value={form.type}
-            onValueChange={(value) => setForm((current) => ({ ...current, type: value as CategoryFormState["type"] }))}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="fashion">{t("categories.types.fashion")}</SelectItem>
-              <SelectItem value="cosmetics">{t("categories.types.cosmetics")}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
         <div className="space-y-1.5">
           <Label>{t("categories.form.parentLabel")}</Label>
           <Select
@@ -238,6 +222,36 @@ export default function Categories() {
   const renderCategoryCard = (cat: Category) => {
     const isRoot = !cat.parentId;
     const canEdit = isAuthenticated && (cat as Category & { tenantId?: number | null }).tenantId !== null;
+
+    if (!isRoot) {
+      return (
+        <motion.div key={cat.id} variants={stagger.item} className="flex items-center justify-between p-3 border rounded-lg bg-card hover:bg-muted/50 transition-colors">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+              <Tags className="w-4 h-4 text-primary/60" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="font-medium text-sm text-foreground truncate">
+                {i18n.language === "ar" ? cat.nameAr : cat.name}
+              </h4>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <Button asChild size="icon" variant="ghost" className="h-8 w-8" title={t("categories.card.btnProducts")}>
+              <Link href={`/products?categoryId=${cat.id}`}>
+                <Eye className="w-4 h-4 text-muted-foreground hover:text-primary" />
+              </Link>
+            </Button>
+            {canEdit && (
+              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditing(cat)} title={t("categories.card.btnEdit")}>
+                <Edit className="w-4 h-4 text-muted-foreground hover:text-primary" />
+              </Button>
+            )}
+          </div>
+        </motion.div>
+      );
+    }
+
     return (
       <motion.div key={cat.id} variants={stagger.item} className="h-full">
         <Card className="border-border/50 overflow-hidden hover:shadow-sm transition-shadow h-full flex flex-col">
@@ -264,9 +278,6 @@ export default function Categories() {
                   <p className="text-sm text-muted-foreground truncate" dir="ltr">{cat.name}</p>
                 )}
               </div>
-              <Badge variant="secondary" className="text-xs shrink-0">
-                {t(`categories.types.${cat.type}`) ?? cat.type}
-              </Badge>
             </div>
             <p className="text-xs text-muted-foreground mb-4 flex-1">{cat.productCount} {t("categories.card.productCount")}</p>
             <div className="flex items-center gap-2 mt-auto">
@@ -309,7 +320,7 @@ export default function Categories() {
                 <div>
                   <h3 className="font-bold text-lg text-foreground">{i18n.language === "ar" ? category.nameAr : category.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="secondary" className="text-[10px]">{t(`categories.types.${category.type}`) ?? category.type}</Badge>
+
                     <span className="text-xs text-muted-foreground">{children.length} {t("categories.card.subcategories")} • {category.productCount} {t("categories.card.productCount")}</span>
                   </div>
                 </div>
@@ -334,14 +345,14 @@ export default function Categories() {
           
           <AccordionContent className="p-4 bg-muted/30 border-t">
             {children.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="flex flex-col gap-2">
                 {children.map((child) => {
                   const grandChildren = childrenMap.get(child.id) || [];
                   if (grandChildren.length > 0) {
-                    return <div key={child.id} className="col-span-full"><CategoryAccordionNode category={child} /></div>;
+                    return <CategoryAccordionNode key={child.id} category={child} />;
                   }
                   return (
-                    <div key={child.id} className="w-full h-full">
+                    <div key={child.id} className="w-full">
                       {renderCategoryCard(child)}
                     </div>
                   );
