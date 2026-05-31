@@ -40,10 +40,10 @@ const stagger = {
 
 const FEATURES = [
   { icon: Store, color: "text-primary bg-primary/10", title: "home.features.f1_title", desc: "home.features.f1_desc" },
-  { icon: CreditCard, color: "text-accent-foreground bg-accent/15", title: "home.features.f2_title", desc: "home.features.f2_desc" },
+  { icon: CreditCard, color: "text-primary bg-accent/15", title: "home.features.f2_title", desc: "home.features.f2_desc" },
   { icon: Truck, color: "text-secondary-foreground bg-secondary", title: "home.features.f3_title", desc: "home.features.f3_desc" },
   { icon: MessageCircle, color: "text-primary bg-primary/10", title: "home.features.f4_title", desc: "home.features.f4_desc" },
-  { icon: BarChart3, color: "text-accent-foreground bg-accent/15", title: "home.features.f5_title", desc: "home.features.f5_desc" },
+  { icon: BarChart3, color: "text-primary bg-accent/15", title: "home.features.f5_title", desc: "home.features.f5_desc" },
   { icon: Users, color: "text-secondary-foreground bg-secondary", title: "home.features.f6_title", desc: "home.features.f6_desc" },
 ];
 
@@ -84,10 +84,10 @@ export default function Home() {
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/8 via-background to-accent/8 pt-20 pb-28">
         <div className="absolute inset-0 -z-10">
-          <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-20 opacity-30">
+          <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-20 opacity-[0.85] mix-blend-multiply" poster="/videos/boutique-poster.jpg">
             <source src="/videos/boutique.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-background/70 backdrop-blur-sm -z-10" />
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-md -z-10" />
           <div className="absolute top-20 end-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
           <div className="absolute bottom-10 start-10 w-96 h-96 rounded-full bg-accent/15 blur-3xl" />
           <div
@@ -98,8 +98,8 @@ export default function Home() {
 
         <div className="container mx-auto px-4 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <Badge className="mb-6 text-sm px-4 py-1.5 bg-accent/15 text-accent-foreground border-accent/30 rounded-full">
-              <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-accent-foreground" />
+            <Badge className="mb-6 text-sm px-4 py-1.5 bg-primary/10 text-primary border-primary/20 rounded-full">
+              <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-primary" />
               {t("home.badge")}
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
@@ -165,7 +165,7 @@ export default function Home() {
                 {/* Content */}
                 <div className="col-span-2 p-5 space-y-4">
                   <div className="grid grid-cols-3 gap-3">
-                    {[[t("home.dashboardMockup.revenueTitle"), t("home.dashboardMockup.revenueVal"), "text-primary"], [t("home.dashboardMockup.ordersTitle"), t("home.dashboardMockup.ordersVal"), "text-accent-foreground"], [t("home.dashboardMockup.customersTitle"), t("home.dashboardMockup.customersVal"), "text-secondary-foreground"]].map(([label, val, color]) => (
+                    {[[t("home.dashboardMockup.revenueTitle"), t("home.dashboardMockup.revenueVal"), "text-primary"], [t("home.dashboardMockup.ordersTitle"), t("home.dashboardMockup.ordersVal"), "text-primary"], [t("home.dashboardMockup.customersTitle"), t("home.dashboardMockup.customersVal"), "text-secondary-foreground"]].map(([label, val, color]) => (
                       <div key={label} className="bg-muted/40 rounded-xl p-3 border border-border/30">
                         <p className="text-[10px] text-muted-foreground">{label}</p>
                         <p className={`text-sm font-bold ${color}`}>{val}</p>
