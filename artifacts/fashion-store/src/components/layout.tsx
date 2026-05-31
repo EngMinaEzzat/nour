@@ -421,6 +421,37 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className={`min-h-screen bg-background flex ${location === "/" ? "home-theme" : ""}`}>
+
+      {/* ─── Sidebar (Desktop) ─── */}
+      {isAuthenticated && merchantNav.length > 0 && (
+        <aside
+          className={`hidden md:flex flex-col border-e border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 ${
+            sidebarCollapsed ? "w-[var(--sidebar-width-collapsed)]" : "w-[var(--sidebar-width-expanded)]"
+          }`}
+        >
+          <div className="flex items-center justify-between h-16 px-4 border-b border-border/40 shrink-0">
+            {!sidebarCollapsed && (
+              <Link href="/" className="flex items-center gap-2">
+                <span className="text-xl font-bold text-primary">{t("common.appName")}</span>
+              </Link>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 ms-auto text-muted-foreground hover:text-foreground hover:bg-muted"
+              onClick={toggleSidebar}
+              title={sidebarCollapsed ? t("layout.expand") : t("layout.collapse")}
+            >
+              <Menu className="h-4 w-4" />
+              {!sidebarCollapsed && <span className="sr-only">{t("layout.collapse")}</span>}
+            </Button>
+          </div>
+          <div className="flex-1 overflow-y-auto py-4 custom-scrollbar">
+            {renderSidebarNav(sidebarCollapsed)}
+          </div>
+        </aside>
+      )}
+
       {/* ─── Main Content Stack ─── */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* ─── Header ─── */}

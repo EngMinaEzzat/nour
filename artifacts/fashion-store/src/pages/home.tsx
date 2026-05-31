@@ -84,6 +84,10 @@ export default function Home() {
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/8 via-background to-accent/8 pt-20 pb-28">
         <div className="absolute inset-0 -z-10">
+          <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-20 opacity-30">
+            <source src="/videos/boutique.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-background/70 backdrop-blur-sm -z-10" />
           <div className="absolute top-20 end-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
           <div className="absolute bottom-10 start-10 w-96 h-96 rounded-full bg-accent/15 blur-3xl" />
           <div
@@ -226,7 +230,7 @@ export default function Home() {
             const Icon = f.icon;
             return (
               <motion.div key={f.title} variants={stagger.item}>
-                <Card className="h-full border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-300 group">
+                <Card className="h-full border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-300 group hover:scale-[1.02] bg-background/80 backdrop-blur-sm">
                   <CardContent className="pt-6 pb-6">
                     <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${f.color} transition-transform group-hover:scale-110 duration-300`}>
                       <Icon className="w-5 h-5" />
@@ -291,7 +295,7 @@ export default function Home() {
         >
           {PLANS.map((plan) => (
             <motion.div key={plan.name} variants={stagger.item}>
-              <Card className={`h-full relative border-2 transition-all duration-300 ${plan.badge ? "border-primary shadow-xl shadow-primary/10" : "border-border/50"}`}>
+              <Card className={`h-full relative border-2 transition-all duration-300 hover:scale-[1.02] bg-background/80 backdrop-blur-sm ${plan.badge ? "border-primary shadow-xl shadow-primary/10" : "border-border/50"}`}>
                 {plan.badge && (
                   <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
                     <Badge className="bg-primary text-primary-foreground px-4 py-1 text-xs">{t(plan.badge)}</Badge>
@@ -341,7 +345,7 @@ export default function Home() {
           >
             {TESTIMONIALS.map((tItem) => (
               <motion.div key={tItem.name} variants={stagger.item}>
-                <Card className="h-full border-border/50 hover:shadow-md transition-all duration-300">
+                <Card className="h-full border-border/50 hover:shadow-md transition-all duration-300 hover:scale-[1.02] bg-background/80 backdrop-blur-sm">
                   <CardContent className="pt-6">
                     <div className="flex mb-3">
                       {Array(tItem.stars).fill(0).map((_, i) => (

@@ -219,64 +219,64 @@ html[dir="rtl"] span {
    ─────────────────────────────────────────────────────────── */
 .home-theme {
   /* Neutrals */
-  --background: 160 30% 98%;        /* soft mint-white */
-  --foreground: 200 33% 11%;        /* deep ink */
-  --border: 168 22% 88%;
-  --input: 168 22% 88%;
+  --background: 30 50% 98%;        /* soft mint-white */
+  --foreground: 340 20% 15%;        /* deep ink */
+  --border: 340 30% 90%;
+  --input: 340 30% 90%;
 
   --card: 0 0% 100%;
-  --card-foreground: 200 33% 11%;
-  --card-border: 168 22% 90%;
+  --card-foreground: 340 20% 15%;
+  --card-border: 340 30% 92%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 200 33% 11%;
-  --popover-border: 168 22% 90%;
+  --popover-foreground: 340 20% 15%;
+  --popover-border: 340 30% 92%;
 
   /* Deep Emerald primary */
-  --primary: 167 78% 27%;
+  --primary: 340 40% 60%;
   --primary-foreground: 0 0% 100%;
 
   /* Soft mint secondary */
-  --secondary: 165 42% 92%;
-  --secondary-foreground: 167 62% 17%;
+  --secondary: 340 50% 95%;
+  --secondary-foreground: 340 50% 30%;
 
-  --muted: 165 28% 95%;
-  --muted-foreground: 196 13% 40%;
+  --muted: 30 30% 96%;
+  --muted-foreground: 340 15% 45%;
 
   /* Warm Amber accent */
-  --accent: 36 95% 52%;
-  --accent-foreground: 28 45% 12%;
+  --accent: 40 70% 60%;
+  --accent-foreground: 0 0% 100%;
 
-  --ring: 167 78% 27%;
+  --ring: 340 40% 60%;
 }
 
 .dark .home-theme {
-  --background: 200 32% 8%;         /* deep ink */
-  --foreground: 160 30% 96%;
-  --border: 196 18% 18%;
-  --input: 196 18% 18%;
+  --background: 340 20% 10%;         /* deep ink */
+  --foreground: 30 30% 96%;
+  --border: 340 20% 20%;
+  --input: 340 20% 20%;
 
-  --card: 200 28% 11%;
-  --card-foreground: 160 30% 96%;
-  --card-border: 196 18% 18%;
+  --card: 340 20% 12%;
+  --card-foreground: 30 30% 96%;
+  --card-border: 340 20% 20%;
 
-  --popover: 200 28% 11%;
-  --popover-foreground: 160 30% 96%;
-  --popover-border: 196 18% 18%;
+  --popover: 340 20% 12%;
+  --popover-foreground: 30 30% 96%;
+  --popover-border: 340 20% 20%;
 
-  --primary: 167 68% 42%;
-  --primary-foreground: 200 40% 7%;
+  --primary: 340 40% 50%;
+  --primary-foreground: 30 30% 96%;
 
-  --secondary: 167 30% 18%;
-  --secondary-foreground: 160 40% 90%;
+  --secondary: 340 30% 20%;
+  --secondary-foreground: 340 30% 80%;
 
-  --muted: 200 20% 15%;
-  --muted-foreground: 165 16% 68%;
+  --muted: 340 20% 15%;
+  --muted-foreground: 340 15% 65%;
 
-  --accent: 36 92% 56%;
-  --accent-foreground: 28 45% 10%;
+  --accent: 40 70% 50%;
+  --accent-foreground: 30 30% 96%;
 
-  --ring: 167 68% 42%;
+  --ring: 340 40% 50%;
 }
 
 @layer base {
