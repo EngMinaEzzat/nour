@@ -81,74 +81,44 @@ export default function Home() {
           "url": window.location.origin
         }}
       />
-      {/* ─── Hero: Split Layout with Video ─── */}
-      <section className="relative overflow-hidden bg-background pt-24 pb-32">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
-              <Badge className="mb-6 text-sm px-4 py-1.5 bg-primary/10 text-primary border-primary/20 rounded-full">
-                <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-primary" />
-                {t("home.badge")}
-              </Badge>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-                {t("home.title_1")}
-                <span className="text-primary relative inline-block mx-2">
-                  {t("home.title_highlight")}
-                  <svg className="absolute -bottom-2 start-0 w-full" viewBox="0 0 300 12" fill="none">
-                    <path d="M2 8 Q75 2 150 8 Q225 14 298 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary opacity-40" />
-                  </svg>
-                </span>
-                <br />{t("home.title_2")}
-              </h1>
-              <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-lg">
-                {t("home.subtitle")}
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="rounded-full px-10 text-base h-14 shadow-lg shadow-primary/20 hover:scale-105 transition-transform" asChild>
-                  <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
-                </Button>
-                <Button size="lg" variant="outline" className="rounded-full px-10 text-base h-14 border-primary/20 hover:bg-primary/5 hover:scale-105 transition-transform" asChild>
-                  <Link href="/login">{t("home.btnMerchantLogin")}</Link>
-                </Button>
-              </div>
-              <div className="mt-8 text-sm text-muted-foreground flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-primary" /> {t("home.noCreditCard")}
-              </div>
-            </motion.div>
+      {/* ─── Hero: Full Video Background ─── */}
+      <section className="relative overflow-hidden min-h-[90vh] flex flex-col items-center justify-center text-center pt-20 pb-20">
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" poster="/videos/boutique-poster.jpg">
+          <source src="/videos/boutique.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-background/70 backdrop-blur-sm z-0" />
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative aspect-[4/5] lg:aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl shadow-primary/10 border-8 border-background"
-            >
-              <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
-                <source src="/videos/boutique.mp4" type="video/mp4" />
-              </video>
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-
-              {/* Floating Element */}
-              <motion.div
-                className="absolute bottom-8 start-8 end-8 bg-background/90 backdrop-blur-md rounded-2xl p-4 border border-border/50 shadow-xl"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.8 }}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                    <Store className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-foreground text-sm">{t("home.dashboardMockup.title")}</p>
-                    <p className="text-xs text-muted-foreground">{t("home.dashboardMockup.recentOrders")}</p>
-                  </div>
-                  <div className="ms-auto">
-                    <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-0">+12%</Badge>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-4xl mx-auto flex flex-col items-center">
+            <Badge className="mb-6 text-sm px-4 py-1.5 bg-background/80 backdrop-blur-md text-primary border-primary/20 rounded-full shadow-lg">
+              <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-primary" />
+              {t("home.badge")}
+            </Badge>
+            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
+              {t("home.title_1")}
+              <span className="text-primary relative inline-block mx-2">
+                {t("home.title_highlight")}
+                <svg className="absolute -bottom-2 start-0 w-full" viewBox="0 0 300 12" fill="none">
+                  <path d="M2 8 Q75 2 150 8 Q225 14 298 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary opacity-40" />
+                </svg>
+              </span>
+              <br />{t("home.title_2")}
+            </h1>
+            <p className="text-xl text-foreground/80 mb-10 leading-relaxed max-w-2xl mx-auto font-medium">
+              {t("home.subtitle")}
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button size="lg" className="rounded-full px-10 text-base h-14 shadow-xl shadow-primary/30 hover:scale-105 transition-transform" asChild>
+                <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
+              </Button>
+              <Button size="lg" variant="outline" className="rounded-full px-10 text-base h-14 bg-background/80 backdrop-blur-md border-border/50 hover:bg-background/90 hover:scale-105 transition-transform" asChild>
+                <Link href="/login">{t("home.btnMerchantLogin")}</Link>
+              </Button>
+            </div>
+            <div className="mt-8 text-sm text-foreground/70 flex items-center justify-center gap-2 font-medium bg-background/40 backdrop-blur-sm px-4 py-2 rounded-full">
+              <CheckCircle2 className="w-4 h-4 text-primary" /> {t("home.noCreditCard")}
+            </div>
+          </motion.div>
         </div>
       </section>
 
