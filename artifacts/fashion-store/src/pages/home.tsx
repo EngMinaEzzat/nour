@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import {
   Store, CreditCard, Truck, MessageCircle, BarChart3, Users,
   ArrowLeft, CheckCircle2, Zap, Globe, ShieldCheck, Sparkles,
-  ChevronLeft, Star,
+  ChevronLeft, ChevronRight, Star, Play
 } from "lucide-react";
 import { getBaseDomain } from "@/lib/utils";
 import { SEO } from "@/components/seo";
@@ -81,118 +81,82 @@ export default function Home() {
           "url": window.location.origin
         }}
       />
-      {/* ─── Hero ─── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/8 via-background to-accent/8 pt-20 pb-28">
-        <div className="absolute inset-0 -z-10">
-          <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-20 opacity-[0.85] mix-blend-multiply" poster="/videos/boutique-poster.jpg">
-            <source src="/videos/boutique.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-md -z-10" />
-          <div className="absolute top-20 end-20 w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
-          <div className="absolute bottom-10 start-10 w-96 h-96 rounded-full bg-accent/15 blur-3xl" />
-          <div
-            className="absolute inset-0 opacity-[0.015]"
-            style={{ backgroundImage: "radial-gradient(#000 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-          />
-        </div>
-
-        <div className="container mx-auto px-4 text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <Badge className="mb-6 text-sm px-4 py-1.5 bg-primary/10 text-primary border-primary/20 rounded-full">
-              <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-primary" />
-              {t("home.badge")}
-            </Badge>
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
-              {t("home.title_1")}
-              <span className="text-primary relative">
-                {t("home.title_highlight")}
-                <svg className="absolute -bottom-2 start-0 w-full" viewBox="0 0 300 12" fill="none">
-                  <path d="M2 8 Q75 2 150 8 Q225 14 298 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary opacity-40" />
-                </svg>
-              </span>
-              <br />{t("home.title_2")}
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              {t("home.subtitle")}
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="rounded-full px-10 text-base h-13 shadow-lg shadow-primary/20" asChild>
-                <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
-              </Button>
-              <Button size="lg" variant="outline" className="rounded-full px-10 text-base h-13" asChild>
-                <Link href="/login">{t("home.btnMerchantLogin")}</Link>
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground mt-4">{t("home.noCreditCard")}</p>
-          </motion.div>
-
-          {/* Dashboard mockup */}
-          <motion.div
-            className="mt-16 max-w-4xl mx-auto"
-            initial={{ opacity: 0, y: 40, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-          >
-            <div className="bg-card border border-border/60 rounded-2xl shadow-2xl overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-border/40 bg-muted/30">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-400/60" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-400/60" />
-                  <div className="w-3 h-3 rounded-full bg-green-400/60" />
-                </div>
-                <div className="flex-1 mx-4">
-                  <div className="bg-background rounded-md px-3 py-1 text-xs text-muted-foreground border border-border/40 w-fit mx-auto" dir="ltr">
-                    boutique-loaloa.{getBaseDomain()}
-                  </div>
-                </div>
+      {/* ─── Hero: Split Layout with Video ─── */}
+      <section className="relative overflow-hidden bg-background pt-24 pb-32">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+              <Badge className="mb-6 text-sm px-4 py-1.5 bg-primary/10 text-primary border-primary/20 rounded-full">
+                <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-primary" />
+                {t("home.badge")}
+              </Badge>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+                {t("home.title_1")}
+                <span className="text-primary relative inline-block mx-2">
+                  {t("home.title_highlight")}
+                  <svg className="absolute -bottom-2 start-0 w-full" viewBox="0 0 300 12" fill="none">
+                    <path d="M2 8 Q75 2 150 8 Q225 14 298 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary opacity-40" />
+                  </svg>
+                </span>
+                <br />{t("home.title_2")}
+              </h1>
+              <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-lg">
+                {t("home.subtitle")}
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button size="lg" className="rounded-full px-10 text-base h-14 shadow-lg shadow-primary/20 hover:scale-105 transition-transform" asChild>
+                  <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
+                </Button>
+                <Button size="lg" variant="outline" className="rounded-full px-10 text-base h-14 border-primary/20 hover:bg-primary/5 hover:scale-105 transition-transform" asChild>
+                  <Link href="/login">{t("home.btnMerchantLogin")}</Link>
+                </Button>
               </div>
-              <div className="grid grid-cols-3 gap-0 p-0">
-                {/* Sidebar */}
-                <div className="col-span-1 bg-muted/20 border-e border-border/40 p-4 space-y-2">
-                  <div className="text-xs font-bold text-primary mb-4">{t("home.dashboardMockup.title")}</div>
-                  {[
-                    t("home.dashboardMockup.sidebar.0"),
-                    t("home.dashboardMockup.sidebar.1"),
-                    t("home.dashboardMockup.sidebar.2"),
-                    t("home.dashboardMockup.sidebar.3"),
-                    t("home.dashboardMockup.sidebar.4"),
-                  ].map((item, i) => (
-                    <div key={i} className={`text-xs px-3 py-2 rounded-lg ${i === 0 ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-                      {item}
-                    </div>
-                  ))}
-                </div>
-                {/* Content */}
-                <div className="col-span-2 p-5 space-y-4">
-                  <div className="grid grid-cols-3 gap-3">
-                    {[[t("home.dashboardMockup.revenueTitle"), t("home.dashboardMockup.revenueVal"), "text-primary"], [t("home.dashboardMockup.ordersTitle"), t("home.dashboardMockup.ordersVal"), "text-primary"], [t("home.dashboardMockup.customersTitle"), t("home.dashboardMockup.customersVal"), "text-secondary-foreground"]].map(([label, val, color]) => (
-                      <div key={label} className="bg-muted/40 rounded-xl p-3 border border-border/30">
-                        <p className="text-[10px] text-muted-foreground">{label}</p>
-                        <p className={`text-sm font-bold ${color}`}>{val}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="bg-muted/30 rounded-xl p-3 border border-border/30">
-                    <p className="text-[10px] text-muted-foreground mb-2">{t("home.dashboardMockup.recentOrders")}</p>
-                    {[t("home.dashboardMockup.order1"), t("home.dashboardMockup.order2"), t("home.dashboardMockup.order3")].map((r, i) => (
-                      <div key={i} className="flex justify-between items-center py-1 text-[11px] border-b border-border/20 last:border-0">
-                        <span className="text-foreground">{r}</span>
-                        <span className="text-primary font-medium">{t("home.dashboardMockup.confirmed")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div className="mt-8 text-sm text-muted-foreground flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-primary" /> {t("home.noCreditCard")}
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative aspect-[4/5] lg:aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl shadow-primary/10 border-8 border-background"
+            >
+              <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
+                <source src="/videos/boutique.mp4" type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+
+              {/* Floating Element */}
+              <motion.div
+                className="absolute bottom-8 start-8 end-8 bg-background/90 backdrop-blur-md rounded-2xl p-4 border border-border/50 shadow-xl"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                    <Store className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-foreground text-sm">{t("home.dashboardMockup.title")}</p>
+                    <p className="text-xs text-muted-foreground">{t("home.dashboardMockup.recentOrders")}</p>
+                  </div>
+                  <div className="ms-auto">
+                    <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-0">+12%</Badge>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ─── Stats ─── */}
-      <section className="border-y border-border/40 bg-muted/20 py-12">
+      {/* ─── Stats: Minimalist Band ─── */}
+      <section className="bg-primary/5 py-16 border-y border-primary/10">
         <div className="container mx-auto px-4">
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+            className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-border/40 rtl:divide-x-reverse"
             variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
           >
             {[
@@ -201,42 +165,48 @@ export default function Home() {
               { value: 98, suffix: "%", label: t("home.stats.satisfaction") },
               { value: 1, suffix: t("home.stats.minutes"), label: t("home.stats.minutes") },
             ].map((s) => (
-              <motion.div key={s.label} variants={stagger.item}>
-                <p className="text-4xl font-bold text-primary">
+              <motion.div key={s.label} variants={stagger.item} className="px-4">
+                <p className="text-4xl md:text-5xl font-bold text-primary mb-2">
                   <Counter target={s.value} suffix={s.label === t("home.stats.minutes") ? "" : s.suffix} />
                 </p>
-                <p className="text-muted-foreground text-sm mt-1">{s.label}</p>
+                <p className="text-muted-foreground font-medium">{s.label}</p>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* ─── Features ─── */}
-      <section className="py-24 container mx-auto px-4">
+      {/* ─── Features: Masonry/Asymmetric Layout ─── */}
+      <section className="py-24 container mx-auto px-4 relative">
+        <div className="absolute top-0 end-0 w-1/3 h-full bg-gradient-to-b from-secondary/30 to-transparent -z-10 rounded-full blur-[100px] opacity-50" />
         <motion.div
-          className="text-center mb-16"
+          className="max-w-2xl mb-16"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
         >
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">{t("home.features.badge")}</Badge>
-          <h2 className="text-4xl font-bold text-foreground">{t("home.features.title")}</h2>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">{t("home.features.subtitle")}</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4 leading-tight">{t("home.features.title")}</h2>
+          <p className="text-lg text-muted-foreground">{t("home.features.subtitle")}</p>
         </motion.div>
+
         <motion.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
         >
-          {FEATURES.map((f) => {
+          {FEATURES.map((f, i) => {
             const Icon = f.icon;
+            // Create an asymmetric look
+            const isLarge = i === 0 || i === 3;
             return (
-              <motion.div key={f.title} variants={stagger.item}>
-                <Card className="h-full border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-300 group hover:scale-[1.02] bg-background/80 backdrop-blur-sm">
-                  <CardContent className="pt-6 pb-6">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${f.color} transition-transform group-hover:scale-110 duration-300`}>
-                      <Icon className="w-5 h-5" />
+              <motion.div key={f.title} variants={stagger.item} className={isLarge ? "md:col-span-2 lg:col-span-2" : ""}>
+                <Card className={`h-full border-border/50 hover:border-primary/40 hover:shadow-xl transition-all duration-500 group overflow-hidden bg-background/80 backdrop-blur-sm ${isLarge ? "bg-gradient-to-br from-background to-secondary/10" : ""}`}>
+                  <CardContent className={`pt-8 pb-8 ${isLarge ? "flex flex-col md:flex-row gap-6 items-start md:items-center" : ""}`}>
+                    <div className={`rounded-2xl flex items-center justify-center shrink-0 ${f.color} transition-transform group-hover:scale-110 duration-500 ${isLarge ? "w-16 h-16" : "w-12 h-12 mb-6"}`}>
+                      <Icon className={isLarge ? "w-8 h-8" : "w-6 h-6"} />
                     </div>
-                    <h3 className="font-bold text-foreground text-lg mb-2">{t(f.title)}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{t(f.desc)}</p>
+                    <div>
+                      <h3 className={`font-bold text-foreground mb-3 ${isLarge ? "text-2xl" : "text-xl"}`}>{t(f.title)}</h3>
+                      <p className="text-muted-foreground leading-relaxed">{t(f.desc)}</p>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -245,121 +215,168 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ─── How it works ─── */}
-      <section className="py-24 bg-muted/30 border-y border-border/40">
-        <div className="container mx-auto px-4">
+      {/* ─── How it works: Vertical Journey with Video Background ─── */}
+      <section className="py-24 relative overflow-hidden bg-foreground text-background">
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay pointer-events-none" poster="/videos/shopping-poster.jpg">
+           <source src="/videos/shopping.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-foreground/90 backdrop-blur-sm" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-20"
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           >
-            <Badge className="mb-4 bg-secondary/20 text-secondary-foreground border-secondary/30">{t("home.steps.badge")}</Badge>
-            <h2 className="text-4xl font-bold text-foreground">{t("home.steps.title")}</h2>
+            <Badge className="mb-4 bg-background/10 text-background border-background/20">{t("home.steps.badge")}</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-background">{t("home.steps.title")}</h2>
           </motion.div>
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
-            variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
-          >
+
+          <div className="max-w-4xl mx-auto">
             {STEPS.map((step, i) => {
               const Icon = step.icon;
               return (
-                <motion.div key={step.num} variants={stagger.item} className="text-center relative">
-                  {i < STEPS.length - 1 && (
-                    <div className={`hidden md:block absolute top-8 ${i18n.dir() === 'rtl' ? 'start-[60%]' : 'start-[60%]'} w-full h-px border-t-2 border-dashed border-border/60 -z-0`} />
-                  )}
-                  <div className="relative z-10 w-16 h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mx-auto mb-4 shadow-lg shadow-primary/20">
-                    {i18n.language === "ar" ? ['١', '٢', '٣'][i] : step.num}
+                <motion.div
+                  key={step.num}
+                  initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.2 }}
+                  className="flex flex-col md:flex-row items-center gap-8 mb-16 last:mb-0"
+                >
+                  <div className={`flex-1 ${i % 2 !== 0 ? "md:order-2 md:text-start text-center" : "md:text-end text-center"}`}>
+                    <h3 className="font-bold text-2xl mb-3 text-background">{t(step.title)}</h3>
+                    <p className="text-background/70 text-lg leading-relaxed">{t(step.desc)}</p>
                   </div>
-                  <Icon className="w-5 h-5 text-primary mx-auto mb-3" />
-                  <h3 className="font-bold text-foreground text-lg mb-2">{t(step.title)}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{t(step.desc)}</p>
+
+                  <div className="shrink-0 relative md:order-1 flex items-center justify-center">
+                    <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-3xl font-bold text-primary-foreground shadow-[0_0_30px_rgba(var(--primary),0.5)] z-10 relative">
+                      {i18n.language === "ar" ? ['١', '٢', '٣'][i] : step.num}
+                    </div>
+                    {i < STEPS.length - 1 && (
+                      <div className="hidden md:block absolute top-20 w-0.5 h-32 bg-gradient-to-b from-primary to-transparent -z-0" />
+                    )}
+                  </div>
+
+                  <div className={`flex-1 hidden md:flex ${i % 2 === 0 ? "md:order-2 justify-start" : "md:order-0 justify-end"}`}>
+                    <div className="w-16 h-16 rounded-2xl bg-background/10 flex items-center justify-center backdrop-blur-md border border-background/20">
+                      <Icon className="w-8 h-8 text-primary" />
+                    </div>
+                  </div>
                 </motion.div>
               );
             })}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ─── Pricing ─── */}
-      <section className="py-24 container mx-auto px-4">
+      {/* ─── Pricing: Card Focus Design ─── */}
+      <section className="py-24 container mx-auto px-4 bg-background">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
         >
           <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">{t("home.pricing.badge")}</Badge>
-          <h2 className="text-4xl font-bold text-foreground">{t("home.pricing.title")}</h2>
-          <p className="text-muted-foreground mt-3">{t("home.pricing.subtitle")}</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground">{t("home.pricing.title")}</h2>
+          <p className="text-lg text-muted-foreground mt-4 max-w-2xl mx-auto">{t("home.pricing.subtitle")}</p>
         </motion.div>
+
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center"
           variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
         >
-          {PLANS.map((plan) => (
-            <motion.div key={plan.name} variants={stagger.item}>
-              <Card className={`h-full relative border-2 transition-all duration-300 hover:scale-[1.02] bg-background/80 backdrop-blur-sm ${plan.badge ? "border-primary shadow-xl shadow-primary/10" : "border-border/50"}`}>
-                {plan.badge && (
-                  <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4 py-1 text-xs">{t(plan.badge)}</Badge>
+          {PLANS.map((plan, i) => {
+            const isFeatured = plan.badge !== null;
+            return (
+            <motion.div key={plan.name} variants={stagger.item} className={isFeatured ? "md:-mt-8 md:mb-8 z-10" : "z-0"}>
+              <Card className={`h-full relative transition-all duration-500 hover:scale-105 bg-card/90 backdrop-blur-xl ${isFeatured ? "border-primary shadow-2xl shadow-primary/20 border-2" : "border-border/50 shadow-lg"}`}>
+                {isFeatured && (
+                  <div className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
+                    <Badge className="bg-primary text-primary-foreground px-6 py-1.5 text-sm font-bold shadow-md">{t(plan.badge)}</Badge>
                   </div>
                 )}
-                <CardContent className="pt-8 pb-6 flex flex-col h-full">
-                  <div className="mb-6">
-                    <h3 className="text-xl font-bold text-foreground">{t(plan.name)}</h3>
-                    <div className="flex items-baseline gap-1 mt-2">
-                      <span className="text-4xl font-bold text-foreground">{t(plan.price) === '0' ? '0' : Number(t(plan.price)).toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}</span>
-                      {plan.price !== "0" && <span className="text-muted-foreground text-sm">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
-                      {plan.price === "0" && <span className="text-muted-foreground text-sm">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
+                <CardContent className={`pt-10 pb-8 flex flex-col h-full ${isFeatured ? "px-8" : "px-6"}`}>
+                  <div className="mb-8 text-center border-b border-border/40 pb-8">
+                    <h3 className="text-2xl font-bold text-foreground mb-4">{t(plan.name)}</h3>
+                    <div className="flex items-center justify-center items-baseline gap-1 mt-2">
+                      <span className="text-5xl font-extrabold text-foreground">{t(plan.price) === '0' ? '0' : Number(t(plan.price)).toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}</span>
+                      {plan.price !== "0" && <span className="text-muted-foreground font-medium">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
+                      {plan.price === "0" && <span className="text-muted-foreground font-medium">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
                     </div>
-                    <p className="text-muted-foreground text-sm mt-1">{t(plan.desc)}</p>
+                    <p className="text-muted-foreground text-sm mt-2">{t(plan.desc)}</p>
                   </div>
-                  <ul className="space-y-3 flex-1 mb-6">
+                  <ul className="space-y-4 flex-1 mb-8">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                        <span className="text-foreground">{t(f)}</span>
+                      <li key={f} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-foreground font-medium">{t(f)}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button variant={plan.variant} className="w-full rounded-xl" asChild>
+                  <Button variant={plan.variant} size="lg" className={`w-full rounded-xl h-14 text-base ${isFeatured ? "shadow-lg shadow-primary/25" : ""}`} asChild>
                     <Link href={plan.href}>{t(plan.cta)}</Link>
                   </Button>
                 </CardContent>
               </Card>
             </motion.div>
-          ))}
+          )})}
         </motion.div>
       </section>
 
-      {/* ─── Testimonials ─── */}
-      <section className="py-24 bg-muted/30 border-y border-border/40">
-        <div className="container mx-auto px-4">
+      {/* ─── Testimonials: Video Context ─── */}
+      <section className="py-24 relative bg-background border-y border-border/40">
+        <div className="absolute top-1/2 start-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -translate-y-1/2" />
+        <div className="absolute bottom-0 end-0 w-96 h-96 bg-accent/10 rounded-full blur-[120px]" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+            >
+              <Badge className="mb-4 bg-secondary/30 text-secondary-foreground border-secondary/40">{t("home.testimonials.badge")}</Badge>
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground">{t("home.testimonials.title")}</h2>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+              <div className="flex gap-2">
+                <Button variant="outline" size="icon" className="rounded-full w-12 h-12 border-border/60 hover:bg-primary/5">
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <Button variant="outline" size="icon" className="rounded-full w-12 h-12 border-border/60 hover:bg-primary/5">
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+
           <motion.div
-            className="text-center mb-14"
-            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          >
-            <Badge className="mb-4 bg-secondary/20 text-secondary-foreground border-secondary/30">{t("home.testimonials.badge")}</Badge>
-            <h2 className="text-4xl font-bold text-foreground">{t("home.testimonials.title")}</h2>
-          </motion.div>
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
             variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
           >
-            {TESTIMONIALS.map((tItem) => (
+            {TESTIMONIALS.map((tItem, i) => (
               <motion.div key={tItem.name} variants={stagger.item}>
-                <Card className="h-full border-border/50 hover:shadow-md transition-all duration-300 hover:scale-[1.02] bg-background/80 backdrop-blur-sm">
-                  <CardContent className="pt-6">
-                    <div className="flex mb-3">
+                <Card className="h-full border-0 bg-transparent shadow-none group">
+                  <CardContent className="p-0">
+                    <div className="relative aspect-video rounded-3xl overflow-hidden mb-6 shadow-xl">
+                       <img src={`/hero-cosmetics-optimized.jpg`} alt="Store Preview" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                       <div className="absolute inset-0 bg-foreground/20 group-hover:bg-transparent transition-colors duration-500" />
+                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="w-16 h-16 rounded-full bg-background/90 backdrop-blur-md flex items-center justify-center text-primary shadow-lg">
+                            <Play className="w-6 h-6 ms-1" />
+                          </div>
+                       </div>
+                    </div>
+                    <div className="flex mb-4">
                       {Array(tItem.stars).fill(0).map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        <Star key={i} className="w-5 h-5 fill-accent text-accent" />
                       ))}
                     </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">"{t(tItem.text)}"</p>
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                    <p className="text-foreground text-lg leading-relaxed mb-6 font-medium">"{t(tItem.text)}"</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-lg shadow-md">
                         {t(tItem.name)[0]}
                       </div>
                       <div>
-                        <p className="font-semibold text-sm text-foreground">{t(tItem.name)}</p>
-                        <p className="text-xs text-muted-foreground">{t(tItem.store)}</p>
+                        <p className="font-bold text-base text-foreground">{t(tItem.name)}</p>
+                        <p className="text-sm text-primary font-medium">{t(tItem.store)}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -371,9 +388,9 @@ export default function Home() {
       </section>
 
       {/* ─── Trust bar ─── */}
-      <section className="py-12 container mx-auto px-4">
+      <section className="py-16 container mx-auto px-4 border-b border-border/40">
         <motion.div
-          className="flex flex-wrap justify-center gap-8 items-center"
+          className="flex flex-wrap justify-center gap-12 items-center"
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
         >
           {[
@@ -384,8 +401,10 @@ export default function Home() {
           ].map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.text} className="flex items-center gap-2 text-muted-foreground text-sm">
-                <Icon className="w-4 h-4 text-primary" />
+              <div key={item.text} className="flex items-center gap-3 text-muted-foreground font-medium hover:text-primary transition-colors cursor-default">
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
                 {t(item.text)}
               </div>
             );
@@ -393,22 +412,26 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ─── Final CTA ─── */}
-      <section className="py-24 bg-primary text-primary-foreground">
+      {/* ─── Final CTA: Big & Bold ─── */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-primary" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+        <div className="absolute top-0 start-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-gradient-to-b from-white/10 to-transparent blur-3xl rounded-full" />
+
         <motion.div
-          className="container mx-auto px-4 text-center"
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="container mx-auto px-4 text-center relative z-10"
+          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">{t("home.cta.title")}</h2>
-          <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
+          <h2 className="text-5xl md:text-7xl font-extrabold mb-6 text-primary-foreground tracking-tight">{t("home.cta.title")}</h2>
+          <p className="text-primary-foreground/90 text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
             {t("home.cta.subtitle")}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" variant="secondary" className="rounded-full px-10 text-base h-13 shadow-lg" asChild>
-              <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
+            <Button size="lg" variant="secondary" className="rounded-full px-12 text-lg h-16 shadow-2xl hover:scale-105 transition-transform" asChild>
+              <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-5 h-5 me-2" /> : <ArrowLeft className="w-5 h-5 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
             </Button>
-            <Button size="lg" variant="ghost" className="rounded-full px-10 text-base h-13 text-primary-foreground border border-primary-foreground/30 hover:bg-primary-foreground/10" asChild>
-              <Link href="/login">{t("home.btnMerchantLogin")} {i18n.dir() === "rtl" ? <ChevronLeft className="w-4 h-4 me-1" /> : <ChevronLeft className="w-4 h-4 ms-1" style={{transform: 'rotate(180deg)'}} />}</Link>
+            <Button size="lg" variant="ghost" className="rounded-full px-12 text-lg h-16 text-primary-foreground border-2 border-primary-foreground/30 hover:bg-primary-foreground/10 hover:border-primary-foreground/50 hover:scale-105 transition-all" asChild>
+              <Link href="/login">{t("home.btnMerchantLogin")}</Link>
             </Button>
           </div>
         </motion.div>
