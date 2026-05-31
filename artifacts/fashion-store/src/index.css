@@ -219,7 +219,7 @@ html[dir="rtl"] span {
    ─────────────────────────────────────────────────────────── */
 .home-theme {
   /* Neutrals */
-  --background: 30 50% 98%;        /* soft mint-white */
+  --background: 40 30% 98%;        /* soft mint-white */
   --foreground: 340 20% 15%;        /* deep ink */
   --border: 340 30% 90%;
   --input: 340 30% 90%;
@@ -251,7 +251,7 @@ html[dir="rtl"] span {
 }
 
 .dark .home-theme {
-  --background: 340 20% 10%;         /* deep ink */
+  --background: 340 15% 10%;         /* deep ink */
   --foreground: 30 30% 96%;
   --border: 340 20% 20%;
   --input: 340 20% 20%;
