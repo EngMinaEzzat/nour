@@ -420,7 +420,7 @@ export function Layout({ children }: { children: ReactNode }) {
   }, [mobileOpen]);
 
   return (
-    <div className={`min-h-screen bg-background flex ${location === "/" ? "home-theme" : ""}`}>
+    <div className={`min-h-screen bg-background flex`}>
 
       {/* ─── Sidebar (Desktop) ─── */}
       {isAuthenticated && merchantNav.length > 0 && (

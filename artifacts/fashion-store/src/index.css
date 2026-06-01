@@ -66,32 +66,32 @@
   --elevate-2: rgba(0,0,0, .08);
 
   /* Warm beige/champagne background */
-  --background: 36 33% 98%;
-  --foreground: 346 19% 14%;
+  --background: 40 30% 98%;
+  --foreground: 340 20% 15%;
   
-  --border: 22 36% 87%;
+  --border: 340 30% 90%;
   
   --card: 0 0% 100%;
-  --card-foreground: 346 19% 14%;
-  --card-border: 22 36% 90%;
+  --card-foreground: 340 20% 15%;
+  --card-border: 340 30% 92%;
   
   --popover: 0 0% 100%;
-  --popover-foreground: 346 19% 14%;
-  --popover-border: 22 36% 90%;
+  --popover-foreground: 340 20% 15%;
+  --popover-border: 340 30% 92%;
   
   /* Deep Magenta */
-  --primary: 344 64% 37%;
+  --primary: 340 40% 60%;
   --primary-foreground: 0 0% 100%;
   
   /* Dusty Rose */
-  --secondary: 21 49% 79%;
-  --secondary-foreground: 346 19% 14%;
+  --secondary: 340 50% 95%;
+  --secondary-foreground: 340 50% 30%;
   
-  --muted: 23 37% 93%;
-  --muted-foreground: 346 10% 45%;
+  --muted: 30 30% 96%;
+  --muted-foreground: 340 15% 45%;
   
   /* Warm Gold */
-  --accent: 46 65% 52%;
+  --accent: 40 70% 60%;
   --accent-foreground: 0 0% 100%;
   
   --destructive: 0 84% 60%;
@@ -104,8 +104,8 @@
   --info: 204 78% 43%;
   --info-foreground: 0 0% 100%;
   
-  --input: 22 36% 87%;
-  --ring: 344 64% 37%;
+  --input: 340 30% 90%;
+  --ring: 340 40% 60%;
   
   --app-font-sans: 'Cairo', 'Tajawal', sans-serif;
   --app-font-serif: 'Cairo', 'Tajawal', sans-serif;
@@ -169,32 +169,32 @@ html[dir="rtl"] span {
   --elevate-2: rgba(255,255,255, .09);
 
   /* Dark Marble */
-  --background: 336 6% 7%;
-  --foreground: 36 33% 95%;
+  --background: 340 15% 10%;
+  --foreground: 30 30% 96%;
   
-  --border: 336 10% 18%;
+  --border: 340 20% 20%;
   
-  --card: 336 8% 10%;
-  --card-foreground: 36 33% 95%;
-  --card-border: 336 10% 18%;
+  --card: 340 20% 12%;
+  --card-foreground: 30 30% 96%;
+  --card-border: 340 20% 20%;
   
-  --popover: 336 8% 10%;
-  --popover-foreground: 36 33% 95%;
-  --popover-border: 336 10% 18%;
+  --popover: 340 20% 12%;
+  --popover-foreground: 30 30% 96%;
+  --popover-border: 340 20% 20%;
   
   /* Deep Magenta */
-  --primary: 344 64% 45%;
+  --primary: 340 40% 50%;
   --primary-foreground: 0 0% 100%;
   
   /* Dusty Rose */
-  --secondary: 21 49% 30%;
-  --secondary-foreground: 36 33% 95%;
+  --secondary: 340 30% 20%;
+  --secondary-foreground: 340 30% 80%;
   
-  --muted: 336 10% 15%;
-  --muted-foreground: 36 20% 70%;
+  --muted: 340 20% 15%;
+  --muted-foreground: 340 15% 65%;
   
   /* Warm Gold */
-  --accent: 46 65% 40%;
+  --accent: 40 70% 50%;
   --accent-foreground: 0 0% 100%;
   
   --destructive: 0 62% 30%;
@@ -207,77 +207,12 @@ html[dir="rtl"] span {
   --info: 204 70% 50%;
   --info-foreground: 0 0% 100%;
   
-  --input: 336 10% 18%;
-  --ring: 344 64% 45%;
-}
-
-/* ───────────────────────────────────────────────────────────
-   Home landing page ONLY — scoped "Emerald Premium" palette.
-   These custom-property overrides cascade to every descendant of
-   .home-theme, so all shadcn components (Button, Card, Badge, …)
-   re-theme automatically without affecting the rest of the app.
-   ─────────────────────────────────────────────────────────── */
-.home-theme {
-  /* Neutrals */
-  --background: 40 30% 98%;        /* soft mint-white */
-  --foreground: 340 20% 15%;        /* deep ink */
-  --border: 340 30% 90%;
-  --input: 340 30% 90%;
-
-  --card: 0 0% 100%;
-  --card-foreground: 340 20% 15%;
-  --card-border: 340 30% 92%;
-
-  --popover: 0 0% 100%;
-  --popover-foreground: 340 20% 15%;
-  --popover-border: 340 30% 92%;
-
-  /* Deep Emerald primary */
-  --primary: 340 40% 60%;
-  --primary-foreground: 0 0% 100%;
-
-  /* Soft mint secondary */
-  --secondary: 340 50% 95%;
-  --secondary-foreground: 340 50% 30%;
-
-  --muted: 30 30% 96%;
-  --muted-foreground: 340 15% 45%;
-
-  /* Warm Amber accent */
-  --accent: 40 70% 60%;
-  --accent-foreground: 0 0% 100%;
-
-  --ring: 340 40% 60%;
-}
-
-.dark .home-theme {
-  --background: 340 15% 10%;         /* deep ink */
-  --foreground: 30 30% 96%;
-  --border: 340 20% 20%;
   --input: 340 20% 20%;
-
-  --card: 340 20% 12%;
-  --card-foreground: 30 30% 96%;
-  --card-border: 340 20% 20%;
-
-  --popover: 340 20% 12%;
-  --popover-foreground: 30 30% 96%;
-  --popover-border: 340 20% 20%;
-
-  --primary: 340 40% 50%;
-  --primary-foreground: 30 30% 96%;
-
-  --secondary: 340 30% 20%;
-  --secondary-foreground: 340 30% 80%;
-
-  --muted: 340 20% 15%;
-  --muted-foreground: 340 15% 65%;
-
-  --accent: 40 70% 50%;
-  --accent-foreground: 30 30% 96%;
-
   --ring: 340 40% 50%;
 }
+
+
+
 
 @layer base {
   * {

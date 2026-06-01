@@ -69,7 +69,7 @@ export default function Home() {
   const { t, i18n } = useTranslation();
 
   return (
-    <div className="home-theme flex flex-col bg-background text-foreground" dir={i18n.dir()}>
+    <div className="flex flex-col bg-background text-foreground" dir={i18n.dir()}>
       <SEO 
         title={i18n.language === "ar" ? "نور — إنشاء متجرك الإلكتروني في ثوانٍ" : "Nour — Create your online store in seconds"}
         description={i18n.language === "ar" ? "منصة نور للتجارة الإلكترونية تتيح لك إطلاق متجرك الخاص بسهولة وسرعة." : "Nour e-commerce platform allows you to launch your own store easily and quickly."}
