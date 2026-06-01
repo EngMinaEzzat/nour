@@ -64,20 +64,25 @@ export default function Home() {
           "url": window.location.origin
         }}
       />
-      {/* ─── Hero: Full Video Background ─── */}
-      <section className="relative overflow-hidden min-h-[90vh] flex flex-col items-center justify-center text-center pt-20 pb-20">
+      {/* ─── Hero: Mobile Optimized Glassmorphic Video Background ─── */}
+      <section className="relative overflow-hidden min-h-[100dvh] flex flex-col items-center justify-center text-center pt-24 pb-20">
         <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" poster={LANDING_CONFIG.hero.posterUrl}>
           <source src={LANDING_CONFIG.hero.videoUrl} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-background/70 backdrop-blur-sm z-0" />
+        <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-0" />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-4xl mx-auto flex flex-col items-center">
-            <Badge className="mb-6 text-sm px-4 py-1.5 bg-background/80 backdrop-blur-md text-primary border-primary/20 rounded-full shadow-lg">
+        <div className="container mx-auto px-4 relative z-10 w-full flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="w-full max-w-4xl mx-auto flex flex-col items-center bg-background/85 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-primary/20 border border-white/20"
+          >
+            <Badge className="mb-6 text-sm px-4 py-1.5 bg-background text-primary border-primary/20 rounded-full shadow-sm">
               <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-primary" />
               {LANDING_CONFIG.hero.badge[i18n.language as "en" | "ar"]}
             </Badge>
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
               {LANDING_CONFIG.hero.title1[i18n.language as "en" | "ar"]}
               <span className="text-primary relative inline-block mx-2">
                 {LANDING_CONFIG.hero.titleHighlight[i18n.language as "en" | "ar"]}
@@ -85,20 +90,20 @@ export default function Home() {
                   <path d="M2 8 Q75 2 150 8 Q225 14 298 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary opacity-40" />
                 </svg>
               </span>
-              <br />{LANDING_CONFIG.hero.title2[i18n.language as "en" | "ar"]}
+              <br className="hidden sm:block" />{LANDING_CONFIG.hero.title2[i18n.language as "en" | "ar"]}
             </h1>
-            <p className="text-xl text-foreground/80 mb-10 leading-relaxed max-w-2xl mx-auto font-medium">
+            <p className="text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto font-medium">
               {LANDING_CONFIG.hero.subtitle[i18n.language as "en" | "ar"]}
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="rounded-full px-10 text-base h-14 shadow-xl shadow-primary/30 hover:scale-105 transition-transform" asChild>
+            <div className="flex flex-col sm:flex-row flex-wrap w-full sm:w-auto justify-center gap-4">
+              <Button size="lg" className="w-full sm:w-auto rounded-full px-10 text-base h-14 shadow-xl shadow-primary/30 hover:scale-105 transition-transform" asChild>
                 <Link href="/register">{t("home.btnStartFree")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 ms-2" style={{transform: 'rotate(180deg)'}} />}</Link>
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full px-10 text-base h-14 bg-background/80 backdrop-blur-md border-border/50 hover:bg-background/90 hover:scale-105 transition-transform" asChild>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-10 text-base h-14 bg-background/50 backdrop-blur-md border-border/50 hover:bg-background/90 hover:scale-105 transition-transform" asChild>
                 <Link href="/login">{t("home.btnMerchantLogin")}</Link>
               </Button>
             </div>
-            <div className="mt-8 text-sm text-foreground/70 flex items-center justify-center gap-2 font-medium bg-background/40 backdrop-blur-sm px-4 py-2 rounded-full">
+            <div className="mt-8 text-sm text-muted-foreground flex items-center justify-center gap-2 font-medium bg-background/50 backdrop-blur-sm px-4 py-2 rounded-full border border-border/30">
               <CheckCircle2 className="w-4 h-4 text-primary" /> {i18n.language === "ar" ? "لا بطاقة ائتمان مطلوبة • إلغاء في أي وقت" : "No credit card required • Cancel anytime"}
             </div>
           </motion.div>
