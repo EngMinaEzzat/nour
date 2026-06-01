@@ -75,7 +75,7 @@ export function HeroSection({
 
         {/* Store name as editorial headline */}
         <motion.h1
-          className="text-6xl md:text-7xl lg:text-8xl leading-[0.9] text-stone-900 mb-6"
+          className="text-6xl md:text-7xl lg:text-8xl leading-[0.9] text-[hsl(340,20%,15%)] mb-6"
           style={{ fontFamily: SERIF, fontWeight: 300, direction: i18n.dir() }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -86,7 +86,7 @@ export function HeroSection({
 
         {description && (
           <motion.p
-            className="text-stone-500 text-[15px] leading-relaxed mb-8 max-w-xs"
+            className="text-[hsl(340,15%,45%)] text-[15px] leading-relaxed mb-8 max-w-xs"
             style={{ direction: i18n.dir() }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

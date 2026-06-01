@@ -157,7 +157,7 @@ export function StoreFooter({
                   <li key={link.label}>
                     <button
                       onClick={link.action}
-                      className="text-sm transition-colors hover:text-white text-start w-full"
+                      className="text-sm transition-colors hover:text-[hsl(40,30%,98%)] text-start w-full"
                     >
                       {link.label}
                     </button>

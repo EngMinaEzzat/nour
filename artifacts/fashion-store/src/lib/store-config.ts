@@ -378,8 +378,8 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
 
 // ─── Default theme ────────────────────────────────────────────────────────────
 export const DEFAULT_THEME: ThemeConfig = {
-  primaryColor: "#8B1A35",
-  secondaryColor: "#c8963a",
+  primaryColor: "hsl(340, 40%, 60%)",
+  secondaryColor: "hsl(340, 50%, 95%)",
   fontPairing: "serif-sans",
   buttonStyle: "pill",
   radius: 8,

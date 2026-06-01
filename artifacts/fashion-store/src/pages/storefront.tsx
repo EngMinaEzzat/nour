@@ -52,8 +52,8 @@ function getWhatsAppNumber(store: StoreData): string | null {
 // ─── Loading Skeleton ─────────────────────────────────────────────────────────
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen" style={{ background: "#faf7f4" }}>
-      <Skeleton className="h-9 w-full" style={{ background: "#e8d0d7" }} />
+    <div className="min-h-screen" style={{ background: "hsl(40, 30%, 98%)" }}>
+      <Skeleton className="h-9 w-full" style={{ background: "hsl(340, 50%, 95%)" }} />
       <Skeleton className="h-16 w-full" />
       <div className="flex flex-col-reverse md:flex-row" style={{ minHeight: "88vh" }}>
         <div className="md:w-[44%] p-14 flex flex-col gap-5">
@@ -116,7 +116,7 @@ function CategoryFilter({
               ? { background: p, color: "#fff" }
               : {
                   background: "#fff",
-                  color: "#7a6060",
+                  color: "hsl(340, 20%, 15%)",
                   border: "1px solid rgba(122,96,96,0.2)",
                 }
           }
@@ -135,7 +135,7 @@ function CategoryFilter({
                   ? { background: p, color: "#fff" }
                   : {
                       background: "#fff",
-                      color: "#7a6060",
+                      color: "hsl(340, 20%, 15%)",
                       border: "1px solid rgba(122,96,96,0.2)",
                     }
               }
@@ -220,7 +220,7 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0 }}
-                className="bg-white shadow-xl rounded-2xl px-4 py-2.5 text-xs font-medium text-stone-700 whitespace-nowrap border border-stone-100"
+                className="bg-white shadow-xl rounded-2xl px-4 py-2.5 text-xs font-medium text-stone-700 whitespace-nowrap border border-[hsl(340,30%,90%)]"
                 style={{ direction: i18n.dir() }}
               >
                 {t("storefront.trust.support")}
@@ -294,8 +294,8 @@ function EditorTextSection({
     return (
       <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "#faf7f4", direction: i18n.dir() }}>
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-4xl text-stone-900 mb-3" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
-          {body && <p className="text-stone-500 text-sm mb-6">{body}</p>}
+          <h2 className="text-4xl text-[hsl(340,20%,15%)] mb-3" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
+          {body && <p className="text-[hsl(340,15%,45%)] text-sm mb-6">{body}</p>}
           <button onClick={onScrollToProducts} className="px-8 py-3 rounded-full text-white text-sm font-semibold" style={{ background: primaryColor }}>
             {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow")}
           </button>
@@ -311,13 +311,13 @@ function EditorTextSection({
         <div className="max-w-5xl mx-auto">
           <div className={`grid gap-12 items-center ${imageUrl ? "md:grid-cols-2" : "grid-cols-1"}`}>
             {imageUrl && (
-              <div className="aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden bg-stone-100 order-first">
+              <div className="aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden bg-[hsl(340,30%,90%)] order-first">
                 <img src={imageUrl} alt={heading} className="w-full h-full object-cover" />
               </div>
             )}
             <div className={!imageUrl ? "text-center max-w-3xl mx-auto" : ""}>
-              <h2 className="text-4xl md:text-5xl text-stone-900 mb-6" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
-              {body && <p className="text-stone-500 text-base leading-relaxed whitespace-pre-wrap">{body}</p>}
+              <h2 className="text-4xl md:text-5xl text-[hsl(340,20%,15%)] mb-6" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
+              {body && <p className="text-[hsl(340,15%,45%)] text-base leading-relaxed whitespace-pre-wrap">{body}</p>}
             </div>
           </div>
         </div>
@@ -328,14 +328,14 @@ function EditorTextSection({
   return (
     <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: i18n.dir() }}>
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl text-stone-900 mb-4" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
-        {body && <p className="text-stone-500 text-sm leading-7 max-w-2xl mx-auto mb-8">{body}</p>}
+        <h2 className="text-4xl md:text-5xl text-[hsl(340,20%,15%)] mb-4" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
+        {body && <p className="text-[hsl(340,15%,45%)] text-sm leading-7 max-w-2xl mx-auto mb-8">{body}</p>}
         {items.length > 0 && (
           <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 text-start`}>
             {items.slice(0, 6).map((item, index) => (
-              <div key={index} className="border border-stone-100 rounded-2xl p-5 bg-[#faf7f4]">
-                <p className="font-semibold text-stone-900 mb-2">{item.title ?? item.q ?? item.name ?? ""}</p>
-                <p className="text-sm text-stone-500 leading-6">{item.text ?? item.a ?? ""}</p>
+              <div key={index} className="border border-[hsl(340,30%,90%)] rounded-2xl p-5 bg-[hsl(40,30%,98%)]">
+                <p className="font-semibold text-[hsl(340,20%,15%)] mb-2">{item.title ?? item.q ?? item.name ?? ""}</p>
+                <p className="text-sm text-[hsl(340,15%,45%)] leading-6">{item.text ?? item.a ?? ""}</p>
               </div>
             ))}
           </div>
@@ -560,12 +560,12 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
             <AlertCircle className="w-12 h-12 text-rose-400" />
           </div>
           <h1
-            className="text-3xl font-bold mb-2 text-stone-900"
+            className="text-3xl font-bold mb-2 text-[hsl(340,20%,15%)]"
             style={{ fontFamily: SERIF }}
           >
             {t("storefront.error.notFoundTitle")}
           </h1>
-          <p className="text-stone-400 mb-8 max-w-sm text-sm">
+          <p className="text-[hsl(340,15%,55%)] mb-8 max-w-sm text-sm">
             {t("storefront.error.notFoundDesc")}
           </p>
           <Link
@@ -795,7 +795,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           <section
             id="products-section"
             className="py-16 md:py-24 px-4 sm:px-6"
-            style={{ background: "#fff" }}
+            style={{ background: "hsl(0, 0%, 100%)" }}
           >
             <div className="max-w-7xl mx-auto">
               <div className="flex items-center gap-4 mb-8" style={{ direction: i18n.dir() }}>
@@ -807,14 +807,14 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     {typeof section.content.subheading === "string" ? section.content.subheading : t("storefront.categories.viewAll")}
                   </p>
                   <h2
-                    className="text-4xl text-stone-900"
+                    className="text-4xl text-[hsl(340,20%,15%)]"
                     style={{ fontFamily: SERIF, fontWeight: 400 }}
                   >
                     {typeof section.content.heading === "string" ? section.content.heading : t("storefront.products.viewAll")}
                   </h2>
                 </div>
-                <div className="flex-1 h-px bg-stone-100 mx-4" />
-                <span className="text-sm text-stone-400 shrink-0">
+                <div className="flex-1 h-px bg-[hsl(340,30%,90%)] mx-4" />
+                <span className="text-sm text-[hsl(340,15%,55%)] shrink-0">
                   {liveStore.products.length} {t("storefront.products.productCount")}
                 </span>
               </div>
@@ -847,11 +847,11 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     className="text-center py-24"
                     style={{ direction: i18n.dir() }}
                   >
-                    <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
+                    <Package className="w-12 h-12 mx-auto mb-4 text-[hsl(340,30%,85%)]" />
                     <p className="text-stone-800 text-sm font-semibold">
                       {t("storefront.products.emptyCategory")}
                     </p>
-                    <p className="text-stone-400 text-xs mt-2 max-w-sm mx-auto leading-6">
+                    <p className="text-[hsl(340,15%,55%)] text-xs mt-2 max-w-sm mx-auto leading-6">
                       {t("storefront.products.emptyHint")}
                     </p>
                     {hasCatalogFilters && (
@@ -1031,7 +1031,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       <section
         id="products-section"
         className="py-16 md:py-24 px-4 sm:px-6"
-        style={{ background: "#fff" }}
+        style={{ background: "hsl(0, 0%, 100%)" }}
       >
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -1044,14 +1044,14 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 {t("storefront.categories.viewAll")}
               </p>
               <h2
-                className="text-4xl text-stone-900"
+                className="text-4xl text-[hsl(340,20%,15%)]"
                 style={{ fontFamily: SERIF, fontWeight: 400 }}
               >
                 {t("storefront.products.viewAll")}
               </h2>
             </div>
-            <div className="flex-1 h-px bg-stone-100 mx-4" />
-            <span className="text-sm text-stone-400 shrink-0">
+            <div className="flex-1 h-px bg-[hsl(340,30%,90%)] mx-4" />
+            <span className="text-sm text-[hsl(340,15%,55%)] shrink-0">
               {store.products.length} {t("storefront.products.productCount")}
             </span>
           </div>
@@ -1086,11 +1086,11 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 className="text-center py-24"
                 style={{ direction: i18n.dir() }}
               >
-                <Package className="w-12 h-12 mx-auto mb-4 text-stone-200" />
+                <Package className="w-12 h-12 mx-auto mb-4 text-[hsl(340,30%,85%)]" />
                 <p className="text-stone-800 text-sm font-semibold">
                   {t("storefront.products.emptyCategory")}
                 </p>
-                <p className="text-stone-400 text-xs mt-2 max-w-sm mx-auto leading-6">
+                <p className="text-[hsl(340,15%,55%)] text-xs mt-2 max-w-sm mx-auto leading-6">
                   {t("storefront.products.emptyHint")}
                 </p>
                 {hasCatalogFilters && (

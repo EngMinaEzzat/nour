@@ -121,7 +121,7 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
                   onChange={e => setEmail(e.target.value)}
                   placeholder={t("storefront.home.newsletter.emailPlaceholder")}
                   required
-                  className="flex-1 px-5 py-3.5 rounded-full text-sm outline-none text-stone-900 placeholder:text-stone-400 text-left"
+                  className="flex-1 px-5 py-3.5 rounded-full text-sm outline-none text-[hsl(340,20%,15%)] placeholder:text-stone-400 text-left"
                   style={{
                     background: "rgba(250,247,244,0.95)",
                     direction: "ltr",

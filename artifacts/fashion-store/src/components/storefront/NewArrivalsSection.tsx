@@ -59,7 +59,7 @@ export function NewArrivalsSection({
               {t("storefront.home.newArrivals.eyebrow")}
             </p>
             <h2
-              className="text-4xl md:text-5xl text-stone-900"
+              className="text-4xl md:text-5xl text-[hsl(340,20%,15%)]"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
               {t("storefront.home.newArrivals.title")}

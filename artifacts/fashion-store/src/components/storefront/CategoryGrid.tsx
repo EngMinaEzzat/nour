@@ -47,7 +47,7 @@ export function CategoryGrid({
               {t("storefront.home.categories.eyebrow")}
             </p>
             <h2
-              className="text-4xl md:text-5xl text-stone-900"
+              className="text-4xl md:text-5xl text-[hsl(340,20%,15%)]"
               style={{ fontFamily: SERIF, fontWeight: 400 }}
             >
               {t("storefront.home.categories.title")}
@@ -97,7 +97,7 @@ export function CategoryGrid({
                   className="absolute inset-0 flex items-center justify-center"
                   style={{ background: `linear-gradient(135deg, ${p}18, ${accent}30)` }}
                 >
-                  <Sparkles className="w-12 h-12 text-stone-900/25" />
+                  <Sparkles className="w-12 h-12 text-[hsl(340,20%,15%)]/25" />
                 </div>
                 {category.imageUrl ? (
                   <img

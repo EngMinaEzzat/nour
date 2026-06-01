@@ -68,7 +68,7 @@ export function TrustStrip({ primaryColor: p }: TrustStripProps) {
 
               <div>
                 <h4
-                  className="text-stone-900 font-semibold text-[15px] mb-1"
+                  className="text-[hsl(340,20%,15%)] font-semibold text-[15px] mb-1"
                   style={{ fontFamily: SERIF }}
                 >
                   {item.title}
