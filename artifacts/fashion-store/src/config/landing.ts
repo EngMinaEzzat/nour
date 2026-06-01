@@ -27,8 +27,8 @@ export const LANDING_CONFIG = {
       ar: "في دقيقة واحدة"
     },
     subtitle: {
-      en: "Nour is a 100% Egyptian SaaS platform enabling merchants to create professional fashion and beauty stores — with Paymob, Bosta, and WhatsApp ready from day one.",
-      ar: "نور هي منصة SaaS مصرية ١٠٠٪ تُمكّن التجار من إنشاء متاجر أزياء وجمال احترافية — مع Paymob وبوسطة وواتساب جاهزين من أول يوم."
+      en: "Nour is a 100% Egyptian platform enabling merchants to create professional fashion and beauty stores. Gather all your orders from different social media platforms into one organized place effortlessly.",
+      ar: "نور هي منصة مصرية ١٠٠٪ تُمكّن التجار من إنشاء متاجر أزياء وجمال احترافية. اجمعي كل طلباتك من منصات التواصل الاجتماعي المختلفة في مكان واحد منظم بكل سهولة."
     },
     videoUrl: "/videos/boutique.mp4",
     posterUrl: "/videos/boutique-poster.jpg"
@@ -48,12 +48,12 @@ export const LANDING_CONFIG = {
     {
       icon: CreditCard, color: "text-primary bg-accent/15",
       title: { en: "Integrated Payments", ar: "مدفوعات متكاملة" },
-      desc: { en: "Accept credit cards and Fawry safely and easily through Paymob.", ar: "استقبل المدفوعات بالبطاقات البنكية وفوري بأمان وسهولة عبر Paymob." }
+      desc: { en: "Accept credit cards and Fawry safely and easily through Paymob. (In progress)", ar: "استقبل المدفوعات بالبطاقات البنكية وفوري بأمان وسهولة عبر Paymob (قريباً)." }
     },
     {
       icon: Truck, color: "text-secondary-foreground bg-secondary",
       title: { en: "Automated Shipping", ar: "شحن أوتوماتيكي" },
-      desc: { en: "Seamless integration with Bosta to generate shipping waybills with one click.", ar: "ربط سلس مع بوسطة لإنشاء بوالص الشحن بضغطة زر واحدة." }
+      desc: { en: "Seamless integration with Bosta to generate shipping waybills with one click. (In progress)", ar: "ربط سلس مع بوسطة لإنشاء بوالص الشحن بضغطة زر واحدة (قريباً)." }
     },
     {
       icon: MessageCircle, color: "text-primary bg-primary/10",
@@ -116,8 +116,8 @@ export const LANDING_CONFIG = {
       badge: { en: "Most Popular", ar: "الأكثر شيوعاً" },
       features: [
         { en: "Unlimited products", ar: "منتجات غير محدودة" },
-        { en: "Paymob — E-payment", ar: "Paymob — دفع إلكتروني" },
-        { en: "Automated Bosta shipping", ar: "شحن بوسطة تلقائي" },
+        { en: "Paymob — E-payment (In progress)", ar: "Paymob — دفع إلكتروني (قريباً)" },
+        { en: "Automated Bosta shipping (In progress)", ar: "شحن بوسطة تلقائي (قريباً)" },
         { en: "Automated WhatsApp API", ar: "واتساب API أوتوماتيك" },
         { en: "Advanced analytics", ar: "تحليلات متقدمة" },
         { en: "Custom Domain", ar: "نطاق خاص (Domain)" },
