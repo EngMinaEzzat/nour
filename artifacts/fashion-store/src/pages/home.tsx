@@ -152,8 +152,8 @@ export default function Home() {
                       <Icon className={isLarge ? "w-8 h-8" : "w-6 h-6"} />
                     </div>
                     <div>
-                      <h3 className={`font-bold text-foreground mb-3 ${isLarge ? "text-2xl" : "text-xl"}`}>{f.title[i18n.language as "en" | "ar"]}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{f.desc[i18n.language as "en" | "ar"]}</p>
+                      <h3 className={`font-bold text-foreground mb-3 ${isLarge ? "text-2xl" : "text-xl"}`}>{f.title[i18n.language as "en" | "ar"] || f.title.en}</h3>
+                      <p className="text-muted-foreground leading-relaxed">{f.desc[i18n.language as "en" | "ar"] || f.desc.en}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -192,8 +192,8 @@ export default function Home() {
                   className="flex flex-col md:flex-row items-center gap-8 mb-16 last:mb-0"
                 >
                   <div className={`flex-1 ${i % 2 !== 0 ? "md:order-2 md:text-start text-center" : "md:text-end text-center"}`}>
-                    <h3 className="font-bold text-2xl mb-3 text-background">{step.title[i18n.language as "en" | "ar"]}</h3>
-                    <p className="text-background/70 text-lg leading-relaxed">{step.desc[i18n.language as "en" | "ar"]}</p>
+                    <h3 className="font-bold text-2xl mb-3 text-background">{step.title[i18n.language as "en" | "ar"] || step.title.en}</h3>
+                    <p className="text-background/70 text-lg leading-relaxed">{step.desc[i18n.language as "en" | "ar"] || step.desc.en}</p>
                   </div>
 
                   <div className="shrink-0 relative md:order-1 flex items-center justify-center">
@@ -244,24 +244,24 @@ export default function Home() {
                 )}
                 <CardContent className={`pt-10 pb-8 flex flex-col h-full ${isFeatured ? "px-8" : "px-6"}`}>
                   <div className="mb-8 text-center border-b border-border/40 pb-8">
-                    <h3 className="text-2xl font-bold text-foreground mb-4">{plan.name[i18n.language as "en" | "ar"]}</h3>
+                    <h3 className="text-2xl font-bold text-foreground mb-4">{plan.name[i18n.language as "en" | "ar"] || plan.name.en}</h3>
                     <div className="flex items-center justify-center items-baseline gap-1 mt-2">
                       <span className="text-5xl font-extrabold text-foreground">{t(plan.price) === '0' ? '0' : Number(t(plan.price)).toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}</span>
                       {plan.price !== "0" && <span className="text-muted-foreground font-medium">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
                       {plan.price === "0" && <span className="text-muted-foreground font-medium">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
                     </div>
-                    <p className="text-muted-foreground text-sm mt-2">{plan.desc[i18n.language as "en" | "ar"]}</p>
+                    <p className="text-muted-foreground text-sm mt-2">{plan.desc[i18n.language as "en" | "ar"] || plan.desc.en}</p>
                   </div>
                   <ul className="space-y-4 flex-1 mb-8">
                     {plan.features.map((f) => (
                       <li key={typeof f === "object" ? f.en : f} className="flex items-start gap-3">
                         <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                        <span className="text-foreground font-medium">{typeof f === "object" && f !== null ? f[i18n.language as "en" | "ar"] : f}</span>
+                        <span className="text-foreground font-medium">{typeof f === "object" && f !== null ? (f[i18n.language as "en" | "ar"] || f.en) : f}</span>
                       </li>
                     ))}
                   </ul>
                   <Button variant={plan.variant} size="lg" className={`w-full rounded-xl h-14 text-base ${isFeatured ? "shadow-lg shadow-primary/25" : ""}`} asChild>
-                    <Link href={plan.href}>{plan.cta[i18n.language as "en" | "ar"]}</Link>
+                    <Link href={plan.href}>{plan.cta[i18n.language as "en" | "ar"] || plan.cta.en}</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -317,14 +317,14 @@ export default function Home() {
                         <Star key={i} className="w-5 h-5 fill-accent text-accent" />
                       ))}
                     </div>
-                    <p className="text-foreground text-lg leading-relaxed mb-6 font-medium">"{tItem.text[i18n.language as "en" | "ar"]}"</p>
+                    <p className="text-foreground text-lg leading-relaxed mb-6 font-medium">"{tItem.text[i18n.language as "en" | "ar"] || tItem.text["en"]}"</p>
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-lg shadow-md">
-                        {tItem.name[i18n.language as "en" | "ar"][0]}
+                        {(tItem.name[i18n.language as "en" | "ar"] || tItem.name["en"] || " ")[0]}
                       </div>
                       <div>
-                        <p className="font-bold text-base text-foreground">{tItem.name[i18n.language as "en" | "ar"]}</p>
-                        <p className="text-sm text-primary font-medium">{tItem.store[i18n.language as "en" | "ar"]}</p>
+                        <p className="font-bold text-base text-foreground">{tItem.name[i18n.language as "en" | "ar"] || tItem.name["en"]}</p>
+                        <p className="text-sm text-primary font-medium">{tItem.store[i18n.language as "en" | "ar"] || tItem.store["en"]}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -348,7 +348,7 @@ export default function Home() {
                 <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
-                {item.text[i18n.language as "en" | "ar"]}
+                {item.text[i18n.language as "en" | "ar"] || item.text.en}
               </div>
             );
           })}
