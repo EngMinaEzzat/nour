@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { getBaseDomain } from "@/lib/utils";
 import { SEO } from "@/components/seo";
+import { LANDING_CONFIG } from "@/config/landing";
+
 
 /* ─── animated counter ─── */
 function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
@@ -38,32 +40,13 @@ const stagger = {
   item: { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.45 } } },
 };
 
-const FEATURES = [
-  { icon: Store, color: "text-primary bg-primary/10", title: "home.features.f1_title", desc: "home.features.f1_desc" },
-  { icon: CreditCard, color: "text-primary bg-accent/15", title: "home.features.f2_title", desc: "home.features.f2_desc" },
-  { icon: Truck, color: "text-secondary-foreground bg-secondary", title: "home.features.f3_title", desc: "home.features.f3_desc" },
-  { icon: MessageCircle, color: "text-primary bg-primary/10", title: "home.features.f4_title", desc: "home.features.f4_desc" },
-  { icon: BarChart3, color: "text-primary bg-accent/15", title: "home.features.f5_title", desc: "home.features.f5_desc" },
-  { icon: Users, color: "text-secondary-foreground bg-secondary", title: "home.features.f6_title", desc: "home.features.f6_desc" },
-];
 
-const STEPS = [
-  { num: "1", title: "home.steps.s1_title", desc: "home.steps.s1_desc", icon: Zap },
-  { num: "2", title: "home.steps.s2_title", desc: "home.steps.s2_desc", icon: Sparkles },
-  { num: "3", title: "home.steps.s3_title", desc: "home.steps.s3_desc", icon: Globe },
-];
 
-const PLANS = [
-  { name: "home.pricing.free_name", price: "0", desc: "home.pricing.free_desc", badge: null, features: ["home.pricing.free_f1", "home.pricing.free_f2", "home.pricing.free_f3", "home.pricing.free_f4", "home.pricing.free_f5"], cta: "home.pricing.free_cta", href: "/register", variant: "outline" as const },
-  { name: "home.pricing.pro_name", price: "home.pricing.pro_price", desc: "home.pricing.pro_desc", badge: "home.pricing.pro_badge", features: ["home.pricing.pro_f1", "home.pricing.pro_f2", "home.pricing.pro_f3", "home.pricing.pro_f4", "home.pricing.pro_f5", "home.pricing.pro_f6", "home.pricing.pro_f7"], cta: "home.pricing.pro_cta", href: "/register", variant: "default" as const },
-  { name: "home.pricing.ent_name", price: "home.pricing.ent_price", desc: "home.pricing.ent_desc", badge: null, features: ["home.pricing.ent_f1", "home.pricing.ent_f2", "home.pricing.ent_f3", "home.pricing.ent_f4", "home.pricing.ent_f5"], cta: "home.pricing.ent_cta", href: "/register", variant: "outline" as const },
-];
 
-const TESTIMONIALS = [
-  { name: "home.testimonials.t1_name", store: "home.testimonials.t1_store", text: "home.testimonials.t1_text", stars: 5 },
-  { name: "home.testimonials.t2_name", store: "home.testimonials.t2_store", text: "home.testimonials.t2_text", stars: 5 },
-  { name: "home.testimonials.t3_name", store: "home.testimonials.t3_store", text: "home.testimonials.t3_text", stars: 5 },
-];
+
+
+
+
 
 export default function Home() {
   const { t, i18n } = useTranslation();
@@ -83,8 +66,8 @@ export default function Home() {
       />
       {/* ─── Hero: Full Video Background ─── */}
       <section className="relative overflow-hidden min-h-[90vh] flex flex-col items-center justify-center text-center pt-20 pb-20">
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" poster="/videos/boutique-poster.jpg">
-          <source src="/videos/boutique.mp4" type="video/mp4" />
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" poster={LANDING_CONFIG.hero.posterUrl}>
+          <source src={LANDING_CONFIG.hero.videoUrl} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-background/70 backdrop-blur-sm z-0" />
 
@@ -92,20 +75,20 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-4xl mx-auto flex flex-col items-center">
             <Badge className="mb-6 text-sm px-4 py-1.5 bg-background/80 backdrop-blur-md text-primary border-primary/20 rounded-full shadow-lg">
               <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-primary" />
-              {t("home.badge")}
+              {LANDING_CONFIG.hero.badge[i18n.language as "en" | "ar"]}
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
-              {t("home.title_1")}
+              {LANDING_CONFIG.hero.title1[i18n.language as "en" | "ar"]}
               <span className="text-primary relative inline-block mx-2">
-                {t("home.title_highlight")}
+                {LANDING_CONFIG.hero.titleHighlight[i18n.language as "en" | "ar"]}
                 <svg className="absolute -bottom-2 start-0 w-full" viewBox="0 0 300 12" fill="none">
                   <path d="M2 8 Q75 2 150 8 Q225 14 298 8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-primary opacity-40" />
                 </svg>
               </span>
-              <br />{t("home.title_2")}
+              <br />{LANDING_CONFIG.hero.title2[i18n.language as "en" | "ar"]}
             </h1>
             <p className="text-xl text-foreground/80 mb-10 leading-relaxed max-w-2xl mx-auto font-medium">
-              {t("home.subtitle")}
+              {LANDING_CONFIG.hero.subtitle[i18n.language as "en" | "ar"]}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button size="lg" className="rounded-full px-10 text-base h-14 shadow-xl shadow-primary/30 hover:scale-105 transition-transform" asChild>
@@ -116,7 +99,7 @@ export default function Home() {
               </Button>
             </div>
             <div className="mt-8 text-sm text-foreground/70 flex items-center justify-center gap-2 font-medium bg-background/40 backdrop-blur-sm px-4 py-2 rounded-full">
-              <CheckCircle2 className="w-4 h-4 text-primary" /> {t("home.noCreditCard")}
+              <CheckCircle2 className="w-4 h-4 text-primary" /> {i18n.language === "ar" ? "لا بطاقة ائتمان مطلوبة • إلغاء في أي وقت" : "No credit card required • Cancel anytime"}
             </div>
           </motion.div>
         </div>
@@ -129,17 +112,12 @@ export default function Home() {
             className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-border/40 rtl:divide-x-reverse"
             variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
           >
-            {[
-              { value: 500, suffix: "+", label: t("home.stats.merchants") },
-              { value: 12000, suffix: "+", label: t("home.stats.orders") },
-              { value: 98, suffix: "%", label: t("home.stats.satisfaction") },
-              { value: 1, suffix: t("home.stats.minutes"), label: t("home.stats.minutes") },
-            ].map((s) => (
-              <motion.div key={s.label} variants={stagger.item} className="px-4">
+            {LANDING_CONFIG.stats.map((s) => (
+              <motion.div key={s.label.en} variants={stagger.item} className="px-4">
                 <p className="text-4xl md:text-5xl font-bold text-primary mb-2">
-                  <Counter target={s.value} suffix={s.label === t("home.stats.minutes") ? "" : s.suffix} />
+                  <Counter target={s.value} suffix={false ? "" : s.suffix} />
                 </p>
-                <p className="text-muted-foreground font-medium">{s.label}</p>
+                <p className="text-muted-foreground font-medium">{s.label[i18n.language as "en" | "ar"]}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -162,20 +140,20 @@ export default function Home() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
         >
-          {FEATURES.map((f, i) => {
+          {LANDING_CONFIG.features.map((f, i) => {
             const Icon = f.icon;
             // Create an asymmetric look
             const isLarge = i === 0 || i === 3;
             return (
-              <motion.div key={f.title} variants={stagger.item} className={isLarge ? "md:col-span-2 lg:col-span-2" : ""}>
+              <motion.div key={f.title.en} variants={stagger.item} className={isLarge ? "md:col-span-2 lg:col-span-2" : ""}>
                 <Card className={`h-full border-border/50 hover:border-primary/40 hover:shadow-xl transition-all duration-500 group overflow-hidden bg-background/80 backdrop-blur-sm ${isLarge ? "bg-gradient-to-br from-background to-secondary/10" : ""}`}>
                   <CardContent className={`pt-8 pb-8 ${isLarge ? "flex flex-col md:flex-row gap-6 items-start md:items-center" : ""}`}>
                     <div className={`rounded-2xl flex items-center justify-center shrink-0 ${f.color} transition-transform group-hover:scale-110 duration-500 ${isLarge ? "w-16 h-16" : "w-12 h-12 mb-6"}`}>
                       <Icon className={isLarge ? "w-8 h-8" : "w-6 h-6"} />
                     </div>
                     <div>
-                      <h3 className={`font-bold text-foreground mb-3 ${isLarge ? "text-2xl" : "text-xl"}`}>{t(f.title)}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{t(f.desc)}</p>
+                      <h3 className={`font-bold text-foreground mb-3 ${isLarge ? "text-2xl" : "text-xl"}`}>{f.title[i18n.language as "en" | "ar"]}</h3>
+                      <p className="text-muted-foreground leading-relaxed">{f.desc[i18n.language as "en" | "ar"]}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -187,8 +165,8 @@ export default function Home() {
 
       {/* ─── How it works: Vertical Journey with Video Background ─── */}
       <section className="py-24 relative overflow-hidden bg-foreground text-background">
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay pointer-events-none" poster="/videos/shopping-poster.jpg">
-           <source src="/videos/shopping.mp4" type="video/mp4" />
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay pointer-events-none" poster={LANDING_CONFIG.howItWorks.posterUrl}>
+           <source src={LANDING_CONFIG.howItWorks.videoUrl} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-foreground/90 backdrop-blur-sm" />
 
@@ -202,7 +180,7 @@ export default function Home() {
           </motion.div>
 
           <div className="max-w-4xl mx-auto">
-            {STEPS.map((step, i) => {
+            {LANDING_CONFIG.howItWorks.steps.map((step, i) => {
               const Icon = step.icon;
               return (
                 <motion.div
@@ -214,15 +192,15 @@ export default function Home() {
                   className="flex flex-col md:flex-row items-center gap-8 mb-16 last:mb-0"
                 >
                   <div className={`flex-1 ${i % 2 !== 0 ? "md:order-2 md:text-start text-center" : "md:text-end text-center"}`}>
-                    <h3 className="font-bold text-2xl mb-3 text-background">{t(step.title)}</h3>
-                    <p className="text-background/70 text-lg leading-relaxed">{t(step.desc)}</p>
+                    <h3 className="font-bold text-2xl mb-3 text-background">{step.title[i18n.language as "en" | "ar"]}</h3>
+                    <p className="text-background/70 text-lg leading-relaxed">{step.desc[i18n.language as "en" | "ar"]}</p>
                   </div>
 
                   <div className="shrink-0 relative md:order-1 flex items-center justify-center">
                     <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-3xl font-bold text-primary-foreground shadow-[0_0_30px_rgba(var(--primary),0.5)] z-10 relative">
                       {i18n.language === "ar" ? ['١', '٢', '٣'][i] : step.num}
                     </div>
-                    {i < STEPS.length - 1 && (
+                    {i < LANDING_CONFIG.howItWorks.steps.length - 1 && (
                       <div className="hidden md:block absolute top-20 w-0.5 h-32 bg-gradient-to-b from-primary to-transparent -z-0" />
                     )}
                   </div>
@@ -254,36 +232,36 @@ export default function Home() {
           className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center"
           variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
         >
-          {PLANS.map((plan, i) => {
+          {LANDING_CONFIG.pricing.map((plan, i) => {
             const isFeatured = plan.badge !== null;
             return (
-            <motion.div key={plan.name} variants={stagger.item} className={isFeatured ? "md:-mt-8 md:mb-8 z-10" : "z-0"}>
+            <motion.div key={plan.name.en} variants={stagger.item} className={isFeatured ? "md:-mt-8 md:mb-8 z-10" : "z-0"}>
               <Card className={`h-full relative transition-all duration-500 hover:scale-105 bg-card/90 backdrop-blur-xl ${isFeatured ? "border-primary shadow-2xl shadow-primary/20 border-2" : "border-border/50 shadow-lg"}`}>
                 {isFeatured && (
                   <div className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-6 py-1.5 text-sm font-bold shadow-md">{t(plan.badge)}</Badge>
+                    <Badge className="bg-primary text-primary-foreground px-6 py-1.5 text-sm font-bold shadow-md">{plan.badge?.[i18n.language as "en" | "ar"]}</Badge>
                   </div>
                 )}
                 <CardContent className={`pt-10 pb-8 flex flex-col h-full ${isFeatured ? "px-8" : "px-6"}`}>
                   <div className="mb-8 text-center border-b border-border/40 pb-8">
-                    <h3 className="text-2xl font-bold text-foreground mb-4">{t(plan.name)}</h3>
+                    <h3 className="text-2xl font-bold text-foreground mb-4">{plan.name[i18n.language as "en" | "ar"]}</h3>
                     <div className="flex items-center justify-center items-baseline gap-1 mt-2">
                       <span className="text-5xl font-extrabold text-foreground">{t(plan.price) === '0' ? '0' : Number(t(plan.price)).toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-US')}</span>
                       {plan.price !== "0" && <span className="text-muted-foreground font-medium">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
                       {plan.price === "0" && <span className="text-muted-foreground font-medium">{i18n.language === "ar" ? "ج.م" : "EGP"}</span>}
                     </div>
-                    <p className="text-muted-foreground text-sm mt-2">{t(plan.desc)}</p>
+                    <p className="text-muted-foreground text-sm mt-2">{plan.desc[i18n.language as "en" | "ar"]}</p>
                   </div>
                   <ul className="space-y-4 flex-1 mb-8">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3">
+                      <li key={typeof f === "object" ? f.en : f} className="flex items-start gap-3">
                         <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                        <span className="text-foreground font-medium">{t(f)}</span>
+                        <span className="text-foreground font-medium">{typeof f === "object" && f !== null ? f[i18n.language as "en" | "ar"] : f}</span>
                       </li>
                     ))}
                   </ul>
                   <Button variant={plan.variant} size="lg" className={`w-full rounded-xl h-14 text-base ${isFeatured ? "shadow-lg shadow-primary/25" : ""}`} asChild>
-                    <Link href={plan.href}>{t(plan.cta)}</Link>
+                    <Link href={plan.href}>{plan.cta[i18n.language as "en" | "ar"]}</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -321,8 +299,8 @@ export default function Home() {
             className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
             variants={stagger.container} initial="hidden" whileInView="show" viewport={{ once: true }}
           >
-            {TESTIMONIALS.map((tItem, i) => (
-              <motion.div key={tItem.name} variants={stagger.item}>
+            {LANDING_CONFIG.testimonials.map((tItem, i) => (
+              <motion.div key={tItem.name.en} variants={stagger.item}>
                 <Card className="h-full border-0 bg-transparent shadow-none group">
                   <CardContent className="p-0">
                     <div className="relative aspect-video rounded-3xl overflow-hidden mb-6 shadow-xl">
@@ -339,14 +317,14 @@ export default function Home() {
                         <Star key={i} className="w-5 h-5 fill-accent text-accent" />
                       ))}
                     </div>
-                    <p className="text-foreground text-lg leading-relaxed mb-6 font-medium">"{t(tItem.text)}"</p>
+                    <p className="text-foreground text-lg leading-relaxed mb-6 font-medium">"{tItem.text[i18n.language as "en" | "ar"]}"</p>
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-bold text-lg shadow-md">
-                        {t(tItem.name)[0]}
+                        {tItem.name[i18n.language as "en" | "ar"][0]}
                       </div>
                       <div>
-                        <p className="font-bold text-base text-foreground">{t(tItem.name)}</p>
-                        <p className="text-sm text-primary font-medium">{t(tItem.store)}</p>
+                        <p className="font-bold text-base text-foreground">{tItem.name[i18n.language as "en" | "ar"]}</p>
+                        <p className="text-sm text-primary font-medium">{tItem.store[i18n.language as "en" | "ar"]}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -363,19 +341,14 @@ export default function Home() {
           className="flex flex-wrap justify-center gap-12 items-center"
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
         >
-          {[
-            { icon: ShieldCheck, text: "home.trust.ssl" },
-            { icon: Zap, text: "home.trust.uptime" },
-            { icon: Globe, text: "home.trust.servers" },
-            { icon: Users, text: "home.trust.support" },
-          ].map((item) => {
+          {LANDING_CONFIG.trustBar.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.text} className="flex items-center gap-3 text-muted-foreground font-medium hover:text-primary transition-colors cursor-default">
+              <div key={item.text.en} className="flex items-center gap-3 text-muted-foreground font-medium hover:text-primary transition-colors cursor-default">
                 <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                   <Icon className="w-5 h-5 text-primary" />
                 </div>
-                {t(item.text)}
+                {item.text[i18n.language as "en" | "ar"]}
               </div>
             );
           })}
@@ -392,9 +365,9 @@ export default function Home() {
           className="container mx-auto px-4 text-center relative z-10"
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
         >
-          <h2 className="text-5xl md:text-7xl font-extrabold mb-6 text-primary-foreground tracking-tight">{t("home.cta.title")}</h2>
+          <h2 className="text-5xl md:text-7xl font-extrabold mb-6 text-primary-foreground tracking-tight">{LANDING_CONFIG.cta.title[i18n.language as "en" | "ar"]}</h2>
           <p className="text-primary-foreground/90 text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
-            {t("home.cta.subtitle")}
+            {LANDING_CONFIG.cta.subtitle[i18n.language as "en" | "ar"]}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button size="lg" variant="secondary" className="rounded-full px-12 text-lg h-16 shadow-2xl hover:scale-105 transition-transform" asChild>
