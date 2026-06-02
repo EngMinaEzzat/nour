@@ -24,21 +24,22 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       DATABASE_URL: postgres://user:pass@localhost:5432/nour_test
       SESSION_SECRET: test-ci-secret-key-123
       RESEND_API_KEY: test_resend_key
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 10
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.1.0
         with:
           node-version: 22
           cache: "pnpm"
