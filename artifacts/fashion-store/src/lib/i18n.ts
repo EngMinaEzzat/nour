@@ -17,6 +17,7 @@ i18n
       },
     },
     fallbackLng: "ar",
+    lng: "ar",
     interpolation: {
       escapeValue: false, // react already safes from xss
     },

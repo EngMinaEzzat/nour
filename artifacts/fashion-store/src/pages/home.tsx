@@ -76,7 +76,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="w-full max-w-4xl mx-auto flex flex-col items-center bg-background/85 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-primary/20 border border-white/20"
+            className="w-full max-w-4xl mx-auto flex flex-col items-center bg-background/60 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl shadow-primary/20 border border-white/20"
           >
             <Badge className="mb-6 text-sm px-4 py-1.5 bg-background text-primary border-primary/20 rounded-full shadow-sm">
               <Sparkles className="w-3.5 h-3.5 me-1.5 inline text-primary" />
