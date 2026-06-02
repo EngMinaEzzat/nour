@@ -102,6 +102,7 @@ export default function Register() {
         "gnail.com": "gmail.com",
         "gamil.co": "gmail.com",
         "gmaill.co": "gmail.com",
+        "gmail.co": "gmail.com",
         "yaho.com": "yahoo.com",
         "yaboo.com": "yahoo.com",
         "yahoo.co": "yahoo.com",
@@ -308,51 +309,60 @@ export default function Register() {
                 />
               </div>
 
-              <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="slug" className="flex items-center gap-1">
-                  {t("auth.register.storeSlug")}
-                </Label>
-                <div className="relative flex items-center" dir="ltr">
-                  <Input
-                    id="slug"
-                    placeholder={t("auth.register.storeSlugPlaceholder")}
-                    value={form.slug}
-                    onChange={(e) => handleSlugChange(e.target.value)}
-                    required
-                    className={`h-11 pr-10 text-right transition-colors ${
-                      slugStatus === "available"
-                        ? "border-green-500 focus-visible:ring-green-400"
-                        : slugStatus === "taken" || slugStatus === "invalid"
-                          ? "border-destructive focus-visible:ring-destructive"
-                          : ""
-                    }`}
-                  />
-                  <span className="text-muted-foreground text-sm ms-2 font-mono">
-                    .{getBaseDomain()}
-                  </span>
-                  {slugStatus !== "idle" && (
-                    <span
-                      className={`absolute inset-y-0 right-3 flex items-center ${slugHint?.color}`}
-                    >
-                      {slugHint?.icon}
-                    </span>
-                  )}
-                </div>
-                <AnimatePresence mode="wait">
-                  {slugHint && (
-                    <motion.p
-                      key={slugStatus}
-                      initial={{ opacity: 0, y: -4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                      className={`text-xs flex items-center gap-1 ${slugHint.color}`}
-                    >
-                      {slugHint.text}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </div>
+              <AnimatePresence>
+                {form.storeName.trim().length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="col-span-2 space-y-1.5 overflow-hidden"
+                  >
+                    <Label htmlFor="slug" className="flex items-center gap-1">
+                      {t("auth.register.storeSlug")}
+                    </Label>
+                    <div className="relative flex items-center" dir="ltr">
+                      {slugStatus !== "idle" && (
+                        <span
+                          className={`absolute inset-y-0 left-3 flex items-center ${slugHint?.color}`}
+                        >
+                          {slugHint?.icon}
+                        </span>
+                      )}
+                      <Input
+                        id="slug"
+                        placeholder={t("auth.register.storeSlugPlaceholder")}
+                        value={form.slug}
+                        readOnly
+                        className={`h-11 pl-10 pr-3 bg-muted/30 cursor-not-allowed select-all transition-colors ${
+                          slugStatus === "available"
+                            ? "border-green-500 focus-visible:ring-green-400"
+                            : slugStatus === "taken" || slugStatus === "invalid"
+                              ? "border-destructive focus-visible:ring-destructive"
+                              : ""
+                        }`}
+                      />
+                      <span className="text-muted-foreground text-sm ms-2 font-mono shrink-0">
+                        .{getBaseDomain()}
+                      </span>
+                    </div>
+                    <AnimatePresence mode="wait">
+                      {slugHint && (
+                        <motion.p
+                          key={slugStatus}
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className={`text-xs flex items-center gap-1 ${slugHint.color}`}
+                        >
+                          {slugHint.text}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="category">
