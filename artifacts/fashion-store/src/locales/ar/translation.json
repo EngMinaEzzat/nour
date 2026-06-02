@@ -27,7 +27,7 @@
     "admin": "مشغّل",
     "allRightsReserved": "جميع الحقوق محفوظة",
     "placeholder": {
-      "email": "example@nour.eg",
+      "email": "example@gmail.com",
       "phone": "01xxxxxxxxx",
       "password": "8 أحرف على الأقل",
       "confirmPassword": "أعِد كتابة كلمة المرور",
@@ -142,7 +142,7 @@
       "title": "نسيت كلمة المرور؟",
       "subtitle": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين",
       "emailLabel": "البريد الإلكتروني",
-      "emailPlaceholder": "example@nour.eg",
+      "emailPlaceholder": "example@gmail.com",
       "checkEmailTitle": "تحقق من بريدك الإلكتروني",
       "checkEmailDesc": "أرسلنا رابط إعادة تعيين كلمة المرور إلى",
       "checkEmailDescSuffix": ". تحقق من صندوق الوارد وربما مجلد الرسائل غير المرغوب فيها.",
@@ -190,7 +190,8 @@
       "slugError": "تعذر الاتصال بالخادم، حاول مرة أخرى",
       "errDuplicateSlug": "اسم المتجر أو الرابط مستخدم مسبقًا، جرّب اسمًا آخر",
       "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة",
-      "phoneInvalid": "صيغة رقم الهاتف غير صحيحة"
+      "phoneInvalid": "رقم الهاتف يجب أن يتكون من 11 رقماً ويبدأ بـ 01",
+      "emailTypoSuggestion": "يبدو أنك كتبت البريد بشكل خاطئ. هل تقصد {{suggestion}}؟"
     },
     "resetPassword": {
       "title": "تعيين كلمة مرور جديدة",

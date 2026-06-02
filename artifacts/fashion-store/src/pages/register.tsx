@@ -70,14 +70,76 @@ export default function Register() {
     gender: "female",
   });
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegex = /^\+?[0-9][0-9\s-]{7,19}$/;
+  const [touched, setTouched] = useState({
+    email: false,
+    phone: false,
+  });
 
-  const isEmailValid = form.email.length > 0 && emailRegex.test(form.email);
-  const isEmailInvalid = form.email.length > 0 && !isEmailValid;
+  const ARABIC_DIGITS: Record<string, string> = {
+    "٠": "0", "١": "1", "٢": "2", "٣": "3", "٤": "4", "٥": "5", "٦": "6", "٧": "7", "٨": "8", "٩": "9",
+    "۰": "0", "۱": "1", "۲": "2", "۳": "3", "۴": "4", "۵": "5", "۶": "6", "۷": "7", "۸": "8", "۹": "9"
+  };
 
-  const isPhoneValid = form.phone.length > 0 && phoneRegex.test(form.phone);
-  const isPhoneInvalid = form.phone.length > 0 && !isPhoneValid;
+  function normalizeDigits(val: string) {
+    return val.replace(/[٠-٩۰-۹]/g, (digit) => ARABIC_DIGITS[digit] ?? digit);
+  }
+
+  function getEmailValidationError(email: string): string | null {
+    const trimmed = email.trim();
+    if (!trimmed) return null;
+
+    const baseEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!baseEmailRegex.test(trimmed)) {
+      return t("auth.register.emailInvalid");
+    }
+
+    const domain = trimmed.split("@")[1]?.toLowerCase();
+    if (domain) {
+      const typoMap: Record<string, string> = {
+        "gamil.com": "gmail.com",
+        "gmal.com": "gmail.com",
+        "gmaill.com": "gmail.com",
+        "gnail.com": "gmail.com",
+        "gamil.co": "gmail.com",
+        "gmaill.co": "gmail.com",
+        "yaho.com": "yahoo.com",
+        "yaboo.com": "yahoo.com",
+        "yahoo.co": "yahoo.com",
+        "hotmial.com": "hotmail.com",
+        "hotmale.com": "hotmail.com",
+        "hotmil.com": "hotmail.com",
+        "outook.com": "outlook.com",
+        "outlook.co": "outlook.com",
+      };
+      if (typoMap[domain]) {
+        return t("auth.register.emailTypoSuggestion", { suggestion: typoMap[domain] });
+      }
+    }
+    return null;
+  }
+
+  function getPhoneValidationError(phone: string): string | null {
+    const cleaned = normalizeDigits(phone).replace(/[\s().-]/g, "");
+    if (!cleaned) return null;
+
+    if (!cleaned.startsWith("01") || cleaned.length !== 11 || !/^01[0125]\d{8}$/.test(cleaned)) {
+      return t("auth.register.phoneInvalid");
+    }
+    return null;
+  }
+
+  const emailError = getEmailValidationError(form.email);
+  const phoneError = getPhoneValidationError(form.phone);
+
+  const isEmailValid = touched.email && form.email.length > 0 && !emailError;
+  const isEmailInvalid = touched.email && form.email.length > 0 && !!emailError;
+
+  const isPhoneValid = touched.phone && form.phone.length > 0 && !phoneError;
+  const isPhoneInvalid = touched.phone && form.phone.length > 0 && !!phoneError;
+
+  const handleBlur = (fieldId: "email" | "phone") => {
+    setTouched((prev) => ({ ...prev, [fieldId]: true }));
+  };
 
   function handleStoreNameChange(name: string) {
     const slug = name
@@ -122,7 +184,14 @@ export default function Register() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (slugStatus === "taken" || slugStatus === "invalid") return;
+    setTouched({ email: true, phone: true });
+
+    const emailErr = getEmailValidationError(form.email);
+    const phoneErr = getPhoneValidationError(form.phone);
+    if (emailErr || phoneErr || slugStatus === "taken" || slugStatus === "invalid") {
+      return;
+    }
+
     setError("");
     setIsLoading(true);
     try {
@@ -131,9 +200,9 @@ export default function Register() {
       await register({
         storeName: form.storeName,
         slug,
-        email: form.email,
+        email: form.email.trim(),
+        phone: normalizeDigits(form.phone).replace(/[\s().-]/g, ""),
         password: form.password,
-        phone: form.phone.trim(),
         category: form.category,
       });
       // Persist gender locally for the editor UI language
@@ -353,14 +422,15 @@ export default function Register() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, phone: e.target.value }))
                     }
+                    onBlur={() => handleBlur("phone")}
                     required
-                    minLength={8}
-                    maxLength={20}
-                    pattern="^\+?[0-9][0-9\s-]{7,19}$"
+                    minLength={11}
+                    maxLength={11}
+                    pattern="^01[0125][0-9]{8}$"
                     className={`h-11 pr-10 text-left ${isPhoneValid ? "border-green-500 focus-visible:ring-green-400" : isPhoneInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
                     dir="ltr"
                   />
-                  {form.phone.length > 0 && (
+                  {touched.phone && form.phone.length > 0 && (
                     <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                       {isPhoneValid ? (
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -370,12 +440,9 @@ export default function Register() {
                     </span>
                   )}
                 </div>
-                {isPhoneInvalid && (
+                {isPhoneInvalid && phoneError && (
                   <p className="text-xs text-destructive">
-                    {t(
-                      "auth.register.phoneInvalid",
-                      "Invalid phone number format",
-                    )}
+                    {phoneError}
                   </p>
                 )}
               </div>
@@ -388,11 +455,12 @@ export default function Register() {
                     type="email"
                     placeholder={t("common.placeholder.email")}
                     {...field("email")}
+                    onBlur={() => handleBlur("email")}
                     required
                     className={`h-11 pr-10 text-left ${isEmailValid ? "border-green-500 focus-visible:ring-green-400" : isEmailInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
                     dir="ltr"
                   />
-                  {form.email.length > 0 && (
+                  {touched.email && form.email.length > 0 && (
                     <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                       {isEmailValid ? (
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -402,12 +470,9 @@ export default function Register() {
                     </span>
                   )}
                 </div>
-                {isEmailInvalid && (
+                {isEmailInvalid && emailError && (
                   <p className="text-xs text-destructive">
-                    {t(
-                      "auth.register.emailInvalid",
-                      "Invalid email address format",
-                    )}
+                    {emailError}
                   </p>
                 )}
               </div>

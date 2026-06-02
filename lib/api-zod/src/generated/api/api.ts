@@ -173,17 +173,15 @@ export const GetStorefrontResponse = zod.object({
  * @summary Register a new merchant and create their store
  */
 export const registerMerchantBodyCategoryDefault = `both`;
-export const registerMerchantBodyPhoneMin = 8;
-export const registerMerchantBodyPhoneMax = 20;
+export const registerMerchantBodyPhoneMin = 11;
+export const registerMerchantBodyPhoneMax = 11;
 
-export const registerMerchantBodyPhoneRegExp = new RegExp(
-  "^\\+?[0-9][0-9\\s-]{7,19}$",
-);
+export const registerMerchantBodyPhoneRegExp = new RegExp("^01[0125][0-9]{8}$");
 
 export const RegisterMerchantBody = zod.object({
   storeName: zod.string(),
   slug: zod.string(),
-  email: zod.string(),
+  email: zod.string().email(),
   password: zod.string(),
   category: zod
     .enum(["fashion", "cosmetics", "both"])

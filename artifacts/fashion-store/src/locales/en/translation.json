@@ -258,7 +258,7 @@
     "admin": "Operator",
     "allRightsReserved": "All rights reserved",
     "placeholder": {
-      "email": "example@nour.eg",
+      "email": "example@gmail.com",
       "phone": "01xxxxxxxxx",
       "password": "At least 8 characters",
       "confirmPassword": "Re-type your password",
@@ -373,7 +373,7 @@
       "title": "Forgot Password?",
       "subtitle": "Enter your email and we'll send you a reset link",
       "emailLabel": "Email Address",
-      "emailPlaceholder": "example@nour.eg",
+      "emailPlaceholder": "example@gmail.com",
       "checkEmailTitle": "Check your email",
       "checkEmailDesc": "We sent a password reset link to",
       "checkEmailDescSuffix": ". Check your inbox and maybe spam folder.",
@@ -421,7 +421,8 @@
       "slugError": "Could not connect to server, try again",
       "errDuplicateSlug": "Store name or URL is already in use, try another name",
       "emailInvalid": "Invalid email address format",
-      "phoneInvalid": "Invalid phone number format"
+      "phoneInvalid": "Phone number must be exactly 11 digits and start with 01",
+      "emailTypoSuggestion": "Did you mean {{suggestion}}?"
     },
     "resetPassword": {
       "title": "Set a new password",
