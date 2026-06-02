@@ -286,7 +286,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
         body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: "https://images.unsplash.com/photo-1560243563-062bfc001d68?w=800&auto=format&fit=crop"
+        imageUrl: "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -328,21 +328,21 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
         heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
         items: tr("defaultSections.lookbook.items", [
           {
-            imageUrl: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&crop=faces",
+            imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
             title: "Egyptian\\n Beauty",
             desc: "An exclusive collection inspired by heritage",
             categoryId: "",
           },
           {
-            imageUrl: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&fit=crop&crop=faces",
+            imageUrl: "/lookbook-2-optimized.jpg",
             tag: "Spring 2025",
             title: "Spring\\n Colors",
             desc: "Soft shades for a perfect look",
             categoryId: "",
           },
           {
-            imageUrl: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fit=crop&crop=faces",
+            imageUrl: "/lookbook-3-optimized.jpg",
             tag: "Beauty",
             title: "Beauty\\n Magic",
             desc: "High quality care products",
