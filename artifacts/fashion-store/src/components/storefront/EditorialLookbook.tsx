@@ -24,7 +24,7 @@ export function EditorialLookbook({
   const defaultPanels = [
     {
       image:
-        "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&crop=faces",
+        "/lookbook-1-optimized.jpg",
       tag: t("storefront.home.lookbook.panel1.tag"),
       headline: t("storefront.home.lookbook.panel1.title"),
       sub: t("storefront.home.lookbook.panel1.desc"),
@@ -34,7 +34,7 @@ export function EditorialLookbook({
     },
     {
       image:
-        "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&fit=crop&crop=faces",
+        "/lookbook-2-optimized.jpg",
       tag: t("storefront.home.lookbook.panel2.tag"),
       headline: t("storefront.home.lookbook.panel2.title"),
       sub: t("storefront.home.lookbook.panel2.desc"),
@@ -44,7 +44,7 @@ export function EditorialLookbook({
     },
     {
       image:
-        "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fit=crop&crop=faces",
+        "/lookbook-3-optimized.jpg",
       tag: t("storefront.home.lookbook.panel3.tag"),
       headline: t("storefront.home.lookbook.panel3.title"),
       sub: t("storefront.home.lookbook.panel3.desc"),

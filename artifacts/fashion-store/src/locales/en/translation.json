@@ -3018,21 +3018,21 @@
       "heading": "Lookbook - My inspiration this season",
       "items": [
         {
-          "imageUrl": "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&crop=faces",
+          "imageUrl": "/lookbook-1-optimized.jpg",
           "tag": "Fashion",
           "title": "Egyptian\\n Beauty",
           "desc": "An exclusive collection inspired by heritage",
           "categoryId": ""
         },
         {
-          "imageUrl": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&fit=crop&crop=faces",
+          "imageUrl": "/lookbook-2-optimized.jpg",
           "tag": "Spring 2025",
           "title": "Spring\\n Colors",
           "desc": "Soft shades for a perfect look",
           "categoryId": ""
         },
         {
-          "imageUrl": "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fit=crop&crop=faces",
+          "imageUrl": "/lookbook-3-optimized.jpg",
           "tag": "Beauty",
           "title": "Beauty\\n Magic",
           "desc": "High quality care products",

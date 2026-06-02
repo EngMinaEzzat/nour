@@ -32,9 +32,7 @@ export function HeroSection({
   onScrollToProducts,
 }: HeroSectionProps) {
   const { t, i18n } = useTranslation();
-  const defaultHero = (category === "cosmetics" || category === "both")
-    ? "/hero-cosmetics-optimized.jpg"
-    : "/hero-fashion-optimized.jpg";
+  const defaultHero = category === "cosmetics" ? "/hero-cosmetics-optimized.jpg" : category === "both" ? "/hero-both-optimized.jpg" : "/hero-fashion-optimized.jpg";
   const imgSrc = imageUrl || coverUrl || defaultHero;
   const tagline =
     eyebrow ||
