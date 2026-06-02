@@ -419,7 +419,9 @@
       "slugTaken": "URL is taken, try another name",
       "slugInvalid": "URL contains invalid characters or is reserved",
       "slugError": "Could not connect to server, try again",
-      "errDuplicateSlug": "Store name or URL is already in use, try another name"
+      "errDuplicateSlug": "Store name or URL is already in use, try another name",
+      "emailInvalid": "Invalid email address format",
+      "phoneInvalid": "Invalid phone number format"
     },
     "resetPassword": {
       "title": "Set a new password",

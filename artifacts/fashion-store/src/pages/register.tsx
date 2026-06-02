@@ -7,13 +7,36 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Eye, EyeOff, Sparkles, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Loader2,
+  Eye,
+  EyeOff,
+  Sparkles,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 
-type SlugStatus = "idle" | "checking" | "available" | "taken" | "invalid" | "error";
+type SlugStatus =
+  | "idle"
+  | "checking"
+  | "available"
+  | "taken"
+  | "invalid"
+  | "error";
 
-async function checkSlugAvailability(slug: string): Promise<{ available: boolean; reason?: string }> {
-  const res = await fetch(`/api/auth/check-slug?slug=${encodeURIComponent(slug)}`);
+async function checkSlugAvailability(
+  slug: string,
+): Promise<{ available: boolean; reason?: string }> {
+  const res = await fetch(
+    `/api/auth/check-slug?slug=${encodeURIComponent(slug)}`,
+  );
   if (!res.ok) throw new Error(`Slug check failed: ${res.status}`);
   return res.json();
 }
@@ -26,6 +49,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [duplicateEmail, setDuplicateEmail] = useState(false);
+
   const [slugStatus, setSlugStatus] = useState<SlugStatus>("idle");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [form, setForm] = useState<{
@@ -46,8 +70,18 @@ export default function Register() {
     gender: "female",
   });
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^\+?[0-9][0-9\s-]{7,19}$/;
+
+  const isEmailValid = form.email.length > 0 && emailRegex.test(form.email);
+  const isEmailInvalid = form.email.length > 0 && !isEmailValid;
+
+  const isPhoneValid = form.phone.length > 0 && phoneRegex.test(form.phone);
+  const isPhoneInvalid = form.phone.length > 0 && !isPhoneValid;
+
   function handleStoreNameChange(name: string) {
-    const slug = name.toLowerCase()
+    const slug = name
+      .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-]/g, "")
       .replace(/-+/g, "-");
@@ -92,7 +126,8 @@ export default function Register() {
     setError("");
     setIsLoading(true);
     try {
-      const slug = form.slug || form.storeName.toLowerCase().replace(/\s+/g, "-");
+      const slug =
+        form.slug || form.storeName.toLowerCase().replace(/\s+/g, "-");
       await register({
         storeName: form.storeName,
         slug,
@@ -102,14 +137,20 @@ export default function Register() {
         category: form.category,
       });
       // Persist gender locally for the editor UI language
-      try { localStorage.setItem(`nour_gender_${slug}`, form.gender); } catch {}
+      try {
+        localStorage.setItem(`nour_gender_${slug}`, form.gender);
+      } catch {}
       setTimeout(() => navigate("/store-builder?mode=editor"), 0);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       if (msg.includes("اسم المتجر") || msg.includes("الرابط")) {
         setError(t("auth.register.errDuplicateSlug"));
         setSlugStatus("taken");
-      } else if (msg.includes("البريد الإلكتروني") || msg.includes("409") || msg.includes("مسجل")) {
+      } else if (
+        msg.includes("البريد الإلكتروني") ||
+        msg.includes("409") ||
+        msg.includes("مسجل")
+      ) {
         setDuplicateEmail(true);
       } else {
         setError(t("auth.register.generalError"));
@@ -127,11 +168,31 @@ export default function Register() {
 
   const slugHint = {
     idle: null,
-    checking: { color: "text-muted-foreground", icon: <Loader2 className="w-3.5 h-3.5 animate-spin" />, text: t("auth.register.slugChecking") },
-    available: { color: "text-green-600", icon: <CheckCircle2 className="w-3.5 h-3.5" />, text: t("auth.register.slugAvailable") },
-    taken: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: t("auth.register.slugTaken") },
-    invalid: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: t("auth.register.slugInvalid") },
-    error: { color: "text-destructive", icon: <XCircle className="w-3.5 h-3.5" />, text: t("auth.register.slugError") },
+    checking: {
+      color: "text-muted-foreground",
+      icon: <Loader2 className="w-3.5 h-3.5 animate-spin" />,
+      text: t("auth.register.slugChecking"),
+    },
+    available: {
+      color: "text-green-600",
+      icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+      text: t("auth.register.slugAvailable"),
+    },
+    taken: {
+      color: "text-destructive",
+      icon: <XCircle className="w-3.5 h-3.5" />,
+      text: t("auth.register.slugTaken"),
+    },
+    invalid: {
+      color: "text-destructive",
+      icon: <XCircle className="w-3.5 h-3.5" />,
+      text: t("auth.register.slugInvalid"),
+    },
+    error: {
+      color: "text-destructive",
+      icon: <XCircle className="w-3.5 h-3.5" />,
+      text: t("auth.register.slugError"),
+    },
   }[slugStatus];
 
   return (
@@ -144,10 +205,16 @@ export default function Register() {
       >
         <div className="text-center mb-10">
           <Link href="/">
-            <span className="text-4xl font-bold text-primary cursor-pointer">{t("common.appName")}</span>
+            <span className="text-4xl font-bold text-primary cursor-pointer">
+              {t("common.appName")}
+            </span>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground mt-4">{t("auth.register.title")}</h1>
-          <p className="text-muted-foreground mt-2 text-sm">{t("auth.register.subtitle")}</p>
+          <h1 className="text-2xl font-bold text-foreground mt-4">
+            {t("auth.register.title")}
+          </h1>
+          <p className="text-muted-foreground mt-2 text-sm">
+            {t("auth.register.subtitle")}
+          </p>
         </div>
 
         <motion.div
@@ -159,7 +226,9 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="storeName">{t("auth.register.storeName")}</Label>
+                <Label htmlFor="storeName">
+                  {t("auth.register.storeName")}
+                </Label>
                 <Input
                   id="storeName"
                   placeholder={t("auth.register.storeNamePlaceholder")}
@@ -182,13 +251,20 @@ export default function Register() {
                     onChange={(e) => handleSlugChange(e.target.value)}
                     required
                     className={`h-11 pe-10 text-right transition-colors ${
-                      slugStatus === "available" ? "border-green-500 focus-visible:ring-green-400" :
-                      slugStatus === "taken" || slugStatus === "invalid" ? "border-destructive focus-visible:ring-destructive" : ""
+                      slugStatus === "available"
+                        ? "border-green-500 focus-visible:ring-green-400"
+                        : slugStatus === "taken" || slugStatus === "invalid"
+                          ? "border-destructive focus-visible:ring-destructive"
+                          : ""
                     }`}
                   />
-                  <span className="text-muted-foreground text-sm ms-2 font-mono">.{getBaseDomain()}</span>
+                  <span className="text-muted-foreground text-sm ms-2 font-mono">
+                    .{getBaseDomain()}
+                  </span>
                   {slugStatus !== "idle" && (
-                    <span className={`absolute inset-y-0 end-3 flex items-center ${slugHint?.color}`}>
+                    <span
+                      className={`absolute inset-y-0 end-3 flex items-center ${slugHint?.color}`}
+                    >
                       {slugHint?.icon}
                     </span>
                   )}
@@ -210,18 +286,30 @@ export default function Register() {
               </div>
 
               <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="category">{t("auth.register.categoryLabel")}</Label>
+                <Label htmlFor="category">
+                  {t("auth.register.categoryLabel")}
+                </Label>
                 <Select
                   value={form.category}
-                  onValueChange={(val: "fashion" | "cosmetics" | "both") => setForm(f => ({ ...f, category: val }))}
+                  onValueChange={(val: "fashion" | "cosmetics" | "both") =>
+                    setForm((f) => ({ ...f, category: val }))
+                  }
                 >
                   <SelectTrigger id="category" className="h-11">
-                    <SelectValue placeholder={t("auth.register.categoryPlaceholder")} />
+                    <SelectValue
+                      placeholder={t("auth.register.categoryPlaceholder")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fashion">{t("auth.register.catFashion")}</SelectItem>
-                    <SelectItem value="cosmetics">{t("auth.register.catCosmetics")}</SelectItem>
-                    <SelectItem value="both">{t("auth.register.catBoth")}</SelectItem>
+                    <SelectItem value="fashion">
+                      {t("auth.register.catFashion")}
+                    </SelectItem>
+                    <SelectItem value="cosmetics">
+                      {t("auth.register.catCosmetics")}
+                    </SelectItem>
+                    <SelectItem value="both">
+                      {t("auth.register.catBoth")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -242,42 +330,86 @@ export default function Register() {
                             : "border-border text-muted-foreground hover:border-primary/40"
                         }`}
                       >
-                        {g === "female" ? t("auth.register.genderFemale") : t("auth.register.genderMale")}
+                        {g === "female"
+                          ? t("auth.register.genderFemale")
+                          : t("auth.register.genderMale")}
                       </button>
                     );
                   })}
                 </div>
-                <p className="text-[11px] text-muted-foreground">{t("auth.register.genderHint")}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {t("auth.register.genderHint")}
+                </p>
               </div>
 
               <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="phone">{t("auth.register.phone")}</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder={t("common.placeholder.phone")}
-                  value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  required
-                  minLength={8}
-                  maxLength={20}
-                  pattern="^\+?[0-9][0-9\s-]{7,19}$"
-                  className="h-11"
-                  dir="ltr"
-                />
+                <div className="relative flex items-center">
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder={t("common.placeholder.phone")}
+                    value={form.phone}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, phone: e.target.value }))
+                    }
+                    required
+                    minLength={8}
+                    maxLength={20}
+                    pattern="^\+?[0-9][0-9\s-]{7,19}$"
+                    className={`h-11 pe-10 ${isPhoneValid ? "border-green-500 focus-visible:ring-green-400" : isPhoneInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                    dir="ltr"
+                  />
+                  {form.phone.length > 0 && (
+                    <span className="absolute inset-y-0 end-3 flex items-center pointer-events-none">
+                      {isPhoneValid ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-destructive" />
+                      )}
+                    </span>
+                  )}
+                </div>
+                {isPhoneInvalid && (
+                  <p className="text-xs text-destructive">
+                    {t(
+                      "auth.register.phoneInvalid",
+                      "Invalid phone number format",
+                    )}
+                  </p>
+                )}
               </div>
 
               <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="email">{t("auth.register.email")}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t("common.placeholder.email")}
-                  {...field("email")}
-                  required
-                  className="h-11"
-                  dir="ltr"
-                />
+                <div className="relative flex items-center">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder={t("common.placeholder.email")}
+                    {...field("email")}
+                    required
+                    className={`h-11 pe-10 ${isEmailValid ? "border-green-500 focus-visible:ring-green-400" : isEmailInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                    dir="ltr"
+                  />
+                  {form.email.length > 0 && (
+                    <span className="absolute inset-y-0 end-3 flex items-center pointer-events-none">
+                      {isEmailValid ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-destructive" />
+                      )}
+                    </span>
+                  )}
+                </div>
+                {isEmailInvalid && (
+                  <p className="text-xs text-destructive">
+                    {t(
+                      "auth.register.emailInvalid",
+                      "Invalid email address format",
+                    )}
+                  </p>
+                )}
               </div>
 
               <div className="col-span-2 space-y-1.5">
@@ -298,7 +430,11 @@ export default function Register() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 end-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -310,7 +446,9 @@ export default function Register() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-center space-y-2"
               >
-                <p className="text-sm text-amber-800 font-medium">{t("auth.register.duplicateEmail")}</p>
+                <p className="text-sm text-amber-800 font-medium">
+                  {t("auth.register.duplicateEmail")}
+                </p>
                 <Link
                   href={`/login?email=${encodeURIComponent(form.email)}`}
                   className="inline-block text-sm font-semibold text-primary hover:underline"
@@ -333,20 +471,36 @@ export default function Register() {
             <Button
               type="submit"
               className="w-full h-12 text-base rounded-2xl"
-              disabled={isLoading || slugStatus === "taken" || slugStatus === "invalid" || slugStatus === "checking"}
+              disabled={
+                isLoading ||
+                slugStatus === "taken" ||
+                slugStatus === "invalid" ||
+                slugStatus === "checking" ||
+                isEmailInvalid ||
+                isPhoneInvalid
+              }
             >
               {isLoading ? (
-                <><Loader2 className="w-4 h-4 ms-2 animate-spin" /> {t("auth.register.btnRegistering")}</>
+                <>
+                  <Loader2 className="w-4 h-4 ms-2 animate-spin" />{" "}
+                  {t("auth.register.btnRegistering")}
+                </>
               ) : (
-                <><Sparkles className="w-4 h-4 ms-2" /> {t("auth.register.btnRegister")}</>
+                <>
+                  <Sparkles className="w-4 h-4 ms-2" />{" "}
+                  {t("auth.register.btnRegister")}
+                </>
               )}
             </Button>
           </form>
         </motion.div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          {t("auth.register.hasAccount")} {" "}
-          <Link href="/login" className="text-primary font-semibold hover:underline">
+          {t("auth.register.hasAccount")}{" "}
+          <Link
+            href="/login"
+            className="text-primary font-semibold hover:underline"
+          >
             {t("auth.register.loginNow")}
           </Link>
         </p>
