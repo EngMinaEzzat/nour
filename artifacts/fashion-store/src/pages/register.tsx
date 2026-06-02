@@ -103,6 +103,7 @@ export default function Register() {
         "gamil.co": "gmail.com",
         "gmaill.co": "gmail.com",
         "gmail.co": "gmail.com",
+        "gmail.con": "gmail.com",
         "yaho.com": "yahoo.com",
         "yaboo.com": "yahoo.com",
         "yahoo.co": "yahoo.com",
@@ -114,6 +115,19 @@ export default function Register() {
       };
       if (typoMap[domain]) {
         return t("auth.register.emailTypoSuggestion", { suggestion: typoMap[domain] });
+      }
+
+      if (domain !== "gmail.com" && domain.startsWith("gmail")) {
+        return t("auth.register.emailInvalid");
+      }
+      if (domain !== "yahoo.com" && domain.startsWith("yahoo")) {
+        return t("auth.register.emailInvalid");
+      }
+      if (domain !== "hotmail.com" && domain.startsWith("hotmail")) {
+        return t("auth.register.emailInvalid");
+      }
+      if (domain !== "outlook.com" && domain.startsWith("outlook")) {
+        return t("auth.register.emailInvalid");
       }
     }
     return null;
@@ -299,70 +313,56 @@ export default function Register() {
                 <Label htmlFor="storeName">
                   {t("auth.register.storeName")}
                 </Label>
-                <Input
-                  id="storeName"
-                  placeholder={t("auth.register.storeNamePlaceholder")}
-                  value={form.storeName}
-                  onChange={(e) => handleStoreNameChange(e.target.value)}
-                  required
-                  className="h-11"
-                />
+                <div className="relative flex items-center bg-background border border-border rounded-xl h-11 focus-within:ring-2 focus-within:ring-ring focus-within:border-primary transition-all overflow-hidden group">
+                  <Input
+                    id="storeName"
+                    placeholder={t("auth.register.storeNamePlaceholder")}
+                    value={form.storeName}
+                    onChange={(e) => handleStoreNameChange(e.target.value)}
+                    required
+                    className="h-full border-0 focus-visible:ring-0 bg-transparent flex-1 rounded-none px-3"
+                  />
+                  <AnimatePresence>
+                    {form.slug && (
+                      <motion.div
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "auto" }}
+                        exit={{ opacity: 0, width: 0 }}
+                        className="flex items-center h-full bg-muted/40 border-s border-border/40 select-none overflow-hidden"
+                        dir="ltr"
+                      >
+                        <div className="flex items-center px-3 whitespace-nowrap">
+                          <span className="text-sm font-mono text-muted-foreground shrink-0 max-w-[120px] sm:max-w-[160px] truncate">
+                            {form.slug}
+                          </span>
+                          <span className="text-sm font-mono text-muted-foreground shrink-0">
+                            .{getBaseDomain()}
+                          </span>
+                          {slugStatus !== "idle" && (
+                            <span className={`ms-2 shrink-0 flex items-center ${slugHint?.color}`}>
+                              {slugHint?.icon}
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <AnimatePresence mode="wait">
+                  {form.slug && slugHint && (
+                    <motion.p
+                      key={slugStatus}
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className={`text-[11px] flex items-center gap-1 mt-1 ${slugHint.color}`}
+                    >
+                      {slugHint.text}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
-
-              <AnimatePresence>
-                {form.storeName.trim().length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="col-span-2 space-y-1.5 overflow-hidden"
-                  >
-                    <Label htmlFor="slug" className="flex items-center gap-1">
-                      {t("auth.register.storeSlug")}
-                    </Label>
-                    <div className="relative flex items-center" dir="ltr">
-                      {slugStatus !== "idle" && (
-                        <span
-                          className={`absolute inset-y-0 left-3 flex items-center ${slugHint?.color}`}
-                        >
-                          {slugHint?.icon}
-                        </span>
-                      )}
-                      <Input
-                        id="slug"
-                        placeholder={t("auth.register.storeSlugPlaceholder")}
-                        value={form.slug}
-                        readOnly
-                        className={`h-11 pl-10 pr-3 bg-muted/30 cursor-not-allowed select-all transition-colors ${
-                          slugStatus === "available"
-                            ? "border-green-500 focus-visible:ring-green-400"
-                            : slugStatus === "taken" || slugStatus === "invalid"
-                              ? "border-destructive focus-visible:ring-destructive"
-                              : ""
-                        }`}
-                      />
-                      <span className="text-muted-foreground text-sm ms-2 font-mono shrink-0">
-                        .{getBaseDomain()}
-                      </span>
-                    </div>
-                    <AnimatePresence mode="wait">
-                      {slugHint && (
-                        <motion.p
-                          key={slugStatus}
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.15 }}
-                          className={`text-xs flex items-center gap-1 ${slugHint.color}`}
-                        >
-                          {slugHint.text}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               <div className="col-span-2 space-y-1.5">
                 <Label htmlFor="category">

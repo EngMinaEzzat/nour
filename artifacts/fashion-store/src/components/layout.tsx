@@ -465,7 +465,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side={i18n.dir() === 'rtl' ? 'right' : 'left'} className="w-72 p-0 flex flex-col">
+              <SheetContent side={i18n.dir() === 'rtl' ? 'right' : 'left'} className="w-72 p-0 flex flex-col [&>button]:hidden">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 shrink-0">
                   <Link href="/" onClick={() => setMobileOpen(false)}>
                     <span className="text-2xl font-bold text-primary">{t("common.appName")}</span>
