@@ -221,12 +221,12 @@ export default function AcceptInvite() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={t("common.placeholder.password") || "8 أحرف على الأقل"}
-                      className="h-11 pe-10"
+                      className="h-11 pr-10 text-left"
                       dir="ltr"
                     />
                     <button
                       type="button"
-                      className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       onClick={() => setShowPw((s) => !s)}
                     >
                       {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -242,7 +242,7 @@ export default function AcceptInvite() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder={t("common.placeholder.confirmPassword") || "أعِد كتابة كلمة المرور"}
-                    className="h-11"
+                    className="h-11 text-left"
                     dir="ltr"
                   />
                 </div>

@@ -250,7 +250,7 @@ export default function Register() {
                     value={form.slug}
                     onChange={(e) => handleSlugChange(e.target.value)}
                     required
-                    className={`h-11 pe-10 text-right transition-colors ${
+                    className={`h-11 pr-10 text-right transition-colors ${
                       slugStatus === "available"
                         ? "border-green-500 focus-visible:ring-green-400"
                         : slugStatus === "taken" || slugStatus === "invalid"
@@ -263,7 +263,7 @@ export default function Register() {
                   </span>
                   {slugStatus !== "idle" && (
                     <span
-                      className={`absolute inset-y-0 end-3 flex items-center ${slugHint?.color}`}
+                      className={`absolute inset-y-0 right-3 flex items-center ${slugHint?.color}`}
                     >
                       {slugHint?.icon}
                     </span>
@@ -357,11 +357,11 @@ export default function Register() {
                     minLength={8}
                     maxLength={20}
                     pattern="^\+?[0-9][0-9\s-]{7,19}$"
-                    className={`h-11 pe-10 ${isPhoneValid ? "border-green-500 focus-visible:ring-green-400" : isPhoneInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                    className={`h-11 pr-10 text-left ${isPhoneValid ? "border-green-500 focus-visible:ring-green-400" : isPhoneInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
                     dir="ltr"
                   />
                   {form.phone.length > 0 && (
-                    <span className="absolute inset-y-0 end-3 flex items-center pointer-events-none">
+                    <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                       {isPhoneValid ? (
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
                       ) : (
@@ -389,11 +389,11 @@ export default function Register() {
                     placeholder={t("common.placeholder.email")}
                     {...field("email")}
                     required
-                    className={`h-11 pe-10 ${isEmailValid ? "border-green-500 focus-visible:ring-green-400" : isEmailInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                    className={`h-11 pr-10 text-left ${isEmailValid ? "border-green-500 focus-visible:ring-green-400" : isEmailInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
                     dir="ltr"
                   />
                   {form.email.length > 0 && (
-                    <span className="absolute inset-y-0 end-3 flex items-center pointer-events-none">
+                    <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                       {isEmailValid ? (
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
                       ) : (
@@ -422,13 +422,13 @@ export default function Register() {
                     {...field("password")}
                     required
                     minLength={8}
-                    className="h-11 pe-12"
+                    className="h-11 pr-12 text-left"
                     dir="ltr"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 end-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />

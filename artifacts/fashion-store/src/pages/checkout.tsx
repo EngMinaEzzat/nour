@@ -521,7 +521,7 @@ export default function Checkout() {
                 </Label>
                 <Input id="phone" type="tel" autoComplete="tel" inputMode="tel" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? "phone-error" : undefined} placeholder="01012345678" value={phone}
                   onChange={(e) => { setPhone(e.target.value); syncContact(name, email, e.target.value); }}
-                  className={errors.phone ? "border-destructive focus-visible:ring-destructive rounded-xl h-12" : normalizeEgyptianMobileLocal(phone) ? "border-green-500/50 bg-green-50/5 focus-visible:border-green-500 rounded-xl h-12" : "rounded-xl h-12"} dir="ltr" />
+                  className={`text-left ${errors.phone ? "border-destructive focus-visible:ring-destructive rounded-xl h-12" : normalizeEgyptianMobileLocal(phone) ? "border-green-500/50 bg-green-50/5 focus-visible:border-green-500 rounded-xl h-12" : "rounded-xl h-12"}`} dir="ltr" />
                 {errors.phone && <p id="phone-error" className="text-xs text-destructive">{errors.phone}</p>}
                 <p className="text-xs text-muted-foreground">سيُستخدم لإرسال تأكيد الطلب على واتساب</p>
               </div>

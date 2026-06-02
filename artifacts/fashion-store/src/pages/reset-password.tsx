@@ -114,13 +114,13 @@ export default function ResetPassword() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={8}
-                      className="h-12 text-base pe-12"
+                      className="h-12 text-base pr-12 text-left"
                       dir="ltr"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 end-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -137,7 +137,7 @@ export default function ResetPassword() {
                     onChange={(e) => setConfirm(e.target.value)}
                     required
                     minLength={8}
-                    className="h-12 text-base"
+                    className="h-12 text-base text-left"
                     dir="ltr"
                   />
                 </div>

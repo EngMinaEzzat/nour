@@ -106,10 +106,10 @@ export default function CustomerRegister() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   dir="ltr"
-                  className={`text-left pe-10 ${isEmailValid ? "border-green-500 focus-visible:ring-green-400" : isEmailInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                  className={`text-left pr-10 ${isEmailValid ? "border-green-500 focus-visible:ring-green-400" : isEmailInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
                 {email.length > 0 && (
-                  <span className="absolute inset-y-0 end-3 flex items-center pointer-events-none">
+                  <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                     {isEmailValid ? (
                       <CheckCircle2 className="w-4 h-4 text-green-500" />
                     ) : (
@@ -141,10 +141,10 @@ export default function CustomerRegister() {
                   placeholder="01012345678"
                   title={t("customerAuth.phoneDesc")}
                   dir="ltr"
-                  className={`text-left pe-10 ${isPhoneValid ? "border-green-500 focus-visible:ring-green-400" : isPhoneInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                  className={`text-left pr-10 ${isPhoneValid ? "border-green-500 focus-visible:ring-green-400" : isPhoneInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
                 {phone.length > 0 && (
-                  <span className="absolute inset-y-0 end-3 flex items-center pointer-events-none">
+                  <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                     {isPhoneValid ? (
                       <CheckCircle2 className="w-4 h-4 text-green-500" />
                     ) : (
