@@ -17,3 +17,7 @@
 ## 2026-05-28 - [Replace 'as any' casts with available domain variables]
 **Learning:** Resorting to 'as any' with complex external library configurations like i18next can mask runtime errors. Instead, examine the domain objects directly; they often already contain the required localized strings or strictly-typed formats.
 **Action:** Prefer extracting strings directly from pre-translated domain objects (e.g., `section.label`) rather than dynamically concatenating translation keys with `as any` casts.
+
+## 2026-06-03 - [Fix N+1 query in checkout API]
+**Learning:** Checking out items fetching variants one-by-one via `.map(async () => tx.select())` creates an N+1 problem inside a transaction.
+**Action:** Use `inArray` to fetch all products and variants upfront, map them by ID into Maps, and access them locally (O(1)) inside the checkout validation map loop.
