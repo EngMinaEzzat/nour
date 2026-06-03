@@ -1,5 +1,4 @@
 import { parseArgs } from "node:util";
-import fetch from "node:fetch";
 import { performance } from "node:perf_hooks";
 
 const { values } = parseArgs({
