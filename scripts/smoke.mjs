@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+
 import { performance } from "node:perf_hooks";
 
 const { values } = parseArgs({
@@ -25,14 +26,18 @@ async function check(name, url, expectedStatus = 200, checkBody = null) {
     const res = await fetch(url);
     const duration = performance.now() - start;
     if (res.status !== expectedStatus) {
-      console.error(`[FAIL] ${name}: Expected ${expectedStatus}, got ${res.status} (${duration.toFixed(2)}ms)`);
+      console.error(
+        `[FAIL] ${name}: Expected ${expectedStatus}, got ${res.status} (${duration.toFixed(2)}ms)`,
+      );
       process.exitCode = 1;
       return;
     }
     if (checkBody) {
       const body = await res.json();
       if (!checkBody(body)) {
-        console.error(`[FAIL] ${name}: Body check failed (${duration.toFixed(2)}ms)`);
+        console.error(
+          `[FAIL] ${name}: Body check failed (${duration.toFixed(2)}ms)`,
+        );
         process.exitCode = 1;
         return;
       }
@@ -45,14 +50,36 @@ async function check(name, url, expectedStatus = 200, checkBody = null) {
 }
 
 async function run() {
-  await check("Liveness (/api/healthz)", `${baseUrl}/api/healthz`, 200, (body) => body.status === "ok");
-  await check("Readiness (/api/readyz)", `${baseUrl}/api/readyz`, 200, (body) => body.status === "ok" || body.status === "error");
-  await check("CSRF Token (/api/csrf-token)", `${baseUrl}/api/csrf-token`, 200, (body) => typeof body.csrfToken === "string");
+  await check(
+    "Liveness (/api/healthz)",
+    `${baseUrl}/api/healthz`,
+    200,
+    (body) => body.status === "ok",
+  );
+  await check(
+    "Readiness (/api/readyz)",
+    `${baseUrl}/api/readyz`,
+    200,
+    (body) => body.status === "ok" || body.status === "error",
+  );
+  await check(
+    "CSRF Token (/api/csrf-token)",
+    `${baseUrl}/api/csrf-token`,
+    200,
+    (body) => typeof body.csrfToken === "string",
+  );
 
   if (slug) {
-    await check("Storefront Payload (/api/store/:slug)", `${baseUrl}/api/store/${slug}`, 200, (body) => body.slug === slug);
+    await check(
+      "Storefront Payload (/api/store/:slug)",
+      `${baseUrl}/api/store/${slug}`,
+      200,
+      (body) => body.slug === slug,
+    );
   } else {
-    console.log("[SKIP] Storefront Payload check. Pass --tenant-slug to run this check.");
+    console.log(
+      "[SKIP] Storefront Payload check. Pass --tenant-slug to run this check.",
+    );
   }
 }
 
