@@ -17,3 +17,7 @@
 ## 2026-05-28 - [Replace 'as any' casts with available domain variables]
 **Learning:** Resorting to 'as any' with complex external library configurations like i18next can mask runtime errors. Instead, examine the domain objects directly; they often already contain the required localized strings or strictly-typed formats.
 **Action:** Prefer extracting strings directly from pre-translated domain objects (e.g., `section.label`) rather than dynamically concatenating translation keys with `as any` casts.
+
+## 2026-06-03 - [Fix N+1 query problem with batching and in-memory map]
+**Learning:** Using `Promise.all` in a map to execute queries per item can lead to N+1 database queries, significantly slowing down list endpoints. Drizzle ORM's `inArray` can fail if passed an empty array.
+**Action:** Replace `Promise.all` loops with a single batch query using `inArray` and `groupBy`. Always check if the array is non-empty (`categories.length > 0`) before constructing the `inArray` condition to prevent SQL syntax errors. Use a JavaScript `Map` to efficiently attach the queried counts back to the items in $O(1)$ time.
