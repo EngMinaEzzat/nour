@@ -24,22 +24,28 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-      DATABASE_URL: postgres://user:pass@localhost:5432/nour_test
+      DATABASE_URL: postgres://user:pass@localhost:5432/nour_test?sslmode=disable
       SESSION_SECRET: test-ci-secret-key-123
       RESEND_API_KEY: test_resend_key
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           node-version: 22
           cache: "pnpm"
@@ -73,4 +79,3 @@ jobs:
         env:
           PORT: 8080
           NODE_ENV: production
-          DB_SSL: "false"
