@@ -17,6 +17,13 @@
       "breakpoints": true
     },
     {
+      "idx": 2,
+      "version": "7",
+      "when": 1778251080000,
+      "tag": "0002_variant_images_stock",
+      "breakpoints": true
+    },
+    {
       "idx": 3,
       "version": "7",
       "when": 1778652000000,
@@ -126,13 +133,6 @@
       "version": "7",
       "when": 1780422529598,
       "tag": "0019_wet_ser_duncan",
-      "breakpoints": true
-    },
-    {
-      "idx": 20,
-      "version": "7",
-      "when": 1780491023537,
-      "tag": "0020_add_image_urls",
       "breakpoints": true
     }
   ]
