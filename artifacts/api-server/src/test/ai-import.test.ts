@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from "vitest";
 import { request, app, createTestMerchant, cleanupTenant } from "./helpers.js";
 import { lookup } from "node:dns/promises";
 vi.mock("node:dns/promises", () => ({
@@ -17,7 +17,8 @@ describe("AI Import Routes", () => {
     ctx = await createTestMerchant();
   });
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
+    vi.mocked(lookup).mockImplementation(async () => [{ address: "157.240.22.35", family: 4 }] as any);
   });
   afterAll(async () => {
     vi.restoreAllMocks();
@@ -98,7 +99,6 @@ describe("AI Import Routes", () => {
       }
 
       fetchSpy.mockRestore();
-      dnsSpy.mockRestore();
     });
 
     it("returns 500 and blocks the request when a redirect points to a private IP (SSRF redirect protection)", async () => {
@@ -126,7 +126,6 @@ describe("AI Import Routes", () => {
       }
 
       fetchSpy.mockRestore();
-      dnsSpy.mockRestore();
     });
 
     it("returns 200 with generated mock store suggestion for a valid facebookUrl", async () => {
