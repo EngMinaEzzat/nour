@@ -17,3 +17,7 @@
 ## 2026-05-28 - [Replace 'as any' casts with available domain variables]
 **Learning:** Resorting to 'as any' with complex external library configurations like i18next can mask runtime errors. Instead, examine the domain objects directly; they often already contain the required localized strings or strictly-typed formats.
 **Action:** Prefer extracting strings directly from pre-translated domain objects (e.g., `section.label`) rather than dynamically concatenating translation keys with `as any` casts.
+
+## 2026-05-29 - [Batch insert for products samples to fix N+1 issue]
+**Learning:** Seeding multiple items in a loop using \`await db.insert(...)\` causes N+1 query execution, which significantly increases network round trip time and API latency.
+**Action:** Replace \`for\` loops containing multiple DB inserts with a single batched \`await db.insert(...).values([...])\` operation using an array of elements.
