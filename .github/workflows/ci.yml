@@ -24,6 +24,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       DATABASE_URL: postgres://user:pass@localhost:5432/nour_test
       SESSION_SECRET: test-ci-secret-key-123
       RESEND_API_KEY: test_resend_key
@@ -53,7 +54,7 @@ jobs:
         run: pnpm run build
 
       - name: Apply DB Migrations
-        run: pnpm --filter @workspace/db run migrate
+        run: pnpm --filter @workspace/db run push-force
 
       - name: DB Schema Check
         run: pnpm --filter @workspace/db run check
