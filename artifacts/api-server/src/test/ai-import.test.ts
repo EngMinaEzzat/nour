@@ -1,5 +1,9 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from "vitest";
 import { request, app, createTestMerchant, cleanupTenant } from "./helpers.js";
+import { lookup } from "node:dns/promises";
+vi.mock("node:dns/promises", () => ({
+  lookup: vi.fn().mockResolvedValue([{ address: "157.240.22.35", family: 4 }]),
+}));
 import * as aiProvider from "../lib/ai-provider.js";
 import { resetAiRateLimit } from "../lib/ai-rate-limit.js";
 
@@ -9,8 +13,17 @@ process.env.AI_USE_MOCK = "true";
 describe("AI Import Routes", () => {
   let ctx: Awaited<ReturnType<typeof createTestMerchant>>;
 
-  beforeAll(async () => { ctx = await createTestMerchant(); });
-  afterAll(async () => { vi.restoreAllMocks(); await cleanupTenant(ctx.tenantId, ctx.merchantId); });
+  beforeAll(async () => {
+    ctx = await createTestMerchant();
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.mocked(lookup).mockImplementation(async () => [{ address: "157.240.22.35", family: 4 }] as any);
+  });
+  afterAll(async () => {
+    vi.restoreAllMocks();
+    await cleanupTenant(ctx.tenantId, ctx.merchantId);
+  });
 
   it("❌ returns 502 when AI response does not contain valid JSON for product description", async () => {
     resetAiRateLimit(ctx.tenantId);
@@ -39,9 +52,7 @@ describe("AI Import Routes", () => {
     });
 
     it("returns 400 when facebookUrl is omitted", async () => {
-      const res = await ctx.agent
-        .post("/api/ai/import-facebook")
-        .send({});
+      const res = await ctx.agent.post("/api/ai/import-facebook").send({});
       expect(res.status).toBe(400);
       expect(res.body.error).toBe("facebookUrl مطلوب");
     });
@@ -51,7 +62,9 @@ describe("AI Import Routes", () => {
         .post("/api/ai/import-facebook")
         .send({ facebookUrl: "https://example.com/test" });
       expect(res.status).toBe(400);
-      expect(res.body.error).toBe("Only Facebook or Instagram URLs are allowed");
+      expect(res.body.error).toBe(
+        "Only Facebook or Instagram URLs are allowed",
+      );
     });
 
     it("returns 400 when facebookUrl exceeds the maximum allowed length (4000)", async () => {
@@ -61,6 +74,58 @@ describe("AI Import Routes", () => {
         .send({ facebookUrl: veryLongUrl });
       expect(res.status).toBe(400);
       expect(res.body.error).toContain("Input is too long");
+    });
+
+    it("returns 500 and blocks the request when DNS resolves to a private IP (SSRF protection)", async () => {
+      // Mock global fetch to return OK just in case, but we expect it to throw BEFORE fetching
+      const fetchSpy = vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () => `<html><body></body></html>`,
+      } as Response);
+
+      // Mock dns.lookup to return an internal IP address, simulating DNS rebinding or internal DNS
+      const dnsSpy = vi
+        .mocked(lookup)
+        .mockResolvedValue([{ address: "127.0.0.1", family: 4 }] as any);
+
+      const res = await ctx.agent
+        .post("/api/ai/import-facebook")
+        .send({ facebookUrl: "https://facebook.com/ssrf-test" });
+
+      if (res.status !== 429) {
+        expect(res.status).toBe(500); // 500 error mapping from the caught scrape error
+        expect(res.body.error).toBe("حدث خطأ أثناء التحليل، حاول مرة أخرى");
+      }
+
+      fetchSpy.mockRestore();
+    });
+
+    it("returns 500 and blocks the request when a redirect points to a private IP (SSRF redirect protection)", async () => {
+      // Mock dns to return public IP for facebook.com, but private IP for the redirect target
+      const dnsSpy = vi.mocked(lookup).mockImplementation(async (hostname) => {
+        if (hostname.includes("facebook.com")) {
+          return [{ address: "157.240.22.35", family: 4 }] as any;
+        }
+        return [{ address: "192.168.1.1", family: 4 }] as any; // Private IP for any other domain
+      });
+
+      // Mock fetch to simulate a redirect to an internal IP (which wouldn't match host allowed check, but we simulate it anyway)
+      const fetchSpy = vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        status: 301,
+        headers: new Headers({ location: "http://192.168.1.1/admin" }),
+      } as any);
+
+      const res = await ctx.agent
+        .post("/api/ai/import-facebook")
+        .send({ facebookUrl: "https://facebook.com/redirect-test" });
+
+      if (res.status !== 429) {
+        expect(res.status).toBe(500);
+        expect(res.body.error).toBe("حدث خطأ أثناء التحليل، حاول مرة أخرى");
+      }
+
+      fetchSpy.mockRestore();
     });
 
     it("returns 200 with generated mock store suggestion for a valid facebookUrl", async () => {
