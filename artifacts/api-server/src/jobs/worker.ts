@@ -90,7 +90,7 @@ export async function markJobFailed(
   await db
     .update(backgroundJobsTable)
     .set({
-      status: isDead ? "dead" : "queued",
+      status: isDead ? "failed" : "queued",
       lastError: errorMsg.slice(0, 1000),
       runAt: nextRun,
       lockedAt: null,
