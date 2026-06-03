@@ -1,11 +1,14 @@
 🎯 **What:**
-Fix the CI failure related to duplicate column `variant_id` on the `order_items` table. The CI fails during the workspace database migration due to `variant_id` being added in `0002_variant_images_stock.sql` and then mistakenly added *again* in `0005_kind_colonel_america.sql`.
+Fix the CI failures related to a duplicate column constraint `variant_id` on `order_items` and an invalid import in the smoke test.
+
+1. The CI failed during the workspace database migration due to `variant_id` being added to `order_items` in `0002_variant_images_stock.sql` and then mistakenly added *again* in `0005_kind_colonel_america.sql`.
+2. The CI failed running `smoke.mjs` with `Error [ERR_UNKNOWN_BUILTIN_MODULE]: No such built-in module: node:fetch` because Node doesn't expose `fetch` under the `node:fetch` specifier, but rather as a global object in Node 18+.
 
 📊 **Coverage:**
 What scenarios are now tested:
-- Removing the conflicting column additions from `0005_kind_colonel_america.sql` and `0005_snapshot.json`.
+- Removing the conflicting column additions from `0005_kind_colonel_america.sql` and `0005_snapshot.json` schema.
 - Workspace database migrations run smoothly without hitting the schema duplicate constraint error `column "variant_id" of relation "order_items" already exists`.
-- Drizzle check sum is successfully updated because we removed duplicate `variant_id` from the snapshot as well, preventing DB desync.
+- The smoke test runs smoothly without throwing the `ERR_UNKNOWN_BUILTIN_MODULE` error.
 
 ✨ **Result:**
-The database migration succeeds in fresh environments (like GitHub CI and any new contributor local setups).
+The database migration and post-build integration smoke tests succeed in fresh environments (like GitHub CI and any new contributor local setups).
