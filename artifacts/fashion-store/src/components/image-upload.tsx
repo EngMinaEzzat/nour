@@ -132,7 +132,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
       ) : (
         <label
           htmlFor={inputId}
-          className="block border-2 border-dashed border-border rounded-xl p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
+          className="block border-2 border-dashed border-border rounded-xl p-4 text-center cursor-pointer hover:border-primary/50 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -145,7 +145,7 @@ export function ImageUpload({ value, onChange, label, className }: ImageUploadPr
             ref={inputRef}
             type="file"
             accept={IMAGE_ACCEPT}
-            className="hidden"
+            className="sr-only"
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) handleFile(f);
