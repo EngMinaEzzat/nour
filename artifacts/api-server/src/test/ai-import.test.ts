@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 import { request, app, createTestMerchant, cleanupTenant } from "./helpers.js";
-import * as dns from "node:dns/promises";
+import { lookup } from "node:dns/promises";
+vi.mock("node:dns/promises", () => ({
+  lookup: vi.fn().mockResolvedValue([{ address: "157.240.22.35", family: 4 }]),
+}));
 import * as aiProvider from "../lib/ai-provider.js";
 import { resetAiRateLimit } from "../lib/ai-rate-limit.js";
 
@@ -12,6 +15,9 @@ describe("AI Import Routes", () => {
 
   beforeAll(async () => {
     ctx = await createTestMerchant();
+  });
+  afterEach(() => {
+    vi.clearAllMocks();
   });
   afterAll(async () => {
     vi.restoreAllMocks();
@@ -79,7 +85,7 @@ describe("AI Import Routes", () => {
 
       // Mock dns.lookup to return an internal IP address, simulating DNS rebinding or internal DNS
       const dnsSpy = vi
-        .spyOn(dns, "lookup")
+        .mocked(lookup)
         .mockResolvedValue([{ address: "127.0.0.1", family: 4 }] as any);
 
       const res = await ctx.agent
@@ -97,14 +103,12 @@ describe("AI Import Routes", () => {
 
     it("returns 500 and blocks the request when a redirect points to a private IP (SSRF redirect protection)", async () => {
       // Mock dns to return public IP for facebook.com, but private IP for the redirect target
-      const dnsSpy = vi
-        .spyOn(dns, "lookup")
-        .mockImplementation(async (hostname) => {
-          if (hostname.includes("facebook.com")) {
-            return [{ address: "157.240.22.35", family: 4 }] as any;
-          }
-          return [{ address: "192.168.1.1", family: 4 }] as any; // Private IP for any other domain
-        });
+      const dnsSpy = vi.mocked(lookup).mockImplementation(async (hostname) => {
+        if (hostname.includes("facebook.com")) {
+          return [{ address: "157.240.22.35", family: 4 }] as any;
+        }
+        return [{ address: "192.168.1.1", family: 4 }] as any; // Private IP for any other domain
+      });
 
       // Mock fetch to simulate a redirect to an internal IP (which wouldn't match host allowed check, but we simulate it anyway)
       const fetchSpy = vi.spyOn(global, "fetch").mockResolvedValueOnce({
