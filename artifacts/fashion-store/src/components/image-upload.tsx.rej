@@ -1,0 +1,20 @@
+--- image-upload.tsx
++++ image-upload.tsx
+@@ -131,7 +131,7 @@
+       ) : (
+         <label
+           htmlFor={inputId}
+-          className="block border-2 border-dashed border-border rounded-xl p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
++          className="block border-2 border-dashed border-border rounded-xl p-4 text-center cursor-pointer hover:border-primary/50 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2"
+           onDragOver={(e) => e.preventDefault()}
+           onDrop={(e) => {
+             e.preventDefault();
+@@ -145,7 +145,7 @@
+             ref={inputRef}
+             type="file"
+             accept={IMAGE_ACCEPT}
+-            className="hidden"
++            className="sr-only"
+             onChange={(e) => {
+               const f = e.target.files?.[0];
+               if (f) handleFile(f);
