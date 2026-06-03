@@ -24,9 +24,10 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL: postgres://user:pass@localhost:5432/nour_test
+      DATABASE_URL: postgres://user:pass@localhost:5432/nour_test?sslmode=disable
       SESSION_SECRET: test-ci-secret-key-123
       RESEND_API_KEY: test_resend_key
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     steps:
       - name: Checkout repository
