@@ -15,7 +15,17 @@ import {
   DeleteProductParams,
   ListProductsQueryParams,
 } from "@workspace/api-zod";
-import { eq, and, ilike, desc, count, isNull, or, exists, not } from "drizzle-orm";
+import {
+  eq,
+  and,
+  ilike,
+  desc,
+  count,
+  isNull,
+  or,
+  exists,
+  not,
+} from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { getPlan, isAtLimit } from "../lib/entitlements";
 import { cache } from "../lib/cache.js";
@@ -60,7 +70,10 @@ function formatVariant(v: Record<string, unknown>) {
   };
 }
 
-async function resolveSessionTenantId(req: { merchantTenantId?: number; session?: { merchantId?: number } }): Promise<number | null> {
+async function resolveSessionTenantId(req: {
+  merchantTenantId?: number;
+  session?: { merchantId?: number };
+}): Promise<number | null> {
   if (req.merchantTenantId) return req.merchantTenantId;
   if (!req.session?.merchantId) return null;
 
@@ -120,9 +133,10 @@ async function fetchProductsWithJoin(conditions: ReturnType<typeof and>[]) {
       createdAt: productsTable.createdAt,
       isSample: productsTable.isSample,
       hasVariants: exists(
-        db.select({ id: productVariantsTable.id })
+        db
+          .select({ id: productVariantsTable.id })
           .from(productVariantsTable)
-          .where(eq(productVariantsTable.productId, productsTable.id))
+          .where(eq(productVariantsTable.productId, productsTable.id)),
       ),
     })
     .from(productsTable)
@@ -175,8 +189,8 @@ router.get("/products/featured", async (req, res) => {
       .where(
         and(
           eq(productsTable.featured, true),
-          eq(tenantsTable.status, "active")
-        )
+          eq(tenantsTable.status, "active"),
+        ),
       )
       .limit(12);
     res.json(rows.map(formatProduct));
@@ -227,7 +241,7 @@ router.get("/products", async (req, res) => {
   if (!parsed.success)
     return res.status(400).json({ error: parsed.error.flatten() });
   const { tenantId: queryTenantId, categoryId, search } = parsed.data;
-  
+
   // Safe parsing for boolean query param which might be coerced to true for "false" string
   let hasVariants: boolean | undefined;
   if (req.query.hasVariants === "true") hasVariants = true;
@@ -251,17 +265,25 @@ router.get("/products", async (req, res) => {
   if (search) conditions.push(ilike(productsTable.name, `%${search}%`));
 
   if (hasVariants === true) {
-    conditions.push(exists(
-      db.select({ id: productVariantsTable.id })
-        .from(productVariantsTable)
-        .where(eq(productVariantsTable.productId, productsTable.id))
-    ));
+    conditions.push(
+      exists(
+        db
+          .select({ id: productVariantsTable.id })
+          .from(productVariantsTable)
+          .where(eq(productVariantsTable.productId, productsTable.id)),
+      ),
+    );
   } else if (hasVariants === false) {
-    conditions.push(not(exists(
-      db.select({ id: productVariantsTable.id })
-        .from(productVariantsTable)
-        .where(eq(productVariantsTable.productId, productsTable.id))
-    )));
+    conditions.push(
+      not(
+        exists(
+          db
+            .select({ id: productVariantsTable.id })
+            .from(productVariantsTable)
+            .where(eq(productVariantsTable.productId, productsTable.id)),
+        ),
+      ),
+    );
   }
 
   if (!sessionTenantId || sessionTenantId !== effectiveTenantId) {
@@ -269,8 +291,8 @@ router.get("/products", async (req, res) => {
   }
 
   try {
-    const cacheKey = `tenant:${effectiveTenantId}:products:cat=${categoryId || 'all'}:search=${search || 'none'}:variants=${hasVariants ?? 'any'}`;
-    
+    const cacheKey = `tenant:${effectiveTenantId}:products:cat=${categoryId || "all"}:search=${search || "none"}:variants=${hasVariants ?? "any"}`;
+
     // Only cache active tenant products for public consumers
     const canCache = !sessionTenantId || sessionTenantId !== effectiveTenantId;
     if (canCache) {
@@ -411,13 +433,15 @@ router.post(
         .where(
           or(
             eq(categoriesTable.tenantId, sessionTenantId),
-            isNull(categoriesTable.tenantId)
-          )
+            isNull(categoriesTable.tenantId),
+          ),
         );
 
       const findCategoryId = (nameAr: string) => {
         const cat = categories.find(
-          c => c.nameAr === nameAr || c.name?.toLowerCase() === nameAr.toLowerCase()
+          (c) =>
+            c.nameAr === nameAr ||
+            c.name?.toLowerCase() === nameAr.toLowerCase(),
         );
         return cat ? cat.id : null;
       };
@@ -425,7 +449,8 @@ router.post(
       const sampleProducts = [
         {
           name: "معطف شتوي أنيق",
-          description: "معطف شتوي طويل أنيق ومصنوع من أجود أنواع الصوف التركي الفاخر. يتميز بتصميم عصري يناسب الإطلالات الرسمية واليومية مع بطانة داخلية دافئة.",
+          description:
+            "معطف شتوي طويل أنيق ومصنوع من أجود أنواع الصوف التركي الفاخر. يتميز بتصميم عصري يناسب الإطلالات الرسمية واليومية مع بطانة داخلية دافئة.",
           price: "1450.00",
           originalPrice: "1850.00",
           imageUrl: "/product-fashion-optimized.jpg",
@@ -436,7 +461,8 @@ router.post(
         },
         {
           name: "فستان صيفي زهري",
-          description: "فستان صيفي خفيف وأنيق بنقشة زهور مميزة. مصنوع من خامة قطنية ناعمة وباردة لتوفر لكِ أقصى درجات الراحة والأناقة في الأيام الحارة.",
+          description:
+            "فستان صيفي خفيف وأنيق بنقشة زهور مميزة. مصنوع من خامة قطنية ناعمة وباردة لتوفر لكِ أقصى درجات الراحة والأناقة في الأيام الحارة.",
           price: "850.00",
           originalPrice: "1100.00",
           imageUrl: "/images/categories/fashion.png",
@@ -447,7 +473,8 @@ router.post(
         },
         {
           name: "حقيبة يد جلدية فاخرة",
-          description: "حقيبة يد كلاسيكية مصنوعة من الجلد الطبيعي المقاوم للخدش. تحتوي على جيوب متعددة لتنظيم أغراضك اليومية بكل سهولة وأناقة.",
+          description:
+            "حقيبة يد كلاسيكية مصنوعة من الجلد الطبيعي المقاوم للخدش. تحتوي على جيوب متعددة لتنظيم أغراضك اليومية بكل سهولة وأناقة.",
           price: "720.00",
           originalPrice: "950.00",
           imageUrl: "/images/categories/accessories.png",
@@ -458,7 +485,8 @@ router.post(
         },
         {
           name: "سيروم العناية بالبشرة الطبيعي",
-          description: "سيروم مغذي غني بفيتامين C وحمض الهيالورونيك لترطيب البشرة بعمق، توحيد لونها وإعادة النضارة والإشراق الطبيعي.",
+          description:
+            "سيروم مغذي غني بفيتامين C وحمض الهيالورونيك لترطيب البشرة بعمق، توحيد لونها وإعادة النضارة والإشراق الطبيعي.",
           price: "380.00",
           originalPrice: "500.00",
           imageUrl: "/images/categories/care.png",
@@ -469,7 +497,8 @@ router.post(
         },
         {
           name: "عطر الياسمين والمسك",
-          description: "مزيج عطري ساحر يجمع بين رقة زهور الياسمين الشرقي وفخامة المسك الأبيض. عطر ثابت ويدوم طويلاً ليعطيك جاذبية فريدة في كل مناسبة.",
+          description:
+            "مزيج عطري ساحر يجمع بين رقة زهور الياسمين الشرقي وفخامة المسك الأبيض. عطر ثابت ويدوم طويلاً ليعطيك جاذبية فريدة في كل مناسبة.",
           price: "950.00",
           originalPrice: "1200.00",
           imageUrl: "/images/categories/perfumes.png",
@@ -480,21 +509,22 @@ router.post(
         },
       ];
 
-      for (const sp of sampleProducts) {
-        const categoryId = findCategoryId(sp.categoryNameAr);
-        await db.insert(productsTable).values({
-          tenantId: sessionTenantId,
-          categoryId,
-          name: sp.name,
-          description: sp.description,
-          price: sp.price,
-          originalPrice: sp.originalPrice,
-          imageUrl: sp.imageUrl,
-          stock: sp.stock,
-          featured: sp.featured,
-          status: sp.status,
-          isSample: true,
-        });
+      const valuesToInsert = sampleProducts.map((sp) => ({
+        tenantId: sessionTenantId,
+        categoryId: findCategoryId(sp.categoryNameAr),
+        name: sp.name,
+        description: sp.description,
+        price: sp.price,
+        originalPrice: sp.originalPrice,
+        imageUrl: sp.imageUrl,
+        stock: sp.stock,
+        featured: sp.featured,
+        status: sp.status,
+        isSample: true,
+      }));
+
+      if (valuesToInsert.length > 0) {
+        await db.insert(productsTable).values(valuesToInsert);
       }
 
       await recordAuditEvent({
@@ -513,7 +543,7 @@ router.post(
       req.log.error(err);
       res.status(500).json({ error: "فشل إضافة المنتجات التجريبية" });
     }
-  }
+  },
 );
 
 router.delete(
@@ -527,8 +557,8 @@ router.delete(
         .where(
           and(
             eq(productsTable.tenantId, sessionTenantId),
-            eq(productsTable.isSample, true)
-          )
+            eq(productsTable.isSample, true),
+          ),
         );
 
       await recordAuditEvent({
@@ -547,7 +577,7 @@ router.delete(
       req.log.error(err);
       res.status(500).json({ error: "فشل حذف المنتجات التجريبية" });
     }
-  }
+  },
 );
 
 router.get("/products/:id", async (req, res) => {
@@ -702,7 +732,10 @@ router.get("/products/:id/variants", async (req, res) => {
       .where(eq(productsTable.id, productId));
 
     if (!product) return res.status(404).json({ error: "المنتج غير موجود" });
-    if (sessionTenantId !== product.tenantId && product.tenantStatus !== "active") {
+    if (
+      sessionTenantId !== product.tenantId &&
+      product.tenantStatus !== "active"
+    ) {
       return res.status(404).json({ error: "المنتج غير موجود" });
     }
 

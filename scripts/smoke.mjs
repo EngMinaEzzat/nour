@@ -1,4 +1,5 @@
 import { parseArgs } from "node:util";
+
 import { performance } from "node:perf_hooks";
 
 const { values } = parseArgs({

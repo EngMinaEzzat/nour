@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { categoriesTable, productsTable, merchantsTable } from "@workspace/db";
 import { CreateCategoryBody, UpdateCategoryBody } from "@workspace/api-zod";
-import { count, eq, or, isNull, and } from "drizzle-orm";
+import { count, eq, or, isNull, and, inArray } from "drizzle-orm";
 import { requireAuth } from "../middleware/require-role";
 import { cache } from "../lib/cache.js";
 
@@ -17,7 +17,11 @@ async function validateParentCategory(params: {
   if (parentId == null) return { ok: true };
 
   if (categoryId !== undefined && parentId === categoryId) {
-    return { ok: false, status: 400, error: "Category cannot be its own parent" };
+    return {
+      ok: false,
+      status: 400,
+      error: "Category cannot be its own parent",
+    };
   }
 
   let currentParentId: number | null = parentId;
@@ -25,7 +29,11 @@ async function validateParentCategory(params: {
 
   while (currentParentId != null) {
     if (seen.has(currentParentId)) {
-      return { ok: false, status: 400, error: "Category parent chain contains a cycle" };
+      return {
+        ok: false,
+        status: 400,
+        error: "Category parent chain contains a cycle",
+      };
     }
     seen.add(currentParentId);
 
@@ -39,19 +47,35 @@ async function validateParentCategory(params: {
       .where(eq(categoriesTable.id, currentParentId));
 
     if (!parent) {
-      return { ok: false, status: 400, error: "Parent category does not exist" };
+      return {
+        ok: false,
+        status: 400,
+        error: "Parent category does not exist",
+      };
     }
 
     if (parent.tenantId !== null && parent.tenantId !== tenantId) {
-      return { ok: false, status: 400, error: "Parent category belongs to another tenant" };
+      return {
+        ok: false,
+        status: 400,
+        error: "Parent category belongs to another tenant",
+      };
     }
 
     if (parent.parentId !== null) {
-      return { ok: false, status: 400, error: "Parent category must be a top-level category" };
+      return {
+        ok: false,
+        status: 400,
+        error: "Parent category must be a top-level category",
+      };
     }
 
     if (categoryId !== undefined && parent.id === categoryId) {
-      return { ok: false, status: 400, error: "Category cannot be nested under itself" };
+      return {
+        ok: false,
+        status: 400,
+        error: "Category cannot be nested under itself",
+      };
     }
 
     currentParentId = parent.parentId;
@@ -62,7 +86,9 @@ async function validateParentCategory(params: {
 
 router.get("/categories", async (req, res) => {
   try {
-    const tenantIdParam = req.query.tenantId ? Number(req.query.tenantId) : null;
+    const tenantIdParam = req.query.tenantId
+      ? Number(req.query.tenantId)
+      : null;
     const sessionMerchantId = req.session.merchantId;
 
     let tenantId: number | null = tenantIdParam;
@@ -82,23 +108,37 @@ router.get("/categories", async (req, res) => {
           .where(
             or(
               eq(categoriesTable.tenantId, tenantId),
-              isNull(categoriesTable.tenantId)
-            )
+              isNull(categoriesTable.tenantId),
+            ),
           )
           .orderBy(categoriesTable.name)
       : await db.select().from(categoriesTable).orderBy(categoriesTable.name);
 
-    const withCounts = await Promise.all(
-      categories.map(async (cat) => {
-        const conditions = [eq(productsTable.categoryId, cat.id)];
-        if (tenantId) conditions.push(eq(productsTable.tenantId, tenantId));
-        const [{ total }] = await db
-          .select({ total: count() })
-          .from(productsTable)
-          .where(and(...conditions));
-        return { ...cat, productCount: total };
-      })
-    );
+    let withCounts: any[] = [];
+    if (categories.length > 0) {
+      const categoryIds = categories.map((c) => c.id);
+      const conditions = [inArray(productsTable.categoryId, categoryIds)];
+      if (tenantId) conditions.push(eq(productsTable.tenantId, tenantId));
+
+      const counts = await db
+        .select({
+          categoryId: productsTable.categoryId,
+          total: count(),
+        })
+        .from(productsTable)
+        .where(and(...conditions))
+        .groupBy(productsTable.categoryId);
+
+      const countMap = new Map(
+        counts.map((c) => [c.categoryId, Number(c.total)]),
+      );
+
+      withCounts = categories.map((cat) => ({
+        ...cat,
+        productCount: countMap.get(cat.id) || 0,
+      }));
+    }
+
     res.json(withCounts);
   } catch (err) {
     req.log.error(err);
@@ -108,7 +148,8 @@ router.get("/categories", async (req, res) => {
 
 router.post("/categories", requireAuth, async (req, res) => {
   const parsed = CreateCategoryBody.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success)
+    return res.status(400).json({ error: parsed.error.flatten() });
 
   const merchantId = req.session.merchantId!;
   try {
@@ -123,14 +164,16 @@ router.post("/categories", requireAuth, async (req, res) => {
       parentId: parsed.data.parentId,
     });
     if (!parentValidation.ok) {
-      return res.status(parentValidation.status).json({ error: parentValidation.error });
+      return res
+        .status(parentValidation.status)
+        .json({ error: parentValidation.error });
     }
 
     const [category] = await db
       .insert(categoriesTable)
       .values({ ...parsed.data, tenantId: merchant.tenantId })
       .returning();
-    
+
     await cache.invalidateTenant(merchant.tenantId);
     res.status(201).json({ ...category, productCount: 0 });
   } catch (err) {
@@ -141,10 +184,12 @@ router.post("/categories", requireAuth, async (req, res) => {
 
 router.put("/categories/:id", requireAuth, async (req, res) => {
   const categoryId = Number(req.params.id);
-  if (Number.isNaN(categoryId)) return res.status(400).json({ error: "معرّف الفئة غير صحيح" });
+  if (Number.isNaN(categoryId))
+    return res.status(400).json({ error: "معرّف الفئة غير صحيح" });
 
   const parsed = UpdateCategoryBody.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!parsed.success)
+    return res.status(400).json({ error: parsed.error.flatten() });
 
   const merchantId = req.session.merchantId!;
   try {
@@ -156,10 +201,13 @@ router.put("/categories/:id", requireAuth, async (req, res) => {
 
     const updateData: Partial<typeof categoriesTable.$inferInsert> = {};
     if (parsed.data.name !== undefined) updateData.name = parsed.data.name;
-    if (parsed.data.nameAr !== undefined) updateData.nameAr = parsed.data.nameAr;
+    if (parsed.data.nameAr !== undefined)
+      updateData.nameAr = parsed.data.nameAr;
     if (parsed.data.type !== undefined) updateData.type = parsed.data.type;
-    if (parsed.data.parentId !== undefined) updateData.parentId = parsed.data.parentId;
-    if ("imageUrl" in req.body) updateData.imageUrl = parsed.data.imageUrl ?? null;
+    if (parsed.data.parentId !== undefined)
+      updateData.parentId = parsed.data.parentId;
+    if ("imageUrl" in req.body)
+      updateData.imageUrl = parsed.data.imageUrl ?? null;
 
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ error: "لا توجد تغييرات للحفظ" });
@@ -172,22 +220,37 @@ router.put("/categories/:id", requireAuth, async (req, res) => {
         categoryId,
       });
       if (!parentValidation.ok) {
-        return res.status(parentValidation.status).json({ error: parentValidation.error });
+        return res
+          .status(parentValidation.status)
+          .json({ error: parentValidation.error });
       }
     }
 
     const [category] = await db
       .update(categoriesTable)
       .set(updateData)
-      .where(and(eq(categoriesTable.id, categoryId), eq(categoriesTable.tenantId, merchant.tenantId)))
+      .where(
+        and(
+          eq(categoriesTable.id, categoryId),
+          eq(categoriesTable.tenantId, merchant.tenantId),
+        ),
+      )
       .returning();
 
-    if (!category) return res.status(404).json({ error: "الفئة غير موجودة أو لا يمكن تعديلها" });
+    if (!category)
+      return res
+        .status(404)
+        .json({ error: "الفئة غير موجودة أو لا يمكن تعديلها" });
 
     const [{ total }] = await db
       .select({ total: count() })
       .from(productsTable)
-      .where(and(eq(productsTable.categoryId, category.id), eq(productsTable.tenantId, merchant.tenantId)));
+      .where(
+        and(
+          eq(productsTable.categoryId, category.id),
+          eq(productsTable.tenantId, merchant.tenantId),
+        ),
+      );
 
     await cache.invalidateTenant(merchant.tenantId);
     res.json({ ...category, productCount: total });
@@ -199,7 +262,8 @@ router.put("/categories/:id", requireAuth, async (req, res) => {
 
 router.delete("/categories/:id", requireAuth, async (req, res) => {
   const categoryId = Number(req.params.id);
-  if (Number.isNaN(categoryId)) return res.status(400).json({ error: "Invalid category id" });
+  if (Number.isNaN(categoryId))
+    return res.status(400).json({ error: "Invalid category id" });
 
   const merchantId = req.session.merchantId!;
   try {
@@ -211,10 +275,18 @@ router.delete("/categories/:id", requireAuth, async (req, res) => {
 
     const [deleted] = await db
       .delete(categoriesTable)
-      .where(and(eq(categoriesTable.id, categoryId), eq(categoriesTable.tenantId, merchant.tenantId)))
+      .where(
+        and(
+          eq(categoriesTable.id, categoryId),
+          eq(categoriesTable.tenantId, merchant.tenantId),
+        ),
+      )
       .returning({ id: categoriesTable.id });
 
-    if (!deleted) return res.status(404).json({ error: "Category not found or cannot be deleted" });
+    if (!deleted)
+      return res
+        .status(404)
+        .json({ error: "Category not found or cannot be deleted" });
 
     await cache.invalidateTenant(merchant.tenantId);
     res.status(204).send();
