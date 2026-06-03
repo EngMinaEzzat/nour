@@ -18,6 +18,10 @@
 **Learning:** Resorting to 'as any' with complex external library configurations like i18next can mask runtime errors. Instead, examine the domain objects directly; they often already contain the required localized strings or strictly-typed formats.
 **Action:** Prefer extracting strings directly from pre-translated domain objects (e.g., `section.label`) rather than dynamically concatenating translation keys with `as any` casts.
 
+## 2024-06-25 - Fix SSRF Vulnerability in Facebook Moderator
+**Learning:** `new URL(base + "/" + path)` can be manipulated by an attacker who controls `path` to navigate up directories (`../../`) or even switch origins (e.g. `//evil.com` or `http://evil.com`), leading to SSRF if the URL is then passed to `fetch`.
+**Action:** Always parse the generated URL and assert that `url.origin` matches the expected base origin and `url.pathname` strictly begins with the expected API base path prefix.
+
 ## 2026-06-03 - [Fix N+1 query in checkout API]
 **Learning:** Checking out items fetching variants one-by-one via `.map(async () => tx.select())` creates an N+1 problem inside a transaction.
 **Action:** Use `inArray` to fetch all products and variants upfront, map them by ID into Maps, and access them locally (O(1)) inside the checkout validation map loop.
