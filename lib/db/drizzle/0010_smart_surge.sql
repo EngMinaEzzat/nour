@@ -1,3 +1,4 @@
+ALTER TABLE "tenants" ADD COLUMN "store_config" jsonb;--> statement-breakpoint
 CREATE TYPE "public"."privacy_request_status" AS ENUM('pending', 'approved', 'rejected', 'completed', 'failed');--> statement-breakpoint
 CREATE TYPE "public"."privacy_request_type" AS ENUM('export', 'delete', 'restrict', 'correction');--> statement-breakpoint
 CREATE TYPE "public"."privacy_subject_type" AS ENUM('merchant', 'customer', 'staff');--> statement-breakpoint
