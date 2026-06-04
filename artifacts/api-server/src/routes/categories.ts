@@ -114,39 +114,30 @@ router.get("/categories", async (req, res) => {
           .orderBy(categoriesTable.name)
       : await db.select().from(categoriesTable).orderBy(categoriesTable.name);
 
-    // Fetch all product counts for relevant categories in a single query
-    const countConditions =
-      categories.length > 0
-        ? [
-            inArray(
-              productsTable.categoryId,
-              categories.map((c) => c.id),
-            ),
-          ]
-        : [];
+    let withCounts: any[] = [];
+    if (categories.length > 0) {
+      const categoryIds = categories.map((c) => c.id);
+      const conditions = [inArray(productsTable.categoryId, categoryIds)];
+      if (tenantId) conditions.push(eq(productsTable.tenantId, tenantId));
 
-    if (tenantId) countConditions.push(eq(productsTable.tenantId, tenantId));
+      const counts = await db
+        .select({
+          categoryId: productsTable.categoryId,
+          total: count(),
+        })
+        .from(productsTable)
+        .where(and(...conditions))
+        .groupBy(productsTable.categoryId);
 
-    const productCounts =
-      categories.length > 0
-        ? await db
-            .select({
-              categoryId: productsTable.categoryId,
-              total: count(),
-            })
-            .from(productsTable)
-            .where(and(...countConditions))
-            .groupBy(productsTable.categoryId)
-        : [];
+      const countMap = new Map(
+        counts.map((c) => [c.categoryId, Number(c.total)]),
+      );
 
-    const countMap = new Map(
-      productCounts.map((pc) => [pc.categoryId, Number(pc.total)]),
-    );
-
-    const withCounts = categories.map((cat) => ({
-      ...cat,
-      productCount: countMap.get(cat.id) ?? 0,
-    }));
+      withCounts = categories.map((cat) => ({
+        ...cat,
+        productCount: countMap.get(cat.id) || 0,
+      }));
+    }
 
     res.json(withCounts);
   } catch (err) {
