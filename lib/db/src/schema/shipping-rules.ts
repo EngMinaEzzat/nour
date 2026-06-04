@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, numeric, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, numeric, boolean, timestamp } from "drizzle-orm/pg-core";
 import { tenantsTable } from "./tenants";
 
 export const shippingZonesTable = pgTable("shipping_zones", {
