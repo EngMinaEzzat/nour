@@ -1,6 +1,10 @@
 import { parseArgs } from "node:util";
-
 import { performance } from "node:perf_hooks";
+
+const logger = {
+  info: console.info,
+  error: console.error,
+};
 
 const { values } = parseArgs({
   options: {
@@ -18,7 +22,7 @@ const { values } = parseArgs({
 const baseUrl = values["base-url"];
 const slug = values["tenant-slug"];
 
-console.log(`Starting Operational Smoke Test against ${baseUrl}`);
+logger.info(`Starting Operational Smoke Test against ${baseUrl}`);
 
 async function check(name, url, expectedStatus = 200, checkBody = null) {
   const start = performance.now();
@@ -26,7 +30,7 @@ async function check(name, url, expectedStatus = 200, checkBody = null) {
     const res = await fetch(url);
     const duration = performance.now() - start;
     if (res.status !== expectedStatus) {
-      console.error(
+      logger.error(
         `[FAIL] ${name}: Expected ${expectedStatus}, got ${res.status} (${duration.toFixed(2)}ms)`,
       );
       process.exitCode = 1;
@@ -35,16 +39,16 @@ async function check(name, url, expectedStatus = 200, checkBody = null) {
     if (checkBody) {
       const body = await res.json();
       if (!checkBody(body)) {
-        console.error(
+        logger.error(
           `[FAIL] ${name}: Body check failed (${duration.toFixed(2)}ms)`,
         );
         process.exitCode = 1;
         return;
       }
     }
-    console.log(`[PASS] ${name}: ${res.status} (${duration.toFixed(2)}ms)`);
+    logger.info(`[PASS] ${name}: ${res.status} (${duration.toFixed(2)}ms)`);
   } catch (error) {
-    console.error(`[FAIL] ${name}: Network error - ${error.message}`);
+    logger.error(`[FAIL] ${name}: Network error - ${error.message}`);
     process.exitCode = 1;
   }
 }
@@ -77,7 +81,7 @@ async function run() {
       (body) => body.slug === slug,
     );
   } else {
-    console.log(
+    logger.info(
       "[SKIP] Storefront Payload check. Pass --tenant-slug to run this check.",
     );
   }
