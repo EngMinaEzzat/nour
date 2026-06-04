@@ -2907,7 +2907,7 @@
     "dropHere": "Click or drag image here",
     "supported": "{formats} up to {max}MB without compression",
     "errorSize": "Image size must be less than {max}MB",
-    "errorFormat": "Supported formats: {formats}. On iPhone, choose JPG.",
+    "errorFormat": "Supported formats: {formats}. On iPhone choose JPG if the image appears as HEIC.",
     "errorGeneric": "Failed to upload image",
     "errorProcessing": "Could not process image",
     "removeImage": "Remove image"
