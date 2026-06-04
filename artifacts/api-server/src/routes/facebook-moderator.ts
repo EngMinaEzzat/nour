@@ -3,7 +3,13 @@ import type { Response } from "express";
 import { requireAuth } from "../middleware/require-role";
 import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { ai as gemini } from "@workspace/integrations-gemini-ai";
-import { db, merchantsTable, tenantsTable, facebookConnectionsTable, facebookModerationLogTable } from "@workspace/db";
+import {
+  db,
+  merchantsTable,
+  tenantsTable,
+  facebookConnectionsTable,
+  facebookModerationLogTable,
+} from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 
 const router = Router();
@@ -13,25 +19,53 @@ const FB_API = "https://graph.facebook.com/v19.0";
 
 /* ─── helpers ─── */
 
-async function fbGet(path: string, token: string, params: Record<string, string> = {}) {
-  const url = new URL(`${FB_API}/${path}`);
+function buildSecureFbUrl(path: string): URL {
+  const cleanPath = path.replace(/^\/+/, "");
+  const url = new URL(`${FB_API}/${cleanPath}`);
+  if (
+    url.origin !== "https://graph.facebook.com" ||
+    !url.pathname.startsWith("/v19.0/")
+  ) {
+    throw new Error("Invalid Facebook API path");
+  }
+  return url;
+}
+
+async function fbGet(
+  path: string,
+  token: string,
+  params: Record<string, string> = {},
+) {
+  const url = buildSecureFbUrl(path);
   url.searchParams.set("access_token", token);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-  const res = await fetch(url.toString(), { signal: AbortSignal.timeout(12000) });
-  const json = await res.json() as { error?: { message: string } };
-  if (!res.ok || json.error) throw new Error(json.error?.message ?? `HTTP ${res.status}`);
+  const res = await fetch(url.toString(), {
+    signal: AbortSignal.timeout(12000),
+  });
+  const json = (await res.json()) as { error?: { message: string } };
+  if (!res.ok || json.error)
+    throw new Error(json.error?.message ?? `HTTP ${res.status}`);
   return json;
 }
 
-async function fbPost(path: string, token: string, body: Record<string, string>) {
-  const res = await fetch(`${FB_API}/${path}`, {
+async function fbPost(
+  path: string,
+  token: string,
+  body: Record<string, string>,
+) {
+  const url = buildSecureFbUrl(path);
+  const res = await fetch(url.toString(), {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(12000),
   });
-  const json = await res.json() as { error?: { message: string } };
-  if (!res.ok || json.error) throw new Error(json.error?.message ?? `HTTP ${res.status}`);
+  const json = (await res.json()) as { error?: { message: string } };
+  if (!res.ok || json.error)
+    throw new Error(json.error?.message ?? `HTTP ${res.status}`);
   return json;
 }
 
@@ -48,10 +82,16 @@ async function getMerchantConnection(merchantId: number) {
     .from(facebookConnectionsTable)
     .where(eq(facebookConnectionsTable.tenantId, merchant.tenantId));
 
-  return conn ? { ...conn, tenantId: merchant.tenantId } : { tenantId: merchant.tenantId, connection: null };
+  return conn
+    ? { ...conn, tenantId: merchant.tenantId }
+    : { tenantId: merchant.tenantId, connection: null };
 }
 
-async function callAI(model: AiModel, system: string, prompt: string): Promise<string> {
+async function callAI(
+  model: AiModel,
+  system: string,
+  prompt: string,
+): Promise<string> {
   if (model === "gemini") {
     const response = await gemini.models.generateContent({
       model: "gemini-2.5-flash",
@@ -82,11 +122,19 @@ router.get("/facebook/status", requireAuth, async (req, res) => {
     if (!merchant?.tenantId) return res.json({ connected: false });
 
     const [conn] = await db
-      .select({ id: facebookConnectionsTable.id, pageId: facebookConnectionsTable.pageId, pageName: facebookConnectionsTable.pageName })
+      .select({
+        id: facebookConnectionsTable.id,
+        pageId: facebookConnectionsTable.pageId,
+        pageName: facebookConnectionsTable.pageName,
+      })
       .from(facebookConnectionsTable)
       .where(eq(facebookConnectionsTable.tenantId, merchant.tenantId));
 
-    return res.json({ connected: !!conn, pageId: conn?.pageId, pageName: conn?.pageName });
+    return res.json({
+      connected: !!conn,
+      pageId: conn?.pageId,
+      pageName: conn?.pageName,
+    });
   } catch (err) {
     req.log.error(err);
     return res.status(500).json({ error: "حدث خطأ" });
@@ -94,7 +142,10 @@ router.get("/facebook/status", requireAuth, async (req, res) => {
 });
 
 router.post("/facebook/connect", requireAuth, async (req, res) => {
-  const { pageId, pageAccessToken } = req.body as { pageId?: string; pageAccessToken?: string };
+  const { pageId, pageAccessToken } = req.body as {
+    pageId?: string;
+    pageAccessToken?: string;
+  };
   if (!pageId?.trim() || !pageAccessToken?.trim()) {
     return res.status(400).json({ error: "معرف الصفحة وتوكن الوصول مطلوبان" });
   }
@@ -107,23 +158,40 @@ router.post("/facebook/connect", requireAuth, async (req, res) => {
       .from(merchantsTable)
       .where(eq(merchantsTable.id, merchantId));
 
-    if (!merchant?.tenantId) return res.status(400).json({ error: "المتجر غير موجود" });
+    if (!merchant?.tenantId)
+      return res.status(400).json({ error: "المتجر غير موجود" });
 
     // Verify token by fetching page name
     let pageName = pageId;
     try {
-      const info = await fbGet(pageId, pageAccessToken, { fields: "name" }) as { name?: string };
+      const info = (await fbGet(pageId, pageAccessToken, {
+        fields: "name",
+      })) as { name?: string };
       pageName = info.name ?? pageId;
     } catch {
-      return res.status(400).json({ error: "فشل التحقق من التوكن — تأكد من صحة معرف الصفحة والتوكن" });
+      return res
+        .status(400)
+        .json({
+          error: "فشل التحقق من التوكن — تأكد من صحة معرف الصفحة والتوكن",
+        });
     }
 
     await db
       .insert(facebookConnectionsTable)
-      .values({ tenantId: merchant.tenantId, pageId: pageId.trim(), pageName, pageAccessToken: pageAccessToken.trim() })
+      .values({
+        tenantId: merchant.tenantId,
+        pageId: pageId.trim(),
+        pageName,
+        pageAccessToken: pageAccessToken.trim(),
+      })
       .onConflictDoUpdate({
         target: facebookConnectionsTable.tenantId,
-        set: { pageId: pageId.trim(), pageName, pageAccessToken: pageAccessToken.trim(), updatedAt: new Date() },
+        set: {
+          pageId: pageId.trim(),
+          pageName,
+          pageAccessToken: pageAccessToken.trim(),
+          updatedAt: new Date(),
+        },
       });
 
     return res.json({ success: true, pageName });
@@ -141,9 +209,12 @@ router.delete("/facebook/disconnect", requireAuth, async (req, res) => {
       .from(merchantsTable)
       .where(eq(merchantsTable.id, merchantId));
 
-    if (!merchant?.tenantId) return res.status(400).json({ error: "المتجر غير موجود" });
+    if (!merchant?.tenantId)
+      return res.status(400).json({ error: "المتجر غير موجود" });
 
-    await db.delete(facebookConnectionsTable).where(eq(facebookConnectionsTable.tenantId, merchant.tenantId));
+    await db
+      .delete(facebookConnectionsTable)
+      .where(eq(facebookConnectionsTable.tenantId, merchant.tenantId));
     return res.json({ success: true });
   } catch (err) {
     req.log.error(err);
@@ -159,7 +230,8 @@ router.get("/facebook/comments", requireAuth, async (req, res) => {
       .from(merchantsTable)
       .where(eq(merchantsTable.id, merchantId));
 
-    if (!merchant?.tenantId) return res.status(400).json({ error: "المتجر غير موجود" });
+    if (!merchant?.tenantId)
+      return res.status(400).json({ error: "المتجر غير موجود" });
 
     const [conn] = await db
       .select()
@@ -168,22 +240,35 @@ router.get("/facebook/comments", requireAuth, async (req, res) => {
 
     if (!conn) return res.status(400).json({ error: "Facebook غير مربوط" });
 
-    const feed = await fbGet(conn.pageId, conn.pageAccessToken, {
-      fields: "id,message,story,created_time,full_picture,comments{id,message,from,created_time,like_count}",
+    const feed = (await fbGet(conn.pageId, conn.pageAccessToken, {
+      fields:
+        "id,message,story,created_time,full_picture,comments{id,message,from,created_time,like_count}",
       limit: "15",
-    }) as {
+    })) as {
       data: Array<{
         id: string;
         message?: string;
         story?: string;
         created_time: string;
         full_picture?: string;
-        comments?: { data: Array<{ id: string; message: string; from?: { name: string; id: string }; created_time: string; like_count?: number }> };
+        comments?: {
+          data: Array<{
+            id: string;
+            message: string;
+            from?: { name: string; id: string };
+            created_time: string;
+            like_count?: number;
+          }>;
+        };
       }>;
     };
 
     const logs = await db
-      .select({ itemId: facebookModerationLogTable.itemId, status: facebookModerationLogTable.status, aiDraft: facebookModerationLogTable.aiDraft })
+      .select({
+        itemId: facebookModerationLogTable.itemId,
+        status: facebookModerationLogTable.status,
+        aiDraft: facebookModerationLogTable.aiDraft,
+      })
       .from(facebookModerationLogTable)
       .where(eq(facebookModerationLogTable.tenantId, merchant.tenantId));
 
@@ -203,7 +288,7 @@ router.get("/facebook/comments", requireAuth, async (req, res) => {
         likeCount: comment.like_count ?? 0,
         status: logMap.get(comment.id)?.status ?? "pending",
         aiDraft: logMap.get(comment.id)?.aiDraft ?? null,
-      }))
+      })),
     );
 
     return res.json({ items, pageName: conn.pageName });
@@ -222,7 +307,8 @@ router.get("/facebook/messages", requireAuth, async (req, res) => {
       .from(merchantsTable)
       .where(eq(merchantsTable.id, merchantId));
 
-    if (!merchant?.tenantId) return res.status(400).json({ error: "المتجر غير موجود" });
+    if (!merchant?.tenantId)
+      return res.status(400).json({ error: "المتجر غير موجود" });
 
     const [conn] = await db
       .select()
@@ -231,20 +317,32 @@ router.get("/facebook/messages", requireAuth, async (req, res) => {
 
     if (!conn) return res.status(400).json({ error: "Facebook غير مربوط" });
 
-    const convos = await fbGet(conn.pageId, conn.pageAccessToken, {
-      fields: "id,participants,updated_time,messages{id,message,from,created_time}",
+    const convos = (await fbGet(conn.pageId, conn.pageAccessToken, {
+      fields:
+        "id,participants,updated_time,messages{id,message,from,created_time}",
       limit: "20",
-    }) as {
+    })) as {
       data: Array<{
         id: string;
         updated_time: string;
         participants?: { data: Array<{ name: string; id: string }> };
-        messages?: { data: Array<{ id: string; message: string; from?: { name: string; id: string }; created_time: string }> };
+        messages?: {
+          data: Array<{
+            id: string;
+            message: string;
+            from?: { name: string; id: string };
+            created_time: string;
+          }>;
+        };
       }>;
     };
 
     const logs = await db
-      .select({ itemId: facebookModerationLogTable.itemId, status: facebookModerationLogTable.status, aiDraft: facebookModerationLogTable.aiDraft })
+      .select({
+        itemId: facebookModerationLogTable.itemId,
+        status: facebookModerationLogTable.status,
+        aiDraft: facebookModerationLogTable.aiDraft,
+      })
       .from(facebookModerationLogTable)
       .where(eq(facebookModerationLogTable.tenantId, merchant.tenantId));
 
@@ -253,7 +351,9 @@ router.get("/facebook/messages", requireAuth, async (req, res) => {
     const items = (convos.data ?? []).map((convo) => {
       const msgs = convo.messages?.data ?? [];
       const lastMsg = msgs[0];
-      const sender = convo.participants?.data?.find((p) => p.id !== conn.pageId);
+      const sender = convo.participants?.data?.find(
+        (p) => p.id !== conn.pageId,
+      );
       return {
         id: convo.id,
         type: "message" as const,
@@ -264,13 +364,15 @@ router.get("/facebook/messages", requireAuth, async (req, res) => {
         messageCount: msgs.length,
         status: logMap.get(convo.id)?.status ?? "pending",
         aiDraft: logMap.get(convo.id)?.aiDraft ?? null,
-        thread: msgs.map((m) => ({
-          id: m.id,
-          text: m.message,
-          from: m.from?.name ?? "",
-          isPage: m.from?.id === conn.pageId,
-          createdAt: m.created_time,
-        })).reverse(),
+        thread: msgs
+          .map((m) => ({
+            id: m.id,
+            text: m.message,
+            from: m.from?.name ?? "",
+            isPage: m.from?.id === conn.pageId,
+            createdAt: m.created_time,
+          }))
+          .reverse(),
       };
     });
 
@@ -283,7 +385,14 @@ router.get("/facebook/messages", requireAuth, async (req, res) => {
 });
 
 router.post("/facebook/ai-draft", requireAuth, async (req, res) => {
-  const { itemId, itemType, authorName, content, postContext, model = "claude" } = req.body as {
+  const {
+    itemId,
+    itemType,
+    authorName,
+    content,
+    postContext,
+    model = "claude",
+  } = req.body as {
     itemId?: string;
     itemType?: string;
     authorName?: string;
@@ -292,7 +401,8 @@ router.post("/facebook/ai-draft", requireAuth, async (req, res) => {
     model?: string;
   };
 
-  if (!content?.trim()) return res.status(400).json({ error: "محتوى التعليق/الرسالة مطلوب" });
+  if (!content?.trim())
+    return res.status(400).json({ error: "محتوى التعليق/الرسالة مطلوب" });
 
   const merchantId = req.session.merchantId!;
   const aiModel: AiModel = model === "gemini" ? "gemini" : "claude";
@@ -303,14 +413,20 @@ router.post("/facebook/ai-draft", requireAuth, async (req, res) => {
       .from(merchantsTable)
       .where(eq(merchantsTable.id, merchantId));
 
-    if (!merchant?.tenantId) return res.status(400).json({ error: "المتجر غير موجود" });
+    if (!merchant?.tenantId)
+      return res.status(400).json({ error: "المتجر غير موجود" });
 
     const [tenant] = await db
       .select({ name: tenantsTable.name, category: tenantsTable.category })
       .from(tenantsTable)
       .where(eq(tenantsTable.id, merchant.tenantId));
 
-    const categoryLabel = tenant?.category === "fashion" ? "أزياء" : tenant?.category === "cosmetics" ? "تجميل" : "أزياء وتجميل";
+    const categoryLabel =
+      tenant?.category === "fashion"
+        ? "أزياء"
+        : tenant?.category === "cosmetics"
+          ? "تجميل"
+          : "أزياء وتجميل";
     const itemLabel = itemType === "message" ? "رسالة خاصة" : "تعليق على منشور";
 
     const system = `أنت مشرف وسائل التواصل الاجتماعي الذكي لمتجر "${tenant?.name ?? "المتجر"}" المتخصص في ${categoryLabel}.
@@ -361,14 +477,15 @@ ${itemLabel}: "${content.trim()}"
 });
 
 router.post("/facebook/reply", requireAuth, async (req, res) => {
-  const { itemId, itemType, replyText, authorName, content, postContext } = req.body as {
-    itemId?: string;
-    itemType?: string;
-    replyText?: string;
-    authorName?: string;
-    content?: string;
-    postContext?: string;
-  };
+  const { itemId, itemType, replyText, authorName, content, postContext } =
+    req.body as {
+      itemId?: string;
+      itemType?: string;
+      replyText?: string;
+      authorName?: string;
+      content?: string;
+      postContext?: string;
+    };
 
   if (!itemId?.trim() || !replyText?.trim()) {
     return res.status(400).json({ error: "معرف العنصر ونص الرد مطلوبان" });
@@ -382,7 +499,8 @@ router.post("/facebook/reply", requireAuth, async (req, res) => {
       .from(merchantsTable)
       .where(eq(merchantsTable.id, merchantId));
 
-    if (!merchant?.tenantId) return res.status(400).json({ error: "المتجر غير موجود" });
+    if (!merchant?.tenantId)
+      return res.status(400).json({ error: "المتجر غير موجود" });
 
     const [conn] = await db
       .select()
@@ -399,7 +517,9 @@ router.post("/facebook/reply", requireAuth, async (req, res) => {
       });
     } else {
       // Comment reply
-      await fbPost(`${itemId}/comments`, conn.pageAccessToken, { message: replyText.trim() });
+      await fbPost(`${itemId}/comments`, conn.pageAccessToken, {
+        message: replyText.trim(),
+      });
     }
 
     // Update log
@@ -438,7 +558,8 @@ router.post("/facebook/update-status", requireAuth, async (req, res) => {
     content?: string;
   };
 
-  if (!itemId?.trim() || !status) return res.status(400).json({ error: "البيانات ناقصة" });
+  if (!itemId?.trim() || !status)
+    return res.status(400).json({ error: "البيانات ناقصة" });
 
   const merchantId = req.session.merchantId!;
 
@@ -448,7 +569,8 @@ router.post("/facebook/update-status", requireAuth, async (req, res) => {
       .from(merchantsTable)
       .where(eq(merchantsTable.id, merchantId));
 
-    if (!merchant?.tenantId) return res.status(400).json({ error: "المتجر غير موجود" });
+    if (!merchant?.tenantId)
+      return res.status(400).json({ error: "المتجر غير موجود" });
 
     await db
       .insert(facebookModerationLogTable)
@@ -463,7 +585,9 @@ router.post("/facebook/update-status", requireAuth, async (req, res) => {
       })
       .onConflictDoUpdate({
         target: facebookModerationLogTable.itemId,
-        set: { status: status as "pending" | "replied" | "ignored" | "flagged" },
+        set: {
+          status: status as "pending" | "replied" | "ignored" | "flagged",
+        },
       });
 
     return res.json({ success: true });
