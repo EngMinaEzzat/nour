@@ -330,7 +330,7 @@ router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res)
     searchConditions.push(ilike(ordersTable.customerPhone, `%${escapeIlike(search)}%`));
     searchConditions.push(ilike(ordersTable.publicCode, `%${escapeIlike(search)}%`));
     searchConditions.push(ilike(ordersTable.trackingNumber, `%${escapeIlike(search)}%`));
-    
+
     conditions.push(or(...searchConditions)!);
   }
 
@@ -389,7 +389,7 @@ router.get("/orders", requireRole("owner", "manager", "staff"), async (req, res)
         .from(orderItemsTable)
         .leftJoin(productsTable, eq(orderItemsTable.productId, productsTable.id))
         .where(inArray(orderItemsTable.orderId, orderIds));
-        
+
       for (const item of allItems) {
         const arr = itemsMap.get(item.orderId!) ?? [];
         arr.push({
@@ -584,48 +584,57 @@ router.post("/orders", checkoutLimiter, async (req, res) => {
         }).where(eq(customersTable.id, parsed.data.customerId));
       }
 
-      const itemsWithPrices = await Promise.all(
-        checkoutItems.map(async (item) => {
-          const [product] = await tx
-            .select()
-            .from(productsTable)
-            .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, orderTenantId)));
+      const productIdsToFetch = Array.from(new Set(checkoutItems.map(i => i.productId)));
+      const variantIdsToFetch = Array.from(new Set(checkoutItems.filter(i => i.variantId).map(i => i.variantId!)));
 
-          if (!product) throw new Error(`منتج #${item.productId} غير موجود`);
-          if (product.status !== "active")
-            throw new Error(`منتج "${product.name}" غير متاح للبيع حالياً`);
+      const [productsData, variantsData, variantCountsData] = await Promise.all([
+        productIdsToFetch.length > 0
+          ? tx.select().from(productsTable).where(and(inArray(productsTable.id, productIdsToFetch), eq(productsTable.tenantId, orderTenantId)))
+          : Promise.resolve([]),
+        variantIdsToFetch.length > 0
+          ? tx.select().from(productVariantsTable).where(inArray(productVariantsTable.id, variantIdsToFetch))
+          : Promise.resolve([]),
+        productIdsToFetch.length > 0
+          ? tx.select({ productId: productVariantsTable.productId, variantCount: count() }).from(productVariantsTable).where(inArray(productVariantsTable.productId, productIdsToFetch)).groupBy(productVariantsTable.productId)
+          : Promise.resolve([])
+      ]);
 
-          let availableStock = product.stock ?? 0;
-          if (item.variantId) {
-            const [variant] = await tx
-              .select()
-              .from(productVariantsTable)
-              .where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId)));
-            if (!variant) throw new CheckoutHttpError(400, `المتغير المحدد للمنتج "${product.name}" غير موجود`);
-            availableStock = variant.stock ?? 0;
+      const productsMap = new Map(productsData.map(p => [p.id, p]));
+      const variantsMap = new Map(variantsData.map(v => [v.id, v]));
+      const variantCountsMap = new Map(variantCountsData.map(v => [v.productId, Number(v.variantCount)]));
+
+      const itemsWithPrices = checkoutItems.map((item) => {
+        const product = productsMap.get(item.productId);
+        if (!product) throw new Error(`منتج #${item.productId} غير موجود`);
+        if (product.status !== "active")
+          throw new Error(`منتج "${product.name}" غير متاح للبيع حالياً`);
+
+        let availableStock = product.stock ?? 0;
+        if (item.variantId) {
+          const variant = variantsMap.get(item.variantId);
+          if (!variant || variant.productId !== item.productId) {
+             throw new CheckoutHttpError(400, `المتغير المحدد للمنتج "${product.name}" غير موجود`);
           }
+          availableStock = variant.stock ?? 0;
+        }
 
-          if (!item.variantId) {
-            const [{ variantCount }] = await tx
-              .select({ variantCount: count() })
-              .from(productVariantsTable)
-              .where(eq(productVariantsTable.productId, item.productId));
-            if (variantCount > 0) {
-              throw new CheckoutHttpError(400, `ÙŠØ¬Ø¨ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù‚Ø§Ø³/Ù„ÙˆÙ† Ù„Ù„Ù…Ù†ØªØ¬ "${product.name}"`);
-            }
+        if (!item.variantId) {
+          const variantCount = variantCountsMap.get(item.productId) ?? 0;
+          if (variantCount > 0) {
+            throw new CheckoutHttpError(400, `يجب اختيار مقاس/لون للمنتج "${product.name}"`);
           }
+        }
 
-          if (availableStock < item.quantity)
-            throw new CheckoutHttpError(409,
-              `الكمية المطلوبة من "${product.name}" تتجاوز المخزون المتاح (${availableStock} متبقٍ)`
-            );
+        if (availableStock < item.quantity)
+          throw new CheckoutHttpError(409,
+            `الكمية المطلوبة من "${product.name}" تتجاوز المخزون المتاح (${availableStock} متبقٍ)`
+          );
 
-          const unitPrice = parseFloat(product.price as string);
-          const totalPrice = unitPrice * item.quantity;
-          subtotal += totalPrice;
-          return { ...item, unitPrice, totalPrice };
-        })
-      );
+        const unitPrice = parseFloat(product.price as string);
+        const totalPrice = unitPrice * item.quantity;
+        subtotal += totalPrice;
+        return { ...item, unitPrice, totalPrice };
+      });
 
       let appliedDiscount = 0;
       let appliedDiscountCodeId: number | null = null;
