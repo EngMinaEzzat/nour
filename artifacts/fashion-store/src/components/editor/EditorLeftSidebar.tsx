@@ -1,15 +1,36 @@
 import i18n from "i18next";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Eye, EyeOff, ChevronUp, ChevronDown, Trash2, Copy, Palette, LayoutList, Wand2, CheckCircle2, AlertTriangle } from "lucide-react";
 import {
-  StoreConfig, SectionConfig, SectionType,
-  SECTION_ICONS, SECTION_DESCRIPTIONS,
-  AVAILABLE_SECTIONS, createDefaultSection,
+  Plus,
+  Eye,
+  EyeOff,
+  ChevronUp,
+  ChevronDown,
+  Trash2,
+  Copy,
+  Palette,
+  LayoutList,
+  Wand2,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
+import {
+  StoreConfig,
+  SectionConfig,
+  SectionType,
+  SECTION_ICONS,
+  SECTION_DESCRIPTIONS,
+  AVAILABLE_SECTIONS,
+  createDefaultSection,
 } from "@/lib/store-config";
 import { useTranslation } from "react-i18next";
 import { contrastStatus } from "@/lib/color-contrast";
-import { STORY_CHAPTERS, getChapterForSection, getChapterProgress } from "@/lib/store-story-guide";
+import {
+  STORY_CHAPTERS,
+  getChapterForSection,
+  getChapterProgress,
+} from "@/lib/store-story-guide";
 import { evaluateReadiness } from "@/lib/store-readiness";
 import type { MerchantGender } from "./WelcomeOverlay";
 import { useAuth } from "@/hooks/use-auth";
@@ -28,22 +49,37 @@ interface EditorLeftSidebarProps {
 }
 
 export default function EditorLeftSidebar({
-  config, selectedId, onSelect, onConfigChange, onOpenAI, productCount = 0, gender = "female", className = "",
+  config,
+  selectedId,
+  onSelect,
+  onConfigChange,
+  onOpenAI,
+  productCount = 0,
+  gender = "female",
+  className = "",
 }: EditorLeftSidebarProps) {
   const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
   const [tab, setTab] = useState<SidebarTab>("sections");
   const [addingSection, setAddingSection] = useState(false);
   const [sidebarHintDismissed, setSidebarHintDismissed] = useState(() => {
-    try { return localStorage.getItem("nour_sidebar_hint_seen") === "1"; } catch { return false; }
+    try {
+      return localStorage.getItem("nour_sidebar_hint_seen") === "1";
+    } catch {
+      return false;
+    }
   });
 
   function dismissSidebarHint() {
     setSidebarHintDismissed(true);
-    try { localStorage.setItem("nour_sidebar_hint_seen", "1"); } catch {}
+    try {
+      localStorage.setItem("nour_sidebar_hint_seen", "1");
+    } catch {}
   }
 
-  const sections = [...config.homepage.sections].sort((a, b) => a.order - b.order);
+  const sections = [...config.homepage.sections].sort(
+    (a, b) => a.order - b.order,
+  );
 
   function mutateSection(id: string, patch: Partial<SectionConfig>) {
     onConfigChange({
@@ -57,9 +93,15 @@ export default function EditorLeftSidebar({
   }
 
   function moveSection(id: string, dir: "up" | "down") {
-    const sorted = [...config.homepage.sections].sort((a, b) => a.order - b.order);
+    const sorted = [...config.homepage.sections].sort(
+      (a, b) => a.order - b.order,
+    );
     const idx = sorted.findIndex((s) => s.id === id);
-    if ((dir === "up" && idx === 0) || (dir === "down" && idx === sorted.length - 1)) return;
+    if (
+      (dir === "up" && idx === 0) ||
+      (dir === "down" && idx === sorted.length - 1)
+    )
+      return;
     const swapIdx = dir === "up" ? idx - 1 : idx + 1;
     const newSections = sorted.map((s, i) => {
       if (i === idx) return { ...s, order: sorted[swapIdx].order };
@@ -72,7 +114,9 @@ export default function EditorLeftSidebar({
   function deleteSection(id: string) {
     onConfigChange({
       ...config,
-      homepage: { sections: config.homepage.sections.filter((s) => s.id !== id) },
+      homepage: {
+        sections: config.homepage.sections.filter((s) => s.id !== id),
+      },
     });
   }
 
@@ -84,31 +128,56 @@ export default function EditorLeftSidebar({
       id: `${src.type}-${Date.now()}`,
       order: config.homepage.sections.length,
     };
-    onConfigChange({ ...config, homepage: { sections: [...config.homepage.sections, copy] } });
+    onConfigChange({
+      ...config,
+      homepage: { sections: [...config.homepage.sections, copy] },
+    });
   }
 
   function addSection(type: SectionType) {
-    const s = createDefaultSection(type, config.brand.name, config.brand.category, t);
+    const s = createDefaultSection(
+      type,
+      config.brand.name,
+      config.brand.category,
+      t,
+    );
     s.order = config.homepage.sections.length;
-    onConfigChange({ ...config, homepage: { sections: [...config.homepage.sections, s] } });
+    onConfigChange({
+      ...config,
+      homepage: { sections: [...config.homepage.sections, s] },
+    });
     setAddingSection(false);
     onSelect(s.id);
   }
 
   const TABS = [
-    { key: "sections" as SidebarTab, icon: LayoutList, label: t("editorSidebar.tabs.sections") },
-    { key: "theme" as SidebarTab, icon: Palette, label: t("editorSidebar.tabs.theme") },
+    {
+      key: "sections" as SidebarTab,
+      icon: LayoutList,
+      label: t("editorSidebar.tabs.sections"),
+    },
+    {
+      key: "theme" as SidebarTab,
+      icon: Palette,
+      label: t("editorSidebar.tabs.theme"),
+    },
     { key: "ai" as SidebarTab, icon: Wand2, label: t("editorSidebar.tabs.ai") },
   ];
 
   return (
-    <div className={`w-64 bg-white border-l border-stone-200 flex flex-col h-full ${className}`} dir={i18n.dir()}>
+    <div
+      className={`w-64 bg-white border-l border-stone-200 flex flex-col h-full ${className}`}
+      dir={i18n.dir()}
+    >
       {/* Tabs */}
       <div className="flex border-b border-stone-200">
         {TABS.map(({ key, icon: Icon, label }) => (
           <button
             key={key}
-            onClick={() => { setTab(key); if (key === "ai") onOpenAI(); }}
+            onClick={() => {
+              setTab(key);
+              if (key === "ai") onOpenAI();
+            }}
             className={`flex-1 py-2.5 text-xs flex flex-col items-center gap-1 transition-colors ${tab === key ? "text-[#8B1A35] border-b-2 border-[#8B1A35] -mb-px" : "text-stone-400 hover:text-stone-600"}`}
           >
             <Icon className="w-4 h-4" />
@@ -120,7 +189,6 @@ export default function EditorLeftSidebar({
       {tab === "sections" && (
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
-
             {/* First-visit hint banner */}
             {!sidebarHintDismissed && (
               <div className="mx-2 mt-2 p-3 rounded-xl bg-rose-50 border border-rose-100 relative">
@@ -136,9 +204,16 @@ export default function EditorLeftSidebar({
                     <span className="text-sm">✨</span>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-rose-900">{t("storeStoryGuide.title", "Your store story")}</p>
-                    <p className={`text-[11px] text-rose-700 leading-relaxed mt-0.5`}>
-                      {t("storeStoryGuide.intro", "I'll help you shape what customers see before they order.")}
+                    <p className="text-xs font-bold text-rose-900">
+                      {t("storeStoryGuide.title", "Your store story")}
+                    </p>
+                    <p
+                      className={`text-[11px] text-rose-700 leading-relaxed mt-0.5`}
+                    >
+                      {t(
+                        "storeStoryGuide.intro",
+                        "I'll help you shape what customers see before they order.",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -146,12 +221,18 @@ export default function EditorLeftSidebar({
             )}
 
             <div className="p-2 space-y-4 mt-2">
-              {STORY_CHAPTERS.map(chapter => {
-                const chapterSections = sections.filter(s => getChapterForSection(s.type)?.id === chapter.id);
+              {STORY_CHAPTERS.map((chapter) => {
+                const chapterSections = sections.filter(
+                  (s) => getChapterForSection(s.type)?.id === chapter.id,
+                );
                 // We evaluate readiness silently to show progress/status
-                const readiness = evaluateReadiness(config, productCount, false);
+                const readiness = evaluateReadiness(
+                  config,
+                  productCount,
+                  false,
+                );
                 const progress = getChapterProgress(chapter, readiness);
-                
+
                 return (
                   <div key={chapter.id} className="space-y-1">
                     <div className="px-2 py-1 flex items-center justify-between">
@@ -160,13 +241,18 @@ export default function EditorLeftSidebar({
                       </span>
                       {progress.total > 0 && (
                         <div className="flex gap-0.5">
-                          {Array.from({ length: progress.total }).map((_, i) => (
-                            <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < progress.done ? "bg-green-500" : "bg-stone-200"}`} />
-                          ))}
+                          {Array.from({ length: progress.total }).map(
+                            (_, i) => (
+                              <div
+                                key={i}
+                                className={`w-1.5 h-1.5 rounded-full ${i < progress.done ? "bg-green-500" : "bg-stone-200"}`}
+                              />
+                            ),
+                          )}
                         </div>
                       )}
                     </div>
-                    
+
                     <p className="px-2 text-[10px] text-stone-400 mb-2 leading-relaxed">
                       {t(chapter.assistantKey)}
                     </p>
@@ -181,28 +267,87 @@ export default function EditorLeftSidebar({
                             className={`group relative rounded-xl p-3 cursor-pointer transition-all ${isSelected ? "bg-rose-50 border border-[#8B1A35]/20" : "hover:bg-stone-50 border border-transparent"}`}
                           >
                             <div className="flex items-center gap-2.5">
-                              <span className="text-base shrink-0">{SECTION_ICONS[section.type]}</span>
+                              <span className="text-base shrink-0">
+                                {SECTION_ICONS[section.type]}
+                              </span>
                               <div className="flex-1 min-w-0">
-                                <p className={`text-xs font-medium truncate ${section.visible ? "text-stone-800" : "text-stone-400"}`}>
+                                <p
+                                  className={`text-xs font-medium truncate ${section.visible ? "text-stone-800" : "text-stone-400"}`}
+                                >
                                   {t(`sections.${section.type}`)}
                                 </p>
-                                {!section.visible && <p className="text-[10px] text-stone-400">{t("editorSidebar.sectionItem.hidden")}</p>}
+                                {!section.visible && (
+                                  <p className="text-[10px] text-stone-400">
+                                    {t("editorSidebar.sectionItem.hidden")}
+                                  </p>
+                                )}
                               </div>
 
-                              <div className={`flex items-center gap-0.5 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}>
-                                <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "up"); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={t("editorSidebar.sectionItem.moveUp")}>
+                              <div
+                                className={`flex items-center gap-0.5 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity`}
+                              >
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    moveSection(section.id, "up");
+                                  }}
+                                  className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
+                                  title={t("editorSidebar.sectionItem.moveUp")}
+                                >
                                   <ChevronUp className="w-3 h-3" />
                                 </button>
-                                <button onClick={(e) => { e.stopPropagation(); moveSection(section.id, "down"); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={t("editorSidebar.sectionItem.moveDown")}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    moveSection(section.id, "down");
+                                  }}
+                                  className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
+                                  title={t(
+                                    "editorSidebar.sectionItem.moveDown",
+                                  )}
+                                >
                                   <ChevronDown className="w-3 h-3" />
                                 </button>
-                                <button onClick={(e) => { e.stopPropagation(); mutateSection(section.id, { visible: !section.visible }); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={section.visible ? t("editorSidebar.sectionItem.hide") : t("editorSidebar.sectionItem.show")}>
-                                  {section.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3 text-stone-400" />}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    mutateSection(section.id, {
+                                      visible: !section.visible,
+                                    });
+                                  }}
+                                  className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
+                                  title={
+                                    section.visible
+                                      ? t("editorSidebar.sectionItem.hide")
+                                      : t("editorSidebar.sectionItem.show")
+                                  }
+                                >
+                                  {section.visible ? (
+                                    <Eye className="w-3 h-3" />
+                                  ) : (
+                                    <EyeOff className="w-3 h-3 text-stone-400" />
+                                  )}
                                 </button>
-                                <button onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200" title={t("editorSidebar.sectionItem.duplicate")}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    duplicateSection(section.id);
+                                  }}
+                                  className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
+                                  title={t(
+                                    "editorSidebar.sectionItem.duplicate",
+                                  )}
+                                >
                                   <Copy className="w-3 h-3" />
                                 </button>
-                                <button onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }} className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500" title={t("editorSidebar.sectionItem.delete")}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteSection(section.id);
+                                  }}
+                                  className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500"
+                                  title={t("editorSidebar.sectionItem.delete")}
+                                >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
                               </div>
@@ -237,18 +382,30 @@ export default function EditorLeftSidebar({
         {addingSection && (
           <>
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/20 z-40"
               onClick={() => setAddingSection(false)}
             />
             <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
               className={`fixed bottom-4 start-4 w-72 bg-white rounded-2xl shadow-2xl border border-stone-200 z-50 max-h-[70vh] overflow-y-auto`}
               dir={i18n.dir()}
             >
               <div className="p-4 border-b border-stone-100">
-                <p className="font-medium text-stone-800">{gender === "female" ? t("editorSidebar.addSection.titleFemale") : t("editorSidebar.addSection.titleMale")}</p>
-                <p className="text-xs text-stone-400 mt-0.5">{gender === "female" ? t("editorSidebar.addSection.descFemale") : t("editorSidebar.addSection.descMale")}</p>
+                <p className="font-medium text-stone-800">
+                  {gender === "female"
+                    ? t("editorSidebar.addSection.titleFemale")
+                    : t("editorSidebar.addSection.titleMale")}
+                </p>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  {gender === "female"
+                    ? t("editorSidebar.addSection.descFemale")
+                    : t("editorSidebar.addSection.descMale")}
+                </p>
               </div>
               <div className="p-2 space-y-1">
                 {AVAILABLE_SECTIONS.map((type) => (
@@ -259,8 +416,12 @@ export default function EditorLeftSidebar({
                   >
                     <span className="text-xl">{SECTION_ICONS[type]}</span>
                     <div>
-                      <p className="text-sm font-medium text-stone-800">{t(`sections.${type}`)}</p>
-                      <p className="text-xs text-stone-400">{SECTION_DESCRIPTIONS[type]}</p>
+                      <p className="text-sm font-medium text-stone-800">
+                        {t(`sections.${type}`)}
+                      </p>
+                      <p className="text-xs text-stone-400">
+                        {SECTION_DESCRIPTIONS[type]}
+                      </p>
                     </div>
                   </button>
                 ))}
@@ -274,7 +435,7 @@ export default function EditorLeftSidebar({
 }
 
 // ─── Visual Theme Panel ─────────────────────────────────────────────────────────
-const getVisualThemes = (t: any) => ([
+const getVisualThemes = (t: any) => [
   {
     id: "elegant-fashion",
     name: t("editorSidebar.themePanel.presets.elegantFashion.name"),
@@ -282,7 +443,16 @@ const getVisualThemes = (t: any) => ([
     emoji: "👗",
     gradient: "from-stone-800 to-black",
     preview: { bg: "#fdfbf7", accent: "#1a1a1a", text: "#1a1a1a" },
-    theme: { primaryColor: "#1a1a1a", secondaryColor: "#888888", fontPairing: "serif-sans" as const, buttonStyle: "square" as const, radius: 0, animationLevel: "subtle" as const, pageWidth: "wide" as const, cardShadow: "none" as const },
+    theme: {
+      primaryColor: "#1a1a1a",
+      secondaryColor: "#888888",
+      fontPairing: "serif-sans" as const,
+      buttonStyle: "square" as const,
+      radius: 0,
+      animationLevel: "subtle" as const,
+      pageWidth: "wide" as const,
+      cardShadow: "none" as const,
+    },
   },
   {
     id: "cosmetics-soft",
@@ -291,7 +461,16 @@ const getVisualThemes = (t: any) => ([
     emoji: "✨",
     gradient: "from-rose-200 to-pink-300",
     preview: { bg: "#fff0f3", accent: "#d4a373", text: "#4a3b32" },
-    theme: { primaryColor: "#d4a373", secondaryColor: "#e6ccb2", fontPairing: "serif-sans" as const, buttonStyle: "pill" as const, radius: 16, animationLevel: "subtle" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
+    theme: {
+      primaryColor: "#d4a373",
+      secondaryColor: "#e6ccb2",
+      fontPairing: "serif-sans" as const,
+      buttonStyle: "pill" as const,
+      radius: 16,
+      animationLevel: "subtle" as const,
+      pageWidth: "contained" as const,
+      cardShadow: "soft" as const,
+    },
   },
   {
     id: "minimal-boutique",
@@ -300,7 +479,16 @@ const getVisualThemes = (t: any) => ([
     emoji: "🤍",
     gradient: "from-stone-200 to-stone-400",
     preview: { bg: "#fafafa", accent: "#000000", text: "#111111" },
-    theme: { primaryColor: "#000000", secondaryColor: "#777777", fontPairing: "sans-sans" as const, buttonStyle: "rounded" as const, radius: 6, animationLevel: "none" as const, pageWidth: "contained" as const, cardShadow: "none" as const },
+    theme: {
+      primaryColor: "#000000",
+      secondaryColor: "#777777",
+      fontPairing: "sans-sans" as const,
+      buttonStyle: "rounded" as const,
+      radius: 6,
+      animationLevel: "none" as const,
+      pageWidth: "contained" as const,
+      cardShadow: "none" as const,
+    },
   },
   {
     id: "bold-streetwear",
@@ -309,7 +497,16 @@ const getVisualThemes = (t: any) => ([
     emoji: "🔥",
     gradient: "from-orange-500 to-red-600",
     preview: { bg: "#f8f9fa", accent: "#ff4500", text: "#111111" },
-    theme: { primaryColor: "#ff4500", secondaryColor: "#111111", fontPairing: "sans-sans" as const, buttonStyle: "square" as const, radius: 0, animationLevel: "lively" as const, pageWidth: "wide" as const, cardShadow: "strong" as const },
+    theme: {
+      primaryColor: "#ff4500",
+      secondaryColor: "#111111",
+      fontPairing: "sans-sans" as const,
+      buttonStyle: "square" as const,
+      radius: 0,
+      animationLevel: "lively" as const,
+      pageWidth: "wide" as const,
+      cardShadow: "strong" as const,
+    },
   },
   {
     id: "premium-occasion",
@@ -318,11 +515,26 @@ const getVisualThemes = (t: any) => ([
     emoji: "👑",
     gradient: "from-rose-800 to-stone-900",
     preview: { bg: "#fdfbf7", accent: "#8B1A35", text: "#1a0a0e" },
-    theme: { primaryColor: "#8B1A35", secondaryColor: "#c8963a", fontPairing: "serif-serif" as const, buttonStyle: "rounded" as const, radius: 8, animationLevel: "subtle" as const, pageWidth: "contained" as const, cardShadow: "soft" as const },
+    theme: {
+      primaryColor: "#8B1A35",
+      secondaryColor: "#c8963a",
+      fontPairing: "serif-serif" as const,
+      buttonStyle: "rounded" as const,
+      radius: 8,
+      animationLevel: "subtle" as const,
+      pageWidth: "contained" as const,
+      cardShadow: "soft" as const,
+    },
   },
-]);
+];
 
-function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigChange: (c: StoreConfig) => void }) {
+function ThemePanel({
+  config,
+  onConfigChange,
+}: {
+  config: StoreConfig;
+  onConfigChange: (c: StoreConfig) => void;
+}) {
   const { t, i18n } = useTranslation();
   const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
   const [showCustom, setShowCustom] = useState(false);
@@ -337,20 +549,33 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
     onConfigChange({ ...config, theme: { ...config.theme, ...t } });
   }
 
-  const COLORS = ["#8B1A35", "#7c3aed", "#2563eb", "#059669", "#d97706", "#dc2626", "#db2777", "#1e3a5f", "#795548", "#333333"];
+  const COLORS = [
+    "#8B1A35",
+    "#7c3aed",
+    "#2563eb",
+    "#059669",
+    "#d97706",
+    "#dc2626",
+    "#db2777",
+    "#1e3a5f",
+    "#795548",
+    "#333333",
+  ];
 
   return (
     <div className="flex-1 overflow-y-auto" dir={i18n.dir()}>
       {/* Theme Cards */}
       <div className="p-3">
-        <p className="text-xs font-semibold text-stone-500 mb-2 uppercase tracking-wide">{t("editorSidebar.themePanel.title")}</p>
+        <p className="text-xs font-semibold text-stone-500 mb-2 uppercase tracking-wide">
+          {t("editorSidebar.themePanel.title")}
+        </p>
         <div className="grid grid-cols-2 gap-2">
           {getVisualThemes(t).map((tTheme) => {
-            const isActive = activeThemeId === tTheme.id || (
-              !activeThemeId &&
-              config.theme.primaryColor === tTheme.theme.primaryColor &&
-              config.theme.buttonStyle === tTheme.theme.buttonStyle
-            );
+            const isActive =
+              activeThemeId === tTheme.id ||
+              (!activeThemeId &&
+                config.theme.primaryColor === tTheme.theme.primaryColor &&
+                config.theme.buttonStyle === tTheme.theme.buttonStyle);
             return (
               <motion.button
                 key={tTheme.id}
@@ -367,7 +592,9 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
                   {/* Mock product card preview */}
                   <div
                     className="absolute inset-2 rounded-lg opacity-80"
-                    style={{ background: `linear-gradient(135deg, ${tTheme.preview.accent}22, ${tTheme.preview.accent}44)` }}
+                    style={{
+                      background: `linear-gradient(135deg, ${tTheme.preview.accent}22, ${tTheme.preview.accent}44)`,
+                    }}
                   />
                   <div
                     className="absolute bottom-2 right-2 left-2 h-5 rounded-md flex items-center justify-center text-white text-[8px] font-bold"
@@ -378,10 +605,13 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
                   >
                     {t("editorSidebar.themePanel.buyNow")}
                   </div>
-                  <div className={`absolute top-2 right-2 w-full h-px bg-gradient-to-r ${tTheme.gradient} opacity-60`} />
+                  <div
+                    className={`absolute top-2 right-2 w-full h-px bg-gradient-to-r ${tTheme.gradient} opacity-60`}
+                  />
                   {isActive && (
                     <motion.div
-                      initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
                       className="absolute top-1 left-1 bg-[#8B1A35] rounded-full p-0.5"
                     >
                       <CheckCircle2 className="w-3 h-3 text-white" />
@@ -391,9 +621,16 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
                 {/* Theme name */}
                 <div className="px-2 py-1.5 bg-white">
                   <p className="text-[11px] font-semibold text-stone-800 flex items-center gap-1">
-                    <span>{tTheme.emoji}</span> {t(`editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.name`)}
+                    <span>{tTheme.emoji}</span>{" "}
+                    {t(
+                      `editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.name`,
+                    )}
                   </p>
-                  <p className="text-[9px] text-stone-400 truncate">{t(`editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.desc`)}</p>
+                  <p className="text-[9px] text-stone-400 truncate">
+                    {t(
+                      `editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.desc`,
+                    )}
+                  </p>
                 </div>
               </motion.button>
             );
@@ -407,8 +644,15 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
           onClick={() => setShowCustom((s) => !s)}
           className="w-full flex items-center justify-between px-4 py-3 text-xs text-stone-500 hover:bg-stone-50 transition-colors"
         >
-          <span className="font-medium">{t("editorSidebar.themePanel.customOptions")}</span>
-          <motion.span animate={{ rotate: showCustom ? 180 : 0 }} transition={{ duration: 0.2 }}>▾</motion.span>
+          <span className="font-medium">
+            {t("editorSidebar.themePanel.customOptions")}
+          </span>
+          <motion.span
+            animate={{ rotate: showCustom ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            ▾
+          </motion.span>
         </button>
 
         <AnimatePresence>
@@ -420,73 +664,173 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
               className="px-4 pb-4 space-y-4 overflow-hidden"
             >
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.primaryColor")}</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">
+                  {t("editorSidebar.themePanel.primaryColor")}
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {COLORS.map((c) => (
-                    <button key={c} onClick={() => patchTheme({ primaryColor: c })}
+                    <button
+                      key={c}
+                      onClick={() => patchTheme({ primaryColor: c })}
                       className="w-6 h-6 rounded-full border-2 transition-all"
-                      style={{ background: c, borderColor: config.theme.primaryColor === c ? "white" : "transparent", boxShadow: config.theme.primaryColor === c ? `0 0 0 3px ${c}` : "none" }} />
+                      style={{
+                        background: c,
+                        borderColor:
+                          config.theme.primaryColor === c
+                            ? "white"
+                            : "transparent",
+                        boxShadow:
+                          config.theme.primaryColor === c
+                            ? `0 0 0 3px ${c}`
+                            : "none",
+                      }}
+                    />
                   ))}
-                  <input type="color" value={config.theme.primaryColor} onChange={(e) => patchTheme({ primaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" />
+                  <input
+                    type="color"
+                    value={config.theme.primaryColor}
+                    onChange={(e) =>
+                      patchTheme({ primaryColor: e.target.value })
+                    }
+                    className="w-6 h-6 rounded-full cursor-pointer border-0"
+                  />
                 </div>
-                <div className={`mt-3 rounded-lg border px-3 py-2 text-[11px] ${
-                  primaryContrast.level === "pass"
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                    : primaryContrast.level === "warning"
-                      ? "border-amber-200 bg-amber-50 text-amber-800"
-                      : "border-red-200 bg-red-50 text-red-700"
-                }`}>
+                <div
+                  className={`mt-3 rounded-lg border px-3 py-2 text-[11px] ${
+                    primaryContrast.level === "pass"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                      : primaryContrast.level === "warning"
+                        ? "border-amber-200 bg-amber-50 text-amber-800"
+                        : "border-red-200 bg-red-50 text-red-700"
+                  }`}
+                >
                   <div className="flex items-center gap-1.5 font-medium">
                     <AlertTriangle className="h-3.5 w-3.5" />
                     {primaryContrast.level === "pass"
-                      ? t("editorSidebar.themePanel.contrast.pass", "Readable CTA contrast")
-                      : t("editorSidebar.themePanel.contrast.risk", "Contrast needs review before publishing")}
+                      ? t(
+                          "editorSidebar.themePanel.contrast.pass",
+                          "Readable CTA contrast",
+                        )
+                      : t(
+                          "editorSidebar.themePanel.contrast.risk",
+                          "Contrast needs review before publishing",
+                        )}
                   </div>
                   <p className="mt-1 text-[10px] opacity-80">
-                    {t("editorSidebar.themePanel.contrast.ratio", { ratio: primaryContrast.ratio.toFixed(1), defaultValue: "Contrast ratio {{ratio}}:1" })}
+                    {t("editorSidebar.themePanel.contrast.ratio", {
+                      ratio: primaryContrast.ratio.toFixed(1),
+                      defaultValue: "Contrast ratio {{ratio}}:1",
+                    })}
                   </p>
                 </div>
               </div>
 
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.secondaryColor", "Secondary Color")}</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">
+                  {t(
+                    "editorSidebar.themePanel.secondaryColor",
+                    "Secondary Color",
+                  )}
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {COLORS.map((c) => (
-                    <button key={c} onClick={() => patchTheme({ secondaryColor: c })}
+                    <button
+                      key={c}
+                      onClick={() => patchTheme({ secondaryColor: c })}
                       className="w-6 h-6 rounded-full border-2 transition-all"
-                      style={{ background: c, borderColor: config.theme.secondaryColor === c ? "white" : "transparent", boxShadow: config.theme.secondaryColor === c ? `0 0 0 3px ${c}` : "none" }} />
+                      style={{
+                        background: c,
+                        borderColor:
+                          config.theme.secondaryColor === c
+                            ? "white"
+                            : "transparent",
+                        boxShadow:
+                          config.theme.secondaryColor === c
+                            ? `0 0 0 3px ${c}`
+                            : "none",
+                      }}
+                    />
                   ))}
-                  <input type="color" value={config.theme.secondaryColor} onChange={(e) => patchTheme({ secondaryColor: e.target.value })} className="w-6 h-6 rounded-full cursor-pointer border-0" />
+                  <input
+                    type="color"
+                    value={config.theme.secondaryColor}
+                    onChange={(e) =>
+                      patchTheme({ secondaryColor: e.target.value })
+                    }
+                    className="w-6 h-6 rounded-full cursor-pointer border-0"
+                  />
                 </div>
               </div>
 
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.fontPairing", "Font Pairing")}</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">
+                  {t("editorSidebar.themePanel.fontPairing", "Font Pairing")}
+                </p>
                 <div className="flex flex-col gap-1.5">
-                  {(["sans-sans", "serif-sans", "serif-serif"] as const).map((f) => (
-                    <button key={f} onClick={() => patchTheme({ fontPairing: f })}
-                      className={`py-1.5 px-3 text-xs border-2 rounded-lg transition-all ${config.theme.fontPairing === f ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}>
-                      {f === "sans-sans" ? t("editorSidebar.themePanel.fonts.sans", "Modern (Sans-serif)") : f === "serif-sans" ? t("editorSidebar.themePanel.fonts.serifSans", "Elegant (Serif + Sans)") : t("editorSidebar.themePanel.fonts.serif", "Classic (Serif)")}
-                    </button>
-                  ))}
+                  {(["sans-sans", "serif-sans", "serif-serif"] as const).map(
+                    (f) => (
+                      <button
+                        key={f}
+                        onClick={() => patchTheme({ fontPairing: f })}
+                        className={`py-1.5 px-3 text-xs border-2 rounded-lg transition-all ${config.theme.fontPairing === f ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}
+                      >
+                        {f === "sans-sans"
+                          ? t(
+                              "editorSidebar.themePanel.fonts.sans",
+                              "Modern (Sans-serif)",
+                            )
+                          : f === "serif-sans"
+                            ? t(
+                                "editorSidebar.themePanel.fonts.serifSans",
+                                "Elegant (Serif + Sans)",
+                              )
+                            : t(
+                                "editorSidebar.themePanel.fonts.serif",
+                                "Classic (Serif)",
+                              )}
+                      </button>
+                    ),
+                  )}
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-medium text-stone-500">{t("editorSidebar.themePanel.radius", "Border Radius")}</p>
-                  <span className="text-xs text-stone-400">{config.theme.radius}px</span>
+                  <p className="text-xs font-medium text-stone-500">
+                    {t("editorSidebar.themePanel.radius", "Border Radius")}
+                  </p>
+                  <span className="text-xs text-stone-400">
+                    {config.theme.radius}px
+                  </span>
                 </div>
-                <input type="range" min="0" max="32" step="2" value={config.theme.radius} onChange={(e) => patchTheme({ radius: parseInt(e.target.value) })} className="w-full accent-[#8B1A35]" />
+                <input
+                  type="range"
+                  min="0"
+                  max="32"
+                  step="2"
+                  value={config.theme.radius}
+                  onChange={(e) =>
+                    patchTheme({ radius: parseInt(e.target.value) })
+                  }
+                  className="w-full accent-[#8B1A35]"
+                />
               </div>
 
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.buttonStyle.title")}</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">
+                  {t("editorSidebar.themePanel.buttonStyle.title")}
+                </p>
                 <div className="flex gap-2">
                   {(["pill", "rounded", "square"] as const).map((s) => (
-                    <button key={s} onClick={() => patchTheme({ buttonStyle: s })}
+                    <button
+                      key={s}
+                      onClick={() => patchTheme({ buttonStyle: s })}
                       className={`flex-1 py-1.5 text-xs border-2 transition-all ${config.theme.buttonStyle === s ? "border-[#8B1A35] text-[#8B1A35]" : "border-stone-200 text-stone-500"}`}
-                      style={{ borderRadius: s === "pill" ? 999 : s === "rounded" ? 6 : 0 }}>
+                      style={{
+                        borderRadius:
+                          s === "pill" ? 999 : s === "rounded" ? 6 : 0,
+                      }}
+                    >
                       {t(`editorSidebar.themePanel.buttonStyle.${s}`)}
                     </button>
                   ))}
@@ -494,21 +838,31 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
               </div>
 
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.animation.title")}</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">
+                  {t("editorSidebar.themePanel.animation.title")}
+                </p>
                 {(["none", "subtle", "lively"] as const).map((a) => (
-                  <button key={a} onClick={() => patchTheme({ animationLevel: a })}
-                    className={`block w-full text-start text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.animationLevel === a ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}>
+                  <button
+                    key={a}
+                    onClick={() => patchTheme({ animationLevel: a })}
+                    className={`block w-full text-start text-xs px-3 py-2 rounded-lg mb-1 transition-all ${config.theme.animationLevel === a ? "bg-rose-50 text-[#8B1A35] font-medium" : "hover:bg-stone-50 text-stone-600"}`}
+                  >
                     {t(`editorSidebar.themePanel.animation.${a}`)}
                   </button>
                 ))}
               </div>
 
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.pageWidth", "Page Width")}</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">
+                  {t("editorSidebar.themePanel.pageWidth", "Page Width")}
+                </p>
                 <div className="flex gap-2">
                   {(["contained", "wide", "full"] as const).map((w) => (
-                    <button key={w} onClick={() => patchTheme({ pageWidth: w })}
-                      className={`flex-1 py-1.5 text-xs border-2 rounded-lg transition-all ${config.theme.pageWidth === w ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}>
+                    <button
+                      key={w}
+                      onClick={() => patchTheme({ pageWidth: w })}
+                      className={`flex-1 py-1.5 text-xs border-2 rounded-lg transition-all ${config.theme.pageWidth === w ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}
+                    >
                       {t(`editorSidebar.themePanel.width.${w}`, w)}
                     </button>
                   ))}
@@ -516,11 +870,16 @@ function ThemePanel({ config, onConfigChange }: { config: StoreConfig; onConfigC
               </div>
 
               <div>
-                <p className="text-xs font-medium text-stone-500 mb-2">{t("editorSidebar.themePanel.cardShadow", "Card Shadow")}</p>
+                <p className="text-xs font-medium text-stone-500 mb-2">
+                  {t("editorSidebar.themePanel.cardShadow", "Card Shadow")}
+                </p>
                 <div className="flex gap-2">
                   {(["none", "soft", "strong"] as const).map((s) => (
-                    <button key={s} onClick={() => patchTheme({ cardShadow: s })}
-                      className={`flex-1 py-1.5 text-xs border-2 rounded-lg transition-all ${config.theme.cardShadow === s ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}>
+                    <button
+                      key={s}
+                      onClick={() => patchTheme({ cardShadow: s })}
+                      className={`flex-1 py-1.5 text-xs border-2 rounded-lg transition-all ${config.theme.cardShadow === s ? "border-[#8B1A35] text-[#8B1A35] bg-rose-50" : "border-stone-200 text-stone-500 hover:border-stone-300"}`}
+                    >
                       {t(`editorSidebar.themePanel.shadow.${s}`, s)}
                     </button>
                   ))}

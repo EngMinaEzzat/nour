@@ -1,20 +1,37 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wand2, X, Copy, Check, HelpCircle, Camera, AlertCircle, Sparkles } from "lucide-react";
+import {
+  Wand2,
+  X,
+  Copy,
+  Check,
+  HelpCircle,
+  Camera,
+  AlertCircle,
+  Sparkles,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export default function PromptHelperWidget() {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const [preset, setPreset] = useState<"editorial" | "cosmetics" | "lifestyle">("editorial");
+  const [preset, setPreset] = useState<"editorial" | "cosmetics" | "lifestyle">(
+    "editorial",
+  );
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "1:1" | "4:5">("4:5");
-  const [backdrop, setBackdrop] = useState<"heliopolis" | "zamalek" | "maadi" | "alexandria">("zamalek");
-  const [styleAttire, setStyleAttire] = useState<"modest" | "curly" | "cosmetics_detail">("modest");
+  const [backdrop, setBackdrop] = useState<
+    "heliopolis" | "zamalek" | "maadi" | "alexandria"
+  >("zamalek");
+  const [styleAttire, setStyleAttire] = useState<
+    "modest" | "curly" | "cosmetics_detail"
+  >("modest");
   const [engine, setEngine] = useState<"midjourney" | "flux">("midjourney");
   const [copied, setCopied] = useState(false);
 
   // Set style attire automatically when preset is cosmetics to cosmetics_detail
-  const handlePresetChange = (newPreset: "editorial" | "cosmetics" | "lifestyle") => {
+  const handlePresetChange = (
+    newPreset: "editorial" | "cosmetics" | "lifestyle",
+  ) => {
     setPreset(newPreset);
     if (newPreset === "cosmetics") {
       setStyleAttire("cosmetics_detail");
@@ -26,22 +43,29 @@ export default function PromptHelperWidget() {
   const buildPrompt = () => {
     let subject = "";
     if (styleAttire === "modest") {
-      subject = "an elegant Egyptian woman wearing a modern modest fashion outfit, draped linen hijab in soft pastel rose tones, melanin-rich skin tone, authentic natural expression, poised stance";
+      subject =
+        "an elegant Egyptian woman wearing a modern modest fashion outfit, draped linen hijab in soft pastel rose tones, melanin-rich skin tone, authentic natural expression, poised stance";
     } else if (styleAttire === "curly") {
-      subject = "a modern Egyptian woman with natural curly hair (4C texture and defined curls), high-end modest clothing, natural warm makeup, radiant olive/melanin-balanced skin tone, smiling naturally";
+      subject =
+        "a modern Egyptian woman with natural curly hair (4C texture and defined curls), high-end modest clothing, natural warm makeup, radiant olive/melanin-balanced skin tone, smiling naturally";
     } else {
-      subject = "close-up of premium cosmetics texture, liquid foundation drops, warm soft-pink color tones, luxury aesthetics";
+      subject =
+        "close-up of premium cosmetics texture, liquid foundation drops, warm soft-pink color tones, luxury aesthetics";
     }
 
     let location = "";
     if (backdrop === "heliopolis") {
-      location = "on a historic street of Heliopolis with warm afternoon sunlight filtering through bougainvillea and elegant arches";
+      location =
+        "on a historic street of Heliopolis with warm afternoon sunlight filtering through bougainvillea and elegant arches";
     } else if (backdrop === "zamalek") {
-      location = "on a classic Zamalek balcony overlooking the Nile river at sunset, soft warm golden hour light";
+      location =
+        "on a classic Zamalek balcony overlooking the Nile river at sunset, soft warm golden hour light";
     } else if (backdrop === "maadi") {
-      location = "in a leafy, quiet Maadi street with green background foliage, dappled soft sunlight";
+      location =
+        "in a leafy, quiet Maadi street with green background foliage, dappled soft sunlight";
     } else {
-      location = "along the Alexandria seafront promenade at golden hour with sea breeze and soft ocean spray";
+      location =
+        "along the Alexandria seafront promenade at golden hour with sea breeze and soft ocean spray";
     }
 
     let camera = "";
@@ -49,17 +73,26 @@ export default function PromptHelperWidget() {
     let postProcessing = "";
 
     if (preset === "editorial") {
-      camera = "captured with an 85mm f/1.4 lens, shallow depth of field, sharp focus on subject";
-      lighting = "illuminated by diffused Rembrandt side lighting and soft box highlights for depth";
-      postProcessing = "cinematic fashion editorial, warm color grading, analog film grain, emulation of Kodak Portra 400, soft highlights, muted greens";
+      camera =
+        "captured with an 85mm f/1.4 lens, shallow depth of field, sharp focus on subject";
+      lighting =
+        "illuminated by diffused Rembrandt side lighting and soft box highlights for depth";
+      postProcessing =
+        "cinematic fashion editorial, warm color grading, analog film grain, emulation of Kodak Portra 400, soft highlights, muted greens";
     } else if (preset === "cosmetics") {
-      camera = "captured with a 90mm macro lens, ultra-shallow depth of field, exquisite texture detail";
-      lighting = "studio softbox diffusion with subtle hair/rim highlights to isolate details";
-      postProcessing = "luxury cosmetics commercial look, warm soft-pink color grade, flawless high-resolution render, editorial clean composition";
+      camera =
+        "captured with a 90mm macro lens, ultra-shallow depth of field, exquisite texture detail";
+      lighting =
+        "studio softbox diffusion with subtle hair/rim highlights to isolate details";
+      postProcessing =
+        "luxury cosmetics commercial look, warm soft-pink color grade, flawless high-resolution render, editorial clean composition";
     } else {
-      camera = "captured with a 50mm lens, natural eye-level perspective, realistic environment depth";
-      lighting = "natural outdoor daylight, golden hour warm lighting, authentic highlights";
-      postProcessing = "lifestyle lookbook aesthetic, soft warm pink accents, realistic skin textures, Kodak Portra film emulation, analog warmth";
+      camera =
+        "captured with a 50mm lens, natural eye-level perspective, realistic environment depth";
+      lighting =
+        "natural outdoor daylight, golden hour warm lighting, authentic highlights";
+      postProcessing =
+        "lifestyle lookbook aesthetic, soft warm pink accents, realistic skin textures, Kodak Portra film emulation, analog warmth";
     }
 
     // Combine
@@ -77,7 +110,7 @@ export default function PromptHelperWidget() {
       const arDesc: Record<string, string> = {
         "16:9": "landscape aspect ratio 16:9",
         "1:1": "square aspect ratio 1:1",
-        "4:5": "portrait aspect ratio 4:5"
+        "4:5": "portrait aspect ratio 4:5",
       };
       promptText = `${promptText}, high detail, photorealistic, ${arDesc[aspectRatio]}`;
     }
@@ -143,7 +176,9 @@ export default function PromptHelperWidget() {
                   </div>
                   <div>
                     <h2 className="font-bold text-sm text-stone-900">
-                      {isRtl ? "مولد تفاصيل الصور الاحترافية" : "AI Photo Prompt Studio"}
+                      {isRtl
+                        ? "مولد تفاصيل الصور الاحترافية"
+                        : "AI Photo Prompt Studio"}
                     </h2>
                     <p className="text-[10px] text-stone-500">
                       {isRtl
@@ -169,9 +204,21 @@ export default function PromptHelperWidget() {
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
                     {[
-                      { id: "editorial", label: isRtl ? "تحريري" : "Editorial", icon: Sparkles },
-                      { id: "cosmetics", label: isRtl ? "تجميل" : "Cosmetics", icon: Wand2 },
-                      { id: "lifestyle", label: isRtl ? "واقعي" : "Lifestyle", icon: Camera },
+                      {
+                        id: "editorial",
+                        label: isRtl ? "تحريري" : "Editorial",
+                        icon: Sparkles,
+                      },
+                      {
+                        id: "cosmetics",
+                        label: isRtl ? "تجميل" : "Cosmetics",
+                        icon: Wand2,
+                      },
+                      {
+                        id: "lifestyle",
+                        label: isRtl ? "واقعي" : "Lifestyle",
+                        icon: Camera,
+                      },
                     ].map((p) => {
                       const Icon = p.icon;
                       const active = preset === p.id;
@@ -203,14 +250,18 @@ export default function PromptHelperWidget() {
                       {[
                         {
                           id: "modest",
-                          label: isRtl ? "حجاب كتان أنيق (ألوان الباستيل الوردي)" : "Modest Linen Hijab (Rose Pastels)",
+                          label: isRtl
+                            ? "حجاب كتان أنيق (ألوان الباستيل الوردي)"
+                            : "Modest Linen Hijab (Rose Pastels)",
                           desc: isRtl
                             ? "تمثيل محتشم وواقعي بملامح شرق أوسطية"
                             : "Middle Eastern modest style, soft pink accents",
                         },
                         {
                           id: "curly",
-                          label: isRtl ? "شعر كيرلي طبيعي (بشرة سمراء متوازنة)" : "Natural Curly Hair (Melanin-Rich)",
+                          label: isRtl
+                            ? "شعر كيرلي طبيعي (بشرة سمراء متوازنة)"
+                            : "Natural Curly Hair (Melanin-Rich)",
                           desc: isRtl
                             ? "ملامح واقعية متنوعة وإضاءة مخصصة للبشرة الداكنة"
                             : "Rich skin tones, natural curls & textures",
@@ -227,12 +278,16 @@ export default function PromptHelperWidget() {
                         >
                           <p
                             className={`text-xs font-semibold ${
-                              styleAttire === s.id ? "text-[#8B1A35]" : "text-stone-800"
+                              styleAttire === s.id
+                                ? "text-[#8B1A35]"
+                                : "text-stone-800"
                             }`}
                           >
                             {s.label}
                           </p>
-                          <p className="text-[10px] text-stone-400 mt-0.5">{s.desc}</p>
+                          <p className="text-[10px] text-stone-400 mt-0.5">
+                            {s.desc}
+                          </p>
                         </button>
                       ))}
                     </div>
@@ -242,14 +297,32 @@ export default function PromptHelperWidget() {
                 {/* 3. Backdrop / Scenery */}
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
-                    {isRtl ? "الخلفية والأجواء المصرية" : "Egyptian Backdrop Scenery"}
+                    {isRtl
+                      ? "الخلفية والأجواء المصرية"
+                      : "Egyptian Backdrop Scenery"}
                   </label>
                   <div className="grid grid-cols-2 gap-1.5">
                     {[
-                      { id: "zamalek", label: isRtl ? "شرفة بالزمالك" : "Zamalek Balcony" },
-                      { id: "heliopolis", label: isRtl ? "مصر الجديدة العريقة" : "Heliopolis Arches" },
-                      { id: "maadi", label: isRtl ? "شوارع المعادي الخضراء" : "Maadi Leafy Streets" },
-                      { id: "alexandria", label: isRtl ? "بحر الإسكندرية" : "Alexandria Seafront" },
+                      {
+                        id: "zamalek",
+                        label: isRtl ? "شرفة بالزمالك" : "Zamalek Balcony",
+                      },
+                      {
+                        id: "heliopolis",
+                        label: isRtl
+                          ? "مصر الجديدة العريقة"
+                          : "Heliopolis Arches",
+                      },
+                      {
+                        id: "maadi",
+                        label: isRtl
+                          ? "شوارع المعادي الخضراء"
+                          : "Maadi Leafy Streets",
+                      },
+                      {
+                        id: "alexandria",
+                        label: isRtl ? "بحر الإسكندرية" : "Alexandria Seafront",
+                      },
                     ].map((b) => (
                       <button
                         key={b.id}
@@ -274,9 +347,21 @@ export default function PromptHelperWidget() {
                     </label>
                     <div className="grid grid-cols-3 gap-1">
                       {[
-                        { id: "16:9", label: "16:9", desc: isRtl ? "غلاف" : "Banner" },
-                        { id: "1:1", label: "1:1", desc: isRtl ? "مربع" : "Square" },
-                        { id: "4:5", label: "4:5", desc: isRtl ? "طولي" : "Portrait" },
+                        {
+                          id: "16:9",
+                          label: "16:9",
+                          desc: isRtl ? "غلاف" : "Banner",
+                        },
+                        {
+                          id: "1:1",
+                          label: "1:1",
+                          desc: isRtl ? "مربع" : "Square",
+                        },
+                        {
+                          id: "4:5",
+                          label: "4:5",
+                          desc: isRtl ? "طولي" : "Portrait",
+                        },
                       ].map((ar) => (
                         <button
                           key={ar.id}
@@ -324,7 +409,9 @@ export default function PromptHelperWidget() {
                   <div className="flex items-center gap-1.5 text-rose-800 font-bold text-xs">
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     <span>
-                      {isRtl ? "إرشادات تجنب النصوص والتشوهات" : "Sociological Representation Guide"}
+                      {isRtl
+                        ? "إرشادات تجنب النصوص والتشوهات"
+                        : "Sociological Representation Guide"}
                     </span>
                   </div>
                   <ul className="text-[10px] text-rose-700 space-y-1 list-disc list-inside leading-relaxed">
@@ -369,13 +456,17 @@ export default function PromptHelperWidget() {
                   onClick={handleCopy}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-semibold text-xs shadow-md transition-all active:scale-95"
                   style={{
-                    background: copied ? "#10b981" : "linear-gradient(135deg, #8B1A35, #c8963a)",
+                    background: copied
+                      ? "#10b981"
+                      : "linear-gradient(135deg, #8B1A35, #c8963a)",
                   }}
                 >
                   {copied ? (
                     <>
                       <Check className="w-4 h-4" />
-                      <span>{isRtl ? "تم النسخ بنجاح!" : "Copied to Clipboard!"}</span>
+                      <span>
+                        {isRtl ? "تم النسخ بنجاح!" : "Copied to Clipboard!"}
+                      </span>
                     </>
                   ) : (
                     <>

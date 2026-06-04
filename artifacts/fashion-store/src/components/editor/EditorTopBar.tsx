@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Monitor, Tablet, Smartphone, Undo2, Redo2, Eye, Globe, ArrowRight, Save } from "lucide-react";
+import {
+  Monitor,
+  Tablet,
+  Smartphone,
+  Undo2,
+  Redo2,
+  Eye,
+  Globe,
+  ArrowRight,
+  Save,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeviceType } from "@/lib/store-config";
 import { useTranslation } from "react-i18next";
@@ -31,13 +41,27 @@ const DEVICES: { key: DeviceType; icon: React.ElementType }[] = [
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function EditorTopBar({
-  storeName, storeSlug, device, onDeviceChange,
-  canUndo, canRedo, onUndo, onRedo,
-  onSave, onPublish, saving, isDirty, publishDisabledReason,
+  storeName,
+  storeSlug,
+  device,
+  onDeviceChange,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
+  onSave,
+  onPublish,
+  saving,
+  isDirty,
+  publishDisabledReason,
 }: EditorTopBarProps) {
   const { t, i18n } = useTranslation();
   const [saveHintDismissed, setSaveHintDismissed] = useState(() => {
-    try { return localStorage.getItem("nour_save_hint_seen") === "1"; } catch { return false; }
+    try {
+      return localStorage.getItem("nour_save_hint_seen") === "1";
+    } catch {
+      return false;
+    }
   });
 
   function handleSave() {
@@ -45,7 +69,9 @@ export default function EditorTopBar({
     // Dismiss save hint after first save
     if (!saveHintDismissed) {
       setSaveHintDismissed(true);
-      try { localStorage.setItem("nour_save_hint_seen", "1"); } catch {}
+      try {
+        localStorage.setItem("nour_save_hint_seen", "1");
+      } catch {}
     }
   }
 
@@ -63,7 +89,9 @@ export default function EditorTopBar({
           >
             {storeName?.[0]?.toUpperCase() ?? "م"}
           </div>
-          <span className="text-sm font-medium text-stone-800 max-w-[86px] sm:max-w-[160px] truncate">{storeName}</span>
+          <span className="text-sm font-medium text-stone-800 max-w-[86px] sm:max-w-[160px] truncate">
+            {storeName}
+          </span>
           {isDirty && (
             <motion.span
               initial={{ opacity: 0, scale: 0.7 }}
@@ -134,9 +162,19 @@ export default function EditorTopBar({
           <Button
             onClick={handleSave}
             disabled={saving || !isDirty}
-            title={saving ? t("editorTopBar.tooltips.saving") : (isDirty ? t("editorTopBar.tooltips.saveChanges") : t("editorTopBar.tooltips.saved"))}
+            title={
+              saving
+                ? t("editorTopBar.tooltips.saving")
+                : isDirty
+                  ? t("editorTopBar.tooltips.saveChanges")
+                  : t("editorTopBar.tooltips.saved")
+            }
             className={`h-9 w-9 p-0 flex items-center justify-center shrink-0 transition-all text-white ${isDirty ? "opacity-100 shadow-lg" : "opacity-50"}`}
-            style={{ background: isDirty ? "linear-gradient(135deg, #8B1A35, #c8963a)" : "#9ca3af" }}
+            style={{
+              background: isDirty
+                ? "linear-gradient(135deg, #8B1A35, #c8963a)"
+                : "#9ca3af",
+            }}
           >
             {saving ? (
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -156,7 +194,9 @@ export default function EditorTopBar({
               >
                 <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-stone-800 rotate-45" />
                 {t("editorTopBar.hints.save")}
-                <span className={`inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse ms-1.5`} />
+                <span
+                  className={`inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse ms-1.5`}
+                />
               </motion.div>
             )}
           </AnimatePresence>
