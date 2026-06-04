@@ -475,6 +475,7 @@ router.post("/paymob/webhook", async (req, res) => {
               .select({ productId: orderItemsTable.productId, variantId: orderItemsTable.variantId, quantity: orderItemsTable.quantity })
               .from(orderItemsTable)
               .where(eq(orderItemsTable.orderId, paymentRecord.orderId));
+
             await Promise.all(
               items.flatMap((item) => {
                 const updates: any[] = [

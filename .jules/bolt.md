@@ -40,3 +40,7 @@
 ## 2024-05-28 - Parallelize stock restoral on order cancellation
 **Learning:** Sequential DB updates in a loop (N+1 queries) inside a transaction can block the event loop and add significant RTT latency. Using `Promise.all` with a map pushes these updates concurrently to the DB connection pool.
 **Action:** Always prefer array mapping to `Promise.all` over `for...of` loops when executing independent database updates or inserts within a Drizzle transaction to improve performance without breaking consistency.
+
+## 2024-05-28 - N+1 Webhook DB Update Fix
+**Learning:** Sequential database updates inside loops (e.g. `await tx.update()` in `for...of` loops for restocking items) create unnecessary Node.js-to-PostgreSQL round trips, slowing down webhook execution linearly with the order item count.
+**Action:** Use `.flatMap` to gather an array of Promise updates for Drizzle ORM queries, and then execute them using a single `Promise.all()`, ensuring concurrent execution over the same PG pool connection/transaction without blocking.
