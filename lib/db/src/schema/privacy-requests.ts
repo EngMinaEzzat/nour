@@ -1,4 +1,11 @@
-import { pgTable, text, serial, integer, timestamp, pgEnum, jsonb } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  timestamp,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 import { tenantsTable } from "./tenants";
 import { merchantsTable } from "./merchants";
 
@@ -25,7 +32,9 @@ export const privacySubjectTypeEnum = pgEnum("privacy_subject_type", [
 
 export const privacyRequestsTable = pgTable("privacy_requests", {
   id: serial("id").primaryKey(),
-  tenantId: integer("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }), // nullable for platform requests
+  tenantId: integer("tenant_id").references(() => tenantsTable.id, {
+    onDelete: "cascade",
+  }), // nullable for platform requests
   subjectType: privacySubjectTypeEnum("subject_type").notNull(),
   subjectIdentifier: text("subject_identifier").notNull(), // email, phone, id, etc.
   requestType: privacyRequestTypeEnum("request_type").notNull(),
