@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { backgroundJobsTable, db, exportJobsTable } from "@workspace/db";
+import { logger } from "../lib/logger.js";
 import { and, asc, eq, inArray, lte, or, sql } from "drizzle-orm";
 import {
   buildExportRows,
@@ -11,13 +12,6 @@ import {
 const WORKER_ID = `worker-${crypto.randomBytes(4).toString("hex")}`;
 const BATCH_SIZE = 10;
 const LOCK_MINUTES = 5;
-
-const logger = {
-  info: (msg: string, ...args: unknown[]) =>
-    console.log(`[INFO] ${msg}`, ...args),
-  error: (msg: string, ...args: unknown[]) =>
-    console.error(`[ERROR] ${msg}`, ...args),
-};
 
 export async function claimJobs() {
   const now = new Date();
@@ -90,7 +84,7 @@ export async function markJobFailed(
   await db
     .update(backgroundJobsTable)
     .set({
-      status: isDead ? "dead" : "queued",
+      status: isDead ? "failed" : "queued",
       lastError: errorMsg.slice(0, 1000),
       runAt: nextRun,
       lockedAt: null,
@@ -173,7 +167,7 @@ export async function runWorkerLoop() {
         setTimeout(resolve, claimed.length === 0 ? 5000 : 1000),
       );
     } catch (err) {
-      logger.error("Worker loop error", err);
+      logger.error({ err }, "Worker loop error");
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
   }

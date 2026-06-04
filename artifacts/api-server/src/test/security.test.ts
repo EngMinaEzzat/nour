@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import {
-  request, app, uid, createTestMerchant, cleanupTenant, createTestProduct,
+  request,
+  app,
+  uid,
+  createTestMerchant,
+  cleanupTenant,
+  createTestProduct,
 } from "./helpers.js";
 
 /**
@@ -14,8 +19,15 @@ describe("Security — Tenant Isolation", () => {
   let productOfCtx1 = 0;
 
   beforeAll(async () => {
-    [ctx1, ctx2] = await Promise.all([createTestMerchant(), createTestMerchant()]);
-    const r = await createTestProduct(ctx1.agent, { name: `Ctx1 Product ${uid()}`, price: 150, stock: 10 });
+    [ctx1, ctx2] = await Promise.all([
+      createTestMerchant(),
+      createTestMerchant(),
+    ]);
+    const r = await createTestProduct(ctx1.agent, {
+      name: `Ctx1 Product ${uid()}`,
+      price: 150,
+      stock: 10,
+    });
     if (r.status === 201) productOfCtx1 = r.body.id;
   });
 
@@ -34,8 +46,9 @@ describe("Security — Tenant Isolation", () => {
 
   it("❌ tenant2 cannot update tenant1's product", async () => {
     if (!productOfCtx1) return;
-    const res = await ctx2.agent.put(`/api/products/${productOfCtx1}`)
-      .send({ name: "HACKED", price: 1 });
+    const res = await ctx2.agent
+      .put(`/api/products/${productOfCtx1}`)
+      .send({ name: "Unauthorized Update", price: 1 });
     expect([403, 404]).toContain(res.status);
   });
 
@@ -59,7 +72,9 @@ describe("Security — Tenant Isolation", () => {
     expect(res1.status).toBe(200);
     expect(res2.status).toBe(200);
     // All orders from ctx2 must belong to ctx2's tenant
-    const ctx2Orders = (res2.body.data || res2.body) as Array<{ tenantId: number }>;
+    const ctx2Orders = (res2.body.data || res2.body) as Array<{
+      tenantId: number;
+    }>;
     for (const order of ctx2Orders) {
       expect(order.tenantId).toBe(ctx2.tenantId);
     }
@@ -68,7 +83,9 @@ describe("Security — Tenant Isolation", () => {
   it("✅ ctx1's product is visible in ctx1's own tenant-scoped product list", async () => {
     if (!productOfCtx1) return;
     // GET /api/products?tenantId=X should scope to that tenant
-    const res1 = await ctx1.agent.get(`/api/products?tenantId=${ctx1.tenantId}`);
+    const res1 = await ctx1.agent.get(
+      `/api/products?tenantId=${ctx1.tenantId}`,
+    );
     expect(res1.status).toBe(200);
     const ctx1Ids = res1.body.map((p: { id: number }) => p.id);
     expect(ctx1Ids).toContain(productOfCtx1);
@@ -77,7 +94,9 @@ describe("Security — Tenant Isolation", () => {
   it("✅ ctx2's tenant-scoped product list does not contain ctx1's product", async () => {
     if (!productOfCtx1) return;
     // Query explicitly for ctx2's products using tenantId filter
-    const res2 = await request(app).get(`/api/products?tenantId=${ctx2.tenantId}`);
+    const res2 = await request(app).get(
+      `/api/products?tenantId=${ctx2.tenantId}`,
+    );
     expect(res2.status).toBe(200);
     const ctx2Ids = res2.body.map((p: { id: number }) => p.id);
     expect(ctx2Ids).not.toContain(productOfCtx1);
@@ -124,7 +143,10 @@ describe("Security — Input Validation", () => {
   it("❌ negative price returns 400", async () => {
     const m = await createTestMerchant();
     const res = await m.agent.post("/api/products").send({
-      name: "Bad Product", price: -50, stock: 10, status: "active",
+      name: "Bad Product",
+      price: -50,
+      stock: 10,
+      status: "active",
     });
     expect([400, 422]).toContain(res.status);
     await cleanupTenant(m.tenantId, m.merchantId);
@@ -133,7 +155,10 @@ describe("Security — Input Validation", () => {
   it("❌ negative stock returns 400", async () => {
     const m = await createTestMerchant();
     const res = await m.agent.post("/api/products").send({
-      name: "Bad Product", price: 100, stock: -1, status: "active",
+      name: "Bad Product",
+      price: 100,
+      stock: -1,
+      status: "active",
     });
     expect([400, 422]).toContain(res.status);
     await cleanupTenant(m.tenantId, m.merchantId);
@@ -142,7 +167,10 @@ describe("Security — Input Validation", () => {
   it("❌ invalid product status returns 400", async () => {
     const m = await createTestMerchant();
     const res = await m.agent.post("/api/products").send({
-      name: "Bad Product", price: 100, stock: 10, status: "published",
+      name: "Bad Product",
+      price: 100,
+      stock: 10,
+      status: "published",
     });
     expect([400, 422]).toContain(res.status);
     await cleanupTenant(m.tenantId, m.merchantId);
@@ -150,7 +178,9 @@ describe("Security — Input Validation", () => {
 
   it("❌ missing product name returns 400", async () => {
     const m = await createTestMerchant();
-    const res = await m.agent.post("/api/products").send({ price: 100, stock: 10, status: "active" });
+    const res = await m.agent
+      .post("/api/products")
+      .send({ price: 100, stock: 10, status: "active" });
     expect([400, 422]).toContain(res.status);
     await cleanupTenant(m.tenantId, m.merchantId);
   });
@@ -158,7 +188,10 @@ describe("Security — Input Validation", () => {
   it("✅ large but valid product name does not crash the server", async () => {
     const m = await createTestMerchant();
     const res = await m.agent.post("/api/products").send({
-      name: "أ".repeat(500), price: 100, stock: 10, status: "active",
+      name: "أ".repeat(500),
+      price: 100,
+      stock: 10,
+      status: "active",
     });
     expect(res.status).not.toBe(500);
     await cleanupTenant(m.tenantId, m.merchantId);
