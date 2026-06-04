@@ -1,6 +1,11 @@
 import fs from "node:fs/promises";
 import { Router } from "express";
-import { backgroundJobsTable, db, exportJobsTable } from "@workspace/db";
+import {
+  backgroundJobsTable,
+  db,
+  exportJobsTable,
+  merchantsTable,
+} from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import crypto from "node:crypto";
 import { exportLimiter } from "../lib/rate-limiters";
@@ -46,6 +51,14 @@ router.post(
     try {
       const tenantId = req.merchantTenantId!;
       const merchantId = req.session?.merchantId;
+      if (!merchantId) return res.status(401).json({ error: "غير مصرح" });
+      const [merchant] = await db
+        .select()
+        .from(merchantsTable)
+        .where(eq(merchantsTable.id, merchantId));
+      if (!merchant || merchant.tenantId !== tenantId) {
+        return res.status(403).json({ error: "غير مصرح" });
+      }
       const { exportType } = req.body;
       const dateFrom = safeDate(req.body.dateFrom);
       const dateTo = safeDate(req.body.dateTo);
@@ -149,6 +162,15 @@ router.get(
   async (req, res) => {
     try {
       const tenantId = req.merchantTenantId!;
+      const merchantId = req.session?.merchantId;
+      if (!merchantId) return res.status(401).json({ error: "غير مصرح" });
+      const [merchant] = await db
+        .select()
+        .from(merchantsTable)
+        .where(eq(merchantsTable.id, merchantId));
+      if (!merchant || merchant.tenantId !== tenantId) {
+        return res.status(403).json({ error: "غير مصرح" });
+      }
       const jobs = await db
         .select()
         .from(exportJobsTable)
@@ -170,8 +192,18 @@ router.get(
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0)
       return res.status(400).json({ error: "معرف التصدير غير صالح" });
+    const merchantId = req.session?.merchantId;
+    if (!merchantId) return res.status(401).json({ error: "غير مصرح" });
 
     try {
+      const [merchant] = await db
+        .select()
+        .from(merchantsTable)
+        .where(eq(merchantsTable.id, merchantId));
+      if (!merchant || merchant.tenantId !== req.merchantTenantId) {
+        return res.status(403).json({ error: "غير مصرح" });
+      }
+
       const [job] = await db
         .select()
         .from(exportJobsTable)
