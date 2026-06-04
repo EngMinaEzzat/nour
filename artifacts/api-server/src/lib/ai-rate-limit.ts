@@ -6,6 +6,7 @@
  * Falls back to conservative defaults when plan data is unavailable.
  */
 
+// These are conservative defaults based on the existing plan codes in tenants.planCode.
 const PLAN_HOURLY_LIMITS: Record<string, number> = {
   free: 10,
   starter: 20,
