@@ -29,3 +29,7 @@
 ## 2026-05-29 - [Batch insert for products samples to fix N+1 issue]
 **Learning:** Seeding multiple items in a loop using `await db.insert(...)` causes N+1 query execution, which significantly increases network round trip time and API latency.
 **Action:** Replace `for` loops containing multiple DB inserts with a single batched `await db.insert(...).values([...])` operation using an array of elements.
+
+## 2026-06-04 - [Parallelize DB queries in platform admin routes]
+**Learning:** Missed opportunities to parallelize independent database queries within `.map()` iterations (e.g., in `/platform/provider-health` mapping over `providers`).
+**Action:** When optimizing endpoints that fetch data inside an array mapping, search carefully for independent sub-queries and group them using nested `Promise.all` instead of executing them sequentially per iteration.
