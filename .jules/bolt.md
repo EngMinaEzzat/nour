@@ -5,7 +5,6 @@
 ## 2026-05-22 - [Parallelize DB queries in analytics endpoints]
 **Learning:** Found an endpoint (`/analytics/merchant`) making 7 sequential database queries. Sequential queries block the main thread and add unnecessary round-trip latency.
 **Action:** Used `Promise.all()` to fetch independent data sources concurrently, reducing 7 sequential round trips to 2 (dependent on tenantRow).
-
 ## 2026-05-23 - [Test execution requires explicit environment setup]
 **Learning:** Some test suites in the `api-server` may fail if the NOUR_TEST_DATABASE_OK environment variable is missing, since the environment safeguards prevent tests from executing on production/development databases.
 **Action:** Make sure to append NOUR_TEST_DATABASE_OK=true to the vitest execution command for safety and testing correctness.
@@ -37,3 +36,7 @@
 ## 2026-06-04 - [Parallelize DB queries in platform admin routes]
 **Learning:** Missed opportunities to parallelize independent database queries within `.map()` iterations (e.g., in `/platform/provider-health` mapping over `providers`).
 **Action:** When optimizing endpoints that fetch data inside an array mapping, search carefully for independent sub-queries and group them using nested `Promise.all` instead of executing them sequentially per iteration.
+
+## 2024-05-28 - Parallelize stock restoral on order cancellation
+**Learning:** Sequential DB updates in a loop (N+1 queries) inside a transaction can block the event loop and add significant RTT latency. Using `Promise.all` with a map pushes these updates concurrently to the DB connection pool.
+**Action:** Always prefer array mapping to `Promise.all` over `for...of` loops when executing independent database updates or inserts within a Drizzle transaction to improve performance without breaking consistency.
