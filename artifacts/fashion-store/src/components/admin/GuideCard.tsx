@@ -63,7 +63,8 @@ export default function GuideCard({
             </div>
             <button
               onClick={dismiss}
-              className="text-stone-400 hover:text-stone-600 transition-colors shrink-0 mt-0.5"
+              className="text-stone-400 hover:text-stone-600 transition-colors shrink-0 mt-0.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-sm"
+              aria-label={t("common.buttons.close", { defaultValue: "Close" })}
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -72,7 +73,9 @@ export default function GuideCard({
           {(steps || tips) && (
             <button
               onClick={() => setExpanded((e) => !e)}
-              className={`flex items-center gap-1 mt-2 text-xs font-medium ${colors.btn} px-2 py-1 rounded-lg transition-colors`}
+              className={`flex items-center gap-1 mt-2 text-xs font-medium ${colors.btn} px-2 py-1 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none`}
+              aria-expanded={expanded}
+              aria-controls={`guide-content-${storageKey}`}
             >
               {expanded ? t("common.buttons.hideDetails", { defaultValue: "Hide Details" }) : t("common.buttons.showDetails", { defaultValue: "Show Details" })}
               <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -84,6 +87,7 @@ export default function GuideCard({
           <AnimatePresence>
             {expanded && (
               <motion.div
+                id={`guide-content-${storageKey}`}
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
