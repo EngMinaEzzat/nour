@@ -22,13 +22,17 @@
 **Learning:** `new URL(base + "/" + path)` can be manipulated by an attacker who controls `path` to navigate up directories (`../../`) or even switch origins (e.g. `//evil.com` or `http://evil.com`), leading to SSRF if the URL is then passed to `fetch`.
 **Action:** Always parse the generated URL and assert that `url.origin` matches the expected base origin and `url.pathname` strictly begins with the expected API base path prefix.
 
-## 2026-06-03 - [Fix N+1 query in checkout API]
-**Learning:** Checking out items fetching variants one-by-one via `.map(async () => tx.select())` creates an N+1 problem inside a transaction.
-**Action:** Use `inArray` to fetch all products and variants upfront, map them by ID into Maps, and access them locally (O(1)) inside the checkout validation map loop.
-
 ## 2026-05-29 - [Batch insert for products samples to fix N+1 issue]
 **Learning:** Seeding multiple items in a loop using `await db.insert(...)` causes N+1 query execution, which significantly increases network round trip time and API latency.
 **Action:** Replace `for` loops containing multiple DB inserts with a single batched `await db.insert(...).values([...])` operation using an array of elements.
+
+## 2026-06-03 - [Fix N+1 query problem with batching and in-memory map]
+**Learning:** Using `Promise.all` in a map to execute queries per item can lead to N+1 database queries, significantly slowing down list endpoints. Drizzle ORM's `inArray` can fail if passed an empty array.
+**Action:** Replace `Promise.all` loops with a single batch query using `inArray` and `groupBy`. Always check if the array is non-empty (`categories.length > 0`) before constructing the `inArray` condition to prevent SQL syntax errors. Use a JavaScript `Map` to efficiently attach the queried counts back to the items in $O(1)$ time.
+
+## 2026-06-03 - [Fix N+1 query in checkout API]
+**Learning:** Checking out items fetching variants one-by-one via `.map(async () => tx.select())` creates an N+1 problem inside a transaction.
+**Action:** Use `inArray` to fetch all products and variants upfront, map them by ID into Maps, and access them locally (O(1)) inside the checkout validation map loop.
 
 ## 2026-06-04 - [Parallelize DB queries in platform admin routes]
 **Learning:** Missed opportunities to parallelize independent database queries within `.map()` iterations (e.g., in `/platform/provider-health` mapping over `providers`).
