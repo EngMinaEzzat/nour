@@ -1,3 +1,4 @@
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { toCsv, buildConditions, writeExportFile } from "../lib/export-csv.js";
 import fs from "node:fs/promises";
 import path from "node:path";
