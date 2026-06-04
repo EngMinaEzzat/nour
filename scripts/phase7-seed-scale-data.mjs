@@ -9,14 +9,15 @@ import {
   customersTable,
   orderItemsTable,
 } from "../lib/db/dist/index.js";
+import { logger } from "./src/logger.ts";
 
 async function main() {
   if (process.env.NODE_ENV !== "test" && process.env.NOUR_TEST_DATABASE_OK !== "true") {
-    console.error("ERROR: Destructive seed scripts require NODE_ENV=test or NOUR_TEST_DATABASE_OK=true");
+    logger.error("Destructive seed scripts require NODE_ENV=test or NOUR_TEST_DATABASE_OK=true");
     process.exit(1);
   }
 
-  console.log("Seeding scale data...");
+  logger.info("Seeding scale data...");
   const slug = `scale-test-${randomBytes(4).toString("hex")}`;
   
   const [tenant] = await db.insert(tenantsTable).values({
@@ -31,7 +32,7 @@ async function main() {
     role: "owner",
   }).returning();
 
-  console.log(`Created tenant: ${slug} (ID: ${tenant.id})`);
+  logger.info("Created tenant: %s (ID: %s)", slug, tenant.id);
 
   // Insert 50 categories
   const categoriesToInsert = Array.from({ length: 50 }).map((_, i) => ({
@@ -58,10 +59,10 @@ async function main() {
     const result = await db.insert(productsTable).values(chunk).returning();
     insertedProds.push(...result);
   }
-  console.log(`Inserted 1000 products`);
+  logger.success("Inserted 1000 products");
 
   // Insert Customers and Orders
-  console.log(`Inserting 2000 orders...`);
+  logger.info("Inserting 2000 orders...");
   for (let i = 0; i < 2000; i += 100) {
     const custChunk = Array.from({ length: 100 }).map((_, j) => ({
       name: `Customer ${i + j}`,
@@ -80,8 +81,8 @@ async function main() {
     await db.insert(ordersTable).values(ordersChunk);
   }
 
-  console.log("Scale seed complete.");
-  console.log(`Store Slug: ${slug}`);
+  logger.success("Scale seed complete.");
+  logger.info("Store Slug: %s", slug);
 }
 
-main().catch(console.error);
+main().catch((err) => logger.error("Unhandled error: %s", err.message));

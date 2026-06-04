@@ -1,10 +1,11 @@
 import { performance } from "node:perf_hooks";
+import { logger } from "./src/logger.ts";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:8080";
 const SLUG = process.argv[2];
 
 if (!SLUG) {
-  console.error("Usage: node scripts/phase7-load-smoke.mjs <store-slug>");
+  logger.error("Usage: node scripts/phase7-load-smoke.mjs <store-slug>");
   process.exit(1);
 }
 
@@ -13,15 +14,15 @@ async function measure(name, fn) {
   try {
     await fn();
     const duration = performance.now() - start;
-    console.log(`[PASS] ${name}: ${duration.toFixed(2)}ms`);
+    logger.success("%s: %sms", name, duration.toFixed(2));
   } catch (err) {
     const duration = performance.now() - start;
-    console.log(`[FAIL] ${name}: ${duration.toFixed(2)}ms - ${err.message}`);
+    logger.error("%s: %sms - %s", name, duration.toFixed(2), err.message);
   }
 }
 
 async function run() {
-  console.log(`Starting load smoke against ${BASE_URL} for store ${SLUG}`);
+  logger.info("Starting load smoke against %s for store %s", BASE_URL, SLUG);
 
   await measure("Health Check (/api/healthz)", async () => {
     const res = await fetch(`${BASE_URL}/api/healthz`);
@@ -40,4 +41,4 @@ async function run() {
   });
 }
 
-run().catch(console.error);
+run().catch((err) => logger.error("Unhandled error: %s", err.message));

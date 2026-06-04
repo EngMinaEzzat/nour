@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
-
 import { performance } from "node:perf_hooks";
+import { logger } from "./src/logger.ts";
 
 const { values } = parseArgs({
   options: {
@@ -18,7 +18,7 @@ const { values } = parseArgs({
 const baseUrl = values["base-url"];
 const slug = values["tenant-slug"];
 
-console.log(`Starting Operational Smoke Test against ${baseUrl}`);
+logger.info("Starting Operational Smoke Test against %s", baseUrl);
 
 async function check(name, url, expectedStatus = 200, checkBody = null) {
   const start = performance.now();
@@ -26,8 +26,12 @@ async function check(name, url, expectedStatus = 200, checkBody = null) {
     const res = await fetch(url);
     const duration = performance.now() - start;
     if (res.status !== expectedStatus) {
-      console.error(
-        `[FAIL] ${name}: Expected ${expectedStatus}, got ${res.status} (${duration.toFixed(2)}ms)`,
+      logger.error(
+        "%s: Expected %s, got %s (%sms)",
+        name,
+        expectedStatus,
+        res.status,
+        duration.toFixed(2),
       );
       process.exitCode = 1;
       return;
@@ -35,16 +39,23 @@ async function check(name, url, expectedStatus = 200, checkBody = null) {
     if (checkBody) {
       const body = await res.json();
       if (!checkBody(body)) {
-        console.error(
-          `[FAIL] ${name}: Body check failed (${duration.toFixed(2)}ms)`,
+        logger.error(
+          "%s: Body check failed (%sms)",
+          name,
+          duration.toFixed(2),
         );
         process.exitCode = 1;
         return;
       }
     }
-    console.log(`[PASS] ${name}: ${res.status} (${duration.toFixed(2)}ms)`);
+    logger.success(
+      "%s: %s (%sms)",
+      name,
+      res.status,
+      duration.toFixed(2),
+    );
   } catch (error) {
-    console.error(`[FAIL] ${name}: Network error - ${error.message}`);
+    logger.error("%s: Network error - %s", name, error.message);
     process.exitCode = 1;
   }
 }
@@ -77,8 +88,8 @@ async function run() {
       (body) => body.slug === slug,
     );
   } else {
-    console.log(
-      "[SKIP] Storefront Payload check. Pass --tenant-slug to run this check.",
+    logger.skip(
+      "Storefront Payload check. Pass --tenant-slug to run this check.",
     );
   }
 }
