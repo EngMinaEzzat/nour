@@ -1,11 +1,26 @@
-import { pgTable, text, serial, integer, timestamp, pgEnum, jsonb } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  timestamp,
+  pgEnum,
+  jsonb,
+} from "drizzle-orm/pg-core";
 import { tenantsTable } from "./tenants";
 
-export const jobStatusEnum = pgEnum("job_status", ["queued", "processing", "succeeded", "failed", "dead"]);
+export const jobStatusEnum = pgEnum("job_status", [
+  "queued",
+  "processing",
+  "succeeded",
+  "failed",
+]);
 
 export const backgroundJobsTable = pgTable("background_jobs", {
   id: serial("id").primaryKey(),
-  tenantId: integer("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
+  tenantId: integer("tenant_id").references(() => tenantsTable.id, {
+    onDelete: "cascade",
+  }),
   jobType: text("job_type").notNull(),
   status: jobStatusEnum("status").notNull().default("queued"),
   payload: jsonb("payload").notNull().default({}),

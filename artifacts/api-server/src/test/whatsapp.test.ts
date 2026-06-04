@@ -1,10 +1,23 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { createTestMerchant, createTestProduct, createTestOrder, cleanupTenant, app } from "./helpers.js";
-import { db, merchantsTable, whatsappProvidersTable, whatsappMessageLogsTable } from "@workspace/db";
+import {
+  createTestMerchant,
+  createTestProduct,
+  createTestOrder,
+  cleanupTenant,
+  app,
+} from "./helpers.js";
+import {
+  db,
+  merchantsTable,
+  whatsappProvidersTable,
+  whatsappMessageLogsTable,
+} from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { sendWhatsAppMessage } from "../lib/whatsapp.js";
+import { sendWhatsAppMessage, sendWhatsAppText } from "../lib/whatsapp.js";
 
-async function csrfToken(agent: Awaited<ReturnType<typeof createTestMerchant>>["agent"]): Promise<string> {
+async function csrfToken(
+  agent: Awaited<ReturnType<typeof createTestMerchant>>["agent"],
+): Promise<string> {
   const res = await agent.get("/api/csrf-token");
   return res.body.csrfToken;
 }
@@ -39,10 +52,10 @@ describe("WhatsApp Integration", () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        messages: [{ id: "wa-msg-123" }]
+        messages: [{ id: "wa-msg-123" }],
       }),
     });
-    vi.stubGlobal('fetch', mockFetch);
+    vi.stubGlobal("fetch", mockFetch);
 
     // 4. Send message
     const res = await ctx.agent.post("/api/whatsapp/messages/send").send({
@@ -63,11 +76,14 @@ describe("WhatsApp Integration", () => {
         headers: expect.objectContaining({
           Authorization: "Bearer mock-token",
         }),
-      })
+      }),
     );
 
     // 6. Verify DB log
-    const [log] = await db.select().from(whatsappMessageLogsTable).where(eq(whatsappMessageLogsTable.orderId, orderId));
+    const [log] = await db
+      .select()
+      .from(whatsappMessageLogsTable)
+      .where(eq(whatsappMessageLogsTable.orderId, orderId));
     expect(log).toBeDefined();
     expect(log.status).toBe("SENT");
     expect(log.providerMessageId).toBe("wa-msg-123");
@@ -111,11 +127,14 @@ describe("WhatsApp Integration", () => {
 
     try {
       const token = await csrfToken(ctx.agent);
-      const res = await ctx.agent.post("/api/whatsapp/messages/send").set("x-csrf-token", token).send({
-        templateCode: "order_confirmation_request",
-        orderId: orderRes.body.id,
-        idempotencyKey: `prod-mock-key-${Date.now()}`,
-      });
+      const res = await ctx.agent
+        .post("/api/whatsapp/messages/send")
+        .set("x-csrf-token", token)
+        .send({
+          templateCode: "order_confirmation_request",
+          orderId: orderRes.body.id,
+          idempotencyKey: `prod-mock-key-${Date.now()}`,
+        });
 
       expect(res.status).toBe(201); // The route still returns 201 because it inserts a FAILED log
       expect(res.body.status).toBe("FAILED");
@@ -154,48 +173,62 @@ describe("WhatsApp Integration", () => {
     const orderRes = await createTestOrder(ctx.tenantId, prodRes.body.id);
     const orderId = orderRes.body.id;
 
-    const [log] = await db.insert(whatsappMessageLogsTable).values({
-      tenantId: ctx.tenantId,
-      orderId,
-      idempotencyKey: `callback-test-${Date.now()}`,
-      messageType: "order_confirmed",
-      status: "SENT",
-      customerPhone: "01012345678",
-      renderedMessage: "Test",
-    }).returning();
+    const [log] = await db
+      .insert(whatsappMessageLogsTable)
+      .values({
+        tenantId: ctx.tenantId,
+        orderId,
+        idempotencyKey: `callback-test-${Date.now()}`,
+        messageType: "order_confirmed",
+        status: "SENT",
+        customerPhone: "01012345678",
+        renderedMessage: "Test",
+      })
+      .returning();
 
     // Try without auth
-    const res = await ctx.agent.post(`/api/whatsapp/messages/${log.id}/callback`).send({ status: "DELIVERED" });
+    const res = await ctx.agent
+      .post(`/api/whatsapp/messages/${log.id}/callback`)
+      .send({ status: "DELIVERED" });
     // Should be 401 Unauthorized because of missing webhook Authorization header
     expect(res.status).toBe(401);
   });
 
   it("rejects production WhatsApp callback without a configured webhook secret", async () => {
-    await db.update(merchantsTable)
+    await db
+      .update(merchantsTable)
       .set({ isPlatformAdmin: true })
       .where(eq(merchantsTable.id, ctx.merchantId));
 
     const prodRes = await createTestProduct(ctx.agent);
     const orderRes = await createTestOrder(ctx.tenantId, prodRes.body.id);
 
-    const [log] = await db.insert(whatsappMessageLogsTable).values({
-      tenantId: ctx.tenantId,
-      orderId: orderRes.body.id,
-      idempotencyKey: `callback-csrf-${Date.now()}`,
-      messageType: "order_confirmed",
-      status: "SENT",
-      customerPhone: "01012345678",
-      renderedMessage: "Test",
-    }).returning();
+    const [log] = await db
+      .insert(whatsappMessageLogsTable)
+      .values({
+        tenantId: ctx.tenantId,
+        orderId: orderRes.body.id,
+        idempotencyKey: `callback-csrf-${Date.now()}`,
+        messageType: "order_confirmed",
+        status: "SENT",
+        customerPhone: "01012345678",
+        renderedMessage: "Test",
+      })
+      .returning();
 
     const previousEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = "production";
 
     try {
-      const res = await ctx.agent.post(`/api/whatsapp/messages/${log.id}/callback`).send({ status: "DELIVERED" });
+      const res = await ctx.agent
+        .post(`/api/whatsapp/messages/${log.id}/callback`)
+        .send({ status: "DELIVERED" });
       expect(res.status).toBe(401);
 
-      const [unchanged] = await db.select().from(whatsappMessageLogsTable).where(eq(whatsappMessageLogsTable.id, log.id));
+      const [unchanged] = await db
+        .select()
+        .from(whatsappMessageLogsTable)
+        .where(eq(whatsappMessageLogsTable.id, log.id));
       expect(unchanged.status).toBe("SENT");
     } finally {
       process.env.NODE_ENV = previousEnv;
@@ -214,15 +247,18 @@ describe("WhatsApp Integration", () => {
     const prodRes = await createTestProduct(ctx.agent);
     const orderRes = await createTestOrder(ctx.tenantId, prodRes.body.id);
 
-    const [log] = await db.insert(whatsappMessageLogsTable).values({
-      tenantId: ctx.tenantId,
-      orderId: orderRes.body.id,
-      idempotencyKey: `callback-auth-${Date.now()}`,
-      messageType: "order_confirmed",
-      status: "SENT",
-      customerPhone: "01012345678",
-      renderedMessage: "Test",
-    }).returning();
+    const [log] = await db
+      .insert(whatsappMessageLogsTable)
+      .values({
+        tenantId: ctx.tenantId,
+        orderId: orderRes.body.id,
+        idempotencyKey: `callback-auth-${Date.now()}`,
+        messageType: "order_confirmed",
+        status: "SENT",
+        customerPhone: "01012345678",
+        renderedMessage: "Test",
+      })
+      .returning();
 
     const previousEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = "production";
@@ -235,11 +271,30 @@ describe("WhatsApp Integration", () => {
 
       expect(res.status).toBe(200);
 
-      const [updated] = await db.select().from(whatsappMessageLogsTable).where(eq(whatsappMessageLogsTable.id, log.id));
+      const [updated] = await db
+        .select()
+        .from(whatsappMessageLogsTable)
+        .where(eq(whatsappMessageLogsTable.id, log.id));
       expect(updated.status).toBe("DELIVERED");
       expect(updated.providerMessageId).toBe("wa-delivered-1");
     } finally {
       process.env.NODE_ENV = previousEnv;
     }
+  });
+});
+
+describe("sendWhatsAppText", () => {
+  it("should return error when fetch rejects", async () => {
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network failure"));
+    vi.stubGlobal("fetch", mockFetch);
+
+    const res = await sendWhatsAppText({
+      toPhone: "01012345678",
+      text: "Hello",
+      accessToken: "token",
+      phoneNumberId: "phone-id",
+    });
+
+    expect(res).toEqual({ success: false, error: "Error: Network failure" });
   });
 });
