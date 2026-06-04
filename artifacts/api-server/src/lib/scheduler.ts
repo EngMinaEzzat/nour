@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import { db } from "@workspace/db";
 import { tenantsTable, merchantsTable, productsTable } from "@workspace/db";
-import { eq, and, lte, isNotNull, lt, sql } from "drizzle-orm";
+import { eq, and, lte, isNotNull, lt, sql, inArray } from "drizzle-orm";
 import { logger } from "./logger.js";
 import {
   sendSubscriptionReminderEmail,
@@ -32,7 +32,10 @@ async function checkExpiringTrials() {
       .from(tenantsTable)
       .leftJoin(
         merchantsTable,
-        and(eq(merchantsTable.tenantId, tenantsTable.id), eq(merchantsTable.role, "owner")),
+        and(
+          eq(merchantsTable.tenantId, tenantsTable.id),
+          eq(merchantsTable.role, "owner"),
+        ),
       )
       .where(
         and(
@@ -56,8 +59,13 @@ async function checkExpiringTrials() {
           tenant.name,
           daysLeft,
           billingUrl(),
-        ).catch((err) => logger.warn({ err, tenantId: tenant.id }, "Reminder email failed"));
-        logger.info({ tenantId: tenant.id, daysLeft }, "Sent subscription reminder");
+        ).catch((err) =>
+          logger.warn({ err, tenantId: tenant.id }, "Reminder email failed"),
+        );
+        logger.info(
+          { tenantId: tenant.id, daysLeft },
+          "Sent subscription reminder",
+        );
       }
     }
   } catch (err) {
@@ -78,7 +86,10 @@ async function suspendExpiredTrials() {
       .from(tenantsTable)
       .leftJoin(
         merchantsTable,
-        and(eq(merchantsTable.tenantId, tenantsTable.id), eq(merchantsTable.role, "owner")),
+        and(
+          eq(merchantsTable.tenantId, tenantsTable.id),
+          eq(merchantsTable.role, "owner"),
+        ),
       )
       .where(
         and(
@@ -88,20 +99,32 @@ async function suspendExpiredTrials() {
         ),
       );
 
-    for (const tenant of expired) {
+    if (expired.length > 0) {
       await db
         .update(tenantsTable)
         .set({ subscriptionStatus: "suspended" })
-        .where(eq(tenantsTable.id, tenant.id));
+        .where(
+          inArray(
+            tenantsTable.id,
+            expired.map((t) => t.id),
+          ),
+        );
 
-      logger.info({ tenantId: tenant.id }, "Auto-suspended expired trial");
+      for (const tenant of expired) {
+        logger.info({ tenantId: tenant.id }, "Auto-suspended expired trial");
 
-      if (tenant.ownerEmail) {
-        await sendSubscriptionSuspendedEmail(
-          tenant.ownerEmail,
-          tenant.name,
-          billingUrl(),
-        ).catch((err) => logger.warn({ err, tenantId: tenant.id }, "Suspension email failed"));
+        if (tenant.ownerEmail) {
+          await sendSubscriptionSuspendedEmail(
+            tenant.ownerEmail,
+            tenant.name,
+            billingUrl(),
+          ).catch((err) =>
+            logger.warn(
+              { err, tenantId: tenant.id },
+              "Suspension email failed",
+            ),
+          );
+        }
       }
     }
   } catch (err) {
@@ -128,14 +151,17 @@ async function checkLowStockAlerts() {
       .leftJoin(tenantsTable, eq(productsTable.tenantId, tenantsTable.id))
       .leftJoin(
         merchantsTable,
-        and(eq(merchantsTable.tenantId, productsTable.tenantId), eq(merchantsTable.role, "owner")),
+        and(
+          eq(merchantsTable.tenantId, productsTable.tenantId),
+          eq(merchantsTable.role, "owner"),
+        ),
       )
       .where(
         and(
           eq(productsTable.status, "active"),
           lt(productsTable.stock, sql`6`), // stock < 6 (5 or below)
           isNotNull(productsTable.tenantId),
-        )
+        ),
       );
 
     // Group by tenant
@@ -159,15 +185,27 @@ async function checkLowStockAlerts() {
       // Try to get WhatsApp from socialLinks
       let waPhone: string | null = null;
       try {
-        const sl = first.socialLinks ? JSON.parse(first.socialLinks as string) : {};
+        const sl = first.socialLinks
+          ? JSON.parse(first.socialLinks as string)
+          : {};
         waPhone = sl.whatsapp ?? null;
       } catch {}
 
       if (waPhone) {
         const link = buildWhatsAppLink(waPhone, msg);
-        logger.info({ tenantId, productCount: products.length, waLink: link.substring(0, 80) }, "Low-stock WhatsApp alert generated");
+        logger.info(
+          {
+            tenantId,
+            productCount: products.length,
+            waLink: link.substring(0, 80),
+          },
+          "Low-stock WhatsApp alert generated",
+        );
       } else {
-        logger.info({ tenantId, productCount: products.length }, "Low-stock alert — no WhatsApp configured for tenant");
+        logger.info(
+          { tenantId, productCount: products.length },
+          "Low-stock alert — no WhatsApp configured for tenant",
+        );
       }
     }
   } catch (err) {
@@ -176,12 +214,16 @@ async function checkLowStockAlerts() {
 }
 
 export function startScheduler() {
-  cron.schedule("0 8 * * *", async () => {
-    logger.info("Scheduler: running daily subscription checks");
-    await suspendExpiredTrials();
-    await checkExpiringTrials();
-    await checkLowStockAlerts();
-  }, { timezone: "Africa/Cairo" });
+  cron.schedule(
+    "0 8 * * *",
+    async () => {
+      logger.info("Scheduler: running daily subscription checks");
+      await suspendExpiredTrials();
+      await checkExpiringTrials();
+      await checkLowStockAlerts();
+    },
+    { timezone: "Africa/Cairo" },
+  );
 
   logger.info("Subscription scheduler started (daily at 08:00 Cairo)");
 }
