@@ -1,0 +1,10 @@
+
+> @workspace/mockup-sandbox@2.0.0 dev /app/artifacts/mockup-sandbox
+> vite dev --port 5173
+
+Port 5173 is in use, trying another one...
+
+  VITE v7.3.2  ready in 450 ms
+
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: http://192.168.0.2:5174/

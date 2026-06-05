@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
+import { toast } from "./use-toast";
 
 export interface CartItem {
   productId: number;
@@ -103,6 +104,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
       return [...prev, { ...item, quantity: 1 }];
+    });
+    toast({
+      title: "✅ تمت الإضافة للسلة",
+      description: item.name,
     });
   }, []);
 
