@@ -79,8 +79,9 @@ export default defineConfig({
             ? "assets/[name]-[hash][extname]"
             : "assets/[name]-[hash][extname]",
         manualChunks: {
-          vendor: ["react", "react-dom", "wouter"],
+          vendor: ["react", "react-dom", "wouter", "framer-motion", "zod", "react-hook-form", "date-fns", "i18next", "react-i18next"],
           ui: ["lucide-react", "clsx", "tailwind-merge"],
+          radix: ["@radix-ui/react-dialog", "@radix-ui/react-select", "@radix-ui/react-popover", "@radix-ui/react-tooltip", "@radix-ui/react-dropdown-menu", "@radix-ui/react-slot"],
           query: ["@tanstack/react-query"]
         }
       },

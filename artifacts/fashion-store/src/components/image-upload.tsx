@@ -7,7 +7,6 @@ import { getCsrfToken } from "@workspace/api-client-react";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
 import { t } from "i18next";
 import { useTranslation } from "react-i18next";
-import heic2any from "heic2any";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const MAX_IMAGE_SIZE_MB = 20;
@@ -73,6 +72,7 @@ async function normalizeUploadFile(file: File) {
     file.name.toLowerCase().endsWith(".heif")
   ) {
     try {
+      const heic2any = (await import("heic2any")).default;
       const result = await heic2any({
         blob: file,
         toType: "image/jpeg",
