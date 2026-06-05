@@ -13,7 +13,6 @@ interface WelcomeOverlayProps {
   onOpenAssistant?: () => void;
 }
 
-
 const STEPS_CONFIG = [
   { icon: Palette, color: "#8B1A35", bg: "#fff0f3", key: "step1" as const },
   { icon: LayoutList, color: "#7c3aed", bg: "#faf5ff", key: "step2" as const },
@@ -40,9 +39,18 @@ export default function WelcomeOverlay({
   }
 
   const steps = [
-    { title: t(`welcomeOverlay.${gender}.step1Title`), desc: t(`welcomeOverlay.${gender}.step1Desc`) },
-    { title: t(`welcomeOverlay.${gender}.step2Title`), desc: t(`welcomeOverlay.${gender}.step2Desc`) },
-    { title: t(`welcomeOverlay.${gender}.step3Title`), desc: t(`welcomeOverlay.${gender}.step3Desc`) },
+    {
+      title: t(`welcomeOverlay.${gender}.step1Title`),
+      desc: t(`welcomeOverlay.${gender}.step1Desc`),
+    },
+    {
+      title: t(`welcomeOverlay.${gender}.step2Title`),
+      desc: t(`welcomeOverlay.${gender}.step2Desc`),
+    },
+    {
+      title: t(`welcomeOverlay.${gender}.step3Title`),
+      desc: t(`welcomeOverlay.${gender}.step3Desc`),
+    },
   ];
 
   return (
@@ -60,7 +68,12 @@ export default function WelcomeOverlay({
             initial={{ opacity: 0, scale: 0.92, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 30 }}
-            transition={{ type: "spring", stiffness: 340, damping: 30, delay: 0.1 }}
+            transition={{
+              type: "spring",
+              stiffness: 340,
+              damping: 30,
+              delay: 0.1,
+            }}
             className="relative w-[94vw] max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
           >
             {/* Close button */}
@@ -76,14 +89,20 @@ export default function WelcomeOverlay({
             <div
               className="px-8 pt-10 pb-8 text-center"
               style={{
-                background: "linear-gradient(135deg, #8B1A3508 0%, #c8963a08 50%, #7c3aed08 100%)",
+                background:
+                  "linear-gradient(135deg, #8B1A3508 0%, #c8963a08 50%, #7c3aed08 100%)",
               }}
             >
               {/* Animated sparkles icon */}
               <motion.div
                 initial={{ rotate: -10, scale: 0 }}
                 animate={{ rotate: 0, scale: 1 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.25 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 260,
+                  damping: 20,
+                  delay: 0.25,
+                }}
                 className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4"
                 style={{
                   background: "linear-gradient(135deg, #8B1A35, #c8963a)",
@@ -107,8 +126,10 @@ export default function WelcomeOverlay({
                 transition={{ delay: 0.35 }}
                 className="text-sm text-stone-500 leading-relaxed"
               >
-                <span className="font-semibold text-stone-700">{storeName}</span> —{" "}
-                {t(`welcomeOverlay.${gender}.subtitle`)}
+                <span className="font-semibold text-stone-700">
+                  {storeName}
+                </span>{" "}
+                — {t(`welcomeOverlay.${gender}.subtitle`)}
               </motion.p>
             </div>
 
@@ -133,11 +154,19 @@ export default function WelcomeOverlay({
                       <Icon className="w-5 h-5" style={{ color: cfg.color }} />
                     </div>
                     <div className="min-w-0">
-                      <p className={`text-sm font-semibold text-stone-800 mb-0.5 text-start`}>
-                        <span className={`text-stone-400 font-normal me-1.5`}>{i + 1}.</span>
+                      <p
+                        className={`text-sm font-semibold text-stone-800 mb-0.5 text-start`}
+                      >
+                        <span className={`text-stone-400 font-normal me-1.5`}>
+                          {i + 1}.
+                        </span>
                         {step.title}
                       </p>
-                      <p className={`text-xs text-stone-500 leading-relaxed text-start`}>{step.desc}</p>
+                      <p
+                        className={`text-xs text-stone-500 leading-relaxed text-start`}
+                      >
+                        {step.desc}
+                      </p>
                     </div>
                   </motion.div>
                 );
@@ -151,7 +180,9 @@ export default function WelcomeOverlay({
               transition={{ delay: 0.75 }}
               className="mx-8 mb-4 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-100"
             >
-              <p className={`text-xs text-amber-700 flex items-center gap-2 text-start`}>
+              <p
+                className={`text-xs text-amber-700 flex items-center gap-2 text-start`}
+              >
                 <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-500" />
                 {t(`welcomeOverlay.${gender}.assistantHint`)}
               </p>

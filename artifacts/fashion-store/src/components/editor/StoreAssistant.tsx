@@ -6,7 +6,12 @@ import { useTranslation } from "react-i18next";
 
 type AiModel = "claude" | "gemini";
 
-const MODEL_OPTIONS: { key: AiModel; label: string; badge: string; color: string }[] = [
+const MODEL_OPTIONS: {
+  key: AiModel;
+  label: string;
+  badge: string;
+  color: string;
+}[] = [
   { key: "claude", label: "Claude", badge: "Anthropic", color: "#8B1A35" },
   { key: "gemini", label: "Gemini", badge: "Google", color: "#1a73e8" },
 ];
@@ -53,7 +58,10 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
     abortRef.current = ctrl;
 
     let assistantText = "";
-    setMessages((m) => [...m, { role: "assistant", text: "", streaming: true }]);
+    setMessages((m) => [
+      ...m,
+      { role: "assistant", text: "", streaming: true },
+    ]);
 
     try {
       const res = await fetch("/api/ai/assistant/chat", {
@@ -66,7 +74,10 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error((body as { error?: string }).error ?? t("storeAssistant.errors.connection"));
+        throw new Error(
+          (body as { error?: string }).error ??
+            t("storeAssistant.errors.connection"),
+        );
       }
 
       const reader = res.body?.getReader();
@@ -97,19 +108,28 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
               assistantText += data.chunk;
               setMessages((m) => {
                 const updated = [...m];
-                updated[updated.length - 1] = { role: "assistant", text: assistantText, streaming: true };
+                updated[updated.length - 1] = {
+                  role: "assistant",
+                  text: assistantText,
+                  streaming: true,
+                };
                 return updated;
               });
             }
             if (data.done) {
               setMessages((m) => {
                 const updated = [...m];
-                updated[updated.length - 1] = { role: "assistant", text: assistantText, streaming: false };
+                updated[updated.length - 1] = {
+                  role: "assistant",
+                  text: assistantText,
+                  streaming: false,
+                };
                 return updated;
               });
             }
           } catch (parseErr) {
-            if ((parseErr as Error).message !== "Unexpected end of JSON input") throw parseErr;
+            if ((parseErr as Error).message !== "Unexpected end of JSON input")
+              throw parseErr;
           }
         }
       }
@@ -134,11 +154,15 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
       {/* Header */}
       <div
         className="flex items-center justify-between p-4 border-b border-stone-100 shrink-0"
-        style={{ background: `linear-gradient(135deg, ${activeModel.color}, ${activeModel.color}99)` }}
+        style={{
+          background: `linear-gradient(135deg, ${activeModel.color}, ${activeModel.color}99)`,
+        }}
       >
         <div className="flex items-center gap-2 text-white">
           <Wand2 className="w-4 h-4" />
-          <span className="font-semibold text-sm">{t("storeAssistant.title")}</span>
+          <span className="font-semibold text-sm">
+            {t("storeAssistant.title")}
+          </span>
         </div>
 
         {/* Model selector */}
@@ -162,7 +186,11 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
                 {MODEL_OPTIONS.map((opt) => (
                   <button
                     key={opt.key}
-                    onClick={() => { setModel(opt.key); setModelMenuOpen(false); setConversationId(null); }}
+                    onClick={() => {
+                      setModel(opt.key);
+                      setModelMenuOpen(false);
+                      setConversationId(null);
+                    }}
                     className={`w-full flex items-center justify-between px-3 py-2.5 text-xs transition-colors ${model === opt.key ? "bg-stone-50 font-semibold" : "hover:bg-stone-50"}`}
                   >
                     <span className="text-stone-800">{opt.label}</span>
@@ -177,7 +205,10 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
               </motion.div>
             )}
           </AnimatePresence>
-          <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="text-white/70 hover:text-white transition-colors"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -198,7 +229,9 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
                   ? "bg-stone-100 text-stone-700 rounded-tl-sm"
                   : "text-white rounded-tr-sm"
               }`}
-              style={msg.role === "user" ? { background: activeModel.color } : {}}
+              style={
+                msg.role === "user" ? { background: activeModel.color } : {}
+              }
             >
               {msg.text}
               {msg.streaming && (
@@ -217,7 +250,11 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
                     key={i}
                     className="w-1.5 h-1.5 rounded-full bg-stone-400"
                     animate={{ y: [0, -4, 0] }}
-                    transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15 }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 0.6,
+                      delay: i * 0.15,
+                    }}
                   />
                 ))}
               </div>
@@ -241,7 +278,9 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
 
       {/* Quick actions */}
       <div className="px-4 pb-3 shrink-0">
-        <p className="text-[10px] text-stone-400 mb-2">{t("storeAssistant.quickActions")}</p>
+        <p className="text-[10px] text-stone-400 mb-2">
+          {t("storeAssistant.quickActions")}
+        </p>
         <div className="flex flex-wrap gap-1.5">
           {AI_QUICK_ACTIONS.map((action) => (
             <button
@@ -263,7 +302,12 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(input);
+              }
+            }}
             placeholder={t("storeAssistant.placeholder")}
             className={`flex-1 text-xs border border-stone-200 rounded-lg px-3 py-2 text-start focus:outline-none focus:ring-2 focus:ring-[#8B1A35]/30`}
             disabled={loading}
@@ -279,7 +323,8 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
         </div>
         <p className="text-[9px] text-stone-300 mt-1.5 text-center flex items-center justify-center gap-1">
           <Sparkles className="w-2.5 h-2.5" />
-          {t("storeAssistant.poweredBy")} {activeModel.label} ({activeModel.badge})
+          {t("storeAssistant.poweredBy")} {activeModel.label} (
+          {activeModel.badge})
         </p>
       </div>
     </motion.div>
