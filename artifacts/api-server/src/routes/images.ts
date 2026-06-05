@@ -29,7 +29,12 @@ router.get("/api/images/resize", async (req: Request, res: Response, next: NextF
     }
 
     const filename = imagePath.replace("/api/uploads/", "");
-    const sourceFilePath = path.join(uploadsDir, filename);
+    const sourceFilePath = path.resolve(uploadsDir, filename);
+
+    // Prevent path traversal
+    if (!sourceFilePath.startsWith(path.resolve(uploadsDir) + path.sep)) {
+      return res.status(403).json({ error: "Access denied" });
+    }
 
     if (!fs.existsSync(sourceFilePath)) {
       return res.status(404).json({ error: "Image not found" });

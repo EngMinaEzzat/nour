@@ -30,3 +30,7 @@
 1. Never trust `req.query.tenantId` for accessing scoped data in merchant-facing endpoints. Always use `req.merchantTenantId` injected by `requireRole` middleware.
 2. Explicitly sanitize and strip administrative or billing fields (`planCode`, `status`, `subscriptionStatus`) from incoming payload objects before executing `db.update().set(...)`.
 3. When querying public multi-tenant entities (e.g. products), join the `tenantsTable` and strictly enforce `.where(eq(tenantsTable.status, "active"))` unless the request originates from the owner.
+## 2024-06-05 - Fix Path Traversal in Image Resize Route
+**Vulnerability:** The `/api/images/resize` endpoint suffered from a path traversal vulnerability. User input provided via the `path` query parameter was passed to `path.join()` after stripping a static prefix (`/api/uploads/`), allowing attackers to specify inputs like `/api/uploads/../../../../../etc/passwd` to read arbitrary files.
+**Learning:** `path.join()` resolves relative path segments (like `..`), making it insecure when used with unsanitized user input, even when a static prefix check (`startsWith`) is performed prior to the replacement.
+**Prevention:** Always use `path.resolve()` on both the base directory and the target user path. Then, explicitly verify that the resolved user path `startsWith(resolvedBaseDir + path.sep)` to ensure it resides securely within the allowed boundaries and prevent partial directory name matching.
