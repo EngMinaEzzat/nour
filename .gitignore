@@ -63,3 +63,4 @@ artifacts/api-server/uploads/
 .codex/
 playwright-report/
 test-results/
+scratch/
