@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sentinel Journal
 
 ## 2026-06-04 - [Fix Path Traversal in Image Resizing Endpoint]
@@ -36,3 +37,9 @@
 1. Never trust `req.query.tenantId` for accessing scoped data in merchant-facing endpoints. Always use `req.merchantTenantId` injected by `requireRole` middleware.
 2. Explicitly sanitize and strip administrative or billing fields (`planCode`, `status`, `subscriptionStatus`) from incoming payload objects before executing `db.update().set(...)`.
 3. When querying public multi-tenant entities (e.g. products), join the `tenantsTable` and strictly enforce `.where(eq(tenantsTable.status, "active"))` unless the request originates from the owner.
+=======
+## 2026-05-10 - PII Harvesting Vulnerability in Guest Checkout
+**Vulnerability:** The `POST /api/customers` endpoint, used for guest checkout, leaked full customer PII (phone number, city) if an email already existed in the system. This allowed unauthenticated actors to harvest data by iterating over a list of emails.
+**Learning:** Returning full database records (`...c`) in public endpoints is dangerous. Even if the data was just provided by the user, a lookup path for *existing* data must be strictly limited to the absolute minimum required for the next step of the flow.
+**Prevention:** Always use explicit allow-lists for API responses, especially on unauthenticated routes. In this codebase, the pattern of `serializeTenant` with an `includePrivate` flag has been established as a reusable security pattern for multi-tenant data isolation.
+>>>>>>> origin/fix/sentinel-pii-leak-hardening-4473712619007485836
