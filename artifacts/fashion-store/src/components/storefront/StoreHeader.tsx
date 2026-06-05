@@ -282,7 +282,7 @@ export function StoreHeader({
             <button
               onClick={() => setDrawerOpen(true)}
               className="md:hidden w-11 h-11 rounded-xl flex items-center justify-center text-stone-600 hover:bg-stone-100 transition-all"
-              aria-label="القائمة"
+              aria-label={t("layout.menu", { defaultValue: "Menu" })}
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -327,6 +327,7 @@ export function StoreHeader({
                 <button
                   onClick={() => setDrawerOpen(false)}
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-500 hover:bg-stone-100"
+                  aria-label={t("common.buttons.close", "Close")}
                 >
                   <X className="w-4 h-4" />
                 </button>
