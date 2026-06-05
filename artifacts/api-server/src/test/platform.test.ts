@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { db } from "@workspace/db";
-import { merchantsTable, billingTransferRequestsTable, tenantsTable } from "@workspace/db";
+import { merchantsTable, billingTransferRequestsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { createTestMerchant, cleanupTenant, TestCtx } from "./helpers.js";
 
