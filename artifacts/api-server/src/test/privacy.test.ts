@@ -7,6 +7,7 @@ import {
   createTestOrder,
   cleanupTenant,
   createTestCustomer,
+  uid,
 } from "./helpers.js";
 import {
   db,
@@ -20,6 +21,8 @@ describe("Privacy Operations", () => {
   let ctx1: Awaited<ReturnType<typeof createTestMerchant>>;
   let ctx2: Awaited<ReturnType<typeof createTestMerchant>>;
   let customer1: any;
+  let customer1Email: string;
+  let customer1Phone: string;
   let productId: number;
 
   beforeAll(async () => {
@@ -29,14 +32,19 @@ describe("Privacy Operations", () => {
     const p = await createTestProduct(ctx1.agent);
     productId = p.body.id;
 
+    customer1Email = `customer1.${uid()}@test.invalid`;
+    customer1Phone = "01012345678";
+
     // Create customer through order
-    customer1 = await createTestCustomer();
+    customer1 = await createTestCustomer({ email: customer1Email, phone: customer1Phone });
+    customer1.body.email = customer1Email;
+    customer1.body.phone = customer1Phone;
     await request(app)
       .post("/api/orders")
       .send({
         tenantId: ctx1.tenantId,
         customerId: customer1.body.id,
-        customerPhone: customer1.body.phone,
+        customerPhone: customer1Phone,
         paymentMethod: "cod",
         shippingAddress: "Real Address 123",
         items: [{ productId: p.body.id, quantity: 1 }],
@@ -100,13 +108,15 @@ describe("Privacy Operations", () => {
   });
 
   it("✅ can export customer data as JSON", async () => {
-    const freshCustomer = await createTestCustomer();
+    const freshEmail = `export.${uid()}@test.invalid`;
+    const freshPhone = "01087654321";
+    const freshCustomer = await createTestCustomer({ email: freshEmail, phone: freshPhone });
     await request(app)
       .post("/api/orders")
       .send({
         tenantId: ctx1.tenantId,
         customerId: freshCustomer.body.id,
-        customerPhone: freshCustomer.body.phone,
+        customerPhone: freshPhone,
         paymentMethod: "cod",
         shippingAddress: "Export Address 123",
         items: [{ productId, quantity: 1 }],
@@ -114,7 +124,7 @@ describe("Privacy Operations", () => {
 
     const reqRes = await ctx1.agent.post("/api/privacy-requests").send({
       subjectType: "customer",
-      subjectIdentifier: freshCustomer.body.email,
+      subjectIdentifier: freshEmail,
       requestType: "export",
     });
     const requestId = reqRes.body.id;

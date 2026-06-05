@@ -15,6 +15,7 @@ import router from "./routes";
 import seoPublicRouter from "./lib/seo-public";
 import { logger } from "./lib/logger";
 import { doubleCsrfProtection, generateCsrfToken, isCsrfExempt } from "./lib/csrf";
+import { pool } from "@workspace/db";
 
 // Fail fast on missing secrets — never fall back to weak defaults
 if (!process.env.SESSION_SECRET) {
@@ -78,7 +79,7 @@ function buildSessionStore(): session.Store {
 
   logger.warn("REDIS_URL not set — using PostgreSQL session store");
   return patchPgSessionTableBootstrap(new PgStore({
-    conString: process.env.DATABASE_URL,
+    pool: pool,
     tableName: "sessions",
     createTableIfMissing: true,
   }));
@@ -154,15 +155,19 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 app.use(
   session({
+    name: "nour.sid",
     store: buildSessionStore(),
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
+    proxy: true,
+    rolling: true,
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV !== "development" && process.env.NODE_ENV !== "test",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       sameSite: "lax",
+      path: "/",
     },
   }),
 );

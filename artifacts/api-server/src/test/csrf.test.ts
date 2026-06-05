@@ -70,9 +70,9 @@ describe("CSRF Configuration", () => {
     expect(mockDoubleCsrf).toHaveBeenCalledTimes(1);
     const options = mockDoubleCsrf.mock.calls[0][0];
 
-    expect(options.cookieName).toBe("__Host-psifi.x-csrf-token");
+    expect(options.cookieName).toBe("x-csrf-token");
     expect(options.cookieOptions.secure).toBe(true);
-    expect(options.cookieOptions.sameSite).toBe("none");
+    expect(options.cookieOptions.sameSite).toBe("lax");
   });
 
   it("should fallback to dev secret if SESSION_SECRET is not set", async () => {

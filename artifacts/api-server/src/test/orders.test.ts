@@ -88,8 +88,8 @@ describe("Orders", () => {
   });
 
   it("✅ list orders — search by customer phone works", async () => {
-    const cust = await createTestCustomer();
-    const phone = cust.body.phone;
+    const phone = "01012345678";
+    const cust = await createTestCustomer({ phone });
     await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
       customerId: cust.body.id,
