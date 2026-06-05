@@ -88,18 +88,17 @@ const allowedOrigins = rawAllowed ? rawAllowed.split(",").map((s) => s.trim()) :
 
 app.use(
   cors({
-    origin:
-      allowedOrigins
-        ? (origin, cb) => {
-            if (!origin || allowedOrigins?.includes(origin)) return cb(null, true);
-            cb(new Error(`CORS: origin ${origin} not allowed`));
-          }
-        : process.env.NODE_ENV !== "production", // permissive in dev; same-origin only in production
+    origin: (origin, cb) => {
+      if (!origin || process.env.NODE_ENV !== "production") return cb(null, true);
+      if (allowedOrigins?.includes(origin)) return cb(null, true);
+      if (origin.endsWith(".vercel.app")) return cb(null, true);
+      cb(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
   }),
 );
 
-app.use(cookieParser());
+app.use(cookieParser(process.env.SESSION_SECRET));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -142,6 +141,15 @@ app.use(csrfMiddleware);
 app.get("/api/csrf-token", (req, res) => {
   (req.session as session.Session & { csrfIssuedAt?: number }).csrfIssuedAt = Date.now();
   const token = generateCsrfToken(req, res);
+
+  req.log.info(
+    {
+      sessionId: req.sessionID?.slice(0, 8),
+      hasToken: !!token,
+    },
+    "CSRF token generated",
+  );
+
   req.session.save((err) => {
     if (err) {
       req.log.error({ err }, "Failed to persist CSRF session");
