@@ -44,3 +44,7 @@
 ## 2024-05-28 - N+1 Webhook DB Update Fix
 **Learning:** Sequential database updates inside loops (e.g. `await tx.update()` in `for...of` loops for restocking items) create unnecessary Node.js-to-PostgreSQL round trips, slowing down webhook execution linearly with the order item count.
 **Action:** Use `.flatMap` to gather an array of Promise updates for Drizzle ORM queries, and then execute them using a single `Promise.all()`, ensuring concurrent execution over the same PG pool connection/transaction without blocking.
+
+## 2026-06-05 - [Fix N+1 query loops using conditional aggregations]
+**Learning:** Using `Promise.all` mapping over entities to fetch aggregates triggers sequential N+1 query waterfalls. Separate sequential queries to compute statistics (e.g., `getCodScore`) further exacerbate this problem.
+**Action:** Replace `Promise.all` loop mapping with a single batched Drizzle query using `inArray` and `groupBy`. Map the results in-memory using a JavaScript `Map` for O(1) lookups. Additionally, replace multiple separate counting queries with a single query utilizing `sql<number>\`count(*) filter (...)\`` to calculate all conditions in one pass.
