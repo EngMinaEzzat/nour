@@ -6,7 +6,12 @@
  * after the first paint.
  */
 
-import { Router, type NextFunction, type Request, type Response } from "express";
+import {
+  Router,
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
 import fs from "fs";
 import path from "path";
 import { db } from "@workspace/db";
@@ -76,31 +81,44 @@ function safeJson(value: unknown): string {
 }
 
 function normalizeDomain(domain: string): string {
-  return domain.replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
+  return domain
+    .replace(/^https?:\/\//i, "")
+    .replace(/\/.*$/, "")
+    .toLowerCase();
 }
 
 function requestBase(req: Request): string {
   const configured = process.env.APP_BASE_URL?.replace(/\/+$/, "");
   if (configured) return configured;
 
-  const forwardedProto = String(req.headers["x-forwarded-proto"] ?? "").split(",")[0]?.trim();
+  const forwardedProto = String(req.headers["x-forwarded-proto"] ?? "")
+    .split(",")[0]
+    ?.trim();
   const protocol = forwardedProto || req.protocol || "https";
   const host = req.get("host") ?? req.hostname;
   return `${protocol}://${host}`;
 }
 
-function tenantUsesCustomDomain(tenant: Pick<TenantPublic, "customDomain" | "customDomainVerified">): boolean {
+function tenantUsesCustomDomain(
+  tenant: Pick<TenantPublic, "customDomain" | "customDomainVerified">,
+): boolean {
   return Boolean(tenant.customDomainVerified && tenant.customDomain);
 }
 
-function tenantBase(req: Request, tenant: Pick<TenantPublic, "customDomain" | "customDomainVerified">): string {
+function tenantBase(
+  req: Request,
+  tenant: Pick<TenantPublic, "customDomain" | "customDomainVerified">,
+): string {
   if (tenantUsesCustomDomain(tenant) && tenant.customDomain) {
     return `https://${normalizeDomain(tenant.customDomain)}`;
   }
   return requestBase(req);
 }
 
-function absoluteUrl(req: Request, url: string | null | undefined): string | null {
+function absoluteUrl(
+  req: Request,
+  url: string | null | undefined,
+): string | null {
   if (!url) return null;
   if (/^https?:\/\//i.test(url)) return url;
   return `${requestBase(req)}${url.startsWith("/") ? url : `/${url}`}`;
@@ -126,7 +144,9 @@ function productSlug(product: Pick<ProductPublic, "id" | "name">): string {
   return `${product.id}-${slugPart(product.name)}`;
 }
 
-function categorySlug(category: Pick<CategoryPublic, "id" | "name" | "nameAr">): string {
+function categorySlug(
+  category: Pick<CategoryPublic, "id" | "name" | "nameAr">,
+): string {
   return `${category.id}-${slugPart(category.nameAr || category.name)}`;
 }
 
@@ -139,10 +159,16 @@ function parseIdSlug(slug: string): number | null {
 
 function storeUrl(req: Request, tenant: TenantPublic): string {
   const base = tenantBase(req, tenant);
-  return tenantUsesCustomDomain(tenant) ? `${base}/` : `${base}/store/${tenant.slug}`;
+  return tenantUsesCustomDomain(tenant)
+    ? `${base}/`
+    : `${base}/store/${tenant.slug}`;
 }
 
-function productUrl(req: Request, tenant: TenantPublic, product: Pick<ProductPublic, "id" | "name">): string {
+function productUrl(
+  req: Request,
+  tenant: TenantPublic,
+  product: Pick<ProductPublic, "id" | "name">,
+): string {
   const base = tenantBase(req, tenant);
   const slug = productSlug(product);
   return tenantUsesCustomDomain(tenant)
@@ -150,7 +176,11 @@ function productUrl(req: Request, tenant: TenantPublic, product: Pick<ProductPub
     : `${base}/store/${tenant.slug}/product/${slug}`;
 }
 
-function categoryUrl(req: Request, tenant: TenantPublic, category: CategoryPublic): string {
+function categoryUrl(
+  req: Request,
+  tenant: TenantPublic,
+  category: CategoryPublic,
+): string {
   const base = tenantBase(req, tenant);
   const slug = categorySlug(category);
   return tenantUsesCustomDomain(tenant)
@@ -187,7 +217,10 @@ window.__vite_plugin_react_preamble_installed__ = true;
   }
 
   const indexCandidates = [
-    path.resolve(process.cwd(), "artifacts/fashion-store/dist/public/index.html"),
+    path.resolve(
+      process.cwd(),
+      "artifacts/fashion-store/dist/public/index.html",
+    ),
     path.resolve(process.cwd(), "../fashion-store/dist/public/index.html"),
     path.resolve(process.cwd(), "dist/public/index.html"),
   ];
@@ -195,8 +228,14 @@ window.__vite_plugin_react_preamble_installed__ = true;
   for (const filePath of indexCandidates) {
     try {
       const html = fs.readFileSync(filePath, "utf8");
-      const links = [...html.matchAll(/<link\s+[^>]*>/gi)].map((m) => m[0]).join("\n");
-      const scripts = [...html.matchAll(/<script\s+[^>]*type=["']module["'][^>]*><\/script>/gi)]
+      const links = [...html.matchAll(/<link\s+[^>]*>/gi)]
+        .map((m) => m[0])
+        .join("\n");
+      const scripts = [
+        ...html.matchAll(
+          /<script\s+[^>]*type=["']module["'][^>]*><\/script>/gi,
+        ),
+      ]
         .map((m) => m[0])
         .join("\n");
       if (scripts) {
@@ -210,13 +249,17 @@ window.__vite_plugin_react_preamble_installed__ = true;
 
   cachedAssets = {
     links: '<link rel="icon" type="image/svg+xml" href="/favicon.svg" />',
-    scripts: '<script type="module" crossorigin src="/assets/index.js"></script>',
+    scripts:
+      '<script type="module" crossorigin src="/assets/index.js"></script>',
   };
-  cachedAssets.links += '\n<link rel="stylesheet" crossorigin href="/assets/index.css" />';
+  cachedAssets.links +=
+    '\n<link rel="stylesheet" crossorigin href="/assets/index.css" />';
   return cachedAssets;
 }
 
-async function getActiveTenantBySlug(slug: string): Promise<TenantPublic | null> {
+async function getActiveTenantBySlug(
+  slug: string,
+): Promise<TenantPublic | null> {
   const [tenant] = await db
     .select({
       id: tenantsTable.id,
@@ -239,7 +282,9 @@ async function getActiveTenantBySlug(slug: string): Promise<TenantPublic | null>
   return tenant ?? null;
 }
 
-async function getActiveTenantByDomain(req: Request): Promise<TenantPublic | null> {
+async function getActiveTenantByDomain(
+  req: Request,
+): Promise<TenantPublic | null> {
   const host = normalizeDomain(req.hostname || req.get("host") || "");
   if (!host) return null;
 
@@ -289,11 +334,24 @@ async function getStoreProducts(tenantId: number): Promise<ProductPublic[]> {
     })
     .from(productsTable)
     .leftJoin(categoriesTable, eq(productsTable.categoryId, categoriesTable.id))
-    .where(and(eq(productsTable.tenantId, tenantId), eq(productsTable.status, "active")));
+    .where(
+      and(
+        eq(productsTable.tenantId, tenantId),
+        eq(productsTable.status, "active"),
+      ),
+    );
 }
 
-async function getStoreCategories(products: ProductPublic[]): Promise<CategoryPublic[]> {
-  const ids = [...new Set(products.map((p) => p.categoryId).filter((id): id is number => Boolean(id)))];
+async function getStoreCategories(
+  products: ProductPublic[],
+): Promise<CategoryPublic[]> {
+  const ids = [
+    ...new Set(
+      products
+        .map((p) => p.categoryId)
+        .filter((id): id is number => Boolean(id)),
+    ),
+  ];
   if (ids.length === 0) return [];
   return db
     .select({
@@ -307,7 +365,10 @@ async function getStoreCategories(products: ProductPublic[]): Promise<CategoryPu
     .where(inArray(categoriesTable.id, ids));
 }
 
-async function getPublicProduct(tenant: TenantPublic, id: number): Promise<ProductPublic | null> {
+async function getPublicProduct(
+  tenant: TenantPublic,
+  id: number,
+): Promise<ProductPublic | null> {
   const [product] = await db
     .select({
       id: productsTable.id,
@@ -336,7 +397,10 @@ async function getPublicProduct(tenant: TenantPublic, id: number): Promise<Produ
   return product ?? null;
 }
 
-async function getPublicCategory(tenant: TenantPublic, id: number): Promise<CategoryPublic | null> {
+async function getPublicCategory(
+  tenant: TenantPublic,
+  id: number,
+): Promise<CategoryPublic | null> {
   const [category] = await db
     .select({
       id: categoriesTable.id,
@@ -349,7 +413,10 @@ async function getPublicCategory(tenant: TenantPublic, id: number): Promise<Cate
     .where(
       and(
         eq(categoriesTable.id, id),
-        or(eq(categoriesTable.tenantId, tenant.id), isNull(categoriesTable.tenantId)),
+        or(
+          eq(categoriesTable.tenantId, tenant.id),
+          isNull(categoriesTable.tenantId),
+        ),
       ),
     );
 
@@ -386,16 +453,20 @@ function renderDocument(opts: {
   <link rel="alternate" hreflang="en" href="${esc(opts.canonical)}?lang=en" />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" />
   ${preload}
-  <meta property="og:type" content="${opts.ogType ?? "website"}" />
+  <meta property="og:type" content="${esc(opts.ogType ?? "website")}" />
   <meta property="og:title" content="${esc(opts.title)}" />
   <meta property="og:description" content="${esc(opts.description)}" />
-  ${opts.image ? `<meta property="og:image" content="${esc(opts.image)}" />
+  ${
+    opts.image
+      ? `<meta property="og:image" content="${esc(opts.image)}" />
   <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />` : ""}
+  <meta property="og:image:height" content="630" />`
+      : ""
+  }
   <meta property="og:url" content="${esc(opts.canonical)}" />
   <meta property="og:locale" content="ar_EG" />
   <meta property="og:site_name" content="نور" />
-  <meta name="twitter:card" content="${twitterCard}" />
+  <meta name="twitter:card" content="${esc(twitterCard)}" />
   <meta name="twitter:title" content="${esc(opts.title)}" />
   <meta name="twitter:description" content="${esc(opts.description)}" />
   ${opts.image ? `<meta name="twitter:image" content="${esc(opts.image)}" />` : ""}
@@ -432,7 +503,11 @@ function renderDocument(opts: {
 </html>`;
 }
 
-function storeJsonLd(req: Request, tenant: TenantPublic, products: ProductPublic[]) {
+function storeJsonLd(
+  req: Request,
+  tenant: TenantPublic,
+  products: ProductPublic[],
+) {
   const canonical = storeUrl(req, tenant);
   const image = absoluteUrl(req, tenant.coverUrl ?? tenant.logoUrl);
   const description = tenant.seoDescription ?? tenant.description;
@@ -467,35 +542,57 @@ function storeJsonLd(req: Request, tenant: TenantPublic, products: ProductPublic
       {
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "الرئيسية", item: requestBase(req) },
-          { "@type": "ListItem", position: 2, name: tenant.name, item: canonical },
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "الرئيسية",
+            item: requestBase(req),
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: tenant.name,
+            item: canonical,
+          },
         ],
       },
     ],
   };
 }
 
-function renderStorePage(req: Request, tenant: TenantPublic, products: ProductPublic[], categories: CategoryPublic[]): string {
+function renderStorePage(
+  req: Request,
+  tenant: TenantPublic,
+  products: ProductPublic[],
+  categories: CategoryPublic[],
+): string {
   const title = tenant.seoTitle ?? `${tenant.name} | نور`;
   const description = tenant.seoDescription ?? tenant.description;
   const canonical = storeUrl(req, tenant);
   const image = absoluteUrl(req, tenant.coverUrl ?? tenant.logoUrl);
   const categoryLinks = categories
-    .map((category) => `<li><a class="ssr-chip" href="${esc(categoryUrl(req, tenant, category))}">${esc(category.nameAr || category.name)}</a></li>`)
+    .map(
+      (category) =>
+        `<li><a class="ssr-chip" href="${esc(categoryUrl(req, tenant, category))}">${esc(category.nameAr || category.name)}</a></li>`,
+    )
     .join("");
   const cards = products
     .map((product, index) => {
       const productImage = absoluteUrl(req, productImageUrl(product.imageUrl));
-      const srcset = productImage && productImage.startsWith(requestBase(req)) ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"` : "";
+      const srcset =
+        productImage && productImage.startsWith(requestBase(req))
+          ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
+          : "";
       const availability = product.stock > 0 ? "متاح" : "نفذت الكمية";
-      const imagePriority = index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
+      const imagePriority =
+        index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
       return `<a class="ssr-card" href="${esc(productUrl(req, tenant, product))}">
         <img src="${esc(productImage)}" ${srcset} alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
         <div class="ssr-card-body">
           ${product.categoryNameAr || product.categoryName ? `<p class="ssr-muted">${esc(product.categoryNameAr || product.categoryName)}</p>` : ""}
           <h2 class="ssr-card-title">${esc(product.name)}</h2>
           <p class="ssr-price">${esc(formatPrice(product.price))}</p>
-          <p class="ssr-muted">${availability}</p>
+          <p class="ssr-muted">${esc(availability)}</p>
         </div>
       </a>`;
     })
@@ -528,13 +625,21 @@ function renderStorePage(req: Request, tenant: TenantPublic, products: ProductPu
   });
 }
 
-function renderProductPage(req: Request, tenant: TenantPublic, product: ProductPublic): string {
+function renderProductPage(
+  req: Request,
+  tenant: TenantPublic,
+  product: ProductPublic,
+): string {
   const canonical = productUrl(req, tenant, product);
   const title = `${product.name} | ${tenant.name}`;
-  const description = product.description || `${product.name} من ${tenant.name}`;
+  const description =
+    product.description || `${product.name} من ${tenant.name}`;
   const image = absoluteUrl(req, productImageUrl(product.imageUrl));
   const price = Number(product.price);
-  const availability = product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+  const availability =
+    product.stock > 0
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock";
   const categoryName = product.categoryNameAr || product.categoryName;
 
   const jsonLd = {
@@ -547,7 +652,7 @@ function renderProductPage(req: Request, tenant: TenantPublic, product: ProductP
         sku: String(product.id),
         brand: {
           "@type": "Brand",
-          name: tenant.name
+          name: tenant.name,
         },
         url: canonical,
         ...(image ? { image } : {}),
@@ -568,15 +673,33 @@ function renderProductPage(req: Request, tenant: TenantPublic, product: ProductP
       {
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "الرئيسية", item: requestBase(req) },
-          { "@type": "ListItem", position: 2, name: tenant.name, item: storeUrl(req, tenant) },
-          { "@type": "ListItem", position: 3, name: product.name, item: canonical },
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "الرئيسية",
+            item: requestBase(req),
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: tenant.name,
+            item: storeUrl(req, tenant),
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: product.name,
+            item: canonical,
+          },
         ],
       },
     ],
   };
 
-  const srcset = image && image.startsWith(requestBase(req)) ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(image).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(image).pathname)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"` : "";
+  const srcset =
+    image && image.startsWith(requestBase(req))
+      ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(image).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(image).pathname)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"`
+      : "";
 
   const body = `<main class="ssr-public-page">
     <section class="ssr-wrap ssr-product">
@@ -588,7 +711,7 @@ function renderProductPage(req: Request, tenant: TenantPublic, product: ProductP
         <h1 class="ssr-title">${esc(product.name)}</h1>
         <p class="ssr-price">${esc(formatPrice(product.price))}</p>
         <p class="ssr-desc">${esc(description)}</p>
-        <p class="ssr-muted">حالة التوفر: ${product.stock > 0 ? "متاح" : "نفذت الكمية"}</p>
+        <p class="ssr-muted">حالة التوفر: ${esc(product.stock > 0 ? "متاح" : "نفذت الكمية")}</p>
         <a class="ssr-chip" href="/checkout">إتمام الطلب</a>
       </article>
     </section>
@@ -603,7 +726,12 @@ function renderProductPage(req: Request, tenant: TenantPublic, product: ProductP
     ogType: "product",
     jsonLd,
     body,
-    initialData: { page: "product", slug: tenant.slug, productId: product.id, canonical },
+    initialData: {
+      page: "product",
+      slug: tenant.slug,
+      productId: product.id,
+      canonical,
+    },
     preloadApi: `/api/products/${product.id}`,
   });
 }
@@ -621,14 +749,18 @@ function renderCategoryPage(
   const cards = products
     .map((product, index) => {
       const productImage = absoluteUrl(req, productImageUrl(product.imageUrl));
-      const srcset = productImage && productImage.startsWith(requestBase(req)) ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"` : "";
-      const imagePriority = index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
+      const srcset =
+        productImage && productImage.startsWith(requestBase(req))
+          ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
+          : "";
+      const imagePriority =
+        index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
       return `<a class="ssr-card" href="${esc(productUrl(req, tenant, product))}">
         <img src="${esc(productImage)}" ${srcset} alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
         <div class="ssr-card-body">
           <h2 class="ssr-card-title">${esc(product.name)}</h2>
           <p class="ssr-price">${esc(formatPrice(product.price))}</p>
-          <p class="ssr-muted">${product.stock > 0 ? "متاح" : "نفذت الكمية"}</p>
+          <p class="ssr-muted">${esc(product.stock > 0 ? "متاح" : "نفذت الكمية")}</p>
         </div>
       </a>`;
     })
@@ -656,9 +788,24 @@ function renderCategoryPage(
       {
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "الرئيسية", item: requestBase(req) },
-          { "@type": "ListItem", position: 2, name: tenant.name, item: storeUrl(req, tenant) },
-          { "@type": "ListItem", position: 3, name: category.nameAr || category.name, item: canonical },
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "الرئيسية",
+            item: requestBase(req),
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: tenant.name,
+            item: storeUrl(req, tenant),
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: category.nameAr || category.name,
+            item: canonical,
+          },
         ],
       },
     ],
@@ -683,12 +830,21 @@ function renderCategoryPage(
     image,
     jsonLd,
     body,
-    initialData: { page: "category", slug: tenant.slug, categoryId: category.id, canonical },
+    initialData: {
+      page: "category",
+      slug: tenant.slug,
+      categoryId: category.id,
+      canonical,
+    },
     preloadApi: `/api/store/${tenant.slug}?categoryId=${category.id}`,
   });
 }
 
-async function sendStore(req: Request, res: Response, tenant: TenantPublic): Promise<void> {
+async function sendStore(
+  req: Request,
+  res: Response,
+  tenant: TenantPublic,
+): Promise<void> {
   const products = await getStoreProducts(tenant.id);
   const categories = await getStoreCategories(products);
   res.type("html");
@@ -838,8 +994,15 @@ router.get("/sitemap-1.xml", async (req, res) => {
       })
       .from(categoriesTable);
 
-    const tenantMap = new Map(tenants.map((tenant) => [tenant.id, tenant as TenantPublic & { updatedAt: Date }]));
-    const categoryMap = new Map(categories.map((category) => [category.id, category]));
+    const tenantMap = new Map(
+      tenants.map((tenant) => [
+        tenant.id,
+        tenant as TenantPublic & { updatedAt: Date },
+      ]),
+    );
+    const categoryMap = new Map(
+      categories.map((category) => [category.id, category]),
+    );
     const seenCategoryTenant = new Set<string>();
     const now = new Date().toISOString().split("T")[0];
 
