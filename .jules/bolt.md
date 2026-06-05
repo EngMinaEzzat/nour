@@ -48,3 +48,8 @@
 ## 2026-06-05 - [Fix N+1 query loops using conditional aggregations]
 **Learning:** Using `Promise.all` mapping over entities to fetch aggregates triggers sequential N+1 query waterfalls. Separate sequential queries to compute statistics (e.g., `getCodScore`) further exacerbate this problem.
 **Action:** Replace `Promise.all` loop mapping with a single batched Drizzle query using `inArray` and `groupBy`. Map the results in-memory using a JavaScript `Map` for O(1) lookups. Additionally, replace multiple separate counting queries with a single query utilizing `sql<number>\`count(*) filter (...)\`` to calculate all conditions in one pass.
+
+## 2025-05-15 - [N+1 query in category listing]
+**Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
+**Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
+

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { categoriesTable, productsTable, merchantsTable } from "@workspace/db";
 import { CreateCategoryBody, UpdateCategoryBody } from "@workspace/api-zod";
-import { count, eq, or, isNull, and, inArray } from "drizzle-orm";
+import { count, eq, or, isNull, and, inArray, getTableColumns } from "drizzle-orm";
 import { requireAuth } from "../middleware/require-role";
 import { cache } from "../lib/cache.js";
 
@@ -101,45 +101,31 @@ router.get("/categories", async (req, res) => {
       tenantId = merchant?.tenantId ?? null;
     }
 
-    const categories = tenantId
-      ? await db
-          .select()
-          .from(categoriesTable)
-          .where(
-            or(
-              eq(categoriesTable.tenantId, tenantId),
-              isNull(categoriesTable.tenantId),
-            ),
-          )
-          .orderBy(categoriesTable.name)
-      : await db.select().from(categoriesTable).orderBy(categoriesTable.name);
+    // ⚡ Bolt: Optimize categories fetch with single query (resolve N+1)
+    // Instead of fetching categories and then counting products for each in a loop,
+    // we use a LEFT JOIN with GROUP BY to fetch everything in one database roundtrip.
+    const results = await db
+      .select({
+        ...getTableColumns(categoriesTable),
+        productCount: count(productsTable.id),
+      })
+      .from(categoriesTable)
+      .leftJoin(
+        productsTable,
+        and(
+          eq(productsTable.categoryId, categoriesTable.id),
+          tenantId ? eq(productsTable.tenantId, tenantId) : undefined
+        )
+      )
+      .where(
+        tenantId
+          ? or(eq(categoriesTable.tenantId, tenantId), isNull(categoriesTable.tenantId))
+          : undefined
+      )
+      .groupBy(categoriesTable.id)
+      .orderBy(categoriesTable.name);
 
-    let withCounts: any[] = [];
-    if (categories.length > 0) {
-      const categoryIds = categories.map((c) => c.id);
-      const conditions = [inArray(productsTable.categoryId, categoryIds)];
-      if (tenantId) conditions.push(eq(productsTable.tenantId, tenantId));
-
-      const counts = await db
-        .select({
-          categoryId: productsTable.categoryId,
-          total: count(),
-        })
-        .from(productsTable)
-        .where(and(...conditions))
-        .groupBy(productsTable.categoryId);
-
-      const countMap = new Map(
-        counts.map((c) => [c.categoryId, Number(c.total)]),
-      );
-
-      withCounts = categories.map((cat) => ({
-        ...cat,
-        productCount: countMap.get(cat.id) || 0,
-      }));
-    }
-
-    res.json(withCounts);
+    res.json(results);
   } catch (err) {
     req.log.error(err);
     res.status(500).json({ error: "فشل جلب الفئات" });
