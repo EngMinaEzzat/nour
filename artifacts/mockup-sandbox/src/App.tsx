@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from "react";
+import React, { useEffect, useState } from "react";
 
 import { modules as discoveredModules } from "./.generated/mockup-components";
 
@@ -7,14 +7,14 @@ type ModuleMap = Record<string, () => Promise<Record<string, unknown>>>;
 function _resolveComponent(
   mod: Record<string, unknown>,
   name: string,
-): ComponentType | undefined {
+): React.ComponentType | undefined {
   const fns = Object.values(mod).filter(
     (v) => typeof v === "function",
-  ) as ComponentType[];
+  ) as React.ComponentType[];
   return (
-    (mod.default as ComponentType) ||
-    (mod.Preview as ComponentType) ||
-    (mod[name] as ComponentType) ||
+    (mod.default as React.ComponentType) ||
+    (mod.Preview as React.ComponentType) ||
+    (mod[name] as React.ComponentType) ||
     fns[fns.length - 1]
   );
 }
@@ -26,7 +26,7 @@ function PreviewRenderer({
   componentPath: string;
   modules: ModuleMap;
 }) {
-  const [Component, setComponent] = useState<ComponentType | null>(null);
+  const [Component, setComponent] = useState<React.ComponentType | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
