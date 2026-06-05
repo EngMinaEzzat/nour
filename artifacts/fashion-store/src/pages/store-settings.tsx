@@ -92,7 +92,13 @@ async function fetchStoreSettings(): Promise<StoreSettingsResponse> {
   return data as StoreSettingsResponse;
 }
 
-const THEMES: { id: StoreTheme; preview: (p: string, s: string) => React.ReactNode }[] = [
+const THEMES: {
+  id: StoreTheme;
+  preview: (p: string, s: string) => React.ReactNode;
+  name?: string;
+  nameEn?: string;
+  desc?: string;
+}[] = [
   { id:"classic",  
     preview:(p,s)=>(<div className="w-full h-full rounded-lg overflow-hidden" style={{background:`linear-gradient(135deg,${p}cc,${s||p}66)`}}><div className="absolute inset-0 flex flex-col justify-end"><div className="p-2 flex items-end gap-1.5"><div className="w-5 h-5 rounded-lg bg-white/30"/><div className="h-2 w-1/2 rounded bg-white/60"/></div><div className="grid grid-cols-4 gap-0.5 p-0.5 bg-black/10">{[...Array(4)].map((_,i)=><div key={i} className="aspect-[3/4] bg-white/25 rounded-lg"/>)}</div></div></div>),
   },
