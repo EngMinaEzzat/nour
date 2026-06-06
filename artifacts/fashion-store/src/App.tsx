@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { fetchAndSetCsrfToken } from "@workspace/api-client-react";
 
 import { AppProviders } from "@/providers";
+import { AuthProvider } from "@/hooks/use-auth";
 import { AppRouter, StorefrontRouter } from "@/router";
 import { getSubdomainSlug, getStoreSlugFromPath, isReadOnlyPublicRoute } from "@/lib/routing";
 
@@ -42,9 +43,11 @@ function App() {
 
   return (
     <AppProviders withCart>
-      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <AppRouter />
-      </WouterRouter>
+      <AuthProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <AppRouter />
+        </WouterRouter>
+      </AuthProvider>
     </AppProviders>
   );
 }

@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -27,10 +26,8 @@ export function AppProviders({ children, withCart = false }: AppProvidersProps) 
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <AuthProvider>
-            {content}
-            <Toaster />
-          </AuthProvider>
+          {content}
+          <Toaster />
         </TooltipProvider>
       </QueryClientProvider>
     </HelmetProvider>

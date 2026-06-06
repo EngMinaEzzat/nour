@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGetStorefront, getGetStorefrontQueryKey } from "@workspace/api-client-react";
 import type { StorefrontResponse } from "@workspace/api-client-react";
 import { useCart } from "@/hooks/use-cart";
-import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MessageCircle, AlertCircle, ArrowUp, Package,
@@ -244,32 +243,6 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-// ─── Admin Preview Bar ────────────────────────────────────────────────────────
-function AdminBar() {
-  const { isAuthenticated } = useAuth();
-  const { t, i18n } = useTranslation();
-  if (!isAuthenticated) return null;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`fixed top-3 start-3 z-[200]`}
-      style={{ direction: i18n.dir() }}
-    >
-      <Link href="/store-settings">
-        <motion.button
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          className="flex items-center gap-2 bg-gray-900/90 text-white text-xs font-semibold px-3.5 py-2 rounded-full shadow-xl backdrop-blur-sm border border-white/10 hover:bg-gray-900 transition-colors"
-        >
-          <LayoutDashboard className="w-3.5 h-3.5" />
-          {t("storefront.adminBar.dashboard")}
-        </motion.button>
-      </Link>
-    </motion.div>
   );
 }
 
@@ -934,8 +907,6 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
   return (
     <div style={{ background: "#faf7f4", minHeight: "100vh", direction: i18n.dir() }}>
-      {/* ── Admin back button (only visible when logged in as merchant) ── */}
-      <AdminBar />
 
       {/* ── Announcement Bar ── */}
       <AnnouncementBar p={p} onDismiss={() => setBarVisible(false)} />
