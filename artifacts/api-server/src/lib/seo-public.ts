@@ -445,31 +445,31 @@ function renderDocument(opts: {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${esc(opts.title)}</title>
-  <meta name="description" content="${esc(opts.description)}" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="${esc(opts.canonical)}" />
+  <title data-rh="true">${esc(opts.title)}</title>
+  <meta data-rh="true" name="description" content="${esc(opts.description)}" />
+  <meta data-rh="true" name="robots" content="index, follow" />
+  <link data-rh="true" rel="canonical" href="${esc(opts.canonical)}" />
   <link rel="alternate" hreflang="ar" href="${esc(opts.canonical)}" />
   <link rel="alternate" hreflang="en" href="${esc(opts.canonical)}?lang=en" />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" />
   ${preload}
-  <meta property="og:type" content="${esc(opts.ogType ?? "website")}" />
-  <meta property="og:title" content="${esc(opts.title)}" />
-  <meta property="og:description" content="${esc(opts.description)}" />
+  <meta data-rh="true" property="og:type" content="${esc(opts.ogType ?? "website")}" />
+  <meta data-rh="true" property="og:title" content="${esc(opts.title)}" />
+  <meta data-rh="true" property="og:description" content="${esc(opts.description)}" />
   ${
     opts.image
-      ? `<meta property="og:image" content="${esc(opts.image)}" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />`
+      ? `<meta data-rh="true" property="og:image" content="${esc(opts.image)}" />
+  <meta data-rh="true" property="og:image:width" content="1200" />
+  <meta data-rh="true" property="og:image:height" content="630" />`
       : ""
   }
-  <meta property="og:url" content="${esc(opts.canonical)}" />
-  <meta property="og:locale" content="ar_EG" />
-  <meta property="og:site_name" content="نور" />
-  <meta name="twitter:card" content="${esc(twitterCard)}" />
-  <meta name="twitter:title" content="${esc(opts.title)}" />
-  <meta name="twitter:description" content="${esc(opts.description)}" />
-  ${opts.image ? `<meta name="twitter:image" content="${esc(opts.image)}" />` : ""}
+  <meta data-rh="true" property="og:url" content="${esc(opts.canonical)}" />
+  <meta data-rh="true" property="og:locale" content="ar_EG" />
+  <meta data-rh="true" property="og:site_name" content="نور" />
+  <meta data-rh="true" name="twitter:card" content="${esc(twitterCard)}" />
+  <meta data-rh="true" name="twitter:title" content="${esc(opts.title)}" />
+  <meta data-rh="true" name="twitter:description" content="${esc(opts.description)}" />
+  ${opts.image ? `<meta data-rh="true" name="twitter:image" content="${esc(opts.image)}" />` : ""}
   <script type="application/ld+json">${safeJson(opts.jsonLd)}</script>
   ${assets.links}
   <style>
