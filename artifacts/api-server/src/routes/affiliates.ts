@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { affiliatesTable, discountCodesTable, discountCodeUsesTable, ordersTable } from "@workspace/db";
-import { eq, and, desc, sum, count } from "drizzle-orm";
+import { eq, and, desc, sum, count, inArray } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 
 const router = Router();
@@ -18,35 +18,69 @@ router.get("/affiliates", requireRole("owner", "manager"), async (req, res) => {
       .where(eq(affiliatesTable.tenantId, tenantId))
       .orderBy(desc(affiliatesTable.createdAt));
 
-    // For each affiliate, fetch discount code info + usage stats
-    const enriched = await Promise.all(affiliates.map(async (a) => {
+    // ⚡ Bolt Optimization: Batch fetch discount code info and usage stats to fix N+1 query problem
+    const discountCodeIds = affiliates
+      .map(a => a.discountCodeId)
+      .filter((id): id is number => id !== null);
+
+    const discountCodesMap = new Map<number, { code: string; usedCount: number; revenue: number; discount: number }>();
+
+    if (discountCodeIds.length > 0) {
+      const [discountCodes, usageStats] = await Promise.all([
+        db
+          .select({
+            id: discountCodesTable.id,
+            code: discountCodesTable.code,
+            usedCount: discountCodesTable.usedCount,
+          })
+          .from(discountCodesTable)
+          .where(inArray(discountCodesTable.id, discountCodeIds)),
+        db
+          .select({
+            discountCodeId: discountCodeUsesTable.discountCodeId,
+            revenue: sum(ordersTable.totalAmount),
+            discount: sum(discountCodeUsesTable.appliedDiscount),
+          })
+          .from(discountCodeUsesTable)
+          .leftJoin(ordersTable, eq(discountCodeUsesTable.orderId, ordersTable.id))
+          .where(inArray(discountCodeUsesTable.discountCodeId, discountCodeIds))
+          .groupBy(discountCodeUsesTable.discountCodeId),
+      ]);
+
+      const statsMap = new Map(
+        usageStats.map(s => [
+          s.discountCodeId,
+          {
+            revenue: parseFloat(s.revenue ?? "0"),
+            discount: parseFloat(s.discount ?? "0"),
+          }
+        ])
+      );
+
+      for (const dc of discountCodes) {
+        const stats = statsMap.get(dc.id) ?? { revenue: 0, discount: 0 };
+        discountCodesMap.set(dc.id, {
+          code: dc.code,
+          usedCount: dc.usedCount,
+          revenue: stats.revenue,
+          discount: stats.discount,
+        });
+      }
+    }
+
+    const enriched = affiliates.map((a) => {
       let promoCode: string | null = null;
       let uses = 0;
       let totalRevenue = 0;
       let totalDiscount = 0;
 
       if (a.discountCodeId) {
-        const [dc] = await db
-          .select({ code: discountCodesTable.code, usedCount: discountCodesTable.usedCount })
-          .from(discountCodesTable)
-          .where(eq(discountCodesTable.id, a.discountCodeId));
-
-        if (dc) {
-          promoCode = dc.code;
-          uses = dc.usedCount;
-
-          // Sum revenue from orders linked to this code's uses
-          const [stats] = await db
-            .select({
-              revenue: sum(ordersTable.totalAmount),
-              discount: sum(discountCodeUsesTable.appliedDiscount),
-            })
-            .from(discountCodeUsesTable)
-            .leftJoin(ordersTable, eq(discountCodeUsesTable.orderId, ordersTable.id))
-            .where(eq(discountCodeUsesTable.discountCodeId, a.discountCodeId));
-
-          totalRevenue = parseFloat(stats?.revenue ?? "0");
-          totalDiscount = parseFloat(stats?.discount ?? "0");
+        const dcInfo = discountCodesMap.get(a.discountCodeId);
+        if (dcInfo) {
+          promoCode = dcInfo.code;
+          uses = dcInfo.usedCount;
+          totalRevenue = dcInfo.revenue;
+          totalDiscount = dcInfo.discount;
         }
       }
 
@@ -65,7 +99,7 @@ router.get("/affiliates", requireRole("owner", "manager"), async (req, res) => {
         commissionDue,
         createdAt: a.createdAt.toISOString(),
       };
-    }));
+    });
 
     res.json({ affiliates: enriched });
   } catch (err) {

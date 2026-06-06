@@ -53,3 +53,7 @@
 **Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
 **Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
 
+
+## 2026-06-06 - [Fix N+1 query loop for discount usage stats in affiliates]
+**Learning:** Destructuring Drizzle DB queries directly inside an array `map()` combined with `Promise.all` causes N+1 query waterfalls that drastically increase round-trips to the database on endpoints like `/affiliates`.
+**Action:** Extract all required relationship IDs first (e.g. `discountCodeIds`), and execute a single batched fetch using `inArray()` before processing the map loop. Use a JavaScript `Map` to attach data in $O(1)$ time within the array map.
