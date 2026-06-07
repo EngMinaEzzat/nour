@@ -53,3 +53,6 @@
 **Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
 **Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
 
+## 2025-02-23 - Batched Database Inserts for Performance
+**Learning:** Utilizing sequential database queries within a loop to insert thousands of objects (like users, orders) significantly increases latency due to repetitive network roundtrips. Batching such inserts is more efficient but requires managing PostgreSQL's parameterized query limit (approx 65,535 parameters per query).
+**Action:** When inserting thousands of records, collect them in memory, chunk them into safe sizes (e.g., 500 rows based on total columns), and utilize `Promise.all` across chunks to run them concurrently without exceeding parameter bounds or suffering from O(N) database roundtrips.
