@@ -30,7 +30,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "spare-parts";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -457,6 +458,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "luxury-catalog": {
     label: "كتالوج فاخر", desc: "عرض احترافي يشبه المجلات العالمية", emoji: "🏅",
     sections: ["hero", "lookbook", "categories", "new-arrivals", "testimonials", "about", "newsletter"],
+  },
+  "spare-parts": {
+    label: "قطع غيار", desc: "لبيع قطع غيار السيارات والمعدات", emoji: "🔧",
+    sections: ["hero", "categories", "product-catalog", "trust-strip", "faq", "whatsapp"],
   },
 };
 

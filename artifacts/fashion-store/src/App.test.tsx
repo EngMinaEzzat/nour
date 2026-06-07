@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { getSubdomainSlug, isReadOnlyPublicRoute } from './App';
+import { getSubdomainSlug, isReadOnlyPublicRoute } from './lib/routing';
 import * as utils from './lib/utils';
 
 // Mock getBaseDomain
