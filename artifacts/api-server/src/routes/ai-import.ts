@@ -286,7 +286,7 @@ router.post(
 1. اقتراح اسم عربي جميل للمتجر (مختصر ولافت، 2-4 كلمات)
 2. كتابة وصف تسويقي عربي جذاب للمتجر (50-80 كلمة، يصف المتجر بأسلوب دافئ ومقنع)
 3. اقتراح لون أساسي للعلامة التجارية في HEX (مثال: #B91C5C) — بناءً على طابع المتجر
-4. تحديد تصنيف المتجر: fashion أو cosmetics أو both
+4. تحديد تصنيف المتجر: fashion أو cosmetics أو both أو electronics
 5. اقتراح 3-5 وسوم (tags) وصفية للمتجر باللغة العربية
 
 أجب بـ JSON فقط بالتنسيق التالي بدون أي نص إضافي:
@@ -295,7 +295,7 @@ router.post(
   "description": "الوصف التسويقي",
   "primaryColor": "#XXXXXX",
   "coverUrl": ${scraped.imageUrl ? `"${scraped.imageUrl}"` : "null"},
-  "category": "fashion|cosmetics|both",
+  "category": "fashion|cosmetics|both|electronics",
   "tags": ["وسم1", "وسم2", "وسم3"]
 }`;
 

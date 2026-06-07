@@ -58,7 +58,7 @@ export default function Register() {
     email: string;
     password: string;
     phone: string;
-    category: "fashion" | "cosmetics" | "both";
+    category: "fashion" | "cosmetics" | "both" | "electronics";
     gender: "female" | "male";
   }>({
     storeName: "",
@@ -388,6 +388,9 @@ export default function Register() {
                     </SelectItem>
                     <SelectItem value="both">
                       {t("auth.register.catBoth")}
+                    </SelectItem>
+                    <SelectItem value="electronics">
+                      {t("auth.register.catElectronics", "إلكترونيات 💻")}
                     </SelectItem>
                   </SelectContent>
                 </Select>

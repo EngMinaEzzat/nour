@@ -30,7 +30,7 @@ type TenantPublic = {
   coverUrl: string | null;
   seoTitle: string | null;
   seoDescription: string | null;
-  category: "fashion" | "cosmetics" | "both";
+  category: "fashion" | "cosmetics" | "both" | "electronics";
   city: string | null;
   status: "active" | "inactive" | "pending";
   customDomain: string | null;

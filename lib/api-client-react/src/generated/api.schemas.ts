@@ -594,6 +594,7 @@ export const RegisterBodyCategory = {
   fashion: "fashion",
   cosmetics: "cosmetics",
   both: "both",
+  electronics: "electronics",
 } as const;
 
 export interface RegisterBody {

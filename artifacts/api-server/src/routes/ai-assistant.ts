@@ -153,7 +153,7 @@ router.post("/ai/assistant/chat", requireRole("owner", "manager", "staff"), aiLi
       ({ pending: "⏳قيد الانتظار", confirmed: "✅مؤكد", shipped: "🚚مشحون", delivered: "📦تم التوصيل", cancelled: "❌ملغي" }[s] ?? s);
 
     const categoryLabel =
-      tenant?.category === "fashion" ? "أزياء" : tenant?.category === "cosmetics" ? "تجميل" : "أزياء وتجميل";
+      tenant?.category === "fashion" ? "أزياء" : tenant?.category === "cosmetics" ? "تجميل" : tenant?.category === "electronics" ? "إلكترونيات" : "أزياء وتجميل";
 
     const now = new Date();
     const systemPrompt = `أنت مساعد ذكي خاص بمتجر "${tenant?.name ?? "المتجر"}" على منصة نور للتجارة الإلكترونية المصرية.

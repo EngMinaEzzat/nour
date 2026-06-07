@@ -197,7 +197,7 @@ router.post("/auth/register", authLimiter, async (req, res) => {
           name: storeName,
           slug,
           description,
-          category: category as "fashion" | "cosmetics" | "both",
+          category: category as "fashion" | "cosmetics" | "both" | "electronics",
           theme: category === "cosmetics" ? "cosmetics" : "classic",
           coverUrl: category === "cosmetics" ? "/product-cosmetics.png" : null,
           primaryColor: category === "cosmetics" ? "#DDA7A5" : null,

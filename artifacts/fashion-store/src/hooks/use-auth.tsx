@@ -22,7 +22,7 @@ interface AuthContextValue {
     email: string;
     password: string;
     phone: string;
-    category: "fashion" | "cosmetics" | "both";
+    category: "fashion" | "cosmetics" | "both" | "electronics";
   }) => Promise<AuthResponse>;
   logout: () => Promise<void>;
 }
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string;
     password: string;
     phone: string;
-    category: "fashion" | "cosmetics" | "both";
+    category: "fashion" | "cosmetics" | "both" | "electronics";
   }): Promise<AuthResponse> {
     const result = await registerMutation.mutateAsync({ data });
     queryClient.setQueryData(getGetMeQueryKey(), result);

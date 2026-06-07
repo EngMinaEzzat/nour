@@ -2,7 +2,7 @@ import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, jsonb, inde
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const tenantCategoryEnum = pgEnum("tenant_category", ["fashion", "cosmetics", "both"]);
+export const tenantCategoryEnum = pgEnum("tenant_category", ["fashion", "cosmetics", "both", "electronics"]);
 export const tenantStatusEnum = pgEnum("tenant_status", ["active", "inactive", "pending"]);
 export const subscriptionStatusEnum = pgEnum("subscription_status", [
   "trial", "active", "past_due", "suspended", "canceled",

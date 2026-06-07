@@ -11,3 +11,12 @@
 ## 2024-05-18 - Added Electronics Theme
 **Learning:** Adding a new theme to a React application involves updating the central configuration types and predefined sections. It's important to update not just the `StyleType` union, but also to intercept the dynamic values generated dynamically by helper functions like `createDefaultSection` to ensure text, images, and visual elements accurately reflect the new theme (e.g. adding specific FAQs, changing about text, using relevant placeholder images).
 **Action:** When adding a new theme preset, search for all usages of `STYLE_PRESETS` and also ensure to update the schema in `store-config.ts` including any content factories like `createDefaultSection` to adapt to the new category.
+## 2024-05-18 - Added Electronics Theme Form Integration
+**Learning:** Extending category choices in a full-stack Next/React application backed by Postgres and Drizzle requires coordinating several places:
+1. The Postgres Enum via `pgEnum` in the database schema (`schema/tenants.ts`).
+2. Generating and migrating the DB (`drizzle-kit generate` and `migrate`).
+3. OpenAPI specs and generated API typings (e.g. `api-client-react`).
+4. Auth controllers (`routes/auth.ts`) validating payload bodies.
+5. Internal utility services like `ai-assistant.ts`, `ai-import.ts`, and `seo-public.ts`.
+6. Frontend forms (`register.tsx`, `WelcomeOverlay.tsx`, `store-settings.tsx`) and hooks (`use-auth.tsx`).
+**Action:** When adding options to core enums like `tenant_category`, ensure all boundaries (DB, API, frontend client types, internal services) are updated concurrently, test types thoroughly with `pnpm run typecheck`, and run standard tests on `api-server` and `fashion-store` to verify system-wide coordination.

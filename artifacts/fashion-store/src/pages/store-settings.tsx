@@ -64,7 +64,7 @@ type FormState = {
   primaryColor: string;
   secondaryColor: string;
   theme: StoreTheme;
-  category: "fashion" | "cosmetics" | "both";
+  category: "fashion" | "cosmetics" | "both" | "electronics";
   city: string;
 };
 
