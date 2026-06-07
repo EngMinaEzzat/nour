@@ -1,6 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, X, Send, Trash2, ChevronDown, Bot, User, Loader2 } from "lucide-react";
+import {
+  Sparkles,
+  X,
+  Send,
+  Trash2,
+  ChevronDown,
+  Bot,
+  User,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -41,24 +50,31 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn("flex gap-2 items-start", isUser ? "flex-row-reverse" : "flex-row")}
+      className={cn(
+        "flex gap-2 items-start",
+        isUser ? "flex-row-reverse" : "flex-row",
+      )}
     >
       <div
         className={cn(
           "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs",
           isUser
             ? "bg-primary text-primary-foreground"
-            : "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300"
+            : "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300",
         )}
       >
-        {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+        {isUser ? (
+          <User className="w-3.5 h-3.5" />
+        ) : (
+          <Bot className="w-3.5 h-3.5" />
+        )}
       </div>
       <div
         className={cn(
           "max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
           isUser
             ? "bg-primary text-primary-foreground rounded-tr-sm"
-            : "bg-muted/70 dark:bg-muted/40 text-foreground rounded-tl-sm"
+            : "bg-muted/70 dark:bg-muted/40 text-foreground rounded-tl-sm",
         )}
       >
         {msg.streaming && !msg.content ? <TypingDots /> : msg.content}
@@ -101,8 +117,17 @@ export function AiAssistant() {
       if (!trimmed || loading) return;
 
       setInput("");
-      const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content: trimmed };
-      const assistantMsg: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: "", streaming: true };
+      const userMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: trimmed,
+      };
+      const assistantMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: "",
+        streaming: true,
+      };
 
       setMessages((prev) => [...prev, userMsg, assistantMsg]);
       setLoading(true);
@@ -143,13 +168,17 @@ export function AiAssistant() {
               if (data.chunk) {
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === assistantMsg.id ? { ...m, content: m.content + data.chunk } : m
-                  )
+                    m.id === assistantMsg.id
+                      ? { ...m, content: m.content + data.chunk }
+                      : m,
+                  ),
                 );
               }
               if (data.done) {
                 setMessages((prev) =>
-                  prev.map((m) => (m.id === assistantMsg.id ? { ...m, streaming: false } : m))
+                  prev.map((m) =>
+                    m.id === assistantMsg.id ? { ...m, streaming: false } : m,
+                  ),
                 );
               }
               if (data.error) {
@@ -157,8 +186,8 @@ export function AiAssistant() {
                   prev.map((m) =>
                     m.id === assistantMsg.id
                       ? { ...m, content: data.error, streaming: false }
-                      : m
-                  )
+                      : m,
+                  ),
                 );
               }
             } catch {
@@ -172,8 +201,8 @@ export function AiAssistant() {
             prev.map((m) =>
               m.id === assistantMsg.id
                 ? { ...m, content: t("assistant.error"), streaming: false }
-                : m
-            )
+                : m,
+            ),
           );
         }
       } finally {
@@ -181,7 +210,7 @@ export function AiAssistant() {
         if (!open) setUnread(true);
       }
     },
-    [loading, conversationId, model, open]
+    [loading, conversationId, model, open],
   );
 
   const clearHistory = useCallback(async () => {
@@ -208,7 +237,8 @@ export function AiAssistant() {
 
   if (!isAuthenticated) return null;
 
-  const storeName = merchant?.storeName ?? merchant?.name ?? t("assistant.storeFallback");
+  const storeName =
+    merchant?.storeName ?? merchant?.name ?? t("assistant.storeFallback");
 
   const QUICK_PROMPTS = [
     t("assistant.quick1"),
@@ -233,6 +263,7 @@ export function AiAssistant() {
             <Button
               onClick={() => setOpen(true)}
               size="icon"
+              aria-label={t("assistant.tooltip", "Nour AI Assistant")}
               className="w-14 h-14 rounded-full shadow-lg shadow-violet-500/20 bg-gradient-to-br from-violet-600 to-purple-700 hover:from-violet-500 hover:to-purple-600 text-white border-0 relative"
             >
               <Sparkles className="w-6 h-6" />
@@ -269,7 +300,9 @@ export function AiAssistant() {
                 <Sparkles className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm leading-none mb-0.5">{t("assistant.title")}</p>
+                <p className="font-semibold text-sm leading-none mb-0.5">
+                  {t("assistant.title")}
+                </p>
                 <p className="text-xs text-white/70 truncate">{storeName}</p>
               </div>
 
@@ -281,7 +314,9 @@ export function AiAssistant() {
                     onClick={() => setModel(m)}
                     className={cn(
                       "px-2.5 py-1 transition-colors",
-                      model === m ? "bg-white/20 font-semibold" : "hover:bg-white/10"
+                      model === m
+                        ? "bg-white/20 font-semibold"
+                        : "hover:bg-white/10",
                     )}
                   >
                     {m === "claude" ? "Claude" : "Gemini"}
@@ -295,6 +330,7 @@ export function AiAssistant() {
                     size="icon"
                     variant="ghost"
                     onClick={clearHistory}
+                    aria-label={t("assistant.clearHistory", "Clear chat")}
                     className="w-7 h-7 rounded-full hover:bg-white/15 text-white/80 hover:text-white"
                     title={t("assistant.clearHistory")}
                   >
@@ -305,6 +341,7 @@ export function AiAssistant() {
                   size="icon"
                   variant="ghost"
                   onClick={() => setOpen(false)}
+                  aria-label={t("common.buttons.close", "Close")}
                   className="w-7 h-7 rounded-full hover:bg-white/15 text-white/80 hover:text-white"
                 >
                   <ChevronDown className="w-4 h-4" />
@@ -327,7 +364,9 @@ export function AiAssistant() {
                     <Sparkles className="w-8 h-8 text-violet-600 dark:text-violet-400" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground mb-1">{t("assistant.welcome")}</p>
+                    <p className="font-semibold text-foreground mb-1">
+                      {t("assistant.welcome")}
+                    </p>
                     <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
                       {t("assistant.welcomeDesc")}
                     </p>
@@ -368,6 +407,7 @@ export function AiAssistant() {
                   size="icon"
                   onClick={() => sendMessage(input)}
                   disabled={loading || !input.trim()}
+                  aria-label={t("common.buttons.submit", "Submit")}
                   className="w-9 h-9 rounded-xl shrink-0 bg-violet-600 hover:bg-violet-700 text-white border-0"
                 >
                   {loading ? (
@@ -378,7 +418,9 @@ export function AiAssistant() {
                 </Button>
               </div>
               <p className="text-[10px] text-muted-foreground/50 text-center mt-1.5">
-                {t("assistant.poweredBy", { model: model === "claude" ? "Claude AI" : "Gemini AI" })}
+                {t("assistant.poweredBy", {
+                  model: model === "claude" ? "Claude AI" : "Gemini AI",
+                })}
               </p>
             </div>
           </motion.div>
