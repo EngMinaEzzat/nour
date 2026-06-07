@@ -54,7 +54,7 @@ const PRESET_SECONDARY_COLORS = [
   { id: "lightPurple", hex: "#c084fc" },
 ];
 
-type StoreTheme = "classic"|"luxe"|"minimal"|"vibrant"|"boutique"|"elegant"|"royal"|"magazine"|"retro"|"pastel"|"neon"|"street"|"summer"|"nature"|"glass"|"craft"|"sporty"|"heritage"|"salon"|"bold"|"glow-grid";
+type StoreTheme = "classic"|"luxe"|"minimal"|"vibrant"|"boutique"|"elegant"|"royal"|"magazine"|"retro"|"pastel"|"neon"|"street"|"summer"|"nature"|"glass"|"craft"|"sporty"|"heritage"|"salon"|"bold"|"glow-grid"|"clinic";
 
 type FormState = {
   name: string;
@@ -162,6 +162,9 @@ const THEMES: {
 
   { id:"glow-grid",  name:"توهج الشبكة", nameEn:"Glow Grid",  desc:"مظهر داكن حديث، شبكة نابضة بالحياة",
     preview:(p,s)=>(<div className="w-full h-full rounded-lg overflow-hidden" style={{background:"#131313"}}><div className="absolute inset-0 flex flex-col justify-end"><div className="p-2 flex items-end gap-1.5"><div className="w-5 h-5 rounded-lg bg-white/30"/><div className="h-2 w-1/2 rounded bg-white/60"/></div><div className="grid grid-cols-4 gap-0.5 p-0.5 bg-black/10">{[...Array(4)].map((_,i)=><div key={i} className="aspect-[3/4] bg-white/25 rounded-lg"/>)}</div></div></div>),
+  },
+  { id:"clinic",
+    preview:(p,s)=>(<div className="w-full h-full rounded-lg overflow-hidden bg-[#f0f7ff]"><div className="absolute top-0 left-0 right-0 h-14 bg-white shadow-sm flex items-center px-2"><div className="w-6 h-6 rounded-md bg-[#0066cc]/10 flex items-center justify-center mr-2"><div className="w-3 h-3 rounded-full bg-[#0066cc]"/></div><div className="h-2 w-1/3 rounded bg-[#0066cc]/20"/></div><div className="absolute bottom-0 left-0 right-0 grid grid-cols-2 gap-1.5 p-1.5 top-14">{[...Array(4)].map((_,i)=><div key={i} className="bg-white rounded-md shadow-sm border border-[#0066cc]/10"/>)}</div></div>),
   },
 ];
 

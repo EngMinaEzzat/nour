@@ -858,7 +858,9 @@
       "salon_name": "Salon",
       "salon_desc": "Gentle gradient, circular images, feminine beauty look",
       "bold_name": "Bold",
-      "bold_desc": "Huge editorial division, 2 large columns, impactful"
+      "bold_desc": "Huge editorial division, 2 large columns, impactful",
+      "clinic_name": "Clinic",
+      "clinic_desc": "Clean white and blue, suitable for clinics and bookings"
     },
     "livePreview": {
       "title": "Live Preview",

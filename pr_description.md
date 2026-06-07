@@ -1,8 +1,14 @@
-💡 **What:**
-Replaced an N+1 `Promise.all` loop executing individual `count()` queries per category with a single aggregate query. The new implementation collects all category IDs, fetches product counts using `inArray` and `groupBy`, and maps the totals back to the respective categories in memory.
+🎨 Palette: Clinic Theme Layout
 
-🎯 **Why:**
-The previous implementation performed a network round trip to the database for every single category returned. For stores with many categories, this caused severe latency and database connection strain. Grouping the counts into a single query fundamentally solves this bottleneck.
+💡 What:
+Added a new "clinic" theme for the storefront to cater to doctors and clinics managing bookings and services. Included the new `ClinicStorefront` component, translated labels, updated `StoreTheme` types, and integrated it into the store settings panel.
 
-📊 **Measured Improvement:**
-Due to database provisioning limitations in the isolated sandbox environment, a runtime baseline could not be captured. However, theoretically, the improvement reduces the number of database queries from `O(N)` to `O(1)` where N is the number of categories. This reduces the DB query overhead from potentially hundreds of round-trips to exactly 1 query, vastly decreasing response latency and CPU time for this route.
+🎯 Why:
+To expand the platform's utility beyond general retail and fashion by offering a dedicated layout suited for medical professionals and clinics.
+
+📸 Before/After:
+* Before: Clinics had to adapt classic or fashion themes which were unsuited for services and appointments.
+* After: Dedicated clinic theme with suitable copy (e.g. "Our Services"), appointment actions, and a clean white/blue aesthetic.
+
+♿ Accessibility:
+Maintained high contrast text and clearly distinguishable primary action buttons for bookings. Labels respect LTR/RTL reading order.
