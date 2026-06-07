@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { affiliatesTable, discountCodesTable, discountCodeUsesTable, ordersTable } from "@workspace/db";
-import { eq, and, desc, sum, count } from "drizzle-orm";
+import {
+  affiliatesTable,
+  discountCodesTable,
+  discountCodeUsesTable,
+  ordersTable,
+} from "@workspace/db";
+import { eq, and, desc, sum, count, inArray } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 
 const router = Router();
@@ -18,42 +23,76 @@ router.get("/affiliates", requireRole("owner", "manager"), async (req, res) => {
       .where(eq(affiliatesTable.tenantId, tenantId))
       .orderBy(desc(affiliatesTable.createdAt));
 
-    // For each affiliate, fetch discount code info + usage stats
-    const enriched = await Promise.all(affiliates.map(async (a) => {
+    // ⚡ Bolt Optimization: Replace Promise.all loop mapping with batched inArray and JS Map to fix N+1 issue
+    const discountCodeIds = Array.from(
+      new Set(affiliates.map((a) => a.discountCodeId).filter(Boolean)),
+    ) as number[];
+
+    let codesMap = new Map<number, { code: string; usedCount: number }>();
+    let statsMap = new Map<number, { revenue: number; discount: number }>();
+
+    if (discountCodeIds.length > 0) {
+      const [codesData, statsData] = await Promise.all([
+        db
+          .select({
+            id: discountCodesTable.id,
+            code: discountCodesTable.code,
+            usedCount: discountCodesTable.usedCount,
+          })
+          .from(discountCodesTable)
+          .where(inArray(discountCodesTable.id, discountCodeIds)),
+        db
+          .select({
+            discountCodeId: discountCodeUsesTable.discountCodeId,
+            revenue: sum(ordersTable.totalAmount),
+            discount: sum(discountCodeUsesTable.appliedDiscount),
+          })
+          .from(discountCodeUsesTable)
+          .leftJoin(
+            ordersTable,
+            eq(discountCodeUsesTable.orderId, ordersTable.id),
+          )
+          .where(inArray(discountCodeUsesTable.discountCodeId, discountCodeIds))
+          .groupBy(discountCodeUsesTable.discountCodeId),
+      ]);
+
+      codesData.forEach((dc) => {
+        codesMap.set(dc.id, { code: dc.code, usedCount: dc.usedCount });
+      });
+
+      statsData.forEach((st) => {
+        statsMap.set(st.discountCodeId!, {
+          revenue: parseFloat(st.revenue ?? "0"),
+          discount: parseFloat(st.discount ?? "0"),
+        });
+      });
+    }
+
+    const enriched = affiliates.map((a) => {
       let promoCode: string | null = null;
       let uses = 0;
       let totalRevenue = 0;
       let totalDiscount = 0;
 
       if (a.discountCodeId) {
-        const [dc] = await db
-          .select({ code: discountCodesTable.code, usedCount: discountCodesTable.usedCount })
-          .from(discountCodesTable)
-          .where(eq(discountCodesTable.id, a.discountCodeId));
-
+        const dc = codesMap.get(a.discountCodeId);
         if (dc) {
           promoCode = dc.code;
           uses = dc.usedCount;
 
-          // Sum revenue from orders linked to this code's uses
-          const [stats] = await db
-            .select({
-              revenue: sum(ordersTable.totalAmount),
-              discount: sum(discountCodeUsesTable.appliedDiscount),
-            })
-            .from(discountCodeUsesTable)
-            .leftJoin(ordersTable, eq(discountCodeUsesTable.orderId, ordersTable.id))
-            .where(eq(discountCodeUsesTable.discountCodeId, a.discountCodeId));
-
-          totalRevenue = parseFloat(stats?.revenue ?? "0");
-          totalDiscount = parseFloat(stats?.discount ?? "0");
+          const stats = statsMap.get(a.discountCodeId);
+          if (stats) {
+            totalRevenue = stats.revenue;
+            totalDiscount = stats.discount;
+          }
         }
       }
 
       const commissionValue = parseFloat(a.commissionValue as string);
-      const commissionDue = a.commissionType === "percent"
-        ? (totalRevenue * commissionValue) / 100
-        : uses * commissionValue;
+      const commissionDue =
+        a.commissionType === "percent"
+          ? (totalRevenue * commissionValue) / 100
+          : uses * commissionValue;
 
       return {
         ...a,
@@ -65,7 +104,7 @@ router.get("/affiliates", requireRole("owner", "manager"), async (req, res) => {
         commissionDue,
         createdAt: a.createdAt.toISOString(),
       };
-    }));
+    });
 
     res.json({ affiliates: enriched });
   } catch (err) {
@@ -75,116 +114,178 @@ router.get("/affiliates", requireRole("owner", "manager"), async (req, res) => {
 });
 
 // POST /affiliates — create affiliate + auto-create promo code
-router.post("/affiliates", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = req.merchantTenantId;
-  if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
+router.post(
+  "/affiliates",
+  requireRole("owner", "manager"),
+  async (req, res) => {
+    const tenantId = req.merchantTenantId;
+    if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
 
-  const { name, handle, platform, promoCode, discountType, discountValue, commissionType, commissionValue, notes } = req.body;
-
-  if (!name || !handle || !platform || !promoCode || !discountType || discountValue === undefined || !commissionType || commissionValue === undefined) {
-    return res.status(400).json({ error: "جميع الحقول مطلوبة" });
-  }
-  if (!["instagram", "tiktok", "youtube", "other"].includes(platform)) {
-    return res.status(400).json({ error: "المنصة غير صحيحة" });
-  }
-  if (!["percent", "flat"].includes(commissionType)) {
-    return res.status(400).json({ error: "نوع العمولة غير صحيح" });
-  }
-
-  try {
-    // Check promo code uniqueness
-    const [existing] = await db
-      .select({ id: discountCodesTable.id })
-      .from(discountCodesTable)
-      .where(and(
-        eq(discountCodesTable.tenantId, tenantId),
-        eq(discountCodesTable.code, promoCode.toUpperCase().trim()),
-      ));
-    if (existing) return res.status(409).json({ error: "كود الخصم هذا مستخدم بالفعل، اختر كوداً مختلفاً" });
-
-    // Create discount code
-    const [dc] = await db.insert(discountCodesTable).values({
-      tenantId,
-      code: promoCode.toUpperCase().trim(),
-      type: discountType,
-      value: String(discountValue),
-      active: true,
-    }).returning();
-
-    // Create affiliate linked to the discount code
-    const [affiliate] = await db.insert(affiliatesTable).values({
-      tenantId,
+    const {
       name,
-      handle: handle.trim(),
+      handle,
       platform,
-      discountCodeId: dc.id,
+      promoCode,
+      discountType,
+      discountValue,
       commissionType,
-      commissionValue: String(commissionValue),
-      notes: notes ?? null,
-      active: true,
-    }).returning();
+      commissionValue,
+      notes,
+    } = req.body;
 
-    res.status(201).json({
-      ...affiliate,
-      commissionValue: parseFloat(affiliate.commissionValue as string),
-      promoCode: dc.code,
-      uses: 0,
-      totalRevenue: 0,
-      totalDiscount: 0,
-      commissionDue: 0,
-      createdAt: affiliate.createdAt.toISOString(),
-    });
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "خطأ في السيرفر" });
-  }
-});
+    if (
+      !name ||
+      !handle ||
+      !platform ||
+      !promoCode ||
+      !discountType ||
+      discountValue === undefined ||
+      !commissionType ||
+      commissionValue === undefined
+    ) {
+      return res.status(400).json({ error: "جميع الحقول مطلوبة" });
+    }
+    if (!["instagram", "tiktok", "youtube", "other"].includes(platform)) {
+      return res.status(400).json({ error: "المنصة غير صحيحة" });
+    }
+    if (!["percent", "flat"].includes(commissionType)) {
+      return res.status(400).json({ error: "نوع العمولة غير صحيح" });
+    }
+
+    try {
+      // Check promo code uniqueness
+      const [existing] = await db
+        .select({ id: discountCodesTable.id })
+        .from(discountCodesTable)
+        .where(
+          and(
+            eq(discountCodesTable.tenantId, tenantId),
+            eq(discountCodesTable.code, promoCode.toUpperCase().trim()),
+          ),
+        );
+      if (existing)
+        return res
+          .status(409)
+          .json({ error: "كود الخصم هذا مستخدم بالفعل، اختر كوداً مختلفاً" });
+
+      // Create discount code
+      const [dc] = await db
+        .insert(discountCodesTable)
+        .values({
+          tenantId,
+          code: promoCode.toUpperCase().trim(),
+          type: discountType,
+          value: String(discountValue),
+          active: true,
+        })
+        .returning();
+
+      // Create affiliate linked to the discount code
+      const [affiliate] = await db
+        .insert(affiliatesTable)
+        .values({
+          tenantId,
+          name,
+          handle: handle.trim(),
+          platform,
+          discountCodeId: dc.id,
+          commissionType,
+          commissionValue: String(commissionValue),
+          notes: notes ?? null,
+          active: true,
+        })
+        .returning();
+
+      res.status(201).json({
+        ...affiliate,
+        commissionValue: parseFloat(affiliate.commissionValue as string),
+        promoCode: dc.code,
+        uses: 0,
+        totalRevenue: 0,
+        totalDiscount: 0,
+        commissionDue: 0,
+        createdAt: affiliate.createdAt.toISOString(),
+      });
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "خطأ في السيرفر" });
+    }
+  },
+);
 
 // PUT /affiliates/:id — update active / commission / notes
-router.put("/affiliates/:id", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = req.merchantTenantId;
-  if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(String(req.params.id), 10);
+router.put(
+  "/affiliates/:id",
+  requireRole("owner", "manager"),
+  async (req, res) => {
+    const tenantId = req.merchantTenantId;
+    if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
+    const id = parseInt(String(req.params.id), 10);
 
-  try {
-    const [existing] = await db.select().from(affiliatesTable)
-      .where(and(eq(affiliatesTable.id, id), eq(affiliatesTable.tenantId, tenantId)));
-    if (!existing) return res.status(404).json({ error: "المؤثر غير موجود" });
+    try {
+      const [existing] = await db
+        .select()
+        .from(affiliatesTable)
+        .where(
+          and(
+            eq(affiliatesTable.id, id),
+            eq(affiliatesTable.tenantId, tenantId),
+          ),
+        );
+      if (!existing) return res.status(404).json({ error: "المؤثر غير موجود" });
 
-    const updates: Partial<typeof affiliatesTable.$inferInsert> = {};
-    if (req.body.active !== undefined) updates.active = req.body.active;
-    if (req.body.commissionValue !== undefined) updates.commissionValue = String(req.body.commissionValue);
-    if (req.body.commissionType !== undefined) updates.commissionType = req.body.commissionType;
-    if (req.body.notes !== undefined) updates.notes = req.body.notes;
+      const updates: Partial<typeof affiliatesTable.$inferInsert> = {};
+      if (req.body.active !== undefined) updates.active = req.body.active;
+      if (req.body.commissionValue !== undefined)
+        updates.commissionValue = String(req.body.commissionValue);
+      if (req.body.commissionType !== undefined)
+        updates.commissionType = req.body.commissionType;
+      if (req.body.notes !== undefined) updates.notes = req.body.notes;
 
-    const [updated] = await db.update(affiliatesTable)
-      .set(updates)
-      .where(eq(affiliatesTable.id, id))
-      .returning();
+      const [updated] = await db
+        .update(affiliatesTable)
+        .set(updates)
+        .where(eq(affiliatesTable.id, id))
+        .returning();
 
-    res.json({ ...updated, commissionValue: parseFloat(updated.commissionValue as string) });
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "خطأ في السيرفر" });
-  }
-});
+      res.json({
+        ...updated,
+        commissionValue: parseFloat(updated.commissionValue as string),
+      });
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "خطأ في السيرفر" });
+    }
+  },
+);
 
 // DELETE /affiliates/:id
-router.delete("/affiliates/:id", requireRole("owner", "manager"), async (req, res) => {
-  const tenantId = req.merchantTenantId;
-  if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
-  const id = parseInt(String(req.params.id), 10);
+router.delete(
+  "/affiliates/:id",
+  requireRole("owner", "manager"),
+  async (req, res) => {
+    const tenantId = req.merchantTenantId;
+    if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
+    const id = parseInt(String(req.params.id), 10);
 
-  try {
-    const [existing] = await db.select().from(affiliatesTable)
-      .where(and(eq(affiliatesTable.id, id), eq(affiliatesTable.tenantId, tenantId)));
-    if (!existing) return res.status(404).json({ error: "المؤثر غير موجود" });
-    await db.delete(affiliatesTable).where(eq(affiliatesTable.id, id));
-    res.json({ success: true });
-  } catch (err) {
-    req.log.error(err);
-    res.status(500).json({ error: "خطأ في السيرفر" });
-  }
-});
+    try {
+      const [existing] = await db
+        .select()
+        .from(affiliatesTable)
+        .where(
+          and(
+            eq(affiliatesTable.id, id),
+            eq(affiliatesTable.tenantId, tenantId),
+          ),
+        );
+      if (!existing) return res.status(404).json({ error: "المؤثر غير موجود" });
+      await db.delete(affiliatesTable).where(eq(affiliatesTable.id, id));
+      res.json({ success: true });
+    } catch (err) {
+      req.log.error(err);
+      res.status(500).json({ error: "خطأ في السيرفر" });
+    }
+  },
+);
 
 export default router;
