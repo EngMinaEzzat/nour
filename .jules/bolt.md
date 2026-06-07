@@ -53,3 +53,7 @@
 **Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
 **Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
 
+
+## 2024-06-07 - Avoid manual edits of pnpm-lock.yaml
+**Learning:** Hand-editing lockfiles to add dependencies creates non-existent and hallucinated dependency version states that fail builds workspace-wide.
+**Action:** Always use the package manager CLI (e.g., `pnpm add -D vitest --filter @workspace/db`) to add dependencies so it correctly populates both `package.json` and `pnpm-lock.yaml` simultaneously.
