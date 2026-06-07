@@ -30,7 +30,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "electronics-hub";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -111,64 +112,80 @@ export interface StoreConfig {
 
 // ─── Section Label Map ────────────────────────────────────────────────────────
 export const SECTION_LABELS: Record<SectionType, string> = {
-  "hero": "الصورة الرئيسية",
+  hero: "الصورة الرئيسية",
   "new-arrivals": "وصل حديثاً",
   "best-sellers": "الأكثر مبيعاً",
-  "categories": "الأقسام",
-  "testimonials": "آراء العملاء",
-  "offers": "عروض وخصومات",
-  "about": "قصة المتجر",
-  "instagram": "معرض الصور",
-  "faq": "أسئلة شائعة",
-  "whatsapp": "تواصل عبر واتساب",
-  "newsletter": "اشترك في النشرة",
-  "lookbook": "لوك بوك",
+  categories: "الأقسام",
+  testimonials: "آراء العملاء",
+  offers: "عروض وخصومات",
+  about: "قصة المتجر",
+  instagram: "معرض الصور",
+  faq: "أسئلة شائعة",
+  whatsapp: "تواصل عبر واتساب",
+  newsletter: "اشترك في النشرة",
+  lookbook: "لوك بوك",
   "product-catalog": "جميع المنتجات",
   "trust-strip": "مميزات المتجر",
 };
 
 export const SECTION_ICONS: Record<SectionType, string> = {
-  "hero": "🖼️",
+  hero: "🖼️",
   "new-arrivals": "✨",
   "best-sellers": "🔥",
-  "categories": "📂",
-  "testimonials": "⭐",
-  "offers": "🏷️",
-  "about": "💬",
-  "instagram": "📸",
-  "faq": "❓",
-  "whatsapp": "💬",
-  "newsletter": "📧",
-  "lookbook": "🎨",
+  categories: "📂",
+  testimonials: "⭐",
+  offers: "🏷️",
+  about: "💬",
+  instagram: "📸",
+  faq: "❓",
+  whatsapp: "💬",
+  newsletter: "📧",
+  lookbook: "🎨",
   "product-catalog": "🛍️",
   "trust-strip": "✅",
 };
 
 export const SECTION_DESCRIPTIONS: Record<SectionType, string> = {
-  "hero": "الصورة والنص الرئيسي في أعلى الصفحة",
+  hero: "الصورة والنص الرئيسي في أعلى الصفحة",
   "new-arrivals": "أحدث المنتجات التي أضفتها للمتجر",
   "best-sellers": "المنتجات الأكثر مبيعاً وشعبية",
-  "categories": "عرض أقسام المتجر المختلفة",
-  "testimonials": "آراء وتقييمات عملائك",
-  "offers": "بانر للعروض والتخفيضات",
-  "about": "قصة علامتك التجارية ورؤيتها",
-  "instagram": "معرض صور من إنستغرام أو المنتجات",
-  "faq": "أسئلة متكررة يطرحها العملاء",
-  "whatsapp": "زر للتواصل المباشر عبر واتساب",
-  "newsletter": "نموذج اشتراك بالبريد الإلكتروني",
-  "lookbook": "معرض تحريري لصور المنتجات",
+  categories: "عرض أقسام المتجر المختلفة",
+  testimonials: "آراء وتقييمات عملائك",
+  offers: "بانر للعروض والتخفيضات",
+  about: "قصة علامتك التجارية ورؤيتها",
+  instagram: "معرض صور من إنستغرام أو المنتجات",
+  faq: "أسئلة متكررة يطرحها العملاء",
+  whatsapp: "زر للتواصل المباشر عبر واتساب",
+  newsletter: "نموذج اشتراك بالبريد الإلكتروني",
+  lookbook: "معرض تحريري لصور المنتجات",
   "product-catalog": "كتالوج المنتجات الكامل مع فلترة حسب الفئة",
   "trust-strip": "شريط يوضح مزايا التسوق معك",
 };
 
 // ─── Available sections to add ────────────────────────────────────────────────
 export const AVAILABLE_SECTIONS: SectionType[] = [
-  "hero", "new-arrivals", "best-sellers", "categories",
-  "trust-strip", "offers", "lookbook", "about",
-  "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
+  "hero",
+  "new-arrivals",
+  "best-sellers",
+  "categories",
+  "trust-strip",
+  "offers",
+  "lookbook",
+  "about",
+  "testimonials",
+  "instagram",
+  "newsletter",
+  "faq",
+  "whatsapp",
+  "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: any): SectionConfig[] {
+export function normalizeHomepageSections(
+  sections: SectionConfig[] | undefined,
+  storeName: string,
+  category: string = "fashion",
+  t?: any,
+): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -179,10 +196,16 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(
+      section.type,
+      storeName,
+      category,
+      t,
+    );
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
-      section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
+      section.type === "lookbook" &&
+      !Object.prototype.hasOwnProperty.call(content, "items");
 
     normalized.push({
       ...section,
@@ -199,133 +222,241 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({
+        ...createDefaultSection(type, storeName, category, t),
+        order: normalized.length,
+      });
     }
   });
 
   const shouldPreserveExistingOrder = seen.size === AVAILABLE_SECTIONS.length;
-  const orderByAvailableSections = (section: SectionConfig) => AVAILABLE_SECTIONS.indexOf(section.type);
+  const orderByAvailableSections = (section: SectionConfig) =>
+    AVAILABLE_SECTIONS.indexOf(section.type);
 
   return normalized
-    .sort((a, b) => (
+    .sort((a, b) =>
       shouldPreserveExistingOrder
         ? a.order - b.order
-        : orderByAvailableSections(a) - orderByAvailableSections(b)
-    ))
+        : orderByAvailableSections(a) - orderByAvailableSections(b),
+    )
     .map((section, index) => ({ ...section, order: index }));
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: any): SectionConfig {
+export function createDefaultSection(
+  type: SectionType,
+  storeName: string,
+  category: string = "fashion",
+  t?: any,
+): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
-  
+  const isElectronics = category === "electronics";
+
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
-      const res = t(key, { defaultValue: fallback, returnObjects: true, ...options });
+      const res = t(key, {
+        defaultValue: fallback,
+        returnObjects: true,
+        ...options,
+      });
       return res;
     }
     return fallback;
   };
 
-  const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
+  const defaults: Record<
+    SectionType,
+    { content: SectionContent; settings: SectionSettings }
+  > = {
     hero: {
-      content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
-        ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
-        ctaLink: "#products" 
+      content: {
+        heading: tr(
+          isElectronics
+            ? "defaultSections.hero.headingElectronics"
+            : isCosmetics
+              ? "defaultSections.hero.headingCosmetics"
+              : "defaultSections.hero.heading",
+          isElectronics
+            ? `أحدث التقنيات بين يديك من ${storeName}`
+            : isCosmetics
+              ? `اكتشفي جمالكِ مع ${storeName}`
+              : `اكتشفي أحدث تشكيلة من ${storeName}`,
+          { storeName },
+        ),
+        subheading: tr(
+          isElectronics
+            ? "defaultSections.hero.subheadingElectronics"
+            : isCosmetics
+              ? "defaultSections.hero.subheadingCosmetics"
+              : "defaultSections.hero.subheading",
+          isElectronics
+            ? "أجهزة ذكية وإلكترونيات مبتكرة لحياة أسهل"
+            : isCosmetics
+              ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي"
+              : "أزياء راقية بأسعار تناسبك",
+        ),
+        ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"),
+        ctaLink: "#products",
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
     "new-arrivals": {
-      content: { 
-        heading: tr("defaultSections.newArrivals.heading", "وصل حديثاً"), 
-        subheading: tr("defaultSections.newArrivals.subheading", "أحدث المنتجات في مجموعتنا") 
+      content: {
+        heading: tr("defaultSections.newArrivals.heading", "وصل حديثاً"),
+        subheading: tr(
+          "defaultSections.newArrivals.subheading",
+          "أحدث المنتجات في مجموعتنا",
+        ),
       },
-      settings: { productCount: 8, cardStyle: "grid", showPrices: true, showQuickAdd: true },
+      settings: {
+        productCount: 8,
+        cardStyle: "grid",
+        showPrices: true,
+        showQuickAdd: true,
+      },
     },
     "best-sellers": {
-      content: { 
-        heading: tr("defaultSections.bestSellers.heading", "الأكثر مبيعاً"), 
-        subheading: tr("defaultSections.bestSellers.subheading", "المنتجات المفضلة لعملائنا") 
+      content: {
+        heading: tr("defaultSections.bestSellers.heading", "الأكثر مبيعاً"),
+        subheading: tr(
+          "defaultSections.bestSellers.subheading",
+          "المنتجات المفضلة لعملائنا",
+        ),
       },
-      settings: { productCount: 8, cardStyle: "grid", showPrices: true, showQuickAdd: true },
+      settings: {
+        productCount: 8,
+        cardStyle: "grid",
+        showPrices: true,
+        showQuickAdd: true,
+      },
     },
     categories: {
-      content: { 
-        heading: tr("defaultSections.categories.heading", "تسوقي حسب القسم") 
+      content: {
+        heading: tr("defaultSections.categories.heading", "تسوقي حسب القسم"),
       },
       settings: { layout: "grid" },
     },
     testimonials: {
-      content: { 
-        heading: tr("defaultSections.testimonials.heading", "ماذا يقول عملاؤنا"), 
-        items: []
+      content: {
+        heading: tr(
+          "defaultSections.testimonials.heading",
+          "ماذا يقول عملاؤنا",
+        ),
+        items: [],
       },
       settings: { layout: "grid", showRating: true },
     },
     offers: {
-      content: { 
+      content: {
         promo1Label: tr("defaultSections.offers.promo1Label", "عروض حصرية"),
-        promo1Heading: tr("defaultSections.offers.promo1Heading", "خصم يصل إلى"),
+        promo1Heading: tr(
+          "defaultSections.offers.promo1Heading",
+          "خصم يصل إلى",
+        ),
         promo1Discount: "40",
-        promo1Desc: tr("defaultSections.offers.promo1Desc", "على تشكيلات مختارة — لفترة محدودة"),
+        promo1Desc: tr(
+          "defaultSections.offers.promo1Desc",
+          "على تشكيلات مختارة — لفترة محدودة",
+        ),
         promo1Cta: tr("defaultSections.offers.promo1Cta", "تسوقي الآن"),
         promo2Label: tr("defaultSections.offers.promo2Label", "توصيل مجاني"),
         promo2Heading: tr("defaultSections.offers.promo2Heading", "شحن مجاني"),
-        promo2Subheading: tr("defaultSections.offers.promo2Subheading", "لكل طلب فوق"),
+        promo2Subheading: tr(
+          "defaultSections.offers.promo2Subheading",
+          "لكل طلب فوق",
+        ),
         promo2Threshold: "999",
         promo2Cta: tr("defaultSections.offers.promo2Cta", "اطلبي الآن"),
       },
       settings: {},
     },
     about: {
-      content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
-        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
-          ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
-          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: "/about-optimized.jpg"
+      content: {
+        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, {
+          storeName,
+        }),
+        body: tr(
+          isElectronics
+            ? "defaultSections.about.bodyElectronics"
+            : isCosmetics
+              ? "defaultSections.about.bodyCosmetics"
+              : "defaultSections.about.bodyFashion",
+          isElectronics
+            ? "نحن نؤمن بأن التكنولوجيا يجب أن تكون في متناول الجميع. نقدم لك أحدث الأجهزة الذكية والإلكترونيات من أفضل العلامات التجارية."
+            : isCosmetics
+              ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ."
+              : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.",
+        ),
+        imageUrl: "/about-optimized.jpg",
       },
       settings: { layout: "with-image" },
     },
     instagram: {
-      content: { 
-        heading: tr("defaultSections.instagram.heading", "تابعينا على إنستغرام") 
+      content: {
+        heading: tr(
+          "defaultSections.instagram.heading",
+          "تابعينا على إنستغرام",
+        ),
       },
       settings: { columns: 3 },
     },
     faq: {
-      content: { 
-        heading: tr("defaultSections.faq.heading", "أسئلة شائعة"), 
+      content: {
+        heading: tr("defaultSections.faq.heading", "أسئلة شائعة"),
         items: tr("defaultSections.faq.items", [
-          { q: "كم مدة التوصيل؟", a: "يصل طلبك خلال 2-5 أيام عمل داخل المحافظات الكبرى." },
-          { q: "هل يمكنني الإرجاع؟", a: "نعم، نقبل الإرجاع خلال 14 يوم من الاستلام." },
-          { q: "ما هي طرق الدفع المتاحة؟", a: "نقبل الدفع عند الاستلام، والبطاقات البنكية، وفودافون كاش." },
-        ])
+          {
+            q: "كم مدة التوصيل؟",
+            a: "يصل طلبك خلال 2-5 أيام عمل داخل المحافظات الكبرى.",
+          },
+          {
+            q: "هل يمكنني الإرجاع؟",
+            a: "نعم، نقبل الإرجاع خلال 14 يوم من الاستلام.",
+          },
+          {
+            q: "ما هي طرق الدفع المتاحة؟",
+            a: "نقبل الدفع عند الاستلام، والبطاقات البنكية، وفودافون كاش.",
+          },
+          ...(isElectronics
+            ? [
+                {
+                  q: "هل المنتجات أصلية ومشمولة بالضمان؟",
+                  a: "نعم، جميع أجهزتنا أصلية 100% ومشمولة بضمان الوكيل المعتمد.",
+                },
+              ]
+            : []),
+        ]),
       },
       settings: {},
     },
     whatsapp: {
-      content: { 
-        heading: tr("defaultSections.whatsapp.heading", "تحدثي معنا مباشرة"), 
-        subheading: tr("defaultSections.whatsapp.subheading", "نرد على استفساراتك خلال دقائق"), 
-        ctaText: tr("defaultSections.whatsapp.ctaText", "تواصلي عبر واتساب") 
+      content: {
+        heading: tr("defaultSections.whatsapp.heading", "تحدثي معنا مباشرة"),
+        subheading: tr(
+          "defaultSections.whatsapp.subheading",
+          "نرد على استفساراتك خلال دقائق",
+        ),
+        ctaText: tr("defaultSections.whatsapp.ctaText", "تواصلي عبر واتساب"),
       },
       settings: { floatingButton: true },
     },
     newsletter: {
-      content: { 
-        heading: tr("defaultSections.newsletter.heading", "اشتركي في نشرتنا"), 
-        subheading: tr("defaultSections.newsletter.subheading", "كوني أول من تعرف بالعروض والمنتجات الجديدة"), 
-        ctaText: tr("defaultSections.newsletter.ctaText", "اشتركي الآن") 
+      content: {
+        heading: tr("defaultSections.newsletter.heading", "اشتركي في نشرتنا"),
+        subheading: tr(
+          "defaultSections.newsletter.subheading",
+          "كوني أول من تعرف بالعروض والمنتجات الجديدة",
+        ),
+        ctaText: tr("defaultSections.newsletter.ctaText", "اشتركي الآن"),
       },
       settings: {},
     },
     lookbook: {
-      content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
+      content: {
+        heading: tr(
+          "defaultSections.lookbook.heading",
+          "لوك بوك - إلهامي هذا الموسم",
+        ),
         items: tr("defaultSections.lookbook.items", [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
@@ -348,32 +479,47 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
             desc: "High quality care products",
             categoryId: "",
           },
-        ])
+        ]),
       },
       settings: { columns: 3 },
     },
     "product-catalog": {
-      content: { 
-        heading: tr("defaultSections.productCatalog.heading", "جميع المنتجات"), 
-        subheading: tr("defaultSections.productCatalog.subheading", "كتالوج كامل") 
+      content: {
+        heading: tr("defaultSections.productCatalog.heading", "جميع المنتجات"),
+        subheading: tr(
+          "defaultSections.productCatalog.subheading",
+          "كتالوج كامل",
+        ),
       },
       settings: { layout: "grid", showPrices: true, showQuickAdd: true },
     },
     "trust-strip": {
-      content: { 
+      content: {
         items: tr("defaultSections.trustStrip.items", [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
-          { icon: "⭐", title: "جودة مضمونة", text: "منتجات أصلية 100%" },
-        ])
+          {
+            icon: isElectronics ? "🛡️" : "⭐",
+            title: isElectronics ? "ضمان معتمد" : "جودة مضمونة",
+            text: isElectronics ? "على جميع الأجهزة" : "منتجات أصلية 100%",
+          },
+        ]),
       },
       settings: {},
     },
   };
 
   const d = defaults[type];
-  return { id, type, label: SECTION_LABELS[type], visible: true, order: 0, content: d.content, settings: d.settings };
+  return {
+    id,
+    type,
+    label: SECTION_LABELS[type],
+    visible: true,
+    order: 0,
+    content: d.content,
+    settings: d.settings,
+  };
 }
 
 // ─── Default theme ────────────────────────────────────────────────────────────
@@ -389,93 +535,265 @@ export const DEFAULT_THEME: ThemeConfig = {
 };
 
 // ─── Personality presets ──────────────────────────────────────────────────────
-export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
+export const PERSONALITY_PRESETS: Record<
+  PersonalityType,
+  {
+    label: string;
+    desc: string;
+    emoji: string;
+    colors: string[];
+    font: string;
+    example: string;
+    theme: Partial<ThemeConfig>;
+  }
+> = {
   elegant: {
-    label: "أنيقة وراقية", desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع", emoji: "💎",
-    colors: ["#1a1614", "#c8963a"], font: "Cormorant Garamond",
-    example: "\"أناقة لا تُقاوَم — مجموعة حصرية لكِ\"",
-    theme: { primaryColor: "#1a1614", secondaryColor: "#c8963a", fontPairing: "serif-serif", buttonStyle: "square", cardShadow: "soft" },
+    label: "أنيقة وراقية",
+    desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع",
+    emoji: "💎",
+    colors: ["#1a1614", "#c8963a"],
+    font: "Cormorant Garamond",
+    example: '"أناقة لا تُقاوَم — مجموعة حصرية لكِ"',
+    theme: {
+      primaryColor: "#1a1614",
+      secondaryColor: "#c8963a",
+      fontPairing: "serif-serif",
+      buttonStyle: "square",
+      cardShadow: "soft",
+    },
   },
   friendly: {
-    label: "ودودة وبسيطة", desc: "للمتاجر القريبة من قلب العميل وتبني علاقة دافئة", emoji: "🤗",
-    colors: ["#e57373", "#f9a825"], font: "Cairo",
-    example: "\"كل يوم إطلالة مختلفة — نحن هنا نساعدك\"",
-    theme: { primaryColor: "#e57373", secondaryColor: "#f9a825", fontPairing: "sans-sans", buttonStyle: "pill", cardShadow: "soft" },
+    label: "ودودة وبسيطة",
+    desc: "للمتاجر القريبة من قلب العميل وتبني علاقة دافئة",
+    emoji: "🤗",
+    colors: ["#e57373", "#f9a825"],
+    font: "Cairo",
+    example: '"كل يوم إطلالة مختلفة — نحن هنا نساعدك"',
+    theme: {
+      primaryColor: "#e57373",
+      secondaryColor: "#f9a825",
+      fontPairing: "sans-sans",
+      buttonStyle: "pill",
+      cardShadow: "soft",
+    },
   },
   bold: {
-    label: "جريئة وعصرية", desc: "للعلامات التي تريد أن تبرز وتكون الحديث", emoji: "⚡",
-    colors: ["#d32f2f", "#212121"], font: "Cairo",
-    example: "\"لا وقت للرتابة — أنتِ استثنائية\"",
-    theme: { primaryColor: "#d32f2f", secondaryColor: "#212121", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively" },
+    label: "جريئة وعصرية",
+    desc: "للعلامات التي تريد أن تبرز وتكون الحديث",
+    emoji: "⚡",
+    colors: ["#d32f2f", "#212121"],
+    font: "Cairo",
+    example: '"لا وقت للرتابة — أنتِ استثنائية"',
+    theme: {
+      primaryColor: "#d32f2f",
+      secondaryColor: "#212121",
+      fontPairing: "sans-sans",
+      buttonStyle: "square",
+      animationLevel: "lively",
+    },
   },
   minimal: {
-    label: "مينيمال ونظيف", desc: "للعلامات التي تؤمن بأن البساطة هي أقصى الفخامة", emoji: "○",
-    colors: ["#333333", "#eeeeee"], font: "Roboto",
-    example: "\"أقل هو أكثر — الجمال في التفاصيل\"",
-    theme: { primaryColor: "#333333", secondaryColor: "#888888", fontPairing: "sans-sans", buttonStyle: "rounded", cardShadow: "none", animationLevel: "none" },
+    label: "مينيمال ونظيف",
+    desc: "للعلامات التي تؤمن بأن البساطة هي أقصى الفخامة",
+    emoji: "○",
+    colors: ["#333333", "#eeeeee"],
+    font: "Roboto",
+    example: '"أقل هو أكثر — الجمال في التفاصيل"',
+    theme: {
+      primaryColor: "#333333",
+      secondaryColor: "#888888",
+      fontPairing: "sans-sans",
+      buttonStyle: "rounded",
+      cardShadow: "none",
+      animationLevel: "none",
+    },
   },
   warm: {
-    label: "دافئة وحرفية", desc: "للمنتجات اليدوية والعلامات ذات الطابع الشخصي", emoji: "🌿",
-    colors: ["#795548", "#ff8f00"], font: "Cairo",
-    example: "\"صُنع بالحب — لأجلكِ أنتِ\"",
-    theme: { primaryColor: "#795548", secondaryColor: "#ff8f00", fontPairing: "serif-sans", buttonStyle: "rounded", cardShadow: "soft" },
+    label: "دافئة وحرفية",
+    desc: "للمنتجات اليدوية والعلامات ذات الطابع الشخصي",
+    emoji: "🌿",
+    colors: ["#795548", "#ff8f00"],
+    font: "Cairo",
+    example: '"صُنع بالحب — لأجلكِ أنتِ"',
+    theme: {
+      primaryColor: "#795548",
+      secondaryColor: "#ff8f00",
+      fontPairing: "serif-sans",
+      buttonStyle: "rounded",
+      cardShadow: "soft",
+    },
   },
   youthful: {
-    label: "شبابية وملونة", desc: "للعلامات التي تستهدف الجيل الجديد والروح العصرية", emoji: "🌈",
-    colors: ["#7c4dff", "#ff4081"], font: "Cairo",
-    example: "\"Style Your Life — كل يوم مختلف\"",
-    theme: { primaryColor: "#7c4dff", secondaryColor: "#ff4081", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "lively", cardShadow: "strong" },
+    label: "شبابية وملونة",
+    desc: "للعلامات التي تستهدف الجيل الجديد والروح العصرية",
+    emoji: "🌈",
+    colors: ["#7c4dff", "#ff4081"],
+    font: "Cairo",
+    example: '"Style Your Life — كل يوم مختلف"',
+    theme: {
+      primaryColor: "#7c4dff",
+      secondaryColor: "#ff4081",
+      fontPairing: "sans-sans",
+      buttonStyle: "pill",
+      animationLevel: "lively",
+      cardShadow: "strong",
+    },
   },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
-export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
+export const STYLE_PRESETS: Record<
+  StyleType,
+  { label: string; desc: string; emoji: string; sections: SectionType[] }
+> = {
   "modern-boutique": {
-    label: "بوتيك عصري", desc: "مثالي للأزياء والإكسسوارات الراقية", emoji: "👗",
-    sections: ["hero", "trust-strip", "new-arrivals", "categories", "lookbook", "about", "newsletter"],
+    label: "بوتيك عصري",
+    desc: "مثالي للأزياء والإكسسوارات الراقية",
+    emoji: "👗",
+    sections: [
+      "hero",
+      "trust-strip",
+      "new-arrivals",
+      "categories",
+      "lookbook",
+      "about",
+      "newsletter",
+    ],
   },
   "beauty-brand": {
-    label: "علامة تجميل", desc: "لمنتجات العناية والمكياج والتجميل", emoji: "💄",
-    sections: ["hero", "best-sellers", "categories", "about", "testimonials", "faq", "whatsapp", "newsletter"],
+    label: "علامة تجميل",
+    desc: "لمنتجات العناية والمكياج والتجميل",
+    emoji: "💄",
+    sections: [
+      "hero",
+      "best-sellers",
+      "categories",
+      "about",
+      "testimonials",
+      "faq",
+      "whatsapp",
+      "newsletter",
+    ],
   },
   "minimal-store": {
-    label: "متجر مينيمال", desc: "تصميم نظيف يُبرز المنتج بلا تشتيت", emoji: "○",
+    label: "متجر مينيمال",
+    desc: "تصميم نظيف يُبرز المنتج بلا تشتيت",
+    emoji: "○",
     sections: ["hero", "new-arrivals", "categories", "about", "newsletter"],
   },
   "premium-fashion": {
-    label: "أزياء فاخرة", desc: "للكوليكشنات المميزة والخطوط العالية", emoji: "✨",
-    sections: ["hero", "lookbook", "new-arrivals", "about", "testimonials", "newsletter"],
+    label: "أزياء فاخرة",
+    desc: "للكوليكشنات المميزة والخطوط العالية",
+    emoji: "✨",
+    sections: [
+      "hero",
+      "lookbook",
+      "new-arrivals",
+      "about",
+      "testimonials",
+      "newsletter",
+    ],
   },
   "local-brand": {
-    label: "علامة محلية", desc: "تُبرز الهوية المحلية والأصالة المصرية", emoji: "🌍",
-    sections: ["hero", "about", "new-arrivals", "trust-strip", "whatsapp", "instagram", "faq"],
+    label: "علامة محلية",
+    desc: "تُبرز الهوية المحلية والأصالة المصرية",
+    emoji: "🌍",
+    sections: [
+      "hero",
+      "about",
+      "new-arrivals",
+      "trust-strip",
+      "whatsapp",
+      "instagram",
+      "faq",
+    ],
   },
   "playful-shop": {
-    label: "متجر مرح", desc: "للمنتجات الشبابية والملونة والمبهجة", emoji: "🎨",
-    sections: ["hero", "categories", "best-sellers", "offers", "instagram", "newsletter"],
+    label: "متجر مرح",
+    desc: "للمنتجات الشبابية والملونة والمبهجة",
+    emoji: "🎨",
+    sections: [
+      "hero",
+      "categories",
+      "best-sellers",
+      "offers",
+      "instagram",
+      "newsletter",
+    ],
   },
   "luxury-catalog": {
-    label: "كتالوج فاخر", desc: "عرض احترافي يشبه المجلات العالمية", emoji: "🏅",
-    sections: ["hero", "lookbook", "categories", "new-arrivals", "testimonials", "about", "newsletter"],
+    label: "كتالوج فاخر",
+    desc: "عرض احترافي يشبه المجلات العالمية",
+    emoji: "🏅",
+    sections: [
+      "hero",
+      "lookbook",
+      "categories",
+      "new-arrivals",
+      "testimonials",
+      "about",
+      "newsletter",
+    ],
+  },
+  "electronics-hub": {
+    label: "مركز الإلكترونيات",
+    desc: "تصميم تقني وحديث لعرض الأجهزة الذكية والإلكترونيات",
+    emoji: "💻",
+    sections: [
+      "hero",
+      "trust-strip",
+      "categories",
+      "best-sellers",
+      "offers",
+      "faq",
+      "newsletter",
+    ],
   },
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
-export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: any): StoreConfig {
+export function createDefaultConfig(
+  partial?: Partial<StoreConfig>,
+  t?: any,
+): StoreConfig {
   const name = partial?.brand?.name ?? "متجري";
   const category = partial?.brand?.category ?? "fashion";
   return {
-    brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
+    brand: {
+      name,
+      category: "fashion",
+      targetCustomer: "",
+      uniqueValue: "",
+      personality: "elegant",
+      tone: "دافئة وأنيقة",
+      ...(partial?.brand ?? {}),
+    },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(
+        partial?.homepage?.sections,
+        name,
+        category,
+        t,
+      ),
     },
-    business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
+    business: {
+      whatsapp: "",
+      city: "",
+      deliveryAreas: [],
+      paymentMethods: ["cod"],
+      returnPolicy: "نقبل الإرجاع خلال 14 يوم",
+      socialLinks: {},
+      ...(partial?.business ?? {}),
+    },
   };
 }
 
 // ─── AI mock suggestions ──────────────────────────────────────────────────────
-export interface AISuggestion { prompt: string; icon: string; }
+export interface AISuggestion {
+  prompt: string;
+  icon: string;
+}
 
 export const AI_QUICK_ACTIONS: AISuggestion[] = [
   { prompt: "اكتب العنوان الرئيسي (Hero)", icon: "✨" },
