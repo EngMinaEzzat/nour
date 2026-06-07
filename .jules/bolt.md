@@ -53,3 +53,6 @@
 **Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
 **Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
 
+## 2024-06-07 - Database connection failures in tests
+**Learning:** API server tests requiring a database throw `DATABASE_URL must be set` if `NOUR_TEST_DATABASE_OK` is set but `DATABASE_URL` is omitted, and the root `package.json` does not have a single `test` script.
+**Action:** When running the full test suite from the root, provide the DB variables and use the recursive filter command: `NOUR_TEST_DATABASE_OK=true DATABASE_URL="postgres://postgres:postgres@localhost:5432/nour_test" REDIS_URL="redis://localhost:6379" pnpm -r --filter "./artifacts/**" --if-present run test`. If the test DB is uninitialized, provision it via standard PostgreSQL tools and use Drizzle's `push-force` to rapidly generate the test schema.
