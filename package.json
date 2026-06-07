@@ -10,7 +10,9 @@
   },
   "private": true,
   "devDependencies": {
+    "@vitest/runner": "^4.1.5",
+    "prettier": "^3.8.1",
     "typescript": "~5.9.2",
-    "prettier": "^3.8.1"
+    "vitest": "^4.1.5"
   }
 }
