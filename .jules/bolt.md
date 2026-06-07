@@ -53,3 +53,6 @@
 **Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
 **Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
 
+## 2026-06-07 - [Testing improvement for catch blocks]
+**Learning:** Testing error handling (catch blocks) for code executed synchronously inside Express endpoints requires mocking internal dependencies using Vitest's `vi.spyOn`.
+**Action:** Use `vi.spyOn(module, "method").mockRejectedValueOnce(error)` to intentionally trigger errors in internal services and verify proper status logging, error responses, and database updates for job management inside catch blocks.
