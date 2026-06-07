@@ -43,3 +43,7 @@
 **Learning:** Returning full database records (`...c`) in public endpoints is dangerous. Even if the data was just provided by the user, a lookup path for *existing* data must be strictly limited to the absolute minimum required for the next step of the flow.
 **Prevention:** Always use explicit allow-lists for API responses, especially on unauthenticated routes. In this codebase, the pattern of `serializeTenant` with an `includePrivate` flag has been established as a reusable security pattern for multi-tenant data isolation.
 >>>>>>> origin/fix/sentinel-pii-leak-hardening-4473712619007485836
+## 2025-06-05 - Missing Cache Eviction in Lockout Maps
+**Vulnerability:** In-memory maps for security features (like login lockout attempts) that don't evict expired entries.
+**Learning:** If a `Map` tracking failures only grows and never cleans up entries unless a legitimate login occurs, attackers can cause an Out-of-Memory (OOM) Denial of Service (DoS) by spamming the endpoint with random emails.
+**Prevention:** Always pair unbounded in-memory caches or tracking maps with a `setInterval(..., interval).unref()` eviction loop to prune stale data.

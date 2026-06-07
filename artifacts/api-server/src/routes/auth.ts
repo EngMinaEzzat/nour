@@ -27,7 +27,18 @@ const EMAIL_DELIVERY_TIMEOUT_MS =
     : 3000;
 
 // ── Per-account login lockout (in-memory; resets on restart) ──
-const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();
+const loginAttempts = new Map<string, { count: number; lockedUntil: number; firstFailedAt: number }>();
+
+// Cleanup old login attempts every 15 minutes to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, entry] of loginAttempts.entries()) {
+    // Delete entries that are older than 15 minutes or whose lockout has expired
+    if ((entry.lockedUntil > 0 && entry.lockedUntil <= now) || (entry.lockedUntil === 0 && now - entry.firstFailedAt > 15 * 60 * 1000)) {
+      loginAttempts.delete(email);
+    }
+  }
+}, 15 * 60 * 1000).unref();
 
 function checkAccountLockout(email: string): { locked: boolean; retryAfterSeconds?: number } {
   const entry = loginAttempts.get(email);
@@ -39,10 +50,18 @@ function checkAccountLockout(email: string): { locked: boolean; retryAfterSecond
 }
 
 function recordFailedLogin(email: string): void {
-  const entry = loginAttempts.get(email) ?? { count: 0, lockedUntil: 0 };
+  const now = Date.now();
+  const entry = loginAttempts.get(email) ?? { count: 0, lockedUntil: 0, firstFailedAt: now };
+
+  // Reset count if the first failure was more than 15 minutes ago
+  if (now - entry.firstFailedAt > 15 * 60 * 1000) {
+    entry.count = 0;
+    entry.firstFailedAt = now;
+  }
+
   entry.count++;
   if (entry.count >= 5) {
-    entry.lockedUntil = Date.now() + 30 * 60 * 1000; // 30 min lockout after 5 failures
+    entry.lockedUntil = now + 30 * 60 * 1000; // 30 min lockout after 5 failures
   }
   loginAttempts.set(email, entry);
 }
