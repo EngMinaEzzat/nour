@@ -3,10 +3,12 @@ import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
-import { StorefrontProductCard, ProductCardData } from "./StorefrontProductCard";
+import {
+  StorefrontProductCard,
+  ProductCardData,
+} from "./StorefrontProductCard";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
-
 
 interface TrendingSectionProps {
   products: ProductCardData[];
@@ -41,7 +43,10 @@ export function TrendingSection({
     <section
       id="trending"
       className="py-16 md:py-24"
-      style={{ background: "linear-gradient(180deg, #faf7f4 0%, #fff 100%)", direction: i18n.dir() }}
+      style={{
+        background: "linear-gradient(180deg, #faf7f4 0%, #fff 100%)",
+        direction: i18n.dir(),
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
@@ -59,7 +64,9 @@ export function TrendingSection({
             >
               {t("storefront.home.trending.title1")}
               <br />
-              <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.trending.title2")}</span>
+              <span style={{ color: p, fontStyle: "italic" }}>
+                {t("storefront.home.trending.title2")}
+              </span>
             </h2>
           </div>
           {/* Scroll arrows */}
@@ -68,6 +75,7 @@ export function TrendingSection({
               onClick={() => scroll("right")}
               className="w-10 h-10 rounded-full border flex items-center justify-center transition-all hover:shadow-md"
               style={{ borderColor: "rgba(139,26,53,0.2)", color: p }}
+              aria-label={t("storefront.products.scrollRight", "Scroll right")}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -75,6 +83,7 @@ export function TrendingSection({
               onClick={() => scroll("left")}
               className="w-10 h-10 rounded-full border flex items-center justify-center transition-all hover:shadow-md"
               style={{ borderColor: "rgba(139,26,53,0.2)", color: p }}
+              aria-label={t("storefront.products.scrollLeft", "Scroll left")}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -83,16 +92,33 @@ export function TrendingSection({
 
         {/* Trend tags */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-1 scrollbar-none">
-          {(t("storefront.home.trending.tags", { returnObjects: true, defaultValue: [
-            t("storefront.trending.tags.sneakers", { defaultValue: "Sneakers" }),
-            t("storefront.trending.tags.ballerina", { defaultValue: "Ballerina" }),
-            t("storefront.trending.tags.mini", { defaultValue: "Mini" }),
-            t("storefront.trending.tags.streetStyle", { defaultValue: "Street Style" }),
-            t("storefront.trending.tags.softLuxury", { defaultValue: "Soft Luxury" }),
-            t("storefront.trending.tags.boho", { defaultValue: "Boho" }),
-            t("storefront.trending.tags.monochrome", { defaultValue: "Monochrome" }),
-            t("storefront.trending.tags.floral", { defaultValue: "Floral" }),
-          ] }) as string[]).map((tag, i) => (
+          {(
+            t("storefront.home.trending.tags", {
+              returnObjects: true,
+              defaultValue: [
+                t("storefront.trending.tags.sneakers", {
+                  defaultValue: "Sneakers",
+                }),
+                t("storefront.trending.tags.ballerina", {
+                  defaultValue: "Ballerina",
+                }),
+                t("storefront.trending.tags.mini", { defaultValue: "Mini" }),
+                t("storefront.trending.tags.streetStyle", {
+                  defaultValue: "Street Style",
+                }),
+                t("storefront.trending.tags.softLuxury", {
+                  defaultValue: "Soft Luxury",
+                }),
+                t("storefront.trending.tags.boho", { defaultValue: "Boho" }),
+                t("storefront.trending.tags.monochrome", {
+                  defaultValue: "Monochrome",
+                }),
+                t("storefront.trending.tags.floral", {
+                  defaultValue: "Floral",
+                }),
+              ],
+            }) as string[]
+          ).map((tag, i) => (
             <motion.span
               key={tag}
               className="shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[12px] font-medium border"

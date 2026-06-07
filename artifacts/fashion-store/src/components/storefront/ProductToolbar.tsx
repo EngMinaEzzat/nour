@@ -178,9 +178,7 @@ function FilterChip({
       style={{
         background: active ? `${p}12` : "#fff",
         color: active ? p : "#7a6060",
-        border: `1px solid ${
-          active ? `${p}40` : "rgba(122,96,96,0.2)"
-        }`,
+        border: `1px solid ${active ? `${p}40` : "rgba(122,96,96,0.2)"}`,
       }}
     >
       {icon}
@@ -194,10 +192,12 @@ function ActiveTag({
   label,
   onRemove,
   primaryColor: p,
+  ariaLabel,
 }: {
   label: string;
   onRemove: () => void;
   primaryColor: string;
+  ariaLabel: string;
 }) {
   return (
     <motion.span
@@ -212,6 +212,7 @@ function ActiveTag({
       <button
         onClick={onRemove}
         className="w-3.5 h-3.5 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
+        aria-label={ariaLabel}
       >
         <X className="w-2.5 h-2.5" />
       </button>
@@ -271,9 +272,7 @@ function PriceRangePopover({
         style={{
           background: isActive ? `${p}12` : "#fff",
           color: isActive ? p : "#7a6060",
-          border: `1px solid ${
-            isActive ? `${p}40` : "rgba(122,96,96,0.2)"
-          }`,
+          border: `1px solid ${isActive ? `${p}40` : "rgba(122,96,96,0.2)"}`,
         }}
       >
         <Tag className="w-3.5 h-3.5" />
@@ -356,10 +355,10 @@ function MobileFilterSheet({
   const { t } = useTranslation();
   const label = useSortLabel(t);
   const [localMin, setLocalMin] = useState(
-    filters.priceRange.min?.toString() ?? ""
+    filters.priceRange.min?.toString() ?? "",
   );
   const [localMax, setLocalMax] = useState(
-    filters.priceRange.max?.toString() ?? ""
+    filters.priceRange.max?.toString() ?? "",
   );
 
   useEffect(() => {
@@ -444,15 +443,11 @@ function MobileFilterSheet({
                   {SORT_OPTIONS.map((opt) => (
                     <button
                       key={opt}
-                      onClick={() =>
-                        onChange({ ...filters, sortBy: opt })
-                      }
+                      onClick={() => onChange({ ...filters, sortBy: opt })}
                       className="px-4 py-2 rounded-full text-xs font-semibold transition-all"
                       style={{
-                        background:
-                          filters.sortBy === opt ? p : "#f5f1ee",
-                        color:
-                          filters.sortBy === opt ? "#fff" : "#7a6060",
+                        background: filters.sortBy === opt ? p : "#f5f1ee",
+                        color: filters.sortBy === opt ? "#fff" : "#7a6060",
                       }}
                     >
                       {label(opt)}
@@ -464,8 +459,7 @@ function MobileFilterSheet({
               {/* Price Range */}
               <div className="mb-6">
                 <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">
-                  {t("storefront.filters.priceRange")} (
-                  {currency})
+                  {t("storefront.filters.priceRange")} ({currency})
                 </p>
                 <div className="flex items-center gap-3">
                   <input
@@ -475,9 +469,7 @@ function MobileFilterSheet({
                     value={localMin}
                     onChange={(e) => setLocalMin(e.target.value)}
                     className="flex-1 px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 text-stone-800"
-                    style={
-                      { "--tw-ring-color": p } as React.CSSProperties
-                    }
+                    style={{ "--tw-ring-color": p } as React.CSSProperties}
                   />
                   <span className="text-stone-300">–</span>
                   <input
@@ -487,9 +479,7 @@ function MobileFilterSheet({
                     value={localMax}
                     onChange={(e) => setLocalMax(e.target.value)}
                     className="flex-1 px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 text-stone-800"
-                    style={
-                      { "--tw-ring-color": p } as React.CSSProperties
-                    }
+                    style={{ "--tw-ring-color": p } as React.CSSProperties}
                   />
                 </div>
               </div>
@@ -629,10 +619,7 @@ export function ProductToolbar({
 
   return (
     <>
-      <div
-        className="mb-6 space-y-3"
-        style={{ direction: i18n.dir() }}
-      >
+      <div className="mb-6 space-y-3" style={{ direction: i18n.dir() }}>
         {/* ── Desktop toolbar ── */}
         <div className="hidden sm:flex items-center gap-2 flex-wrap">
           {/* Filter chips */}
@@ -693,9 +680,7 @@ export function ProductToolbar({
             style={{
               background: active ? `${p}12` : "#fff",
               color: active ? p : "#7a6060",
-              border: `1px solid ${
-                active ? `${p}40` : "rgba(122,96,96,0.2)"
-              }`,
+              border: `1px solid ${active ? `${p}40` : "rgba(122,96,96,0.2)"}`,
             }}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -737,6 +722,9 @@ export function ProductToolbar({
                   label={tag.label}
                   onRemove={tag.onRemove}
                   primaryColor={p}
+                  ariaLabel={t("storefront.filters.removeFilter", {
+                    defaultValue: "Remove filter",
+                  })}
                 />
               ))}
             </AnimatePresence>
