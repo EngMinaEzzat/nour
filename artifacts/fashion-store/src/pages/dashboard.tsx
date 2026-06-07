@@ -115,7 +115,7 @@ function UsageBar({ value, max, color = "bg-primary" }: { value: number; max: nu
     <div className="space-y-1">
       <div className="h-2 bg-muted rounded-full overflow-hidden">
         <motion.div
-          className={`h-full rounded-full ${warn ? "bg-red-500" : near ? "bg-orange-400" : color}`}
+          className={`h-full rounded-full ${warn ? "bg-destructive" : near ? "bg-orange-400" : color}`}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -162,7 +162,7 @@ function PlanUsageCard() {
       transition={{ delay: 0.05 }}
       className="mb-6"
     >
-      <Card className={`border ${atLimit ? "border-red-200 bg-red-50/30 dark:border-red-800/30" : nearLimit ? "border-orange-200 bg-orange-50/20 dark:border-orange-800/20" : "border-border/50"} overflow-hidden`}>
+      <Card className={`border ${atLimit ? "border-destructive/20 bg-destructive/5" : nearLimit ? "border-orange-200 bg-orange-50/20 dark:border-orange-800/20" : "border-border/50"} overflow-hidden`}>
         <CardContent className="p-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex items-center gap-3 flex-1">
@@ -179,7 +179,7 @@ function PlanUsageCard() {
                     </span>
                   )}
                   {atLimit && (
-                    <Badge className="text-[10px] px-1.5 py-0 border bg-red-100 text-red-700 border-red-200">
+                    <Badge className="text-[10px] px-1.5 py-0 border bg-destructive/10 text-destructive border-destructive/20">
                       <AlertTriangle className="w-2.5 h-2.5 me-0.5" /> {t("dashboard.kpi.reachedLimit")}
                     </Badge>
                   )}
