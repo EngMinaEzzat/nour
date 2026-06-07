@@ -1321,7 +1321,7 @@ components:
           type: string
         category:
           type: string
-          enum: [fashion, cosmetics, both]
+          enum: [fashion, cosmetics, both, clinic]
           default: both
         status:
           type: string
@@ -1360,7 +1360,7 @@ components:
           nullable: true
         category:
           type: string
-          enum: [fashion, cosmetics, both]
+          enum: [fashion, cosmetics, both, clinic]
           default: both
         city:
           type: string
@@ -1390,7 +1390,7 @@ components:
           type: string
         category:
           type: string
-          enum: [fashion, cosmetics, both]
+          enum: [fashion, cosmetics, both, clinic]
         status:
           type: string
           enum: [active, inactive, pending]
@@ -1440,7 +1440,7 @@ components:
           description: ID of the parent category
         type:
           type: string
-          enum: [fashion, cosmetics]
+          enum: [fashion, cosmetics, clinic]
         imageUrl:
           type: string
           nullable: true
@@ -1460,7 +1460,7 @@ components:
           nullable: true
         type:
           type: string
-          enum: [fashion, cosmetics]
+          enum: [fashion, cosmetics, clinic]
         imageUrl:
           type: string
           nullable: true
@@ -1478,7 +1478,7 @@ components:
           nullable: true
         type:
           type: string
-          enum: [fashion, cosmetics]
+          enum: [fashion, cosmetics, clinic]
         imageUrl:
           type: string
           nullable: true
@@ -2238,7 +2238,7 @@ components:
           type: string
         category:
           type: string
-          enum: [fashion, cosmetics, both]
+          enum: [fashion, cosmetics, both, clinic]
           default: both
         phone:
           type: string
@@ -2321,7 +2321,7 @@ components:
           type: string
         category:
           type: string
-          enum: [fashion, cosmetics, both]
+          enum: [fashion, cosmetics, both, clinic]
         status:
           type: string
         city:
@@ -2400,7 +2400,7 @@ components:
           type: string
         category:
           type: string
-          enum: [fashion, cosmetics, both]
+          enum: [fashion, cosmetics, both, clinic]
         status:
           type: string
         city:
@@ -2439,7 +2439,7 @@ components:
                 nullable: true
               type:
                 type: string
-                enum: [fashion, cosmetics]
+                enum: [fashion, cosmetics, clinic]
               imageUrl:
                 type: string
                 nullable: true

@@ -422,7 +422,8 @@
       "errDuplicateSlug": "Store name or URL is already in use, try another name",
       "emailInvalid": "Invalid email address format",
       "phoneInvalid": "Phone number must be exactly 11 digits and start with 01",
-      "emailTypoSuggestion": "Did you mean {{suggestion}}?"
+      "emailTypoSuggestion": "Did you mean {{suggestion}}?",
+      "catClinic": "Clinic / Medical Services"
     },
     "resetPassword": {
       "title": "Set a new password",

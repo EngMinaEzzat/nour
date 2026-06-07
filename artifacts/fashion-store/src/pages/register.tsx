@@ -58,7 +58,7 @@ export default function Register() {
     email: string;
     password: string;
     phone: string;
-    category: "fashion" | "cosmetics" | "both";
+    category: "fashion" | "cosmetics" | "both" | "clinic";
     gender: "female" | "male";
   }>({
     storeName: "",
@@ -218,7 +218,7 @@ export default function Register() {
         email: form.email.trim(),
         phone: normalizeDigits(form.phone).replace(/[\s().-]/g, ""),
         password: form.password,
-        category: form.category,
+        category: form.category as any,
       });
       // Persist gender locally for the editor UI language
       try {
@@ -370,7 +370,7 @@ export default function Register() {
                 </Label>
                 <Select
                   value={form.category}
-                  onValueChange={(val: "fashion" | "cosmetics" | "both") =>
+                  onValueChange={(val: "fashion" | "cosmetics" | "both" | "clinic") =>
                     setForm((f) => ({ ...f, category: val }))
                   }
                 >
@@ -388,6 +388,9 @@ export default function Register() {
                     </SelectItem>
                     <SelectItem value="both">
                       {t("auth.register.catBoth")}
+                    </SelectItem>
+                    <SelectItem value="clinic">
+                      {t("auth.register.catClinic")}
                     </SelectItem>
                   </SelectContent>
                 </Select>

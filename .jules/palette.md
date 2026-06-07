@@ -11,3 +11,6 @@
 ## 2024-06-07 - Clinic Theme Addition
 **Learning:** Adding new themes to the visual configuration requires updates to both `StoreTheme` type, the settings picker array (`THEMES`), and language locale files (`translation.json`) to be fully integrated.
 **Action:** When creating new themes, ensure they are typed in the StoreTheme union, exported from `components/themes/storefronts`, handled in the primary storefront routing (`pages/storefront.tsx`), and have localized preview labels.
+## 2024-06-07 - Full Integration of Category Themes
+**Learning:** If a generic category enum is used across both the database (`tenant_category`, `category_type`) and the generated API clients (via OpenAPI specs), you must update both the database enums (with explicit SQL migrations using `ALTER TYPE`) and the `openapi.yaml` to ensure TypeScript mappings (like `RegisterMerchantBody`) allow the new category values.
+**Action:** Always search `lib/api-spec/openapi.yaml` and run `codegen` for the `@workspace/api-zod` client when modifying global categorization or enums like themes/categories.

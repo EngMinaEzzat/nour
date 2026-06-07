@@ -16,6 +16,7 @@ export const TenantCategory = {
   fashion: "fashion",
   cosmetics: "cosmetics",
   both: "both",
+  clinic: "clinic",
 } as const;
 
 export type TenantStatus = (typeof TenantStatus)[keyof typeof TenantStatus];
@@ -65,6 +66,7 @@ export const CreateTenantBodyCategory = {
   fashion: "fashion",
   cosmetics: "cosmetics",
   both: "both",
+  clinic: "clinic",
 } as const;
 
 export interface CreateTenantBody {
@@ -84,6 +86,7 @@ export const UpdateTenantBodyCategory = {
   fashion: "fashion",
   cosmetics: "cosmetics",
   both: "both",
+  clinic: "clinic",
 } as const;
 
 export type UpdateTenantBodyStatus =
@@ -123,6 +126,7 @@ export type CategoryType = (typeof CategoryType)[keyof typeof CategoryType];
 export const CategoryType = {
   fashion: "fashion",
   cosmetics: "cosmetics",
+  clinic: "clinic",
 } as const;
 
 export interface Category {
@@ -143,6 +147,7 @@ export type CreateCategoryBodyType =
 export const CreateCategoryBodyType = {
   fashion: "fashion",
   cosmetics: "cosmetics",
+  clinic: "clinic",
 } as const;
 
 export interface CreateCategoryBody {
@@ -159,6 +164,7 @@ export type UpdateCategoryBodyType =
 export const UpdateCategoryBodyType = {
   fashion: "fashion",
   cosmetics: "cosmetics",
+  clinic: "clinic",
 } as const;
 
 export interface UpdateCategoryBody {
@@ -594,6 +600,7 @@ export const RegisterBodyCategory = {
   fashion: "fashion",
   cosmetics: "cosmetics",
   both: "both",
+  clinic: "clinic",
 } as const;
 
 export interface RegisterBody {
@@ -651,6 +658,7 @@ export const AuthResponseCategory = {
   fashion: "fashion",
   cosmetics: "cosmetics",
   both: "both",
+  clinic: "clinic",
 } as const;
 
 export type AuthResponseSubscriptionStatus =
@@ -703,6 +711,7 @@ export const StorefrontResponseCategory = {
   fashion: "fashion",
   cosmetics: "cosmetics",
   both: "both",
+  clinic: "clinic",
 } as const;
 
 export type StorefrontResponseCategoriesItemType =
@@ -711,6 +720,7 @@ export type StorefrontResponseCategoriesItemType =
 export const StorefrontResponseCategoriesItemType = {
   fashion: "fashion",
   cosmetics: "cosmetics",
+  clinic: "clinic",
 } as const;
 
 export type StorefrontResponseCategoriesItem = {

@@ -152,7 +152,7 @@ export function ClinicStorefront({ store, products, categories }: StorefrontProp
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {categories.map((category: any) => (
-                <div key={category.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+                <div key={category.id} className="bg-white p-6 rounded-2xl shadow-md border border-blue-100 hover:shadow-xl transition-shadow group">
                   <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-colors" style={{ backgroundColor: secondaryColor }}>
                     <div className="w-6 h-6" style={{ color: primaryColor }}>
                       <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h4v2h-4v4h-2v-4H7v-2h4z"/></svg>
@@ -185,12 +185,12 @@ export function ClinicStorefront({ store, products, categories }: StorefrontProp
             {doctors.map((product: any) => {
                const imageUrl = productImageUrl(product);
                return (
-                 <div key={product.id} className="bg-slate-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all group">
+                 <div key={product.id} className="bg-white shadow-md border border-blue-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all group">
                    <div className="aspect-[4/5] bg-slate-200 relative overflow-hidden">
                      {imageUrl ? (
                        <img src={imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                      ) : (
-                       <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                       <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 border border-slate-200">
                          <User className="w-20 h-20" />
                        </div>
                      )}

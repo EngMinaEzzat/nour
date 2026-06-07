@@ -191,7 +191,8 @@
       "errDuplicateSlug": "اسم المتجر أو الرابط مستخدم مسبقًا، جرّب اسمًا آخر",
       "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة",
       "phoneInvalid": "رقم الهاتف يجب أن يتكون من 11 رقماً ويبدأ بـ 01",
-      "emailTypoSuggestion": "يبدو أنك كتبت البريد بشكل خاطئ. هل تقصد {{suggestion}}؟"
+      "emailTypoSuggestion": "يبدو أنك كتبت البريد بشكل خاطئ. هل تقصد {{suggestion}}؟",
+      "catClinic": "عيادة / خدمات طبية"
     },
     "resetPassword": {
       "title": "تعيين كلمة مرور جديدة",

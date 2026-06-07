@@ -133,7 +133,7 @@ export const GetStorefrontResponse = zod.object({
   name: zod.string(),
   slug: zod.string(),
   description: zod.string(),
-  category: zod.enum(["fashion", "cosmetics", "both"]),
+  category: zod.enum(["fashion", "cosmetics", "both", "clinic"]),
   status: zod.string(),
   city: zod.string().nullish(),
   logoUrl: zod.string().nullish(),
@@ -161,7 +161,7 @@ export const GetStorefrontResponse = zod.object({
       name: zod.string(),
       nameAr: zod.string().optional(),
       parentId: zod.number().nullish(),
-      type: zod.enum(["fashion", "cosmetics"]).optional(),
+      type: zod.enum(["fashion", "cosmetics", "clinic"]).optional(),
       imageUrl: zod.string().nullish(),
       productCount: zod.number().optional(),
     }),
@@ -184,7 +184,7 @@ export const RegisterMerchantBody = zod.object({
   email: zod.string().email(),
   password: zod.string(),
   category: zod
-    .enum(["fashion", "cosmetics", "both"])
+    .enum(["fashion", "cosmetics", "both", "clinic"])
     .default(registerMerchantBodyCategoryDefault),
   phone: zod
     .string()
@@ -210,7 +210,7 @@ export const LoginMerchantResponse = zod.object({
   tenantId: zod.number(),
   storeName: zod.string(),
   slug: zod.string(),
-  category: zod.enum(["fashion", "cosmetics", "both"]),
+  category: zod.enum(["fashion", "cosmetics", "both", "clinic"]),
   status: zod.string(),
   city: zod.string().nullish(),
   logoUrl: zod.string().nullish(),
@@ -238,7 +238,7 @@ export const GetMeResponse = zod.object({
   tenantId: zod.number(),
   storeName: zod.string(),
   slug: zod.string(),
-  category: zod.enum(["fashion", "cosmetics", "both"]),
+  category: zod.enum(["fashion", "cosmetics", "both", "clinic"]),
   status: zod.string(),
   city: zod.string().nullish(),
   logoUrl: zod.string().nullish(),
@@ -394,7 +394,7 @@ export const ListTenantsResponseItem = zod.object({
   secondaryColor: zod.string().nullish(),
   theme: zod.string().optional(),
   category: zod
-    .enum(["fashion", "cosmetics", "both"])
+    .enum(["fashion", "cosmetics", "both", "clinic"])
     .default(listTenantsResponseCategoryDefault),
   status: zod.enum(["active", "inactive", "pending"]),
   city: zod.string().nullish(),
@@ -419,7 +419,7 @@ export const CreateTenantBody = zod.object({
   logoUrl: zod.string().nullish(),
   coverUrl: zod.string().nullish(),
   category: zod
-    .enum(["fashion", "cosmetics", "both"])
+    .enum(["fashion", "cosmetics", "both", "clinic"])
     .default(createTenantBodyCategoryDefault),
   city: zod.string().nullish(),
 });
@@ -444,7 +444,7 @@ export const GetTenantResponse = zod.object({
   secondaryColor: zod.string().nullish(),
   theme: zod.string().optional(),
   category: zod
-    .enum(["fashion", "cosmetics", "both"])
+    .enum(["fashion", "cosmetics", "both", "clinic"])
     .default(getTenantResponseCategoryDefault),
   status: zod.enum(["active", "inactive", "pending"]),
   city: zod.string().nullish(),
@@ -471,7 +471,7 @@ export const UpdateTenantBody = zod.object({
   primaryColor: zod.string().nullish(),
   secondaryColor: zod.string().nullish(),
   theme: zod.string().optional(),
-  category: zod.enum(["fashion", "cosmetics", "both"]).optional(),
+  category: zod.enum(["fashion", "cosmetics", "both", "clinic"]).optional(),
   status: zod.enum(["active", "inactive", "pending"]).optional(),
   city: zod.string().nullish(),
 });
@@ -489,7 +489,7 @@ export const UpdateTenantResponse = zod.object({
   secondaryColor: zod.string().nullish(),
   theme: zod.string().optional(),
   category: zod
-    .enum(["fashion", "cosmetics", "both"])
+    .enum(["fashion", "cosmetics", "both", "clinic"])
     .default(updateTenantResponseCategoryDefault),
   status: zod.enum(["active", "inactive", "pending"]),
   city: zod.string().nullish(),
@@ -532,7 +532,7 @@ export const ListCategoriesResponseItem = zod.object({
   name: zod.string(),
   nameAr: zod.string().describe("Arabic name"),
   parentId: zod.number().nullish().describe("ID of the parent category"),
-  type: zod.enum(["fashion", "cosmetics"]),
+  type: zod.enum(["fashion", "cosmetics", "clinic"]),
   imageUrl: zod.string().nullish(),
   productCount: zod.number(),
 });
@@ -545,7 +545,7 @@ export const CreateCategoryBody = zod.object({
   name: zod.string(),
   nameAr: zod.string(),
   parentId: zod.number().nullish(),
-  type: zod.enum(["fashion", "cosmetics"]),
+  type: zod.enum(["fashion", "cosmetics", "clinic"]),
   imageUrl: zod.string().nullish(),
 });
 
@@ -560,7 +560,7 @@ export const UpdateCategoryBody = zod.object({
   name: zod.string().optional(),
   nameAr: zod.string().optional(),
   parentId: zod.number().nullish(),
-  type: zod.enum(["fashion", "cosmetics"]).optional(),
+  type: zod.enum(["fashion", "cosmetics", "clinic"]).optional(),
   imageUrl: zod.string().nullish(),
 });
 
@@ -569,7 +569,7 @@ export const UpdateCategoryResponse = zod.object({
   name: zod.string(),
   nameAr: zod.string().describe("Arabic name"),
   parentId: zod.number().nullish().describe("ID of the parent category"),
-  type: zod.enum(["fashion", "cosmetics"]),
+  type: zod.enum(["fashion", "cosmetics", "clinic"]),
   imageUrl: zod.string().nullish(),
   productCount: zod.number(),
 });
