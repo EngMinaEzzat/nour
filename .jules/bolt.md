@@ -53,3 +53,6 @@
 **Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
 **Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
 
+## 2024-05-18 - Performance Optimization for Seed Scripts
+**Learning:** For batch inserts, mapping array slices and awaiting them with `Promise.all()` leverages the underlying connection pool to run queries concurrently, which is significantly faster than using a sequential `for...await` loop.
+**Action:** When implementing database seed scripts with batch logic, use `Promise.all()` to map over chunks instead of awaiting each chunk sequentially inside a loop.
