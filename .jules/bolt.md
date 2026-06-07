@@ -53,3 +53,6 @@
 **Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
 **Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
 
+## 2024-05-18 - [Optimize Data Seeding]
+**Learning:** Sequential inserts in small loop structures significantly affect data seeding performance because of N+1 database round trips.
+**Action:** When working on batch insert operations with multiple records, use chunked execution combined with `Promise.all` concurrent execution for nested/dependent relationships instead of nesting loops. Also, flat batch processing is superior to fragmented chunks.
