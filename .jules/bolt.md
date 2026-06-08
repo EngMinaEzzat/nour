@@ -57,3 +57,7 @@
 ## 2024-06-07 - Avoid manual edits of pnpm-lock.yaml
 **Learning:** Hand-editing lockfiles to add dependencies creates non-existent and hallucinated dependency version states that fail builds workspace-wide.
 **Action:** Always use the package manager CLI (e.g., `pnpm add -D vitest --filter @workspace/db`) to add dependencies so it correctly populates both `package.json` and `pnpm-lock.yaml` simultaneously.
+
+## 2025-05-18 - Avoid Promise.all with N+1 single row lookups inside map over elements
+**Learning:** Even when grouping queries into \`Promise.all\`, doing so in a \`.map\` array creates sequential connection pool waterfalls. Doing batched lookups properly using Drizzle's \`inArray\` or using PostgreSQL aggregations over these parameters avoids network delay entirely.
+**Action:** Always extract foreign keys, and perform a batched query using \`inArray\` in combination with grouping (\`groupBy\`), and then index the batched results onto a JS Map \`new Map()\` to re-map in-memory efficiently for \(O(1)\) lookups.
