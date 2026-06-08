@@ -30,16 +30,19 @@ const LOCKED_SYSTEM_PROMPT =
 function isPrivateIp(ip: string): boolean {
   if (ip.includes(":")) {
     const lowerIp = ip.toLowerCase();
+
+    // Check for IPv4-mapped IPv6 address
+    if (lowerIp.startsWith("::ffff:")) {
+      const ipv4Part = lowerIp.substring(7);
+      return isPrivateIp(ipv4Part);
+    }
+
     return (
       lowerIp === "::1" ||
       lowerIp.startsWith("fc") ||
       lowerIp.startsWith("fd") ||
       lowerIp.startsWith("fe8") ||
-      lowerIp.startsWith("0000:0000:0000:0000:0000:0000:0000:0001") ||
-      lowerIp.startsWith("::ffff:127.") ||
-      lowerIp.startsWith("::ffff:10.") ||
-      lowerIp.startsWith("::ffff:192.168.") ||
-      lowerIp.startsWith("::ffff:172.")
+      lowerIp.startsWith("0000:0000:0000:0000:0000:0000:0000:0001")
     );
   }
   const parts = ip.split(".").map(Number);
@@ -52,6 +55,11 @@ function isPrivateIp(ip: string): boolean {
   if (p1 === 169 && p2 === 254) return true;
   if (p1 === 172 && p2 >= 16 && p2 <= 31) return true;
   if (p1 === 192 && p2 === 168) return true;
+  if (p1 === 100 && p2 >= 64 && p2 <= 127) return true;
+  if (p1 === 198 && p2 >= 18 && p2 <= 19) return true;
+  if (p1 === 192 && p2 === 0 && parts[2] === 2) return true;
+  if (p1 >= 224 && p1 <= 239) return true;
+  if (p1 >= 240 && p1 <= 255) return true;
 
   return false;
 }
