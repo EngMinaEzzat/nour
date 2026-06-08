@@ -50,7 +50,7 @@ const stagger = {
 type CategoryFormState = {
   name: string;
   nameAr: string;
-  type: "fashion" | "cosmetics";
+  type: "fashion" | "cosmetics" | "clinic" | "electronics" | "bistro" | "spare_parts";
   imageUrl: string;
   parentId: number | null;
 };
