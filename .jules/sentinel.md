@@ -48,3 +48,8 @@
 **Vulnerability:** The public POST `/api/customers` endpoint lacked rate limiting. It could be hit continuously by unauthenticated requests.
 **Learning:** This endpoint creates or retrieves a customer record before submitting an order. Without limits, an attacker could create dummy customers rapidly, causing denial of service or filling up the database.
 **Prevention:** Apply `checkoutLimiter` to endpoints used in the public checkout flow, not just the actual `/orders` endpoint, to ensure the entire flow is protected against automated abuse.
+
+## $(date +%Y-%m-%d) - Incomplete SSRF IP blocklist & IPv4-mapped IPv6 evaluation
+**Vulnerability:** The `isPrivateIp` validation function for SSRF protection failed to adequately check the IPv4 payload within IPv4-mapped IPv6 addresses (e.g., `::ffff:`) relying on string prefixes, and lacked blocking rules for several reserved/internal subnets (Carrier-Grade NAT, Multicast, Benchmark).
+**Learning:** IPv4-mapped IPv6 strings must be parsed back to IPv4 before validation to ensure consistent logic. Attempting to match subnets using string prefixes against `.startsWith` creates false positives or false negatives. Additionally, Node `dns.lookup` alone is vulnerable to TOCTOU DNS rebinding issues when paired with `fetch`.
+**Prevention:** Always extract and delegate IPv4 payloads in IPv6-mapped addresses recursively to the primary parser. Include complete IANA special-purpose address registry subsets when defining custom `isPrivateIp` blocks. Ensure robust network architecture (or customized undici dispatchers) to mitigate DNS rebinding fully.
