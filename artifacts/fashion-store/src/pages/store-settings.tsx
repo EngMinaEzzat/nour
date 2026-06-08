@@ -439,6 +439,10 @@ function SocialSection({ tenantId }: { tenantId: number }) {
   );
 }
 
+const availableCategories = import.meta.env.VITE_ENABLE_NEW_THEMES === "true" 
+  ? ["fashion", "cosmetics", "both", "clinic", "electronics", "bistro", "spare_parts"] as const
+  : ["fashion", "cosmetics", "both"] as const;
+
 export default function StoreSettings() {
   const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
