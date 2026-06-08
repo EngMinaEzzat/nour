@@ -43,3 +43,8 @@
 **Learning:** Returning full database records (`...c`) in public endpoints is dangerous. Even if the data was just provided by the user, a lookup path for *existing* data must be strictly limited to the absolute minimum required for the next step of the flow.
 **Prevention:** Always use explicit allow-lists for API responses, especially on unauthenticated routes. In this codebase, the pattern of `serializeTenant` with an `includePrivate` flag has been established as a reusable security pattern for multi-tenant data isolation.
 >>>>>>> origin/fix/sentinel-pii-leak-hardening-4473712619007485836
+
+## 2025-02-27 - Missing Rate Limiting on Public Customer API
+**Vulnerability:** The public POST `/api/customers` endpoint lacked rate limiting. It could be hit continuously by unauthenticated requests.
+**Learning:** This endpoint creates or retrieves a customer record before submitting an order. Without limits, an attacker could create dummy customers rapidly, causing denial of service or filling up the database.
+**Prevention:** Apply `checkoutLimiter` to endpoints used in the public checkout flow, not just the actual `/orders` endpoint, to ensure the entire flow is protected against automated abuse.
