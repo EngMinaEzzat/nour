@@ -121,6 +121,7 @@ export default function ResetPassword() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={t("auth.login.togglePasswordVisibility", "Toggle password visibility")}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>

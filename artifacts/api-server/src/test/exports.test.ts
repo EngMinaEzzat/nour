@@ -127,6 +127,32 @@ describe("Exports - CSV Export", () => {
     expect(res.status).toBe(400);
   });
 
+  it("handles unhandled errors gracefully", async () => {
+    // Simulate an error in the innermost try/catch block (buildExportRows)
+    const { db } = await import("@workspace/db");
+    const { vi } = await import("vitest");
+    const { logger } = await import("../lib/logger.js");
+
+    const originalInsert = db.insert;
+    db.insert = vi.fn().mockImplementation(() => {
+      throw new Error("Simulated outer database failure");
+    });
+
+    const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+    try {
+      const res = await ctx1.agent
+        .post("/api/exports")
+        .send({ exportType: "orders" });
+
+      expect(res.status).toBe(500);
+      expect(res.body.error).toBe("فشل التصدير");
+    } finally {
+      db.insert = originalInsert;
+      errorSpy.mockRestore();
+    }
+  });
+
   it("rejects listing exports without auth", async () => {
     const res = await request(app).get("/api/exports");
 
