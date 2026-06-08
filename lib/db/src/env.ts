@@ -26,7 +26,7 @@ function getEnvFileNames(): string[] {
   return names;
 }
 
-function isUsableDatabaseUrl(value: string | undefined): boolean {
+export function isUsableDatabaseUrl(value: string | undefined): boolean {
   if (!value) return false;
   try {
     const parsed = new URL(value);

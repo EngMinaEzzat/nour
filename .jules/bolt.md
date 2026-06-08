@@ -56,3 +56,7 @@
 ## 2024-06-07 - Database connection failures in tests
 **Learning:** API server tests requiring a database throw `DATABASE_URL must be set` if `NOUR_TEST_DATABASE_OK` is set but `DATABASE_URL` is omitted, and the root `package.json` does not have a single `test` script.
 **Action:** When running the full test suite from the root, provide the DB variables and use the recursive filter command: `NOUR_TEST_DATABASE_OK=true DATABASE_URL="postgres://postgres:postgres@localhost:5432/nour_test" REDIS_URL="redis://localhost:6379" pnpm -r --filter "./artifacts/**" --if-present run test`. If the test DB is uninitialized, provision it via standard PostgreSQL tools and use Drizzle's `push-force` to rapidly generate the test schema.
+
+## 2024-06-07 - Avoid manual edits of pnpm-lock.yaml
+**Learning:** Hand-editing lockfiles to add dependencies creates non-existent and hallucinated dependency version states that fail builds workspace-wide.
+**Action:** Always use the package manager CLI (e.g., `pnpm add -D vitest --filter @workspace/db`) to add dependencies so it correctly populates both `package.json` and `pnpm-lock.yaml` simultaneously.

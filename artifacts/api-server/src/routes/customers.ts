@@ -4,6 +4,7 @@ import { customersTable, ordersTable } from "@workspace/db";
 import { CreateCustomerBody, GetCustomerParams } from "@workspace/api-zod";
 import { eq, count, sum, inArray, and, sql } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
+import { checkoutLimiter } from "../lib/rate-limiters.js";
 
 const router = Router();
 
@@ -138,7 +139,7 @@ router.get(
 );
 
 // POST /customers — public (called by storefront during checkout)
-router.post("/customers", async (req, res) => {
+router.post("/customers", checkoutLimiter, async (req, res) => {
   const parsed = CreateCustomerBody.safeParse(req.body);
   if (!parsed.success)
     return res.status(400).json({ error: parsed.error.flatten() });

@@ -37,13 +37,18 @@
 1. Never trust `req.query.tenantId` for accessing scoped data in merchant-facing endpoints. Always use `req.merchantTenantId` injected by `requireRole` middleware.
 2. Explicitly sanitize and strip administrative or billing fields (`planCode`, `status`, `subscriptionStatus`) from incoming payload objects before executing `db.update().set(...)`.
 3. When querying public multi-tenant entities (e.g. products), join the `tenantsTable` and strictly enforce `.where(eq(tenantsTable.status, "active"))` unless the request originates from the owner.
-=======
+
 ## 2026-05-10 - PII Harvesting Vulnerability in Guest Checkout
 **Vulnerability:** The `POST /api/customers` endpoint, used for guest checkout, leaked full customer PII (phone number, city) if an email already existed in the system. This allowed unauthenticated actors to harvest data by iterating over a list of emails.
 **Learning:** Returning full database records (`...c`) in public endpoints is dangerous. Even if the data was just provided by the user, a lookup path for *existing* data must be strictly limited to the absolute minimum required for the next step of the flow.
 **Prevention:** Always use explicit allow-lists for API responses, especially on unauthenticated routes. In this codebase, the pattern of `serializeTenant` with an `includePrivate` flag has been established as a reusable security pattern for multi-tenant data isolation.
->>>>>>> origin/fix/sentinel-pii-leak-hardening-4473712619007485836
+
 ## 2025-06-05 - Missing Cache Eviction in Lockout Maps
 **Vulnerability:** In-memory maps for security features (like login lockout attempts) that don't evict expired entries.
 **Learning:** If a `Map` tracking failures only grows and never cleans up entries unless a legitimate login occurs, attackers can cause an Out-of-Memory (OOM) Denial of Service (DoS) by spamming the endpoint with random emails.
 **Prevention:** Always pair unbounded in-memory caches or tracking maps with a `setInterval(..., interval).unref()` eviction loop to prune stale data.
+
+## 2025-02-27 - Missing Rate Limiting on Public Customer API
+**Vulnerability:** The public POST `/api/customers` endpoint lacked rate limiting. It could be hit continuously by unauthenticated requests.
+**Learning:** This endpoint creates or retrieves a customer record before submitting an order. Without limits, an attacker could create dummy customers rapidly, causing denial of service or filling up the database.
+**Prevention:** Apply `checkoutLimiter` to endpoints used in the public checkout flow, not just the actual `/orders` endpoint, to ensure the entire flow is protected against automated abuse.
