@@ -60,3 +60,7 @@
 ## 2024-06-07 - Avoid manual edits of pnpm-lock.yaml
 **Learning:** Hand-editing lockfiles to add dependencies creates non-existent and hallucinated dependency version states that fail builds workspace-wide.
 **Action:** Always use the package manager CLI (e.g., `pnpm add -D vitest --filter @workspace/db`) to add dependencies so it correctly populates both `package.json` and `pnpm-lock.yaml` simultaneously.
+
+## 2026-06-07 - [Testing improvement for catch blocks]
+**Learning:** Testing error handling (catch blocks) for code executed synchronously inside Express endpoints requires mocking internal dependencies using Vitest's `vi.spyOn`.
+**Action:** Use `vi.spyOn(module, "method").mockRejectedValueOnce(error)` to intentionally trigger errors in internal services and verify proper status logging, error responses, and database updates for job management inside catch blocks.
