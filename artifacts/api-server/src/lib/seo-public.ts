@@ -30,7 +30,7 @@ type TenantPublic = {
   coverUrl: string | null;
   seoTitle: string | null;
   seoDescription: string | null;
-  category: "fashion" | "cosmetics" | "both";
+  category: "fashion" | "cosmetics" | "both" | "clinic" | "electronics" | "bistro" | "spare_parts";
   city: string | null;
   status: "active" | "inactive" | "pending";
   customDomain: string | null;
@@ -56,7 +56,7 @@ type CategoryPublic = {
   id: number;
   name: string;
   nameAr: string;
-  type: "fashion" | "cosmetics";
+  type: "fashion" | "cosmetics" | "clinic" | "electronics" | "bistro" | "spare_parts";
   tenantId: number | null;
 };
 
