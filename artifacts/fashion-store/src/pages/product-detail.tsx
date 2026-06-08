@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { usePageMeta } from "@/hooks/use-page-meta";
+import { SEO } from "@/components/seo";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl, getResponsiveImageProps } from "@/lib/image-url";
@@ -141,42 +141,37 @@ export default function ProductDetail() {
     ? productCanonicalPath
     : `${window.location.origin}${productCanonicalPath}`;
 
-  usePageMeta(
-    product
-      ? {
-          title: `${product.name} | ${(product as any).tenantName ?? "نور"}`,
-          description: product.description?.slice(0, 160) ?? undefined,
-          image: productImageUrl(product.imageUrl),
-          canonicalPath: productCanonicalPath,
-          type: "product",
-          jsonLd: {
-            "@context": "https://schema.org",
-            "@type": "Product",
-            name: product.name,
-            description: product.description ?? undefined,
-            image: productImageUrl(product.imageUrl),
-            url: productCanonicalUrl,
-            offers: {
-              "@type": "Offer",
-              price: productPrice,
-              priceCurrency: "EGP",
-              availability: productAvailability,
-              url: productCanonicalUrl,
+  const seoConfig = product ? {
+    title: `${product.name} | ${(product as any).tenantName ?? "نور"}`,
+    description: product.description?.slice(0, 160) ?? undefined,
+    image: productImageUrl(product.imageUrl),
+    canonicalPath: productCanonicalPath,
+    type: "product" as const,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      description: product.description ?? undefined,
+      image: productImageUrl(product.imageUrl),
+      url: productCanonicalUrl,
+      offers: {
+        "@type": "Offer",
+        price: productPrice,
+        priceCurrency: "EGP",
+        availability: productAvailability,
+        url: productCanonicalUrl,
+      },
+      ...(reviewsData?.avgRating != null
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: reviewsData.avgRating.toFixed(1),
+              reviewCount: reviewsData.totalCount,
             },
-            ...(reviewsData?.avgRating != null
-              ? {
-                  aggregateRating: {
-                    "@type": "AggregateRating",
-                    ratingValue: reviewsData.avgRating.toFixed(1),
-                    reviewCount: reviewsData.totalCount,
-                  },
-                }
-              : {}),
-          },
-        }
-      : null,
-    [product, reviewsData, productCanonicalPath],
-  );
+          }
+        : {}),
+    },
+  } : null;
 
   function validateReview() {
     const errs: Record<string, string> = {};
@@ -317,6 +312,16 @@ export default function ProductDetail() {
 
   return (
     <div className="container mx-auto px-4 py-8 pb-24" dir={i18n.dir()}>
+      {seoConfig && (
+        <SEO
+          title={seoConfig.title}
+          description={seoConfig.description}
+          url={window.location.origin + seoConfig.canonicalPath}
+          image={seoConfig.image}
+          type={seoConfig.type}
+          schema={seoConfig.jsonLd}
+        />
+      )}
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <Button variant="ghost" size="sm" asChild className="mb-6 -ms-2">
           <Link href={backHref}><ChevronRight className={`w-4 h-4 ${i18n.dir() === "rtl" ? "me-1" : "ms-1 rotate-180"}`} /> {t("productDetail.backToProducts")}</Link>

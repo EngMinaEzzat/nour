@@ -17,6 +17,50 @@ const authLimiter = rateLimit({
   skip: () => process.env.NODE_ENV === "test" && !process.env.VERCEL,
 });
 
+// ── Per-account login lockout (in-memory; resets on restart) ──
+const loginAttempts = new Map<string, { count: number; lockedUntil: number; firstFailedAt: number }>();
+
+// Cleanup old login attempts every 15 minutes to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, entry] of loginAttempts.entries()) {
+    // Delete entries that are older than 15 minutes or whose lockout has expired
+    if ((entry.lockedUntil > 0 && entry.lockedUntil <= now) || (entry.lockedUntil === 0 && now - entry.firstFailedAt > 15 * 60 * 1000)) {
+      loginAttempts.delete(email);
+    }
+  }
+}, 15 * 60 * 1000).unref();
+
+function checkAccountLockout(email: string): { locked: boolean; retryAfterSeconds?: number } {
+  const entry = loginAttempts.get(email);
+  if (!entry || entry.lockedUntil <= Date.now()) {
+    if (entry?.lockedUntil && entry.lockedUntil <= Date.now()) loginAttempts.delete(email);
+    return { locked: false };
+  }
+  return { locked: true, retryAfterSeconds: Math.ceil((entry.lockedUntil - Date.now()) / 1000) };
+}
+
+function recordFailedLogin(email: string): void {
+  const now = Date.now();
+  const entry = loginAttempts.get(email) ?? { count: 0, lockedUntil: 0, firstFailedAt: now };
+
+  // Reset count if the first failure was more than 15 minutes ago
+  if (now - entry.firstFailedAt > 15 * 60 * 1000) {
+    entry.count = 0;
+    entry.firstFailedAt = now;
+  }
+
+  entry.count++;
+  if (entry.count >= 5) {
+    entry.lockedUntil = now + 30 * 60 * 1000; // 30 min lockout after 5 failures
+  }
+  loginAttempts.set(email, entry);
+}
+
+function clearFailedLogins(email: string): void {
+  loginAttempts.delete(email);
+}
+
 function buildCustomerResponse(customer: { id: number; name: string; email: string; phone: string | null; marketingConsent: boolean; createdAt: Date }) {
   return {
     customer: {
@@ -102,16 +146,29 @@ router.post("/storefront-auth/login", authLimiter, async (req, res) => {
   const parsed = LoginCustomerBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const { email, password } = parsed.data;
+  const { email: rawEmail, password } = parsed.data;
+  const email = rawEmail.toLowerCase().trim();
+
+  // Per-account lockout check
+  const lockout = checkAccountLockout(email);
+  if (lockout.locked) {
+    return res.status(429).json({ error: `تم قفل الحساب مؤقتاً — حاول بعد ${lockout.retryAfterSeconds} ثانية` });
+  }
 
   try {
     const [customer] = await db.select().from(customersTable).where(eq(customersTable.email, email));
     if (!customer || !customer.passwordHash) {
+      recordFailedLogin(email);
       return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
     }
 
     const valid = await bcrypt.compare(password, customer.passwordHash);
-    if (!valid) return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    if (!valid) {
+      recordFailedLogin(email);
+      return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+    }
+
+    clearFailedLogins(email);
 
     await new Promise<void>((resolve, reject) => {
       req.session.regenerate((err) => {

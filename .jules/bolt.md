@@ -53,7 +53,18 @@
 **Learning:** Found an N+1 query pattern where `GET /categories` was fetching product counts in a loop after retrieving the category list. This results in 1 + N database roundtrips.
 **Action:** Use `LEFT JOIN` with `GROUP BY` and `count(table.id)` to fetch related aggregate data in a single query. Always use `getTableColumns(table)` when selecting from the primary table to ensure all schema fields are returned and prevent API regressions.
 
+## 2024-06-07 - Database connection failures in tests
+**Learning:** API server tests requiring a database throw `DATABASE_URL must be set` if `NOUR_TEST_DATABASE_OK` is set but `DATABASE_URL` is omitted, and the root `package.json` does not have a single `test` script.
+**Action:** When running the full test suite from the root, provide the DB variables and use the recursive filter command: `NOUR_TEST_DATABASE_OK=true DATABASE_URL="postgres://postgres:postgres@localhost:5432/nour_test" REDIS_URL="redis://localhost:6379" pnpm -r --filter "./artifacts/**" --if-present run test`. If the test DB is uninitialized, provision it via standard PostgreSQL tools and use Drizzle's `push-force` to rapidly generate the test schema.
 
 ## 2024-06-07 - Avoid manual edits of pnpm-lock.yaml
 **Learning:** Hand-editing lockfiles to add dependencies creates non-existent and hallucinated dependency version states that fail builds workspace-wide.
 **Action:** Always use the package manager CLI (e.g., `pnpm add -D vitest --filter @workspace/db`) to add dependencies so it correctly populates both `package.json` and `pnpm-lock.yaml` simultaneously.
+
+## 2026-06-07 - [Testing improvement for catch blocks]
+**Learning:** Testing error handling (catch blocks) for code executed synchronously inside Express endpoints requires mocking internal dependencies using Vitest's `vi.spyOn`.
+**Action:** Use `vi.spyOn(module, "method").mockRejectedValueOnce(error)` to intentionally trigger errors in internal services and verify proper status logging, error responses, and database updates for job management inside catch blocks.
+
+## 2026-06-07 - Follow Up Queue N+1 Optimization
+**Learning:** Found an N+1 query issue in the `/api/follow-up/queue` endpoint where the system was querying `contactAttemptsTable` individually for each order in a loop.
+**Action:** Replaced the loop-based querying with a single pre-fetching step using `inArray` to fetch all contact attempts for relevant orders at once, and constructed a JavaScript `Map` to assign them to their respective orders in O(1) time. This reduced processing time for 100 orders from ~82ms to ~12ms.

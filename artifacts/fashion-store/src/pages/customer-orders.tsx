@@ -2,7 +2,7 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { useCustomerAuth } from "@/hooks/use-customer-auth";
 import { useGetCustomerOrders } from "@workspace/api-client-react";
-import { getSubdomainSlug, getStoreSlugFromPath } from "@/App";
+import { getSubdomainSlug, getStoreSlugFromPath } from "@/lib/routing";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";

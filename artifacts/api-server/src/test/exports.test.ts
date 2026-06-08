@@ -1,4 +1,7 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import * as exportCsv from "../lib/export-csv.js";
+import { db, exportJobsTable } from "@workspace/db";
+import { desc, eq } from "drizzle-orm";
 import {
   request,
   app,
@@ -154,5 +157,35 @@ describe("Exports - CSV Export", () => {
     const res = await request(app).get("/api/exports");
 
     expect(res.status).toBe(401);
+  });
+
+  it("handles and logs errors during sync export generation", async () => {
+    // Mock buildExportRows to throw an intentional error
+    const mockError = new Error("Mocked export failure");
+    const spy = vi.spyOn(exportCsv, "buildExportRows").mockRejectedValueOnce(mockError);
+
+    // Call the synchronous export endpoint
+    const res = await ctx1.agent
+      .post("/api/exports")
+      .send({ exportType: "orders" });
+
+    // Ensure we get a 500 response
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe("فشل التصدير");
+
+    // Fetch the most recent export job to verify the catch block updated its status
+    const [failedJob] = await db
+      .select()
+      .from(exportJobsTable)
+      .where(eq(exportJobsTable.tenantId, ctx1.tenantId))
+      .orderBy(desc(exportJobsTable.createdAt))
+      .limit(1);
+
+    expect(failedJob).toBeDefined();
+    expect(failedJob.status).toBe("failed");
+    expect(failedJob.errorMessage).toContain("Mocked export failure");
+
+    // Restore the spy
+    spy.mockRestore();
   });
 });

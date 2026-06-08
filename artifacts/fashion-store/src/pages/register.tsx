@@ -41,6 +41,10 @@ async function checkSlugAvailability(
   return res.json();
 }
 
+const availableCategories = import.meta.env.VITE_ENABLE_NEW_THEMES === "true" 
+  ? ["fashion", "cosmetics", "both", "clinic", "electronics", "bistro", "spare_parts"] as const
+  : ["fashion", "cosmetics", "both"] as const;
+
 export default function Register() {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
@@ -370,7 +374,7 @@ export default function Register() {
                 </Label>
                 <Select
                   value={form.category}
-                  onValueChange={(val: "fashion" | "cosmetics" | "both") =>
+                  onValueChange={(val: any) =>
                     setForm((f) => ({ ...f, category: val }))
                   }
                 >
@@ -380,15 +384,11 @@ export default function Register() {
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fashion">
-                      {t("auth.register.catFashion")}
-                    </SelectItem>
-                    <SelectItem value="cosmetics">
-                      {t("auth.register.catCosmetics")}
-                    </SelectItem>
-                    <SelectItem value="both">
-                      {t("auth.register.catBoth")}
-                    </SelectItem>
+                    {availableCategories.map(cat => (
+                       <SelectItem key={cat} value={cat}>
+                         {t(`auth.register.cat_${cat}`, { defaultValue: cat })}
+                       </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

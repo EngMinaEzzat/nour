@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useLocation } from "wouter";
-import { usePageMeta } from "@/hooks/use-page-meta";
+import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/seo";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetStorefront, getGetStorefrontQueryKey } from "@workspace/api-client-react";
 import type { StorefrontResponse } from "@workspace/api-client-react";
 import { useCart } from "@/hooks/use-cart";
-import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MessageCircle, AlertCircle, ArrowUp, Package,
@@ -247,32 +247,6 @@ function FloatingWhatsApp({ store, p }: { store: StoreData; p: string }) {
   );
 }
 
-// ─── Admin Preview Bar ────────────────────────────────────────────────────────
-function AdminBar() {
-  const { isAuthenticated } = useAuth();
-  const { t, i18n } = useTranslation();
-  if (!isAuthenticated) return null;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`fixed top-3 start-3 z-[200]`}
-      style={{ direction: i18n.dir() }}
-    >
-      <Link href="/store-settings">
-        <motion.button
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          className="flex items-center gap-2 bg-gray-900/90 text-white text-xs font-semibold px-3.5 py-2 rounded-full shadow-xl backdrop-blur-sm border border-white/10 hover:bg-gray-900 transition-colors"
-        >
-          <LayoutDashboard className="w-3.5 h-3.5" />
-          {t("storefront.adminBar.dashboard")}
-        </motion.button>
-      </Link>
-    </motion.div>
-  );
-}
-
 function EditorTextSection({
   section,
   primaryColor,
@@ -414,41 +388,42 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       : `${window.location.origin}/`
     : null;
 
-  // SEO meta
-  usePageMeta(
-    store
-      ? {
-          title: selectedCategoryMeta
+  const title = store ? (selectedCategoryMeta
             ? `${selectedCategoryMeta.name} | ${store.name}`
-            : (((store as any).seoTitle ?? store.name) as string),
-          description: selectedCategoryMeta
+            : (((store as any).seoTitle ?? store.name) as string)) : "";
+  const description = store ? (selectedCategoryMeta
             ? t("storefront.seo.categoryDesc", {
                 category: i18n.language === "ar" ? (selectedCategoryMeta.nameAr || selectedCategoryMeta.name) : selectedCategoryMeta.name,
                 store: store.name,
                 defaultValue: i18n.language === "ar" ? `تسوق ${selectedCategoryMeta.nameAr || selectedCategoryMeta.name} من ${store.name} على نور.` : `Shop ${selectedCategoryMeta.name} from ${store.name} on Nour.`
               })
-            : (((store as any).seoDescription ?? store.description ?? undefined) as string | undefined),
-          image: ((store as any).coverUrl ?? (store as any).logoUrl ?? null) as string | null,
-          canonicalPath: storefrontCanonicalPath ?? undefined,
-          type: "website",
-          jsonLd: selectedCategoryMeta ? {
+            : (((store as any).seoDescription ?? store.description ?? undefined) as string | undefined)) : undefined;
+  
+  const jsonLd = store ? (selectedCategoryMeta ? {
             "@context": "https://schema.org",
             "@type": "CollectionPage",
             name: `${selectedCategoryMeta.name} | ${store.name}`,
             description: `تسوق ${selectedCategoryMeta.name} من ${store.name} على نور.`,
             url: storefrontCanonicalUrl ?? undefined,
-            isPartOf: {
-              "@type": "OnlineStore",
-              name: store.name,
-              url: storeCanonicalUrl ?? undefined,
-            },
+            ...(store.coverUrl || store.logoUrl ? { image: store.coverUrl || store.logoUrl } : {}),
+            mainEntity: {
+              "@type": "ItemList",
+              itemListElement: store.products.filter(pr => {
+                  const selectedCategoryIds = new Set([selectedCategory, ...store.categories?.filter(c => c.parentId === selectedCategory).map(c => c.id) ?? []]);
+                  return selectedCategoryIds.has((pr as any).categoryId);
+              }).map((p, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                url: `${storeCanonicalUrl}product/${publicEntitySlug(p.id, p.name)}`,
+                name: p.name,
+              }))
+            }
           } : {
             "@context": "https://schema.org",
             "@type": "OnlineStore",
             name: store.name,
-            description: store.description ?? undefined,
-            url: storefrontCanonicalUrl ?? undefined,
-            ...((store as any).logoUrl ? { image: (store as any).logoUrl } : {}),
+            url: storeCanonicalUrl ?? undefined,
+            ...(store.coverUrl || store.logoUrl ? { image: store.coverUrl || store.logoUrl } : {}),
             ...((store as any).city ? {
               location: {
                 "@type": "Place",
@@ -460,11 +435,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
               name: `منتجات ${store.name}`,
               numberOfItems: store.products?.length ?? 0,
             },
-          },
-        }
-      : null,
-    [store, selectedCategoryMeta],
-  );
+          }) : undefined;
 
   // Favicon + CSS primary color
   useEffect(() => {
@@ -934,8 +905,14 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
   return (
     <div style={{ background: "#faf7f4", minHeight: "100vh", direction: i18n.dir() }}>
-      {/* ── Admin back button (only visible when logged in as merchant) ── */}
-      <AdminBar />
+      <SEO
+        title={title}
+        description={description}
+        url={window.location.origin + storefrontCanonicalPath}
+        image={store.coverUrl || store.logoUrl || undefined}
+        type="website"
+        schema={jsonLd}
+      />
 
       {/* ── Announcement Bar ── */}
       <AnnouncementBar p={p} onDismiss={() => setBarVisible(false)} />
