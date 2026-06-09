@@ -120,6 +120,7 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder={t("storefront.home.newsletter.emailPlaceholder")}
+                  aria-label={t("storefront.home.newsletter.emailPlaceholder")}
                   required
                   className="flex-1 px-5 py-3.5 rounded-full text-sm outline-none text-[hsl(340,20%,15%)] placeholder:text-stone-400 text-left"
                   style={{
