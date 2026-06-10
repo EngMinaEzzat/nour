@@ -68,3 +68,6 @@
 ## 2026-06-07 - Follow Up Queue N+1 Optimization
 **Learning:** Found an N+1 query issue in the `/api/follow-up/queue` endpoint where the system was querying `contactAttemptsTable` individually for each order in a loop.
 **Action:** Replaced the loop-based querying with a single pre-fetching step using `inArray` to fetch all contact attempts for relevant orders at once, and constructed a JavaScript `Map` to assign them to their respective orders in O(1) time. This reduced processing time for 100 orders from ~82ms to ~12ms.
+## 2024-06-10 - Bolt Optimization: Fixing N+1 Queries with Drizzle Batching in Platform Endpoint
+**Learning:** Found an N+1 query issue in `/platform/provider-health` where two database aggregations (`count(...) filter`) and subqueries were executed in a `Promise.all` `.map` loop for every provider item, generating hundreds of concurrent requests for high tenant loads.
+**Action:** Replaced the mapped querying with two single batched Drizzle `inArray` and `groupBy` lookups along with `sql\`row_number()\`` window functions to gather all results in exactly two database queries, then mapped the Javascript array memory via Map data structure. Will apply this structural approach over mapped loop query requests whenever `select ... inArray` can extract keys.
