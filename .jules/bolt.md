@@ -68,3 +68,6 @@
 ## 2026-06-07 - Follow Up Queue N+1 Optimization
 **Learning:** Found an N+1 query issue in the `/api/follow-up/queue` endpoint where the system was querying `contactAttemptsTable` individually for each order in a loop.
 **Action:** Replaced the loop-based querying with a single pre-fetching step using `inArray` to fetch all contact attempts for relevant orders at once, and constructed a JavaScript `Map` to assign them to their respective orders in O(1) time. This reduced processing time for 100 orders from ~82ms to ~12ms.
+## 2024-05-19 - Concurrent API Mutations in React Components
+**Learning:** Sequential `await` calls in a `for...of` loop during form submission (e.g., creating multiple variants) can lead to significant network latency accumulation, especially when order does not matter.
+**Action:** Replace independent sequential mutations with `await Promise.all(items.map(item => mutation(item)))` to run network requests concurrently, improving submission speed by ~5x.
