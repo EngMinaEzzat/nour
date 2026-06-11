@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -75,12 +76,12 @@ function PlatformIcon({ platform }: { platform: Affiliate["platform"] }) {
   return <Link2 className="w-4 h-4 text-muted-foreground" />;
 }
 
-function PlatformLabel({ platform, t }: { platform: Affiliate["platform"], t: any }) {
+function PlatformLabel({ platform, t }: { platform: Affiliate["platform"], t: TFunction }) {
   const map = { instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", other: t("affiliates.form.platformOther") };
   return <span>{map[platform]}</span>;
 }
 
-function CopyButton({ text, t }: { text: string, t: any }) {
+function CopyButton({ text, t }: { text: string, t: TFunction }) {
   const [copied, setCopied] = useState(false);
   function copy() {
     navigator.clipboard.writeText(text);
