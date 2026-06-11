@@ -87,3 +87,7 @@
 ## 2026-06-08 - Optimize In-Memory Cache Invalidation
 **Learning:** In Node.js, iterating over a large `Map` using `.keys()` (an O(N) operation) blocks the event loop and scales poorly. Similarly, using regular expressions to parse keys in hot paths adds significant CPU overhead compared to native string methods.
 **Action:** When implementing cache invalidation by prefix or tag, maintain secondary indexes (e.g., a `Map` of tags/tenant IDs to a `Set` of associated keys) to enable O(1) lookups and O(K) iteration (where K is the subset size). Also, prefer `startsWith` and `indexOf` over `RegExp` for simple string prefix matching in hot paths.
+
+## 2024-06-08 - [Add vitest dependencies to library packages]
+**Learning:** Some library packages may lack `vitest` dependencies or proper `test` script definitions in their `package.json`, preventing tests from running correctly.
+**Action:** When adding tests to a new library, explicitly install `vitest` as a dev dependency via `pnpm add -D vitest --filter <package-name>` and add the `"test": "vitest run"` script. Ensure to configure `vitest.config.ts` if specific environments (like "node") are needed.
