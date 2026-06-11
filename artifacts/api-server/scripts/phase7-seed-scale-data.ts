@@ -57,34 +57,46 @@ async function main() {
     categoryId: insertedCats[i % insertedCats.length].id,
   }));
   
-  const insertedProds = [];
-  for (let i = 0; i < productsToInsert.length; i += 100) {
-    const chunk = productsToInsert.slice(i, i + 100);
-    const result = await db.insert(productsTable).values(chunk).returning();
-    insertedProds.push(...result);
+  const chunkPromises = [];
+  for (let i = 0; i < productsToInsert.length; i += 500) {
+    const chunk = productsToInsert.slice(i, i + 500);
+    chunkPromises.push(db.insert(productsTable).values(chunk).returning());
   }
+  const chunkResults = await Promise.all(chunkPromises);
+  const insertedProds = chunkResults.flat();
   console.log(`Inserted 1000 products`);
 
   // Insert Customers and Orders
   console.log(`Inserting 2000 orders...`);
-  for (let i = 0; i < 2000; i += 100) {
-    const custChunk = Array.from({ length: 100 }).map((_, j) => ({
-      name: `Customer ${i + j}`,
-      email: `customer${i + j}@${slug}.invalid`,
-      phone: `010${Math.floor(Math.random() * 100000000).toString().padStart(8, "0")}`,
-    }));
-    const insertedCusts = await db.insert(customersTable).values(custChunk).returning();
+  const allCustomers = Array.from({ length: 2000 }).map((_, i) => ({
+    name: `Customer ${i}`,
+    email: `customer${i}@${slug}.invalid`,
+    phone: `010${Math.floor(Math.random() * 100000000).toString().padStart(8, "0")}`,
+  }));
 
-    const ordersChunk = insertedCusts.map((c, j) => ({
-      tenantId: tenant.id,
-      customerId: c.id,
-      status: "pending" as const,
-      totalAmount: (Math.random() * 1000).toFixed(2),
-      publicCode: randomBytes(6).toString("hex").toUpperCase(),
-      trackingToken: randomBytes(16).toString("hex"),
-    }));
-    await db.insert(ordersTable).values(ordersChunk);
+  const custPromises = [];
+  for (let i = 0; i < allCustomers.length; i += 500) {
+    const chunk = allCustomers.slice(i, i + 500);
+    custPromises.push(db.insert(customersTable).values(chunk).returning());
   }
+  const custResults = await Promise.all(custPromises);
+  const insertedCustsFlat = custResults.flat();
+
+  const allOrders = insertedCustsFlat.map((c) => ({
+    tenantId: tenant.id,
+    customerId: c.id,
+    status: "pending" as const,
+    totalAmount: (Math.random() * 1000).toFixed(2),
+    publicCode: randomBytes(6).toString("hex").toUpperCase(),
+    trackingToken: randomBytes(16).toString("hex"),
+  }));
+
+  const orderPromises = [];
+  for(let i = 0; i < allOrders.length; i += 500) {
+    const chunk = allOrders.slice(i, i + 500);
+    orderPromises.push(db.insert(ordersTable).values(chunk));
+  }
+  await Promise.all(orderPromises);
 
   console.log("Scale seed complete.");
   console.log(`Store Slug: ${slug}`);
