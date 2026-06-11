@@ -68,3 +68,6 @@
 ## 2026-06-07 - Follow Up Queue N+1 Optimization
 **Learning:** Found an N+1 query issue in the `/api/follow-up/queue` endpoint where the system was querying `contactAttemptsTable` individually for each order in a loop.
 **Action:** Replaced the loop-based querying with a single pre-fetching step using `inArray` to fetch all contact attempts for relevant orders at once, and constructed a JavaScript `Map` to assign them to their respective orders in O(1) time. This reduced processing time for 100 orders from ~82ms to ~12ms.
+## 2026-06-08 - [Coverage for generated API Client React library errors]
+**Learning:** Found untrusted / untested code for ApiError within our `lib/api-client-react` generator output code. Writing comprehensive Vitest unit tests to cover constructors handles error extraction robustness (message parsing, title, detail fields edge cases, long string handling, trimming).
+**Action:** Always write deterministic fast unit-tests for generated API client configurations and error definitions, checking properties explicitly (status, data, statusText) and edge cases handling in the API response format logic to build confidence in the error handling boundary between client and backend.
