@@ -79,3 +79,7 @@
 ## 2024-05-19 - Concurrent API Mutations in React Components
 **Learning:** Sequential `await` calls in a `for...of` loop during form submission (e.g., creating multiple variants) can lead to significant network latency accumulation, especially when order does not matter.
 **Action:** Replace independent sequential mutations with `await Promise.all(items.map(item => mutation(item)))` to run network requests concurrently, improving submission speed by ~5x.
+
+## 2024-05-18 - Improve SSRF redirect DNS resolution latency
+**Learning:** Checking for SSRF manually in a redirect loop can cause redundant synchronous DNS resolution lookups that multiply request latency.
+**Action:** When repeatedly resolving hostnames in a manual redirect loop (e.g. up to 5 times), cache the resolved hostnames using a `Set<string>` to ensure each hostname is resolved against the OS/DNS layer exactly once per request.
