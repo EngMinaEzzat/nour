@@ -12,18 +12,22 @@ router.get("/dashboard/summary", requirePlatformAdmin, async (req, res) => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
+    // ⚡ Bolt Optimization: Replace 3 separate counting queries with a single batched conditional aggregation query
     const [
       [tenantStats],
       [productStats],
       [customerStats],
       [orderStats],
       [monthlyStats],
-      fashionCount,
-      cosmeticsCount,
-      bothCount
     ] = await Promise.all([
       db
-        .select({ total: count(), active: sql<number>`count(*) filter (where ${tenantsTable.status} = 'active')` })
+        .select({
+          total: count(),
+          active: sql<number>`count(*) filter (where ${tenantsTable.status} = 'active')`,
+          fashionCount: sql<number>`count(*) filter (where ${tenantsTable.category} = 'fashion')`,
+          cosmeticsCount: sql<number>`count(*) filter (where ${tenantsTable.category} = 'cosmetics')`,
+          bothCount: sql<number>`count(*) filter (where ${tenantsTable.category} = 'both')`
+        })
         .from(tenantsTable),
       db.select({ total: count() }).from(productsTable),
       db.select({ total: count() }).from(customersTable),
@@ -41,9 +45,6 @@ router.get("/dashboard/summary", requirePlatformAdmin, async (req, res) => {
         })
         .from(ordersTable)
         .where(sql`${ordersTable.createdAt} >= ${startOfMonth}`),
-      db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "fashion")),
-      db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "cosmetics")),
-      db.select({ c: count() }).from(tenantsTable).where(eq(tenantsTable.category, "both")),
     ]);
 
     res.json({
@@ -57,9 +58,9 @@ router.get("/dashboard/summary", requirePlatformAdmin, async (req, res) => {
       ordersThisMonth: monthlyStats.ordersThisMonth,
       revenueThisMonth: parseFloat(monthlyStats.revenueThisMonth ?? "0"),
       categoryBreakdown: [
-        { category: "fashion", count: fashionCount[0].c },
-        { category: "cosmetics", count: cosmeticsCount[0].c },
-        { category: "both", count: bothCount[0].c },
+        { category: "fashion", count: Number(tenantStats.fashionCount) },
+        { category: "cosmetics", count: Number(tenantStats.cosmeticsCount) },
+        { category: "both", count: Number(tenantStats.bothCount) },
       ],
     });
   } catch (err) {
