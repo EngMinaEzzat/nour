@@ -95,3 +95,7 @@
 ## 2024-06-11 - Promise.all loop conversion performance benefit
 **Learning:** Sequential `await` calls inside `for...of` loops, specifically when doing external network operations like sending emails (via Resend or similar providers), causes severe performance bottlenecks that scale linearly (O(n)). Converting a loop of 50 mocked tasks showed a ~50x speedup (2500ms -> 50ms) when parallelized.
 **Action:** When working on batch processing tasks (like schedulers, notifications, exports), always prefer `Promise.all` combined with `.map()` over `for...of` loops, as long as the underlying API/service handles concurrency. Always ensure individual `.catch()` handlers are attached within the mapped promises so that a single failure does not reject the entire batch.
+
+## 2026-06-08 - [Coverage for generated API Client React library errors]
+**Learning:** Found untrusted / untested code for ApiError within our `lib/api-client-react` generator output code. Writing comprehensive Vitest unit tests to cover constructors handles error extraction robustness (message parsing, title, detail fields edge cases, long string handling, trimming).
+**Action:** Always write deterministic fast unit-tests for generated API client configurations and error definitions, checking properties explicitly (status, data, statusText) and edge cases handling in the API response format logic to build confidence in the error handling boundary between client and backend.
