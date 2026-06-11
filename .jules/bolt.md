@@ -68,3 +68,6 @@
 ## 2026-06-07 - Follow Up Queue N+1 Optimization
 **Learning:** Found an N+1 query issue in the `/api/follow-up/queue` endpoint where the system was querying `contactAttemptsTable` individually for each order in a loop.
 **Action:** Replaced the loop-based querying with a single pre-fetching step using `inArray` to fetch all contact attempts for relevant orders at once, and constructed a JavaScript `Map` to assign them to their respective orders in O(1) time. This reduced processing time for 100 orders from ~82ms to ~12ms.
+## 2024-06-11 - Promise.all loop conversion performance benefit
+**Learning:** Sequential `await` calls inside `for...of` loops, specifically when doing external network operations like sending emails (via Resend or similar providers), causes severe performance bottlenecks that scale linearly (O(n)). Converting a loop of 50 mocked tasks showed a ~50x speedup (2500ms -> 50ms) when parallelized.
+**Action:** When working on batch processing tasks (like schedulers, notifications, exports), always prefer `Promise.all` combined with `.map()` over `for...of` loops, as long as the underlying API/service handles concurrency. Always ensure individual `.catch()` handlers are attached within the mapped promises so that a single failure does not reject the entire batch.
