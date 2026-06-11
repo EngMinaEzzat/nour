@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 // ─── Section Types ────────────────────────────────────────────────────────────
 export type SectionType =
   | "hero"
@@ -168,7 +169,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: any): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -216,7 +217,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: any): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   
@@ -461,7 +462,7 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
-export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: any): StoreConfig {
+export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunction): StoreConfig {
   const name = partial?.brand?.name ?? "متجري";
   const category = partial?.brand?.category ?? "fashion";
   return {
