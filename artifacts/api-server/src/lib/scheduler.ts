@@ -45,29 +45,31 @@ async function checkExpiringTrials() {
         ),
       );
 
-    for (const tenant of expiring) {
-      if (!tenant.ownerEmail || !tenant.trialEndsAt) continue;
+    await Promise.all(
+      expiring.map(async (tenant) => {
+        if (!tenant.ownerEmail || !tenant.trialEndsAt) return;
 
-      const msLeft = new Date(tenant.trialEndsAt).getTime() - now.getTime();
-      const daysLeft = Math.ceil(msLeft / (24 * 60 * 60 * 1000));
+        const msLeft = new Date(tenant.trialEndsAt).getTime() - now.getTime();
+        const daysLeft = Math.ceil(msLeft / (24 * 60 * 60 * 1000));
 
-      if (daysLeft <= 0) continue;
+        if (daysLeft <= 0) return;
 
-      if (daysLeft <= 1 || daysLeft === 3) {
-        await sendSubscriptionReminderEmail(
-          tenant.ownerEmail,
-          tenant.name,
-          daysLeft,
-          billingUrl(),
-        ).catch((err) =>
-          logger.warn({ err, tenantId: tenant.id }, "Reminder email failed"),
-        );
-        logger.info(
-          { tenantId: tenant.id, daysLeft },
-          "Sent subscription reminder",
-        );
-      }
-    }
+        if (daysLeft <= 1 || daysLeft === 3) {
+          await sendSubscriptionReminderEmail(
+            tenant.ownerEmail,
+            tenant.name,
+            daysLeft,
+            billingUrl(),
+          ).catch((err) =>
+            logger.warn({ err, tenantId: tenant.id }, "Reminder email failed"),
+          );
+          logger.info(
+            { tenantId: tenant.id, daysLeft },
+            "Sent subscription reminder",
+          );
+        }
+      })
+    );
   } catch (err) {
     logger.error({ err }, "checkExpiringTrials failed");
   }
@@ -110,22 +112,24 @@ async function suspendExpiredTrials() {
           ),
         );
 
-      for (const tenant of expired) {
-        logger.info({ tenantId: tenant.id }, "Auto-suspended expired trial");
+      await Promise.all(
+        expired.map(async (tenant) => {
+          logger.info({ tenantId: tenant.id }, "Auto-suspended expired trial");
 
-        if (tenant.ownerEmail) {
-          await sendSubscriptionSuspendedEmail(
-            tenant.ownerEmail,
-            tenant.name,
-            billingUrl(),
-          ).catch((err) =>
-            logger.warn(
-              { err, tenantId: tenant.id },
-              "Suspension email failed",
-            ),
-          );
-        }
-      }
+          if (tenant.ownerEmail) {
+            await sendSubscriptionSuspendedEmail(
+              tenant.ownerEmail,
+              tenant.name,
+              billingUrl(),
+            ).catch((err) =>
+              logger.warn(
+                { err, tenantId: tenant.id },
+                "Suspension email failed",
+              ),
+            );
+          }
+        })
+      );
     }
   } catch (err) {
     logger.error({ err }, "suspendExpiredTrials failed");

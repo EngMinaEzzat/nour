@@ -91,3 +91,7 @@
 ## 2024-06-08 - [Add vitest dependencies to library packages]
 **Learning:** Some library packages may lack `vitest` dependencies or proper `test` script definitions in their `package.json`, preventing tests from running correctly.
 **Action:** When adding tests to a new library, explicitly install `vitest` as a dev dependency via `pnpm add -D vitest --filter <package-name>` and add the `"test": "vitest run"` script. Ensure to configure `vitest.config.ts` if specific environments (like "node") are needed.
+
+## 2024-06-11 - Promise.all loop conversion performance benefit
+**Learning:** Sequential `await` calls inside `for...of` loops, specifically when doing external network operations like sending emails (via Resend or similar providers), causes severe performance bottlenecks that scale linearly (O(n)). Converting a loop of 50 mocked tasks showed a ~50x speedup (2500ms -> 50ms) when parallelized.
+**Action:** When working on batch processing tasks (like schedulers, notifications, exports), always prefer `Promise.all` combined with `.map()` over `for...of` loops, as long as the underlying API/service handles concurrency. Always ensure individual `.catch()` handlers are attached within the mapped promises so that a single failure does not reject the entire batch.
