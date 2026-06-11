@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { type Order } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +44,7 @@ export default function CodScore() {
     queryFn: async () => {
       const res = await fetch(api("/orders"), { credentials: "include" });
       const json = await res.json();
-      const orders: any[] = json.orders ?? [];
+      const orders: Order[] = json.orders ?? [];
 
       const map = new Map<string, { name: string; total: number; confirmed: number; cancelled: number; lastDate: string }>();
       for (const o of orders) {
