@@ -68,3 +68,7 @@
 ## 2026-06-07 - Follow Up Queue N+1 Optimization
 **Learning:** Found an N+1 query issue in the `/api/follow-up/queue` endpoint where the system was querying `contactAttemptsTable` individually for each order in a loop.
 **Action:** Replaced the loop-based querying with a single pre-fetching step using `inArray` to fetch all contact attempts for relevant orders at once, and constructed a JavaScript `Map` to assign them to their respective orders in O(1) time. This reduced processing time for 100 orders from ~82ms to ~12ms.
+
+## $(date +%Y-%m-%d) - Optimize In-Memory Cache Invalidation
+**Learning:** In Node.js, iterating over a large `Map` using `.keys()` (an O(N) operation) blocks the event loop and scales poorly. Similarly, using regular expressions to parse keys in hot paths adds significant CPU overhead compared to native string methods.
+**Action:** When implementing cache invalidation by prefix or tag, maintain secondary indexes (e.g., a `Map` of tags/tenant IDs to a `Set` of associated keys) to enable O(1) lookups and O(K) iteration (where K is the subset size). Also, prefer `startsWith` and `indexOf` over `RegExp` for simple string prefix matching in hot paths.
