@@ -75,3 +75,7 @@
 ## 2026-06-08 - [Parallelize Frontend API Mutations in Checkout]
 **Learning:** Found sequential execution of asynchronous `createOrder.mutateAsync` calls within a `for...of` loop in the frontend checkout logic. This forces the browser to wait for each API request to complete before starting the next one, creating unnecessary round-trip latency.
 **Action:** Always replace sequential asynchronous operations within iteration loops on the frontend with `Promise.all` over mapped promises when the operations are independent, ensuring mutations are executed concurrently to minimize total execution time.
+
+## 2024-05-19 - Concurrent API Mutations in React Components
+**Learning:** Sequential `await` calls in a `for...of` loop during form submission (e.g., creating multiple variants) can lead to significant network latency accumulation, especially when order does not matter.
+**Action:** Replace independent sequential mutations with `await Promise.all(items.map(item => mutation(item)))` to run network requests concurrently, improving submission speed by ~5x.

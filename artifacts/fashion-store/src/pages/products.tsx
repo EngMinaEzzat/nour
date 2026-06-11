@@ -940,9 +940,7 @@ export default function Products() {
       } else {
         const created = await createProduct.mutateAsync({ data: { ...payload, tenantId } });
         if (hasVariants) {
-          for (const row of rowsForCreate) {
-            await createVariantFromDraft(created.id, row);
-          }
+          await Promise.all(rowsForCreate.map(row => createVariantFromDraft(created.id, row)));
         }
         setVariantsProductId(created.id);
         setEditingId(created.id);
