@@ -98,7 +98,15 @@ function SuspendedBanner() {
   );
 }
 
-function BankDetailsCard({ details }: { details: any }) {
+interface BankDetails {
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  iban: string;
+  instapayNumber?: string | null;
+}
+
+function BankDetailsCard({ details }: { details: BankDetails | null | undefined }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   if (!details) return null;
@@ -277,7 +285,7 @@ export default function BillingPage() {
   });
   const { data: bankDetails } = useQuery({
     queryKey: ["billing-bank-details"],
-    queryFn: () => fetch(api("/billing/bank-details"), { credentials: "include" }).then((r) => r.json()),
+    queryFn: () => fetch(api("/billing/bank-details"), { credentials: "include" }).then((r) => r.json() as Promise<BankDetails>),
   });
 
   const subStatus = status?.subscriptionStatus ?? "trial";
