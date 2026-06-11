@@ -83,3 +83,7 @@
 ## 2024-05-18 - Improve SSRF redirect DNS resolution latency
 **Learning:** Checking for SSRF manually in a redirect loop can cause redundant synchronous DNS resolution lookups that multiply request latency.
 **Action:** When repeatedly resolving hostnames in a manual redirect loop (e.g. up to 5 times), cache the resolved hostnames using a `Set<string>` to ensure each hostname is resolved against the OS/DNS layer exactly once per request.
+
+## 2026-06-08 - Optimize In-Memory Cache Invalidation
+**Learning:** In Node.js, iterating over a large `Map` using `.keys()` (an O(N) operation) blocks the event loop and scales poorly. Similarly, using regular expressions to parse keys in hot paths adds significant CPU overhead compared to native string methods.
+**Action:** When implementing cache invalidation by prefix or tag, maintain secondary indexes (e.g., a `Map` of tags/tenant IDs to a `Set` of associated keys) to enable O(1) lookups and O(K) iteration (where K is the subset size). Also, prefer `startsWith` and `indexOf` over `RegExp` for simple string prefix matching in hot paths.
