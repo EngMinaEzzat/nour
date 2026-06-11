@@ -68,3 +68,6 @@
 ## 2026-06-07 - Follow Up Queue N+1 Optimization
 **Learning:** Found an N+1 query issue in the `/api/follow-up/queue` endpoint where the system was querying `contactAttemptsTable` individually for each order in a loop.
 **Action:** Replaced the loop-based querying with a single pre-fetching step using `inArray` to fetch all contact attempts for relevant orders at once, and constructed a JavaScript `Map` to assign them to their respective orders in O(1) time. This reduced processing time for 100 orders from ~82ms to ~12ms.
+## 2024-05-18 - Improve SSRF redirect DNS resolution latency
+**Learning:** Checking for SSRF manually in a redirect loop can cause redundant synchronous DNS resolution lookups that multiply request latency.
+**Action:** When repeatedly resolving hostnames in a manual redirect loop (e.g. up to 5 times), cache the resolved hostnames using a `Set<string>` to ensure each hostname is resolved against the OS/DNS layer exactly once per request.

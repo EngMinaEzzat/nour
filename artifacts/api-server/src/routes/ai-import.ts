@@ -84,6 +84,7 @@ async function scrapeFacebookPage(initialUrl: string): Promise<{
 }> {
   let currentUrl = initialUrl;
   let html = "";
+  const resolvedHosts = new Set<string>();
 
   // Follow redirects manually to prevent SSRF
   for (let i = 0; i < 5; i++) {
@@ -97,13 +98,16 @@ async function scrapeFacebookPage(initialUrl: string): Promise<{
     }
 
     // Resolve DNS to verify it doesn't point to an internal IP (SSRF protection)
-    const addresses = await dns.lookup(parsedUrl.hostname, { all: true });
-    for (const { address } of addresses) {
-      if (isPrivateIp(address)) {
-        throw new Error(
-          `Security exception: Host ${parsedUrl.hostname} resolves to restricted IP ${address}`,
-        );
+    if (!resolvedHosts.has(parsedUrl.hostname)) {
+      const addresses = await dns.lookup(parsedUrl.hostname, { all: true });
+      for (const { address } of addresses) {
+        if (isPrivateIp(address)) {
+          throw new Error(
+            `Security exception: Host ${parsedUrl.hostname} resolves to restricted IP ${address}`,
+          );
+        }
       }
+      resolvedHosts.add(parsedUrl.hostname);
     }
 
     const res = await fetch(currentUrl, {
