@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Sentinel Journal
 
 ## 2026-06-04 - [Fix Path Traversal in Image Resizing Endpoint]
@@ -57,6 +56,7 @@
 **Vulnerability:** The `isPrivateIp` validation function for SSRF protection failed to adequately check the IPv4 payload within IPv4-mapped IPv6 addresses (e.g., `::ffff:`) relying on string prefixes, and lacked blocking rules for several reserved/internal subnets (Carrier-Grade NAT, Multicast, Benchmark).
 **Learning:** IPv4-mapped IPv6 strings must be parsed back to IPv4 before validation to ensure consistent logic. Attempting to match subnets using string prefixes against `.startsWith` creates false positives or false negatives. Additionally, Node `dns.lookup` alone is vulnerable to TOCTOU DNS rebinding issues when paired with `fetch`.
 **Prevention:** Always extract and delegate IPv4 payloads in IPv6-mapped addresses recursively to the primary parser. Include complete IANA special-purpose address registry subsets when defining custom `isPrivateIp` blocks. Ensure robust network architecture (or customized undici dispatchers) to mitigate DNS rebinding fully.
+<<<<<<< HEAD
 ## 2026-05-21 - [Parallelize DB queries in analytics endpoints]
 **Learning:** Sequential database queries in dashboard/analytics endpoints can cause significant N+1 delays.
 **Action:** Always group independent, read-only analytics queries using Promise.all to fetch them concurrently and reduce network round-trips.
@@ -141,3 +141,7 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2024-06-11 - React suspiciouslySetInnerHTML vulnerability
+**Vulnerability:** React components were using `dangerouslySetInnerHTML` with template literals that incorporated unsanitized user input in style tags, allowing structural CSS injection and XSS.
+**Learning:** `dangerouslySetInnerHTML` is not automatically sanitized by React and can be exploited.
+**Prevention:** Avoid `dangerouslySetInnerHTML` whenever possible and instead use React's built-in `{}` interpolation which automatically escapes strings. When injecting colors, sanitize the string by removing structural CSS characters (`;`, `}`, `</style>`) to prevent injection.
