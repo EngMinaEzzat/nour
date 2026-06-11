@@ -71,3 +71,7 @@
 ## 2024-06-10 - Bolt Optimization: Fixing N+1 Queries with Drizzle Batching in Platform Endpoint
 **Learning:** Found an N+1 query issue in `/platform/provider-health` where two database aggregations (`count(...) filter`) and subqueries were executed in a `Promise.all` `.map` loop for every provider item, generating hundreds of concurrent requests for high tenant loads.
 **Action:** Replaced the mapped querying with two single batched Drizzle `inArray` and `groupBy` lookups along with `sql\`row_number()\`` window functions to gather all results in exactly two database queries, then mapped the Javascript array memory via Map data structure. Will apply this structural approach over mapped loop query requests whenever `select ... inArray` can extract keys.
+
+## 2026-06-08 - [Parallelize Frontend API Mutations in Checkout]
+**Learning:** Found sequential execution of asynchronous `createOrder.mutateAsync` calls within a `for...of` loop in the frontend checkout logic. This forces the browser to wait for each API request to complete before starting the next one, creating unnecessary round-trip latency.
+**Action:** Always replace sequential asynchronous operations within iteration loops on the frontend with `Promise.all` over mapped promises when the operations are independent, ensuring mutations are executed concurrently to minimize total execution time.
