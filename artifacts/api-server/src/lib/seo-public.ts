@@ -1133,15 +1133,3 @@ router.get("/store/:slug", async (req, res, next) => {
 });
 
 export default router;
-ore/:slug", async (req, res, next) => {
-  try {
-    const tenant = await getActiveTenantBySlug(req.params.slug);
-    if (!tenant) return next();
-    return sendStore(req, res, tenant);
-  } catch (err) {
-    req.log.error({ err }, "store SSR failed");
-    return next();
-  }
-});
-
-export default router;
