@@ -42,21 +42,22 @@ router.get("/reviews/public/:productId", async (req, res) => {
 
 // POST /reviews — public: submit a review
 router.post("/reviews", async (req, res) => {
-  const { productId, tenantId, customerName, customerEmail, rating, body } = req.body;
-  if (!productId || !tenantId || !customerName || !customerEmail || !rating) {
+  const { productId, tenantId: bodyTenantId, customerName, customerEmail, rating, body } = req.body;
+  if (!productId || !bodyTenantId || !customerName || !customerEmail || !rating) {
     return res.status(400).json({ error: "جميع الحقول المطلوبة غير مكتملة" });
   }
   if (rating < 1 || rating > 5) return res.status(400).json({ error: "التقييم يجب أن يكون بين 1 و 5" });
 
   try {
-    const [product] = await db.select({ id: productsTable.id })
+    // Security: derive tenantId from the product record, not from user input
+    const [product] = await db.select({ id: productsTable.id, tenantId: productsTable.tenantId })
       .from(productsTable)
-      .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
+      .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, bodyTenantId)));
     if (!product) return res.status(404).json({ error: "المنتج غير موجود" });
 
     const [review] = await db.insert(productReviewsTable).values({
       productId,
-      tenantId,
+      tenantId: product.tenantId,  // Use server-verified tenantId, not body
       customerName: customerName.trim(),
       customerEmail: customerEmail.trim().toLowerCase(),
       rating: parseInt(rating, 10),
@@ -124,7 +125,7 @@ router.put("/reviews/:id/status", requireRole("owner", "manager"), async (req, r
 
     const [updated] = await db.update(productReviewsTable)
       .set({ status: nextStatus })
-      .where(eq(productReviewsTable.id, id))
+      .where(and(eq(productReviewsTable.id, id), eq(productReviewsTable.tenantId, tenantId)))
       .returning();
     res.json({ ...updated, createdAt: updated.createdAt.toISOString() });
   } catch (err) {
@@ -144,7 +145,7 @@ router.delete("/reviews/:id", requireRole("owner", "manager"), async (req, res) 
       .where(and(eq(productReviewsTable.id, id), eq(productReviewsTable.tenantId, tenantId)));
     if (!existing) return res.status(404).json({ error: "التقييم غير موجود" });
 
-    await db.delete(productReviewsTable).where(eq(productReviewsTable.id, id));
+    await db.delete(productReviewsTable).where(and(eq(productReviewsTable.id, id), eq(productReviewsTable.tenantId, tenantId)));
     res.json({ success: true });
   } catch (err) {
     req.log.error(err);

@@ -5,6 +5,7 @@ import { db, customersTable } from "@workspace/db";
 import { RegisterCustomerBody, LoginCustomerBody } from "@workspace/api-zod";
 import { eq } from "drizzle-orm";
 import { normaliseEgyptianPhone, PHONE_ERROR_AR } from "../lib/egypt";
+import { validatePasswordComplexity } from "../lib/password.js";
 
 const router = Router();
 
@@ -88,6 +89,15 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
   }
 
   const { name, password } = parsed.data;
+  const complexityError = validatePasswordComplexity(password);
+  if (complexityError) {
+    return res.status(400).json({
+      error: {
+        fieldErrors: { password: [complexityError] },
+        formErrors: [],
+      },
+    });
+  }
   const email = parsed.data.email.toLowerCase();
   const normalisedPhone = normaliseEgyptianPhone(rawPhone);
   if (!normalisedPhone) {

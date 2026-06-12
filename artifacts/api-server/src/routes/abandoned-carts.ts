@@ -30,7 +30,7 @@ async function upsertCartSession(
     await db
       .update(cartSessionsTable)
       .set(values)
-      .where(eq(cartSessionsTable.id, existing.id));
+      .where(and(eq(cartSessionsTable.id, existing.id), eq(cartSessionsTable.tenantId, tenantId)));
   } else {
     await db.insert(cartSessionsTable).values({
       sessionId,
@@ -192,6 +192,7 @@ router.post(
     const tenantId = req.merchantTenantId;
     if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
     const id = parseInt(String(req.params.id), 10);
+    if (isNaN(id)) return res.status(400).json({ error: "معرّف غير صالح" });
 
     try {
       const [cart] = await db
@@ -249,6 +250,7 @@ router.delete(
     const tenantId = req.merchantTenantId;
     if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
     const id = parseInt(String(req.params.id), 10);
+    if (isNaN(id)) return res.status(400).json({ error: "معرّف غير صالح" });
     try {
       await db
         .delete(cartSessionsTable)

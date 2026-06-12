@@ -107,7 +107,7 @@ router.put("/automation/rules/:id", requireRole("owner", "manager"), async (req,
       .where(eq(automationRulesTable.id, ruleId));
 
     if (!existing) return res.status(404).json({ error: "القاعدة غير موجودة" });
-    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "غير مصرح" });
+    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "لا يمكنك الوصول إلى بيانات متجر آخر" });
 
     const { name, config, isEnabled } = req.body as {
       name?: string;
@@ -123,7 +123,7 @@ router.put("/automation/rules/:id", requireRole("owner", "manager"), async (req,
     const [updated] = await db
       .update(automationRulesTable)
       .set(updateData)
-      .where(eq(automationRulesTable.id, ruleId))
+      .where(and(eq(automationRulesTable.id, ruleId), eq(automationRulesTable.tenantId, tenantId)))
       .returning();
 
     res.json({
@@ -150,9 +150,9 @@ router.delete("/automation/rules/:id", requireRole("owner", "manager"), async (r
       .where(eq(automationRulesTable.id, ruleId));
 
     if (!existing) return res.status(404).json({ error: "القاعدة غير موجودة" });
-    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "غير مصرح" });
+    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "لا يمكنك الوصول إلى بيانات متجر آخر" });
 
-    await db.delete(automationRulesTable).where(eq(automationRulesTable.id, ruleId));
+    await db.delete(automationRulesTable).where(and(eq(automationRulesTable.id, ruleId), eq(automationRulesTable.tenantId, tenantId)));
     res.json({ success: true });
   } catch (err) {
     req.log.error(err);

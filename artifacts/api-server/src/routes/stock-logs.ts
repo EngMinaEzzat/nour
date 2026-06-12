@@ -64,10 +64,9 @@ router.post("/stock/adjustments", requireRole("owner", "manager"), async (req, r
     const [product] = await db
       .select({ id: productsTable.id, tenantId: productsTable.tenantId, stock: productsTable.stock, lowStockThreshold: productsTable.lowStockThreshold })
       .from(productsTable)
-      .where(eq(productsTable.id, productId));
+      .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
 
     if (!product) return res.status(404).json({ error: "المنتج غير موجود" });
-    if (product.tenantId !== tenantId) return res.status(403).json({ error: "غير مصرح" });
 
     const oldStock = variantId ? 0 : (product.stock ?? 0);
 
@@ -92,7 +91,10 @@ router.post("/stock/adjustments", requireRole("owner", "manager"), async (req, r
         await tx
           .update(productVariantsTable)
           .set({ stock: newStock })
-          .where(eq(productVariantsTable.id, variantId));
+          .where(and(
+            eq(productVariantsTable.id, variantId),
+            eq(productVariantsTable.productId, productId)
+          ));
       } else {
         await tx
           .update(productsTable)
@@ -100,7 +102,7 @@ router.post("/stock/adjustments", requireRole("owner", "manager"), async (req, r
             stock: newStock,
             status: newStock === 0 ? "out_of_stock" : "active",
           })
-          .where(eq(productsTable.id, productId));
+          .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
       }
 
       await tx.insert(stockAdjustmentLogsTable).values({
@@ -119,7 +121,7 @@ router.post("/stock/adjustments", requireRole("owner", "manager"), async (req, r
     const [updated] = await db
       .select({ stock: productsTable.stock, status: productsTable.status })
       .from(productsTable)
-      .where(eq(productsTable.id, productId));
+      .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
 
     res.status(201).json({
       productId,

@@ -437,7 +437,7 @@ router.delete("/ai/assistant/history/:conversationId", requireRole("owner", "man
       return res.status(403).json({ error: "لا يمكنك الوصول لهذه المحادثة" });
     }
 
-    await db.delete(conversations).where(eq(conversations.id, convId));
+    await db.delete(conversations).where(and(eq(conversations.id, convId), eq(conversations.tenantId, tenantId)));
     return res.json({ success: true });
   } catch (err) {
     req.log.error(err);

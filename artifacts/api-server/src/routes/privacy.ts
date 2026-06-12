@@ -125,6 +125,7 @@ router.post(
   requireRole("owner", "manager"),
   async (req, res) => {
     const requestId = Number(req.params.id);
+    if (isNaN(requestId)) return res.status(400).json({ error: "معرّف غير صالح" });
     const tenantId = req.merchantTenantId!;
 
     try {
@@ -227,7 +228,7 @@ router.post(
           resultSummary: summary,
           updatedAt: new Date(),
         })
-        .where(eq(privacyRequestsTable.id, requestId))
+        .where(and(eq(privacyRequestsTable.id, requestId), eq(privacyRequestsTable.tenantId, tenantId)))
         .returning();
 
       await db
@@ -254,6 +255,7 @@ router.get(
   requireRole("owner", "manager"),
   async (req, res) => {
     const requestId = Number(req.params.id);
+    if (isNaN(requestId)) return res.status(400).json({ error: "معرّف غير صالح" });
     const tenantId = req.merchantTenantId!;
 
     try {
@@ -310,7 +312,7 @@ router.get(
           resultSummary: "تم التصدير بنجاح",
           updatedAt: new Date(),
         })
-        .where(eq(privacyRequestsTable.id, requestId));
+        .where(and(eq(privacyRequestsTable.id, requestId), eq(privacyRequestsTable.tenantId, tenantId)));
 
       await db
         .insert(tenantAuditEventsTable)

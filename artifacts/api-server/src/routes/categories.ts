@@ -44,7 +44,10 @@ async function validateParentCategory(params: {
         parentId: categoriesTable.parentId,
       })
       .from(categoriesTable)
-      .where(eq(categoriesTable.id, currentParentId));
+      .where(and(
+        eq(categoriesTable.id, currentParentId),
+        or(eq(categoriesTable.tenantId, tenantId), isNull(categoriesTable.tenantId))
+      ));
 
     if (!parent) {
       return {
@@ -104,6 +107,7 @@ router.get("/categories", async (req, res) => {
     // ⚡ Bolt: Optimize categories fetch with single query (resolve N+1)
     // Instead of fetching categories and then counting products for each in a loop,
     // we use a LEFT JOIN with GROUP BY to fetch everything in one database roundtrip.
+    // Security: when no tenantId is available, only return global (null-tenant) categories
     const results = await db
       .select({
         ...getTableColumns(categoriesTable),
@@ -120,7 +124,7 @@ router.get("/categories", async (req, res) => {
       .where(
         tenantId
           ? or(eq(categoriesTable.tenantId, tenantId), isNull(categoriesTable.tenantId))
-          : undefined
+          : isNull(categoriesTable.tenantId)
       )
       .groupBy(categoriesTable.id)
       .orderBy(categoriesTable.name);

@@ -428,6 +428,6 @@ export class WhatsappService {
         providerMessageId: providerMessageId ?? undefined,
         updatedAt: new Date(),
       })
-      .where(eq(whatsappMessageLogsTable.id, logId));
+      .where(and(eq(whatsappMessageLogsTable.id, logId), eq(whatsappMessageLogsTable.tenantId, logEntry.tenantId)));
   }
 }

@@ -73,7 +73,7 @@ export class ProductService {
     return merchant?.tenantId ?? null;
   }
 
-  static async syncProductVariantSummary(productId: number) {
+  static async syncProductVariantSummary(productId: number, tenantId?: number) {
     const variants = await db
       .select({
         stock: productVariantsTable.stock,
@@ -93,10 +93,13 @@ export class ProductService {
     const updateData: { stock: number; imageUrl?: string } = { stock };
     if (firstVariantImage) updateData.imageUrl = firstVariantImage;
 
+    const conditions = [eq(productsTable.id, productId)];
+    if (tenantId !== undefined) conditions.push(eq(productsTable.tenantId, tenantId));
+
     await db
       .update(productsTable)
       .set(updateData)
-      .where(eq(productsTable.id, productId));
+      .where(and(...conditions));
   }
 
   static async fetchProductsWithJoin(conditions: ReturnType<typeof and>[]) {
@@ -438,9 +441,18 @@ export class ProductService {
   }
 
   static async getProduct(productId: number, sessionTenantId: number | null) {
-    const [row] = await this.fetchProductsWithJoin([
+    const conditions: ReturnType<typeof and>[] = [
       eq(productsTable.id, productId),
-    ] as ReturnType<typeof and>[]);
+    ];
+    // If a tenant context is available, scope the query to that tenant for security
+    if (sessionTenantId !== null) {
+      conditions.push(
+        or(eq(productsTable.tenantId, sessionTenantId), undefined) as any
+      );
+    }
+    const [row] = await this.fetchProductsWithJoin(
+      conditions as ReturnType<typeof and>[]
+    );
     if (!row) throw new Error("PRODUCT_NOT_FOUND");
 
     const isPublicQuery = sessionTenantId !== row.tenantId;
@@ -458,9 +470,7 @@ export class ProductService {
       .from(productsTable)
       .where(eq(productsTable.id, productId));
     if (!existing) throw new Error("PRODUCT_NOT_FOUND");
-    if (existing.tenantId !== tenantId) {
-      throw new Error("FORBIDDEN");
-    }
+    if (existing.tenantId !== tenantId) throw new Error("FORBIDDEN");
 
     if (data.categoryId) {
       const [cat] = await db
@@ -482,7 +492,7 @@ export class ProductService {
     await db
       .update(productsTable)
       .set(updateData)
-      .where(eq(productsTable.id, productId));
+      .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
     
     const [row] = await this.fetchProductsWithJoin([
       eq(productsTable.id, productId),
@@ -496,11 +506,9 @@ export class ProductService {
       .from(productsTable)
       .where(eq(productsTable.id, productId));
     if (!existing) throw new Error("PRODUCT_NOT_FOUND");
-    if (existing.tenantId !== tenantId) {
-      throw new Error("FORBIDDEN");
-    }
+    if (existing.tenantId !== tenantId) throw new Error("FORBIDDEN");
 
-    await db.delete(productsTable).where(eq(productsTable.id, productId));
+    await db.delete(productsTable).where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
     await recordAuditEvent({
       tenantId,
       actorId: sessionMerchantId,
@@ -514,6 +522,10 @@ export class ProductService {
 
   /* ─── Product Variants ─── */
   static async getVariants(productId: number, sessionTenantId: number | null) {
+    const productConditions = [eq(productsTable.id, productId)];
+    if (sessionTenantId !== null) {
+      productConditions.push(eq(productsTable.tenantId, sessionTenantId) as any);
+    }
     const [product] = await db
       .select({
         tenantId: productsTable.tenantId,
@@ -521,7 +533,7 @@ export class ProductService {
       })
       .from(productsTable)
       .leftJoin(tenantsTable, eq(productsTable.tenantId, tenantsTable.id))
-      .where(eq(productsTable.id, productId));
+      .where(and(...productConditions));
 
     if (!product) throw new Error("PRODUCT_NOT_FOUND");
     if (sessionTenantId !== product.tenantId && product.tenantStatus !== "active") {
@@ -540,11 +552,8 @@ export class ProductService {
     const [existing] = await db
       .select({ tenantId: productsTable.tenantId })
       .from(productsTable)
-      .where(eq(productsTable.id, productId));
+      .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
     if (!existing) throw new Error("PRODUCT_NOT_FOUND");
-    if (existing.tenantId !== tenantId) {
-      throw new Error("FORBIDDEN");
-    }
 
     const [variant] = await db
       .insert(productVariantsTable)
@@ -565,11 +574,8 @@ export class ProductService {
     const [existingProduct] = await db
       .select({ tenantId: productsTable.tenantId })
       .from(productsTable)
-      .where(eq(productsTable.id, productId));
+      .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
     if (!existingProduct) throw new Error("PRODUCT_NOT_FOUND");
-    if (existingProduct.tenantId !== tenantId) {
-      throw new Error("FORBIDDEN");
-    }
 
     const [existingVariant] = await db
       .select()
@@ -616,11 +622,8 @@ export class ProductService {
     const [existingProduct] = await db
       .select({ tenantId: productsTable.tenantId })
       .from(productsTable)
-      .where(eq(productsTable.id, productId));
+      .where(and(eq(productsTable.id, productId), eq(productsTable.tenantId, tenantId)));
     if (!existingProduct) throw new Error("PRODUCT_NOT_FOUND");
-    if (existingProduct.tenantId !== tenantId) {
-      throw new Error("FORBIDDEN");
-    }
     await db
       .delete(productVariantsTable)
       .where(and(eq(productVariantsTable.id, variantId), eq(productVariantsTable.productId, productId)));

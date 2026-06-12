@@ -6,6 +6,7 @@ import { sendPasswordResetEmail, sendWelcomeEmail, sendNewMerchantNotification }
 import { db, merchantsTable, tenantsTable, categoriesTable, merchantOnboardingTable, passwordResetTokensTable, shippingZonesTable, shippingSettingsTable, DEFAULT_CATEGORIES, DEFAULT_SHIPPING_ZONES_CONFIG } from "@workspace/db";
 import { RegisterMerchantBody, LoginMerchantBody } from "@workspace/api-zod";
 import { eq, and, gt, ne, sql } from "drizzle-orm";
+import { validatePasswordComplexity } from "../lib/password.js";
 
 const router = Router();
 
@@ -173,6 +174,15 @@ router.post("/auth/register", authLimiter, async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const { storeName, slug: rawSlug, email: rawEmail, password, category = "both", phone, description = "" } = parsed.data;
+  const complexityError = validatePasswordComplexity(password);
+  if (complexityError) {
+    return res.status(400).json({
+      error: {
+        fieldErrors: { password: [complexityError] },
+        formErrors: [],
+      },
+    });
+  }
   const email = rawEmail.toLowerCase().trim();
   const slug = normalizeSlug(rawSlug);
 
@@ -468,7 +478,8 @@ router.post("/auth/forgot-password", authLimiter, async (req, res) => {
 router.post("/auth/reset-password", authLimiter, async (req, res) => {
   const { token, password } = req.body as { token?: string; password?: string };
   if (!token || !password) return res.status(400).json({ error: "البيانات ناقصة" });
-  if (password.length < 8) return res.status(400).json({ error: "كلمة المرور قصيرة جدًا" });
+  const complexityError = validatePasswordComplexity(password);
+  if (complexityError) return res.status(400).json({ error: complexityError });
 
   try {
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");

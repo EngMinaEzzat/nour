@@ -7,6 +7,7 @@ import { InviteStaffBody, UpdateStaffRoleBody } from "@workspace/api-zod";
 import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
 import { rateLimit } from "express-rate-limit";
+import { validatePasswordComplexity } from "../lib/password.js";
 
 const inviteAcceptLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -108,7 +109,7 @@ router.put("/staff/:id", requireRole("owner"), async (req, res) => {
     const [updated] = await db
       .update(merchantsTable)
       .set({ role: parsed.data.role })
-      .where(eq(merchantsTable.id, id))
+      .where(and(eq(merchantsTable.id, id), eq(merchantsTable.tenantId, tenantId)))
       .returning();
 
     await db.insert(tenantAuditEventsTable).values({
@@ -146,7 +147,7 @@ router.delete("/staff/:id", requireRole("owner"), async (req, res) => {
     if (!member) return res.status(404).json({ error: "العضو غير موجود" });
     if (member.role === "owner") return res.status(403).json({ error: "لا يمكن حذف المالك" });
 
-    await db.delete(merchantsTable).where(eq(merchantsTable.id, id));
+    await db.delete(merchantsTable).where(and(eq(merchantsTable.id, id), eq(merchantsTable.tenantId, tenantId)));
     return res.status(204).send();
   } catch (err) {
     req.log.error(err);
@@ -245,6 +246,8 @@ router.post("/staff/invitations/:token/accept", inviteAcceptLimiter, async (req,
     const token = String(req.params.token);
     const { name, password } = req.body;
     if (!name || !password) return res.status(400).json({ error: "الاسم وكلمة المرور مطلوبان" });
+    const complexityError = validatePasswordComplexity(password);
+    if (complexityError) return res.status(400).json({ error: complexityError });
 
     const [invitation] = await db.select().from(staffInvitationsTable)
       .where(and(eq(staffInvitationsTable.token, token), eq(staffInvitationsTable.status, "pending")));
@@ -293,11 +296,12 @@ router.delete("/staff/invitations/:id", requireRole("owner"), async (req, res) =
   try {
     const tenantId = req.merchantTenantId!;
     const id = Number(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "معرّف غير صالح" });
     const [inv] = await db.select().from(staffInvitationsTable)
       .where(and(eq(staffInvitationsTable.id, id), eq(staffInvitationsTable.tenantId, tenantId)));
     if (!inv) return res.status(404).json({ error: "الدعوة غير موجودة" });
     await db.update(staffInvitationsTable).set({ status: "revoked", revokedAt: new Date() })
-      .where(eq(staffInvitationsTable.id, id));
+      .where(and(eq(staffInvitationsTable.id, id), eq(staffInvitationsTable.tenantId, tenantId)));
     await db.insert(tenantAuditEventsTable).values({
       tenantId,
       actorId: req.session?.merchantId,

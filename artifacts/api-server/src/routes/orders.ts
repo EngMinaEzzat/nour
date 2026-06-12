@@ -561,12 +561,9 @@ router.get("/orders/:id/contact-attempts", requireRole("owner", "manager", "staf
     const [order] = await db
       .select({ tenantId: ordersTable.tenantId })
       .from(ordersTable)
-      .where(eq(ordersTable.id, orderId));
+      .where(and(eq(ordersTable.id, orderId), eq(ordersTable.tenantId, req.merchantTenantId!)));
 
     if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
-    if (order.tenantId !== req.merchantTenantId) {
-      return res.status(403).json({ error: "لا يمكنك الوصول لهذا الطلب" });
-    }
 
     const attempts = await db
       .select()
@@ -595,12 +592,9 @@ router.post("/orders/:id/contact-attempts", requireRole("owner", "manager", "sta
     const [order] = await db
       .select({ tenantId: ordersTable.tenantId })
       .from(ordersTable)
-      .where(eq(ordersTable.id, orderId));
+      .where(and(eq(ordersTable.id, orderId), eq(ordersTable.tenantId, req.merchantTenantId!)));
 
     if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
-    if (order.tenantId !== req.merchantTenantId) {
-      return res.status(403).json({ error: "لا يمكنك الوصول لهذا الطلب" });
-    }
 
     const [attempt] = await db
       .insert(contactAttemptsTable)
