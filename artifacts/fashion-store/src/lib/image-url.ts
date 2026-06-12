@@ -62,17 +62,35 @@ export function productImageUrl(url?: string | null, fallback = FALLBACK_PRODUCT
 
 export function getResponsiveImageProps(url?: string | null, fallback = FALLBACK_PRODUCT_IMAGE) {
   const src = productImageUrl(url, fallback);
-  if (!src.startsWith('/uploads/') && !src.startsWith('/api/uploads/')) {
+  
+  // Extract just the pathname safely, even if src is an absolute URL
+  let apiPath = src;
+  try {
+    if (/^https?:\/\//i.test(src)) {
+      apiPath = new URL(src).pathname;
+    } else {
+      apiPath = src.split('?')[0];
+    }
+  } catch {
+    apiPath = src.split('?')[0];
+  }
+
+  // If it's not pointing to our uploads, we can't resize it via our API
+  if (!apiPath.startsWith('/uploads/') && !apiPath.startsWith('/api/uploads/')) {
     return { src };
   }
+
+  // Normalize path to always start with /api/uploads/
+  if (apiPath.startsWith('/uploads/')) {
+    apiPath = `/api${apiPath}`;
+  }
   
-  // Extract just the pathname safely, even if src is a relative URL
-  const parsedPath = src.split('?')[0]; 
-  const apiPath = parsedPath.startsWith('/uploads/') ? `/api${parsedPath}` : parsedPath;
+  const BASE = getBase();
+  const prefix = BASE ? BASE : '';
   
-  const w300 = `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=300`;
-  const w600 = `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=600`;
-  const w900 = `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=900`;
+  const w300 = `${prefix}/api/images/resize?path=${encodeURIComponent(apiPath)}&w=300`;
+  const w600 = `${prefix}/api/images/resize?path=${encodeURIComponent(apiPath)}&w=600`;
+  const w900 = `${prefix}/api/images/resize?path=${encodeURIComponent(apiPath)}&w=900`;
   
   return {
     src: w600,

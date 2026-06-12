@@ -30,6 +30,8 @@ interface StoreHeaderProps {
   onCategorySelect?: (id: number) => void;
 }
 
+import { productImageUrl } from "@/lib/image-url";
+
 export function StoreHeader({
   storeName,
   logoUrl,
@@ -128,7 +130,7 @@ export function StoreHeader({
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
             {logoUrl
-              ? <img src={logoUrl} alt={storeName} className="w-9 h-9 rounded-xl object-cover" />
+              ? <img src={productImageUrl(logoUrl)} alt={storeName} className="w-9 h-9 rounded-xl object-cover" />
               : (
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-lg shrink-0"

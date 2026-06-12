@@ -18,6 +18,8 @@ interface HeroSectionProps {
   onScrollToProducts: () => void;
 }
 
+import { productImageUrl } from "@/lib/image-url";
+
 export function HeroSection({
   storeName,
   description,
@@ -33,7 +35,8 @@ export function HeroSection({
 }: HeroSectionProps) {
   const { t, i18n } = useTranslation();
   const defaultHero = category === "cosmetics" ? "/hero-cosmetics-optimized.jpg" : category === "both" ? "/hero-both-optimized.jpg" : "/hero-fashion-optimized.jpg";
-  const imgSrc = imageUrl || coverUrl || defaultHero;
+  const rawImage = imageUrl || coverUrl;
+  const imgSrc = rawImage ? productImageUrl(rawImage) : defaultHero;
   const tagline =
     eyebrow ||
     category === "cosmetics"

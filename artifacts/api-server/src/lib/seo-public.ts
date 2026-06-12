@@ -579,15 +579,19 @@ function renderStorePage(
   const cards = products
     .map((product, index) => {
       const productImage = absoluteUrl(req, productImageUrl(product.imageUrl));
+      const parsedPathname = productImage ? new URL(productImage).pathname : "";
+      const isUpload = parsedPathname.startsWith('/api/uploads/') || parsedPathname.startsWith('/uploads/');
+      const apiPath = parsedPathname.startsWith('/uploads/') ? `/api${parsedPathname}` : parsedPathname;
+      const safeSrc = isUpload ? `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=600` : productImage;
       const srcset =
-        productImage && productImage.startsWith(requestBase(req))
-          ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
+        isUpload
+          ? `srcset="/api/images/resize?path=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(apiPath)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
           : "";
       const availability = product.stock > 0 ? "متاح" : "نفذت الكمية";
       const imagePriority =
         index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
       return `<a class="ssr-card" href="${esc(productUrl(req, tenant, product))}">
-        <img src="${esc(productImage)}" ${srcset} alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
+        <img src="${esc(safeSrc)}" ${srcset} alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
         <div class="ssr-card-body">
           ${product.categoryNameAr || product.categoryName ? `<p class="ssr-muted">${esc(product.categoryNameAr || product.categoryName)}</p>` : ""}
           <h2 class="ssr-card-title">${esc(product.name)}</h2>
@@ -698,15 +702,17 @@ function renderProductPage(
 
   const parsedPathname = image ? new URL(image).pathname : "";
   const isUpload = parsedPathname.startsWith('/api/uploads/') || parsedPathname.startsWith('/uploads/');
+  const apiPath = parsedPathname.startsWith('/uploads/') ? `/api${parsedPathname}` : parsedPathname;
+  const safeSrc = isUpload ? `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=900` : image;
   const srcset =
-    image && image.startsWith(requestBase(req)) && isUpload
-      ? `srcset="/api/images/resize?path=${encodeURIComponent(parsedPathname.startsWith('/uploads/') ? '/api' + parsedPathname : parsedPathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(parsedPathname.startsWith('/uploads/') ? '/api' + parsedPathname : parsedPathname)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"`
+    isUpload
+      ? `srcset="/api/images/resize?path=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(apiPath)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"`
       : "";
 
   const body = `<main class="ssr-public-page">
     <section class="ssr-wrap ssr-product">
       <div>
-        <img src="${esc(image)}" ${srcset} alt="${esc(product.name)}" width="900" height="1200" fetchpriority="high" />
+        <img src="${esc(safeSrc)}" ${srcset} alt="${esc(product.name)}" width="900" height="1200" fetchpriority="high" />
       </div>
       <article>
         <p class="ssr-kicker"><a href="${esc(storeUrl(req, tenant))}">${esc(tenant.name)}</a>${categoryName ? ` / ${esc(categoryName)}` : ""}</p>
@@ -751,14 +757,18 @@ function renderCategoryPage(
   const cards = products
     .map((product, index) => {
       const productImage = absoluteUrl(req, productImageUrl(product.imageUrl));
+      const parsedPathname = productImage ? new URL(productImage).pathname : "";
+      const isUpload = parsedPathname.startsWith('/api/uploads/') || parsedPathname.startsWith('/uploads/');
+      const apiPath = parsedPathname.startsWith('/uploads/') ? `/api${parsedPathname}` : parsedPathname;
+      const safeSrc = isUpload ? `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=600` : productImage;
       const srcset =
-        productImage && productImage.startsWith(requestBase(req))
-          ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(productImage).pathname)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
+        isUpload
+          ? `srcset="/api/images/resize?path=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(apiPath)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
           : "";
       const imagePriority =
         index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';
       return `<a class="ssr-card" href="${esc(productUrl(req, tenant, product))}">
-        <img src="${esc(productImage)}" ${srcset} alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
+        <img src="${esc(safeSrc)}" ${srcset} alt="${esc(product.name)}" width="600" height="800" ${imagePriority} />
         <div class="ssr-card-body">
           <h2 class="ssr-card-title">${esc(product.name)}</h2>
           <p class="ssr-price">${esc(formatPrice(product.price))}</p>
