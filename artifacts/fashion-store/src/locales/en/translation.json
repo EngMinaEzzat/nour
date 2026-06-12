@@ -185,7 +185,10 @@
     },
     "tabs": {
       "details": "Basic Details",
-      "variants": "Prices and Stock"
+      "variants": "Prices and Stock",
+      "details_short": "Details",
+      "variants_short": "Variants",
+      "media_short": "Media"
     }
   },
   "tenants": {

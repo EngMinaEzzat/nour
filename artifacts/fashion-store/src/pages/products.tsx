@@ -203,7 +203,13 @@ function DraftVariantManager({
                     />
                     <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: row.colorHex || "#000000" }} />
                   </div>
-                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder={t("products.variants.colorPlaceholder")} className="h-8 border-0 bg-transparent px-1 focus-visible:ring-0 text-xs shadow-none" />
+                  <input
+                    type="text"
+                    value={row.color}
+                    onChange={(e) => updateRow(i, "color", e.target.value)}
+                    placeholder={t("products.variants.colorPlaceholder")}
+                    className="w-full h-8 bg-transparent border-0 px-1 text-xs focus:outline-none focus:ring-0 text-foreground"
+                  />
                 </div>
                 <Select onValueChange={(v) => {
                   if (v === "custom") {
@@ -270,7 +276,7 @@ function DraftVariantManager({
               <div className="sm:col-span-12 space-y-1.5 mt-1">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stock")}</Label>
                 <div className="flex items-center gap-2">
-                  <Input
+                  <input
                     type="number"
                     min="0"
                     value={row.sizeStocks?.[""] || ""}
@@ -278,7 +284,7 @@ function DraftVariantManager({
                       const nextStocks = { ...row.sizeStocks, "": e.target.value };
                       updateRow(i, "sizeStocks", nextStocks);
                     }}
-                    className="h-8 text-xs bg-background w-24"
+                    className="h-8 text-xs bg-background w-24 border border-input rounded-md px-2 focus:outline-none focus:ring-1 focus:ring-ring text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0"
                   />
                   <span className="text-xs text-muted-foreground">({t("products.variants.noSize") || "بدون مقاس"})</span>
@@ -291,7 +297,7 @@ function DraftVariantManager({
                   {row.sizes.map((s) => (
                     <div key={s} className="flex items-center gap-1.5 bg-background border border-input rounded-md px-2 py-0.5 shadow-sm">
                       <span className="text-xs font-bold uppercase text-primary">{s}</span>
-                      <Input
+                      <input
                         type="number"
                         min="0"
                         value={row.sizeStocks?.[s] || ""}
@@ -299,7 +305,7 @@ function DraftVariantManager({
                           const nextStocks = { ...row.sizeStocks, [s]: e.target.value };
                           updateRow(i, "sizeStocks", nextStocks);
                         }}
-                        className="h-7 w-12 border-0 bg-transparent p-0 focus-visible:ring-0 text-xs text-center font-semibold"
+                        className="h-7 w-12 border-0 bg-transparent p-0 focus:outline-none focus:ring-0 text-xs text-center font-semibold text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         placeholder="0"
                       />
                     </div>
@@ -1372,7 +1378,7 @@ export default function Products() {
 
       {/* ─── Create / Edit Dialog ─── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
+        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0" dir={i18n.dir()}>
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50">
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
@@ -1383,9 +1389,9 @@ export default function Products() {
           <Tabs defaultValue="details" className="w-full">
             <div className="px-6 pt-4 border-b border-border/50 bg-muted/20">
               <TabsList className="grid grid-cols-3 w-full bg-muted/60 p-1 rounded-xl h-10 mb-4">
-                <TabsTrigger value="details" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.details")}</TabsTrigger>
-                <TabsTrigger value="variants" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.variants") || "الأسعار والكمية"}</TabsTrigger>
-                <TabsTrigger value="media" className="text-xs font-semibold rounded-lg transition-all">{t("products.form.image")}</TabsTrigger>
+                <TabsTrigger value="details" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.details_short") || t("products.tabs.details")}</TabsTrigger>
+                <TabsTrigger value="variants" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.variants_short") || t("products.tabs.variants")}</TabsTrigger>
+                <TabsTrigger value="media" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.media_short") || "الصور"}</TabsTrigger>
               </TabsList>
             </div>
 
@@ -1405,8 +1411,7 @@ export default function Products() {
 
               {/* ─── Details Tab ─── */}
               <TabsContent value="details" className="space-y-4 outline-none mt-0">
-                <Card className="shadow-none border-border/50">
-                  <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div className="sm:col-span-2 space-y-1.5">
                       <Label className="text-xs font-bold text-foreground/80">{t("products.form.name")} *</Label>
                       <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} className="rounded-lg" />
@@ -1457,12 +1462,8 @@ export default function Products() {
                         </SelectContent>
                       </Select>
                     </div>
-                  </CardContent>
-                </Card>
 
-                <Card className="shadow-none border-border/50">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3 bg-muted/10">
+                    <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3 bg-muted/10 sm:col-span-2">
                       <div>
                         <Label className="flex items-center gap-1.5 text-sm font-semibold">
                           <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> {t("products.form.featured").split("(")[0]}
@@ -1471,66 +1472,61 @@ export default function Products() {
                       </div>
                       <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
               </TabsContent>
 
               {/* ─── Pricing & Variants Tab ─── */}
               <TabsContent value="variants" className="space-y-4 outline-none mt-0">
-                <Card className="shadow-none border-border/50">
-                  <CardContent className="space-y-6 pt-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-foreground/80">{t("products.form.price")} *</Label>
-                        <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} className="rounded-lg" />
+                <div className="space-y-6 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.price")} *</Label>
+                      <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} className="rounded-lg" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.originalPrice")}</Label>
+                      <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} className="rounded-lg" />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border/50 pt-5 space-y-4">
+                    <div className="flex items-center justify-between bg-muted/30 p-4 rounded-xl border border-border/50">
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-semibold flex items-center gap-1.5">
+                          <Layers className="w-4 h-4 text-primary" />
+                          {t("products.tabs.variants")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">تفعيل خيارات المقاسات والألوان المتعددة لهذا المنتج</p>
                       </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-bold text-foreground/80">{t("products.form.originalPrice")}</Label>
-                        <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} className="rounded-lg" />
-                      </div>
+                      <Switch checked={hasVariants} onCheckedChange={setHasVariants} />
                     </div>
 
-                    <div className="border-t border-border/50 pt-5 space-y-4">
-                      <div className="flex items-center justify-between bg-muted/30 p-4 rounded-xl border border-border/50">
-                        <div className="space-y-0.5">
-                          <Label className="text-sm font-semibold flex items-center gap-1.5">
-                            <Layers className="w-4 h-4 text-primary" />
-                            {t("products.tabs.variants")}
-                          </Label>
-                          <p className="text-xs text-muted-foreground">تفعيل خيارات المقاسات والألوان المتعددة لهذا المنتج</p>
-                        </div>
-                        <Switch checked={hasVariants} onCheckedChange={setHasVariants} />
+                    {hasVariants ? (
+                      <div className="space-y-4 animate-in fade-in duration-200">
+                        <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
+                        <p className="text-xs text-muted-foreground bg-primary/5 text-primary p-2.5 rounded-lg border border-primary/10 flex items-center gap-1.5">
+                          💡 سيتم حفظ جميع المتغيرات والكميات تلقائياً عند حفظ المنتج.
+                        </p>
                       </div>
-
-                      {hasVariants ? (
-                        <div className="space-y-4 animate-in fade-in duration-200">
-                          <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
-                          <p className="text-xs text-muted-foreground bg-primary/5 text-primary p-2.5 rounded-lg border border-primary/10 flex items-center gap-1.5">
-                            💡 سيتم حفظ جميع المتغيرات والكميات تلقائياً عند حفظ المنتج.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="space-y-1.5 animate-in fade-in duration-200 max-w-xs">
-                          <Label className="text-xs font-bold text-foreground/80">{t("products.columns.stock")}</Label>
-                          <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" className="rounded-lg" />
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                    ) : (
+                      <div className="space-y-1.5 animate-in fade-in duration-200 max-w-xs">
+                        <Label className="text-xs font-bold text-foreground/80">{t("products.columns.stock")}</Label>
+                        <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" className="rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </TabsContent>
 
               {/* ─── Media Tab ─── */}
               <TabsContent value="media" className="space-y-4 outline-none mt-0">
-                <Card className="shadow-none border-border/50">
-                  <CardContent className="pt-6">
-                    <ImageUpload
-                      label={t("products.form.image")}
-                      value={form.imageUrl}
-                      onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
-                    />
-                  </CardContent>
-                </Card>
+                <div className="pt-2">
+                  <ImageUpload
+                    label={t("products.form.image")}
+                    value={form.imageUrl}
+                    onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
+                  />
+                </div>
               </TabsContent>
             </div>
 

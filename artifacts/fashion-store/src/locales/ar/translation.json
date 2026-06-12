@@ -582,7 +582,10 @@
     },
     "tabs": {
       "details": "التفاصيل الأساسية",
-      "variants": "الأسعار والمخزون"
+      "variants": "الأسعار والمخزون",
+      "details_short": "التفاصيل",
+      "variants_short": "المتغيرات",
+      "media_short": "الصور"
     }
   },
   "tenants": {
@@ -2991,7 +2994,7 @@
     "urlPlaceholder": "https://example.com/image.jpg",
     "uploading": "جاري الرفع...",
     "dropHere": "اضغط أو اسحب صورة هنا",
-    "supported": "{{formats}} حتى {{max}}MB بدون ضغط",
+    "supported": "صيغ {{formats}} (حتى {{max}} ميجابايت) بدون ضغط",
     "errorSize": "حجم الصورة يجب أن يكون أقل من {{max}}MB",
     "errorFormat": "الصيغ المدعومة: {{formats}}. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.",
     "errorGeneric": "فشل رفع الصورة",
