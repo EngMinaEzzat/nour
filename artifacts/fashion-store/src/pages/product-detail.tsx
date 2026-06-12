@@ -202,7 +202,11 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
 
   const hasVariants = variants.length > 0;
-  const uniqueSizes = useMemo(() => [...new Set(variants.map((v) => v.size).filter(Boolean))], [variants]) as string[];
+  const uniqueSizes = useMemo(() => {
+    const allSizes = variants.flatMap((v) => (v.size || "").split(",").map((s) => s.trim())).filter(Boolean);
+    return [...new Set(allSizes)] as string[];
+  }, [variants]);
+  
   const uniqueColors = useMemo(() => {
     const seen = new Set<string>();
     return variants
@@ -217,7 +221,8 @@ export default function ProductDetail() {
   const selectedVariant: Variant | null = useMemo(() => {
     if (!hasVariants) return null;
     return variants.find((v) => {
-      const matchSize = !uniqueSizes.length || !selectedSize || v.size === selectedSize;
+      const variantSizes = (v.size || "").split(",").map((s) => s.trim());
+      const matchSize = !uniqueSizes.length || !selectedSize || variantSizes.includes(selectedSize);
       const matchColor = !uniqueColors.length || !selectedColor || v.color === selectedColor;
       return matchSize && matchColor;
     }) ?? null;
@@ -405,7 +410,7 @@ export default function ProductDetail() {
                   <div className="flex flex-wrap gap-2">
                     {uniqueSizes.map((size) => {
                       const sizeVariants = variants.filter((v) =>
-                        v.size === size && (!selectedColor || v.color === selectedColor)
+                        (v.size || "").split(",").map(s => s.trim()).includes(size) && (!selectedColor || v.color === selectedColor)
                       );
                       const totalStock = sizeVariants.reduce((s, v) => s + v.stock, 0);
                       const outOfStock = totalStock === 0;
@@ -448,7 +453,7 @@ export default function ProductDetail() {
                   <div className="flex flex-wrap gap-3">
                     {uniqueColors.map((v) => {
                       const colorVariants = variants.filter((cv) =>
-                        cv.color === v.color && (!selectedSize || cv.size === selectedSize)
+                        cv.color === v.color && (!selectedSize || (cv.size || "").split(",").map(s => s.trim()).includes(selectedSize))
                       );
                       const totalStock = colorVariants.reduce((s, cv) => s + cv.stock, 0);
                       const outOfStock = totalStock === 0;

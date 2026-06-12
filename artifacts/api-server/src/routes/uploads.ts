@@ -58,6 +58,17 @@ router.post(
     // Rename to UUID + validated extension to prevent path traversal / spoofing
     const ext = MIME_TO_EXT[detected.mime] ?? ".jpg";
     const filename = `${uuidv4()}${ext}`;
+    
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const { put } = await import("@vercel/blob");
+        const blob = await put(filename, req.file.buffer, { access: 'public' });
+        return res.json({ url: blob.url, filename: blob.pathname });
+      } catch (err) {
+        req.log?.error({ err }, "Vercel Blob upload failed, falling back to local storage");
+      }
+    }
+
     const filepath = path.join(uploadsDir, filename);
     fs.writeFileSync(filepath, req.file.buffer);
 

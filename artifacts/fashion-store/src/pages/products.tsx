@@ -38,6 +38,7 @@ import {
   FileUp, FileDown, CheckCircle2, XCircle, UploadCloud, MoreHorizontal, Filter, LayoutGrid, List,
 } from "lucide-react";
 import { ImageUpload, ImageUploadList } from "@/components/image-upload";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
 import { useTranslation } from "react-i18next";
 import { formatCurrency } from "@/lib/ui-format";
@@ -82,10 +83,10 @@ const EMPTY_FORM: ProductForm = {
   imageUrl: "", featured: false, status: "active", categoryId: "",
 };
 
-type VariantRow = { id?: number; size: string; color: string; colorHex: string; stock: string; imageUrls: string[]; isNew?: boolean };
+type VariantRow = { id?: number; sizes: string[]; color: string; colorHex: string; stock: string; imageUrls: string[]; isNew?: boolean };
 
 function newVariantRow(): VariantRow {
-  return { size: "", color: "", colorHex: "#000000", stock: "0", imageUrls: [], isNew: true };
+  return { sizes: [], color: "", colorHex: "#000000", stock: "0", imageUrls: [], isNew: true };
 }
 
 function variantStock(rows: VariantRow[]) {
@@ -99,7 +100,7 @@ function firstVariantImage(rows: VariantRow[]) {
 function variantToRow(variant: ProductVariant): VariantRow {
   return {
     id: variant.id,
-    size: variant.size ?? "",
+    sizes: (variant.size || "").split(",").map(s => s.trim()).filter(Boolean),
     color: variant.color ?? "",
     colorHex: variant.colorHex ?? "#000000",
     imageUrls: (variant.imageUrls ?? []).map(normalizeStoredImageUrl),
@@ -107,207 +108,6 @@ function variantToRow(variant: ProductVariant): VariantRow {
   };
 }
 
-/* ─── Variant Manager sub-component ─── */
-function VariantManager({ productId }: { productId: number }) {
-  const { t } = useTranslation();
-  const { data: variants, refetch } = useListProductVariants(productId);
-  const createVariant = useCreateProductVariant();
-  const updateVariant = useUpdateProductVariant();
-  const deleteVariant = useDeleteProductVariant();
-
-  const [rows, setRows] = useState<VariantRow[]>([]);
-  const [savingRow, setSavingRow] = useState<number | null>(null);
-
-  useEffect(() => {
-    setRows(variants?.map(variantToRow) ?? []);
-    if (variants && variants.length > 0) {
-      // notify parent if needed, but here we just manage rows
-    }
-  }, [productId, variants]);
-
-  function addRow() {
-    setRows((r) => [...r, newVariantRow()]);
-  }
-
-  function updateRow(i: number, field: keyof VariantRow, value: string | string[]) {
-    setRows((r) => r.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
-  }
-
-  function setPresetColor(i: number, name: string, hex: string) {
-    setRows((r) => r.map((row, idx) => idx === i ? { ...row, color: name, colorHex: hex } : row));
-  }
-
-  async function saveRow(i: number) {
-    const row = rows[i];
-    if (!row) return;
-    setSavingRow(i);
-    const payload = {
-      size: row.size || null,
-      color: row.color || null,
-      colorHex: row.colorHex || null,
-      imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-      stock: parseInt(row.stock, 10) || 0,
-    };
-    try {
-      const saved = row.id
-        ? await updateVariant.mutateAsync({ id: productId, variantId: row.id, data: payload })
-        : await createVariant.mutateAsync({ id: productId, data: payload });
-      setRows((current) => current.map((existing, idx) => idx === i ? variantToRow(saved) : existing));
-      await refetch();
-    } finally {
-      setSavingRow(null);
-    }
-  }
-
-  async function removeRow(i: number) {
-    const row = rows[i];
-    if (!row) return;
-    if (row.id) {
-      await deleteVariant.mutateAsync({ id: productId, variantId: row.id });
-      setRows((r) => r.filter((_, idx) => idx !== i));
-      await refetch();
-    } else {
-      setRows((r) => r.filter((_, idx) => idx !== i));
-    }
-  }
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Label className="flex items-center gap-1.5 text-sm font-semibold">
-          <Layers className="w-3.5 h-3.5 text-primary" /> {t("products.variants.title")}
-        </Label>
-        <Button type="button" size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={addRow}>
-          <Plus className="w-3 h-3" /> {t("products.variants.addBtn")}
-        </Button>
-      </div>
-
-      {rows.length === 0 && (
-        <p className="text-xs text-muted-foreground text-center py-3 border border-dashed border-border rounded-xl">
-          {t("products.variants.empty")}
-        </p>
-      )}
-
-      <div className="space-y-2">
-        {rows.map((row, i) => (
-          <motion.div
-            key={row.id ?? `new-${i}`}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50"
-          >
-            {/* Size */}
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.size")}</Label>
-              <Select
-                value={row.size || SELECT_NONE_VALUE}
-                onValueChange={(v) =>
-                  updateRow(i, "size", v === SELECT_NONE_VALUE ? "" : v)
-                }
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="اختاري..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={SELECT_NONE_VALUE}>{t("products.variants.sizeNone")}</SelectItem>
-                  {SIZES.map((s) => <SelectItem key={s} value={s}>{t(`products.sizes.${s}`) || s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Color */}
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.color")}</Label>
-              <div className="flex gap-1">
-                <div className="relative flex-1">
-                  <Input
-                    value={row.color}
-                    onChange={(e) => updateRow(i, "color", e.target.value)}
-                    placeholder={t("products.variants.colorPlaceholder")}
-                    className="h-8 text-xs ps-7"
-                  />
-                  <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50 overflow-hidden">
-                    <input
-                      type="color"
-                      className="absolute -top-2 -left-2 w-8 h-8 cursor-pointer"
-                      value={row.colorHex || "#000000"}
-                      onChange={(e) => updateRow(i, "colorHex", e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="relative">
-                  <Select onValueChange={(v) => {
-                    const preset = PRESET_COLORS.find((c) => c.key === v);
-                    if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
-                  }}>
-                    <SelectTrigger className="h-8 w-8 p-0 border-border/50">
-                      <Palette className="w-3 h-3 mx-auto text-muted-foreground" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PRESET_COLORS.map((c) => (
-                        <SelectItem key={c.key} value={c.key}>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: c.hex }} />
-                            {t(`products.colors.${c.key}`)}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Stock */}
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.stock")}</Label>
-              <Input
-                type="number"
-                min="0"
-                value={row.stock}
-                onChange={(e) => updateRow(i, "stock", e.target.value)}
-                className="h-8 text-xs w-16"
-              />
-            </div>
-
-            {/* Save */}
-            <Button
-              type="button"
-              size="icon"
-              className="h-8 w-8 mt-5 bg-primary/10 hover:bg-primary/20 text-primary"
-              onClick={() => saveRow(i)}
-              disabled={savingRow !== null}
-              title={t("products.variants.btnSave")}
-            >
-              {savingRow === i ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-            </Button>
-
-            {/* Delete */}
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 mt-5 text-destructive hover:bg-destructive/10"
-              onClick={() => removeRow(i)}
-              disabled={savingRow !== null}
-              title={t("products.variants.btnDelete")}
-            >
-              <X className="w-3.5 h-3.5" />
-            </Button>
-
-            <div className="sm:col-span-5">
-              <ImageUploadList
-                label={t("products.variants.images")}
-                values={row.imageUrls}
-                onChange={(urls) => updateRow(i, "imageUrls", urls)}
-              />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function DraftVariantManager({
   rows,
@@ -317,7 +117,7 @@ function DraftVariantManager({
   onChange: (rows: VariantRow[]) => void;
 }) {
   const { t } = useTranslation();
-  function updateRow(i: number, field: keyof VariantRow, value: string | string[]) {
+  function updateRow(i: number, field: keyof VariantRow, value: any) {
     onChange(rows.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
   }
 
@@ -335,45 +135,64 @@ function DraftVariantManager({
           <Plus className="w-3 h-3" /> {t("products.variants.addBtn")}
         </Button>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-4">
         {rows.map((row, i) => (
-          <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50">
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.size")}</Label>
-              <Select value={row.size || SELECT_NONE_VALUE} onValueChange={(v) => updateRow(i, "size", v === SELECT_NONE_VALUE ? "" : v)}>
-                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="اختاري..." /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={SELECT_NONE_VALUE}>{t("products.variants.sizeNone")}</SelectItem>
-                  {SIZES.map((s) => <SelectItem key={s} value={s}>{t(`products.sizes.${s}`) || s}</SelectItem>)}
-                </SelectContent>
-              </Select>
+          <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-muted/20 rounded-xl p-3 border border-border/50 relative group">
+            <div className="sm:col-span-12 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.size")}</Label>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 text-destructive hover:bg-destructive/10"
+                  onClick={() => rows.length > 1 && onChange(rows.filter((_, idx) => idx !== i))}
+                  disabled={rows.length === 1}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+              <ToggleGroup
+                type="multiple"
+                value={row.sizes}
+                onValueChange={(v) => updateRow(i, "sizes", v)}
+                className="flex flex-wrap gap-1 justify-start"
+              >
+                {SIZES.map((s) => (
+                  <ToggleGroupItem key={s} value={s} className="h-8 px-2 text-xs" title={t(`products.sizes.${s}`) || s}>
+                    {s}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
             </div>
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.color")}</Label>
-              <div className="flex gap-1">
-                <div className="relative flex-1">
-                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder={t("products.variants.colorPlaceholder")} className="h-8 text-xs ps-7" />
-                  <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50 overflow-hidden">
+
+            <div className="sm:col-span-6 space-y-1.5">
+              <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.color")}</Label>
+              <div className="flex gap-1.5">
+                <div className="relative flex-1 flex items-center gap-1.5 bg-background border border-input rounded-md px-1.5 focus-within:ring-2 focus-within:ring-ring">
+                  <div className="w-5 h-5 rounded-full overflow-hidden shrink-0 border relative bg-muted shadow-sm cursor-pointer hover:scale-105 transition-transform" title={t("products.variants.colorPicker")}>
                     <input
                       type="color"
-                      className="absolute -top-2 -left-2 w-8 h-8 cursor-pointer"
+                      className="absolute inset-0 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer opacity-0"
                       value={row.colorHex || "#000000"}
                       onChange={(e) => updateRow(i, "colorHex", e.target.value)}
                     />
+                    <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: row.colorHex || "#000000" }} />
                   </div>
+                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder={t("products.variants.colorPlaceholder")} className="h-8 border-0 bg-transparent px-1 focus-visible:ring-0 text-xs shadow-none" />
                 </div>
                 <Select onValueChange={(v) => {
                   const preset = PRESET_COLORS.find((c) => c.key === v);
                   if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
                 }}>
-                  <SelectTrigger className="h-8 w-8 p-0 border-border/50">
-                    <Palette className="w-3 h-3 mx-auto text-muted-foreground" />
+                  <SelectTrigger className="h-8 w-8 p-0 border-border/50 bg-background" aria-label={t("products.variants.colorPresets")}>
+                    <Palette className="w-3.5 h-3.5 mx-auto text-muted-foreground" />
                   </SelectTrigger>
                   <SelectContent>
                     {PRESET_COLORS.map((c) => (
                       <SelectItem key={c.key} value={c.key}>
                         <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: c.hex }} />
+                          <div className="w-3 h-3 rounded-full border shadow-sm" style={{ backgroundColor: c.hex }} />
                           {t(`products.colors.${c.key}`)}
                         </div>
                       </SelectItem>
@@ -382,21 +201,13 @@ function DraftVariantManager({
                 </Select>
               </div>
             </div>
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.stock")}</Label>
-              <Input type="number" min="0" value={row.stock} onChange={(e) => updateRow(i, "stock", e.target.value)} className="h-8 text-xs w-20" />
+
+            <div className="sm:col-span-6 space-y-1.5">
+              <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stock")}</Label>
+              <Input type="number" min="0" value={row.stock} onChange={(e) => updateRow(i, "stock", e.target.value)} className="h-8 text-xs bg-background" placeholder="0" />
             </div>
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 text-destructive hover:bg-destructive/10"
-              onClick={() => rows.length > 1 && onChange(rows.filter((_, idx) => idx !== i))}
-              disabled={rows.length === 1}
-            >
-              <X className="w-3.5 h-3.5" />
-            </Button>
-            <div className="sm:col-span-4">
+
+            <div className="sm:col-span-12 mt-1">
               <ImageUploadList label={t("products.variants.images")} values={row.imageUrls} onChange={(urls) => updateRow(i, "imageUrls", urls)} />
             </div>
           </div>
@@ -723,6 +534,8 @@ export default function Products() {
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
   const createProductVariant = useCreateProductVariant();
+  const updateProductVariant = useUpdateProductVariant();
+  const deleteProductVariant = useDeleteProductVariant();
 
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -892,7 +705,7 @@ export default function Products() {
     setDialogOpen(true);
   }
 
-  function openEdit(p: NonNullable<typeof products>[0]) {
+  async function openEdit(p: NonNullable<typeof products>[0]) {
     setForm({
       name: p.name, description: p.description,
       price: String(p.price), originalPrice: p.originalPrice ? String(p.originalPrice) : "",
@@ -901,14 +714,27 @@ export default function Products() {
       featured: p.featured, status: p.status,
       categoryId: p.categoryId ? String(p.categoryId) : "",
     });
-    // Let hasVariants trigger after fetching if variants exist, or just rely on variant length.
-    // For simplicity, we assume they have variants if their stock doesn't perfectly match product stock, 
-    // or we'll let VariantManager handle it. Actually, just set it true for now and hide if 0 in effect.
     setHasVariants(p.hasVariants || false); 
     setFormError(null);
     setEditingId(p.id);
     setVariantsProductId(p.id);
     setDialogOpen(true);
+    
+    if (p.hasVariants) {
+      try {
+        const res = await fetch(`${BASE}/api/products/${p.id}/variants`);
+        if (res.ok) {
+          const variants = await res.json() as ProductVariant[];
+          if (variants && variants.length > 0) {
+            setDraftVariants(variants.map(variantToRow));
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch variants", e);
+      }
+    }
+    setDraftVariants([newVariantRow()]);
   }
 
   async function handleSave() {
@@ -937,6 +763,35 @@ export default function Products() {
       if (editingId) {
         const { stock: _stock, ...updatePayload } = payload;
         await updateProduct.mutateAsync({ id: editingId, data: hasVariants ? updatePayload : payload });
+        
+        if (hasVariants) {
+          const res = await fetch(`${BASE}/api/products/${editingId}/variants`);
+          const activeVariants = res.ok ? (await res.json() as ProductVariant[]) : [];
+          const existingIds = activeVariants.map(v => v.id);
+          
+          const keptIds = rowsForCreate.filter(r => r.id).map(r => r.id);
+          const deletedIds = existingIds.filter(id => !keptIds.includes(id));
+          
+          await Promise.all([
+            ...deletedIds.map(id => deleteProductVariant.mutateAsync({ id: editingId, variantId: id })),
+            ...rowsForCreate.map(row => {
+              if (row.id) {
+                return updateProductVariant.mutateAsync({ 
+                  id: editingId, 
+                  variantId: row.id, 
+                  data: {
+                    size: row.sizes?.length ? row.sizes.join(",") : null,
+                    color: row.color || null,
+                    colorHex: row.colorHex || null,
+                    imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
+                    stock: parseInt(row.stock, 10) || 0,
+                  } 
+                });
+              }
+              return createVariantFromDraft(editingId, row);
+            })
+          ]);
+        }
       } else {
         const created = await createProduct.mutateAsync({ data: { ...payload, tenantId } });
         if (hasVariants) {
@@ -945,6 +800,7 @@ export default function Products() {
         setVariantsProductId(created.id);
         setEditingId(created.id);
       }
+      setDialogOpen(false);
       refetch();
     } finally {
       setSaving(false);
@@ -965,7 +821,7 @@ export default function Products() {
     await createProductVariant.mutateAsync({
       id: productId,
       data: {
-        size: row.size || null,
+        size: row.sizes?.length ? row.sizes.join(", ") : null,
         color: row.color || null,
         colorHex: row.colorHex || null,
         imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
@@ -1464,39 +1320,21 @@ export default function Products() {
                   )}
                 </div>
 
-                {!variantsProductId && (
-                  <div className="border-t border-border/50 pt-5">
-                    {hasVariants ? (
+                <div className="border-t border-border/50 pt-5">
+                  {hasVariants ? (
+                    <div className="space-y-4">
                       <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
-                    ) : (
-                      <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
-                        <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
-                      </Button>
-                    )}
-                  </div>
-                )}
-
-                {variantsProductId && hasVariants && (
-                  <AnimatePresence>
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="border-t border-border/50 pt-5"
-                    >
-                      <VariantManager productId={variantsProductId} />
-                      <p className="text-xs text-muted-foreground mt-3">
-                        💡 كل متغيّر له مخزونه الخاص. اضغط ✓ بعد تعديل كل صف للحفظ.
+                      <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-lg border">
+                        💡 سيتم حفظ جميع المتغيرات عند حفظ المنتج الأساسي
                       </p>
-                    </motion.div>
-                  </AnimatePresence>
-                )}
-                {variantsProductId && !hasVariants && (
-                  <div className="border-t border-border/50 pt-5">
+                    </div>
+                  ) : (
                     <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
                       <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
+
               </CardContent>
             </Card>
 
