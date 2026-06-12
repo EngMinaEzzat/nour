@@ -1372,162 +1372,188 @@ export default function Products() {
 
       {/* ─── Create / Edit Dialog ─── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
               {editingId ? t("products.form.editTitle") : t("products.form.addTitle")}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-6 py-4">
-            {form.status === "active" && (!form.imageUrl || (!hasVariants && Number(form.stock) <= 0)) && (
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm flex gap-2">
-                <AlertTriangle className="w-5 h-5 shrink-0" />
-                <div>
-                  <p className="font-semibold">{t("products.form.warnings.title")}</p>
-                  <ul className="list-disc list-inside mt-1 text-amber-700 opacity-90">
-                    {!form.imageUrl && <li>{t("products.form.warnings.noImage")}</li>}
-                    {(!hasVariants && Number(form.stock) <= 0) && <li>{t("products.form.warnings.noStock")}</li>}
-                  </ul>
+          <Tabs defaultValue="details" className="w-full">
+            <div className="px-6 pt-4 border-b border-border/50 bg-muted/20">
+              <TabsList className="grid grid-cols-3 w-full bg-muted/60 p-1 rounded-xl h-10 mb-4">
+                <TabsTrigger value="details" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.details")}</TabsTrigger>
+                <TabsTrigger value="variants" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.variants") || "الأسعار والكمية"}</TabsTrigger>
+                <TabsTrigger value="media" className="text-xs font-semibold rounded-lg transition-all">{t("products.form.image")}</TabsTrigger>
+              </TabsList>
+            </div>
+
+            <div className="px-6 py-4 space-y-6">
+              {form.status === "active" && (!form.imageUrl || (!hasVariants && Number(form.stock) <= 0)) && (
+                <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm flex gap-2">
+                  <AlertTriangle className="w-5 h-5 shrink-0 animate-pulse" />
+                  <div>
+                    <p className="font-semibold">{t("products.form.warnings.title")}</p>
+                    <ul className="list-disc list-inside mt-1 text-amber-700 opacity-90 text-xs space-y-0.5">
+                      {!form.imageUrl && <li>{t("products.form.warnings.noImage")}</li>}
+                      {(!hasVariants && Number(form.stock) <= 0) && <li>{t("products.form.warnings.noStock")}</li>}
+                    </ul>
+                  </div>
                 </div>
+              )}
+
+              {/* ─── Details Tab ─── */}
+              <TabsContent value="details" className="space-y-4 outline-none mt-0">
+                <Card className="shadow-none border-border/50">
+                  <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6">
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.name")} *</Label>
+                      <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} className="rounded-lg" />
+                    </div>
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.description")} *</Label>
+                      <Textarea value={form.description} onChange={field("description")} placeholder={t("products.form.descriptionPlaceholder")} rows={4} className="resize-none rounded-lg" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.category").split(" ")[0]}</Label>
+                      <Select
+                        value={form.categoryId || SELECT_NONE_VALUE}
+                        onValueChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            categoryId: v === SELECT_NONE_VALUE ? "" : v,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="rounded-lg"><SelectValue placeholder="اختاري..." /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={SELECT_NONE_VALUE}>{t("products.form.noCategory")}</SelectItem>
+                          {categories?.filter(c => !c.parentId).map((parent) => (
+                            <div key={parent.id}>
+                              <SelectItem value={String(parent.id)} className="font-semibold">
+                                {i18n.language === "en" ? parent.name : parent.nameAr}
+                              </SelectItem>
+                              {categories
+                                ?.filter((child) => child.parentId === parent.id)
+                                .map((child) => (
+                                   <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
+                                     — {i18n.language === "en" ? child.name : child.nameAr}
+                                   </SelectItem>
+                                ))}
+                            </div>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.status")}</Label>
+                      <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as ProductForm["status"] }))}>
+                        <SelectTrigger className="rounded-lg"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">{t("products.status.active")}</SelectItem>
+                          <SelectItem value="out_of_stock">{t("products.status.out_of_stock")}</SelectItem>
+                          <SelectItem value="hidden">{t("products.status.hidden")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-none border-border/50">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3 bg-muted/10">
+                      <div>
+                        <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> {t("products.form.featured").split("(")[0]}
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t("products.form.featured").split("(")[1]?.replace(")", "")}</p>
+                      </div>
+                      <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* ─── Pricing & Variants Tab ─── */}
+              <TabsContent value="variants" className="space-y-4 outline-none mt-0">
+                <Card className="shadow-none border-border/50">
+                  <CardContent className="space-y-6 pt-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold text-foreground/80">{t("products.form.price")} *</Label>
+                        <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} className="rounded-lg" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-bold text-foreground/80">{t("products.form.originalPrice")}</Label>
+                        <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} className="rounded-lg" />
+                      </div>
+                    </div>
+
+                    <div className="border-t border-border/50 pt-5 space-y-4">
+                      <div className="flex items-center justify-between bg-muted/30 p-4 rounded-xl border border-border/50">
+                        <div className="space-y-0.5">
+                          <Label className="text-sm font-semibold flex items-center gap-1.5">
+                            <Layers className="w-4 h-4 text-primary" />
+                            {t("products.tabs.variants")}
+                          </Label>
+                          <p className="text-xs text-muted-foreground">تفعيل خيارات المقاسات والألوان المتعددة لهذا المنتج</p>
+                        </div>
+                        <Switch checked={hasVariants} onCheckedChange={setHasVariants} />
+                      </div>
+
+                      {hasVariants ? (
+                        <div className="space-y-4 animate-in fade-in duration-200">
+                          <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
+                          <p className="text-xs text-muted-foreground bg-primary/5 text-primary p-2.5 rounded-lg border border-primary/10 flex items-center gap-1.5">
+                            💡 سيتم حفظ جميع المتغيرات والكميات تلقائياً عند حفظ المنتج.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1.5 animate-in fade-in duration-200 max-w-xs">
+                          <Label className="text-xs font-bold text-foreground/80">{t("products.columns.stock")}</Label>
+                          <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" className="rounded-lg" />
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* ─── Media Tab ─── */}
+              <TabsContent value="media" className="space-y-4 outline-none mt-0">
+                <Card className="shadow-none border-border/50">
+                  <CardContent className="pt-6">
+                    <ImageUpload
+                      label={t("products.form.image")}
+                      value={form.imageUrl}
+                      onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </div>
+
+            {formError && (
+              <div className="px-6 py-2">
+                <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2">{formError}</p>
               </div>
             )}
 
-            <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.tabs.details")}</CardTitle></CardHeader>
-              <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2 space-y-1.5">
-                  <Label>{t("products.form.name")} *</Label>
-                  <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} />
-                </div>
-                <div className="sm:col-span-2 space-y-1.5">
-                  <Label>{t("products.form.description")} *</Label>
-                  <Textarea value={form.description} onChange={field("description")} placeholder={t("products.form.descriptionPlaceholder")} rows={3} className="resize-none" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>{t("products.form.category").split(" ")[0]}</Label>
-                  <Select
-                    value={form.categoryId || SELECT_NONE_VALUE}
-                    onValueChange={(v) =>
-                      setForm((f) => ({
-                        ...f,
-                        categoryId: v === SELECT_NONE_VALUE ? "" : v,
-                      }))
-                    }
-                  >
-                    <SelectTrigger><SelectValue placeholder="اختاري..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={SELECT_NONE_VALUE}>{t("products.form.noCategory")}</SelectItem>
-                      {categories?.filter(c => !c.parentId).map((parent) => (
-                        <div key={parent.id}>
-                          <SelectItem value={String(parent.id)} className="font-semibold">
-                            {i18n.language === "en" ? parent.name : parent.nameAr}
-                          </SelectItem>
-                          {categories
-                            ?.filter((child) => child.parentId === parent.id)
-                            .map((child) => (
-                               <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
-                                 — {i18n.language === "en" ? child.name : child.nameAr}
-                               </SelectItem>
-                            ))}
-                        </div>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>{t("products.form.status")}</Label>
-                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as ProductForm["status"] }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">{t("products.status.active")}</SelectItem>
-                      <SelectItem value="out_of_stock">{t("products.status.out_of_stock")}</SelectItem>
-                      <SelectItem value="hidden">{t("products.status.hidden")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.image")}</CardTitle></CardHeader>
-              <CardContent>
-                <div className="sm:col-span-2">
-                  <ImageUpload
-                    label={t("products.form.image")}
-                    value={form.imageUrl}
-                    onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3 flex-row items-center justify-between">
-                <CardTitle className="text-base">{t("products.tabs.variants")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
-                  <div className="space-y-1.5">
-                    <Label>{t("products.form.price")} *</Label>
-                    <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} />
+            <DialogFooter className="px-6 py-4 border-t border-border/50 bg-muted/10 gap-2 flex items-center justify-end">
+              <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-lg">{t("products.form.btnCancel")}</Button>
+              <Button onClick={handleSave} disabled={saving || !form.name || !form.price} className="rounded-lg min-w-[100px]">
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {t("products.form.btnSaving")}
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>{t("products.form.originalPrice")}</Label>
-                    <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} />
-                  </div>
-                  {!hasVariants && (
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <Label>{t("products.columns.stock")}</Label>
-                      <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="border-t border-border/50 pt-5">
-                  {hasVariants ? (
-                    <div className="space-y-4">
-                      <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
-                      <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-lg border">
-                        💡 سيتم حفظ جميع المتغيرات عند حفظ المنتج الأساسي
-                      </p>
-                    </div>
-                  ) : (
-                    <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
-                      <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
-                    </Button>
-                  )}
-                </div>
-
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.featured")}</CardTitle></CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3">
-                  <div>
-                    <Label className="flex items-center gap-1.5">
-                      <Star className="w-3.5 h-3.5 text-amber-500" /> {t("products.form.featured").split("(")[0]}
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">{t("products.form.featured").split("(")[1]?.replace(")", "")}</p>
-                  </div>
-                  <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
-                </div>
-              </CardContent>
-            </Card>
-
-            {formError && (
-              <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2 mt-4">{formError}</p>
-            )}
-
-            <DialogFooter className="gap-2 mt-4 sticky bottom-0 bg-background/80 backdrop-blur-md p-4 border-t border-border/50 -mx-4 -mb-4">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
-              <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
-                {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
+                ) : (
+                  t("products.form.btnSave")
+                )}
               </Button>
             </DialogFooter>
-          </div>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
