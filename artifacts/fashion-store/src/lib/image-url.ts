@@ -68,10 +68,11 @@ export function getResponsiveImageProps(url?: string | null, fallback = FALLBACK
   
   // Extract just the pathname safely, even if src is a relative URL
   const parsedPath = src.split('?')[0]; 
+  const apiPath = parsedPath.startsWith('/uploads/') ? `/api${parsedPath}` : parsedPath;
   
-  const w300 = `/api/images/resize?path=${encodeURIComponent(parsedPath)}&w=300`;
-  const w600 = `/api/images/resize?path=${encodeURIComponent(parsedPath)}&w=600`;
-  const w900 = `/api/images/resize?path=${encodeURIComponent(parsedPath)}&w=900`;
+  const w300 = `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=300`;
+  const w600 = `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=600`;
+  const w900 = `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=900`;
   
   return {
     src: w600,

@@ -696,9 +696,11 @@ function renderProductPage(
     ],
   };
 
+  const parsedPathname = image ? new URL(image).pathname : "";
+  const isUpload = parsedPathname.startsWith('/api/uploads/') || parsedPathname.startsWith('/uploads/');
   const srcset =
-    image && image.startsWith(requestBase(req))
-      ? `srcset="/api/images/resize?path=${encodeURIComponent(new URL(image).pathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(new URL(image).pathname)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"`
+    image && image.startsWith(requestBase(req)) && isUpload
+      ? `srcset="/api/images/resize?path=${encodeURIComponent(parsedPathname.startsWith('/uploads/') ? '/api' + parsedPathname : parsedPathname)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(parsedPathname.startsWith('/uploads/') ? '/api' + parsedPathname : parsedPathname)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"`
       : "";
 
   const body = `<main class="ssr-public-page">
@@ -1120,6 +1122,18 @@ router.get("/store/:slug/category/:categorySlug", async (req, res, next) => {
 });
 
 router.get("/store/:slug", async (req, res, next) => {
+  try {
+    const tenant = await getActiveTenantBySlug(req.params.slug);
+    if (!tenant) return next();
+    return sendStore(req, res, tenant);
+  } catch (err) {
+    req.log.error({ err }, "store SSR failed");
+    return next();
+  }
+});
+
+export default router;
+ore/:slug", async (req, res, next) => {
   try {
     const tenant = await getActiveTenantBySlug(req.params.slug);
     if (!tenant) return next();
