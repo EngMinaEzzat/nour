@@ -436,7 +436,8 @@
       "navy": "كحلي",
       "gray": "رمادي",
       "gold": "ذهبي",
-      "brown": "بني"
+      "brown": "بني",
+      "custom": "لون مخصص..."
     },
     "status": {
       "active": "نشط",
@@ -490,7 +491,9 @@
       "btnDelete": "حذف",
       "images": "صور المتغير",
       "draftTitle": "المتغيرات والكمية",
-      "draftStockMsg": "إجمالي المخزون المحسوب من المتغيرات: "
+      "draftStockMsg": "إجمالي المخزون المحسوب من المتغيرات: ",
+      "stockPerSize": "الكمية لكل مقاس",
+      "noSize": "بدون مقاس"
     },
     "csv": {
       "title": "استيراد منتجات من CSV",
@@ -2273,7 +2276,7 @@
       "heroNewArrival": "وصل حديثاً",
       "newArrivalTag": "NEW",
       "resolution": "الدقة المثالية 1080x1080 (1:1)",
-      "limits": "{formats} حتى {max}MB بدون ضغط",
+      "limits": "{{formats}} حتى {{max}}MB بدون ضغط",
       "uploading": "جاري الرفع...",
       "popularTag": "POPULAR",
       "catalogTag": "CATALOG",
@@ -2988,9 +2991,9 @@
     "urlPlaceholder": "https://example.com/image.jpg",
     "uploading": "جاري الرفع...",
     "dropHere": "اضغط أو اسحب صورة هنا",
-    "supported": "{formats} حتى {max}MB بدون ضغط",
-    "errorSize": "حجم الصورة يجب أن يكون أقل من {max}MB",
-    "errorFormat": "الصيغ المدعومة: {formats}. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.",
+    "supported": "{{formats}} حتى {{max}}MB بدون ضغط",
+    "errorSize": "حجم الصورة يجب أن يكون أقل من {{max}}MB",
+    "errorFormat": "الصيغ المدعومة: {{formats}}. على iPhone اختاري JPG إذا ظهرت الصورة بصيغة HEIC.",
     "errorGeneric": "فشل رفع الصورة",
     "removeImage": "إزالة الصورة"
   },

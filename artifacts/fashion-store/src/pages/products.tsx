@@ -83,29 +83,63 @@ const EMPTY_FORM: ProductForm = {
   imageUrl: "", featured: false, status: "active", categoryId: "",
 };
 
-type VariantRow = { id?: number; sizes: string[]; color: string; colorHex: string; stock: string; imageUrls: string[]; isNew?: boolean };
+type VariantRow = {
+  color: string;
+  colorHex: string;
+  sizes: string[];
+  sizeStocks: Record<string, string>;
+  imageUrls: string[];
+  isNew?: boolean;
+  idMap?: Record<string, number>;
+};
 
 function newVariantRow(): VariantRow {
-  return { sizes: [], color: "", colorHex: "#000000", stock: "0", imageUrls: [], isNew: true };
+  return { color: "", colorHex: "#000000", sizes: [], sizeStocks: {}, imageUrls: [], isNew: true, idMap: {} };
 }
 
 function variantStock(rows: VariantRow[]) {
-  return rows.reduce((total, row) => total + (parseInt(row.stock, 10) || 0), 0);
+  return rows.reduce((total, row) => {
+    if (row.sizes.length === 0) {
+      return total + (parseInt(row.sizeStocks?.[""] || "0", 10) || 0);
+    }
+    return total + row.sizes.reduce((sum, s) => sum + (parseInt(row.sizeStocks?.[s] || "0", 10) || 0), 0);
+  }, 0);
 }
 
 function firstVariantImage(rows: VariantRow[]) {
   return rows.flatMap((row) => row.imageUrls.map(normalizeStoredImageUrl)).find(Boolean) ?? "";
 }
 
-function variantToRow(variant: ProductVariant): VariantRow {
-  return {
-    id: variant.id,
-    sizes: (variant.size || "").split(",").map(s => s.trim()).filter(Boolean),
-    color: variant.color ?? "",
-    colorHex: variant.colorHex ?? "#000000",
-    imageUrls: (variant.imageUrls ?? []).map(normalizeStoredImageUrl),
-    stock: String(variant.stock),
-  };
+function groupVariantsToRows(variants: ProductVariant[]): VariantRow[] {
+  const rowsMap: Record<string, VariantRow> = {};
+  for (const v of variants) {
+    const colorKey = `${v.color ?? ""}-${v.colorHex ?? ""}`;
+    if (!rowsMap[colorKey]) {
+      rowsMap[colorKey] = {
+        color: v.color ?? "",
+        colorHex: v.colorHex ?? "#000000",
+        sizes: [],
+        sizeStocks: {},
+        idMap: {},
+        imageUrls: (v.imageUrls ?? []).map(normalizeStoredImageUrl),
+      };
+    }
+    const size = v.size || "";
+    if (size && !rowsMap[colorKey].sizes.includes(size)) {
+      rowsMap[colorKey].sizes.push(size);
+    }
+    rowsMap[colorKey].sizeStocks[size] = String(v.stock);
+    if (rowsMap[colorKey].idMap) {
+      rowsMap[colorKey].idMap![size] = v.id;
+    }
+    const newUrls = (v.imageUrls ?? []).map(normalizeStoredImageUrl);
+    for (const url of newUrls) {
+      if (!rowsMap[colorKey].imageUrls.includes(url)) {
+        rowsMap[colorKey].imageUrls.push(url);
+      }
+    }
+  }
+  return Object.values(rowsMap);
 }
 
 
@@ -138,14 +172,79 @@ function DraftVariantManager({
       <div className="space-y-4">
         {rows.map((row, i) => (
           <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-muted/20 rounded-xl p-3 border border-border/50 relative group">
-            <div className="sm:col-span-12 space-y-1.5">
+            {/* Color section (firstly!) */}
+            <div className="sm:col-span-6 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.color")}</Label>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 text-destructive hover:bg-destructive/10 sm:hidden"
+                  onClick={() => rows.length > 1 && onChange(rows.filter((_, idx) => idx !== i))}
+                  disabled={rows.length === 1}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+              <div className="flex gap-1.5">
+                <div className="relative flex-1 flex items-center gap-1.5 bg-background border border-input rounded-md px-1.5 focus-within:ring-2 focus-within:ring-ring">
+                  <div 
+                    className="w-5 h-5 rounded-full overflow-hidden shrink-0 border relative bg-muted shadow-sm cursor-pointer hover:scale-105 transition-transform" 
+                    title={t("products.variants.colorPicker")}
+                    onClick={() => document.getElementById(`color-picker-${i}`)?.click()}
+                  >
+                    <input
+                      id={`color-picker-${i}`}
+                      type="color"
+                      className="absolute inset-0 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer opacity-0"
+                      value={row.colorHex || "#000000"}
+                      onChange={(e) => updateRow(i, "colorHex", e.target.value)}
+                    />
+                    <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: row.colorHex || "#000000" }} />
+                  </div>
+                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder={t("products.variants.colorPlaceholder")} className="h-8 border-0 bg-transparent px-1 focus-visible:ring-0 text-xs shadow-none" />
+                </div>
+                <Select onValueChange={(v) => {
+                  if (v === "custom") {
+                    document.getElementById(`color-picker-${i}`)?.click();
+                  } else {
+                    const preset = PRESET_COLORS.find((c) => c.key === v);
+                    if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
+                  }
+                }}>
+                  <SelectTrigger className="h-8 w-8 p-0 border-border/50 bg-background" aria-label={t("products.variants.colorPresets")}>
+                    <Palette className="w-3.5 h-3.5 mx-auto text-muted-foreground" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRESET_COLORS.map((c) => (
+                      <SelectItem key={c.key} value={c.key}>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full border shadow-sm" style={{ backgroundColor: c.hex }} />
+                          {t(`products.colors.${c.key}`)}
+                        </div>
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="custom" className="text-primary font-medium focus:bg-primary/5 focus:text-primary">
+                      <div className="flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5" />
+                        {t("products.colors.custom") || "لون مخصص..."}
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Size section */}
+            <div className="sm:col-span-6 space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.size")}</Label>
                 <Button
                   type="button"
                   size="icon"
                   variant="ghost"
-                  className="h-6 w-6 text-destructive hover:bg-destructive/10"
+                  className="h-6 w-6 text-destructive hover:bg-destructive/10 hidden sm:inline-flex"
                   onClick={() => rows.length > 1 && onChange(rows.filter((_, idx) => idx !== i))}
                   disabled={rows.length === 1}
                 >
@@ -166,46 +265,48 @@ function DraftVariantManager({
               </ToggleGroup>
             </div>
 
-            <div className="sm:col-span-6 space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.color")}</Label>
-              <div className="flex gap-1.5">
-                <div className="relative flex-1 flex items-center gap-1.5 bg-background border border-input rounded-md px-1.5 focus-within:ring-2 focus-within:ring-ring">
-                  <div className="w-5 h-5 rounded-full overflow-hidden shrink-0 border relative bg-muted shadow-sm cursor-pointer hover:scale-105 transition-transform" title={t("products.variants.colorPicker")}>
-                    <input
-                      type="color"
-                      className="absolute inset-0 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer opacity-0"
-                      value={row.colorHex || "#000000"}
-                      onChange={(e) => updateRow(i, "colorHex", e.target.value)}
-                    />
-                    <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: row.colorHex || "#000000" }} />
-                  </div>
-                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder={t("products.variants.colorPlaceholder")} className="h-8 border-0 bg-transparent px-1 focus-visible:ring-0 text-xs shadow-none" />
+            {/* Stock per size (linked to sizes) */}
+            {row.sizes.length === 0 ? (
+              <div className="sm:col-span-12 space-y-1.5 mt-1">
+                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stock")}</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    value={row.sizeStocks?.[""] || ""}
+                    onChange={(e) => {
+                      const nextStocks = { ...row.sizeStocks, "": e.target.value };
+                      updateRow(i, "sizeStocks", nextStocks);
+                    }}
+                    className="h-8 text-xs bg-background w-24"
+                    placeholder="0"
+                  />
+                  <span className="text-xs text-muted-foreground">({t("products.variants.noSize") || "بدون مقاس"})</span>
                 </div>
-                <Select onValueChange={(v) => {
-                  const preset = PRESET_COLORS.find((c) => c.key === v);
-                  if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
-                }}>
-                  <SelectTrigger className="h-8 w-8 p-0 border-border/50 bg-background" aria-label={t("products.variants.colorPresets")}>
-                    <Palette className="w-3.5 h-3.5 mx-auto text-muted-foreground" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PRESET_COLORS.map((c) => (
-                      <SelectItem key={c.key} value={c.key}>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full border shadow-sm" style={{ backgroundColor: c.hex }} />
-                          {t(`products.colors.${c.key}`)}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
-            </div>
-
-            <div className="sm:col-span-6 space-y-1.5">
-              <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stock")}</Label>
-              <Input type="number" min="0" value={row.stock} onChange={(e) => updateRow(i, "stock", e.target.value)} className="h-8 text-xs bg-background" placeholder="0" />
-            </div>
+            ) : (
+              <div className="sm:col-span-12 space-y-1.5 mt-1">
+                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stockPerSize") || "الكمية لكل مقاس"}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {row.sizes.map((s) => (
+                    <div key={s} className="flex items-center gap-1.5 bg-background border border-input rounded-md px-2 py-0.5 shadow-sm">
+                      <span className="text-xs font-bold uppercase text-primary">{s}</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={row.sizeStocks?.[s] || ""}
+                        onChange={(e) => {
+                          const nextStocks = { ...row.sizeStocks, [s]: e.target.value };
+                          updateRow(i, "sizeStocks", nextStocks);
+                        }}
+                        className="h-7 w-12 border-0 bg-transparent p-0 focus-visible:ring-0 text-xs text-center font-semibold"
+                        placeholder="0"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="sm:col-span-12 mt-1">
               <ImageUploadList label={t("products.variants.images")} values={row.imageUrls} onChange={(urls) => updateRow(i, "imageUrls", urls)} />
@@ -726,7 +827,7 @@ export default function Products() {
         if (res.ok) {
           const variants = await res.json() as ProductVariant[];
           if (variants && variants.length > 0) {
-            setDraftVariants(variants.map(variantToRow));
+            setDraftVariants(groupVariantsToRows(variants));
             return;
           }
         }
@@ -765,37 +866,113 @@ export default function Products() {
         await updateProduct.mutateAsync({ id: editingId, data: hasVariants ? updatePayload : payload });
         
         if (hasVariants) {
+          const activePayloads: {
+            id?: number;
+            size: string | null;
+            color: string | null;
+            colorHex: string | null;
+            imageUrls: string[];
+            stock: number;
+          }[] = [];
+
+          for (const row of rowsForCreate) {
+            if (row.sizes.length === 0) {
+              activePayloads.push({
+                id: row.idMap?.[""],
+                size: null,
+                color: row.color || null,
+                colorHex: row.colorHex || null,
+                imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
+                stock: parseInt(row.sizeStocks?.[""] || "0", 10) || 0,
+              });
+            } else {
+              for (const size of row.sizes) {
+                activePayloads.push({
+                  id: row.idMap?.[size],
+                  size: size,
+                  color: row.color || null,
+                  colorHex: row.colorHex || null,
+                  imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
+                  stock: parseInt(row.sizeStocks?.[size] || "0", 10) || 0,
+                });
+              }
+            }
+          }
+
           const res = await fetch(`${BASE}/api/products/${editingId}/variants`);
           const activeVariants = res.ok ? (await res.json() as ProductVariant[]) : [];
           const existingIds = activeVariants.map(v => v.id);
           
-          const keptIds = rowsForCreate.filter(r => r.id).map(r => r.id);
+          const keptIds = activePayloads.map(p => p.id).filter((id): id is number => typeof id === "number");
           const deletedIds = existingIds.filter(id => !keptIds.includes(id));
           
           await Promise.all([
             ...deletedIds.map(id => deleteProductVariant.mutateAsync({ id: editingId, variantId: id })),
-            ...rowsForCreate.map(row => {
-              if (row.id) {
+            ...activePayloads.map(p => {
+              const body = {
+                size: p.size,
+                color: p.color,
+                colorHex: p.colorHex,
+                imageUrls: p.imageUrls,
+                stock: p.stock,
+              };
+              if (p.id) {
                 return updateProductVariant.mutateAsync({ 
                   id: editingId, 
-                  variantId: row.id, 
-                  data: {
-                    size: row.sizes?.length ? row.sizes.join(",") : null,
-                    color: row.color || null,
-                    colorHex: row.colorHex || null,
-                    imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-                    stock: parseInt(row.stock, 10) || 0,
-                  } 
+                  variantId: p.id, 
+                  data: body 
                 });
               }
-              return createVariantFromDraft(editingId, row);
+              return createProductVariant.mutateAsync({
+                id: editingId,
+                data: body
+              });
             })
           ]);
         }
       } else {
         const created = await createProduct.mutateAsync({ data: { ...payload, tenantId } });
         if (hasVariants) {
-          await Promise.all(rowsForCreate.map(row => createVariantFromDraft(created.id, row)));
+          const createPayloads: {
+            size: string | null;
+            color: string | null;
+            colorHex: string | null;
+            imageUrls: string[];
+            stock: number;
+          }[] = [];
+
+          for (const row of rowsForCreate) {
+            if (row.sizes.length === 0) {
+              createPayloads.push({
+                size: null,
+                color: row.color || null,
+                colorHex: row.colorHex || null,
+                imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
+                stock: parseInt(row.sizeStocks?.[""] || "0", 10) || 0,
+              });
+            } else {
+              for (const size of row.sizes) {
+                createPayloads.push({
+                  size: size,
+                  color: row.color || null,
+                  colorHex: row.colorHex || null,
+                  imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
+                  stock: parseInt(row.sizeStocks?.[size] || "0", 10) || 0,
+                });
+              }
+            }
+          }
+
+          await Promise.all(createPayloads.map(p => createProductVariant.mutateAsync({
+            id: created.id,
+            data: {
+              size: p.size,
+              color: p.color,
+              colorHex: p.colorHex,
+              imageUrls: p.imageUrls,
+              stock: p.stock,
+            }
+          })));
         }
         setVariantsProductId(created.id);
         setEditingId(created.id);
@@ -816,19 +993,6 @@ export default function Products() {
 
   const field = (key: keyof ProductForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
-
-  async function createVariantFromDraft(productId: number, row: VariantRow) {
-    await createProductVariant.mutateAsync({
-      id: productId,
-      data: {
-        size: row.sizes?.length ? row.sizes.join(", ") : null,
-        color: row.color || null,
-        colorHex: row.colorHex || null,
-        imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-        stock: parseInt(row.stock, 10) || 0,
-      },
-    });
-  }
 
   return (
     <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>

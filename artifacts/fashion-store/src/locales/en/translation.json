@@ -34,7 +34,8 @@
       "navy": "Navy",
       "gray": "Gray",
       "gold": "Gold",
-      "brown": "Brown"
+      "brown": "Brown",
+      "custom": "Custom Color..."
     },
     "status": {
       "active": "Active",
@@ -93,7 +94,9 @@
       "btnDelete": "Delete",
       "images": "Variant Images",
       "draftTitle": "Variants & Stock",
-      "draftStockMsg": "Total stock calculated from variants: "
+      "draftStockMsg": "Total stock calculated from variants: ",
+      "stockPerSize": "Stock per size",
+      "noSize": "No size"
     },
     "csv": {
       "title": "Import Products from CSV",
@@ -2914,9 +2917,9 @@
     "urlPlaceholder": "https://example.com/image.jpg",
     "uploading": "Uploading...",
     "dropHere": "Click or drag image here",
-    "supported": "{formats} up to {max}MB without compression",
-    "errorSize": "Image size must be less than {max}MB",
-    "errorFormat": "Supported formats: {formats}. On iPhone choose JPG if the image appears as HEIC.",
+    "supported": "{{formats}} up to {{max}}MB without compression",
+    "errorSize": "Image size must be less than {{max}}MB",
+    "errorFormat": "Supported formats: {{formats}}. On iPhone choose JPG if the image appears as HEIC.",
     "errorGeneric": "Failed to upload image",
     "errorProcessing": "Could not process image",
     "removeImage": "Remove image"
