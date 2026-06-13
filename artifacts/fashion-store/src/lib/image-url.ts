@@ -96,9 +96,9 @@ export function getResponsiveImageProps(url?: string | null, fallback = FALLBACK
   const BASE = getBase();
   const prefix = BASE ? BASE : '';
   
-  const w300 = `${prefix}/api/images/resize?path=${encodeURIComponent(apiPath)}&w=300`;
-  const w600 = `${prefix}/api/images/resize?path=${encodeURIComponent(apiPath)}&w=600`;
-  const w900 = `${prefix}/api/images/resize?path=${encodeURIComponent(apiPath)}&w=900`;
+  const w300 = `${prefix}/api/images/resize?src=${encodeURIComponent(apiPath)}&w=300`;
+  const w600 = `${prefix}/api/images/resize?src=${encodeURIComponent(apiPath)}&w=600`;
+  const w900 = `${prefix}/api/images/resize?src=${encodeURIComponent(apiPath)}&w=900`;
   
   return {
     src: w600,

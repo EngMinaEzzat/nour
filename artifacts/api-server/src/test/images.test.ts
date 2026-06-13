@@ -29,7 +29,7 @@ describe("Images Router Security", () => {
     const maliciousPath = "/api/uploads/../../../etc/passwd";
 
     const res = await request.get(
-      `/api/images/resize?path=${encodeURIComponent(maliciousPath)}&w=100&h=100`,
+      `/api/images/resize?src=${encodeURIComponent(maliciousPath)}&w=100&h=100`,
     );
 
     expect(res.status).toBe(400);
@@ -39,7 +39,7 @@ describe("Images Router Security", () => {
   it("should accept valid paths inside uploads directory", async () => {
     const validPath = `/api/uploads/${testImageName}`;
     const res = await request.get(
-      `/api/images/resize?path=${encodeURIComponent(validPath)}&w=100&h=100`,
+      `/api/images/resize?src=${encodeURIComponent(validPath)}&w=100&h=100`,
     );
 
     expect(res.status).not.toBe(400);

@@ -591,10 +591,10 @@ function renderStorePage(
       const parsedPathname = productImage ? new URL(productImage).pathname : "";
       const isUpload = parsedPathname.startsWith('/api/uploads/') || parsedPathname.startsWith('/uploads/');
       const apiPath = parsedPathname.startsWith('/uploads/') ? `/api${parsedPathname}` : parsedPathname;
-      const safeSrc = isUpload ? `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=600` : productImage;
+      const safeSrc = isUpload ? `/api/images/resize?src=${encodeURIComponent(apiPath)}&w=600` : productImage;
       const srcset =
         isUpload
-          ? `srcset="/api/images/resize?path=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(apiPath)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
+          ? `srcset="/api/images/resize?src=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?src=${encodeURIComponent(apiPath)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
           : "";
       const availability = product.stock > 0 ? "متاح" : "نفذت الكمية";
       const imagePriority =
@@ -712,10 +712,10 @@ function renderProductPage(
   const parsedPathname = image ? new URL(image).pathname : "";
   const isUpload = parsedPathname.startsWith('/api/uploads/') || parsedPathname.startsWith('/uploads/');
   const apiPath = parsedPathname.startsWith('/uploads/') ? `/api${parsedPathname}` : parsedPathname;
-  const safeSrc = isUpload ? `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=900` : image;
+  const safeSrc = isUpload ? `/api/images/resize?src=${encodeURIComponent(apiPath)}&w=900` : image;
   const srcset =
     isUpload
-      ? `srcset="/api/images/resize?path=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(apiPath)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"`
+      ? `srcset="/api/images/resize?src=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?src=${encodeURIComponent(apiPath)}&w=900 900w" sizes="(max-width: 720px) 100vw, 50vw"`
       : "";
 
   const body = `<main class="ssr-public-page">
@@ -769,10 +769,10 @@ function renderCategoryPage(
       const parsedPathname = productImage ? new URL(productImage).pathname : "";
       const isUpload = parsedPathname.startsWith('/api/uploads/') || parsedPathname.startsWith('/uploads/');
       const apiPath = parsedPathname.startsWith('/uploads/') ? `/api${parsedPathname}` : parsedPathname;
-      const safeSrc = isUpload ? `/api/images/resize?path=${encodeURIComponent(apiPath)}&w=600` : productImage;
+      const safeSrc = isUpload ? `/api/images/resize?src=${encodeURIComponent(apiPath)}&w=600` : productImage;
       const srcset =
         isUpload
-          ? `srcset="/api/images/resize?path=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?path=${encodeURIComponent(apiPath)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
+          ? `srcset="/api/images/resize?src=${encodeURIComponent(apiPath)}&w=400 400w, /api/images/resize?src=${encodeURIComponent(apiPath)}&w=800 800w" sizes="(max-width: 720px) 100vw, 50vw"`
           : "";
       const imagePriority =
         index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"';

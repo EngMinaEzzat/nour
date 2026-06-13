@@ -48,7 +48,7 @@ router.get(
   "/images/resize",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { path: imagePath, w, h } = req.query;
+      const { src: imagePath, w, h } = req.query;
 
       if (!imagePath || typeof imagePath !== "string") {
         return res.status(400).json({ error: "Missing path parameter" });
