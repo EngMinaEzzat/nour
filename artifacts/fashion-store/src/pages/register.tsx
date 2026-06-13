@@ -241,7 +241,9 @@ export default function Register() {
       ) {
         setDuplicateEmail(true);
       } else {
-        const cleanMsg = msg.replace(/^HTTP \d+ [^:]+:\s*/i, "");
+        const cleanMsg = msg
+          .replace(/^HTTP \d+[^:]*:\s*/i, "")
+          .replace(/^(?:password|email|phone|storeName|slug):\s*/i, "");
         setError(cleanMsg || t("auth.register.generalError"));
       }
     } finally {
@@ -514,6 +516,9 @@ export default function Register() {
                     )}
                   </button>
                 </div>
+                <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
+                  {t("auth.register.passwordHint", "يجب أن تكون كلمة المرور 8 أحرف على الأقل، وتحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص")}
+                </p>
               </div>
             </div>
 
