@@ -22,7 +22,7 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"  | "cyberpunk";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +31,7 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"  | "streetwear-cyberpunk";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,7 +169,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, selectedStyle?: StyleType): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -180,7 +180,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, selectedStyle);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +200,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, selectedStyle), order: normalized.length });
     }
   });
 
@@ -217,9 +217,10 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, selectedStyle?: StyleType): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
+  const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -232,10 +233,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
-        ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
-        ctaLink: "#products" 
+        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        ctaLink: "#products",
+        imageUrl: isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -283,11 +285,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
-        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
+        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: "/about-optimized.jpg"
+        imageUrl: isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -362,7 +364,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCyberpunk ? [
+          { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
+          { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
+          { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
+          { icon: "🛡️", title: "Prime Quality", text: "Verified authentic gear" }
+        ] : [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -427,6 +434,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"Style Your Life — كل يوم مختلف\"",
     theme: { primaryColor: "#7c4dff", secondaryColor: "#ff4081", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "lively", cardShadow: "strong" },
   },
+  cyberpunk: {
+    label: "سايبربانك", desc: "تصميم جريء ومظلم مع لمسات نيون قوية", emoji: "⚡",
+    colors: ["#0f0f0f", "#39ff14"], font: "Cairo",
+    example: "\"اكسر القواعد — كن أنت\"",
+    theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -458,6 +471,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "luxury-catalog": {
     label: "كتالوج فاخر", desc: "عرض احترافي يشبه المجلات العالمية", emoji: "🏅",
     sections: ["hero", "lookbook", "categories", "new-arrivals", "testimonials", "about", "newsletter"],
+  },
+  "streetwear-cyberpunk": {
+    label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
+    sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
   },
 };
 
