@@ -36,10 +36,12 @@ import {
   Package, Plus, Pencil, Trash2, Search, Star, Eye, EyeOff,
   AlertCircle, Layers, X, Check, Palette, AlertTriangle, Sparkles, Loader2,
   FileUp, FileDown, CheckCircle2, XCircle, UploadCloud, MoreHorizontal, Filter, LayoutGrid, List,
+  ChevronDown,
 } from "lucide-react";
 import { ImageUpload, ImageUploadList } from "@/components/image-upload";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { formatCurrency } from "@/lib/ui-format";
 import { AdminIconButton } from "@/components/admin/admin-icon-button";
@@ -150,7 +152,7 @@ function DraftVariantManager({
   rows: VariantRow[];
   onChange: (rows: VariantRow[]) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   function updateRow(i: number, field: keyof VariantRow, value: any) {
     onChange(rows.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
   }
@@ -160,7 +162,7 @@ function DraftVariantManager({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" style={{ direction: i18n.dir() }}>
       <div className="flex items-center justify-between">
         <Label className="flex items-center gap-1.5 text-sm font-semibold">
           <Layers className="w-3.5 h-3.5 text-primary" /> {t("products.variants.draftTitle")}
@@ -171,9 +173,9 @@ function DraftVariantManager({
       </div>
       <div className="space-y-4">
         {rows.map((row, i) => (
-          <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-muted/20 rounded-xl p-3 border border-border/50 relative group">
+          <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start bg-muted/20 rounded-xl p-4 border border-border/50 relative group">
             {/* Color section (firstly!) */}
-            <div className="sm:col-span-6 space-y-1.5">
+            <div className="sm:col-span-4 space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.color")}</Label>
                 <Button
@@ -187,30 +189,7 @@ function DraftVariantManager({
                   <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
-              <div className="flex gap-1.5">
-                <div className="relative flex-1 flex items-center gap-1.5 bg-background border border-input rounded-md px-1.5 focus-within:ring-2 focus-within:ring-ring">
-                  <div 
-                    className="w-5 h-5 rounded-full overflow-hidden shrink-0 border relative bg-muted shadow-sm cursor-pointer hover:scale-105 transition-transform" 
-                    title={t("products.variants.colorPicker")}
-                    onClick={() => document.getElementById(`color-picker-${i}`)?.click()}
-                  >
-                    <input
-                      id={`color-picker-${i}`}
-                      type="color"
-                      className="absolute inset-0 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer opacity-0"
-                      value={row.colorHex || "#000000"}
-                      onChange={(e) => updateRow(i, "colorHex", e.target.value)}
-                    />
-                    <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: row.colorHex || "#000000" }} />
-                  </div>
-                  <input
-                    type="text"
-                    value={row.color}
-                    onChange={(e) => updateRow(i, "color", e.target.value)}
-                    placeholder={t("products.variants.colorPlaceholder")}
-                    className="w-full h-8 bg-transparent border-0 px-1 text-xs focus:outline-none focus:ring-0 text-foreground"
-                  />
-                </div>
+              <div className="relative flex items-center gap-2 bg-background border border-input rounded-md px-2 focus-within:ring-1 focus-within:ring-primary h-9">
                 <Select onValueChange={(v) => {
                   if (v === "custom") {
                     document.getElementById(`color-picker-${i}`)?.click();
@@ -219,33 +198,54 @@ function DraftVariantManager({
                     if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
                   }
                 }}>
-                  <SelectTrigger className="h-8 w-8 p-0 border-border/50 bg-background" aria-label={t("products.variants.colorPresets")}>
-                    <Palette className="w-3.5 h-3.5 mx-auto text-muted-foreground" />
+                  <SelectTrigger className="h-6 w-8 p-0 border-0 bg-transparent shadow-none focus:ring-0 flex items-center gap-1 shrink-0 [&>span]:line-clamp-none" aria-label={t("products.variants.colorPresets")}>
+                    <div 
+                      className="w-4 h-4 rounded-full border relative shadow-sm cursor-pointer shrink-0" 
+                      style={{ backgroundColor: row.colorHex || "#000000" }}
+                    />
+                    <ChevronDown className="w-2.5 h-2.5 text-muted-foreground opacity-50 shrink-0" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60 overflow-y-auto">
                     {PRESET_COLORS.map((c) => (
                       <SelectItem key={c.key} value={c.key}>
                         <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full border shadow-sm" style={{ backgroundColor: c.hex }} />
+                          <div className="w-3.5 h-3.5 rounded-full border shadow-sm" style={{ backgroundColor: c.hex }} />
                           {t(`products.colors.${c.key}`)}
                         </div>
                       </SelectItem>
                     ))}
-                    <SelectItem value="custom" className="text-primary font-medium focus:bg-primary/5 focus:text-primary">
+                    <SelectItem value="custom" className="text-primary font-medium focus:bg-primary/5 focus:text-primary border-t border-border/50 mt-1">
                       <div className="flex items-center gap-1.5">
-                        <Palette className="w-3.5 h-3.5" />
+                        <Palette className="w-3.5 h-3.5 text-primary" />
                         {t("products.colors.custom") || "لون مخصص..."}
                       </div>
                     </SelectItem>
                   </SelectContent>
                 </Select>
+
+                {/* Hidden color input for picker wheel */}
+                <input
+                  id={`color-picker-${i}`}
+                  type="color"
+                  className="absolute -z-10 opacity-0 pointer-events-none w-0 h-0"
+                  value={row.colorHex || "#000000"}
+                  onChange={(e) => updateRow(i, "colorHex", e.target.value)}
+                />
+
+                <input
+                  type="text"
+                  value={row.color}
+                  onChange={(e) => updateRow(i, "color", e.target.value)}
+                  placeholder={t("products.variants.colorPlaceholder")}
+                  className="w-full h-8 bg-transparent border-0 p-0 text-xs focus:outline-none focus:ring-0 text-foreground"
+                />
               </div>
             </div>
 
-            {/* Size section */}
-            <div className="sm:col-span-6 space-y-1.5">
+            {/* Sizes & Stock grid section */}
+            <div className="sm:col-span-8 space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.size")}</Label>
+                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stockPerSize") || "الكمية والمقاسات"}</Label>
                 <Button
                   type="button"
                   size="icon"
@@ -257,25 +257,64 @@ function DraftVariantManager({
                   <X className="w-3.5 h-3.5" />
                 </Button>
               </div>
-              <ToggleGroup
-                type="multiple"
-                value={row.sizes}
-                onValueChange={(v) => updateRow(i, "sizes", v)}
-                className="flex flex-wrap gap-1 justify-start"
-              >
-                {SIZES.map((s) => (
-                  <ToggleGroupItem key={s} value={s} className="h-8 px-2 text-xs" title={t(`products.sizes.${s}`) || s}>
-                    {s}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            </div>
 
-            {/* Stock per size (linked to sizes) */}
-            {row.sizes.length === 0 ? (
-              <div className="sm:col-span-12 space-y-1.5 mt-1">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stock")}</Label>
-                <div className="flex items-center gap-2">
+              {/* Grid of combined sizes and stocks */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {SIZES.map((s) => {
+                  const isActive = row.sizes.includes(s);
+                  return (
+                    <div 
+                      key={s} 
+                      className={cn(
+                        "flex items-center justify-between border rounded-lg p-1.5 transition-all text-xs h-9 cursor-pointer select-none",
+                        isActive 
+                          ? "border-primary bg-primary/5 ring-1 ring-primary" 
+                          : "border-border bg-background hover:bg-muted/30"
+                      )}
+                      onClick={() => {
+                        if (!isActive) {
+                          const nextSizes = [...row.sizes, s];
+                          const nextStocks = { ...row.sizeStocks, [s]: "0" };
+                          updateRow(i, "sizes", nextSizes);
+                          updateRow(i, "sizeStocks", nextStocks);
+                        } else {
+                          const nextSizes = row.sizes.filter(x => x !== s);
+                          const nextStocks = { ...row.sizeStocks };
+                          delete nextStocks[s];
+                          updateRow(i, "sizes", nextSizes);
+                          updateRow(i, "sizeStocks", nextStocks);
+                        }
+                      }}
+                    >
+                      <span className={cn("font-semibold uppercase px-1 text-[11px]", isActive ? "text-primary font-bold" : "text-muted-foreground")}>
+                        {t(`products.sizes.${s}`) || s}
+                      </span>
+                      {isActive ? (
+                        <input
+                          type="number"
+                          min="0"
+                          value={row.sizeStocks?.[s] || ""}
+                          onClick={(e) => e.stopPropagation()} // Prevent toggling off
+                          onChange={(e) => {
+                            const nextStocks = { ...row.sizeStocks, [s]: e.target.value };
+                            updateRow(i, "sizeStocks", nextStocks);
+                          }}
+                          className="w-10 h-6 border border-border bg-background rounded text-center font-bold text-[10px] focus:ring-1 focus:ring-primary focus:outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          placeholder="0"
+                          autoFocus
+                        />
+                      ) : (
+                        <Plus className="w-3 h-3 text-muted-foreground/60 me-1" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Muted hint or stock for variant if no sizes are chosen */}
+              {row.sizes.length === 0 && (
+                <div className="flex items-center gap-2 mt-2 bg-muted/40 p-2 rounded-lg border border-border/50 w-fit animate-in fade-in duration-200">
+                  <span className="text-[10px] font-bold text-muted-foreground">{t("products.variants.stock")} ({t("products.variants.noSize") || "بدون مقاس"}):</span>
                   <input
                     type="number"
                     min="0"
@@ -284,35 +323,12 @@ function DraftVariantManager({
                       const nextStocks = { ...row.sizeStocks, "": e.target.value };
                       updateRow(i, "sizeStocks", nextStocks);
                     }}
-                    className="h-8 text-xs bg-background w-24 border border-input rounded-md px-2 focus:outline-none focus:ring-1 focus:ring-ring text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="h-6 text-xs bg-background w-16 border border-input rounded-md px-1 text-center focus:outline-none focus:ring-1 focus:ring-primary text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0"
                   />
-                  <span className="text-xs text-muted-foreground">({t("products.variants.noSize") || "بدون مقاس"})</span>
                 </div>
-              </div>
-            ) : (
-              <div className="sm:col-span-12 space-y-1.5 mt-1">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stockPerSize") || "الكمية لكل مقاس"}</Label>
-                <div className="flex flex-wrap gap-2">
-                  {row.sizes.map((s) => (
-                    <div key={s} className="flex items-center gap-1.5 bg-background border border-input rounded-md px-2 py-0.5 shadow-sm">
-                      <span className="text-xs font-bold uppercase text-primary">{s}</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={row.sizeStocks?.[s] || ""}
-                        onChange={(e) => {
-                          const nextStocks = { ...row.sizeStocks, [s]: e.target.value };
-                          updateRow(i, "sizeStocks", nextStocks);
-                        }}
-                        className="h-7 w-12 border-0 bg-transparent p-0 focus:outline-none focus:ring-0 text-xs text-center font-semibold text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        placeholder="0"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
+            </div>
 
             <div className="sm:col-span-12 mt-1">
               <ImageUploadList label={t("products.variants.images")} values={row.imageUrls} onChange={(urls) => updateRow(i, "imageUrls", urls)} />
@@ -469,7 +485,7 @@ function CsvImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0" dir={i18n.dir()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
         <DialogHeader className="px-6 py-4 border-b border-border/40 shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base">
             <FileUp className="w-4 h-4 text-primary" />
@@ -1378,7 +1394,7 @@ export default function Products() {
 
       {/* ─── Create / Edit Dialog ─── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0" dir={i18n.dir()}>
+        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50">
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
@@ -1603,7 +1619,7 @@ export default function Products() {
 
       {/* ─── AI Pricing Advisor Dialog ─── */}
       <Dialog open={!!pricingProduct} onOpenChange={(o) => { if (!o) { setPricingProduct(null); setPricingAdvice(null); } }}>
-        <DialogContent className="max-w-lg" dir={i18n.dir()}>
+        <DialogContent className="max-w-lg" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base">
               <Sparkles className="w-5 h-5 text-amber-500" />
