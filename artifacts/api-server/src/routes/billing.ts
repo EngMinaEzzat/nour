@@ -17,7 +17,8 @@ router.get("/billing/bank-details", requireRole("owner", "manager", "staff"), (_
     accountName: process.env.BANK_ACCOUNT_NAME ?? "اسم صاحب الحساب",
     accountNumber: process.env.BANK_ACCOUNT_NUMBER ?? "xxxx-xxxx-xxxx",
     iban: process.env.BANK_IBAN ?? "EGxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    instapayNumber: process.env.INSTAPAY_NUMBER ?? null,
+    instapayNumber: process.env.INSTAPAY_NUMBER ?? "01222163864",
+    instapayName: "MINA E**** H**** S*****",
   });
 });
 

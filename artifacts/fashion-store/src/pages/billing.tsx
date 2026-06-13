@@ -5,18 +5,17 @@ import { motion } from "framer-motion";
 import {
   CreditCard, FileText, Clock, TrendingUp, CheckCircle,
   Upload, Send, AlertCircle, Copy, Building2, Smartphone,
-  ChevronDown, ChevronUp, X, Crown, Zap, Package, ShieldCheck,
+  X, Crown, Zap, Package, ShieldCheck,
   Globe, Users, BarChart2, Check, Lock, ArrowRight
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -132,7 +131,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
       className="text-primary hover:text-primary/80 transition-colors">
-      {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+      {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
     </button>
   );
 }
@@ -175,43 +174,7 @@ interface BankDetails {
   accountNumber: string;
   iban: string;
   instapayNumber?: string | null;
-}
-
-function BankDetailsContent({ details }: { details: BankDetails | null | undefined }) {
-  const { t } = useTranslation();
-  if (!details) return null;
-
-  const rows: { label: string; value: string | null }[] = [
-    { label: t("billing.bankDetails.bankName"), value: details.bankName },
-    { label: t("billing.bankDetails.accountName"), value: details.accountName },
-    { label: t("billing.bankDetails.accountNumber"), value: details.accountNumber },
-    { label: "IBAN", value: details.iban },
-  ];
-
-  return (
-    <div className="space-y-4">
-      <div className="space-y-3 bg-card border border-border/50 rounded-2xl p-5">
-        {rows.map((r) => r.value && (
-          <div key={r.label} className="flex items-center justify-between text-sm py-1 border-b border-border/30 last:border-0">
-            <span className="text-muted-foreground">{r.label}</span>
-            <div className="flex items-center gap-2">
-              <span className="font-mono font-medium text-foreground">{r.value}</span>
-              <CopyButton text={r.value} />
-            </div>
-          </div>
-        ))}
-      </div>
-      {details.instapayNumber && (
-        <div className="flex items-center justify-between bg-green-50 border border-green-200 dark:bg-green-950/20 dark:border-green-900/40 rounded-xl p-4">
-          <div className="flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-green-600 shrink-0" />
-            <span className="text-sm text-green-800 dark:text-green-300">{t("billing.bankDetails.instapayText")} <span className="font-mono font-bold">{details.instapayNumber}</span></span>
-          </div>
-          <CopyButton text={details.instapayNumber} />
-        </div>
-      )}
-    </div>
-  );
+  instapayName?: string | null;
 }
 
 function TransferRequestForm({
@@ -226,7 +189,7 @@ function TransferRequestForm({
   const { t } = useTranslation();
   const { data: plans } = useListPlans();
   const [planCode, setPlanCode] = useState(preselectedPlanCode || currentPlanCode || "starter");
-  const [ref, setRef] = useState("");
+  const generatedRef = useRef(`TXN-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`).current;
   const [receiptUrl, setReceiptUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -257,7 +220,10 @@ function TransferRequestForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!ref.trim()) { setError(t("billing.form.errRefRequired")); return; }
+    if (!receiptUrl) {
+      setError(t("billing.form.errReceiptRequired", { defaultValue: "إيصال التحويل (صورة الإثبات) مطلوب." }));
+      return;
+    }
     setSubmitting(true);
     try {
       const csrfHeaders: Record<string, string> = { "Content-Type": "application/json" };
@@ -267,7 +233,7 @@ function TransferRequestForm({
         method: "POST",
         headers: csrfHeaders,
         credentials: "include",
-        body: JSON.stringify({ planCode, referenceNumber: ref.trim(), receiptImageUrl: receiptUrl || null }),
+        body: JSON.stringify({ planCode, referenceNumber: generatedRef, receiptImageUrl: receiptUrl }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? t("billing.form.errSubmit")); return; }
@@ -318,11 +284,7 @@ function TransferRequestForm({
         </div>
       </div>
       <div>
-        <Label htmlFor="ref" className="mb-1.5 block text-xs font-semibold text-muted-foreground">{t("billing.form.refLabel")}</Label>
-        <Input id="ref" value={ref} onChange={(e) => setRef(e.target.value)} placeholder={t("billing.form.refPlaceholder")} />
-      </div>
-      <div>
-        <Label className="mb-1.5 block text-xs font-semibold text-muted-foreground">{t("billing.form.receiptLabel")}</Label>
+        <Label className="mb-1.5 block text-xs font-semibold text-muted-foreground">{t("billing.form.receiptLabel")} *</Label>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
         {receiptUrl ? (
           <div className="flex items-center gap-2 p-2 border rounded-lg bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-900/40">
@@ -412,15 +374,12 @@ export default function BillingPage() {
       {isSuspended && <SuspendedBanner />}
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/60 p-1 rounded-xl">
+        <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/60 p-1 rounded-xl">
           <TabsTrigger value="overview" className="rounded-lg py-2 text-xs md:text-sm font-medium">
             {t("billing.tabs.overview", { defaultValue: "نظرة عامة والفوترة" })}
           </TabsTrigger>
           <TabsTrigger value="plans" className="rounded-lg py-2 text-xs md:text-sm font-medium">
             {t("billing.tabs.plans", { defaultValue: "الخطط والترقية" })}
-          </TabsTrigger>
-          <TabsTrigger value="bank" className="rounded-lg py-2 text-xs md:text-sm font-medium">
-            {t("billing.tabs.bank", { defaultValue: "بيانات التحويل" })}
           </TabsTrigger>
         </TabsList>
 
@@ -672,25 +631,6 @@ export default function BillingPage() {
             </div>
           </motion.div>
         </TabsContent>
-
-        {/* ─── TAB 3: BANK DETAILS ─── */}
-        <TabsContent value="bank" className="outline-none">
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-            <Card className="border-border/50 shadow-sm max-w-2xl">
-              <CardHeader className="pb-3 bg-muted/10 border-b border-border/40">
-                <CardTitle className="text-sm flex items-center gap-2 font-semibold">
-                  <Building2 className="w-4 h-4 text-primary" /> {t("billing.bankDetails.title")}
-                </CardTitle>
-                <CardDescription>
-                  {t("billing.bankDetails.desc", { defaultValue: "استخدم بيانات التحويل البنكي أو الحسابات الإلكترونية أدناه لدفع قيمة الاشتراك يدوياً." })}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-5">
-                <BankDetailsContent details={bankDetails} />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
       </Tabs>
 
       {/* ─── UPGRADE MODAL ─── */}
@@ -735,13 +675,21 @@ export default function BillingPage() {
                   </div>
                 </div>
                 {bankDetails.instapayNumber && (
-                  <div className="flex justify-between items-center border-t border-border/30 pt-1.5 mt-1.5 text-green-700 dark:text-green-400">
-                    <span>Instapay</span>
-                    <div className="flex items-center gap-1">
-                      <span className="font-mono font-bold">{bankDetails.instapayNumber}</span>
-                      <CopyButton text={bankDetails.instapayNumber} />
+                  <>
+                    <div className="flex justify-between items-center border-t border-border/30 pt-1.5 mt-1.5 text-green-700 dark:text-green-400">
+                      <span>Instapay</span>
+                      <div className="flex items-center gap-1">
+                        <span className="font-mono font-bold">{bankDetails.instapayNumber}</span>
+                        <CopyButton text={bankDetails.instapayNumber} />
+                      </div>
                     </div>
-                  </div>
+                    {bankDetails.instapayName && (
+                      <div className="flex justify-between items-center text-[10px] text-green-600 dark:text-green-500 font-semibold mt-0.5">
+                        <span>{t("billing.bankDetails.instapayHolder", { defaultValue: "اسم المستلم (Instapay):" })}</span>
+                        <span>{bankDetails.instapayName}</span>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}

@@ -1565,7 +1565,7 @@
     "cards": {
       "bestFor": "Best for successful stores ✨",
       "yourPlan": "Your Plan",
-      "currency": "{currency} / Month",
+      "currency": "{{currency}} / Month",
       "btnCurrent": "Current Plan",
       "btnUpgrade": "Upgrade Now",
       "btnPrevious": "Previous Plan"

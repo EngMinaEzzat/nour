@@ -1663,7 +1663,7 @@
     "cards": {
       "bestFor": "الأفضل للمتاجر الناجحة ✨",
       "yourPlan": "خطتك",
-      "currency": "{currency} / شهر",
+      "currency": "{{currency}} / شهر",
       "btnCurrent": "خطتك الحالية",
       "btnUpgrade": "الترقية الآن",
       "btnPrevious": "خطة سابقة"
