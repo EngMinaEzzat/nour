@@ -58,7 +58,7 @@ export function getMerchantNav(
           name: "layout.products",
           href: "/products",
           icon: Package,
-          badgeKey: "lowStock",
+          badgeKey: "totalProducts",
         },
         { name: "layout.categories", href: "/categories", icon: Tags },
         { name: "layout.customers", href: "/customers", icon: Users },

@@ -1556,7 +1556,11 @@ export default function Products() {
 
             <DialogFooter className="px-6 py-4 border-t border-border/50 bg-muted/10 gap-2 flex items-center justify-end">
               <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-lg">{t("products.form.btnCancel")}</Button>
-              <Button onClick={handleSave} disabled={saving || !form.name || !form.price} className="rounded-lg min-w-[100px]">
+              <Button
+                onClick={handleSave}
+                disabled={saving || !form.name || !form.price}
+                className="rounded-lg min-w-[100px] bg-primary hover:bg-primary/90 hover:brightness-105 active:scale-[0.98] shadow-sm hover:shadow transition-all disabled:opacity-40 disabled:pointer-events-auto disabled:cursor-not-allowed"
+              >
                 {saving ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
