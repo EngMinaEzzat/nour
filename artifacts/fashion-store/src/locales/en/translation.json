@@ -3086,6 +3086,10 @@
   "billing": {
     "title": "Billing & Subscriptions",
     "subtitle": "Manage your store plan, invoices, and bank transfer receipts",
+    "tabs": {
+      "overview": "Overview & Billing",
+      "plans": "Plans & Upgrades"
+    },
     "planNames": {
       "starter": "Starter",
       "growth": "Growth",
@@ -3134,8 +3138,8 @@
     },
     "banners": {
       "trialEnded": "Trial Ended",
-      "trialDaysLeft": "days left in your trial.",
-      "trialEndsOn": "Trial ends on",
+      "trialDaysLeft": "{{days}} days left in your trial.",
+      "trialEndsOn": "Trial ends on {{date}}.",
       "suspendedTitle": "Store Suspended",
       "suspendedDesc": "Your store is currently suspended. Please renew your subscription to reactivate it."
     },
