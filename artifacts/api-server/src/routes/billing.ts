@@ -5,10 +5,10 @@ import {
 } from "@workspace/db";
 import { requireRole, requirePlatformAdmin } from "../middleware/require-role";
 import { eq, desc, and } from "drizzle-orm";
+import { PLANS, PlanCode } from "../lib/entitlements";
 
 const router = Router();
 
-const PLAN_PRICES: Record<string, number> = { starter: 299, growth: 699, pro: 1499 };
 
 /* ─── Bank details (from env, shown to merchants) ─── */
 router.get("/billing/bank-details", requireRole("owner", "manager", "staff"), (_req, res) => {
@@ -40,7 +40,7 @@ router.get("/billing/status", requireRole("owner", "manager", "staff"), async (r
       ...tenant,
       subscriptionStartedAt: tenant?.subscriptionStartedAt?.toISOString() ?? null,
       trialEndsAt: tenant?.trialEndsAt?.toISOString() ?? null,
-      monthlyPrice: PLAN_PRICES[tenant?.planCode ?? "starter"] ?? 0,
+      monthlyPrice: PLANS[tenant?.planCode as PlanCode]?.priceEgp ?? 0,
       nextRenewalAt: nextRenewalAt?.toISOString() ?? null,
     });
   } catch (err) {
@@ -132,8 +132,8 @@ router.post("/billing/transfer-request", requireRole("owner"), async (req, res) 
     if (!planCode || !referenceNumber) {
       return res.status(400).json({ error: "planCode و referenceNumber مطلوبان" });
     }
-    const amount = PLAN_PRICES[planCode];
-    if (!amount) return res.status(400).json({ error: "خطة غير صالحة" });
+    const amount = PLANS[planCode as PlanCode]?.priceEgp;
+    if (amount === undefined) return res.status(400).json({ error: "خطة غير صالحة" });
 
     const existing = await db.select({ id: billingTransferRequestsTable.id })
       .from(billingTransferRequestsTable)
