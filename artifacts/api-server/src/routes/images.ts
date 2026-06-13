@@ -19,6 +19,31 @@ const uploadsDir = process.env.VERCEL
   ? path.join(os.tmpdir(), "uploads")
   : path.join(process.cwd(), "uploads");
 
+async function findBlobUrl(filename: string): Promise<string | null> {
+  try {
+    const { list } = await import("@vercel/blob");
+    // Try exact match first
+    const exactRes = await list({ prefix: filename, limit: 1 });
+    if (exactRes.blobs.length > 0) {
+      return exactRes.blobs[0].url;
+    }
+
+    // Fallback: search by prefix without extension to handle random suffixes
+    const ext = path.extname(filename);
+    const base = ext ? filename.slice(0, -ext.length) : filename;
+    const listRes = await list({ prefix: base, limit: 5 });
+    for (const blob of listRes.blobs) {
+      const blobName = blob.pathname;
+      if (blobName === filename || blobName.startsWith(base + "-")) {
+        return blob.url;
+      }
+    }
+  } catch (err) {
+    console.error("Vercel Blob list error:", err);
+  }
+  return null;
+}
+
 router.get(
   "/images/resize",
   async (req: Request, res: Response, next: NextFunction) => {
@@ -50,11 +75,10 @@ router.get(
         // Blob fallback: if the file doesn't exist locally, try fetching from Vercel Blob
         if (process.env.BLOB_READ_WRITE_TOKEN) {
           try {
-            const { list } = await import("@vercel/blob");
-            const { blobs } = await list({ prefix: filename, limit: 1 });
-            if (blobs.length > 0) {
+            const blobUrl = await findBlobUrl(filename);
+            if (blobUrl) {
               // For resize, download blob to temp, process, then clean up
-              const response = await fetch(blobs[0].url);
+              const response = await fetch(blobUrl);
               if (response.ok) {
                 const buffer = Buffer.from(await response.arrayBuffer());
                 fs.writeFileSync(sourceFilePath, buffer);

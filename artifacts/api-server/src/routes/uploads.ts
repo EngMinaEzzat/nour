@@ -62,7 +62,7 @@ router.post(
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         const { put } = await import("@vercel/blob");
-        const blob = await put(filename, req.file.buffer, { access: 'public' });
+        const blob = await put(filename, req.file.buffer, { access: 'public', addRandomSuffix: false });
         // Return local relative path so our resize proxy handles it
         return res.json({ url: `/api/uploads/${filename}`, filename: blob.pathname });
       } catch (err) {

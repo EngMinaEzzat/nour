@@ -172,6 +172,31 @@ app.use(
   }),
 );
 
+async function findBlobUrl(filename: string): Promise<string | null> {
+  try {
+    const { list } = await import("@vercel/blob");
+    // Try exact match first
+    const exactRes = await list({ prefix: filename, limit: 1 });
+    if (exactRes.blobs.length > 0) {
+      return exactRes.blobs[0].url;
+    }
+
+    // Fallback: search by prefix without extension to handle random suffixes
+    const ext = path.extname(filename);
+    const base = ext ? filename.slice(0, -ext.length) : filename;
+    const listRes = await list({ prefix: base, limit: 5 });
+    for (const blob of listRes.blobs) {
+      const blobName = blob.pathname;
+      if (blobName === filename || blobName.startsWith(base + "-")) {
+        return blob.url;
+      }
+    }
+  } catch (err) {
+    logger.error({ err }, "Vercel Blob list error in fallback");
+  }
+  return null;
+}
+
 const uploadsDir = process.env.VERCEL ? path.join(os.tmpdir(), "uploads") : path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use("/api/uploads", (req, res, next) => {
@@ -191,10 +216,9 @@ app.use("/api/uploads", (req, res, next) => {
   const filename = req.path.replace(/^\//, "");
   if (!filename || /[\/\\]/.test(filename)) return next();
   try {
-    const { list } = await import("@vercel/blob");
-    const { blobs } = await list({ prefix: filename, limit: 1 });
-    if (blobs.length > 0) {
-      return res.redirect(301, blobs[0].url);
+    const blobUrl = await findBlobUrl(filename);
+    if (blobUrl) {
+      return res.redirect(301, blobUrl);
     }
   } catch (err) {
     logger.error({ err }, "Blob fallback lookup failed");

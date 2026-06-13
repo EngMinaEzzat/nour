@@ -317,7 +317,8 @@ router.post("/auth/register", authLimiter, async (req, res) => {
       }
     }
 
-    return res.status(500).json({ error: "حدث خطأ أثناء التسجيل" });
+    const details = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ error: `حدث خطأ أثناء التسجيل: ${details}` });
   }
 });
 

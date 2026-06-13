@@ -241,7 +241,8 @@ export default function Register() {
       ) {
         setDuplicateEmail(true);
       } else {
-        setError(t("auth.register.generalError"));
+        const cleanMsg = msg.replace(/^HTTP \d+ [^:]+:\s*/i, "");
+        setError(cleanMsg || t("auth.register.generalError"));
       }
     } finally {
       setIsLoading(false);
