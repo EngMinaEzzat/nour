@@ -123,19 +123,25 @@ router.get(
       }
 
       // Resize using sharp
-      await sharp(sourceFilePath)
-        .resize({
-          width,
-          height,
-          fit: "cover",
-          withoutEnlargement: true,
-        })
-        .toFile(cachedFilePath);
+      try {
+        await sharp(sourceFilePath)
+          .resize({
+            width,
+            height,
+            fit: "cover",
+            withoutEnlargement: true,
+          })
+          .toFile(cachedFilePath);
 
-      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-      res.sendFile(cachedFilePath);
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        return res.sendFile(cachedFilePath);
+      } catch (sharpError) {
+        console.error(`Image resize error (sharp) for ${filename}:`, sharpError);
+        // Fallback to the default image to prevent broken images on storefronts
+        return res.redirect("/product-fashion-optimized.jpg");
+      }
     } catch (error) {
-      console.error("Image resize error:", error);
+      console.error("Image route error:", error);
       next(error);
     }
   },

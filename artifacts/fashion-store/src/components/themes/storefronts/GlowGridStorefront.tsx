@@ -46,7 +46,7 @@ export function GlowGridStorefront({ store, products, categories }: StorefrontPr
                     {products.map((p: any) => (
                         <div key={p.id} className="bg-[#2a2a2a] rounded-3xl overflow-hidden group hover:border-[#cdf200] border-2 border-transparent transition-all shadow-lg">
                             <div className="aspect-[3/4] relative bg-[#201f1f]">
-                                {p.imageUrl && <img src={productImageUrl(p.imageUrl)} alt={p.name} className="w-full h-full object-cover opacity-90 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" />}
+                                <img src={productImageUrl(p.imageUrl)} alt={p.name} className="w-full h-full object-cover opacity-90 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#131313]/90 via-transparent to-transparent"></div>
 
                                 <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-2">
