@@ -126,6 +126,15 @@ function absoluteUrl(
 
 function productImageUrl(url: string | null | undefined): string {
   if (!url || url === "/product-fashion.png") return FALLBACK_PRODUCT_IMAGE;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.endsWith(".public.blob.vercel-storage.com")) {
+      const filename = parsed.pathname.split("/").pop();
+      if (filename) return `/api/uploads/${filename}`;
+    }
+  } catch {
+    // Not a valid URL, treat as relative path
+  }
   return url;
 }
 

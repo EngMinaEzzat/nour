@@ -39,6 +39,14 @@ export function normalizeStoredImageUrl(url?: string | null) {
     ) {
       return `${parsed.pathname.slice(BASE.length)}${parsed.search}${parsed.hash}`;
     }
+
+    // Handle Vercel Blob URLs (convert them back to internal paths for resizing)
+    if (parsed.hostname.endsWith(".public.blob.vercel-storage.com")) {
+      const filename = parsed.pathname.split('/').pop();
+      if (filename) {
+        return `/api/uploads/${filename}`;
+      }
+    }
   } catch {
     // Relative paths are already valid stored URLs.
   }

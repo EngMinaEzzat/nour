@@ -47,7 +47,30 @@ router.get(
       }
 
       if (!fs.existsSync(sourceFilePath)) {
-        return res.status(404).json({ error: "Image not found" });
+        // Blob fallback: if the file doesn't exist locally, try fetching from Vercel Blob
+        if (process.env.BLOB_READ_WRITE_TOKEN) {
+          try {
+            const { list } = await import("@vercel/blob");
+            const { blobs } = await list({ prefix: filename, limit: 1 });
+            if (blobs.length > 0) {
+              // For resize, download blob to temp, process, then clean up
+              const response = await fetch(blobs[0].url);
+              if (response.ok) {
+                const buffer = Buffer.from(await response.arrayBuffer());
+                fs.writeFileSync(sourceFilePath, buffer);
+                // File now exists locally — continue with resize below
+              } else {
+                return res.status(404).json({ error: "Image not found" });
+              }
+            } else {
+              return res.status(404).json({ error: "Image not found" });
+            }
+          } catch {
+            return res.status(404).json({ error: "Image not found" });
+          }
+        } else {
+          return res.status(404).json({ error: "Image not found" });
+        }
       }
 
       const width = w ? parseInt(w as string, 10) : undefined;

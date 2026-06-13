@@ -63,7 +63,8 @@ router.post(
       try {
         const { put } = await import("@vercel/blob");
         const blob = await put(filename, req.file.buffer, { access: 'public' });
-        return res.json({ url: blob.url, filename: blob.pathname });
+        // Return local relative path so our resize proxy handles it
+        return res.json({ url: `/api/uploads/${filename}`, filename: blob.pathname });
       } catch (err) {
         req.log?.error({ err }, "Vercel Blob upload failed, falling back to local storage");
       }
