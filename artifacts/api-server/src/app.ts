@@ -179,12 +179,17 @@ app.use("/api/uploads", (req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Cache-Control", "public, max-age=86400, immutable");
   next();
-}, express.static(uploadsDir), async (req, res) => {
+}, express.static(uploadsDir), async (req, res, next) => {
   // Blob fallback: if the file wasn't found locally and Vercel Blob is configured,
   // look it up in Blob storage and redirect to the public blob URL.
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(404).end();
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    return next();
+  }
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return next();
+  }
   const filename = req.path.replace(/^\//, "");
-  if (!filename || /[\/\\]/.test(filename)) return res.status(400).end();
+  if (!filename || /[\/\\]/.test(filename)) return next();
   try {
     const { list } = await import("@vercel/blob");
     const { blobs } = await list({ prefix: filename, limit: 1 });
@@ -194,7 +199,7 @@ app.use("/api/uploads", (req, res, next) => {
   } catch (err) {
     logger.error({ err }, "Blob fallback lookup failed");
   }
-  return res.status(404).end();
+  return next();
 });
 
 // CSRF protection — enforced in development and production.

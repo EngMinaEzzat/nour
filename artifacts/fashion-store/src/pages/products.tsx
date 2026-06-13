@@ -1406,10 +1406,9 @@ export default function Products() {
 
           <Tabs defaultValue="details" className="w-full" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
             <div className="px-6 pt-4 border-b border-border/50 bg-muted/20">
-              <TabsList className="grid grid-cols-3 w-full bg-muted/60 p-1 rounded-xl h-10 mb-4">
+              <TabsList className="grid grid-cols-2 w-full bg-muted/60 p-1 rounded-xl h-10 mb-4">
                 <TabsTrigger value="details" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.details_short") || t("products.tabs.details")}</TabsTrigger>
                 <TabsTrigger value="variants" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.variants_short") || t("products.tabs.variants")}</TabsTrigger>
-                <TabsTrigger value="media" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.media_short") || "الصور"}</TabsTrigger>
               </TabsList>
             </div>
 
@@ -1430,7 +1429,14 @@ export default function Products() {
               {/* ─── Details Tab ─── */}
               <TabsContent value="details" className="space-y-4 outline-none mt-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div className="sm:col-span-2 space-y-1.5">
+                    <div className="sm:col-span-2">
+                      <ImageUpload
+                        label={t("products.form.image")}
+                        value={form.imageUrl}
+                        onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
+                      />
+                    </div>
+                    <div className="sm:col-span-2 space-y-1.5 mt-2">
                       <Label className="text-xs font-bold text-foreground/80">{t("products.form.name")} *</Label>
                       <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} className="rounded-lg" />
                     </div>
@@ -1536,16 +1542,6 @@ export default function Products() {
                 </div>
               </TabsContent>
 
-              {/* ─── Media Tab ─── */}
-              <TabsContent value="media" className="space-y-4 outline-none mt-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
-                <div className="pt-2">
-                  <ImageUpload
-                    label={t("products.form.image")}
-                    value={form.imageUrl}
-                    onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
-                  />
-                </div>
-              </TabsContent>
             </div>
 
             {formError && (
