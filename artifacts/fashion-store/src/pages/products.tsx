@@ -157,6 +157,10 @@ function DraftVariantManager({
     onChange(rows.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
   }
 
+  function updateRowFields(i: number, updates: Partial<VariantRow>) {
+    onChange(rows.map((row, idx) => idx === i ? { ...row, ...updates } : row));
+  }
+
   function setPresetColor(i: number, name: string, hex: string) {
     onChange(rows.map((row, idx) => idx === i ? { ...row, color: name, colorHex: hex } : row));
   }
@@ -275,14 +279,12 @@ function DraftVariantManager({
                         if (!isActive) {
                           const nextSizes = [...row.sizes, s];
                           const nextStocks = { ...row.sizeStocks, [s]: "0" };
-                          updateRow(i, "sizes", nextSizes);
-                          updateRow(i, "sizeStocks", nextStocks);
+                          updateRowFields(i, { sizes: nextSizes, sizeStocks: nextStocks });
                         } else {
                           const nextSizes = row.sizes.filter(x => x !== s);
                           const nextStocks = { ...row.sizeStocks };
                           delete nextStocks[s];
-                          updateRow(i, "sizes", nextSizes);
-                          updateRow(i, "sizeStocks", nextStocks);
+                          updateRowFields(i, { sizes: nextSizes, sizeStocks: nextStocks });
                         }
                       }}
                     >
@@ -1402,7 +1404,7 @@ export default function Products() {
             </DialogTitle>
           </DialogHeader>
 
-          <Tabs defaultValue="details" className="w-full">
+          <Tabs defaultValue="details" className="w-full" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
             <div className="px-6 pt-4 border-b border-border/50 bg-muted/20">
               <TabsList className="grid grid-cols-3 w-full bg-muted/60 p-1 rounded-xl h-10 mb-4">
                 <TabsTrigger value="details" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.details_short") || t("products.tabs.details")}</TabsTrigger>
@@ -1426,7 +1428,7 @@ export default function Products() {
               )}
 
               {/* ─── Details Tab ─── */}
-              <TabsContent value="details" className="space-y-4 outline-none mt-0">
+              <TabsContent value="details" className="space-y-4 outline-none mt-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div className="sm:col-span-2 space-y-1.5">
                       <Label className="text-xs font-bold text-foreground/80">{t("products.form.name")} *</Label>
@@ -1492,7 +1494,7 @@ export default function Products() {
               </TabsContent>
 
               {/* ─── Pricing & Variants Tab ─── */}
-              <TabsContent value="variants" className="space-y-4 outline-none mt-0">
+              <TabsContent value="variants" className="space-y-4 outline-none mt-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
                 <div className="space-y-6 pt-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
@@ -1535,7 +1537,7 @@ export default function Products() {
               </TabsContent>
 
               {/* ─── Media Tab ─── */}
-              <TabsContent value="media" className="space-y-4 outline-none mt-0">
+              <TabsContent value="media" className="space-y-4 outline-none mt-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
                 <div className="pt-2">
                   <ImageUpload
                     label={t("products.form.image")}
