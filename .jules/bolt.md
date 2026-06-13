@@ -99,3 +99,6 @@
 ## 2026-06-08 - [Coverage for generated API Client React library errors]
 **Learning:** Found untrusted / untested code for ApiError within our `lib/api-client-react` generator output code. Writing comprehensive Vitest unit tests to cover constructors handles error extraction robustness (message parsing, title, detail fields edge cases, long string handling, trimming).
 **Action:** Always write deterministic fast unit-tests for generated API client configurations and error definitions, checking properties explicitly (status, data, statusText) and edge cases handling in the API response format logic to build confidence in the error handling boundary between client and backend.
+## 2024-06-13 - [Fix array mapping overhead with flatMap]
+**Learning:** Found nested Promise allocation using `Promise.all(items.map(async () => { ... return Promise.all(updates); }))` which creates unnecessary async closures and intermediate arrays that can block the node event loop momentarily under load.
+**Action:** Replaced nested array mapping inside an async loop with `.flatMap` to gather all the inner queries into a single 1D array of promises, then awaited them using a single outer `Promise.all()`. This ensures lower memory overhead and avoids recursive promise wrapping for dependent Drizzle update queries.

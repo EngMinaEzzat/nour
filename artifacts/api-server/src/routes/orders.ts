@@ -500,7 +500,8 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
           .from(orderItemsTable)
           .where(eq(orderItemsTable.orderId, paramsParsed.data.id));
 
-        await Promise.all(items.map(async (item) => {
+        // ⚡ Bolt Optimization: Use flatMap to generate a single flat array of update promises and execute concurrently via a single top-level Promise.all to avoid nested Promise.all allocations
+        await Promise.all(items.flatMap((item) => {
           const updates: Promise<any>[] = [
             tx.update(productsTable)
               .set({ stock: sql`${productsTable.stock} + ${item.quantity}` })
@@ -511,7 +512,7 @@ router.put("/orders/:id", requireRole("owner", "manager", "staff"), async (req, 
               .set({ stock: sql`${productVariantsTable.stock} + ${item.quantity}` })
               .where(and(eq(productVariantsTable.id, item.variantId), eq(productVariantsTable.productId, item.productId))));
           }
-          return Promise.all(updates);
+          return updates;
         }));
       }
 
