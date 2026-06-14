@@ -12,3 +12,6 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2025-02-12 - Adding UI themes and presets
+**Learning:** Adding new themes to the application often requires updating string literals in configuration factory definitions to support new conditional mappings via the localization keys, instead of hardcoding strings. Remember to modify `createDefaultSection`, `normalizeHomepageSections`, and `createDefaultConfig` definitions to accept an optional `style?: StyleType` parameter to pass the theme string down.
+**Action:** When adding new style or personality types, always ensure factory functions receive the style selection. Be careful when updating `StyleType` unions programmatically to avoid syntax errors that break `tsc`. Add missing common ARIA label translations to `common.buttons` for internationalized accessibility.

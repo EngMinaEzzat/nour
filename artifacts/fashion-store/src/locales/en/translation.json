@@ -256,7 +256,10 @@
       "edit": "Edit",
       "delete": "Delete",
       "confirm": "Confirm",
-      "retry": "Retry"
+      "retry": "Retry",
+      "next": "Next",
+      "previous": "Previous",
+      "remove": "Remove"
     },
     "currency": "EGP",
     "pricing": "Pricing",
@@ -2957,7 +2960,11 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingBoho": "Embrace Your Free Spirit with {{storeName}}",
+      "headingCosmeticsBoho": "Desert Dreams & Natural Beauty with {{storeName}}",
+      "subheadingBoho": "Warm tones and relaxed fits for your everyday adventures.",
+      "subheadingCosmeticsBoho": "Earth-inspired cosmetics that highlight your authentic self."
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3007,10 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "headingBoho": "The Free Spirit of {{storeName}}",
+      "bodyBoho": "We believe in the beauty of nature and the freedom of self-expression. Our collections are inspired by desert landscapes, warm sunsets, and the relaxed bohemian lifestyle.",
+      "bodyCosmeticsBoho": "Inspired by the earth's natural palette, our beauty products are designed for the free-spirited. We celebrate authentic, effortless beauty that lets your true colors shine through."
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,6 +3066,30 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
+      ],
+      "headingBoho": "Lookbook - Desert Dreams",
+      "itemsBoho": [
+        {
+          "imageUrl": "/lookbook-1-boho-optimized.jpg",
+          "tag": "Bohemian",
+          "title": "Desert\\nWinds",
+          "desc": "Flowing fabrics and warm earth tones",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-2-boho-optimized.jpg",
+          "tag": "Summer",
+          "title": "Golden\\nHour",
+          "desc": "Sun-kissed shades for a relaxed style",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-3-boho-optimized.jpg",
+          "tag": "Essentials",
+          "title": "Free\\nSpirit",
+          "desc": "Everyday pieces for the wanderer",
+          "categoryId": ""
+        }
       ]
     },
     "productCatalog": {
@@ -3079,6 +3113,24 @@
         {
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
+        }
+      ],
+      "itemsBoho": [
+        {
+          "title": "Mindful Delivery",
+          "text": "Arrives in 2-5 days"
+        },
+        {
+          "title": "Secure Checkout",
+          "text": "Safe & trusted payments"
+        },
+        {
+          "title": "Easy Returns",
+          "text": "14-day return policy"
+        },
+        {
+          "title": "Authentic Quality",
+          "text": "Crafted with care"
         }
       ]
     }

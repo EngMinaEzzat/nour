@@ -1,4 +1,14 @@
-🎯 **What:** The translation function `t` was using the `any` type in `PlatformLabel` and `CopyButton` components in `affiliates.tsx`. This has been updated to use the strictly typed `TFunction` from `i18next`.
-💡 **Why:** Relying on `any` bypasses TypeScript's type checking, making the code more error-prone and harder to refactor. Replacing it with `TFunction` improves the maintainability and type safety of the translations without altering any runtime behavior.
-✅ **Verification:** I successfully ran `pnpm run typecheck` across all workspace projects, and ran the specific test suite for the frontend using `pnpm --filter @workspace/fashion-store run test`. I also verified that the production build completes successfully.
-✨ **Result:** A small, contained fix that eliminates `any` types for the `t` parameter, leading to better type safety and code health.
+🎨 Palette: Add Boho-Chic visual theme and presets
+
+💡 What:
+Introduces a brand-new "boho-chic" style and "boho" personality for the fashion and cosmetics storefront. This includes extending the TypeScript unions in `store-config.ts`, updating English and Arabic localized strings with a relaxed, desert-inspired copy under `defaultSections`, and modifying the section factory to dynamically use these assets when the user selects the "boho-chic" theme. Missing common button ARIA labels (`next`, `previous`, `remove`) were also added to the translations.
+
+🎯 Why:
+To offer a warm, free-spirited, and relaxed visual alternative for merchants who want a nature-inspired and bohemian aesthetic without replacing or deleting the existing "elegant" default style presets.
+
+📸 Before/After:
+Before: The section factory strictly mapped string defaults that could only change between fashion and cosmetics categories.
+After: The section factory uses a conditionally passed `style` parameter to map localized copy and specific fallback images (like `/hero-boho-optimized.jpg`) for the "boho-chic" theme.
+
+♿ Accessibility:
+Ensured the newly mapped icon buttons and text strings utilize proper `t()` variables, and included standard `common.buttons` localizations across English and Arabic to support `aria-label` translations robustly.
