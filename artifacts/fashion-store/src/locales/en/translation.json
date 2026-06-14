@@ -3081,6 +3081,67 @@
           "text": "100% Original Products"
         }
       ]
+    },
+    "retroVintage": {
+      "hero": {
+        "heading": "Timeless Classics from {{storeName}}",
+        "subheading": "Vintage Finds that bring back the best memories",
+        "ctaText": "Explore Collection"
+      },
+      "about": {
+        "heading": "Our Story at {{storeName}}",
+        "body": "We adore things that carry the fragrance of the past. In our store, we gather the most beautiful classic pieces that never lose their value over time, so you can shine with a unique and distinguished look."
+      },
+      "lookbook": {
+        "heading": "Memory Album - Classic Inspiration",
+        "items": [
+          {
+            "imageUrl": "/lookbook-1-optimized.jpg",
+            "tag": "90s Classics",
+            "title": "90s\\nMagic",
+            "desc": "A look that takes you back to the good old days",
+            "categoryId": ""
+          },
+          {
+            "imageUrl": "/lookbook-2-optimized.jpg",
+            "tag": "Warm Tones",
+            "title": "Nostalgic\\nVibes",
+            "desc": "Color tones that inspire warmth and authenticity",
+            "categoryId": ""
+          },
+          {
+            "imageUrl": "/lookbook-3-optimized.jpg",
+            "tag": "Vintage Touch",
+            "title": "Antique\\nElegance",
+            "desc": "Intricate details that make a difference",
+            "categoryId": ""
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "📻",
+            "title": "Authentic Quality",
+            "text": "Carefully selected pieces"
+          },
+          {
+            "icon": "⏳",
+            "title": "Timeless Elegance",
+            "text": "Never goes out of style"
+          },
+          {
+            "icon": "📜",
+            "title": "A Story in Every Piece",
+            "text": "Heritage and memories"
+          },
+          {
+            "icon": "⭐",
+            "title": "Uniqueness",
+            "text": "A look unlike any other"
+          }
+        ]
+      }
     }
   },
   "billing": {

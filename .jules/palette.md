@@ -12,3 +12,7 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+
+## 2024-06-14 - Retro Vintage Theme Expansion
+**Learning:** Expanding theme styles and types without breaking existing code requires careful propagation of the style context (e.g. `StyleType`) to the factory functions that assemble section content. Passing down `style` parameters effectively enables localized and stylistic variations within generic sections.
+**Action:** When adding new top-level style options or personalities, ensure that `createDefaultConfig` or equivalent factory functions explicitly inherit and conditionally pass these configurations so that text logic/i18n bindings operate correctly based on the selected theme. Use `t()` to ensure internationalization consistency for new components or themes.

@@ -131,7 +131,7 @@ export default function StoreBuilder() {
         cardShadow: "soft",
       },
       homepage: {
-        sections: normalizeHomepageSections(undefined, tenant.name ?? "متجري", tenant.category ?? "fashion", t),
+        sections: normalizeHomepageSections(undefined, tenant.name ?? "متجري", tenant.category ?? "fashion", t, (tenant as any).themeStyle as import("@/lib/store-config").StyleType | undefined),
       },
       business: {
         whatsapp: socialLinks.whatsapp ?? "",
