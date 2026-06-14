@@ -54,10 +54,19 @@ router.get("/diagnostic/blob", async (req, res) => {
     const tokenPreview = hasToken ? process.env.BLOB_READ_WRITE_TOKEN!.substring(0, 10) + "..." : null;
     let blobs: any[] = [];
     let errorStr = null;
+    let writeTest = null;
     
     if (hasToken) {
       try {
-        const { list } = await import("@vercel/blob");
+        const { list, put } = await import("@vercel/blob");
+        
+        try {
+          const blob = await put("diagnostic-test.txt", "hello world", { access: "public", addRandomSuffix: false });
+          writeTest = { success: true, url: blob.url };
+        } catch (we) {
+          writeTest = { success: false, error: String(we) };
+        }
+
         const listRes = await list({ limit: 10 });
         blobs = listRes.blobs;
       } catch (err: any) {
@@ -65,7 +74,7 @@ router.get("/diagnostic/blob", async (req, res) => {
       }
     }
     
-    return res.json({ hasToken, tokenPreview, errorStr, blobs });
+    return res.json({ hasToken, tokenPreview, errorStr, writeTest, blobs });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }
