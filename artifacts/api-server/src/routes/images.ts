@@ -44,6 +44,29 @@ async function findBlobUrl(filename: string): Promise<string | null> {
   return null;
 }
 
+router.get("/diagnostic/blob", async (req, res) => {
+  try {
+    const hasToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+    const tokenPreview = hasToken ? process.env.BLOB_READ_WRITE_TOKEN!.substring(0, 10) + "..." : null;
+    let blobs: any[] = [];
+    let errorStr = null;
+    
+    if (hasToken) {
+      try {
+        const { list } = await import("@vercel/blob");
+        const listRes = await list({ limit: 10 });
+        blobs = listRes.blobs;
+      } catch (err: any) {
+        errorStr = err.message;
+      }
+    }
+    
+    return res.json({ hasToken, tokenPreview, errorStr, blobs });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 router.get(
   "/images/resize",
   async (req: Request, res: Response, next: NextFunction) => {
