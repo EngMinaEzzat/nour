@@ -19,6 +19,10 @@ const uploadsDir = process.env.VERCEL
   ? path.join(os.tmpdir(), "uploads")
   : path.join(process.cwd(), "uploads");
 
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 async function findBlobUrl(filename: string): Promise<string | null> {
   try {
     const { list } = await import("@vercel/blob");
