@@ -3034,7 +3034,9 @@
       "headingCosmetics": "اكتشفي جمالكِ مع {{storeName}}",
       "subheading": "أزياء راقية بأسعار تناسبك",
       "subheadingCosmetics": "مستحضرات عناية وتجميل تبرز جمالك الطبيعي",
-      "ctaText": "تسوقي الآن"
+      "ctaText": "تسوقي الآن",
+      "headingActive": "طاقة لا تتوقف مع {{storeName}}",
+      "subheadingActive": "تجاوز الحدود مع أفضل المعدات الرياضية"
     },
     "newArrivals": {
       "heading": "وصل حديثاً",
@@ -3077,7 +3079,9 @@
     "about": {
       "heading": "قصة {{storeName}}",
       "bodyCosmetics": "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ.",
-      "bodyFashion": "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."
+      "bodyFashion": "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.",
+      "headingActive": "انطلاقة {{storeName}}",
+      "bodyActive": "صُممت منتجاتنا لمن لا يقبلون بأقل من القمة. نحن هنا لندعم حركتك ونشاطك اليومي."
     },
     "instagram": {
       "heading": "تابعينا على إنستغرام"
@@ -3133,6 +3137,30 @@
           "desc": "منتجات عناية بجودة عالية",
           "categoryId": ""
         }
+      ],
+      "headingActive": "طاقة وتحدي - تشكيلة الأداء",
+      "itemsActive": [
+        {
+          "imageUrl": "/lookbook-active-1-optimized.jpg",
+          "tag": "Training",
+          "title": "Unstoppable",
+          "desc": "معدات تدريب احترافية",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-active-2-optimized.jpg",
+          "tag": "Running",
+          "title": "Speed",
+          "desc": "أحذية جري خفيفة وسريعة",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-active-3-optimized.jpg",
+          "tag": "Gym",
+          "title": "Power",
+          "desc": "أوزان ومعدات بناء الأجسام",
+          "categoryId": ""
+        }
       ]
     },
     "productCatalog": {
@@ -3156,6 +3184,28 @@
         {
           "title": "جودة مضمونة",
           "text": "منتجات أصلية 100%"
+        }
+      ],
+      "itemsActive": [
+        {
+          "icon": "⚡",
+          "title": "أداء فائق",
+          "text": "خامات تدعم حركتك"
+        },
+        {
+          "icon": "🛡️",
+          "title": "متانة عالية",
+          "text": "صُممت لتدوم طويلاً"
+        },
+        {
+          "icon": "🚚",
+          "title": "شحن سريع",
+          "text": "توصيل خلال 48 ساعة"
+        },
+        {
+          "icon": "🔄",
+          "title": "استبدال مرن",
+          "text": "خلال 14 يوم"
         }
       ]
     }

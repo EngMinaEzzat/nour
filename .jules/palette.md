@@ -12,3 +12,6 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2025-06-13 - Add Dynamic Active Visual Theme
+**Learning:** In `artifacts/fashion-store`, `StoreConfig` uses `brand.personality` to denote visual context rather than a direct `style` property. The `cardShadow` property only accepts `"strong"`, `"none"`, `"soft"`, or `undefined` (not `"hard"`). Also, `pnpm --filter` must precede the run command to avoid passing the filter as a flag to tools like `tsc`.
+**Action:** Always check `StoreConfig` schema before injecting new parameters into factory functions like `createDefaultSection`, relying on existing context (e.g., `personality`) to avoid breaking existing call sites. Use `"strong"` for heavy shadows.

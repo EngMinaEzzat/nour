@@ -2957,7 +2957,9 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingActive": "Unstoppable Energy with {{storeName}}",
+      "subheadingActive": "Push your limits with the best athletic gear"
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3002,9 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "headingActive": "The {{storeName}} Story",
+      "bodyActive": "Our products are designed for those who never settle for less. We are here to support your movement and daily activity."
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,6 +3060,30 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
+      ],
+      "headingActive": "Energy & Challenge - Performance Collection",
+      "itemsActive": [
+        {
+          "imageUrl": "/lookbook-active-1-optimized.jpg",
+          "tag": "Training",
+          "title": "Unstoppable",
+          "desc": "Professional training gear",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-active-2-optimized.jpg",
+          "tag": "Running",
+          "title": "Speed",
+          "desc": "Light and fast running shoes",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-active-3-optimized.jpg",
+          "tag": "Gym",
+          "title": "Power",
+          "desc": "Weights and bodybuilding equipment",
+          "categoryId": ""
+        }
       ]
     },
     "productCatalog": {
@@ -3079,6 +3107,28 @@
         {
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
+        }
+      ],
+      "itemsActive": [
+        {
+          "icon": "⚡",
+          "title": "High Performance",
+          "text": "Materials that support your movement"
+        },
+        {
+          "icon": "🛡️",
+          "title": "High Durability",
+          "text": "Designed to last long"
+        },
+        {
+          "icon": "🚚",
+          "title": "Fast Shipping",
+          "text": "Delivery within 48 hours"
+        },
+        {
+          "icon": "🔄",
+          "title": "Flexible Returns",
+          "text": "Within 14 days"
         }
       ]
     }

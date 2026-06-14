@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"
+  | "active";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "dynamic-active";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,7 +171,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, personality?: string): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -180,7 +182,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, personality);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +202,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, personality), order: normalized.length });
     }
   });
 
@@ -217,9 +219,10 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, personality?: string): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
+  const isActive = personality === "active";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -232,8 +235,9 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
+        heading: tr(isActive ? "defaultSections.hero.headingActive" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isActive ? `طاقة لا تتوقف مع ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isActive ? "defaultSections.hero.subheadingActive" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isActive ? "تجاوز الحدود مع أفضل المعدات الرياضية" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        imageUrl: isActive ? "/hero-active-optimized.jpg" : undefined,
         ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
         ctaLink: "#products" 
       },
@@ -283,11 +287,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
-        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
+        heading: tr(isActive ? "defaultSections.about.headingActive" : "defaultSections.about.heading", isActive ? `انطلاقة ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isActive ? "defaultSections.about.bodyActive" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isActive ? "صُممت منتجاتنا لمن لا يقبلون بأقل من القمة. نحن هنا لندعم حركتك ونشاطك اليومي." : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: "/about-optimized.jpg"
+        imageUrl: isActive ? "/about-active-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -326,8 +330,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isActive ? "defaultSections.lookbook.headingActive" : "defaultSections.lookbook.heading", isActive ? "طاقة وتحدي - تشكيلة الأداء" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isActive ? "defaultSections.lookbook.itemsActive" : "defaultSections.lookbook.items", isActive ? [
+          {
+            imageUrl: "/lookbook-active-1-optimized.jpg",
+            tag: "Training",
+            title: "Unstoppable",
+            desc: "معدات تدريب احترافية",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-active-2-optimized.jpg",
+            tag: "Running",
+            title: "Speed",
+            desc: "أحذية جري خفيفة وسريعة",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-active-3-optimized.jpg",
+            tag: "Gym",
+            title: "Power",
+            desc: "أوزان ومعدات بناء الأجسام",
+            categoryId: "",
+          }
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -362,7 +388,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: tr(isActive ? "defaultSections.trustStrip.itemsActive" : "defaultSections.trustStrip.items", isActive ? [
+          { icon: "⚡", title: "أداء فائق", text: "خامات تدعم حركتك" },
+          { icon: "🛡️", title: "متانة عالية", text: "صُممت لتدوم طويلاً" },
+          { icon: "🚚", title: "شحن سريع", text: "توصيل خلال 48 ساعة" },
+          { icon: "🔄", title: "استبدال مرن", text: "خلال 14 يوم" },
+        ] : [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -391,6 +422,12 @@ export const DEFAULT_THEME: ThemeConfig = {
 
 // ─── Personality presets ──────────────────────────────────────────────────────
 export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
+  active: {
+    label: "ديناميكية ونشطة", desc: "للرياضة والطاقة والحركة المستمرة", emoji: "⚡",
+    colors: ["#111111", "#ff4500"], font: "Inter",
+    example: "\"طاقة لا تتوقف — تجاوز كل الحدود\"",
+    theme: { primaryColor: "#ff4500", secondaryColor: "#111111", fontPairing: "sans-sans", buttonStyle: "rounded", cardShadow: "strong" },
+  },
   elegant: {
     label: "أنيقة وراقية", desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع", emoji: "💎",
     colors: ["#1a1614", "#c8963a"], font: "Cormorant Garamond",
@@ -431,6 +468,10 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
 export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
+  "dynamic-active": {
+    label: "رياضي ديناميكي", desc: "للملابس الرياضية والأداء العالي", emoji: "🏃",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "lookbook", "about", "newsletter"],
+  },
   "modern-boutique": {
     label: "بوتيك عصري", desc: "مثالي للأزياء والإكسسوارات الراقية", emoji: "👗",
     sections: ["hero", "trust-strip", "new-arrivals", "categories", "lookbook", "about", "newsletter"],
@@ -469,7 +510,7 @@ export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunctio
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, partial?.brand?.personality),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };

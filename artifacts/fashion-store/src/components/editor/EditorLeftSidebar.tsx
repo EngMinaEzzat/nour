@@ -140,6 +140,7 @@ export default function EditorLeftSidebar({
       config.brand.name,
       config.brand.category,
       t,
+      config.brand.personality
     );
     s.order = config.homepage.sections.length;
     onConfigChange({
