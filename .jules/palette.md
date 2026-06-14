@@ -12,3 +12,6 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2024-06-13 - Palette: Added 'imperial-chic' theme
+**Learning:** Successfully expanded `store-config.ts` type definitions and mapped default layout/i18n configurations. Demonstrated how to inject custom visual themes while maintaining existing system accessibility (e.g., maintaining `t()` calls and preserving layout behavior).
+**Action:** Always verify all sections mappings (`hero`, `trust-strip`, `about`, `lookbook`) are appropriately modified when building complex style presets to prevent mismatches during template hydration.

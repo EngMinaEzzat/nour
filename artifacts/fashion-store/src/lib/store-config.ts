@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"
+  | "imperial";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "imperial-chic";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -217,9 +219,10 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, styleType?: StyleType): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
+  const isImperial = styleType === "imperial-chic";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -232,10 +235,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
+        heading: tr(isImperial ? "defaultSections.hero.headingImperial" : (isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading"), isImperial ? `اكتشفي الأناقة الخالدة مع ${storeName}` : (isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`), { storeName }),
+        subheading: tr(isImperial ? "defaultSections.hero.subheadingImperial" : (isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading"), isImperial ? "أزياء إمبراطورية راقية بلمسة كلاسيكية عريقة" : (isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك")),
         ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
-        ctaLink: "#products" 
+        ctaLink: "#products",
+        imageUrl: isImperial ? "/hero-imperial-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -283,11 +287,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
-        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
+        heading: tr(isImperial ? "defaultSections.about.headingImperial" : "defaultSections.about.heading", isImperial ? `المجموعة الإمبراطورية من ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isImperial ? "defaultSections.about.bodyImperial" : (isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion"), isImperial ? "نقدم لكِ سحر العراقة وفخامة التصميم في تشكيلة حصرية تعكس الرقي الإمبراطوري. لأنكِ تستحقين الأناقة الخالدة." : (isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
-          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: "/about-optimized.jpg"
+          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.")),
+        imageUrl: isImperial ? "/about-imperial-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -326,8 +330,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isImperial ? "defaultSections.lookbook.headingImperial" : "defaultSections.lookbook.heading", isImperial ? "لوك بوك - المجموعة الإمبراطورية" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isImperial ? "defaultSections.lookbook.itemsImperial" : "defaultSections.lookbook.items", isImperial ? [
+          {
+            imageUrl: "/lookbook-1-imperial.jpg",
+            tag: "كلاسيك",
+            title: "أناقة\\nخالدة",
+            desc: "مجموعة مستوحاة من القصور",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-imperial.jpg",
+            tag: "فخامة",
+            title: "سحر\\nالماضي",
+            desc: "تصاميم ملكية راقية",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-imperial.jpg",
+            tag: "عراقة",
+            title: "تفاصيل\\nذهبية",
+            desc: "لمسات كلاسيكية فاخرة",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -362,7 +388,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: tr(isImperial ? "defaultSections.trustStrip.itemsImperial" : "defaultSections.trustStrip.items", isImperial ? [
+          { icon: "🏛️", title: "فخامة الأصالة", text: "تصاميم كلاسيكية فريدة" },
+          { icon: "📦", title: "شحن آمن", text: "تغليف مميز وآمن" },
+          { icon: "💎", title: "خدمة النخبة", text: "على مدار الساعة" },
+          { icon: "🔄", title: "إرجاع مرن", text: "تجربة خالية من المتاعب" },
+        ] : [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -371,6 +402,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
       },
       settings: {},
     },
+
   };
 
   const d = defaults[type];
@@ -427,6 +459,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"Style Your Life — كل يوم مختلف\"",
     theme: { primaryColor: "#7c4dff", secondaryColor: "#ff4081", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "lively", cardShadow: "strong" },
   },
+  imperial: {
+    label: "إمبراطورية وكلاسيكية", desc: "للعلامات التجارية الفخمة التي تعشق الكلاسيكية والعراقة", emoji: "👑",
+    colors: ["#800020", "#cfb53b"], font: "Playfair Display",
+    example: "\"أناقة خالدة — تليق بالمقام الإمبراطوري\"",
+    theme: { primaryColor: "#800020", secondaryColor: "#cfb53b", fontPairing: "serif-serif", buttonStyle: "square", cardShadow: "strong" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -458,6 +496,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "luxury-catalog": {
     label: "كتالوج فاخر", desc: "عرض احترافي يشبه المجلات العالمية", emoji: "🏅",
     sections: ["hero", "lookbook", "categories", "new-arrivals", "testimonials", "about", "newsletter"],
+  },
+  "imperial-chic": {
+    label: "أناقة إمبراطورية", desc: "نمط فاخر، عريق وكلاسيكي بلمسة ملكية", emoji: "🏛️",
+    sections: ["hero", "trust-strip", "lookbook", "categories", "new-arrivals", "about", "newsletter"],
   },
 };
 

@@ -2957,7 +2957,9 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingImperial": "Discover Classic Majesty with {{storeName}}",
+      "subheadingImperial": "Premium imperial fashion with a classic elegant touch"
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3002,9 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "headingImperial": "The Imperial Collection by {{storeName}}",
+      "bodyImperial": "We present the magic of heritage and the luxury of design in an exclusive collection that reflects imperial sophistication. Because you deserve timeless elegance."
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,6 +3060,30 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
+      ],
+      "headingImperial": "Lookbook - The Imperial Collection",
+      "itemsImperial": [
+        {
+          "imageUrl": "/lookbook-1-imperial.jpg",
+          "tag": "Classic",
+          "title": "Timeless\\nElegance",
+          "desc": "A collection inspired by palaces",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-2-imperial.jpg",
+          "tag": "Luxury",
+          "title": "Past\\nMagic",
+          "desc": "Sophisticated royal designs",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-3-imperial.jpg",
+          "tag": "Heritage",
+          "title": "Golden\\nDetails",
+          "desc": "Premium classic touches",
+          "categoryId": ""
+        }
       ]
     },
     "productCatalog": {
@@ -3079,6 +3107,24 @@
         {
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
+        }
+      ],
+      "itemsImperial": [
+        {
+          "title": "Authentic Luxury",
+          "text": "Unique classic designs"
+        },
+        {
+          "title": "Secure Shipping",
+          "text": "Premium secure packaging"
+        },
+        {
+          "title": "Elite Service",
+          "text": "Available 24/7"
+        },
+        {
+          "title": "Flexible Returns",
+          "text": "Hassle-free experience"
         }
       ]
     }
