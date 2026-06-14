@@ -145,3 +145,7 @@
 **Vulnerability:** React components were using `dangerouslySetInnerHTML` with template literals that incorporated unsanitized user input in style tags, allowing structural CSS injection and XSS.
 **Learning:** `dangerouslySetInnerHTML` is not automatically sanitized by React and can be exploited.
 **Prevention:** Avoid `dangerouslySetInnerHTML` whenever possible and instead use React's built-in `{}` interpolation which automatically escapes strings. When injecting colors, sanitize the string by removing structural CSS characters (`;`, `}`, `</style>`) to prevent injection.
+## 2024-11-20 - WebAuthn API Payload Safety
+**Vulnerability:** When handling WebAuthn payloads, properties like `expectedOrigin` and `rpID` must match strictly, or an attacker might try to relay responses from a malicious origin.
+**Learning:** Relying only on base origins isn't enough; WebAuthn needs explicit validation to prevent credential replay or phishing proxies from capturing credentials.
+**Prevention:** Always use a server-side verified `rpID` and explicit `expectedOrigin` matching (from environmental variables, not just `req.get("host")`) inside the `verifyRegistrationResponse` / `verifyAuthenticationResponse` methods.

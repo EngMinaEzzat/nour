@@ -35,6 +35,7 @@ import type {
   CustomerAuthResponse,
   DashboardSummary,
   EntitlementStatus,
+  GeneratePasskeyAuthenticationOptionsBody,
   GetMerchantAnalyticsParams,
   HealthStatus,
   InitPaymobPaymentBody,
@@ -48,6 +49,10 @@ import type {
   MerchantAnalytics,
   OnboardingStatus,
   Order,
+  PasskeyAuthenticationOptionsResponse,
+  PasskeyAuthenticationVerifyBody,
+  PasskeyRegistrationOptionsResponse,
+  PasskeyRegistrationVerifyBody,
   PatchOnboarding200,
   PatchOnboardingBody,
   PaymobWebhookResponse,
@@ -73,6 +78,7 @@ import type {
   UpdateTenantBody,
   UpdateTenantPlan200,
   UpdateTenantPlanBody,
+  VerifyPasskeyRegistration200,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -1235,6 +1241,360 @@ export function useGetMe<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Generate passkey registration options
+ */
+export const getGeneratePasskeyRegistrationOptionsUrl = () => {
+  return `/api/storefront-auth/passkey/register-options`;
+};
+
+export const generatePasskeyRegistrationOptions = async (
+  options?: RequestInit,
+): Promise<PasskeyRegistrationOptionsResponse> => {
+  return customFetch<PasskeyRegistrationOptionsResponse>(
+    getGeneratePasskeyRegistrationOptionsUrl(),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGeneratePasskeyRegistrationOptionsQueryKey = () => {
+  return [`/api/storefront-auth/passkey/register-options`] as const;
+};
+
+export const getGeneratePasskeyRegistrationOptionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGeneratePasskeyRegistrationOptionsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>
+  > = ({ signal }) =>
+    generatePasskeyRegistrationOptions({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GeneratePasskeyRegistrationOptionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>
+>;
+export type GeneratePasskeyRegistrationOptionsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Generate passkey registration options
+ */
+
+export function useGeneratePasskeyRegistrationOptions<
+  TData = Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions =
+    getGeneratePasskeyRegistrationOptionsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Verify passkey registration
+ */
+export const getVerifyPasskeyRegistrationUrl = () => {
+  return `/api/storefront-auth/passkey/register-verify`;
+};
+
+export const verifyPasskeyRegistration = async (
+  passkeyRegistrationVerifyBody: PasskeyRegistrationVerifyBody,
+  options?: RequestInit,
+): Promise<VerifyPasskeyRegistration200> => {
+  return customFetch<VerifyPasskeyRegistration200>(
+    getVerifyPasskeyRegistrationUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(passkeyRegistrationVerifyBody),
+    },
+  );
+};
+
+export const getVerifyPasskeyRegistrationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
+    TError,
+    { data: BodyType<PasskeyRegistrationVerifyBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
+  TError,
+  { data: BodyType<PasskeyRegistrationVerifyBody> },
+  TContext
+> => {
+  const mutationKey = ["verifyPasskeyRegistration"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
+    { data: BodyType<PasskeyRegistrationVerifyBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return verifyPasskeyRegistration(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type VerifyPasskeyRegistrationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof verifyPasskeyRegistration>>
+>;
+export type VerifyPasskeyRegistrationMutationBody =
+  BodyType<PasskeyRegistrationVerifyBody>;
+export type VerifyPasskeyRegistrationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Verify passkey registration
+ */
+export const useVerifyPasskeyRegistration = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
+    TError,
+    { data: BodyType<PasskeyRegistrationVerifyBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
+  TError,
+  { data: BodyType<PasskeyRegistrationVerifyBody> },
+  TContext
+> => {
+  return useMutation(getVerifyPasskeyRegistrationMutationOptions(options));
+};
+
+/**
+ * @summary Generate passkey authentication options
+ */
+export const getGeneratePasskeyAuthenticationOptionsUrl = () => {
+  return `/api/storefront-auth/passkey/login-options`;
+};
+
+export const generatePasskeyAuthenticationOptions = async (
+  generatePasskeyAuthenticationOptionsBody: GeneratePasskeyAuthenticationOptionsBody,
+  options?: RequestInit,
+): Promise<PasskeyAuthenticationOptionsResponse> => {
+  return customFetch<PasskeyAuthenticationOptionsResponse>(
+    getGeneratePasskeyAuthenticationOptionsUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(generatePasskeyAuthenticationOptionsBody),
+    },
+  );
+};
+
+export const getGeneratePasskeyAuthenticationOptionsMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
+    TError,
+    { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
+  TError,
+  { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> },
+  TContext
+> => {
+  const mutationKey = ["generatePasskeyAuthenticationOptions"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
+    { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return generatePasskeyAuthenticationOptions(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type GeneratePasskeyAuthenticationOptionsMutationResult = NonNullable<
+  Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>
+>;
+export type GeneratePasskeyAuthenticationOptionsMutationBody =
+  BodyType<GeneratePasskeyAuthenticationOptionsBody>;
+export type GeneratePasskeyAuthenticationOptionsMutationError =
+  ErrorType<unknown>;
+
+/**
+ * @summary Generate passkey authentication options
+ */
+export const useGeneratePasskeyAuthenticationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
+    TError,
+    { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
+  TError,
+  { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> },
+  TContext
+> => {
+  return useMutation(
+    getGeneratePasskeyAuthenticationOptionsMutationOptions(options),
+  );
+};
+
+/**
+ * @summary Verify passkey authentication
+ */
+export const getVerifyPasskeyAuthenticationUrl = () => {
+  return `/api/storefront-auth/passkey/login-verify`;
+};
+
+export const verifyPasskeyAuthentication = async (
+  passkeyAuthenticationVerifyBody: PasskeyAuthenticationVerifyBody,
+  options?: RequestInit,
+): Promise<CustomerAuthResponse> => {
+  return customFetch<CustomerAuthResponse>(
+    getVerifyPasskeyAuthenticationUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(passkeyAuthenticationVerifyBody),
+    },
+  );
+};
+
+export const getVerifyPasskeyAuthenticationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
+    TError,
+    { data: BodyType<PasskeyAuthenticationVerifyBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
+  TError,
+  { data: BodyType<PasskeyAuthenticationVerifyBody> },
+  TContext
+> => {
+  const mutationKey = ["verifyPasskeyAuthentication"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
+    { data: BodyType<PasskeyAuthenticationVerifyBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return verifyPasskeyAuthentication(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type VerifyPasskeyAuthenticationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof verifyPasskeyAuthentication>>
+>;
+export type VerifyPasskeyAuthenticationMutationBody =
+  BodyType<PasskeyAuthenticationVerifyBody>;
+export type VerifyPasskeyAuthenticationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Verify passkey authentication
+ */
+export const useVerifyPasskeyAuthentication = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
+    TError,
+    { data: BodyType<PasskeyAuthenticationVerifyBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
+  TError,
+  { data: BodyType<PasskeyAuthenticationVerifyBody> },
+  TContext
+> => {
+  return useMutation(getVerifyPasskeyAuthenticationMutationOptions(options));
+};
 
 /**
  * @summary Register a customer

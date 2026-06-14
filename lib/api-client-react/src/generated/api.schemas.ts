@@ -300,6 +300,22 @@ export interface RegisterCustomerBody {
   phone: string;
 }
 
+export interface PasskeyRegistrationOptionsResponse {
+  [key: string]: unknown;
+}
+
+export interface PasskeyRegistrationVerifyBody {
+  [key: string]: unknown;
+}
+
+export interface PasskeyAuthenticationOptionsResponse {
+  [key: string]: unknown;
+}
+
+export interface PasskeyAuthenticationVerifyBody {
+  [key: string]: unknown;
+}
+
 export interface LoginCustomerBody {
   email: string;
   password: string;
@@ -893,6 +909,14 @@ export interface PlatformStats {
   planBreakdown: PlatformStatsPlanBreakdownItem[];
   onboardingCompletion: PlatformStatsOnboardingCompletion;
 }
+
+export type VerifyPasskeyRegistration200 = {
+  ok?: boolean;
+};
+
+export type GeneratePasskeyAuthenticationOptionsBody = {
+  email: string;
+};
 
 export type ListProductsParams = {
   tenantId?: number;

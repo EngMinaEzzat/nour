@@ -256,6 +256,59 @@ export const GetMeResponse = zod.object({
 });
 
 /**
+ * @summary Generate passkey registration options
+ */
+export const GeneratePasskeyRegistrationOptionsResponse = zod.record(
+  zod.string(),
+  zod.unknown(),
+);
+
+/**
+ * @summary Verify passkey registration
+ */
+export const VerifyPasskeyRegistrationBody = zod.record(
+  zod.string(),
+  zod.unknown(),
+);
+
+export const VerifyPasskeyRegistrationResponse = zod.object({
+  ok: zod.boolean().optional(),
+});
+
+/**
+ * @summary Generate passkey authentication options
+ */
+export const GeneratePasskeyAuthenticationOptionsBody = zod.object({
+  email: zod.string().email(),
+});
+
+export const GeneratePasskeyAuthenticationOptionsResponse = zod.record(
+  zod.string(),
+  zod.unknown(),
+);
+
+/**
+ * @summary Verify passkey authentication
+ */
+export const VerifyPasskeyAuthenticationBody = zod.record(
+  zod.string(),
+  zod.unknown(),
+);
+
+export const VerifyPasskeyAuthenticationResponse = zod.object({
+  customer: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+    phone: zod.string().nullish(),
+    city: zod.string().nullish(),
+    totalOrders: zod.number(),
+    totalSpent: zod.number(),
+    createdAt: zod.coerce.date(),
+  }),
+});
+
+/**
  * @summary Register a customer
  */
 

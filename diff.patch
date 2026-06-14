@@ -1,0 +1,1758 @@
+diff --git a/.jules/bolt.md b/.jules/bolt.md
+index 5a089b5..b1a5f20 100644
+--- a/.jules/bolt.md
++++ b/.jules/bolt.md
+@@ -99,3 +99,7 @@
+ ## 2026-06-08 - [Coverage for generated API Client React library errors]
+ **Learning:** Found untrusted / untested code for ApiError within our `lib/api-client-react` generator output code. Writing comprehensive Vitest unit tests to cover constructors handles error extraction robustness (message parsing, title, detail fields edge cases, long string handling, trimming).
+ **Action:** Always write deterministic fast unit-tests for generated API client configurations and error definitions, checking properties explicitly (status, data, statusText) and edge cases handling in the API response format logic to build confidence in the error handling boundary between client and backend.
++
++## 2024-11-20 - WebAuthn Integrations
++**Learning:** OpenAPI auto-generated types from `orval` are tightly coupled to strict YAML formatting. Indentation issues or syntax mismatch when injecting passkey specs will break the generated types for the React client.
++**Action:** When programmatically injecting YAML, use an AST-based parser/generator (like `js-yaml` or `yaml`) rather than regex or string replacements, then safely lint with `@redocly/cli`.
+diff --git a/.jules/palette.md b/.jules/palette.md
+index bc6085c..33820f7 100644
+--- a/.jules/palette.md
++++ b/.jules/palette.md
+@@ -12,3 +12,6 @@
+ ## 2024-06-08 - Password Visibility Toggles ARIA Labels
+ **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
+ **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
++## 2024-11-20 - WebAuthn Biometric Login
++**Learning:** For biometric / passkey login flows (WebAuthn), the standard sequence involves two phases: fetching options from the server (with a `challenge`), and then passing the signed attestation/assertion response back to the server.
++**Action:** Always maintain the challenge context (e.g. session state) server-side between the `options` and `verify` endpoints, and ensure `getGeneratePasskey...OptionsQueryKey` is properly referenced if using Orval generated React Query hooks to manually manage refetching.
+diff --git a/.jules/sentinel.md b/.jules/sentinel.md
+index ab98890..96c2acd 100644
+--- a/.jules/sentinel.md
++++ b/.jules/sentinel.md
+@@ -145,3 +145,7 @@
+ **Vulnerability:** React components were using `dangerouslySetInnerHTML` with template literals that incorporated unsanitized user input in style tags, allowing structural CSS injection and XSS.
+ **Learning:** `dangerouslySetInnerHTML` is not automatically sanitized by React and can be exploited.
+ **Prevention:** Avoid `dangerouslySetInnerHTML` whenever possible and instead use React's built-in `{}` interpolation which automatically escapes strings. When injecting colors, sanitize the string by removing structural CSS characters (`;`, `}`, `</style>`) to prevent injection.
++## 2024-11-20 - WebAuthn API Payload Safety
++**Vulnerability:** When handling WebAuthn payloads, properties like `expectedOrigin` and `rpID` must match strictly, or an attacker might try to relay responses from a malicious origin.
++**Learning:** Relying only on base origins isn't enough; WebAuthn needs explicit validation to prevent credential replay or phishing proxies from capturing credentials.
++**Prevention:** Always use a server-side verified `rpID` and explicit `expectedOrigin` matching (from environmental variables, not just `req.get("host")`) inside the `verifyRegistrationResponse` / `verifyAuthenticationResponse` methods.
+diff --git a/artifacts/api-server/package.json b/artifacts/api-server/package.json
+index 742c9e8..00a0355 100644
+--- a/artifacts/api-server/package.json
++++ b/artifacts/api-server/package.json
+@@ -13,6 +13,7 @@
+     "test:watch": "vitest"
+   },
+   "dependencies": {
++    "@simplewebauthn/server": "^13.3.1",
+     "@vercel/blob": "^2.4.0",
+     "@workspace/api-zod": "workspace:*",
+     "@workspace/db": "workspace:*",
+diff --git a/artifacts/api-server/src/routes/storefront-auth.ts b/artifacts/api-server/src/routes/storefront-auth.ts
+index 6a9aedc..f1d48f1 100644
+--- a/artifacts/api-server/src/routes/storefront-auth.ts
++++ b/artifacts/api-server/src/routes/storefront-auth.ts
+@@ -1,12 +1,26 @@
+ import { Router } from "express";
+ import bcrypt from "bcryptjs";
+ import rateLimit from "express-rate-limit";
+-import { db, customersTable } from "@workspace/db";
++import { db, customersTable, customerPasskeysTable } from "@workspace/db";
+ import { RegisterCustomerBody, LoginCustomerBody } from "@workspace/api-zod";
+ import { eq } from "drizzle-orm";
+-import { normaliseEgyptianPhone, PHONE_ERROR_AR } from "../lib/egypt";
++import { normaliseEgyptianPhone, PHONE_ERROR_AR } from "../lib/egypt.js";
+ import { validatePasswordComplexity } from "../lib/password.js";
+
++// Passkey imports
++import {
++  generateRegistrationOptions,
++  verifyRegistrationResponse,
++  generateAuthenticationOptions,
++  verifyAuthenticationResponse,
++} from "@simplewebauthn/server";
++import crypto from "crypto";
++import type { AuthenticatorTransport } from "@simplewebauthn/server";
++
++const rpName = "Nour Storefront";
++const rpID = process.env.RP_ID || "localhost";
++const expectedOrigin = process.env.APP_BASE_URL || "http://localhost:5000";
++
+ const router = Router();
+
+ const authLimiter = rateLimit({
+@@ -21,11 +35,9 @@ const authLimiter = rateLimit({
+ // ── Per-account login lockout (in-memory; resets on restart) ──
+ const loginAttempts = new Map<string, { count: number; lockedUntil: number; firstFailedAt: number }>();
+
+-// Cleanup old login attempts every 15 minutes to prevent memory leaks
+ setInterval(() => {
+   const now = Date.now();
+   for (const [email, entry] of loginAttempts.entries()) {
+-    // Delete entries that are older than 15 minutes or whose lockout has expired
+     if ((entry.lockedUntil > 0 && entry.lockedUntil <= now) || (entry.lockedUntil === 0 && now - entry.firstFailedAt > 15 * 60 * 1000)) {
+       loginAttempts.delete(email);
+     }
+@@ -45,7 +57,6 @@ function recordFailedLogin(email: string): void {
+   const now = Date.now();
+   const entry = loginAttempts.get(email) ?? { count: 0, lockedUntil: 0, firstFailedAt: now };
+
+-  // Reset count if the first failure was more than 15 minutes ago
+   if (now - entry.firstFailedAt > 15 * 60 * 1000) {
+     entry.count = 0;
+     entry.firstFailedAt = now;
+@@ -53,7 +64,7 @@ function recordFailedLogin(email: string): void {
+
+   entry.count++;
+   if (entry.count >= 5) {
+-    entry.lockedUntil = now + 30 * 60 * 1000; // 30 min lockout after 5 failures
++    entry.lockedUntil = now + 30 * 60 * 1000;
+   }
+   loginAttempts.set(email, entry);
+ }
+@@ -84,29 +95,18 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
+     phone: "01012345678",
+   });
+   if (!parsed.success) {
+-    req.log.error({ body: req.body, error: parsed.error.flatten() }, "Validation failed for customer registration");
+     return res.status(400).json({ error: parsed.error.flatten() });
+   }
+
+   const { name, password } = parsed.data;
+   const complexityError = validatePasswordComplexity(password);
+   if (complexityError) {
+-    return res.status(400).json({
+-      error: {
+-        fieldErrors: { password: [complexityError] },
+-        formErrors: [],
+-      },
+-    });
++    return res.status(400).json({ error: { fieldErrors: { password: [complexityError] }, formErrors: [] } });
+   }
+   const email = parsed.data.email.toLowerCase();
+   const normalisedPhone = normaliseEgyptianPhone(rawPhone);
+   if (!normalisedPhone) {
+-    return res.status(400).json({
+-      error: {
+-        formErrors: [],
+-        fieldErrors: { phone: [PHONE_ERROR_AR] },
+-      },
+-    });
++    return res.status(400).json({ error: { formErrors: [], fieldErrors: { phone: [PHONE_ERROR_AR] } } });
+   }
+
+   try {
+@@ -117,12 +117,7 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
+
+     const [customer] = await db
+       .insert(customersTable)
+-      .values({
+-        name,
+-        email,
+-        passwordHash,
+-        phone: normalisedPhone,
+-      })
++      .values({ name, email, passwordHash, phone: normalisedPhone })
+       .returning();
+
+     await new Promise<void>((resolve, reject) => {
+@@ -133,8 +128,6 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
+     });
+
+     req.session.customerId = customer.id;
+-    req.log.info({ customerId: customer.id }, "New customer registered");
+-
+     await new Promise<void>((resolve, reject) => {
+       req.session.save((err) => {
+         if (err) return reject(err);
+@@ -159,10 +152,9 @@ router.post("/storefront-auth/login", authLimiter, async (req, res) => {
+   const { email: rawEmail, password } = parsed.data;
+   const email = rawEmail.toLowerCase().trim();
+
+-  // Per-account lockout check
+   const lockout = checkAccountLockout(email);
+   if (lockout.locked) {
+-    return res.status(429).json({ error: `تم قفل الحساب مؤقتاً — حاول بعد ${lockout.retryAfterSeconds} ثانية` });
++    return res.status(429).json({ error: `تم قفل الحساب مؤقتاً — حاول بعد \${lockout.retryAfterSeconds} ثانية` });
+   }
+
+   try {
+@@ -222,4 +214,221 @@ router.get("/storefront-auth/me", async (req, res) => {
+   }
+ });
+
++
++// ── PASSKEY ENDPOINTS ──
++
++router.get("/storefront-auth/passkey/register-options", async (req, res) => {
++  const customerId = req.session.customerId;
++  if (!customerId) return res.status(401).json({ error: "غير مسجل الدخول" });
++
++  try {
++    const [customer] = await db.select().from(customersTable).where(eq(customersTable.id, customerId));
++    if (!customer) return res.status(401).json({ error: "الجلسة غير صالحة" });
++
++    const userPasskeys = await db.select().from(customerPasskeysTable).where(eq(customerPasskeysTable.customerId, customerId));
++
++    const options = await generateRegistrationOptions({
++      rpName,
++      rpID,
++      userID: Uint8Array.from(Buffer.from(customer.id.toString())),
++      userName: customer.email,
++      attestationType: "none",
++      excludeCredentials: userPasskeys.map(passkey => ({
++        id: passkey.credentialId,
++        transports: passkey.transports ? passkey.transports.split(",") as AuthenticatorTransport[] : [],
++      })),
++      authenticatorSelection: {
++        residentKey: "preferred",
++        userVerification: "preferred",
++        authenticatorAttachment: "platform",
++      },
++    });
++
++    req.session.currentChallenge = options.challenge;
++    await new Promise<void>((resolve, reject) => {
++      req.session.save((err) => {
++        if (err) return reject(err);
++        resolve();
++      });
++    });
++
++    return res.json(options);
++  } catch (err) {
++    req.log.error(err);
++    return res.status(500).json({ error: "حدث خطأ في إنشاء إعدادات البصمة" });
++  }
++});
++
++router.post("/storefront-auth/passkey/register-verify", async (req, res) => {
++  const customerId = req.session.customerId;
++  if (!customerId) return res.status(401).json({ error: "غير مسجل الدخول" });
++
++  const expectedChallenge = req.session.currentChallenge;
++  if (!expectedChallenge) return res.status(400).json({ error: "لم يتم العثور على طلب تسجيل بصمة نشط" });
++
++  try {
++    let verification;
++    try {
++      verification = await verifyRegistrationResponse({
++        response: req.body,
++        expectedChallenge,
++        expectedOrigin,
++        expectedRPID: rpID,
++      });
++    } catch (error) {
++      req.log.error(error);
++      return res.status(400).json({ error: "تحقق فاشل" });
++    }
++
++    if (verification.verified && verification.registrationInfo) {
++      const { credential, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
++      const credentialID = credential.id;
++      const credentialPublicKey = credential.publicKey;
++      const counter = credential.counter;
++
++      await db.insert(customerPasskeysTable).values({
++        customerId,
++        credentialId: credentialID,
++        credentialPublicKey: Buffer.from(credentialPublicKey).toString('base64'),
++        counter,
++        credentialDeviceType,
++        credentialBackedUp,
++        transports: req.body.response.transports?.join(",") || null,
++      });
++
++      req.session.currentChallenge = undefined;
++      await new Promise<void>((resolve, reject) => {
++        req.session.save((err) => {
++          if (err) return reject(err);
++          resolve();
++        });
++      });
++
++      return res.json({ ok: true });
++    } else {
++      return res.status(400).json({ error: "التحقق من البصمة غير صالح" });
++    }
++  } catch (err) {
++    req.log.error(err);
++    return res.status(500).json({ error: "حدث خطأ" });
++  }
++});
++
++router.post("/storefront-auth/passkey/login-options", authLimiter, async (req, res) => {
++  const email = req.body?.email?.toLowerCase()?.trim();
++  if (!email) return res.status(400).json({ error: "البريد الإلكتروني مطلوب" });
++
++  try {
++    const [customer] = await db.select().from(customersTable).where(eq(customersTable.email, email));
++    if (!customer) {
++      // Return dummy options to prevent enumeration
++      return res.status(401).json({ error: "غير موجود" });
++    }
++
++    const userPasskeys = await db.select().from(customerPasskeysTable).where(eq(customerPasskeysTable.customerId, customer.id));
++    if (userPasskeys.length === 0) {
++      return res.status(400).json({ error: "لا يوجد بصمة مسجلة لهذا الحساب" });
++    }
++
++    const options = await generateAuthenticationOptions({
++      rpID,
++      allowCredentials: userPasskeys.map(passkey => ({
++        id: passkey.credentialId,
++        transports: passkey.transports ? passkey.transports.split(",") as AuthenticatorTransport[] : [],
++      })),
++      userVerification: "preferred",
++    });
++
++    req.session.currentChallenge = options.challenge;
++    req.session.passkeyLoginEmail = email; // Save email to link challenge with user
++    await new Promise<void>((resolve, reject) => {
++      req.session.save((err) => {
++        if (err) return reject(err);
++        resolve();
++      });
++    });
++
++    return res.json(options);
++  } catch (err) {
++    req.log.error(err);
++    return res.status(500).json({ error: "حدث خطأ" });
++  }
++});
++
++router.post("/storefront-auth/passkey/login-verify", authLimiter, async (req, res) => {
++  const expectedChallenge = req.session.currentChallenge;
++  const email = req.session.passkeyLoginEmail;
++
++  if (!expectedChallenge || !email) {
++    return res.status(400).json({ error: "طلب التحقق غير صالح أو منتهي الصلاحية" });
++  }
++
++  try {
++    const [customer] = await db.select().from(customersTable).where(eq(customersTable.email, email));
++    if (!customer) return res.status(401).json({ error: "العميل غير موجود" });
++
++    const userPasskeys = await db.select().from(customerPasskeysTable).where(eq(customerPasskeysTable.customerId, customer.id));
++
++    // Find matching passkey based on ID
++    const credentialId = req.body?.id;
++    const passkey = userPasskeys.find(p => p.credentialId === credentialId);
++
++    if (!passkey) {
++      return res.status(400).json({ error: "لم يتم العثور على البصمة" });
++    }
++
++    let verification;
++    try {
++      verification = await verifyAuthenticationResponse({
++        response: req.body,
++        expectedChallenge,
++        expectedOrigin,
++        expectedRPID: rpID,
++        credential: {
++          id: passkey.credentialId,
++          publicKey: new Uint8Array(Buffer.from(passkey.credentialPublicKey, 'base64')),
++          counter: Number(passkey.counter),
++          transports: passkey.transports ? passkey.transports.split(",") as AuthenticatorTransport[] : [],
++        },
++      });
++    } catch (error) {
++      req.log.error(error);
++      return res.status(400).json({ error: "تحقق فاشل" });
++    }
++
++    if (verification.verified && verification.authenticationInfo) {
++      const { newCounter } = verification.authenticationInfo;
++
++      await db.update(customerPasskeysTable)
++        .set({ counter: newCounter })
++        .where(eq(customerPasskeysTable.id, passkey.id));
++
++      req.session.currentChallenge = undefined;
++      req.session.passkeyLoginEmail = undefined;
++
++      await new Promise<void>((resolve, reject) => {
++        req.session.regenerate((err) => {
++          if (err) return reject(err);
++          resolve();
++        });
++      });
++
++      req.session.customerId = customer.id;
++      await new Promise<void>((resolve, reject) => {
++        req.session.save((err) => {
++          if (err) return reject(err);
++          resolve();
++        });
++      });
++
++      return res.json(buildCustomerResponse(customer));
++    } else {
++      return res.status(400).json({ error: "التحقق من البصمة غير صالح" });
++    }
++  } catch (err) {
++    req.log.error(err);
++    return res.status(500).json({ error: "حدث خطأ" });
++  }
++});
++
+ export default router;
+diff --git a/artifacts/api-server/src/test/storefront-auth.test.ts b/artifacts/api-server/src/test/storefront-auth.test.ts
+index 06d6ccc..aca9706 100644
+--- a/artifacts/api-server/src/test/storefront-auth.test.ts
++++ b/artifacts/api-server/src/test/storefront-auth.test.ts
+@@ -75,3 +75,28 @@ describe("Storefront Auth — Registration", () => {
+     expect(res2.body.error).toMatch(/مسجل/);
+   });
+ });
++
++describe("Storefront Auth — Passkey (Basic Mocked)", () => {
++  let ctx: Awaited<ReturnType<typeof createTestMerchant>>;
++
++  beforeAll(async () => {
++    ctx = await createTestMerchant();
++  });
++
++  afterAll(async () => {
++    await cleanupTenant(ctx.tenantId, ctx.merchantId);
++  });
++
++  it("❌ passkey register options fails if not logged in", async () => {
++    const res = await request(app)
++      .get("/api/storefront-auth/passkey/register-options");
++    expect(res.status).toBe(401);
++  });
++
++  it("❌ passkey login options fails with missing email", async () => {
++    const res = await request(app)
++      .post("/api/storefront-auth/passkey/login-options")
++      .send({});
++    expect(res.status).toBe(400);
++  });
++});
+diff --git a/artifacts/api-server/src/types/session.d.ts b/artifacts/api-server/src/types/session.d.ts
+index edefe94..6c4b861 100644
+--- a/artifacts/api-server/src/types/session.d.ts
++++ b/artifacts/api-server/src/types/session.d.ts
+@@ -5,6 +5,8 @@ declare module "express-session" {
+     merchantId?: number;
+     customerId?: number;
+     isPlatformAdmin?: boolean;
++    currentChallenge?: string;
++    passkeyLoginEmail?: string;
+   }
+ }
+
+diff --git a/artifacts/fashion-store/package.json b/artifacts/fashion-store/package.json
+index 9b37c59..186555b 100644
+--- a/artifacts/fashion-store/package.json
++++ b/artifacts/fashion-store/package.json
+@@ -88,6 +88,7 @@
+     "zod": "catalog:"
+   },
+   "dependencies": {
++    "@simplewebauthn/browser": "^13.3.0",
+     "heic2any": "^0.0.4",
+     "i18next": "^26.2.0",
+     "i18next-browser-languagedetector": "^8.2.1",
+diff --git a/artifacts/fashion-store/src/hooks/use-customer-auth.tsx b/artifacts/fashion-store/src/hooks/use-customer-auth.tsx
+index ed3ec62..c53506b 100644
+--- a/artifacts/fashion-store/src/hooks/use-customer-auth.tsx
++++ b/artifacts/fashion-store/src/hooks/use-customer-auth.tsx
+@@ -4,10 +4,14 @@ import {
+   useLoginCustomer,
+   useLogoutCustomer,
+   useRegisterCustomer,
++  useGeneratePasskeyRegistrationOptions,
++  useVerifyPasskeyRegistration,
++  useGeneratePasskeyAuthenticationOptions,
++  useVerifyPasskeyAuthentication,
+   CustomerAuthResponse,
+ } from "@workspace/api-client-react";
+ import { useQueryClient } from "@tanstack/react-query";
+-import { getGetCustomerMeQueryKey } from "@workspace/api-client-react";
++import { getGetCustomerMeQueryKey, getGeneratePasskeyRegistrationOptionsQueryKey } from "@workspace/api-client-react";
+ import type { LoginCustomerBody, RegisterCustomerBody } from "@workspace/api-client-react";
+
+ interface CustomerAuthContextValue {
+@@ -17,6 +21,12 @@ interface CustomerAuthContextValue {
+   login: (data: LoginCustomerBody) => Promise<CustomerAuthResponse>;
+   register: (data: RegisterCustomerBody) => Promise<CustomerAuthResponse>;
+   logout: () => Promise<void>;
++
++  // Passkey methods
++  generatePasskeyRegistrationOptions: () => Promise<any>;
++  verifyPasskeyRegistration: (data: any) => Promise<any>;
++  generatePasskeyAuthenticationOptions: (email: string) => Promise<any>;
++  verifyPasskeyAuthentication: (data: any) => Promise<CustomerAuthResponse>;
+ }
+
+ const CustomerAuthContext = createContext<CustomerAuthContextValue | null>(null);
+@@ -36,6 +46,11 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
+   const registerMutation = useRegisterCustomer();
+   const logoutMutation = useLogoutCustomer();
+
++  const passkeyRegOptionsQuery = useGeneratePasskeyRegistrationOptions({ query: { queryKey: getGeneratePasskeyRegistrationOptionsQueryKey(), enabled: false } });
++  const passkeyRegVerifyMutation = useVerifyPasskeyRegistration();
++  const passkeyAuthOptionsMutation = useGeneratePasskeyAuthenticationOptions();
++  const passkeyAuthVerifyMutation = useVerifyPasskeyAuthentication();
++
+   async function login(params: LoginCustomerBody): Promise<CustomerAuthResponse> {
+     const result = await loginMutation.mutateAsync({ data: params });
+     queryClient.setQueryData(getGetCustomerMeQueryKey(), result);
+@@ -51,7 +66,26 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
+   async function logout(): Promise<void> {
+     await logoutMutation.mutateAsync();
+     queryClient.setQueryData(getGetCustomerMeQueryKey(), null);
+-    // Optional: clear other customer specific queries like customer-orders
++  }
++
++  async function generatePasskeyRegistrationOptions() {
++    const res = await passkeyRegOptionsQuery.refetch();
++    if (res.error) throw res.error;
++    return res.data;
++  }
++
++  async function verifyPasskeyRegistration(data: any) {
++    return await passkeyRegVerifyMutation.mutateAsync({ data });
++  }
++
++  async function generatePasskeyAuthenticationOptions(email: string) {
++    return await passkeyAuthOptionsMutation.mutateAsync({ data: { email } });
++  }
++
++  async function verifyPasskeyAuthentication(data: any): Promise<CustomerAuthResponse> {
++    const result = await passkeyAuthVerifyMutation.mutateAsync({ data });
++    queryClient.setQueryData(getGetCustomerMeQueryKey(), result);
++    return result as CustomerAuthResponse;
+   }
+
+   return (
+@@ -62,6 +96,10 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
+       login,
+       register,
+       logout,
++      generatePasskeyRegistrationOptions,
++      verifyPasskeyRegistration,
++      generatePasskeyAuthenticationOptions,
++      verifyPasskeyAuthentication,
+     }}>
+       {children}
+     </CustomerAuthContext.Provider>
+diff --git a/artifacts/fashion-store/src/pages/customer-login.tsx b/artifacts/fashion-store/src/pages/customer-login.tsx
+index cc6d9ba..6db6606 100644
+--- a/artifacts/fashion-store/src/pages/customer-login.tsx
++++ b/artifacts/fashion-store/src/pages/customer-login.tsx
+@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
+ import { useToast } from "@/hooks/use-toast";
+ import { useTranslation } from "react-i18next";
+ import { useCustomerAuth } from "@/hooks/use-customer-auth";
++import { startAuthentication } from "@simplewebauthn/browser";
+
+ export default function CustomerLogin() {
+   const { t } = useTranslation();
+   const [email, setEmail] = useState("");
+   const [password, setPassword] = useState("");
+   const [, setLocation] = useLocation();
+-  const { login, isLoading } = useCustomerAuth();
++  const { login, generatePasskeyAuthenticationOptions, verifyPasskeyAuthentication, isLoading } = useCustomerAuth();
+   const { toast } = useToast();
+
+   const handleSubmit = async (e: React.FormEvent) => {
+@@ -33,6 +34,37 @@ export default function CustomerLogin() {
+     }
+   };
+
++  const handlePasskeyLogin = async () => {
++    if (!email) {
++      toast({
++        title: "خطأ",
++        description: "يرجى إدخال البريد الإلكتروني أولاً",
++        variant: "destructive",
++      });
++      return;
++    }
++
++    try {
++      const options = await generatePasskeyAuthenticationOptions(email);
++      const asseResp = await startAuthentication({ optionsJSON: options });
++
++      await verifyPasskeyAuthentication(asseResp);
++
++      toast({
++        title: t("customerAuth.loginSuccess"),
++        description: t("customerAuth.loginSuccessDesc"),
++      });
++      setLocation("/");
++    } catch (err: any) {
++      console.error(err);
++      toast({
++        title: t("customerAuth.loginError"),
++        description: err.response?.data?.error || "فشل تسجيل الدخول بالبصمة",
++        variant: "destructive",
++      });
++    }
++  };
++
+   return (
+     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+       <Card className="w-full max-w-md">
+@@ -59,7 +91,6 @@ export default function CustomerLogin() {
+                 type="password"
+                 value={password}
+                 onChange={e => setPassword(e.target.value)}
+-                required
+                 dir="ltr"
+                 className="text-left"
+               />
+@@ -67,6 +98,28 @@ export default function CustomerLogin() {
+             <Button className="w-full" type="submit" disabled={isLoading}>
+               {isLoading ? t("customerAuth.loggingIn") : t("customerAuth.loginBtn")}
+             </Button>
++
++            <div className="relative">
++              <div className="absolute inset-0 flex items-center">
++                <span className="w-full border-t" />
++              </div>
++              <div className="relative flex justify-center text-xs uppercase">
++                <span className="bg-background px-2 text-muted-foreground">
++                  أو
++                </span>
++              </div>
++            </div>
++
++            <Button
++              type="button"
++              variant="outline"
++              className="w-full"
++              onClick={handlePasskeyLogin}
++              disabled={isLoading || !email}
++            >
++              تسجيل الدخول بالبصمة (Passkey)
++            </Button>
++
+             <div className="text-center text-sm text-gray-500 mt-4">
+               {t("customerAuth.noAccount")}{" "}
+               <Link href="/customer/register" className="text-primary hover:underline">
+diff --git a/artifacts/fashion-store/src/pages/customer-settings.tsx b/artifacts/fashion-store/src/pages/customer-settings.tsx
+new file mode 100644
+index 0000000..c0526bf
+--- /dev/null
++++ b/artifacts/fashion-store/src/pages/customer-settings.tsx
+@@ -0,0 +1,51 @@
++import { useState } from "react";
++import { useCustomerAuth } from "@/hooks/use-customer-auth";
++import { Button } from "@/components/ui/button";
++import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
++import { useToast } from "@/hooks/use-toast";
++import { startRegistration } from "@simplewebauthn/browser";
++
++// Simple example component to register passkey, this can be integrated into the customer profile or settings page
++export function CustomerSettings() {
++  const { generatePasskeyRegistrationOptions, verifyPasskeyRegistration } = useCustomerAuth();
++  const { toast } = useToast();
++  const [loading, setLoading] = useState(false);
++
++  const handleRegisterPasskey = async () => {
++    setLoading(true);
++    try {
++      const options = await generatePasskeyRegistrationOptions();
++      const attResp = await startRegistration({ optionsJSON: options });
++
++      await verifyPasskeyRegistration(attResp);
++
++      toast({
++        title: "تم النجاح",
++        description: "تم تسجيل البصمة بنجاح",
++      });
++    } catch (err: any) {
++      console.error(err);
++      toast({
++        title: "خطأ",
++        description: err.response?.data?.error || "فشل تسجيل البصمة",
++        variant: "destructive",
++      });
++    } finally {
++      setLoading(false);
++    }
++  };
++
++  return (
++    <Card>
++      <CardHeader>
++        <CardTitle>إعدادات الأمان</CardTitle>
++        <CardDescription>أضف بصمة أو وجه لتسجيل الدخول بسهولة وبدون كلمة مرور</CardDescription>
++      </CardHeader>
++      <CardContent>
++        <Button onClick={handleRegisterPasskey} disabled={loading}>
++          {loading ? "جاري الإعداد..." : "إضافة بصمة (Passkey)"}
++        </Button>
++      </CardContent>
++    </Card>
++  );
++}
+diff --git a/lib/api-client-react/src/generated/api.schemas.ts b/lib/api-client-react/src/generated/api.schemas.ts
+index 2d0f8fe..38dd040 100644
+--- a/lib/api-client-react/src/generated/api.schemas.ts
++++ b/lib/api-client-react/src/generated/api.schemas.ts
+@@ -300,6 +300,22 @@ export interface RegisterCustomerBody {
+   phone: string;
+ }
+
++export interface PasskeyRegistrationOptionsResponse {
++  [key: string]: unknown;
++}
++
++export interface PasskeyRegistrationVerifyBody {
++  [key: string]: unknown;
++}
++
++export interface PasskeyAuthenticationOptionsResponse {
++  [key: string]: unknown;
++}
++
++export interface PasskeyAuthenticationVerifyBody {
++  [key: string]: unknown;
++}
++
+ export interface LoginCustomerBody {
+   email: string;
+   password: string;
+@@ -894,6 +910,14 @@ export interface PlatformStats {
+   onboardingCompletion: PlatformStatsOnboardingCompletion;
+ }
+
++export type VerifyPasskeyRegistration200 = {
++  ok?: boolean;
++};
++
++export type GeneratePasskeyAuthenticationOptionsBody = {
++  email: string;
++};
++
+ export type ListProductsParams = {
+   tenantId?: number;
+   categoryId?: number;
+diff --git a/lib/api-client-react/src/generated/api.ts b/lib/api-client-react/src/generated/api.ts
+index a0818d3..70481e8 100644
+--- a/lib/api-client-react/src/generated/api.ts
++++ b/lib/api-client-react/src/generated/api.ts
+@@ -35,6 +35,7 @@ import type {
+   CustomerAuthResponse,
+   DashboardSummary,
+   EntitlementStatus,
++  GeneratePasskeyAuthenticationOptionsBody,
+   GetMerchantAnalyticsParams,
+   HealthStatus,
+   InitPaymobPaymentBody,
+@@ -48,6 +49,10 @@ import type {
+   MerchantAnalytics,
+   OnboardingStatus,
+   Order,
++  PasskeyAuthenticationOptionsResponse,
++  PasskeyAuthenticationVerifyBody,
++  PasskeyRegistrationOptionsResponse,
++  PasskeyRegistrationVerifyBody,
+   PatchOnboarding200,
+   PatchOnboardingBody,
+   PaymobWebhookResponse,
+@@ -73,6 +78,7 @@ import type {
+   UpdateTenantBody,
+   UpdateTenantPlan200,
+   UpdateTenantPlanBody,
++  VerifyPasskeyRegistration200,
+ } from "./api.schemas";
+
+ import { customFetch } from "../custom-fetch";
+@@ -1236,6 +1242,360 @@ export function useGetMe<
+   return { ...query, queryKey: queryOptions.queryKey };
+ }
+
++/**
++ * @summary Generate passkey registration options
++ */
++export const getGeneratePasskeyRegistrationOptionsUrl = () => {
++  return `/api/storefront-auth/passkey/register-options`;
++};
++
++export const generatePasskeyRegistrationOptions = async (
++  options?: RequestInit,
++): Promise<PasskeyRegistrationOptionsResponse> => {
++  return customFetch<PasskeyRegistrationOptionsResponse>(
++    getGeneratePasskeyRegistrationOptionsUrl(),
++    {
++      ...options,
++      method: "GET",
++    },
++  );
++};
++
++export const getGeneratePasskeyRegistrationOptionsQueryKey = () => {
++  return [`/api/storefront-auth/passkey/register-options`] as const;
++};
++
++export const getGeneratePasskeyRegistrationOptionsQueryOptions = <
++  TData = Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
++  TError = ErrorType<unknown>,
++>(options?: {
++  query?: UseQueryOptions<
++    Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
++    TError,
++    TData
++  >;
++  request?: SecondParameter<typeof customFetch>;
++}) => {
++  const { query: queryOptions, request: requestOptions } = options ?? {};
++
++  const queryKey =
++    queryOptions?.queryKey ?? getGeneratePasskeyRegistrationOptionsQueryKey();
++
++  const queryFn: QueryFunction<
++    Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>
++  > = ({ signal }) =>
++    generatePasskeyRegistrationOptions({ signal, ...requestOptions });
++
++  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
++    Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
++    TError,
++    TData
++  > & { queryKey: QueryKey };
++};
++
++export type GeneratePasskeyRegistrationOptionsQueryResult = NonNullable<
++  Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>
++>;
++export type GeneratePasskeyRegistrationOptionsQueryError = ErrorType<unknown>;
++
++/**
++ * @summary Generate passkey registration options
++ */
++
++export function useGeneratePasskeyRegistrationOptions<
++  TData = Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
++  TError = ErrorType<unknown>,
++>(options?: {
++  query?: UseQueryOptions<
++    Awaited<ReturnType<typeof generatePasskeyRegistrationOptions>>,
++    TError,
++    TData
++  >;
++  request?: SecondParameter<typeof customFetch>;
++}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
++  const queryOptions =
++    getGeneratePasskeyRegistrationOptionsQueryOptions(options);
++
++  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
++    queryKey: QueryKey;
++  };
++
++  return { ...query, queryKey: queryOptions.queryKey };
++}
++
++/**
++ * @summary Verify passkey registration
++ */
++export const getVerifyPasskeyRegistrationUrl = () => {
++  return `/api/storefront-auth/passkey/register-verify`;
++};
++
++export const verifyPasskeyRegistration = async (
++  passkeyRegistrationVerifyBody: PasskeyRegistrationVerifyBody,
++  options?: RequestInit,
++): Promise<VerifyPasskeyRegistration200> => {
++  return customFetch<VerifyPasskeyRegistration200>(
++    getVerifyPasskeyRegistrationUrl(),
++    {
++      ...options,
++      method: "POST",
++      headers: { "Content-Type": "application/json", ...options?.headers },
++      body: JSON.stringify(passkeyRegistrationVerifyBody),
++    },
++  );
++};
++
++export const getVerifyPasskeyRegistrationMutationOptions = <
++  TError = ErrorType<unknown>,
++  TContext = unknown,
++>(options?: {
++  mutation?: UseMutationOptions<
++    Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
++    TError,
++    { data: BodyType<PasskeyRegistrationVerifyBody> },
++    TContext
++  >;
++  request?: SecondParameter<typeof customFetch>;
++}): UseMutationOptions<
++  Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
++  TError,
++  { data: BodyType<PasskeyRegistrationVerifyBody> },
++  TContext
++> => {
++  const mutationKey = ["verifyPasskeyRegistration"];
++  const { mutation: mutationOptions, request: requestOptions } = options
++    ? options.mutation &&
++      "mutationKey" in options.mutation &&
++      options.mutation.mutationKey
++      ? options
++      : { ...options, mutation: { ...options.mutation, mutationKey } }
++    : { mutation: { mutationKey }, request: undefined };
++
++  const mutationFn: MutationFunction<
++    Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
++    { data: BodyType<PasskeyRegistrationVerifyBody> }
++  > = (props) => {
++    const { data } = props ?? {};
++
++    return verifyPasskeyRegistration(data, requestOptions);
++  };
++
++  return { mutationFn, ...mutationOptions };
++};
++
++export type VerifyPasskeyRegistrationMutationResult = NonNullable<
++  Awaited<ReturnType<typeof verifyPasskeyRegistration>>
++>;
++export type VerifyPasskeyRegistrationMutationBody =
++  BodyType<PasskeyRegistrationVerifyBody>;
++export type VerifyPasskeyRegistrationMutationError = ErrorType<unknown>;
++
++/**
++ * @summary Verify passkey registration
++ */
++export const useVerifyPasskeyRegistration = <
++  TError = ErrorType<unknown>,
++  TContext = unknown,
++>(options?: {
++  mutation?: UseMutationOptions<
++    Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
++    TError,
++    { data: BodyType<PasskeyRegistrationVerifyBody> },
++    TContext
++  >;
++  request?: SecondParameter<typeof customFetch>;
++}): UseMutationResult<
++  Awaited<ReturnType<typeof verifyPasskeyRegistration>>,
++  TError,
++  { data: BodyType<PasskeyRegistrationVerifyBody> },
++  TContext
++> => {
++  return useMutation(getVerifyPasskeyRegistrationMutationOptions(options));
++};
++
++/**
++ * @summary Generate passkey authentication options
++ */
++export const getGeneratePasskeyAuthenticationOptionsUrl = () => {
++  return `/api/storefront-auth/passkey/login-options`;
++};
++
++export const generatePasskeyAuthenticationOptions = async (
++  generatePasskeyAuthenticationOptionsBody: GeneratePasskeyAuthenticationOptionsBody,
++  options?: RequestInit,
++): Promise<PasskeyAuthenticationOptionsResponse> => {
++  return customFetch<PasskeyAuthenticationOptionsResponse>(
++    getGeneratePasskeyAuthenticationOptionsUrl(),
++    {
++      ...options,
++      method: "POST",
++      headers: { "Content-Type": "application/json", ...options?.headers },
++      body: JSON.stringify(generatePasskeyAuthenticationOptionsBody),
++    },
++  );
++};
++
++export const getGeneratePasskeyAuthenticationOptionsMutationOptions = <
++  TError = ErrorType<unknown>,
++  TContext = unknown,
++>(options?: {
++  mutation?: UseMutationOptions<
++    Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
++    TError,
++    { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> },
++    TContext
++  >;
++  request?: SecondParameter<typeof customFetch>;
++}): UseMutationOptions<
++  Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
++  TError,
++  { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> },
++  TContext
++> => {
++  const mutationKey = ["generatePasskeyAuthenticationOptions"];
++  const { mutation: mutationOptions, request: requestOptions } = options
++    ? options.mutation &&
++      "mutationKey" in options.mutation &&
++      options.mutation.mutationKey
++      ? options
++      : { ...options, mutation: { ...options.mutation, mutationKey } }
++    : { mutation: { mutationKey }, request: undefined };
++
++  const mutationFn: MutationFunction<
++    Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
++    { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> }
++  > = (props) => {
++    const { data } = props ?? {};
++
++    return generatePasskeyAuthenticationOptions(data, requestOptions);
++  };
++
++  return { mutationFn, ...mutationOptions };
++};
++
++export type GeneratePasskeyAuthenticationOptionsMutationResult = NonNullable<
++  Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>
++>;
++export type GeneratePasskeyAuthenticationOptionsMutationBody =
++  BodyType<GeneratePasskeyAuthenticationOptionsBody>;
++export type GeneratePasskeyAuthenticationOptionsMutationError =
++  ErrorType<unknown>;
++
++/**
++ * @summary Generate passkey authentication options
++ */
++export const useGeneratePasskeyAuthenticationOptions = <
++  TError = ErrorType<unknown>,
++  TContext = unknown,
++>(options?: {
++  mutation?: UseMutationOptions<
++    Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
++    TError,
++    { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> },
++    TContext
++  >;
++  request?: SecondParameter<typeof customFetch>;
++}): UseMutationResult<
++  Awaited<ReturnType<typeof generatePasskeyAuthenticationOptions>>,
++  TError,
++  { data: BodyType<GeneratePasskeyAuthenticationOptionsBody> },
++  TContext
++> => {
++  return useMutation(
++    getGeneratePasskeyAuthenticationOptionsMutationOptions(options),
++  );
++};
++
++/**
++ * @summary Verify passkey authentication
++ */
++export const getVerifyPasskeyAuthenticationUrl = () => {
++  return `/api/storefront-auth/passkey/login-verify`;
++};
++
++export const verifyPasskeyAuthentication = async (
++  passkeyAuthenticationVerifyBody: PasskeyAuthenticationVerifyBody,
++  options?: RequestInit,
++): Promise<CustomerAuthResponse> => {
++  return customFetch<CustomerAuthResponse>(
++    getVerifyPasskeyAuthenticationUrl(),
++    {
++      ...options,
++      method: "POST",
++      headers: { "Content-Type": "application/json", ...options?.headers },
++      body: JSON.stringify(passkeyAuthenticationVerifyBody),
++    },
++  );
++};
++
++export const getVerifyPasskeyAuthenticationMutationOptions = <
++  TError = ErrorType<unknown>,
++  TContext = unknown,
++>(options?: {
++  mutation?: UseMutationOptions<
++    Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
++    TError,
++    { data: BodyType<PasskeyAuthenticationVerifyBody> },
++    TContext
++  >;
++  request?: SecondParameter<typeof customFetch>;
++}): UseMutationOptions<
++  Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
++  TError,
++  { data: BodyType<PasskeyAuthenticationVerifyBody> },
++  TContext
++> => {
++  const mutationKey = ["verifyPasskeyAuthentication"];
++  const { mutation: mutationOptions, request: requestOptions } = options
++    ? options.mutation &&
++      "mutationKey" in options.mutation &&
++      options.mutation.mutationKey
++      ? options
++      : { ...options, mutation: { ...options.mutation, mutationKey } }
++    : { mutation: { mutationKey }, request: undefined };
++
++  const mutationFn: MutationFunction<
++    Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
++    { data: BodyType<PasskeyAuthenticationVerifyBody> }
++  > = (props) => {
++    const { data } = props ?? {};
++
++    return verifyPasskeyAuthentication(data, requestOptions);
++  };
++
++  return { mutationFn, ...mutationOptions };
++};
++
++export type VerifyPasskeyAuthenticationMutationResult = NonNullable<
++  Awaited<ReturnType<typeof verifyPasskeyAuthentication>>
++>;
++export type VerifyPasskeyAuthenticationMutationBody =
++  BodyType<PasskeyAuthenticationVerifyBody>;
++export type VerifyPasskeyAuthenticationMutationError = ErrorType<unknown>;
++
++/**
++ * @summary Verify passkey authentication
++ */
++export const useVerifyPasskeyAuthentication = <
++  TError = ErrorType<unknown>,
++  TContext = unknown,
++>(options?: {
++  mutation?: UseMutationOptions<
++    Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
++    TError,
++    { data: BodyType<PasskeyAuthenticationVerifyBody> },
++    TContext
++  >;
++  request?: SecondParameter<typeof customFetch>;
++}): UseMutationResult<
++  Awaited<ReturnType<typeof verifyPasskeyAuthentication>>,
++  TError,
++  { data: BodyType<PasskeyAuthenticationVerifyBody> },
++  TContext
++> => {
++  return useMutation(getVerifyPasskeyAuthenticationMutationOptions(options));
++};
++
+ /**
+  * @summary Register a customer
+  */
+diff --git a/lib/api-spec/openapi.yaml b/lib/api-spec/openapi.yaml
+index 3956899..4b2ea26 100644
+--- a/lib/api-spec/openapi.yaml
++++ b/lib/api-spec/openapi.yaml
+@@ -311,6 +311,80 @@ paths:
+         "401":
+           description: Not authenticated
+
++  /storefront-auth/passkey/register-options:
++    get:
++      operationId: generatePasskeyRegistrationOptions
++      tags: [customers]
++      summary: Generate passkey registration options
++      responses:
++        "200":
++          description: Registration options generated
++          content:
++            application/json:
++              schema:
++                $ref: "#/components/schemas/PasskeyRegistrationOptionsResponse"
++  /storefront-auth/passkey/register-verify:
++    post:
++      operationId: verifyPasskeyRegistration
++      tags: [customers]
++      summary: Verify passkey registration
++      requestBody:
++        required: true
++        content:
++          application/json:
++            schema:
++              $ref: "#/components/schemas/PasskeyRegistrationVerifyBody"
++      responses:
++        "200":
++          description: Passkey registered
++          content:
++            application/json:
++              schema:
++                type: object
++                properties:
++                  ok:
++                    type: boolean
++  /storefront-auth/passkey/login-options:
++    post:
++      operationId: generatePasskeyAuthenticationOptions
++      tags: [customers]
++      summary: Generate passkey authentication options
++      requestBody:
++        required: true
++        content:
++          application/json:
++            schema:
++              type: object
++              properties:
++                email:
++                  type: string
++                  format: email
++              required: [email]
++      responses:
++        "200":
++          description: Authentication options generated
++          content:
++            application/json:
++              schema:
++                $ref: "#/components/schemas/PasskeyAuthenticationOptionsResponse"
++  /storefront-auth/passkey/login-verify:
++    post:
++      operationId: verifyPasskeyAuthentication
++      tags: [customers]
++      summary: Verify passkey authentication
++      requestBody:
++        required: true
++        content:
++          application/json:
++            schema:
++              $ref: "#/components/schemas/PasskeyAuthenticationVerifyBody"
++      responses:
++        "200":
++          description: Logged in
++          content:
++            application/json:
++              schema:
++                $ref: "#/components/schemas/CustomerAuthResponse"
+   /storefront-auth/register:
+     post:
+       operationId: registerCustomer
+@@ -1709,6 +1783,18 @@ components:
+           pattern: '^(?:\+?20|0020)?\s*0?1[0125][0-9\s().-]{8,}$'
+       required: [name, email, password, phone]
+
++    PasskeyRegistrationOptionsResponse:
++      type: object
++      additionalProperties: true
++    PasskeyRegistrationVerifyBody:
++      type: object
++      additionalProperties: true
++    PasskeyAuthenticationOptionsResponse:
++      type: object
++      additionalProperties: true
++    PasskeyAuthenticationVerifyBody:
++      type: object
++      additionalProperties: true
+     LoginCustomerBody:
+       type: object
+       properties:
+diff --git a/lib/api-zod/src/generated/api/api.ts b/lib/api-zod/src/generated/api/api.ts
+index 5bff1f6..e9bd1a6 100644
+--- a/lib/api-zod/src/generated/api/api.ts
++++ b/lib/api-zod/src/generated/api/api.ts
+@@ -255,6 +255,59 @@ export const GetMeResponse = zod.object({
+   ]),
+ });
+
++/**
++ * @summary Generate passkey registration options
++ */
++export const GeneratePasskeyRegistrationOptionsResponse = zod.record(
++  zod.string(),
++  zod.unknown(),
++);
++
++/**
++ * @summary Verify passkey registration
++ */
++export const VerifyPasskeyRegistrationBody = zod.record(
++  zod.string(),
++  zod.unknown(),
++);
++
++export const VerifyPasskeyRegistrationResponse = zod.object({
++  ok: zod.boolean().optional(),
++});
++
++/**
++ * @summary Generate passkey authentication options
++ */
++export const GeneratePasskeyAuthenticationOptionsBody = zod.object({
++  email: zod.string().email(),
++});
++
++export const GeneratePasskeyAuthenticationOptionsResponse = zod.record(
++  zod.string(),
++  zod.unknown(),
++);
++
++/**
++ * @summary Verify passkey authentication
++ */
++export const VerifyPasskeyAuthenticationBody = zod.record(
++  zod.string(),
++  zod.unknown(),
++);
++
++export const VerifyPasskeyAuthenticationResponse = zod.object({
++  customer: zod.object({
++    id: zod.number(),
++    name: zod.string(),
++    email: zod.string(),
++    phone: zod.string().nullish(),
++    city: zod.string().nullish(),
++    totalOrders: zod.number(),
++    totalSpent: zod.number(),
++    createdAt: zod.coerce.date(),
++  }),
++});
++
+ /**
+  * @summary Register a customer
+  */
+diff --git a/lib/db/src/schema/index.ts b/lib/db/src/schema/index.ts
+index 8b031b4..55a8d6d 100644
+--- a/lib/db/src/schema/index.ts
++++ b/lib/db/src/schema/index.ts
+@@ -32,3 +32,4 @@ export * from "./billing-transfer-requests";
+ export * from "./ai-usage-events";
+ export * from "./background-jobs";
+ export * from "./privacy-requests";
++export * from "./passkeys";
+diff --git a/lib/db/src/schema/passkeys.ts b/lib/db/src/schema/passkeys.ts
+new file mode 100644
+index 0000000..275d985
+--- /dev/null
++++ b/lib/db/src/schema/passkeys.ts
+@@ -0,0 +1,22 @@
++import { pgTable, text, integer, serial, timestamp, boolean, bigint, varchar } from "drizzle-orm/pg-core";
++import { createInsertSchema } from "drizzle-zod";
++import { z } from "zod/v4";
++import { customersTable } from "./customers";
++
++export const customerPasskeysTable = pgTable("customer_passkeys", {
++  id: serial("id").primaryKey(),
++  customerId: integer("customer_id")
++    .notNull()
++    .references(() => customersTable.id, { onDelete: "cascade" }),
++  credentialId: text("credential_id").notNull().unique(),
++  credentialPublicKey: text("credential_public_key").notNull(),
++  counter: bigint("counter", { mode: "number" }).notNull(),
++  credentialDeviceType: varchar("credential_device_type", { length: 32 }).notNull(),
++  credentialBackedUp: boolean("credential_backed_up").notNull(),
++  transports: text("transports"), // Comma separated list or JSON string of transports
++  createdAt: timestamp("created_at").notNull().defaultNow(),
++});
++
++export const insertCustomerPasskeySchema = createInsertSchema(customerPasskeysTable).omit({ id: true, createdAt: true });
++export type InsertCustomerPasskey = z.infer<typeof insertCustomerPasskeySchema>;
++export type CustomerPasskey = typeof customerPasskeysTable.$inferSelect;
+diff --git a/package.json b/package.json
+index a611ecd..4a104c1 100644
+--- a/package.json
++++ b/package.json
+@@ -10,8 +10,8 @@
+   },
+   "private": true,
+   "devDependencies": {
+-    "typescript": "~5.9.2",
+-    "prettier": "^3.8.1"
++    "prettier": "^3.8.1",
++    "typescript": "~5.9.2"
+   },
+   "pnpm": {
+     "overrides": {
+@@ -25,5 +25,8 @@
+       "fast-uri": ">=3.1.2",
+       "vitest": ">=3.2.6"
+     }
++  },
++  "dependencies": {
++    "js-yaml": "^4.2.0"
+   }
+ }
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index 49d179e..1854f70 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -81,6 +81,10 @@ overrides:
+ importers:
+
+   .:
++    dependencies:
++      js-yaml:
++        specifier: ^4.2.0
++        version: 4.2.0
+     devDependencies:
+       prettier:
+         specifier: ^3.8.1
+@@ -91,6 +95,9 @@ importers:
+
+   artifacts/api-server:
+     dependencies:
++      '@simplewebauthn/server':
++        specifier: ^13.3.1
++        version: 13.3.1
+       '@vercel/blob':
+         specifier: ^2.4.0
+         version: 2.4.0
+@@ -230,6 +237,9 @@ importers:
+
+   artifacts/fashion-store:
+     dependencies:
++      '@simplewebauthn/browser':
++        specifier: ^13.3.0
++        version: 13.3.0
+       heic2any:
+         specifier: ^0.0.4
+         version: 0.0.4
+@@ -1623,6 +1633,9 @@ packages:
+       '@modelcontextprotocol/sdk':
+         optional: true
+
++  '@hexagon/base64@1.1.28':
++    resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
++
+   '@hookform/resolvers@3.10.0':
+     resolution: {integrity: sha512-79Dv+3mDF7i+2ajj7SkypSKHhl1cbln1OGavqrsF7p6mbUv11xpqpacPsGDCTRvCSjEEIez2ef1NveSVL3b0Ag==}
+     peerDependencies:
+@@ -1870,6 +1883,9 @@ packages:
+   '@jridgewell/trace-mapping@0.3.31':
+     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
++  '@levischuck/tiny-cbor@0.2.11':
++    resolution: {integrity: sha512-llBRm4dT4Z89aRsm6u2oEZ8tfwL/2l6BwpZ7JcyieouniDECM5AqNgr/y08zalEIvW3RSK4upYyybDcmjXqAow==}
++
+   '@mswjs/interceptors@0.41.9':
+     resolution: {integrity: sha512-VVPPgHyQ6ShqnrmDWuxjmUIsO9gWyOZFmuOfLd9LfBGQJwZfy0gvv9pbHSJuoFNIYC7ZDX9aoFwowjcdSC4E8w==}
+     engines: {node: '>=18'}
+@@ -1943,6 +1959,46 @@ packages:
+   '@paralleldrive/cuid2@2.3.1':
+     resolution: {integrity: sha512-XO7cAxhnTZl0Yggq6jOgjiOHhbgcO4NqFqwSmQpjK3b6TEE6Uj/jfSk6wzYyemh3+I0sHirKSetjQwn5cZktFw==}
+
++  '@peculiar/asn1-android@2.8.0':
++    resolution: {integrity: sha512-skLbS+IOGv1lUgDqtChr8xvtvEr3HMse/JGBaL2r1J1o/n7a8wqOrovMtlRq/UXLhxvmLaONP67hwtshgzwfzA==}
++
++  '@peculiar/asn1-cms@2.8.0':
++    resolution: {integrity: sha512-NgekZOrSJFSBFLFoLfwePguAWAx7z1+f2TEsWFUMyiqqfntZ4+S/S5hzqME3q4pCA0iOsFKdwiQ35dwY24eVqA==}
++
++  '@peculiar/asn1-csr@2.8.0':
++    resolution: {integrity: sha512-akbF8+uvleHs8sejNPQxwmVFuInAg6FMNHOwMILXfP518YfFJwdR3jr6oNUPOaEJfuEhn/vkNOCIT6ASUd4mbg==}
++
++  '@peculiar/asn1-ecc@2.8.0':
++    resolution: {integrity: sha512-ohwlk+u9Rv2NOAY1c6MfHj45ATVF8R1DUN/WCgABiRtLi2ZftlZWZX7KvpAbU8v9xPcmoILfELeEABj/rn18AQ==}
++
++  '@peculiar/asn1-pfx@2.8.0':
++    resolution: {integrity: sha512-5yof1ytoB++RQtaFbqSUJ8pxDJtZT6vbVqZ8XoJ61ph7UjNVvfFwAilnCodqkNsAodpy13gDhoxZXw00pghnyg==}
++
++  '@peculiar/asn1-pkcs8@2.8.0':
++    resolution: {integrity: sha512-qAKXtLpBEw9LqhKpjw3ajZSXlBur+ipW+y2ivVBQAG6F6qRx94yO+1ZR4mvw+YaCfKSaOzLeYEzsPaBp4SJELA==}
++
++  '@peculiar/asn1-pkcs9@2.8.0':
++    resolution: {integrity: sha512-b5nDWCnkV60+cQ141D6sVVwK9nz64R5n3zSVnklGd+ECdkW2Ol3U1a6yYFlalpSOaD557yuJB64A+q42jG7lUQ==}
++
++  '@peculiar/asn1-rsa@2.8.0':
++    resolution: {integrity: sha512-zHEUlCqB2mk7x2lxDwHHJy7hWZOPdGHVlsmITWKB5/PbQo61atbu9PJ/0r9dQNMwFzbKPXZ8uK8/91eUhRznSg==}
++
++  '@peculiar/asn1-schema@2.8.0':
++    resolution: {integrity: sha512-7YT0U/ze0tF2QOBbE15gKZwy5tvgGyLRiRHLzhlbOpf7BT032oBSd0haZqXn5W6l26WLlu3dyxzjM+2638/z2Q==}
++
++  '@peculiar/asn1-x509-attr@2.8.0':
++    resolution: {integrity: sha512-tHjkfS/qhMnmrlB2J9NhflQlQ7In3khO3CfmVrriOlpTeErY9ZIKOso1hQ5JQiyrJ7ShvqVPk7E5fQmbclkSKA==}
++
++  '@peculiar/asn1-x509@2.8.0':
++    resolution: {integrity: sha512-N0CMuhWUzsWEVq6F1q9X6+VKUnWzSW+cSVg+aPaGGwDdbFoFWTYgin5MHwXgpWd6y9COMBxnfy/Qc+Xc7F0Zwg==}
++
++  '@peculiar/utils@2.0.3':
++    resolution: {integrity: sha512-+oL3HPFRIZ1St2K50lWCXiioIgSoxzz7R1J3uF6neO2yl1sgmpgY6XXJH4BdpoDkMWznQTeYF6oWNDZLCdQ4eQ==}
++
++  '@peculiar/x509@1.14.3':
++    resolution: {integrity: sha512-C2Xj8FZ0uHWeCXXqX5B4/gVFQmtSkiuOolzAgutjTfseNOHT3pUjljDZsTSxXFGgio54bCzVFqmEOUrIVk8RDA==}
++    engines: {node: '>=20.0.0'}
++
+   '@pinojs/redact@0.4.0':
+     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
+
+@@ -2887,6 +2943,13 @@ packages:
+   '@shikijs/vscode-textmate@10.0.2':
+     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
+
++  '@simplewebauthn/browser@13.3.0':
++    resolution: {integrity: sha512-BE/UWv6FOToAdVk0EokzkqQQDOWtNydYlY6+OrmiZ5SCNmb41VehttboTetUM3T/fr6EAFYVXjz4My2wg230rQ==}
++
++  '@simplewebauthn/server@13.3.1':
++    resolution: {integrity: sha512-GV/oM/qeycWn8p42JZIMJBsXWQcNFg+nJFzeQTnMA4gN8mXg0+HZFWJerHg8ZN/zlveMS3iV1wzuFpOVWS/46w==}
++    engines: {node: '>=20.0.0'}
++
+   '@sinclair/typebox@0.27.10':
+     resolution: {integrity: sha512-MTBk/3jGLNB2tVxv6uLlFh1iu64iYOQ2PbdOSK3NW8JZsmlaOh2q6sdtKowBhfw8QFLmYNzTW4/oK4uATIi6ZA==}
+
+@@ -3378,6 +3441,10 @@ packages:
+   asap@2.0.6:
+     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
+
++  asn1js@3.0.10:
++    resolution: {integrity: sha512-S2s3aOytiKdFRdulw2qPE51MzjzVOisppcVv7jVFR+Kw0kxwvFrDcYA0h7Ndqbmj0HkMIXYWaoj7fli8kgx1eg==}
++    engines: {node: '>=12.0.0'}
++
+   assertion-error@2.0.1:
+     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
+     engines: {node: '>=12'}
+@@ -4680,6 +4747,10 @@ packages:
+     resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+     hasBin: true
+
++  js-yaml@4.2.0:
++    resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
++    hasBin: true
++
+   jsdom@29.1.1:
+     resolution: {integrity: sha512-ECi4Fi2f7BdJtUKTflYRTiaMxIB0O6zfR1fX0GXpUrf6flp8QIYn1UT20YQqdSOfk2dfkCwS8LAFoJDEppNK5Q==}
+     engines: {node: ^20.19.0 || ^22.13.0 || >=24.0.0}
+@@ -5291,6 +5362,13 @@ packages:
+     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
+     engines: {node: '>=6'}
+
++  pvtsutils@1.3.6:
++    resolution: {integrity: sha512-PLgQXQ6H2FWCaeRak8vvk1GW462lMxB5s3Jm673N82zI4vqtVUPuZdffdZbPDFRoU8kAhItWFtPCWiPpp4/EDg==}
++
++  pvutils@1.1.5:
++    resolution: {integrity: sha512-KTqnxsgGiQ6ZAzZCVlJH5eOjSnvlyEgx1m8bkRJfOhmGRqfo5KLvmAlACQkrjEtOQ4B7wF9TdSLIs9O90MX9xA==}
++    engines: {node: '>=16.0.0'}
++
+   qs@6.15.2:
+     resolution: {integrity: sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw==}
+     engines: {node: '>=0.6'}
+@@ -5470,6 +5548,9 @@ packages:
+     resolution: {integrity: sha512-LDsoVvb/CpoV9EN3FXvgvSHNJWuCIzl9MiO3ppOevuGLpSGJhwfQjpEwfFJcQvNSddHADDdZaWx0HnmMxRXG7g==}
+     engines: {node: '>= 18.19.0'}
+
++  reflect-metadata@0.2.2:
++    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
++
+   reflect.getprototypeof@1.0.10:
+     resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==}
+     engines: {node: '>= 0.4'}
+@@ -5917,6 +5998,9 @@ packages:
+       typescript:
+         optional: true
+
++  tslib@1.14.1:
++    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
++
+   tslib@2.8.1:
+     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+@@ -5925,6 +6009,10 @@ packages:
+     engines: {node: '>=18.0.0'}
+     hasBin: true
+
++  tsyringe@4.10.0:
++    resolution: {integrity: sha512-axr3IdNuVIxnaK5XGEUFTu3YmAQ6lllgrvqfEoR16g/HGnYY/6We4oWENtAnzK6/LpJ2ur9PAb80RBt7/U4ugw==}
++    engines: {node: '>= 6.0.0'}
++
+   tw-animate-css@1.4.0:
+     resolution: {integrity: sha512-7bziOlRqH0hJx80h/3mbicLW7o8qLsH5+RaLR2t+OHM3D0JlWGODQKQ4cxbK7WlvmUxpcj6Kgu6EKqjrGFe3QQ==}
+
+@@ -7328,6 +7416,8 @@ snapshots:
+       - supports-color
+       - utf-8-validate
+
++  '@hexagon/base64@1.1.28': {}
++
+   '@hookform/resolvers@3.10.0(react-hook-form@7.71.2(react@19.1.0))':
+     dependencies:
+       react-hook-form: 7.71.2(react@19.1.0)
+@@ -7514,6 +7604,8 @@ snapshots:
+       '@jridgewell/resolve-uri': 3.1.2
+       '@jridgewell/sourcemap-codec': 1.5.5
+
++  '@levischuck/tiny-cbor@0.2.11': {}
++
+   '@mswjs/interceptors@0.41.9':
+     dependencies:
+       '@open-draft/deferred-promise': 2.2.0
+@@ -7660,6 +7752,106 @@ snapshots:
+     dependencies:
+       '@noble/hashes': 1.8.0
+
++  '@peculiar/asn1-android@2.8.0':
++    dependencies:
++      '@peculiar/asn1-schema': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-cms@2.8.0':
++    dependencies:
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      '@peculiar/asn1-x509-attr': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-csr@2.8.0':
++    dependencies:
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-ecc@2.8.0':
++    dependencies:
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-pfx@2.8.0':
++    dependencies:
++      '@peculiar/asn1-cms': 2.8.0
++      '@peculiar/asn1-pkcs8': 2.8.0
++      '@peculiar/asn1-rsa': 2.8.0
++      '@peculiar/asn1-schema': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-pkcs8@2.8.0':
++    dependencies:
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-pkcs9@2.8.0':
++    dependencies:
++      '@peculiar/asn1-cms': 2.8.0
++      '@peculiar/asn1-pfx': 2.8.0
++      '@peculiar/asn1-pkcs8': 2.8.0
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      '@peculiar/asn1-x509-attr': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-rsa@2.8.0':
++    dependencies:
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-schema@2.8.0':
++    dependencies:
++      '@peculiar/utils': 2.0.3
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-x509-attr@2.8.0':
++    dependencies:
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/asn1-x509@2.8.0':
++    dependencies:
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/utils': 2.0.3
++      asn1js: 3.0.10
++      tslib: 2.8.1
++
++  '@peculiar/utils@2.0.3':
++    dependencies:
++      tslib: 2.8.1
++
++  '@peculiar/x509@1.14.3':
++    dependencies:
++      '@peculiar/asn1-cms': 2.8.0
++      '@peculiar/asn1-csr': 2.8.0
++      '@peculiar/asn1-ecc': 2.8.0
++      '@peculiar/asn1-pkcs9': 2.8.0
++      '@peculiar/asn1-rsa': 2.8.0
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      pvtsutils: 1.3.6
++      reflect-metadata: 0.2.2
++      tslib: 2.8.1
++      tsyringe: 4.10.0
++
+   '@pinojs/redact@0.4.0': {}
+
+   '@playwright/test@1.60.0':
+@@ -8575,6 +8767,19 @@ snapshots:
+
+   '@shikijs/vscode-textmate@10.0.2': {}
+
++  '@simplewebauthn/browser@13.3.0': {}
++
++  '@simplewebauthn/server@13.3.1':
++    dependencies:
++      '@hexagon/base64': 1.1.28
++      '@levischuck/tiny-cbor': 0.2.11
++      '@peculiar/asn1-android': 2.8.0
++      '@peculiar/asn1-ecc': 2.8.0
++      '@peculiar/asn1-rsa': 2.8.0
++      '@peculiar/asn1-schema': 2.8.0
++      '@peculiar/asn1-x509': 2.8.0
++      '@peculiar/x509': 1.14.3
++
+   '@sinclair/typebox@0.27.10': {}
+
+   '@sinclair/typebox@0.34.49': {}
+@@ -9109,6 +9314,12 @@ snapshots:
+
+   asap@2.0.6: {}
+
++  asn1js@3.0.10:
++    dependencies:
++      pvtsutils: 1.3.6
++      pvutils: 1.1.5
++      tslib: 2.8.1
++
+   assertion-error@2.0.1: {}
+
+   ast-v8-to-istanbul@1.0.4:
+@@ -10427,6 +10638,10 @@ snapshots:
+     dependencies:
+       argparse: 2.0.1
+
++  js-yaml@4.2.0:
++    dependencies:
++      argparse: 2.0.1
++
+   jsdom@29.1.1(@noble/hashes@1.8.0):
+     dependencies:
+       '@asamuzakjp/css-color': 5.1.11
+@@ -11031,6 +11246,12 @@ snapshots:
+
+   punycode@2.3.1: {}
+
++  pvtsutils@1.3.6:
++    dependencies:
++      tslib: 2.8.1
++
++  pvutils@1.1.5: {}
++
+   qs@6.15.2:
+     dependencies:
+       side-channel: 1.1.0
+@@ -11203,6 +11424,8 @@ snapshots:
+       - '@node-rs/xxhash'
+       - '@opentelemetry/api'
+
++  reflect-metadata@0.2.2: {}
++
+   reflect.getprototypeof@1.0.10:
+     dependencies:
+       call-bind: 1.0.9
+@@ -11735,6 +11958,8 @@ snapshots:
+     optionalDependencies:
+       typescript: 5.9.3
+
++  tslib@1.14.1: {}
++
+   tslib@2.8.1: {}
+
+   tsx@4.21.0:
+@@ -11744,6 +11969,10 @@ snapshots:
+     optionalDependencies:
+       fsevents: 2.3.3
+
++  tsyringe@4.10.0:
++    dependencies:
++      tslib: 1.14.1
++
+   tw-animate-css@1.4.0: {}
+
+   type-fest@0.16.0: {}
+diff --git a/pr.md b/pr.md
+deleted file mode 100644
+index dc5cb48..0000000
+--- a/pr.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-🎯 What: Added a missing error path test case for the outermost try/catch block in the POST /exports route.
+-📊 Coverage: We simulate an unexpected failure during the early stages of processing the request (e.g. database failure when saving the export job) by mocking the `db.insert` call. This triggers the 500 error response {"error": "فشل التصدير"}.
+-✨ Result: The API route is now fully covered including unexpected failures before `buildExportRows` begins executing.

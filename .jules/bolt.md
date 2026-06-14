@@ -99,3 +99,7 @@
 ## 2026-06-08 - [Coverage for generated API Client React library errors]
 **Learning:** Found untrusted / untested code for ApiError within our `lib/api-client-react` generator output code. Writing comprehensive Vitest unit tests to cover constructors handles error extraction robustness (message parsing, title, detail fields edge cases, long string handling, trimming).
 **Action:** Always write deterministic fast unit-tests for generated API client configurations and error definitions, checking properties explicitly (status, data, statusText) and edge cases handling in the API response format logic to build confidence in the error handling boundary between client and backend.
+
+## 2024-11-20 - WebAuthn Integrations
+**Learning:** OpenAPI auto-generated types from `orval` are tightly coupled to strict YAML formatting. Indentation issues or syntax mismatch when injecting passkey specs will break the generated types for the React client.
+**Action:** When programmatically injecting YAML, use an AST-based parser/generator (like `js-yaml` or `yaml`) rather than regex or string replacements, then safely lint with `@redocly/cli`.

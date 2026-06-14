@@ -75,3 +75,28 @@ describe("Storefront Auth — Registration", () => {
     expect(res2.body.error).toMatch(/مسجل/);
   });
 });
+
+describe("Storefront Auth — Passkey (Basic Mocked)", () => {
+  let ctx: Awaited<ReturnType<typeof createTestMerchant>>;
+
+  beforeAll(async () => {
+    ctx = await createTestMerchant();
+  });
+
+  afterAll(async () => {
+    await cleanupTenant(ctx.tenantId, ctx.merchantId);
+  });
+
+  it("❌ passkey register options fails if not logged in", async () => {
+    const res = await request(app)
+      .get("/api/storefront-auth/passkey/register-options");
+    expect(res.status).toBe(401);
+  });
+
+  it("❌ passkey login options fails with missing email", async () => {
+    const res = await request(app)
+      .post("/api/storefront-auth/passkey/login-options")
+      .send({});
+    expect(res.status).toBe(400);
+  });
+});
