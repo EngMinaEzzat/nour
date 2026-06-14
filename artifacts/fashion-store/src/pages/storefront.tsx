@@ -267,11 +267,11 @@ function EditorTextSection({
 
   if (section.type === "whatsapp") {
     return (
-      <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "#faf7f4", direction: i18n.dir() }}>
+      <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "var(--bg-main, #faf7f4)", direction: i18n.dir() }}>
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-4xl text-[hsl(340,20%,15%)] mb-3" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
-          {body && <p className="text-[hsl(340,15%,45%)] text-sm mb-6">{body}</p>}
-          <button onClick={onScrollToProducts} className="px-8 py-3 rounded-full text-white text-sm font-semibold" style={{ background: primaryColor }}>
+          <h2 className="text-4xl mb-3" style={{ fontFamily: "var(--font-heading, 'Playfair Display', Georgia, serif)", color: "var(--text-heading, hsl(340,20%,15%))", fontWeight: 400 }}>{heading}</h2>
+          {body && <p className="text-sm mb-6" style={{ color: "var(--text-body, hsl(340,15%,45%))", fontFamily: "var(--font-body)" }}>{body}</p>}
+          <button onClick={onScrollToProducts} className="px-8 py-3 text-white text-sm font-semibold transition-all" style={{ background: primaryColor, borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }}>
             {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow")}
           </button>
         </div>
@@ -282,17 +282,17 @@ function EditorTextSection({
   if (section.type === "about") {
     const imageUrl = section.content.imageUrl as string | undefined;
     return (
-      <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: i18n.dir() }}>
+      <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "var(--bg-section, #fff)", direction: i18n.dir() }}>
         <div className="max-w-5xl mx-auto">
           <div className={`grid gap-12 items-center ${imageUrl ? "md:grid-cols-2" : "grid-cols-1"}`}>
             {imageUrl && (
-              <div className="aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden bg-[hsl(340,30%,90%)] order-first">
+              <div className="aspect-[4/3] md:aspect-square overflow-hidden bg-[hsl(340,30%,90%)] order-first" style={{ borderRadius: "var(--card-radius, 16px)" }}>
                 <img src={imageUrl} alt={heading} className="w-full h-full object-cover" />
               </div>
             )}
             <div className={!imageUrl ? "text-center max-w-3xl mx-auto" : ""}>
-              <h2 className="text-4xl md:text-5xl text-[hsl(340,20%,15%)] mb-6" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
-              {body && <p className="text-[hsl(340,15%,45%)] text-base leading-relaxed whitespace-pre-wrap">{body}</p>}
+              <h2 className="text-4xl md:text-5xl mb-6" style={{ fontFamily: "var(--font-heading, 'Playfair Display', Georgia, serif)", color: "var(--text-heading, hsl(340,20%,15%))", fontWeight: 400 }}>{heading}</h2>
+              {body && <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-body, hsl(340,15%,45%))", fontFamily: "var(--font-body)" }}>{body}</p>}
             </div>
           </div>
         </div>
@@ -301,16 +301,16 @@ function EditorTextSection({
   }
 
   return (
-    <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "#fff", direction: i18n.dir() }}>
+    <section className="py-16 md:py-24 px-4 sm:px-6" style={{ background: "var(--bg-section, #fff)", direction: i18n.dir() }}>
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl text-[hsl(340,20%,15%)] mb-4" style={{ fontFamily: SERIF, fontWeight: 400 }}>{heading}</h2>
-        {body && <p className="text-[hsl(340,15%,45%)] text-sm leading-7 max-w-2xl mx-auto mb-8">{body}</p>}
+        <h2 className="text-4xl md:text-5xl mb-4" style={{ fontFamily: "var(--font-heading, 'Playfair Display', Georgia, serif)", color: "var(--text-heading, hsl(340,20%,15%))", fontWeight: 400 }}>{heading}</h2>
+        {body && <p className="text-sm leading-7 max-w-2xl mx-auto mb-8" style={{ color: "var(--text-body, hsl(340,15%,45%))", fontFamily: "var(--font-body)" }}>{body}</p>}
         {items.length > 0 && (
           <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 text-start`}>
             {items.slice(0, 6).map((item, index) => (
-              <div key={index} className="border border-[hsl(340,30%,90%)] rounded-2xl p-5 bg-[hsl(40,30%,98%)]">
-                <p className="font-semibold text-[hsl(340,20%,15%)] mb-2">{item.title ?? item.q ?? item.name ?? ""}</p>
-                <p className="text-sm text-[hsl(340,15%,45%)] leading-6">{item.text ?? item.a ?? ""}</p>
+              <div key={index} className="border p-5 transition-all" style={{ borderColor: "var(--border-color, hsl(340,30%,90%))", borderRadius: "var(--card-radius, 16px)", background: "var(--bg-card, hsl(40,30%,98%))" }}>
+                <p className="font-semibold mb-2" style={{ fontFamily: "var(--font-body)", color: "var(--text-heading, hsl(340,20%,15%))" }}>{item.title ?? item.q ?? item.name ?? ""}</p>
+                <p className="text-sm leading-6" style={{ fontFamily: "var(--font-body)", color: "var(--text-body, hsl(340,15%,45%))" }}>{item.text ?? item.a ?? ""}</p>
               </div>
             ))}
           </div>
