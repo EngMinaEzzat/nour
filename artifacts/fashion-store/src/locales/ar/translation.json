@@ -637,8 +637,8 @@
     "title": "الفوترة والاشتراك",
     "subtitle": "تفاصيل خطتك الحالية وتجديد الاشتراك",
     "tabs": {
-      "overview": "نظرة عامة والفوترة",
-      "plans": "الخطط والترقية"
+      "subscription": "الاشتراك والخطط",
+      "invoices": "سجل الفواتير"
     },
     "planNames": {
       "starter": "ستارتر",
@@ -694,11 +694,10 @@
       "suspendedDesc": "جدّد اشتراكك بالتحويل البنكي أدناه وسيُعاد تفعيل متجرك فور مراجعة الإدارة."
     },
     "bankDetails": {
-      "title": "بيانات التحويل البنكي",
-      "bankName": "اسم البنك",
-      "accountName": "اسم صاحب الحساب",
-      "accountNumber": "رقم الحساب",
-      "instapayText": "أو حوّل عبر Instapay على:"
+      "title": "بيانات الدفع Instapay",
+      "instapayTitle": "الدفع عبر Instapay",
+      "instapayNumber": "رقم Instapay:",
+      "instapayHolder": "اسم المستلم:"
     },
     "form": {
       "planLabel": "الخطة المراد الاشتراك فيها",

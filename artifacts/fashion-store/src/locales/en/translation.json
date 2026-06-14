@@ -3087,8 +3087,8 @@
     "title": "Billing & Subscriptions",
     "subtitle": "Manage your store plan, invoices, and bank transfer receipts",
     "tabs": {
-      "overview": "Overview & Billing",
-      "plans": "Plans & Upgrades"
+      "subscription": "Subscription & Plans",
+      "invoices": "Invoices"
     },
     "planNames": {
       "starter": "Starter",
@@ -3144,11 +3144,10 @@
       "suspendedDesc": "Your store is currently suspended. Please renew your subscription to reactivate it."
     },
     "bankDetails": {
-      "title": "Bank Transfer Details",
-      "bankName": "Bank:",
-      "accountName": "Account Name:",
-      "accountNumber": "Account Number:",
-      "instapayText": "Or via Instapay:"
+      "title": "Instapay Payment Details",
+      "instapayTitle": "Pay via Instapay",
+      "instapayNumber": "Instapay Number:",
+      "instapayHolder": "Recipient Name:"
     },
     "form": {
       "planLabel": "Select Plan",

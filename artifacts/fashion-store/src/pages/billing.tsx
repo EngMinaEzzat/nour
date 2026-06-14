@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   CreditCard, FileText, Clock, TrendingUp, CheckCircle,
-  Upload, Send, AlertCircle, Copy, Building2, Smartphone,
+  Upload, Send, AlertCircle, Copy, Smartphone,
   X, Crown, Zap, Package, ShieldCheck,
   Globe, Users, BarChart2, Check, Lock, ArrowRight
 } from "lucide-react";
@@ -315,14 +315,16 @@ export default function BillingPage() {
   const qc = useQueryClient();
 
   const searchParams = new URLSearchParams(window.location.search);
-  const defaultTab = searchParams.get("tab") || "overview";
+  const tabParam = searchParams.get("tab");
+  const defaultTab = tabParam === "plans" || tabParam === "subscription" ? "subscription" : (tabParam === "invoices" ? "invoices" : "subscription");
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [upgradePlanCode, setUpgradePlanCode] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
-    const tab = new URLSearchParams(window.location.search).get("tab") || "overview";
-    setActiveTab(tab);
+    const p = new URLSearchParams(window.location.search).get("tab");
+    const active = p === "plans" || p === "subscription" ? "subscription" : (p === "invoices" ? "invoices" : "subscription");
+    setActiveTab(active);
   }, [window.location.search]);
 
   const handleTabChange = (val: string) => {
@@ -375,26 +377,23 @@ export default function BillingPage() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/60 p-1 rounded-xl">
-          <TabsTrigger value="overview" className="rounded-lg py-2 text-xs md:text-sm font-medium">
-            {t("billing.tabs.overview", { defaultValue: "نظرة عامة والفوترة" })}
+          <TabsTrigger value="subscription" className="rounded-lg py-2 text-xs md:text-sm font-medium">
+            {t("billing.tabs.subscription", { defaultValue: "الاشتراك والخطط" })}
           </TabsTrigger>
-          <TabsTrigger value="plans" className="rounded-lg py-2 text-xs md:text-sm font-medium">
-            {t("billing.tabs.plans", { defaultValue: "الخطط والترقية" })}
+          <TabsTrigger value="invoices" className="rounded-lg py-2 text-xs md:text-sm font-medium">
+            {t("billing.tabs.invoices", { defaultValue: "سجل الفواتير" })}
           </TabsTrigger>
         </TabsList>
 
-        {/* ─── TAB 1: OVERVIEW ─── */}
-        <TabsContent value="overview" className="space-y-6 outline-none">
+        {/* ─── TAB 1: SUBSCRIPTION & PLANS ─── */}
+        <TabsContent value="subscription" className="space-y-6 outline-none">
           {/* Current plan card */}
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="border-border/50 shadow-sm overflow-hidden">
-              <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0 bg-muted/20">
+              <CardHeader className="pb-3 bg-muted/20">
                 <CardTitle className="text-sm flex items-center gap-2 font-semibold">
                   <TrendingUp className="w-4 h-4 text-primary" /> {t("billing.currentPlan.title")}
                 </CardTitle>
-                <Button variant="outline" size="sm" onClick={() => handleTabChange("plans")} className="h-8 text-xs font-semibold">
-                  {t("billing.currentPlan.btnViewPlans")}
-                </Button>
               </CardHeader>
               <CardContent className="pt-5">
                 {loadingStatus ? (
@@ -437,156 +436,84 @@ export default function BillingPage() {
             </div>
           )}
 
-          {/* Transfer history */}
-          {(transfers as any[]).length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-              <Card className="border-border/50 shadow-sm">
-                <CardHeader className="pb-3 bg-muted/10 border-b border-border/40">
-                  <CardTitle className="text-sm flex items-center gap-2 font-semibold">
-                    <FileText className="w-4 h-4 text-primary" /> {t("billing.transferHistory.title")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-2.5">
-                  {loadingTransfers
-                    ? Array(2).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-xl" />)
-                    : (transfers as any[]).map((tItem: any) => {
-                      const sColor = TRANSFER_STATUS_COLORS[tItem.status] ?? TRANSFER_STATUS_COLORS.pending;
-                      const sLabel = t(`billing.transferStatus.${tItem.status}`);
-                      return (
-                        <div key={tItem.id} className="flex items-center justify-between p-3.5 bg-muted/30 border border-border/30 rounded-xl text-sm gap-3 hover:bg-muted/40 transition-colors">
-                          <div className="min-w-0">
-                            <p className="font-bold truncate text-foreground">{t(`billing.planNames.${tItem.planCode}`)} — {fmtAmt(tItem.amount, i18n.language)}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{t("billing.transferHistory.ref")} <span className="font-mono text-foreground font-medium">{tItem.referenceNumber}</span> · {new Date(tItem.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US")}</p>
-                            {tItem.adminNote && <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium bg-red-50 dark:bg-red-950/20 px-2 py-0.5 rounded inline-block">{tItem.adminNote}</p>}
-                          </div>
-                          <Badge variant="outline" className={`shrink-0 font-medium ${sColor}`}>{sLabel}</Badge>
+          {/* Dynamic Commercial Plans Cards */}
+          <div className="pt-2">
+            <h2 className="text-sm font-bold text-foreground mb-4">{t("billing.plans.compareTitle", { defaultValue: "خطط الاشتراك المتاحة" })}</h2>
+            {loadingPlans ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[0, 1, 2].map((i) => <div key={i} className="h-80 rounded-2xl bg-muted/40 animate-pulse" />)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                {commercialPlans.map((plan, i) => {
+                  const planKey = plan.code;
+                  const c = PLAN_COLORS[planKey] ?? PLAN_COLORS.starter;
+                  const Icon = PLAN_ICONS[planKey] ?? Zap;
+                  const isCurrent = planKey === currentPlan;
+                  const isUpgrade = PLAN_ORDER.indexOf(planKey) > PLAN_ORDER.indexOf(currentPlan);
+                  const featuresList = getPlanFeatures(planKey, t);
+
+                  return (
+                    <motion.div key={planKey} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
+                      className={`bg-card rounded-2xl border-2 p-6 flex flex-col ${isCurrent ? "border-rose-400 dark:border-rose-500 shadow-md scale-[1.01]" : "border-border/50"} ${planKey === "pro" ? "relative overflow-hidden" : ""}`}>
+                      {planKey === "pro" && (
+                        <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-center py-1 text-[10px] font-bold uppercase tracking-wider">
+                          {t("growth.cards.bestFor")}
                         </div>
-                      );
-                    })}
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-
-          {/* Invoice history */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="border-border/50 shadow-sm">
-              <CardHeader className="pb-3 bg-muted/10 border-b border-border/40">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2 font-semibold">
-                    <FileText className="w-4 h-4 text-blue-500" /> {t("billing.invoices.title")}
-                  </CardTitle>
-                  <Badge variant="secondary" className="text-[10px] font-semibold">{(invoices as any[]).length} {t("billing.invoices.count")}</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                {loadingInv ? (
-                  <div className="space-y-2">{[1, 2].map((i) => <Skeleton key={i} className="h-12" />)}</div>
-                ) : (invoices as any[]).length === 0 ? (
-                  <div className="py-8 text-center text-muted-foreground text-sm">
-                    <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-35" />{t("billing.invoices.noInvoices")}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {(invoices as any[]).map((inv: any) => {
-                      const sColor = INV_STATUS_COLORS[inv.status] ?? INV_STATUS_COLORS.issued;
-                      const sLabel = t(`billing.invStatus.${inv.status}`);
-                      return (
-                        <div key={inv.id} className="flex items-center justify-between p-3.5 bg-muted/30 border border-border/30 rounded-xl text-sm gap-3 hover:bg-muted/40 transition-colors">
-                          <div className="min-w-0">
-                            <p className="font-semibold text-foreground">{inv.invoiceNumber}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{t(`billing.planNames.${inv.planCode}`) ?? inv.planCode} · {fmt(inv.createdAt, i18n.language)}</p>
-                          </div>
-                          <div className="flex items-center gap-3 shrink-0">
-                            <Badge variant="outline" className={`font-medium ${sColor}`}>{sLabel}</Badge>
-                            <span className="font-bold text-foreground">{fmtAmt(inv.amount, i18n.language)}</span>
-                          </div>
+                      )}
+                      <div className={planKey === "pro" ? "mt-4" : ""}>
+                        <div className="flex items-center justify-between mb-4">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${c.badge}`}>
+                            <Icon className="w-3.5 h-3.5" />
+                            {i18n.language === "ar" ? plan.nameAr : plan.name}
+                          </span>
+                          {isCurrent && <span className="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-semibold">{t("growth.cards.yourPlan")}</span>}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-
-        {/* ─── TAB 2: PLANS & UPGRADE ─── */}
-        <TabsContent value="plans" className="space-y-8 outline-none">
-          {loadingPlans ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[0, 1, 2].map((i) => <div key={i} className="h-80 rounded-2xl bg-muted/40 animate-pulse" />)}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {commercialPlans.map((plan, i) => {
-                const planKey = plan.code;
-                const c = PLAN_COLORS[planKey] ?? PLAN_COLORS.starter;
-                const Icon = PLAN_ICONS[planKey] ?? Zap;
-                const isCurrent = planKey === currentPlan;
-                const isUpgrade = PLAN_ORDER.indexOf(planKey) > PLAN_ORDER.indexOf(currentPlan);
-                const featuresList = getPlanFeatures(planKey, t);
-
-                return (
-                  <motion.div key={planKey} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-                    className={`bg-card rounded-2xl border-2 p-6 flex flex-col ${isCurrent ? "border-rose-400 dark:border-rose-500 shadow-md scale-[1.01]" : "border-border/50"} ${planKey === "pro" ? "relative overflow-hidden" : ""}`}>
-                    {planKey === "pro" && (
-                      <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-center py-1 text-[10px] font-bold uppercase tracking-wider">
-                        {t("growth.cards.bestFor")}
+                        <p className="text-3xl font-extrabold text-foreground mb-1">{plan.priceEgp.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")}</p>
+                        <p className="text-xs text-muted-foreground mb-5">{t("growth.cards.currency", { currency: i18n.language === "ar" ? "ج.م" : "EGP" })}</p>
+                        <ul className="space-y-2.5 mb-6 flex-1">
+                          {featuresList.map((f: string) => (
+                            <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <CheckCircle className="w-4 h-4 text-green-500 shrink-0" /> {f}
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          disabled={isCurrent || !isUpgrade || hasPending}
+                          onClick={() => {
+                            if (isUpgrade) {
+                              setUpgradePlanCode(planKey);
+                              setShowUpgradeModal(true);
+                            }
+                          }}
+                          className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                            isCurrent ? "bg-muted text-muted-foreground cursor-not-allowed" :
+                            hasPending ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50" :
+                            isUpgrade ? `${c.btn} shadow-sm hover:shadow-md` :
+                            "bg-muted text-muted-foreground cursor-not-allowed opacity-40"
+                          }`}
+                        >
+                          {isCurrent ? (
+                            t("growth.cards.btnCurrent")
+                          ) : hasPending ? (
+                            t("billing.transferRequest.pendingBadge")
+                          ) : isUpgrade ? (
+                            <><span>{t("growth.cards.btnUpgrade")}</span><ArrowRight className="w-3.5 h-3.5" /></>
+                          ) : (
+                            <><Lock className="w-3.5 h-3.5" /> {t("growth.cards.btnPrevious")}</>
+                          )}
+                        </button>
                       </div>
-                    )}
-                    <div className={planKey === "pro" ? "mt-4" : ""}>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${c.badge}`}>
-                          <Icon className="w-3.5 h-3.5" />
-                          {i18n.language === "ar" ? plan.nameAr : plan.name}
-                        </span>
-                        {isCurrent && <span className="text-[10px] bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-semibold">{t("growth.cards.yourPlan")}</span>}
-                      </div>
-                      <p className="text-3xl font-extrabold text-foreground mb-1">{plan.priceEgp.toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")}</p>
-                      <p className="text-xs text-muted-foreground mb-5">{t("growth.cards.currency", { currency: i18n.language === "ar" ? "ج.م" : "EGP" })}</p>
-                      <ul className="space-y-2.5 mb-6 flex-1">
-                        {featuresList.map((f: string) => (
-                          <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <CheckCircle className="w-4 h-4 text-green-500 shrink-0" /> {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <button
-                        disabled={isCurrent || !isUpgrade || hasPending}
-                        onClick={() => {
-                          if (isUpgrade) {
-                            setUpgradePlanCode(planKey);
-                            setShowUpgradeModal(true);
-                          }
-                        }}
-                        className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                          isCurrent ? "bg-muted text-muted-foreground cursor-not-allowed" :
-                          hasPending ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50" :
-                          isUpgrade ? `${c.btn} shadow-sm hover:shadow-md` :
-                          "bg-muted text-muted-foreground cursor-not-allowed opacity-40"
-                        }`}
-                      >
-                        {isCurrent ? (
-                          t("growth.cards.btnCurrent")
-                        ) : hasPending ? (
-                          t("billing.transferRequest.pendingBadge")
-                        ) : isUpgrade ? (
-                          <><span>{t("growth.cards.btnUpgrade")}</span><ArrowRight className="w-3.5 h-3.5" /></>
-                        ) : (
-                          <><Lock className="w-3.5 h-3.5" /> {t("growth.cards.btnPrevious")}</>
-                        )}
-                      </button>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           {/* Feature Matrix */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-            className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden mt-8">
+            className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden mt-2">
             <div className="p-4 bg-muted/20 border-b border-border/40">
               <h2 className="text-sm font-bold text-foreground">{t("growth.matrix.title")}</h2>
             </div>
@@ -630,6 +557,81 @@ export default function BillingPage() {
               </table>
             </div>
           </motion.div>
+
+          {/* Transfer request history list */}
+          {(transfers as any[]).length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="border-border/50 shadow-sm mt-4">
+                <CardHeader className="pb-3 bg-muted/10 border-b border-border/40">
+                  <CardTitle className="text-sm flex items-center gap-2 font-semibold">
+                    <FileText className="w-4 h-4 text-primary" /> {t("billing.transferHistory.title")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-2.5">
+                  {loadingTransfers
+                    ? Array(2).fill(0).map((_, i) => <Skeleton key={i} className="h-14 rounded-xl" />)
+                    : (transfers as any[]).map((tItem: any) => {
+                      const sColor = TRANSFER_STATUS_COLORS[tItem.status] ?? TRANSFER_STATUS_COLORS.pending;
+                      const sLabel = t(`billing.transferStatus.${tItem.status}`);
+                      return (
+                        <div key={tItem.id} className="flex items-center justify-between p-3.5 bg-muted/30 border border-border/30 rounded-xl text-sm gap-3 hover:bg-muted/40 transition-colors">
+                          <div className="min-w-0">
+                            <p className="font-bold truncate text-foreground">{t(`billing.planNames.${tItem.planCode}`)} — {fmtAmt(tItem.amount, i18n.language)}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{t("billing.transferHistory.ref")} <span className="font-mono text-foreground font-medium">{tItem.referenceNumber}</span> · {new Date(tItem.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-US")}</p>
+                            {tItem.adminNote && <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium bg-red-50 dark:bg-red-950/20 px-2 py-0.5 rounded inline-block">{tItem.adminNote}</p>}
+                          </div>
+                          <Badge variant="outline" className={`shrink-0 font-medium ${sColor}`}>{sLabel}</Badge>
+                        </div>
+                      );
+                    })}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </TabsContent>
+
+        {/* ─── TAB 2: INVOICES ─── */}
+        <TabsContent value="invoices" className="outline-none">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-3 bg-muted/10 border-b border-border/40">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2 font-semibold">
+                    <FileText className="w-4 h-4 text-blue-500" /> {t("billing.invoices.title")}
+                  </CardTitle>
+                  <Badge variant="secondary" className="text-[10px] font-semibold">{(invoices as any[]).length} {t("billing.invoices.count")}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                {loadingInv ? (
+                  <div className="space-y-2">{[1, 2].map((i) => <Skeleton key={i} className="h-12" />)}</div>
+                ) : (invoices as any[]).length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground text-sm">
+                    <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-35" />{t("billing.invoices.noInvoices")}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {(invoices as any[]).map((inv: any) => {
+                      const sColor = INV_STATUS_COLORS[inv.status] ?? INV_STATUS_COLORS.issued;
+                      const sLabel = t(`billing.invStatus.${inv.status}`);
+                      return (
+                        <div key={inv.id} className="flex items-center justify-between p-3.5 bg-muted/30 border border-border/30 rounded-xl text-sm gap-3 hover:bg-muted/40 transition-colors">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground">{inv.invoiceNumber}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{t(`billing.planNames.${inv.planCode}`) ?? inv.planCode} · {fmt(inv.createdAt, i18n.language)}</p>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <Badge variant="outline" className={`font-medium ${sColor}`}>{sLabel}</Badge>
+                            <span className="font-bold text-foreground">{fmtAmt(inv.amount, i18n.language)}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
         </TabsContent>
       </Tabs>
 
@@ -645,51 +647,26 @@ export default function BillingPage() {
             </DialogDescription>
           </DialogHeader>
 
-          {/* Bank Details Summary */}
-          <div className="bg-muted/50 p-4 rounded-xl space-y-2 text-xs border border-border/30">
+          {/* Instapay Payment Summary */}
+          <div className="bg-muted/50 p-4 rounded-xl space-y-2.5 text-xs border border-border/30">
             <p className="font-semibold text-sm text-foreground flex items-center gap-1.5">
-              <Building2 className="w-4 h-4 text-primary" /> {t("billing.bankDetails.title")}
+              <Smartphone className="w-4 h-4 text-green-600 shrink-0" />
+              {t("billing.bankDetails.instapayTitle", { defaultValue: "الدفع عبر Instapay" })}
             </p>
-            {bankDetails && (
+            {bankDetails && bankDetails.instapayNumber && (
               <div className="space-y-1.5 pt-1.5 border-t border-border/30 mt-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{t("billing.bankDetails.bankName")}</span>
-                  <span className="font-medium text-foreground">{bankDetails.bankName}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{t("billing.bankDetails.accountName")}</span>
-                  <span className="font-medium text-foreground">{bankDetails.accountName}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">{t("billing.bankDetails.accountNumber")}</span>
+                  <span className="text-muted-foreground">{t("billing.bankDetails.instapayNumber", { defaultValue: "رقم Instapay:" })}</span>
                   <div className="flex items-center gap-1">
-                    <span className="font-mono font-medium text-foreground">{bankDetails.accountNumber}</span>
-                    <CopyButton text={bankDetails.accountNumber} />
+                    <span className="font-mono font-bold text-foreground">{bankDetails.instapayNumber}</span>
+                    <CopyButton text={bankDetails.instapayNumber} />
                   </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">IBAN</span>
-                  <div className="flex items-center gap-1">
-                    <span className="font-mono font-medium text-foreground">{bankDetails.iban}</span>
-                    <CopyButton text={bankDetails.iban} />
+                {bankDetails.instapayName && (
+                  <div className="flex justify-between items-center text-xs text-green-700 dark:text-green-400 font-semibold mt-1">
+                    <span>{t("billing.bankDetails.instapayHolder", { defaultValue: "اسم المستلم:" })}</span>
+                    <span dir="ltr" className="font-mono">{bankDetails.instapayName}</span>
                   </div>
-                </div>
-                {bankDetails.instapayNumber && (
-                  <>
-                    <div className="flex justify-between items-center border-t border-border/30 pt-1.5 mt-1.5 text-green-700 dark:text-green-400">
-                      <span>Instapay</span>
-                      <div className="flex items-center gap-1">
-                        <span className="font-mono font-bold">{bankDetails.instapayNumber}</span>
-                        <CopyButton text={bankDetails.instapayNumber} />
-                      </div>
-                    </div>
-                    {bankDetails.instapayName && (
-                      <div className="flex justify-between items-center text-[10px] text-green-600 dark:text-green-500 font-semibold mt-0.5">
-                        <span>{t("billing.bankDetails.instapayHolder", { defaultValue: "اسم المستلم (Instapay):" })}</span>
-                        <span>{bankDetails.instapayName}</span>
-                      </div>
-                    )}
-                  </>
                 )}
               </div>
             )}
