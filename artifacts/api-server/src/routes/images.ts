@@ -84,16 +84,16 @@ router.get(
                 fs.writeFileSync(sourceFilePath, buffer);
                 // File now exists locally — continue with resize below
               } else {
-                return res.status(404).json({ error: "Image not found" });
+                return res.redirect("/product-fashion-optimized.jpg");
               }
             } else {
-              return res.status(404).json({ error: "Image not found" });
+              return res.redirect("/product-fashion-optimized.jpg");
             }
           } catch {
-            return res.status(404).json({ error: "Image not found" });
+            return res.redirect("/product-fashion-optimized.jpg");
           }
         } else {
-          return res.status(404).json({ error: "Image not found" });
+          return res.redirect("/product-fashion-optimized.jpg");
         }
       }
 
