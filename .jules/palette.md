@@ -12,3 +12,7 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+
+## 2024-06-14 - Palette: Avant-Garde Editorial Theme Implementation
+**Learning:** Successfully expanded `StoreConfig` types and `PERSONALITY_PRESETS`/`STYLE_PRESETS` to support a new `"avant-garde-editorial"` visual theme with localized i18n copy.
+**Action:** When conditionally injecting distinct strings/assets for a specific style, ensure it scales cleanly within factory components like `createDefaultSection` by extending their signature (e.g., adding `style?: StyleType`), preventing duplication of boilerplate. Ensure the default fallback translation logic correctly handles conditional checks without destroying existing nested logic.

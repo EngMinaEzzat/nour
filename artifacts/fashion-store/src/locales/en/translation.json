@@ -2957,7 +2957,9 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingAvantGarde": "The Editorial Look",
+      "subheadingAvantGarde": "Redefine Beauty, where boldness meets uniqueness"
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3002,9 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "headingAvantGarde": "Our Story - Redefining Beauty",
+      "bodyAvantGarde": "We believe that elegance is the art of self-expression. In our world, beauty is not a mold, but the courage to be different and unique."
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,7 +3060,8 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
-      ]
+      ],
+      "headingAvantGarde": "Lookbook - Redefine Beauty"
     },
     "productCatalog": {
       "heading": "All Products",
@@ -3080,7 +3085,8 @@
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
         }
-      ]
+      ],
+      "headingAvantGarde": "Your Trust, Our Commitment"
     }
   },
   "billing": {

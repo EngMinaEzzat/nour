@@ -22,7 +22,7 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"  | "avant-garde";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +31,7 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"  | "avant-garde-editorial";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,7 +169,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, style?: StyleType): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -180,7 +180,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, style);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +200,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, style), order: normalized.length });
     }
   });
 
@@ -217,7 +217,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, style?: StyleType): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   
@@ -232,8 +232,9 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
+        heading: tr(style === "avant-garde-editorial" ? "defaultSections.hero.headingAvantGarde" : (isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading"), style === "avant-garde-editorial" ? `${storeName} - إطلالة غلاف المجلات` : (isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`), { storeName }),
+        subheading: tr(style === "avant-garde-editorial" ? "defaultSections.hero.subheadingAvantGarde" : (isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading"), style === "avant-garde-editorial" ? "فن الأناقة، حيث تلتقي الجرأة بالتفرد" : (isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك")),
+        imageUrl: style === "avant-garde-editorial" ? "/hero-avant-garde-optimized.jpg" : undefined,
         ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
         ctaLink: "#products" 
       },
@@ -283,7 +284,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
+        heading: tr(style === "avant-garde-editorial" ? "defaultSections.about.headingAvantGarde" : "defaultSections.about.heading", style === "avant-garde-editorial" ? "قصتنا - إعادة تعريف الجمال" : `قصة ${storeName}`, { storeName }),
         body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
@@ -326,7 +327,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
+        heading: tr(style === "avant-garde-editorial" ? "defaultSections.lookbook.headingAvantGarde" : "defaultSections.lookbook.heading", style === "avant-garde-editorial" ? "لوك بوك - فن الأناقة" : "لوك بوك - إلهامي هذا الموسم"),
         items: tr("defaultSections.lookbook.items", [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
@@ -362,6 +363,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
+        heading: style === "avant-garde-editorial" ? tr("defaultSections.trustStrip.headingAvantGarde", "ثقتكِ، التزامنا") : undefined,
         items: tr("defaultSections.trustStrip.items", [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
@@ -391,6 +393,12 @@ export const DEFAULT_THEME: ThemeConfig = {
 
 // ─── Personality presets ──────────────────────────────────────────────────────
 export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
+  "avant-garde": {
+    label: "إطلالة غلاف المجلات", desc: "تصميم جريء ومختلف كأنه غلاف مجلة عالمية", emoji: "🖤",
+    colors: ["#ffffff", "#000000", "#0055ff"], font: "Inter",
+    example: "\"فن الأناقة — تمردي على المألوف\"",
+    theme: { primaryColor: "#000000", secondaryColor: "#0055ff", fontPairing: "sans-sans", buttonStyle: "square", cardShadow: "none" },
+  },
   elegant: {
     label: "أنيقة وراقية", desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع", emoji: "💎",
     colors: ["#1a1614", "#c8963a"], font: "Cormorant Garamond",
@@ -431,6 +439,10 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
 export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
+  "avant-garde-editorial": {
+    label: "غلاف مجلة", desc: "تصميم جريء وغير متماثل يعكس روح الموضة العصرية", emoji: "🖤",
+    sections: ["hero", "lookbook", "categories", "new-arrivals", "about", "trust-strip", "newsletter"],
+  },
   "modern-boutique": {
     label: "بوتيك عصري", desc: "مثالي للأزياء والإكسسوارات الراقية", emoji: "👗",
     sections: ["hero", "trust-strip", "new-arrivals", "categories", "lookbook", "about", "newsletter"],
