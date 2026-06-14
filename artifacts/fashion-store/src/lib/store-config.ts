@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"
+  | "royal";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "royal-velvet";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,7 +171,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, style?: StyleType): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -180,7 +182,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, style);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +202,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, style), order: normalized.length });
     }
   });
 
@@ -217,7 +219,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, style?: StyleType): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   
@@ -229,13 +231,15 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     return fallback;
   };
 
+  const isRoyal = style === "royal-velvet";
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
-        ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
-        ctaLink: "#products" 
+        heading: isRoyal ? tr("defaultSections.heroRoyal.heading", "متوجة بالأناقة") : tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: isRoyal ? tr("defaultSections.heroRoyal.subheading", "فخامة المخمل") : tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: isRoyal ? tr("defaultSections.heroRoyal.ctaText", "اكتشفي الفخامة") : tr("defaultSections.hero.ctaText", "تسوقي الآن"),
+        ctaLink: "#products" ,
+        imageUrl: isRoyal ? "/hero-royal-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -326,26 +330,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: isRoyal ? tr("defaultSections.lookbookRoyal.heading", "الفخامة والأناقة - إلهام ملكي") : tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
+        items: isRoyal ? tr("defaultSections.lookbookRoyal.items", [
+          { imageUrl: "/lookbook-royal-1-optimized.jpg", tag: "Royal", title: "Velvet Elegance", desc: "Premium fabrics", categoryId: "" },
+          { imageUrl: "/lookbook-royal-2-optimized.jpg", tag: "Luxury", title: "Golden Touch", desc: "Sophisticated accessories", categoryId: "" },
+          { imageUrl: "/lookbook-royal-3-optimized.jpg", tag: "Classics", title: "Timeless", desc: "Classic beauty", categoryId: "" }
+        ]) : tr("defaultSections.lookbook.items", [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
-            title: "Egyptian\\n Beauty",
+            title: "Egyptian\n Beauty",
             desc: "An exclusive collection inspired by heritage",
             categoryId: "",
           },
           {
             imageUrl: "/lookbook-2-optimized.jpg",
             tag: "Spring 2025",
-            title: "Spring\\n Colors",
+            title: "Spring\n Colors",
             desc: "Soft shades for a perfect look",
             categoryId: "",
           },
           {
             imageUrl: "/lookbook-3-optimized.jpg",
             tag: "Beauty",
-            title: "Beauty\\n Magic",
+            title: "Beauty\n Magic",
             desc: "High quality care products",
             categoryId: "",
           },
@@ -362,7 +370,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: isRoyal ? tr("defaultSections.trustStripRoyal.items", [
+          { icon: "👑", title: "جودة ملكية", text: "خامات ممتازة" },
+          { icon: "✨", title: "فخامة", text: "تفاصيل متقنة" },
+          { icon: "🔒", title: "أمان", text: "تسوق بثقة" },
+          { icon: "💎", title: "حصري", text: "تصاميم فريدة" }
+        ]) : tr("defaultSections.trustStrip.items", [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -427,6 +440,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"Style Your Life — كل يوم مختلف\"",
     theme: { primaryColor: "#7c4dff", secondaryColor: "#ff4081", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "lively", cardShadow: "strong" },
   },
+  royal: {
+    label: "ملكية فاخرة", desc: "للعلامات التجارية الراقية التي تبحث عن الفخامة العميقة", emoji: "👑",
+    colors: ["#013220", "#d4af37"], font: "Cormorant Garamond",
+    example: "\"متوجة بالأناقة — فخامة المخمل\"",
+    theme: { primaryColor: "#013220", secondaryColor: "#d4af37", fontPairing: "serif-serif", buttonStyle: "square", cardShadow: "strong" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -459,17 +478,21 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
     label: "كتالوج فاخر", desc: "عرض احترافي يشبه المجلات العالمية", emoji: "🏅",
     sections: ["hero", "lookbook", "categories", "new-arrivals", "testimonials", "about", "newsletter"],
   },
+  "royal-velvet": {
+    label: "فخامة المخمل", desc: "تصميم ملكي فاخر للأزياء الراقية", emoji: "👑",
+    sections: ["hero", "trust-strip", "lookbook", "categories", "about", "newsletter"],
+  },
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
-export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunction): StoreConfig {
+export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunction, style?: StyleType): StoreConfig {
   const name = partial?.brand?.name ?? "متجري";
   const category = partial?.brand?.category ?? "fashion";
   return {
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, style),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };

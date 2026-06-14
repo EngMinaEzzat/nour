@@ -3081,6 +3081,61 @@
           "text": "100% Original Products"
         }
       ]
+    },
+    "heroRoyal": {
+      "heading": "Crowned in Elegance",
+      "subheading": "The Velvet Collection",
+      "ctaText": "Discover Luxury"
+    },
+    "lookbookRoyal": {
+      "heading": "The Velvet Collection - Royal Inspiration",
+      "items": [
+        {
+          "imageUrl": "/lookbook-royal-1-optimized.jpg",
+          "tag": "Royal",
+          "title": "Velvet Elegance",
+          "desc": "Premium fabrics for a majestic look",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-royal-2-optimized.jpg",
+          "tag": "Luxury",
+          "title": "Golden Touch",
+          "desc": "Sophisticated accessories",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-royal-3-optimized.jpg",
+          "tag": "Classics",
+          "title": "Timeless Beauty",
+          "desc": "Classic aesthetics",
+          "categoryId": ""
+        }
+      ]
+    },
+    "aboutRoyal": {
+      "heading": "The Story of Velvet Elegance",
+      "body": "We present to you an exclusive collection that reflects luxury and sophistication, where we take care of the finest details to make your look a story to tell."
+    },
+    "trustStripRoyal": {
+      "items": [
+        {
+          "title": "Royal Quality",
+          "text": "Premium materials"
+        },
+        {
+          "title": "Luxury",
+          "text": "Meticulous details"
+        },
+        {
+          "title": "Security",
+          "text": "Shop with confidence"
+        },
+        {
+          "title": "Exclusive",
+          "text": "Unique designs"
+        }
+      ]
     }
   },
   "billing": {

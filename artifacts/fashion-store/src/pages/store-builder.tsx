@@ -6,7 +6,7 @@ import { getListCategoriesQueryKey, useListCategories } from "@workspace/api-cli
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import VisualEditor from "@/components/editor/VisualEditor";
-import { StoreConfig, createDefaultConfig, normalizeHomepageSections } from "@/lib/store-config";
+import { StoreConfig, createDefaultConfig, normalizeHomepageSections, StyleType } from "@/lib/store-config";
 import type { MerchantGender } from "@/components/editor/WelcomeOverlay";
 
 const STORAGE_KEY = (slug: string) => `nour_store_config_${slug}`;
@@ -131,7 +131,7 @@ export default function StoreBuilder() {
         cardShadow: "soft",
       },
       homepage: {
-        sections: normalizeHomepageSections(undefined, tenant.name ?? "متجري", tenant.category ?? "fashion", t),
+        sections: normalizeHomepageSections(undefined, tenant.name ?? "متجري", tenant.category ?? "fashion", t, (tenant as any).style as StyleType | undefined),
       },
       business: {
         whatsapp: socialLinks.whatsapp ?? "",

@@ -12,3 +12,6 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2024-06-25 - [Add Royal Velvet Theme]
+**Learning:** Adding new themes involves expanding types in a centralized store config and selectively passing that selected style/theme from the builder/tenant level down through config normalization.
+**Action:** Always verify that localization updates strictly append new specialized keys (e.g., `heroRoyal`) to existing JSON schemas rather than overwriting default keys to prevent regressions in earlier themes.

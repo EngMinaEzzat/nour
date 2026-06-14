@@ -3158,6 +3158,61 @@
           "text": "منتجات أصلية 100%"
         }
       ]
+    },
+    "heroRoyal": {
+      "heading": "أناقة ملكية",
+      "subheading": "فخامة المخمل",
+      "ctaText": "اكتشفي الفخامة"
+    },
+    "lookbookRoyal": {
+      "heading": "الفخامة والأناقة - إلهام ملكي",
+      "items": [
+        {
+          "imageUrl": "/lookbook-royal-1-optimized.jpg",
+          "tag": "ملكي",
+          "title": "فخامة المخمل",
+          "desc": "أقمشة فاخرة لإطلالة مهيبة",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-royal-2-optimized.jpg",
+          "tag": "فاخر",
+          "title": "لمسة ذهبية",
+          "desc": "إكسسوارات راقية",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-royal-3-optimized.jpg",
+          "tag": "كلاسيكيات",
+          "title": "جمال خالد",
+          "desc": "جمال كلاسيكي لا يزول",
+          "categoryId": ""
+        }
+      ]
+    },
+    "aboutRoyal": {
+      "heading": "قصة فخامة المخمل",
+      "body": "نقدم لكم تشكيلة حصرية تعكس الفخامة والرقي، حيث نعتني بأدق التفاصيل لنجعل من إطلالتك قصة تروى."
+    },
+    "trustStripRoyal": {
+      "items": [
+        {
+          "title": "جودة ملكية",
+          "text": "خامات ممتازة"
+        },
+        {
+          "title": "فخامة",
+          "text": "تفاصيل متقنة"
+        },
+        {
+          "title": "أمان",
+          "text": "تسوق بثقة"
+        },
+        {
+          "title": "حصري",
+          "text": "تصاميم فريدة"
+        }
+      ]
     }
   },
   "storeStoryGuide": {
