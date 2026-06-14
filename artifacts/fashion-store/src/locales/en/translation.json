@@ -2957,7 +2957,9 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingDarkGlamour": "Fierce Elegance",
+      "subheadingDarkGlamour": "Unveil the Night"
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3002,9 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "headingDarkGlamour": "The Dark Glamour Story",
+      "subheadingDarkGlamour": "Mystery meets luxury."
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,7 +3060,8 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
-      ]
+      ],
+      "headingDarkGlamour": "Midnight Collection"
     },
     "productCatalog": {
       "heading": "All Products",
@@ -3079,6 +3084,28 @@
         {
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
+        }
+      ],
+      "itemsDarkGlamour": [
+        {
+          "icon": "🖤",
+          "title": "Premium Quality",
+          "text": "Unmatched elegance"
+        },
+        {
+          "icon": "🔒",
+          "title": "Secure Payment",
+          "text": "Card or Cash"
+        },
+        {
+          "icon": "↩️",
+          "title": "Free Returns",
+          "text": "Within 14 days"
+        },
+        {
+          "icon": "🚚",
+          "title": "Fast Delivery",
+          "text": "2-5 days"
         }
       ]
     }
