@@ -3034,7 +3034,9 @@
       "headingCosmetics": "اكتشفي جمالكِ مع {{storeName}}",
       "subheading": "أزياء راقية بأسعار تناسبك",
       "subheadingCosmetics": "مستحضرات عناية وتجميل تبرز جمالك الطبيعي",
-      "ctaText": "تسوقي الآن"
+      "ctaText": "تسوقي الآن",
+      "headingOpulence": "إشراقة الذهب مع {{storeName}}",
+      "subheadingOpulence": "فخامة لا تضاهى تبرز تألقك"
     },
     "newArrivals": {
       "heading": "وصل حديثاً",
@@ -3077,7 +3079,9 @@
     "about": {
       "heading": "قصة {{storeName}}",
       "bodyCosmetics": "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ.",
-      "bodyFashion": "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."
+      "bodyFashion": "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.",
+      "headingOpulence": "أسطورة {{storeName}}",
+      "bodyOpulence": "نقدم لك تجربة فاخرة لا مثيل لها. منتجاتنا مصممة بعناية فائقة لتمنحك الأناقة والتميز الذي تستحقينه."
     },
     "instagram": {
       "heading": "تابعينا على إنستغرام"
@@ -3133,6 +3137,30 @@
           "desc": "منتجات عناية بجودة عالية",
           "categoryId": ""
         }
+      ],
+      "headingOpulence": "مجموعة الفخامة الاستثنائية",
+      "itemsOpulence": [
+        {
+          "imageUrl": "/hero-opulence-optimized.jpg",
+          "tag": "Luxury",
+          "title": "Golden\n Aura",
+          "desc": "An exclusive golden collection",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/hero-opulence-optimized.jpg",
+          "tag": "Opulence",
+          "title": "Pure\n Elegance",
+          "desc": "High-end luxury care",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/hero-opulence-optimized.jpg",
+          "tag": "Premium",
+          "title": "Royal\n Touch",
+          "desc": "The ultimate luxury experience",
+          "categoryId": ""
+        }
       ]
     },
     "productCatalog": {
@@ -3156,6 +3184,28 @@
         {
           "title": "جودة مضمونة",
           "text": "منتجات أصلية 100%"
+        }
+      ],
+      "itemsOpulence": [
+        {
+          "icon": "✨",
+          "title": "جودة ملكية",
+          "text": "أرقى الخامات المتاحة"
+        },
+        {
+          "icon": "💎",
+          "title": "تصميم حصري",
+          "text": "قطع فريدة لكِ وحدك"
+        },
+        {
+          "icon": "🔒",
+          "title": "خصوصية تامة",
+          "text": "تسوقي بأمان وسرية"
+        },
+        {
+          "icon": "🌟",
+          "title": "خدمة كبار الشخصيات",
+          "text": "فريق مخصص لخدمتك"
         }
       ]
     }

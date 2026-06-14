@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"
+  | "opulent";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "golden-opulence";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,7 +171,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, selectedStyle?: StyleType): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -180,7 +182,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, selectedStyle);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +202,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, selectedStyle), order: normalized.length });
     }
   });
 
@@ -217,9 +219,10 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, selectedStyle?: StyleType): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
+  const isGoldenOpulence = selectedStyle === "golden-opulence";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -232,8 +235,8 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
+        heading: tr(isGoldenOpulence ? "defaultSections.hero.headingOpulence" : (isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading"), isGoldenOpulence ? `إشراقة الذهب مع ${storeName}` : (isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`), { storeName }),
+        subheading: tr(isGoldenOpulence ? "defaultSections.hero.subheadingOpulence" : (isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading"), isGoldenOpulence ? "فخامة لا تضاهى تبرز تألقك" : (isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك")),
         ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
         ctaLink: "#products" 
       },
@@ -283,11 +286,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
-        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
-          ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
-          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: "/about-optimized.jpg"
+        heading: tr(isGoldenOpulence ? "defaultSections.about.headingOpulence" : "defaultSections.about.heading", isGoldenOpulence ? `أسطورة ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isGoldenOpulence ? "defaultSections.about.bodyOpulence" : (isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion"), isGoldenOpulence
+          ? "نقدم لك تجربة فاخرة لا مثيل لها. منتجاتنا مصممة بعناية فائقة لتمنحك الأناقة والتميز الذي تستحقينه."
+          : (isCosmetics ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار.")),
+        imageUrl: isGoldenOpulence ? "/hero-opulence-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -326,8 +329,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isGoldenOpulence ? "defaultSections.lookbook.headingOpulence" : "defaultSections.lookbook.heading", isGoldenOpulence ? "مجموعة الفخامة الاستثنائية" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isGoldenOpulence ? "defaultSections.lookbook.itemsOpulence" : "defaultSections.lookbook.items", isGoldenOpulence ? [
+          {
+            imageUrl: "/hero-opulence-optimized.jpg",
+            tag: "Luxury",
+            title: "Golden\n Aura",
+            desc: "An exclusive golden collection",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/hero-opulence-optimized.jpg",
+            tag: "Opulence",
+            title: "Pure\n Elegance",
+            desc: "High-end luxury care",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/hero-opulence-optimized.jpg",
+            tag: "Premium",
+            title: "Royal\n Touch",
+            desc: "The ultimate luxury experience",
+            categoryId: "",
+          }
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -362,7 +387,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: tr(isGoldenOpulence ? "defaultSections.trustStrip.itemsOpulence" : "defaultSections.trustStrip.items", isGoldenOpulence ? [
+          { icon: "✨", title: "جودة ملكية", text: "أرقى الخامات المتاحة" },
+          { icon: "💎", title: "تصميم حصري", text: "قطع فريدة لكِ وحدك" },
+          { icon: "🔒", title: "خصوصية تامة", text: "تسوقي بأمان وسرية" },
+          { icon: "🌟", title: "خدمة كبار الشخصيات", text: "فريق مخصص لخدمتك" },
+        ] : [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -427,6 +457,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"Style Your Life — كل يوم مختلف\"",
     theme: { primaryColor: "#7c4dff", secondaryColor: "#ff4081", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "lively", cardShadow: "strong" },
   },
+  opulent: {
+    label: "فخامة لا تضاهى", desc: "للعلامات التي تقدم أعلى مستويات الرفاهية", emoji: "✨",
+    colors: ["#000000", "#ffd700"], font: "Cormorant Garamond",
+    example: "\"إشراقة الذهب — أناقة حصرية\"",
+    theme: { primaryColor: "#000000", secondaryColor: "#ffd700", fontPairing: "serif-serif", buttonStyle: "square", cardShadow: "soft" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -459,6 +495,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
     label: "كتالوج فاخر", desc: "عرض احترافي يشبه المجلات العالمية", emoji: "🏅",
     sections: ["hero", "lookbook", "categories", "new-arrivals", "testimonials", "about", "newsletter"],
   },
+  "golden-opulence": {
+    label: "فخامة ذهبية", desc: "تصميم يعكس الرفاهية والجمال الخالص", emoji: "✨",
+    sections: ["hero", "trust-strip", "categories", "lookbook", "best-sellers", "about", "newsletter"],
+  },
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
@@ -469,7 +509,7 @@ export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunctio
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, undefined as unknown as StyleType),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };

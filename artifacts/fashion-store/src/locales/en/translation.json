@@ -2957,7 +2957,9 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingOpulence": "Pure Gold Glow with {{storeName}}",
+      "subheadingOpulence": "Unrivaled Luxury that highlights your radiance"
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3002,9 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "headingOpulence": "The Legend of {{storeName}}",
+      "bodyOpulence": "We offer an unparalleled luxury experience. Our products are meticulously designed to grant you the elegance and exclusivity you deserve."
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,6 +3060,30 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
+      ],
+      "headingOpulence": "The Exclusive Luxury Collection",
+      "itemsOpulence": [
+        {
+          "imageUrl": "/hero-opulence-optimized.jpg",
+          "tag": "Luxury",
+          "title": "Golden\n Aura",
+          "desc": "An exclusive golden collection",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/hero-opulence-optimized.jpg",
+          "tag": "Opulence",
+          "title": "Pure\n Elegance",
+          "desc": "High-end luxury care",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/hero-opulence-optimized.jpg",
+          "tag": "Premium",
+          "title": "Royal\n Touch",
+          "desc": "The ultimate luxury experience",
+          "categoryId": ""
+        }
       ]
     },
     "productCatalog": {
@@ -3079,6 +3107,28 @@
         {
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
+        }
+      ],
+      "itemsOpulence": [
+        {
+          "icon": "✨",
+          "title": "Royal Quality",
+          "text": "Finest materials available"
+        },
+        {
+          "icon": "💎",
+          "title": "Exclusive Design",
+          "text": "Unique pieces just for you"
+        },
+        {
+          "icon": "🔒",
+          "title": "Total Privacy",
+          "text": "Shop safely and securely"
+        },
+        {
+          "icon": "🌟",
+          "title": "VIP Service",
+          "text": "Dedicated team at your service"
         }
       ]
     }
