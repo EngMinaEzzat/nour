@@ -13,10 +13,10 @@ export function InstagramPreview({
     (_, i) => items[i] || {},
   );
   return wrap(
-    <div className="bg-white px-6 py-8">
+    <div className="px-6 py-8" style={{ background: "var(--bg-main, #faf7f4)" }}>
       <h3
-        className="text-center text-lg font-semibold text-stone-900 mb-6"
-        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+        className="text-center text-lg font-semibold mb-6"
+        style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)", color: "var(--text-heading, #1c1917)" }}
       >
         {section.content.heading as string}
       </h3>
@@ -26,12 +26,12 @@ export function InstagramPreview({
       >
         {displayItems.map((item, i) => {
           const bgStyle = !item.imageUrl
-            ? { background: `${i % 2 === 0 ? p : sec}${15 + i * 5}` }
-            : {};
+            ? { background: `${i % 2 === 0 ? p : sec}${15 + i * 5}`, borderRadius: "var(--card-radius, 8px)" }
+            : { borderRadius: "var(--card-radius, 8px)" };
           return (
             <div
               key={i}
-              className="aspect-square rounded-lg bg-stone-100 overflow-hidden relative"
+              className="aspect-square bg-stone-100 overflow-hidden relative"
               style={bgStyle}
             >
               {item.imageUrl && (
