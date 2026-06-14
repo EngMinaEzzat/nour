@@ -99,3 +99,7 @@
 ## 2026-06-08 - [Coverage for generated API Client React library errors]
 **Learning:** Found untrusted / untested code for ApiError within our `lib/api-client-react` generator output code. Writing comprehensive Vitest unit tests to cover constructors handles error extraction robustness (message parsing, title, detail fields edge cases, long string handling, trimming).
 **Action:** Always write deterministic fast unit-tests for generated API client configurations and error definitions, checking properties explicitly (status, data, statusText) and edge cases handling in the API response format logic to build confidence in the error handling boundary between client and backend.
+
+## 2024-06-12 - Parallelize array mapping inside transactions
+**Learning:** Checking out items or processing arrays of updates using `.map` with `Promise.all` inside nested promises can create N+1 bottlenecks.
+**Action:** Always prefer `items.flatMap` with a single top-level `Promise.all` when gathering updates to execute against the database inside Drizzle ORM transactions.
