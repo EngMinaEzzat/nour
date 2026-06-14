@@ -12,3 +12,6 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2024-08-01 - Avoid Casting Bugs for Fallback Overrides
+**Learning:** When trying to pass a related but distinct type (like `PersonalityType`) down the prop chain to satisfy an optional `StyleType` argument for generating localized fallbacks, simply casting (`as StyleType`) is dangerous and masks logic errors (e.g., `"y2k" === "y2k-nostalgia"` will fail silently).
+**Action:** Always modify the function signature to correctly accept the union of possible types (e.g., `StyleType | PersonalityType`) so that TypeScript can enforce correct property checks and the runtime logic can evaluate correctly.

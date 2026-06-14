@@ -2957,7 +2957,10 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingY2K": "Pop Your Style with {{storeName}}",
+      "subheadingY2K": "2000s Vibes — Fashion and makeup that reflects your energy",
+      "ctaTextY2K": "Shop Now ✨"
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3003,9 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "headingY2K": "The Story of {{storeName}} ✨",
+      "bodyY2K": "We are here to bring back the best memories of the 2000s with a modern, cheerful touch. Bold colors, positive energy, and an unforgettable style!"
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,7 +3061,8 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
-      ]
+      ],
+      "headingY2K": "Lookbook - Y2K Vibes 💖"
     },
     "productCatalog": {
       "heading": "All Products",
@@ -3079,6 +3085,24 @@
         {
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
+        }
+      ],
+      "itemsY2K": [
+        {
+          "title": "Fast Delivery 🚀",
+          "text": "Within 2-5 days"
+        },
+        {
+          "title": "Secure Payment 🔒",
+          "text": "Card or Cash"
+        },
+        {
+          "title": "Free Returns ↩️",
+          "text": "Within 14 days"
+        },
+        {
+          "title": "100% Authentic 💖",
+          "text": "Original Products"
         }
       ]
     }

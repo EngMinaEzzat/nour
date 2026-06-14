@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"
+  | "y2k";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "y2k-nostalgia";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,7 +171,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, styleType?: StyleType | PersonalityType): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -180,7 +182,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, styleType);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +202,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, styleType), order: normalized.length });
     }
   });
 
@@ -217,9 +219,10 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, styleType?: StyleType | PersonalityType): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
+  const isY2K = styleType === "y2k-nostalgia" || styleType === "y2k";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -232,10 +235,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
-        ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
-        ctaLink: "#products" 
+        heading: tr(isY2K ? "defaultSections.hero.headingY2K" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isY2K ? `Pop Your Style مع ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isY2K ? "defaultSections.hero.subheadingY2K" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isY2K ? "2000s Vibes — أزياء ومكياج يعكس طاقتك" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isY2K ? "defaultSections.hero.ctaTextY2K" : "defaultSections.hero.ctaText", isY2K ? "تسوقي الآن ✨" : "تسوقي الآن"),
+        ctaLink: "#products",
+        ...(isY2K ? { imageUrl: "/hero-y2k-optimized.jpg" } : {})
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -283,8 +287,8 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
-        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
+        heading: tr(isY2K ? "defaultSections.about.headingY2K" : "defaultSections.about.heading", isY2K ? `قصة ${storeName} ✨` : `قصة ${storeName}`, { storeName }),
+        body: tr(isY2K ? "defaultSections.about.bodyY2K" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isY2K ? "نحن هنا لنعيد لكِ أجمل ذكريات الألفينات بلمسة عصرية ومبهجة. ألوان جريئة، طاقة إيجابية، وستايل لا ينسى!" : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
         imageUrl: "/about-optimized.jpg"
@@ -326,7 +330,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
+        heading: tr(isY2K ? "defaultSections.lookbook.headingY2K" : "defaultSections.lookbook.heading", isY2K ? "لوك بوك - Y2K Vibes 💖" : "لوك بوك - إلهامي هذا الموسم"),
         items: tr("defaultSections.lookbook.items", [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
@@ -362,7 +366,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: tr(isY2K ? "defaultSections.trustStrip.itemsY2K" : "defaultSections.trustStrip.items", [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -391,6 +395,12 @@ export const DEFAULT_THEME: ThemeConfig = {
 
 // ─── Personality presets ──────────────────────────────────────────────────────
 export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
+  y2k: {
+    label: "Y2K Nostalgia", desc: "A bright, holographic, Gen-Z nostalgic aesthetic", emoji: "✨",
+    colors: ["#ff007f", "#aa00ff"], font: "Cairo",
+    example: "\"Pop Your Style — 2000s Vibes\"",
+    theme: { primaryColor: "#ff007f", secondaryColor: "#aa00ff", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "lively", cardShadow: "strong" },
+  },
   elegant: {
     label: "أنيقة وراقية", desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع", emoji: "💎",
     colors: ["#1a1614", "#c8963a"], font: "Cormorant Garamond",
@@ -431,6 +441,10 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
 export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
+  "y2k-nostalgia": {
+    label: "Y2K Nostalgia", desc: "Nostalgic 2000s vibes for fashion and cosmetics", emoji: "✨",
+    sections: ["hero", "categories", "new-arrivals", "lookbook", "trust-strip", "about", "newsletter"],
+  },
   "modern-boutique": {
     label: "بوتيك عصري", desc: "مثالي للأزياء والإكسسوارات الراقية", emoji: "👗",
     sections: ["hero", "trust-strip", "new-arrivals", "categories", "lookbook", "about", "newsletter"],
@@ -469,7 +483,7 @@ export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunctio
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, partial?.brand?.personality as StyleType),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };
