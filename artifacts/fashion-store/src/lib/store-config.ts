@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"
+  | "dewy";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "cloud-glow";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,7 +171,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, style?: string): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -180,7 +182,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, style);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +202,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, style), order: normalized.length });
     }
   });
 
@@ -217,9 +219,10 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, style?: string): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
+  const isCloudGlow = style === "cloud-glow";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -232,10 +235,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
-        ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
-        ctaLink: "#products" 
+        heading: tr(isCloudGlow ? "defaultSections.hero.headingCloudGlow" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCloudGlow ? `إشراقتك اليومية مع ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isCloudGlow ? "defaultSections.hero.subheadingCloudGlow" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCloudGlow ? "عناية ناعمة كالسحاب تبرز جمالك الطبيعي" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isCloudGlow ? "defaultSections.hero.ctaTextCloudGlow" : "defaultSections.hero.ctaText", isCloudGlow ? "تسوقي الإشراقة" : "تسوقي الآن"),
+        ctaLink: "#products",
+        ...(isCloudGlow ? { imageUrl: "/hero-cloud-optimized.jpg" } : {})
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -283,8 +287,8 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
-        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
+        heading: tr(isCloudGlow ? "defaultSections.about.headingCloudGlow" : "defaultSections.about.heading", isCloudGlow ? "قصة الإشراقة والجمال" : `قصة ${storeName}`, { storeName }),
+        body: tr(isCloudGlow ? "defaultSections.about.bodyCloudGlow" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCloudGlow ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل. مجموعتنا المختارة بعناية توفر لك عناية ناعمة كالسحاب وإشراقة طبيعية تدوم طوال اليوم." : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
         imageUrl: "/about-optimized.jpg"
@@ -326,8 +330,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isCloudGlow ? "defaultSections.lookbook.headingCloudGlow" : "defaultSections.lookbook.heading", isCloudGlow ? "إلهام ندي ومشرق" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isCloudGlow ? "defaultSections.lookbook.itemsCloudGlow" : "defaultSections.lookbook.items", isCloudGlow ? [
+          {
+            imageUrl: "/lookbook-1-optimized.jpg",
+            tag: "عناية يومية",
+            title: "إشراقة\\nالصباح",
+            desc: "ابدئي يومك بلمسة نضارة طبيعية",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-optimized.jpg",
+            tag: "جمال",
+            title: "نعومة\\nالسحاب",
+            desc: "ترطيب عميق لبشرة ناعمة",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-optimized.jpg",
+            tag: "روتين",
+            title: "سحر\\nالليل",
+            desc: "تجديد البشرة أثناء النوم",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -362,7 +388,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: tr(isCloudGlow ? "defaultSections.trustStrip.itemsCloudGlow" : "defaultSections.trustStrip.items", isCloudGlow ? [
+          { icon: "✨", title: "مكونات نقية", text: "آمنة لجميع أنواع البشرة" },
+          { icon: "💧", title: "ترطيب عميق", text: "إشراقة تدوم طويلاً" },
+          { icon: "🌿", title: "طبيعي 100%", text: "خالي من المواد الكيميائية الضارة" },
+          { icon: "⭐", title: "جودة مضمونة", text: "نتائج ملحوظة من أول استخدام" },
+        ] : [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -389,6 +420,7 @@ export const DEFAULT_THEME: ThemeConfig = {
   cardShadow: "soft",
 };
 
+// ─── Personality presets ──────────────────────────────────────────────────────
 // ─── Personality presets ──────────────────────────────────────────────────────
 export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
   elegant: {
@@ -427,8 +459,15 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"Style Your Life — كل يوم مختلف\"",
     theme: { primaryColor: "#7c4dff", secondaryColor: "#ff4081", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "lively", cardShadow: "strong" },
   },
+  dewy: {
+    label: "ندية ومشرقة", desc: "للعلامات التي تعكس النقاء والإشراقة الطبيعية", emoji: "✨",
+    colors: ["#f0f8ff", "#ffe5b4"], font: "Cairo",
+    example: '"إشراقتك اليومية — جمال طبيعي وعناية ناعمة"',
+    theme: { primaryColor: "#f0f8ff", secondaryColor: "#ffe5b4", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "subtle", cardShadow: "soft" },
+  },
 };
 
+// ─── Style / Template presets ─────────────────────────────────────────────────
 // ─── Style / Template presets ─────────────────────────────────────────────────
 export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
   "modern-boutique": {
@@ -459,17 +498,21 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
     label: "كتالوج فاخر", desc: "عرض احترافي يشبه المجلات العالمية", emoji: "🏅",
     sections: ["hero", "lookbook", "categories", "new-arrivals", "testimonials", "about", "newsletter"],
   },
+  "cloud-glow": {
+    label: "كلاود جلو", desc: "تصميم مشرق وندي يُبرز الجمال الطبيعي والعناية الخفيفة", emoji: "☁️",
+    sections: ["hero", "lookbook", "categories", "trust-strip", "about", "newsletter"],
+  },
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
-export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunction): StoreConfig {
+export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunction, style?: string): StoreConfig {
   const name = partial?.brand?.name ?? "متجري";
   const category = partial?.brand?.category ?? "fashion";
   return {
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, style),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };

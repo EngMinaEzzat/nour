@@ -2957,7 +2957,10 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingCloudGlow": "Your Daily Glow with {{storeName}}",
+      "subheadingCloudGlow": "Cloud-like Care that brings out your natural beauty",
+      "ctaTextCloudGlow": "Shop the Glow"
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3003,9 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "headingCloudGlow": "The Cloud Glow Story",
+      "bodyCloudGlow": "Experience skincare that feels as light as air. Our carefully curated cloud-glow collection ensures your daily routine is nothing short of magical, bringing out your natural dewy beauty."
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,6 +3061,30 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
+      ],
+      "headingCloudGlow": "Dewy Inspirations",
+      "itemsCloudGlow": [
+        {
+          "imageUrl": "/lookbook-1-optimized.jpg",
+          "tag": "Skincare",
+          "title": "Morning\\nGlow",
+          "desc": "Start your day with a dewy finish",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-2-optimized.jpg",
+          "tag": "Beauty",
+          "title": "Cloud\\nCare",
+          "desc": "Deep hydration for soft skin",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-3-optimized.jpg",
+          "tag": "Routine",
+          "title": "Night\\nMagic",
+          "desc": "Skin renewal while you sleep",
+          "categoryId": ""
+        }
       ]
     },
     "productCatalog": {
@@ -3079,6 +3108,28 @@
         {
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
+        }
+      ],
+      "itemsCloudGlow": [
+        {
+          "icon": "✨",
+          "title": "Premium Ingredients",
+          "text": "Safe for all skin types"
+        },
+        {
+          "icon": "💧",
+          "title": "Deep Hydration",
+          "text": "Long-lasting glow"
+        },
+        {
+          "icon": "🌿",
+          "title": "100% Natural",
+          "text": "Free of harsh chemicals"
+        },
+        {
+          "icon": "⭐",
+          "title": "Guaranteed Quality",
+          "text": "Visible results from first use"
         }
       ]
     }
