@@ -12,3 +12,6 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2025-02-12 - Adding entirely new aesthetic variants (Ethereal Minimal)
+**Learning:** When generating configuration presets that rely on complex conditional JSON generation and i18n, it is important to map localized copy to distinct keys and pass design system state (like selected style/category) carefully through the builder factory, keeping defaults cleanly separated.
+**Action:** Use optional configuration properties (`style?: StyleType`) to drive factory configurations and avoid mutating shared existing defaults when adding explicit variations. Ensure new i18n keys are uniquely namespaced instead of overwriting existing ones.

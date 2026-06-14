@@ -2957,7 +2957,9 @@
       "headingCosmetics": "Discover your beauty with {{storeName}}",
       "subheading": "Elegant fashion at affordable prices",
       "subheadingCosmetics": "Beauty and care products that highlight your natural beauty",
-      "ctaText": "Shop Now"
+      "ctaText": "Shop Now",
+      "headingEthereal": "Ethereal Beauty Whispers Elegance",
+      "subheadingEthereal": "Shine with unmatched softness"
     },
     "newArrivals": {
       "heading": "New Arrivals",
@@ -3000,7 +3002,8 @@
     "about": {
       "heading": "The story of {{storeName}}",
       "bodyCosmetics": "We believe that true beauty comes from within, and our mission is to provide the best care and beauty products to enhance your confidence. Every product is carefully selected to suit your needs.",
-      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices."
+      "bodyFashion": "We believe that every woman deserves to feel confident and elegant. We started our journey with a true passion for providing the most beautiful fashion at the best prices.",
+      "bodyEthereal": "We believe true beauty lies in simplicity and purity. This collection is designed to reflect the softness of your soul."
     },
     "instagram": {
       "heading": "Follow us on Instagram"
@@ -3056,6 +3059,30 @@
           "desc": "High quality care products",
           "categoryId": ""
         }
+      ],
+      "headingEthereal": "Whisper of Elegance",
+      "itemsEthereal": [
+        {
+          "imageUrl": "/lookbook-1-optimized.jpg",
+          "tag": "Ethereal",
+          "title": "Silken\\n Softness",
+          "desc": "A collection reflecting inner peace",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-2-optimized.jpg",
+          "tag": "Purity",
+          "title": "Gentle\\n Touch",
+          "desc": "Details whispering beauty",
+          "categoryId": ""
+        },
+        {
+          "imageUrl": "/lookbook-3-optimized.jpg",
+          "tag": "Minimal",
+          "title": "Quiet\\n Beauty",
+          "desc": "Natural effortless glow",
+          "categoryId": ""
+        }
       ]
     },
     "productCatalog": {
@@ -3079,6 +3106,24 @@
         {
           "title": "Guaranteed Quality",
           "text": "100% Original Products"
+        }
+      ],
+      "itemsEthereal": [
+        {
+          "title": "Secure Delivery",
+          "text": "With love & care"
+        },
+        {
+          "title": "Pure Beauty",
+          "text": "Carefully selected materials"
+        },
+        {
+          "title": "Easy Returns",
+          "text": "For your peace of mind"
+        },
+        {
+          "title": "Premium Service",
+          "text": "We are here for you"
         }
       ]
     }

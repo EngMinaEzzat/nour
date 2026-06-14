@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"
+  | "ethereal";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"
+  | "ethereal-minimal";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,7 +171,7 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, style?: StyleType): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
@@ -180,7 +182,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, style);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +202,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, style), order: normalized.length });
     }
   });
 
@@ -217,9 +219,13 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, style?: StyleType): SectionConfig {
   const id = `${type}-${Date.now()}`;
+
   const isCosmetics = category === "cosmetics";
+  const isBoth = category === "both";
+  const isEthereal = style === "ethereal-minimal" || isBoth;
+
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -232,10 +238,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
+        heading: tr(isEthereal ? "defaultSections.hero.headingEthereal" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isEthereal ? "جمال ملائكي يهمس بالأناقة" : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isEthereal ? "defaultSections.hero.subheadingEthereal" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isEthereal ? "تألقي بنعومة لا تضاهى" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
         ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
-        ctaLink: "#products" 
+        ctaLink: "#products",
+        ...(isEthereal ? { imageUrl: "/hero-ethereal-optimized.jpg" } : {})
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -287,7 +294,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
         body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: "/about-optimized.jpg"
+        imageUrl: isEthereal ? "/about-ethereal-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -326,8 +333,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isEthereal ? "defaultSections.lookbook.headingEthereal" : "defaultSections.lookbook.heading", isEthereal ? "همس الأناقة" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isEthereal ? "defaultSections.lookbook.itemsEthereal" : "defaultSections.lookbook.items", isEthereal ? [
+          { imageUrl: "/lookbook-ethereal-1-optimized.jpg", tag: "ملائكي", title: "نعومة\n الحرير", desc: "مجموعة تعكس الهدوء الداخلي", categoryId: "" },
+          { imageUrl: "/lookbook-ethereal-2-optimized.jpg", tag: "نقاء", title: "لمسة\n ناعمة", desc: "تفاصيل تهمس بالجمال", categoryId: "" },
+          { imageUrl: "/lookbook-ethereal-3-optimized.jpg", tag: "بساطة", title: "جمال\n هادئ", desc: "إشراقة طبيعية لا تتكلف", categoryId: "" }
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -362,7 +373,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: tr(isEthereal ? "defaultSections.trustStrip.itemsEthereal" : "defaultSections.trustStrip.items", isEthereal ? [
+          { icon: "🛡️", title: "توصيل آمن", text: "بكل حب وعناية" },
+          { icon: "✨", title: "جمال نقي", text: "مواد مختارة بعناية" },
+          { icon: "↩️", title: "إرجاع سهل", text: "لراحتك دائماً" },
+          { icon: "💎", title: "خدمة راقية", text: "نحن هنا من أجلك" },
+        ] : [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -391,6 +407,12 @@ export const DEFAULT_THEME: ThemeConfig = {
 
 // ─── Personality presets ──────────────────────────────────────────────────────
 export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
+  ethereal: {
+    label: "ملائكية وهادئة", desc: "للعلامات التي تعكس الجمال النقي والهدوء الفاخر", emoji: "🕊️",
+    colors: ["#f8f8ff", "#e6e6fa"], font: "Cormorant Garamond",
+    example: "\"جمال نقي — يهمس بالأناقة\"",
+    theme: { primaryColor: "#f8f8ff", secondaryColor: "#e6e6fa", fontPairing: "serif-sans", buttonStyle: "pill", cardShadow: "soft" },
+  },
   elegant: {
     label: "أنيقة وراقية", desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع", emoji: "💎",
     colors: ["#1a1614", "#c8963a"], font: "Cormorant Garamond",
@@ -431,6 +453,10 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
 export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
+  "ethereal-minimal": {
+    label: "مينيمال ملائكي", desc: "تصميم فائق النعومة يبرز الجمال بصمت", emoji: "✨",
+    sections: ["hero", "about", "lookbook", "trust-strip", "categories", "newsletter"],
+  },
   "modern-boutique": {
     label: "بوتيك عصري", desc: "مثالي للأزياء والإكسسوارات الراقية", emoji: "👗",
     sections: ["hero", "trust-strip", "new-arrivals", "categories", "lookbook", "about", "newsletter"],
@@ -462,14 +488,14 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
-export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunction): StoreConfig {
+export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunction, selectedStyle?: StyleType): StoreConfig {
   const name = partial?.brand?.name ?? "متجري";
   const category = partial?.brand?.category ?? "fashion";
   return {
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, selectedStyle),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };
