@@ -1,11 +1,25 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import rateLimit from "express-rate-limit";
-import { db, customersTable } from "@workspace/db";
+import { db, customersTable, customerPasskeysTable } from "@workspace/db";
 import { RegisterCustomerBody, LoginCustomerBody } from "@workspace/api-zod";
 import { eq } from "drizzle-orm";
-import { normaliseEgyptianPhone, PHONE_ERROR_AR } from "../lib/egypt";
+import { normaliseEgyptianPhone, PHONE_ERROR_AR } from "../lib/egypt.js";
 import { validatePasswordComplexity } from "../lib/password.js";
+
+// Passkey imports
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
+} from "@simplewebauthn/server";
+import crypto from "crypto";
+import type { AuthenticatorTransport } from "@simplewebauthn/server";
+
+const rpName = "Nour Storefront";
+const rpID = process.env.RP_ID || "localhost";
+const expectedOrigin = process.env.APP_BASE_URL || "http://localhost:5000";
 
 const router = Router();
 
@@ -21,11 +35,9 @@ const authLimiter = rateLimit({
 // ── Per-account login lockout (in-memory; resets on restart) ──
 const loginAttempts = new Map<string, { count: number; lockedUntil: number; firstFailedAt: number }>();
 
-// Cleanup old login attempts every 15 minutes to prevent memory leaks
 setInterval(() => {
   const now = Date.now();
   for (const [email, entry] of loginAttempts.entries()) {
-    // Delete entries that are older than 15 minutes or whose lockout has expired
     if ((entry.lockedUntil > 0 && entry.lockedUntil <= now) || (entry.lockedUntil === 0 && now - entry.firstFailedAt > 15 * 60 * 1000)) {
       loginAttempts.delete(email);
     }
@@ -45,7 +57,6 @@ function recordFailedLogin(email: string): void {
   const now = Date.now();
   const entry = loginAttempts.get(email) ?? { count: 0, lockedUntil: 0, firstFailedAt: now };
 
-  // Reset count if the first failure was more than 15 minutes ago
   if (now - entry.firstFailedAt > 15 * 60 * 1000) {
     entry.count = 0;
     entry.firstFailedAt = now;
@@ -53,7 +64,7 @@ function recordFailedLogin(email: string): void {
 
   entry.count++;
   if (entry.count >= 5) {
-    entry.lockedUntil = now + 30 * 60 * 1000; // 30 min lockout after 5 failures
+    entry.lockedUntil = now + 30 * 60 * 1000;
   }
   loginAttempts.set(email, entry);
 }
@@ -84,29 +95,18 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
     phone: "01012345678",
   });
   if (!parsed.success) {
-    req.log.error({ body: req.body, error: parsed.error.flatten() }, "Validation failed for customer registration");
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
   const { name, password } = parsed.data;
   const complexityError = validatePasswordComplexity(password);
   if (complexityError) {
-    return res.status(400).json({
-      error: {
-        fieldErrors: { password: [complexityError] },
-        formErrors: [],
-      },
-    });
+    return res.status(400).json({ error: { fieldErrors: { password: [complexityError] }, formErrors: [] } });
   }
   const email = parsed.data.email.toLowerCase();
   const normalisedPhone = normaliseEgyptianPhone(rawPhone);
   if (!normalisedPhone) {
-    return res.status(400).json({
-      error: {
-        formErrors: [],
-        fieldErrors: { phone: [PHONE_ERROR_AR] },
-      },
-    });
+    return res.status(400).json({ error: { formErrors: [], fieldErrors: { phone: [PHONE_ERROR_AR] } } });
   }
 
   try {
@@ -117,12 +117,7 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
 
     const [customer] = await db
       .insert(customersTable)
-      .values({
-        name,
-        email,
-        passwordHash,
-        phone: normalisedPhone,
-      })
+      .values({ name, email, passwordHash, phone: normalisedPhone })
       .returning();
 
     await new Promise<void>((resolve, reject) => {
@@ -133,8 +128,6 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
     });
 
     req.session.customerId = customer.id;
-    req.log.info({ customerId: customer.id }, "New customer registered");
-
     await new Promise<void>((resolve, reject) => {
       req.session.save((err) => {
         if (err) return reject(err);
@@ -159,10 +152,9 @@ router.post("/storefront-auth/login", authLimiter, async (req, res) => {
   const { email: rawEmail, password } = parsed.data;
   const email = rawEmail.toLowerCase().trim();
 
-  // Per-account lockout check
   const lockout = checkAccountLockout(email);
   if (lockout.locked) {
-    return res.status(429).json({ error: `تم قفل الحساب مؤقتاً — حاول بعد ${lockout.retryAfterSeconds} ثانية` });
+    return res.status(429).json({ error: `تم قفل الحساب مؤقتاً — حاول بعد \${lockout.retryAfterSeconds} ثانية` });
   }
 
   try {
@@ -216,6 +208,223 @@ router.get("/storefront-auth/me", async (req, res) => {
     if (!customer) return res.status(401).json({ error: "الجلسة غير صالحة" });
 
     return res.json(buildCustomerResponse(customer));
+  } catch (err) {
+    req.log.error(err);
+    return res.status(500).json({ error: "حدث خطأ" });
+  }
+});
+
+
+// ── PASSKEY ENDPOINTS ──
+
+router.get("/storefront-auth/passkey/register-options", async (req, res) => {
+  const customerId = req.session.customerId;
+  if (!customerId) return res.status(401).json({ error: "غير مسجل الدخول" });
+
+  try {
+    const [customer] = await db.select().from(customersTable).where(eq(customersTable.id, customerId));
+    if (!customer) return res.status(401).json({ error: "الجلسة غير صالحة" });
+
+    const userPasskeys = await db.select().from(customerPasskeysTable).where(eq(customerPasskeysTable.customerId, customerId));
+
+    const options = await generateRegistrationOptions({
+      rpName,
+      rpID,
+      userID: Uint8Array.from(Buffer.from(customer.id.toString())),
+      userName: customer.email,
+      attestationType: "none",
+      excludeCredentials: userPasskeys.map(passkey => ({
+        id: passkey.credentialId,
+        transports: passkey.transports ? passkey.transports.split(",") as AuthenticatorTransport[] : [],
+      })),
+      authenticatorSelection: {
+        residentKey: "preferred",
+        userVerification: "preferred",
+        authenticatorAttachment: "platform",
+      },
+    });
+
+    req.session.currentChallenge = options.challenge;
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    return res.json(options);
+  } catch (err) {
+    req.log.error(err);
+    return res.status(500).json({ error: "حدث خطأ في إنشاء إعدادات البصمة" });
+  }
+});
+
+router.post("/storefront-auth/passkey/register-verify", async (req, res) => {
+  const customerId = req.session.customerId;
+  if (!customerId) return res.status(401).json({ error: "غير مسجل الدخول" });
+
+  const expectedChallenge = req.session.currentChallenge;
+  if (!expectedChallenge) return res.status(400).json({ error: "لم يتم العثور على طلب تسجيل بصمة نشط" });
+
+  try {
+    let verification;
+    try {
+      verification = await verifyRegistrationResponse({
+        response: req.body,
+        expectedChallenge,
+        expectedOrigin,
+        expectedRPID: rpID,
+      });
+    } catch (error) {
+      req.log.error(error);
+      return res.status(400).json({ error: "تحقق فاشل" });
+    }
+
+    if (verification.verified && verification.registrationInfo) {
+      const { credential, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
+      const credentialID = credential.id;
+      const credentialPublicKey = credential.publicKey;
+      const counter = credential.counter;
+
+      await db.insert(customerPasskeysTable).values({
+        customerId,
+        credentialId: credentialID,
+        credentialPublicKey: Buffer.from(credentialPublicKey).toString('base64'),
+        counter,
+        credentialDeviceType,
+        credentialBackedUp,
+        transports: req.body.response.transports?.join(",") || null,
+      });
+
+      req.session.currentChallenge = undefined;
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+
+      return res.json({ ok: true });
+    } else {
+      return res.status(400).json({ error: "التحقق من البصمة غير صالح" });
+    }
+  } catch (err) {
+    req.log.error(err);
+    return res.status(500).json({ error: "حدث خطأ" });
+  }
+});
+
+router.post("/storefront-auth/passkey/login-options", authLimiter, async (req, res) => {
+  const email = req.body?.email?.toLowerCase()?.trim();
+  if (!email) return res.status(400).json({ error: "البريد الإلكتروني مطلوب" });
+
+  try {
+    const [customer] = await db.select().from(customersTable).where(eq(customersTable.email, email));
+    if (!customer) {
+      // Return dummy options to prevent enumeration
+      return res.status(401).json({ error: "غير موجود" });
+    }
+
+    const userPasskeys = await db.select().from(customerPasskeysTable).where(eq(customerPasskeysTable.customerId, customer.id));
+    if (userPasskeys.length === 0) {
+      return res.status(400).json({ error: "لا يوجد بصمة مسجلة لهذا الحساب" });
+    }
+
+    const options = await generateAuthenticationOptions({
+      rpID,
+      allowCredentials: userPasskeys.map(passkey => ({
+        id: passkey.credentialId,
+        transports: passkey.transports ? passkey.transports.split(",") as AuthenticatorTransport[] : [],
+      })),
+      userVerification: "preferred",
+    });
+
+    req.session.currentChallenge = options.challenge;
+    req.session.passkeyLoginEmail = email; // Save email to link challenge with user
+    await new Promise<void>((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    return res.json(options);
+  } catch (err) {
+    req.log.error(err);
+    return res.status(500).json({ error: "حدث خطأ" });
+  }
+});
+
+router.post("/storefront-auth/passkey/login-verify", authLimiter, async (req, res) => {
+  const expectedChallenge = req.session.currentChallenge;
+  const email = req.session.passkeyLoginEmail;
+
+  if (!expectedChallenge || !email) {
+    return res.status(400).json({ error: "طلب التحقق غير صالح أو منتهي الصلاحية" });
+  }
+
+  try {
+    const [customer] = await db.select().from(customersTable).where(eq(customersTable.email, email));
+    if (!customer) return res.status(401).json({ error: "العميل غير موجود" });
+
+    const userPasskeys = await db.select().from(customerPasskeysTable).where(eq(customerPasskeysTable.customerId, customer.id));
+
+    // Find matching passkey based on ID
+    const credentialId = req.body?.id;
+    const passkey = userPasskeys.find(p => p.credentialId === credentialId);
+
+    if (!passkey) {
+      return res.status(400).json({ error: "لم يتم العثور على البصمة" });
+    }
+
+    let verification;
+    try {
+      verification = await verifyAuthenticationResponse({
+        response: req.body,
+        expectedChallenge,
+        expectedOrigin,
+        expectedRPID: rpID,
+        credential: {
+          id: passkey.credentialId,
+          publicKey: new Uint8Array(Buffer.from(passkey.credentialPublicKey, 'base64')),
+          counter: Number(passkey.counter),
+          transports: passkey.transports ? passkey.transports.split(",") as AuthenticatorTransport[] : [],
+        },
+      });
+    } catch (error) {
+      req.log.error(error);
+      return res.status(400).json({ error: "تحقق فاشل" });
+    }
+
+    if (verification.verified && verification.authenticationInfo) {
+      const { newCounter } = verification.authenticationInfo;
+
+      await db.update(customerPasskeysTable)
+        .set({ counter: newCounter })
+        .where(eq(customerPasskeysTable.id, passkey.id));
+
+      req.session.currentChallenge = undefined;
+      req.session.passkeyLoginEmail = undefined;
+
+      await new Promise<void>((resolve, reject) => {
+        req.session.regenerate((err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+
+      req.session.customerId = customer.id;
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+
+      return res.json(buildCustomerResponse(customer));
+    } else {
+      return res.status(400).json({ error: "التحقق من البصمة غير صالح" });
+    }
   } catch (err) {
     req.log.error(err);
     return res.status(500).json({ error: "حدث خطأ" });

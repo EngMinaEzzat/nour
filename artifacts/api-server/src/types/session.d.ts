@@ -5,6 +5,8 @@ declare module "express-session" {
     merchantId?: number;
     customerId?: number;
     isPlatformAdmin?: boolean;
+    currentChallenge?: string;
+    passkeyLoginEmail?: string;
   }
 }
 

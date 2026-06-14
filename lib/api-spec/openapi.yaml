@@ -311,6 +311,80 @@ paths:
         "401":
           description: Not authenticated
 
+  /storefront-auth/passkey/register-options:
+    get:
+      operationId: generatePasskeyRegistrationOptions
+      tags: [customers]
+      summary: Generate passkey registration options
+      responses:
+        "200":
+          description: Registration options generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasskeyRegistrationOptionsResponse"
+  /storefront-auth/passkey/register-verify:
+    post:
+      operationId: verifyPasskeyRegistration
+      tags: [customers]
+      summary: Verify passkey registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasskeyRegistrationVerifyBody"
+      responses:
+        "200":
+          description: Passkey registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+  /storefront-auth/passkey/login-options:
+    post:
+      operationId: generatePasskeyAuthenticationOptions
+      tags: [customers]
+      summary: Generate passkey authentication options
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required: [email]
+      responses:
+        "200":
+          description: Authentication options generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasskeyAuthenticationOptionsResponse"
+  /storefront-auth/passkey/login-verify:
+    post:
+      operationId: verifyPasskeyAuthentication
+      tags: [customers]
+      summary: Verify passkey authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasskeyAuthenticationVerifyBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerAuthResponse"
   /storefront-auth/register:
     post:
       operationId: registerCustomer
@@ -1709,6 +1783,18 @@ components:
           pattern: '^(?:\+?20|0020)?\s*0?1[0125][0-9\s().-]{8,}$'
       required: [name, email, password, phone]
 
+    PasskeyRegistrationOptionsResponse:
+      type: object
+      additionalProperties: true
+    PasskeyRegistrationVerifyBody:
+      type: object
+      additionalProperties: true
+    PasskeyAuthenticationOptionsResponse:
+      type: object
+      additionalProperties: true
+    PasskeyAuthenticationVerifyBody:
+      type: object
+      additionalProperties: true
     LoginCustomerBody:
       type: object
       properties:

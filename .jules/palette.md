@@ -12,3 +12,6 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2024-11-20 - WebAuthn Biometric Login
+**Learning:** For biometric / passkey login flows (WebAuthn), the standard sequence involves two phases: fetching options from the server (with a `challenge`), and then passing the signed attestation/assertion response back to the server.
+**Action:** Always maintain the challenge context (e.g. session state) server-side between the `options` and `verify` endpoints, and ensure `getGeneratePasskey...OptionsQueryKey` is properly referenced if using Orval generated React Query hooks to manually manage refetching.
