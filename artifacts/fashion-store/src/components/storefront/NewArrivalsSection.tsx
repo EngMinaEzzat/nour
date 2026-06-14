@@ -46,7 +46,7 @@ export function NewArrivalsSection({
     <section
       id="new-arrivals"
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#faf7f4", direction: i18n.dir() }}
+      style={{ background: "var(--bg-main, #faf7f4)", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -59,8 +59,8 @@ export function NewArrivalsSection({
               {t("storefront.home.newArrivals.eyebrow")}
             </p>
             <h2
-              className="text-4xl md:text-5xl text-[hsl(340,20%,15%)]"
-              style={{ fontFamily: SERIF, fontWeight: 400 }}
+              className="text-4xl md:text-5xl"
+              style={{ fontFamily: "var(--font-heading)", fontWeight: 400, color: "var(--text-heading)" }}
             >
               {t("storefront.home.newArrivals.title")}
             </h2>
@@ -82,14 +82,16 @@ export function NewArrivalsSection({
               <button
                 key={String(tab.id)}
                 onClick={() => setSelectedCat(tab.id)}
-                className="shrink-0 px-5 py-2 rounded-full text-xs font-semibold transition-all"
+                className="shrink-0 px-5 py-2 text-xs font-semibold transition-all"
                 style={
                   selectedCat === tab.id
-                    ? { background: p, color: "#fff" }
+                    ? { background: p, color: "#fff", borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }
                     : {
-                        background: "#fff",
-                        color: "#7a6060",
-                        border: "1px solid rgba(122,96,96,0.2)",
+                        background: "var(--bg-card, #fff)",
+                        color: "var(--text-body, #7a6060)",
+                        border: "1px solid var(--border-color, rgba(122,96,96,0.2))",
+                        borderRadius: "var(--btn-radius, 9999px)",
+                        fontFamily: "var(--font-body)"
                       }
                 }
               >

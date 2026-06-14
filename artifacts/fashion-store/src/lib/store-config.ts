@@ -169,10 +169,12 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, selectedStyle?: StyleType): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, selectedStyle?: StyleType, partialTheme?: Partial<ThemeConfig>): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
+  const isCyberpunk = selectedStyle === "streetwear-cyberpunk" || partialTheme?.secondaryColor === "#111111" || partialTheme?.secondaryColor === "#0f0f0f";
+  const activeStyle = isCyberpunk ? "streetwear-cyberpunk" as StyleType : selectedStyle;
 
   existing.forEach((section, index) => {
     if (!AVAILABLE_SECTIONS.includes(section.type) || seen.has(section.type)) {
@@ -180,7 +182,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t, selectedStyle);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, activeStyle);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +202,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t, selectedStyle), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, activeStyle), order: normalized.length });
     }
   });
 
@@ -486,7 +488,7 @@ export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunctio
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, undefined, partial?.theme),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };
@@ -513,3 +515,18 @@ export const MOCK_AI_RESPONSES: Record<string, string> = {
   "تحقق من الجاهزية للنشر": `تقرير مراجعة القصة:\n\n✅ الواجهة تبدو رائعة\n✅ المنتجات واضحة\n⚠️ تأكدي من إضافة رقم الواتساب لسهولة التواصل\n❌ لم تضيفي معلومات التوصيل بعد\n\nقصتك شبه مكتملة! أضيفي المتبقي لنتمكن من النشر.`,
   "حسّن القسم المحدد": `تلميحات للقسم الحالي:\n\n• حافظي على النصوص قصيرة.\n• استخدمي أزرار دعوة للتصرف (CTA) واضحة مثل "تسوقي الآن".\n• تأكدي من توافق الصور مع هوية العلامة.`,
 };
+
+export function isColorDark(color: string): boolean {
+  if (!color) return false;
+  let hex = color.replace("#", "");
+  if (hex.length === 3) {
+    hex = hex.split("").map(c => c + c).join("");
+  }
+  if (hex.length !== 6) return false;
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  // YIQ brightness formula
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq < 128;
+}

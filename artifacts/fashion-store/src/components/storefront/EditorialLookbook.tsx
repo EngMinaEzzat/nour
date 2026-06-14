@@ -11,6 +11,7 @@ interface EditorialLookbookProps {
   onScrollToProducts: () => void;
   onCategorySelect?: (categoryId: number) => void;
   content?: any;
+  isCyberpunk?: boolean;
 }
 
 export function EditorialLookbook({
@@ -18,36 +19,34 @@ export function EditorialLookbook({
   onScrollToProducts,
   onCategorySelect,
   content,
+  isCyberpunk,
 }: EditorialLookbookProps) {
   const { t, i18n } = useTranslation();
 
   const defaultPanels = [
     {
-      image:
-        "/lookbook-1-optimized.jpg",
-      tag: t("storefront.home.lookbook.panel1.tag"),
-      headline: t("storefront.home.lookbook.panel1.title"),
-      sub: t("storefront.home.lookbook.panel1.desc"),
+      image: isCyberpunk ? "/hero-streetwear-optimized.jpg" : "/lookbook-1-optimized.jpg",
+      tag: isCyberpunk ? "Cyber" : t("storefront.home.lookbook.panel1.tag"),
+      headline: isCyberpunk ? "Neon\n Nights" : t("storefront.home.lookbook.panel1.title"),
+      sub: isCyberpunk ? "High visibility. Zero stealth." : t("storefront.home.lookbook.panel1.desc"),
       span: "col-span-2 md:col-span-1 row-span-2",
       textPos: i18n.dir() === "rtl" ? "bottom-8 start-6" : "bottom-8 left-6",
       imgClass: "object-center",
     },
     {
-      image:
-        "/lookbook-2-optimized.jpg",
-      tag: t("storefront.home.lookbook.panel2.tag"),
-      headline: t("storefront.home.lookbook.panel2.title"),
-      sub: t("storefront.home.lookbook.panel2.desc"),
+      image: isCyberpunk ? "/about-streetwear-optimized.jpg" : "/lookbook-2-optimized.jpg",
+      tag: isCyberpunk ? "Brutalist" : t("storefront.home.lookbook.panel2.tag"),
+      headline: isCyberpunk ? "Concrete\n Jungle" : t("storefront.home.lookbook.panel2.title"),
+      sub: isCyberpunk ? "Brutalist aesthetics for the modern rogue." : t("storefront.home.lookbook.panel2.desc"),
       span: "col-span-2 md:col-span-1",
       textPos: i18n.dir() === "rtl" ? "bottom-5 start-5" : "bottom-5 left-5",
       imgClass: "object-top",
     },
     {
-      image:
-        "/lookbook-3-optimized.jpg",
-      tag: t("storefront.home.lookbook.panel3.tag"),
-      headline: t("storefront.home.lookbook.panel3.title"),
-      sub: t("storefront.home.lookbook.panel3.desc"),
+      image: isCyberpunk ? "/hero-streetwear-optimized.jpg" : "/lookbook-3-optimized.jpg",
+      tag: isCyberpunk ? "Glitch" : t("storefront.home.lookbook.panel3.tag"),
+      headline: isCyberpunk ? "Glitch\n Reality" : t("storefront.home.lookbook.panel3.title"),
+      sub: isCyberpunk ? "Distorted reality, perfected." : t("storefront.home.lookbook.panel3.desc"),
       span: "col-span-2 md:col-span-1",
       textPos: i18n.dir() === "rtl" ? "bottom-5 start-5" : "bottom-5 left-5",
       imgClass: "object-top",
@@ -88,7 +87,7 @@ export function EditorialLookbook({
   return (
     <section
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#fff", direction: i18n.dir() }}
+      style={{ background: "var(--bg-section, #fff)", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -96,13 +95,13 @@ export function EditorialLookbook({
           <div>
             <p
               className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
-              style={{ color: p }}
+              style={{ color: p, fontFamily: "var(--font-body)" }}
             >
               {t("storefront.home.lookbook.eyebrow")}
             </p>
             <h2
-              className="text-4xl md:text-5xl text-stone-900"
-              style={{ fontFamily: SERIF, fontWeight: 400 }}
+              className="text-4xl md:text-5xl"
+              style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', Georgia, serif)", color: "var(--text-heading, #1c1917)", fontWeight: 400 }}
             >
               {t("storefront.home.lookbook.title1")}
               <br />
@@ -112,7 +111,7 @@ export function EditorialLookbook({
           <button
             onClick={onScrollToProducts}
             className="hidden md:flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
-            style={{ color: p }}
+            style={{ color: p, fontFamily: "var(--font-body)" }}
           >
             {t("storefront.home.lookbook.discover")}
             {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
@@ -124,7 +123,8 @@ export function EditorialLookbook({
           {PANELS.map((panel: any, i: number) => (
             <motion.div
               key={i}
-              className={`relative overflow-hidden rounded-3xl cursor-pointer group ${panel.span}`}
+              className={`relative overflow-hidden cursor-pointer group ${panel.span}`}
+              style={{ borderRadius: "var(--card-radius, 24px)" }}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.15 }}
@@ -158,21 +158,21 @@ export function EditorialLookbook({
 
               {/* Text */}
               <div className={`absolute ${panel.textPos} z-10`}>
-                <p className="text-[10px] tracking-widest uppercase text-white/60 mb-1 font-medium">
+                <p className="text-[10px] tracking-widest uppercase text-white/60 mb-1 font-medium" style={{ fontFamily: "var(--font-body)" }}>
                   {panel.tag}
                 </p>
                 <h3
                   className="text-white text-2xl md:text-3xl leading-tight mb-1 whitespace-pre-line"
-                  style={{ fontFamily: SERIF, fontWeight: 400 }}
+                  style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', Georgia, serif)", fontWeight: 400 }}
                 >
                   {panel.headline}
                 </h3>
-                <p className="text-white/70 text-[12px] font-medium">
+                <p className="text-white/70 text-[12px] font-medium" style={{ fontFamily: "var(--font-body)" }}>
                   {panel.sub}
                 </p>
                 <div
                   className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ color: "#f5d6a0" }}
+                  style={{ color: "#f5d6a0", fontFamily: "var(--font-body)" }}
                 >
                   {t("storefront.hero.shopNow")} {i18n.dir() === "rtl" ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
                 </div>

@@ -115,7 +115,7 @@ export function StorefrontProductCard({
 
 
   const imageContent = (
-    <div className={`relative ${aspectClass} overflow-hidden rounded-2xl bg-stone-100`}>
+    <div className={`relative ${aspectClass} overflow-hidden bg-stone-100`} style={{ borderRadius: "var(--card-radius, 16px)" }}>
           <img
             {...getResponsiveImageProps(product.imageUrl)}
             alt={product.name}
@@ -149,7 +149,7 @@ export function StorefrontProductCard({
             </div>
           )}
           {unavailable && (
-            <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px] flex items-center justify-center z-10 rounded-2xl">
+            <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-[2px] flex items-center justify-center z-10" style={{ borderRadius: "var(--card-radius, 16px)" }}>
               <span className="text-white text-xs font-bold px-4 py-2 bg-stone-900/80 rounded-full shadow-lg">
                 {t("storefront.products.outOfStock")}
               </span>
@@ -248,8 +248,8 @@ export function StorefrontProductCard({
         {storeSlug ? (
           <a href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
             <h3
-              className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
-              style={{ fontFamily: SERIF, fontWeight: 400 }}
+              className="text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
+              style={{ fontFamily: "var(--font-heading)", color: "var(--text-heading)", fontWeight: 400 }}
             >
               {product.name}
             </h3>
@@ -257,8 +257,8 @@ export function StorefrontProductCard({
         ) : (
           <Link href={productHref} onMouseEnter={prefetchProduct} onFocus={prefetchProduct}>
             <h3
-              className="text-stone-900 text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
-              style={{ fontFamily: SERIF, fontWeight: 400 }}
+              className="text-[15px] leading-snug line-clamp-1 hover:opacity-70 transition-opacity cursor-pointer"
+              style={{ fontFamily: "var(--font-heading)", color: "var(--text-heading)", fontWeight: 400 }}
             >
               {product.name}
             </h3>
@@ -318,7 +318,7 @@ export function StorefrontProductCard({
           type="button"
           onClick={handleAdd}
           disabled={unavailable}
-          className="sm:hidden mt-2.5 w-full min-h-11 rounded-xl px-4 py-2.5 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+          className="sm:hidden mt-2.5 w-full min-h-11 px-4 py-2.5 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
           aria-label={unavailable ? t("storefront.products.outOfStock") : product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
           style={{
             background: unavailable
@@ -328,6 +328,7 @@ export function StorefrontProductCard({
                 : p,
             color: unavailable ? "#7a6060" : inCart ? p : "#fff",
             border: inCart ? `1px solid ${p}40` : "1px solid transparent",
+            borderRadius: "var(--btn-radius, 12px)",
           }}
         >
           {unavailable ? (

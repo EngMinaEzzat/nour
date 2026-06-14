@@ -35,7 +35,7 @@ import { StorefrontProductCard } from "@/components/storefront/StorefrontProduct
 import type { ProductCardData } from "@/components/storefront/StorefrontProductCard";
 import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl } from "@/lib/image-url";
-import { createDefaultConfig, type SectionConfig, type StoreConfig } from "@/lib/store-config";
+import { createDefaultConfig, type SectionConfig, type StoreConfig, isColorDark } from "@/lib/store-config";
 import { GlowGridStorefront } from "@/components/themes/storefronts/GlowGridStorefront";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
@@ -594,6 +594,36 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const p = visualConfig.theme.primaryColor;
   const s = visualConfig.theme.secondaryColor;
 
+  const fontPairing = visualConfig.theme.fontPairing || "serif-sans";
+  const SANS = "Cairo, Tajawal, Inter, system-ui, -apple-system, sans-serif";
+  const headingFont = (fontPairing === "serif-sans" || fontPairing === "serif-serif") ? SERIF : SANS;
+  const bodyFont = (fontPairing === "serif-serif") ? SERIF : SANS;
+
+  const isDark = isColorDark(s);
+  const isCyberpunk = 
+    storeThemeId === "streetwear-cyberpunk" || 
+    (store as any).storeConfig?.theme?.personality === "cyberpunk" ||
+    s === "#111111" ||
+    s === "#0f0f0f";
+
+  const cssVars = {
+    "--primary-color": p,
+    "--secondary-color": s,
+    "--bg-main": isDark ? s : "#faf7f4",
+    "--bg-section": isDark ? s : "#ffffff",
+    "--bg-card": isDark ? "#1c1c1e" : "#ffffff",
+    "--border-color": isDark ? "#2c2c2e" : "hsl(340, 30%, 90%)",
+    "--text-heading": isDark ? "#ffffff" : "hsl(340, 20%, 15%)",
+    "--text-body": isDark ? "#a1a1aa" : "hsl(340, 15%, 45%)",
+    "--font-heading": headingFont,
+    "--font-body": bodyFont,
+    "--btn-radius": visualConfig.theme.buttonStyle === "square" ? "0px" : visualConfig.theme.buttonStyle === "pill" ? "9999px" : `${visualConfig.theme.radius ?? 8}px`,
+    "--card-radius": `${visualConfig.theme.radius ?? 16}px`,
+    "--bg-header-glass": isDark ? "rgba(15,15,15,0.72)" : "rgba(250,247,244,0.72)",
+    "--bg-header": isDark ? "rgba(15,15,15,0.98)" : "rgba(250,247,244,0.98)",
+    "--bg-drawer": isDark ? "#111111" : "#faf7f4",
+  } as React.CSSProperties;
+
   // ── Social links ──
   const sl = (() => {
     try { return (store as any).socialLinks ? JSON.parse((store as any).socialLinks) : {}; }
@@ -636,27 +666,89 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   function translateSectionContent(section: SectionConfig): SectionConfig {
     const s = { ...section, content: { ...section.content } };
     const sn = liveStore.name;
-    
+    const storeThemeId = ((liveStore as any).theme as string) || "classic";
+    const publishedConfig = ((liveStore as any).storeConfig ?? null) as PublishedStoreConfig;
+    const isCyberpunk = 
+      storeThemeId === "streetwear-cyberpunk" || 
+      publishedConfig?.brand?.personality === "cyberpunk" ||
+      visualConfig.theme.secondaryColor === "#111111" ||
+      visualConfig.theme.secondaryColor === "#0f0f0f";
+
     if (s.type === "hero") {
-      if (typeof s.content.heading === "string") {
-        if (s.content.heading.includes("اكتشفي جمالكِ مع")) s.content.heading = t("defaultSections.hero.headingCosmetics", { storeName: sn, defaultValue: s.content.heading });
-        else if (s.content.heading.includes("اكتشفي أحدث تشكيلة من")) s.content.heading = t("defaultSections.hero.heading", { storeName: sn, defaultValue: s.content.heading });
+      const h = s.content.heading;
+      const sh = s.content.subheading;
+      const cta = s.content.ctaText;
+      const img = s.content.imageUrl;
+
+      const isDefaultHeading = !h || 
+        h.includes("اكتشفي أحدث تشكيلة من") || 
+        h.includes("اكتشفي جمالكِ مع") || 
+        h.includes("Own the Streets with") ||
+        h.includes("اكسر القواعد مع");
+
+      const isDefaultSubheading = !sh || 
+        sh.includes("أزياء راقية بأسعار تناسبك") || 
+        sh.includes("مستحضرات عناية وتجميل تبرز جمالك الطبيعي") || 
+        sh.includes("Cyber Drip") ||
+        sh.includes("أحدث صيحات الستريت وير");
+
+      const isDefaultCta = !cta || 
+        cta === "تسوقي الآن" || 
+        cta === "Hack the System" ||
+        cta === "اكتشف الآن" ||
+        cta === "اكتشفي الآن" ||
+        cta === "اكتبي الآن";
+
+      const isDefaultImage = !img ||
+        img === "/hero-fashion-optimized.jpg" ||
+        img === "/hero-cosmetics-optimized.jpg" ||
+        img === "/hero-both-optimized.jpg" ||
+        img === "/hero-streetwear-optimized.jpg";
+
+      if (isCyberpunk) {
+        if (isDefaultHeading) s.content.heading = t("defaultSections.streetwearCyberpunk.hero.heading", { storeName: sn, defaultValue: `Own the Streets with ${sn}` });
+        if (isDefaultSubheading) s.content.subheading = t("defaultSections.streetwearCyberpunk.hero.subheading", { defaultValue: "Cyber Drip & High-Energy Aesthetics" });
+        if (isDefaultCta) s.content.ctaText = t("defaultSections.streetwearCyberpunk.hero.ctaText", { defaultValue: "Hack the System" });
+        if (isDefaultImage) s.content.imageUrl = "/hero-streetwear-optimized.jpg";
+      } else {
+        const isCosmetics = liveStore.category === "cosmetics";
+        if (isDefaultHeading) {
+          s.content.heading = isCosmetics
+            ? t("defaultSections.hero.headingCosmetics", { storeName: sn, defaultValue: `اكتشفي جمالكِ مع ${sn}` })
+            : t("defaultSections.hero.heading", { storeName: sn, defaultValue: `اكتشفي أحدث تشكيلة من ${sn}` });
+        }
+        if (isDefaultSubheading) {
+          s.content.subheading = isCosmetics
+            ? t("defaultSections.hero.subheadingCosmetics", { defaultValue: "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" })
+            : t("defaultSections.hero.subheading", { defaultValue: "أزياء راقية بأسعار تناسبك" });
+        }
+        if (isDefaultCta) s.content.ctaText = t("defaultSections.hero.ctaText", { defaultValue: "تسوقي الآن" });
+        if (isDefaultImage) {
+          s.content.imageUrl = isCosmetics 
+            ? "/hero-cosmetics-optimized.jpg" 
+            : liveStore.category === "both" 
+            ? "/hero-both-optimized.jpg" 
+            : "/hero-fashion-optimized.jpg";
+        }
       }
-      
-      if (typeof s.content.subheading === "string") {
-        if (s.content.subheading.includes("مستحضرات عناية وتجميل")) s.content.subheading = t("defaultSections.hero.subheadingCosmetics", { defaultValue: s.content.subheading });
-        else if (s.content.subheading.includes("أزياء راقية")) s.content.subheading = t("defaultSections.hero.subheading", { defaultValue: s.content.subheading });
-      }
-      
-      if (s.content.ctaText === "تسوقي الآن") s.content.ctaText = t("defaultSections.hero.ctaText", { defaultValue: s.content.ctaText });
     } else if (s.type === "new-arrivals") {
-      if (typeof s.content.heading === "string" && s.content.heading.includes("وصل حديثاً")) s.content.heading = t("defaultSections.newArrivals.heading", { defaultValue: s.content.heading });
-      if (typeof s.content.subheading === "string" && s.content.subheading.includes("أحدث المنتجات")) s.content.subheading = t("defaultSections.newArrivals.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.heading === "string" && (s.content.heading.includes("وصل حديثاً") || s.content.heading.includes("New Arrivals") || s.content.heading.includes("وصل حديثا"))) {
+        s.content.heading = t("defaultSections.newArrivals.heading", { defaultValue: "وصل حديثاً" });
+      }
+      if (typeof s.content.subheading === "string" && (s.content.subheading.includes("أحدث المنتجات") || s.content.subheading.includes("Our latest additions"))) {
+        s.content.subheading = t("defaultSections.newArrivals.subheading", { defaultValue: "أحدث المنتجات في مجموعتنا" });
+      }
     } else if (s.type === "best-sellers") {
-      if (typeof s.content.heading === "string" && s.content.heading.includes("الأكثر مبيعاً")) s.content.heading = t("defaultSections.bestSellers.heading", { defaultValue: s.content.heading });
-      if (typeof s.content.subheading === "string" && s.content.subheading.includes("المنتجات المفضلة")) s.content.subheading = t("defaultSections.bestSellers.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.heading === "string" && (s.content.heading.includes("الأكثر مبيعاً") || s.content.heading.includes("Best Sellers") || s.content.heading.includes("الاكثر مبيعا"))) {
+        s.content.heading = t("defaultSections.bestSellers.heading", { defaultValue: "الأكثر مبيعاً" });
+      }
+      if (typeof s.content.subheading === "string" && (s.content.subheading.includes("المنتجات المفضلة") || s.content.subheading.includes("Our customers' favorites"))) {
+        s.content.subheading = t("defaultSections.bestSellers.subheading", { defaultValue: "المنتجات المفضلة لعملائنا" });
+      }
     } else if (s.type === "categories") {
-      if (typeof s.content.heading === "string" && s.content.heading.includes("تسوقي حسب القسم")) s.content.heading = t("defaultSections.categories.heading", { defaultValue: s.content.heading });
+      if (typeof s.content.heading === "string" && (s.content.heading.includes("تسوقي حسب القسم") || s.content.heading.includes("Shop by Category") || s.content.heading.includes("تسوق حسب القسم"))) {
+        s.content.heading = t("defaultSections.categories.heading", { defaultValue: "تسوقي حسب القسم" });
+      }
     } else if (s.type === "offers") {
       if (s.content.promo1Label === "عروض حصرية") s.content.promo1Label = t("defaultSections.offers.promo1Label", { defaultValue: s.content.promo1Label });
       if (s.content.promo1Heading === "خصم يصل إلى") s.content.promo1Heading = t("defaultSections.offers.promo1Heading", { defaultValue: s.content.promo1Heading });
@@ -667,11 +759,38 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       if (s.content.promo2Subheading === "لكل طلب فوق") s.content.promo2Subheading = t("defaultSections.offers.promo2Subheading", { defaultValue: s.content.promo2Subheading });
       if (s.content.promo2Cta === "اطلبي الآن") s.content.promo2Cta = t("defaultSections.offers.promo2Cta", { defaultValue: s.content.promo2Cta });
     } else if (s.type === "about") {
-      if (typeof s.content.heading === "string" && s.content.heading.includes("قصة")) s.content.heading = t("defaultSections.about.heading", { storeName: sn, defaultValue: s.content.heading });
-      
-      if (typeof s.content.body === "string") {
-        if (s.content.body.includes("نؤمن بأن الجمال الحقيقي ينبع من الداخل")) s.content.body = t("defaultSections.about.bodyCosmetics", { defaultValue: s.content.body });
-        else if (s.content.body.includes("نؤمن بأن كل امرأة تستحق أن تشعر بالثقة")) s.content.body = t("defaultSections.about.bodyFashion", { defaultValue: s.content.body });
+      const h = s.content.heading;
+      const b = s.content.body;
+      const img = s.content.imageUrl;
+
+      const isDefaultHeading = !h ||
+        h.startsWith("قصة ") ||
+        h.includes("The Core of") ||
+        h.includes("عن ");
+
+      const isDefaultBody = !b ||
+        b.includes("نؤمن بأن كل امرأة تستحق") ||
+        b.includes("نؤمن بأن الجمال الحقيقي ينبع") ||
+        b.includes("Born in the neon glow") ||
+        b.includes("صُممت لتبرز في الزحام");
+
+      const isDefaultImage = !img ||
+        img === "/about-optimized.jpg" ||
+        img === "/about-streetwear-optimized.jpg";
+
+      if (isCyberpunk) {
+        if (isDefaultHeading) s.content.heading = t("defaultSections.streetwearCyberpunk.about.heading", { storeName: sn, defaultValue: `The Core of ${sn}` });
+        if (isDefaultBody) s.content.body = t("defaultSections.streetwearCyberpunk.about.body", { defaultValue: "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." });
+        if (isDefaultImage) s.content.imageUrl = "/about-streetwear-optimized.jpg";
+      } else {
+        const isCosmetics = liveStore.category === "cosmetics";
+        if (isDefaultHeading) s.content.heading = t("defaultSections.about.heading", { storeName: sn, defaultValue: `قصة ${sn}` });
+        if (isDefaultBody) {
+          s.content.body = isCosmetics
+            ? t("defaultSections.about.bodyCosmetics", { defaultValue: "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." })
+            : t("defaultSections.about.bodyFashion", { defaultValue: "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار." });
+        }
+        if (isDefaultImage) s.content.imageUrl = "/about-optimized.jpg";
       }
     } else if (s.type === "testimonials") {
       if (typeof s.content.heading === "string" && s.content.heading.includes("ماذا يقول عملاؤنا")) s.content.heading = t("defaultSections.testimonials.heading", { defaultValue: s.content.heading });
@@ -692,13 +811,106 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       if (typeof s.content.subheading === "string" && s.content.subheading.includes("كوني أول من تعرف")) s.content.subheading = t("defaultSections.newsletter.subheading", { defaultValue: s.content.subheading });
       if (typeof s.content.ctaText === "string" && s.content.ctaText.includes("اشتركي الآن")) s.content.ctaText = t("defaultSections.newsletter.ctaText", { defaultValue: s.content.ctaText });
     } else if (s.type === "lookbook") {
-      if (typeof s.content.heading === "string" && s.content.heading.includes("لوك بوك")) s.content.heading = t("defaultSections.lookbook.heading", { defaultValue: s.content.heading });
+      const h = s.content.heading;
+      const items = s.content.items;
+      const isDefaultHeading = !h || h.includes("لوك بوك");
+      const isDefaultItems = !items || (Array.isArray(items) && items.some(item => 
+        item.title?.includes("Egyptian") || 
+        item.title?.includes("Spring") || 
+        item.title?.includes("Beauty") ||
+        item.title?.includes("Neon") ||
+        item.title?.includes("Concrete") ||
+        item.title?.includes("Glitch") ||
+        item.title?.includes("ليالي") ||
+        item.title?.includes("روح") ||
+        item.title?.includes("واقع")
+      ));
+
+      if (isCyberpunk) {
+        if (isDefaultHeading) s.content.heading = t("defaultSections.streetwearCyberpunk.lookbook.heading", { defaultValue: "Cyber Drip - Neural Uplink" });
+        if (isDefaultItems && Array.isArray(items)) {
+          const cyberItems = t("defaultSections.streetwearCyberpunk.lookbook.items", { returnObjects: true, defaultValue: [] }) as any[];
+          if (cyberItems.length > 0) {
+            s.content.items = items.map((item, idx) => {
+              const cItem = cyberItems[idx % cyberItems.length];
+              const isItemDefault = !item.title || 
+                item.title.includes("Egyptian") || 
+                item.title.includes("Spring") || 
+                item.title.includes("Beauty") ||
+                item.title.includes("Neon") ||
+                item.title.includes("Concrete") ||
+                item.title.includes("Glitch") ||
+                item.title.includes("ليالي") ||
+                item.title.includes("روح") ||
+                item.title.includes("واقع");
+              return {
+                ...item,
+                title: isItemDefault ? cItem.title : item.title,
+                desc: isItemDefault ? cItem.desc : item.desc,
+              };
+            });
+          }
+        }
+      } else {
+        if (isDefaultHeading) s.content.heading = t("defaultSections.lookbook.heading", { defaultValue: "لوك بوك - إلهامي هذا الموسم" });
+        if (isDefaultItems && Array.isArray(items)) {
+          const fashionItems = t("defaultSections.lookbook.items", { returnObjects: true, defaultValue: [] }) as any[];
+          if (fashionItems.length > 0) {
+            s.content.items = items.map((item, idx) => {
+              const fItem = fashionItems[idx % fashionItems.length];
+              const isItemDefault = !item.title || 
+                item.title.includes("Egyptian") || 
+                item.title.includes("Spring") || 
+                item.title.includes("Beauty") ||
+                item.title.includes("Neon") ||
+                item.title.includes("Concrete") ||
+                item.title.includes("Glitch") ||
+                item.title.includes("ليالي") ||
+                item.title.includes("روح") ||
+                item.title.includes("واقع");
+              return {
+                ...item,
+                title: isItemDefault ? fItem.title : item.title,
+                desc: isItemDefault ? fItem.desc : item.desc,
+              };
+            });
+          }
+        }
+      }
     } else if (s.type === "product-catalog") {
-      if (typeof s.content.heading === "string" && s.content.heading.includes("جميع المنتجات")) s.content.heading = t("defaultSections.productCatalog.heading", { defaultValue: s.content.heading });
-      if (typeof s.content.subheading === "string" && s.content.subheading.includes("كتالوج كامل")) s.content.subheading = t("defaultSections.productCatalog.subheading", { defaultValue: s.content.subheading });
+      if (typeof s.content.heading === "string" && s.content.heading.includes("جميع المنتجات")) s.content.heading = t("defaultSections.productCatalog.heading", { defaultValue: "جميع المنتجات" });
+      if (typeof s.content.subheading === "string" && s.content.subheading.includes("كتالوج كامل")) s.content.subheading = t("defaultSections.productCatalog.subheading", { defaultValue: "كتالوج كامل" });
     } else if (s.type === "trust-strip") {
-      if (Array.isArray(s.content.items)) {
-        s.content.items = t("defaultSections.trustStrip.items", { returnObjects: true, defaultValue: s.content.items }) as any[];
+      const items = s.content.items;
+      const isDefaultItems = !items || (Array.isArray(items) && items.some(item => 
+        item.title?.includes("توصيل") || 
+        item.title?.includes("دفع") || 
+        item.title?.includes("إرجاع") || 
+        item.title?.includes("جودة") ||
+        item.title?.includes("Hyper") ||
+        item.title?.includes("Encrypted") ||
+        item.title?.includes("System") ||
+        item.title?.includes("Prime")
+      ));
+
+      if (isCyberpunk) {
+        if (isDefaultItems) {
+          s.content.items = t("defaultSections.streetwearCyberpunk.trustStrip.items", { returnObjects: true, defaultValue: [
+            { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
+            { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
+            { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
+            { icon: "🛡️", title: "Prime Quality", text: "Verified authentic gear" }
+          ] }) as any[];
+        }
+      } else {
+        if (isDefaultItems) {
+          s.content.items = t("defaultSections.trustStrip.items", { returnObjects: true, defaultValue: [
+            { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
+            { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
+            { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
+            { icon: "⭐", title: "جودة مضمونة", text: "منتجات أصلية 100%" }
+          ] }) as any[];
+        }
       }
     } else if (s.type === "instagram") {
       if (typeof s.content.heading === "string" && s.content.heading.includes("تابعينا")) s.content.heading = t("defaultSections.instagram.heading", { defaultValue: s.content.heading });
@@ -730,7 +942,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           />
         );
       case "trust-strip":
-        return <TrustStrip primaryColor={p} />;
+        return <TrustStrip primaryColor={p} content={section.content} />;
       case "categories":
         return (
           <CategoryGrid
@@ -764,7 +976,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       case "offers":
         return <PromoBanners primaryColor={p} onScrollToProducts={scrollToProducts} content={section.content} settings={section.settings} />;
       case "lookbook":
-        return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} onCategorySelect={handleCategorySelect} content={section.content} />;
+        return <EditorialLookbook primaryColor={p} onScrollToProducts={scrollToProducts} onCategorySelect={handleCategorySelect} content={section.content} isCyberpunk={isCyberpunk} />;
       case "instagram":
         return <UGCSection primaryColor={p} instagramUrl={sl.instagram ?? null} />;
       case "newsletter":
@@ -774,7 +986,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
           <section
             id="products-section"
             className="py-16 md:py-24 px-4 sm:px-6"
-            style={{ background: "hsl(0, 0%, 100%)" }}
+            style={{ background: "var(--bg-section, hsl(0, 0%, 100%))" }}
           >
             <div className="max-w-7xl mx-auto">
               <div className="flex items-center gap-4 mb-8" style={{ direction: i18n.dir() }}>
@@ -786,8 +998,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                     {typeof section.content.subheading === "string" ? section.content.subheading : t("storefront.categories.viewAll")}
                   </p>
                   <h2
-                    className="text-4xl text-[hsl(340,20%,15%)]"
-                    style={{ fontFamily: SERIF, fontWeight: 400 }}
+                    className="text-4xl"
+                    style={{ fontFamily: "var(--font-heading)", fontWeight: 400, color: "var(--text-heading)" }}
                   >
                     {typeof section.content.heading === "string" ? section.content.heading : t("storefront.products.viewAll")}
                   </h2>
@@ -904,7 +1116,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   };
 
   return (
-    <div style={{ background: "#faf7f4", minHeight: "100vh", direction: i18n.dir() }}>
+    <div style={{ ...cssVars, background: "var(--bg-main)", minHeight: "100vh", direction: i18n.dir() }}>
       <SEO
         title={title}
         description={description}
@@ -1016,7 +1228,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       <section
         id="products-section"
         className="py-16 md:py-24 px-4 sm:px-6"
-        style={{ background: "hsl(0, 0%, 100%)" }}
+        style={{ background: "var(--bg-section, hsl(0, 0%, 100%))" }}
       >
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -1029,8 +1241,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
                 {t("storefront.categories.viewAll")}
               </p>
               <h2
-                className="text-4xl text-[hsl(340,20%,15%)]"
-                style={{ fontFamily: SERIF, fontWeight: 400 }}
+                className="text-4xl"
+                style={{ fontFamily: "var(--font-heading)", fontWeight: 400, color: "var(--text-heading)" }}
               >
                 {t("storefront.products.viewAll")}
               </h2>
