@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "bohoChic": {
+      "hero": {
+        "heading": "Desert Dreams & Free Spirits at {{storeName}}",
+        "subheading": "Warm tones, relaxed fits, and natural glow",
+        "ctaText": "Discover Boho"
+      },
+      "about": {
+        "heading": "The Boho Soul",
+        "body": "Wanderlust woven into every piece. From flowing earthy fashion to natural glow cosmetics, we embrace the untamed aesthetic."
+      },
+      "lookbook": {
+        "heading": "Sun-Kissed Collection",
+        "items": [
+          {
+            "title": "Desert\\n Tones",
+            "desc": "Warm, baked earth hues."
+          },
+          {
+            "title": "Flowing\\n Silhouettes",
+            "desc": "Effortless and free."
+          },
+          {
+            "title": "Golden\\n Hour",
+            "desc": "That perfect natural glow."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "☀️",
+            "title": "Sun-Kissed",
+            "text": "Warm and authentic"
+          },
+          {
+            "icon": "🐪",
+            "title": "Nomad Shipping",
+            "text": "Delivered to your oasis"
+          },
+          {
+            "icon": "🧶",
+            "title": "Artisan Quality",
+            "text": "Crafted with love"
+          },
+          {
+            "icon": "🌸",
+            "title": "Free Returns",
+            "text": "Stress-free wandering"
+          }
+        ]
+      }
     }
   },
   "billing": {
