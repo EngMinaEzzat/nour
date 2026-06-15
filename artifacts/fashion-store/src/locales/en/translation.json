@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "imperialChic": {
+      "hero": {
+        "heading": "The Imperial Collection at {{storeName}}",
+        "subheading": "Classic majesty and palace-inspired elegance",
+        "ctaText": "View the Collection"
+      },
+      "about": {
+        "heading": "Timeless Splendor",
+        "body": "Inspired by antiquity and crafted for the modern era. We bring you deep wines, old golds, and a majestic aesthetic that stands the test of time."
+      },
+      "lookbook": {
+        "heading": "The Marble Hall",
+        "items": [
+          {
+            "title": "Deep\n Wine",
+            "desc": "Rich, intoxicating shades."
+          },
+          {
+            "title": "Old\n Gold",
+            "desc": "Antiqued metallic finishes."
+          },
+          {
+            "title": "Alabaster\n Skin",
+            "desc": "Flawless, statuesque beauty."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🏛️",
+            "title": "Classic Heritage",
+            "text": "Inspired by the greats"
+          },
+          {
+            "icon": "📜",
+            "title": "Historic Quality",
+            "text": "Made to be remembered"
+          },
+          {
+            "icon": "⚖️",
+            "title": "Fair Exchange",
+            "text": "A balanced return policy"
+          },
+          {
+            "icon": "🕊️",
+            "title": "Graceful Service",
+            "text": "At your command"
+          }
+        ]
+      }
     }
   },
   "billing": {

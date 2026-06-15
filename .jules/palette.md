@@ -15,3 +15,6 @@
 ## 2024-06-13 - Add Cyberpunk Theme
 **Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
 **Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+## 2026-06-15 - Imperial Chic Theme Implementation
+**Learning:** Adding a new custom design system with Stitch API from a JSON payload failed, but building a DESIGN.md and using \`create_design_system_from_design_md\` didn't work initially either due to invalid args on empty elements. Using manual typescript overrides to enforce local configurations alongside base styling correctly configures custom styles.
+**Action:** When asked to create visual themes, update local configuration maps (\`store-config.ts\`) and fallback translations thoroughly to implement new styling without requiring remote API design systems when they fail to provision.
