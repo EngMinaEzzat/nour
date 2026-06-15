@@ -145,3 +145,8 @@
 **Vulnerability:** React components were using `dangerouslySetInnerHTML` with template literals that incorporated unsanitized user input in style tags, allowing structural CSS injection and XSS.
 **Learning:** `dangerouslySetInnerHTML` is not automatically sanitized by React and can be exploited.
 **Prevention:** Avoid `dangerouslySetInnerHTML` whenever possible and instead use React's built-in `{}` interpolation which automatically escapes strings. When injecting colors, sanitize the string by removing structural CSS characters (`;`, `}`, `</style>`) to prevent injection.
+
+## 2024-06-25 - Fix Timing Attack in Webhook Secret Validation
+**Vulnerability:** A timing attack vulnerability was identified in `artifacts/api-server/src/services/WhatsappService.ts` where a sensitive webhook secret was being compared using a standard string inequality operator (`!==`).
+**Learning:** Standard string comparisons evaluate character by character and return as soon as a mismatch is found, allowing attackers to measure response times and progressively guess the secret.
+**Prevention:** Always convert sensitive strings to `Buffer`s and compare them using `crypto.timingSafeEqual`, ensuring you check that the buffer lengths match first to prevent runtime errors from `timingSafeEqual`.

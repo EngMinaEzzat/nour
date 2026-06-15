@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { db } from "@workspace/db";
 import {
   whatsappProvidersTable,
@@ -413,11 +414,15 @@ export class WhatsappService {
       throw new Error("WEBHOOK_NOT_CONFIGURED");
     }
 
-    if (
-      !authHeader ||
-      !authHeader.startsWith("Bearer ") ||
-      authHeader.split(" ")[1] !== provider.webhookSecret
-    ) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw new Error("UNAUTHORIZED");
+    }
+
+    const token = authHeader.split(" ")[1];
+    const providedBuf = Buffer.from(token || "", "utf8");
+    const secretBuf = Buffer.from(provider.webhookSecret, "utf8");
+
+    if (providedBuf.length !== secretBuf.length || !crypto.timingSafeEqual(providedBuf, secretBuf)) {
       throw new Error("UNAUTHORIZED");
     }
 
