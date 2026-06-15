@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful"  | "cyberpunk";
+  | "youthful"  | "cyberpunk"
+  | "boho";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-cyberpunk";
+  | "luxury-catalog"  | "streetwear-cyberpunk"
+  | "boho-chic";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -174,7 +176,8 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk" || partialTheme?.secondaryColor === "#111111" || partialTheme?.secondaryColor === "#0f0f0f";
-  const activeStyle = isCyberpunk ? "streetwear-cyberpunk" as StyleType : selectedStyle;
+  const isBoho = selectedStyle === "boho-chic" || undefined === "boho";
+  const activeStyle = isBoho ? "boho-chic" : (isCyberpunk ? "streetwear-cyberpunk" as StyleType : selectedStyle);
 
   existing.forEach((section, index) => {
     if (!AVAILABLE_SECTIONS.includes(section.type) || seen.has(section.type)) {
@@ -223,6 +226,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
+  const isBoho = selectedStyle === "boho-chic";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -235,11 +239,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
-        subheading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
-        ctaText: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        heading: tr(isBoho ? "defaultSections.bohoChic.hero.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isBoho ? `Desert Dreams & Free Spirits at ${storeName}` : isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isBoho ? "defaultSections.bohoChic.hero.subheading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isBoho ? "Warm tones, relaxed fits, and natural glow" : isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isBoho ? "defaultSections.bohoChic.hero.ctaText" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isBoho ? "Discover Boho" : isCyberpunk ? "Hack the System" : "تسوقي الآن"),
         ctaLink: "#products",
-        imageUrl: isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
+        imageUrl: isBoho ? "/hero-boho-optimized.jpg" : isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -287,11 +291,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
-        body: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
+        heading: tr(isBoho ? "defaultSections.bohoChic.about.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isBoho ? "The Boho Soul" : isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isBoho ? "defaultSections.bohoChic.about.body" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isBoho ? "Wanderlust woven into every piece. From flowing earthy fashion to natural glow cosmetics, we embrace the untamed aesthetic." : isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
+        imageUrl: isBoho ? "/about-boho-optimized.jpg" : isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -330,8 +334,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isBoho ? "defaultSections.bohoChic.lookbook.heading" : "defaultSections.lookbook.heading", isBoho ? "Sun-Kissed Collection" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isBoho ? "defaultSections.bohoChic.lookbook.items" : "defaultSections.lookbook.items", isBoho ? [
+          {
+            imageUrl: "/lookbook-1-boho-optimized.jpg",
+            tag: "Fashion",
+            title: "Desert\n Tones",
+            desc: "Warm, baked earth hues.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-boho-optimized.jpg",
+            tag: "Cosmetics",
+            title: "Flowing\n Silhouettes",
+            desc: "Effortless and free.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-boho-optimized.jpg",
+            tag: "Beauty",
+            title: "Golden\n Hour",
+            desc: "That perfect natural glow.",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -366,7 +392,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCyberpunk ? [
+        items: tr(isBoho ? "defaultSections.bohoChic.trustStrip.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isBoho ? [
+          { icon: "☀️", title: "Sun-Kissed", text: "Warm and authentic" },
+          { icon: "🐪", title: "Nomad Shipping", text: "Delivered to your oasis" },
+          { icon: "🧶", title: "Artisan Quality", text: "Crafted with love" },
+          { icon: "🌸", title: "Free Returns", text: "Stress-free wandering" }
+        ] : isCyberpunk ? [
           { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
           { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
           { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
@@ -442,6 +473,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"اكسر القواعد — كن أنت\"",
     theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
   },
+  boho: {
+    label: "بوهيمي وعضوي", desc: "لمنتجات ذات طابع طبيعي وألوان دافئة", emoji: "🌿",
+    colors: ["#e2725b", "#d4a373"], font: "Cormorant Garamond, serif",
+    example: '"جمال طبيعي، مستوحى من الأرض"',
+    theme: { primaryColor: "#e2725b", secondaryColor: "#d4a373", fontPairing: "serif-sans", buttonStyle: "rounded", cardShadow: "soft" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -477,6 +514,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "streetwear-cyberpunk": {
     label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
     sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+  },
+  "boho-chic": {
+    label: "بوهو شيك", desc: "أجواء دافئة وعضوية", emoji: "🌵",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
 };
 
