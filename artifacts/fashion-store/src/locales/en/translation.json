@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "y2kNostalgia": {
+      "hero": {
+        "heading": "Retro Glamour, Today's Vibe at {{storeName}}",
+        "subheading": "Step into the glitter fantasy and holographic aesthetics",
+        "ctaText": "Pop Your Style"
+      },
+      "about": {
+        "heading": "Our Y2K Fantasy",
+        "body": "We are bringing back the futuristic optimism of the late 90s and early 2000s. Shiny fabrics, bubblegum shades, and pixel perfection. Celebrate self-expression with us."
+      },
+      "lookbook": {
+        "heading": "Glitter Fantasy - Hologram Daze",
+        "items": [
+          {
+            "title": "Hologram\n Daze",
+            "desc": "Futuristic shimmer meets retro vibes."
+          },
+          {
+            "title": "Pixel\n Perfect",
+            "desc": "Bold prints and shiny metallic textures."
+          },
+          {
+            "title": "Glitter\n Fantasy",
+            "desc": "Pure bubblegum pink nostalgia."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "💖",
+            "title": "Cute Quality",
+            "text": "Handpicked candy-sweet items"
+          },
+          {
+            "icon": "✨",
+            "title": "Holo Shipping",
+            "text": "Sparkly packaging, lightning fast"
+          },
+          {
+            "icon": "🎀",
+            "title": "Sweet Returns",
+            "text": "Easy returns with zero drama"
+          },
+          {
+            "icon": "⭐",
+            "title": "Star Support",
+            "text": "Friendly support, 24/7 online"
+          }
+        ]
+      }
     }
   },
   "billing": {

@@ -15,3 +15,6 @@
 ## 2024-06-13 - Add Cyberpunk Theme
 **Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
 **Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+## 2024-06-14 - Add Y2K Nostalgia Theme
+**Learning:** Stitch MCP API requires specifying fonts through a `fontFamily` property with valid font face names correctly mapped when sending design system tokens. Stitch allows creating themes without binding to a `projectId` by using a global context (passing an empty string to `projectId`).
+**Action:** When creating global design systems with `stitch_create_design_system`, ensure `projectId: ""` is passed.
