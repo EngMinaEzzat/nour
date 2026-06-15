@@ -22,17 +22,9 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful"  | "cyberpunk"
-  | "boho"
-  | "active"
-  | "dark-glam"
-  | "avant-garde"
-  | "dreamy"
-  | "dewy"
-  | "ethereal"
-  | "royal"
-  | "opulent"
-  | "imperial";
+  | "youthful"
+  | "cyberpunk"
+  | "boho";
 
 export type StyleType =
   | "modern-boutique"
@@ -41,17 +33,9 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-cyberpunk"
+  | "streetwear-cyberpunk"
   | "boho-chic"
-  | "dynamic-active"
-  | "dark-glamour"
-  | "avant-garde-editorial"
-  | "dreamy-pastel"
-  | "cloud-glow"
-  | "ethereal-minimal"
-  | "royal-velvet"
-  | "golden-opulence"
-  | "imperial-chic";
+  | "luxury-catalog";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
