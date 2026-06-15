@@ -497,6 +497,61 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: '"جمال طبيعي، مستوحى من الأرض"',
     theme: { primaryColor: "#e2725b", secondaryColor: "#d4a373", fontPairing: "serif-sans", buttonStyle: "rounded", cardShadow: "soft" },
   },
+
+  "active": {
+    label: "نشيط وديناميكي", desc: "أزياء وملابس رياضية", emoji: "🏃",
+    colors: ["#ff5722","#212121"], font: "Cairo",
+    example: '"انطلق بقوة"',
+    theme: {"primaryColor":"#ff5722","secondaryColor":"#212121","fontPairing":"sans-sans","buttonStyle":"rounded","animationLevel":"lively"},
+  },
+  "dark-glam": {
+    label: "سحر غامض", desc: "أزياء سوداء وجريئة", emoji: "🖤",
+    colors: ["#121212","#b71c1c"], font: "Cairo",
+    example: '"أناقة الليل"',
+    theme: {"primaryColor":"#121212","secondaryColor":"#b71c1c","fontPairing":"sans-sans","buttonStyle":"square","cardShadow":"strong"},
+  },
+  "avant-garde": {
+    label: "طليعي ومبتكر", desc: "تصاميم فنية غريبة", emoji: "🎭",
+    colors: ["#000000","#ffffff"], font: "Cairo",
+    example: '"فن الارتداء"',
+    theme: {"primaryColor":"#000000","secondaryColor":"#ffffff","fontPairing":"serif-sans","buttonStyle":"pill","cardShadow":"none"},
+  },
+  "dreamy": {
+    label: "حالم ورقيق", desc: "ألوان باستيل ناعمة", emoji: "☁️",
+    colors: ["#fce4ec","#ce93d8"], font: "Cairo",
+    example: '"كأنك في حلم"',
+    theme: {"primaryColor":"#fce4ec","secondaryColor":"#ce93d8","fontPairing":"sans-sans","buttonStyle":"rounded","cardShadow":"soft"},
+  },
+  "dewy": {
+    label: "ندي ومنعش", desc: "مستحضرات تجميل طبيعية", emoji: "💧",
+    colors: ["#e0f7fa","#80deea"], font: "Cairo",
+    example: '"تألقي بنضارة"',
+    theme: {"primaryColor":"#e0f7fa","secondaryColor":"#80deea","fontPairing":"sans-sans","buttonStyle":"rounded","cardShadow":"soft"},
+  },
+  "ethereal": {
+    label: "أثيري وروحاني", desc: "أقمشة خفيفة وشفافة", emoji: "✨",
+    colors: ["#f3e5f5","#ba68c8"], font: "Cairo",
+    example: '"خفة الهواء"',
+    theme: {"primaryColor":"#f3e5f5","secondaryColor":"#ba68c8","fontPairing":"sans-sans","buttonStyle":"rounded","cardShadow":"none"},
+  },
+  "royal": {
+    label: "ملكي وفخم", desc: "تصاميم ملكية راقية", emoji: "👑",
+    colors: ["#283593","#ffb300"], font: "Cormorant Garamond",
+    example: '"أناقة الملوك"',
+    theme: {"primaryColor":"#283593","secondaryColor":"#ffb300","fontPairing":"serif-serif","buttonStyle":"square","cardShadow":"strong"},
+  },
+  "opulent": {
+    label: "غني ومترف", desc: "إكسسوارات ذهبية ومجوهرات", emoji: "💎",
+    colors: ["#3e2723","#ffea00"], font: "Cormorant Garamond",
+    example: '"بريق الفخامة"',
+    theme: {"primaryColor":"#3e2723","secondaryColor":"#ffea00","fontPairing":"serif-serif","buttonStyle":"square","cardShadow":"strong"},
+  },
+  "imperial": {
+    label: "إمبراطوري", desc: "عطور فخمة وأصيلة", emoji: "🏺",
+    colors: ["#1b5e20","#ffd54f"], font: "Cormorant Garamond",
+    example: '"رائحة التاريخ"',
+    theme: {"primaryColor":"#1b5e20","secondaryColor":"#ffd54f","fontPairing":"serif-serif","buttonStyle":"square","cardShadow":"strong"},
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -536,6 +591,43 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "boho-chic": {
     label: "بوهو شيك", desc: "أجواء دافئة وعضوية", emoji: "🌵",
     sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+
+  "dynamic-active": {
+    label: "ديناميكي", desc: "للملابس الرياضية", emoji: "🏃",
+    sections: ["hero","categories","new-arrivals","best-sellers","newsletter"],
+  },
+  "dark-glamour": {
+    label: "سحر غامض", desc: "للأزياء الفاخرة الداكنة", emoji: "🖤",
+    sections: ["hero","lookbook","new-arrivals","about","newsletter"],
+  },
+  "avant-garde-editorial": {
+    label: "طليعي", desc: "لمسات فنية غير تقليدية", emoji: "🎭",
+    sections: ["hero","lookbook","trust-strip","categories","newsletter"],
+  },
+  "dreamy-pastel": {
+    label: "حالم باستيل", desc: "ألوان ناعمة للملابس اللطيفة", emoji: "☁️",
+    sections: ["hero","categories","new-arrivals","instagram","newsletter"],
+  },
+  "cloud-glow": {
+    label: "إشراقة السحاب", desc: "للمكياج والعناية بالبشرة", emoji: "💧",
+    sections: ["hero","best-sellers","about","testimonials","newsletter"],
+  },
+  "ethereal-minimal": {
+    label: "أثيري وبسيط", desc: "للتصاميم النظيفة", emoji: "✨",
+    sections: ["hero","categories","new-arrivals","about"],
+  },
+  "royal-velvet": {
+    label: "مخمل ملكي", desc: "للأزياء الراقية والفساتين", emoji: "👑",
+    sections: ["hero","lookbook","new-arrivals","trust-strip","newsletter"],
+  },
+  "golden-opulence": {
+    label: "بريق الذهب", desc: "للمجوهرات والإكسسوارات الفاخرة", emoji: "💎",
+    sections: ["hero","categories","best-sellers","trust-strip","about","newsletter"],
+  },
+  "imperial-chic": {
+    label: "شيك إمبراطوري", desc: "للعطور الفاخرة", emoji: "🏺",
+    sections: ["hero","best-sellers","trust-strip","about","newsletter"],
   },
 };
 
