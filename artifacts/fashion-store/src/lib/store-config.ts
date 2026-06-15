@@ -448,7 +448,7 @@ export const DEFAULT_THEME: ThemeConfig = {
 };
 
 // ─── Personality presets ──────────────────────────────────────────────────────
-export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
+export const PERSONALITY_PRESETS: Partial<Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }>> = {
   elegant: {
     label: "أنيقة وراقية", desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع", emoji: "💎",
     colors: ["#1a1614", "#c8963a"], font: "Cormorant Garamond",
@@ -500,7 +500,7 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
-export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
+export const STYLE_PRESETS: Partial<Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }>> = {
   "modern-boutique": {
     label: "بوتيك عصري", desc: "مثالي للأزياء والإكسسوارات الراقية", emoji: "👗",
     sections: ["hero", "trust-strip", "new-arrivals", "categories", "lookbook", "about", "newsletter"],
