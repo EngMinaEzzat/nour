@@ -99,7 +99,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     <div className="flex items-center gap-2 mt-2">
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
-                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-all cursor-pointer"
+                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label={t("cart.actions.decrease", { defaultValue: i18n.language === "ar" ? "تقليل الكمية" : "Decrease quantity" })}
                       >
                         <Minus className="w-3 h-3" />
@@ -107,14 +107,14 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                       <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
-                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-all cursor-pointer"
+                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label={t("cart.actions.increase", { defaultValue: i18n.language === "ar" ? "زيادة الكمية" : "Increase quantity" })}
                       >
                         <Plus className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => removeItem(item.productId, item.variantId)}
-                        className="ms-auto h-11 w-11 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex items-center justify-center cursor-pointer"
+                        className="ms-auto h-11 w-11 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label={t("cart.actions.remove", { defaultValue: i18n.language === "ar" ? "حذف المنتج" : "Remove item" })}
                       >
                         <Trash2 className="w-4 h-4" />

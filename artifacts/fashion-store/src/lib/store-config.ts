@@ -22,7 +22,17 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful";
+  | "youthful"  | "cyberpunk"
+  | "boho"
+  | "active"
+  | "dark-glam"
+  | "avant-garde"
+  | "dreamy"
+  | "dewy"
+  | "ethereal"
+  | "royal"
+  | "opulent"
+  | "imperial";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +41,17 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog";
+  | "luxury-catalog"  | "streetwear-cyberpunk"
+  | "boho-chic"
+  | "dynamic-active"
+  | "dark-glamour"
+  | "avant-garde-editorial"
+  | "dreamy-pastel"
+  | "cloud-glow"
+  | "ethereal-minimal"
+  | "royal-velvet"
+  | "golden-opulence"
+  | "imperial-chic";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -169,10 +189,13 @@ export const AVAILABLE_SECTIONS: SectionType[] = [
   "testimonials", "instagram", "newsletter", "faq", "whatsapp", "product-catalog",
 ];
 
-export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig[] {
+export function normalizeHomepageSections(sections: SectionConfig[] | undefined, storeName: string, category: string = "fashion", t?: TFunction, selectedStyle?: StyleType, partialTheme?: Partial<ThemeConfig>): SectionConfig[] {
   const existing = Array.isArray(sections) ? sections : [];
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
+  const isCyberpunk = selectedStyle === "streetwear-cyberpunk" || partialTheme?.secondaryColor === "#111111" || partialTheme?.secondaryColor === "#0f0f0f";
+  const isBoho = selectedStyle === "boho-chic" || undefined === "boho";
+  const activeStyle = isBoho ? "boho-chic" : (isCyberpunk ? "streetwear-cyberpunk" as StyleType : selectedStyle);
 
   existing.forEach((section, index) => {
     if (!AVAILABLE_SECTIONS.includes(section.type) || seen.has(section.type)) {
@@ -180,7 +203,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
     }
 
     seen.add(section.type);
-    const defaultSection = createDefaultSection(section.type, storeName, category, t);
+    const defaultSection = createDefaultSection(section.type, storeName, category, t, activeStyle);
     const content = section.content ?? {};
     const shouldBackfillLookbookItems =
       section.type === "lookbook" && !Object.prototype.hasOwnProperty.call(content, "items");
@@ -200,7 +223,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 
   AVAILABLE_SECTIONS.forEach((type) => {
     if (!seen.has(type)) {
-      normalized.push({ ...createDefaultSection(type, storeName, category, t), order: normalized.length });
+      normalized.push({ ...createDefaultSection(type, storeName, category, t, activeStyle), order: normalized.length });
     }
   });
 
@@ -217,9 +240,11 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
 }
 
 // ─── Default section content factory ─────────────────────────────────────────
-export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction): SectionConfig {
+export function createDefaultSection(type: SectionType, storeName: string, category: string = "fashion", t?: TFunction, selectedStyle?: StyleType): SectionConfig {
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
+  const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
+  const isBoho = selectedStyle === "boho-chic";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -232,10 +257,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }), 
-        subheading: tr(isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"), 
-        ctaText: tr("defaultSections.hero.ctaText", "تسوقي الآن"), 
-        ctaLink: "#products" 
+        heading: tr(isBoho ? "defaultSections.bohoChic.hero.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isBoho ? `Desert Dreams & Free Spirits at ${storeName}` : isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isBoho ? "defaultSections.bohoChic.hero.subheading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isBoho ? "Warm tones, relaxed fits, and natural glow" : isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isBoho ? "defaultSections.bohoChic.hero.ctaText" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isBoho ? "Discover Boho" : isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        ctaLink: "#products",
+        imageUrl: isBoho ? "/hero-boho-optimized.jpg" : isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -283,11 +309,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr("defaultSections.about.heading", `قصة ${storeName}`, { storeName }), 
-        body: tr(isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCosmetics 
+        heading: tr(isBoho ? "defaultSections.bohoChic.about.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isBoho ? "The Boho Soul" : isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isBoho ? "defaultSections.bohoChic.about.body" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isBoho ? "Wanderlust woven into every piece. From flowing earthy fashion to natural glow cosmetics, we embrace the untamed aesthetic." : isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: "/about-optimized.jpg"
+        imageUrl: isBoho ? "/about-boho-optimized.jpg" : isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -326,8 +352,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isBoho ? "defaultSections.bohoChic.lookbook.heading" : "defaultSections.lookbook.heading", isBoho ? "Sun-Kissed Collection" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isBoho ? "defaultSections.bohoChic.lookbook.items" : "defaultSections.lookbook.items", isBoho ? [
+          {
+            imageUrl: "/lookbook-1-boho-optimized.jpg",
+            tag: "Fashion",
+            title: "Desert\n Tones",
+            desc: "Warm, baked earth hues.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-boho-optimized.jpg",
+            tag: "Cosmetics",
+            title: "Flowing\n Silhouettes",
+            desc: "Effortless and free.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-boho-optimized.jpg",
+            tag: "Beauty",
+            title: "Golden\n Hour",
+            desc: "That perfect natural glow.",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -362,7 +410,17 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr("defaultSections.trustStrip.items", [
+        items: tr(isBoho ? "defaultSections.bohoChic.trustStrip.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isBoho ? [
+          { icon: "☀️", title: "Sun-Kissed", text: "Warm and authentic" },
+          { icon: "🐪", title: "Nomad Shipping", text: "Delivered to your oasis" },
+          { icon: "🧶", title: "Artisan Quality", text: "Crafted with love" },
+          { icon: "🌸", title: "Free Returns", text: "Stress-free wandering" }
+        ] : isCyberpunk ? [
+          { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
+          { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
+          { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
+          { icon: "🛡️", title: "Prime Quality", text: "Verified authentic gear" }
+        ] : [
           { icon: "🚚", title: "توصيل سريع", text: "خلال 2-5 أيام" },
           { icon: "🔒", title: "دفع آمن", text: "بطاقة أو كاش" },
           { icon: "↩️", title: "إرجاع مجاني", text: "خلال 14 يوم" },
@@ -427,6 +485,72 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"Style Your Life — كل يوم مختلف\"",
     theme: { primaryColor: "#7c4dff", secondaryColor: "#ff4081", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "lively", cardShadow: "strong" },
   },
+  cyberpunk: {
+    label: "سايبربانك", desc: "تصميم جريء ومظلم مع لمسات نيون قوية", emoji: "⚡",
+    colors: ["#0f0f0f", "#39ff14"], font: "Cairo",
+    example: "\"اكسر القواعد — كن أنت\"",
+    theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
+  },
+  boho: {
+    label: "بوهيمي وعضوي", desc: "لمنتجات ذات طابع طبيعي وألوان دافئة", emoji: "🌿",
+    colors: ["#e2725b", "#d4a373"], font: "Cormorant Garamond, serif",
+    example: '"جمال طبيعي، مستوحى من الأرض"',
+    theme: { primaryColor: "#e2725b", secondaryColor: "#d4a373", fontPairing: "serif-sans", buttonStyle: "rounded", cardShadow: "soft" },
+  },
+  active: {
+    label: "طاقة وحركة", desc: "للأزياء الرياضية والأداء العالي", emoji: "🔥",
+    colors: ["#ff4500", "#2b2b2b"], font: "Impact",
+    example: '"تجاوزي حدودك"',
+    theme: { primaryColor: "#ff4500", secondaryColor: "#2b2b2b", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "none" }
+  },
+  "dark-glam": {
+    label: "فخامة داكنة", desc: "ألوان غامضة ولمسات ذهبية", emoji: "🖤",
+    colors: ["#1a0000", "#d4af37"], font: "Playfair Display",
+    example: '"جاذبية غامضة"',
+    theme: { primaryColor: "#d4af37", secondaryColor: "#1a0000", fontPairing: "serif-sans", buttonStyle: "square", animationLevel: "subtle", cardShadow: "strong" }
+  },
+  "avant-garde": {
+    label: "أفانت جارد", desc: "جرأة وتفرد في التصميم بألوان متباينة", emoji: "⬛",
+    colors: ["#000000", "#0014ff"], font: "Helvetica Neue",
+    example: '"نتمرد على المألوف"',
+    theme: { primaryColor: "#000000", secondaryColor: "#0014ff", fontPairing: "sans-sans", buttonStyle: "square", cardShadow: "none" }
+  },
+  dreamy: {
+    label: "حالم وناعم", desc: "ألوان الباستيل الهادئة", emoji: "☁️",
+    colors: ["#ffb6c1", "#e6e6fa"], font: "Quicksand",
+    example: '"احلمي بالألوان"',
+    theme: { primaryColor: "#ffb6c1", secondaryColor: "#e6e6fa", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "subtle", cardShadow: "soft" }
+  },
+  dewy: {
+    label: "إشراقة السحاب", desc: "بشرة زجاجية ولمسات لؤلؤية", emoji: "💧",
+    colors: ["#87ceeb", "#ffe4e1"], font: "Outfit",
+    example: '"إشراقتك اليومية"',
+    theme: { primaryColor: "#87ceeb", secondaryColor: "#ffe4e1", fontPairing: "sans-sans", buttonStyle: "rounded", animationLevel: "subtle", cardShadow: "none" }
+  },
+  ethereal: {
+    label: "ملائكي نقي", desc: "بساطة فائقة ودرجات فاتحة جداً", emoji: "🕊️",
+    colors: ["#dcdcdc", "#f0f8ff"], font: "Cormorant",
+    example: '"همس الأناقة"',
+    theme: { primaryColor: "#dcdcdc", secondaryColor: "#f0f8ff", fontPairing: "serif-sans", buttonStyle: "square", animationLevel: "none", cardShadow: "none" }
+  },
+  royal: {
+    label: "مخمل ملكي", desc: "فخامة المخمل بألوان عميقة", emoji: "👑",
+    colors: ["#d4af37", "#013220"], font: "Cinzel",
+    example: '"تُوجي بالأناقة"',
+    theme: { primaryColor: "#d4af37", secondaryColor: "#013220", fontPairing: "serif-serif", buttonStyle: "rounded", animationLevel: "subtle", cardShadow: "soft" }
+  },
+  opulent: {
+    label: "الذهب الخالص", desc: "فخامة لا تضاهى بألوان الذهب والأسود", emoji: "✨",
+    colors: ["#ffd700", "#ffffff"], font: "Didot",
+    example: '"فخامة لا تضاهى"',
+    theme: { primaryColor: "#ffd700", secondaryColor: "#ffffff", fontPairing: "serif-sans", buttonStyle: "square", animationLevel: "subtle", cardShadow: "none" }
+  },
+  imperial: {
+    label: "إمبراطورية فاخرة", desc: "تصميم ملكي مستوحى من القصور", emoji: "🏛️",
+    colors: ["#800020", "#cfb53b"], font: "Trajan Pro",
+    example: '"أناقة القصور وعظمة كلاسيكية"',
+    theme: { primaryColor: "#800020", secondaryColor: "#cfb53b", fontPairing: "serif-serif", buttonStyle: "rounded", animationLevel: "subtle", cardShadow: "soft" }
+  }
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -459,6 +583,50 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
     label: "كتالوج فاخر", desc: "عرض احترافي يشبه المجلات العالمية", emoji: "🏅",
     sections: ["hero", "lookbook", "categories", "new-arrivals", "testimonials", "about", "newsletter"],
   },
+  "streetwear-cyberpunk": {
+    label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
+    sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+  },
+  "boho-chic": {
+    label: "بوهو شيك", desc: "أجواء دافئة وعضوية", emoji: "🌵",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "dynamic-active": {
+    label: "رياضي وديناميكي", desc: "أداء لا يتوقف مع ألوان مشتعلة", emoji: "🔥",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "dark-glamour": {
+    label: "جاذبية غامضة", desc: "مستحضرات تجميل بلمسة درامية فخمة", emoji: "🖤",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "avant-garde-editorial": {
+    label: "أفانت جارد إديتوريال", desc: "تصميم يحاكي المجلات العالمية الحديثة", emoji: "📖",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "dreamy-pastel": {
+    label: "باستيل حالم", desc: "ألوان ناعمة كالأحلام", emoji: "🌸",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "cloud-glow": {
+    label: "إشراقة السحاب", desc: "تصميم نقي يبرز جمال البشرة", emoji: "☁️",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "ethereal-minimal": {
+    label: "مينيمال ملائكي", desc: "بساطة مذهلة وألوان شفافة", emoji: "🕊️",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "royal-velvet": {
+    label: "مخمل ملكي", desc: "أناقة عميقة ولمسات ذهبية", emoji: "👑",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "golden-opulence": {
+    label: "رفاهية ذهبية", desc: "فخامة مطلقة بمستوى الألماس", emoji: "💎",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "imperial-chic": {
+    label: "أناقة إمبراطورية", desc: "أناقة القصور وعظمة كلاسيكية خالدة", emoji: "🏛️",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  }
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
@@ -469,7 +637,7 @@ export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunctio
     brand: { name, category: "fashion", targetCustomer: "", uniqueValue: "", personality: "elegant", tone: "دافئة وأنيقة", ...(partial?.brand ?? {}) },
     theme: { ...DEFAULT_THEME, ...(partial?.theme ?? {}) },
     homepage: {
-      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t),
+      sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, undefined, partial?.theme),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
   };
@@ -496,3 +664,18 @@ export const MOCK_AI_RESPONSES: Record<string, string> = {
   "تحقق من الجاهزية للنشر": `تقرير مراجعة القصة:\n\n✅ الواجهة تبدو رائعة\n✅ المنتجات واضحة\n⚠️ تأكدي من إضافة رقم الواتساب لسهولة التواصل\n❌ لم تضيفي معلومات التوصيل بعد\n\nقصتك شبه مكتملة! أضيفي المتبقي لنتمكن من النشر.`,
   "حسّن القسم المحدد": `تلميحات للقسم الحالي:\n\n• حافظي على النصوص قصيرة.\n• استخدمي أزرار دعوة للتصرف (CTA) واضحة مثل "تسوقي الآن".\n• تأكدي من توافق الصور مع هوية العلامة.`,
 };
+
+export function isColorDark(color: string): boolean {
+  if (!color) return false;
+  let hex = color.replace("#", "");
+  if (hex.length === 3) {
+    hex = hex.split("").map(c => c + c).join("");
+  }
+  if (hex.length !== 6) return false;
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  // YIQ brightness formula
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq < 128;
+}

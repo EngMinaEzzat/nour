@@ -30,7 +30,7 @@ export function BestSellersSection({
     <section
       id="best-sellers"
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#faf7f4", direction: i18n.dir() }}
+      style={{ background: "var(--bg-main, #faf7f4)", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -43,8 +43,8 @@ export function BestSellersSection({
               {t("storefront.home.bestSellers.eyebrow")}
             </p>
             <h2
-              className="text-4xl md:text-5xl text-stone-900"
-              style={{ fontFamily: SERIF, fontWeight: 400 }}
+              className="text-4xl md:text-5xl"
+              style={{ fontFamily: "var(--font-heading)", fontWeight: 400, color: "var(--text-heading)" }}
             >
               {t("storefront.home.bestSellers.title1")}
               <br />
@@ -75,8 +75,8 @@ export function BestSellersSection({
               {/* Rank badge */}
               <div className="relative">
                 <div
-                  className={`absolute top-3 ${i18n.dir() === "rtl" ? "end-3" : "end-3"} z-20 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-white`}
-                  style={{ background: i === 0 ? "#c8963a" : p }}
+                  className={`absolute top-3 ${i18n.dir() === "rtl" ? "end-3" : "end-3"} z-20 flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-white`}
+                  style={{ background: i === 0 ? "#c8963a" : p, borderRadius: "var(--btn-radius, 9999px)" }}
                 >
                   <Award className="w-2.5 h-2.5" />
                   #{i + 1}
@@ -97,8 +97,8 @@ export function BestSellersSection({
         <div className="mt-10 text-center md:hidden">
           <button
             onClick={onScrollToAll}
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-semibold border-2"
-            style={{ borderColor: p, color: p }}
+            className="inline-flex items-center gap-2 px-8 py-3 text-sm font-semibold border-2"
+            style={{ borderColor: p, color: p, borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }}
           >
             {t("storefront.home.viewAllProducts")}
           </button>
