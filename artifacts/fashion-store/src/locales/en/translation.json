@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "cloudGlow": {
+      "hero": {
+        "heading": "Your Daily Glow by {{storeName}}",
+        "subheading": "Dewy, pearlescent finish for cloud-like skin",
+        "ctaText": "Get the Glow"
+      },
+      "about": {
+        "heading": "Cloud-like Care",
+        "body": "Experience weightless beauty. Our formulas are designed to give you that fresh, airy, and luminous glow all day long."
+      },
+      "lookbook": {
+        "heading": "Pearlescent Perfection",
+        "items": [
+          {
+            "title": "Dewy\n Base",
+            "desc": "Flawless, hydrated skin."
+          },
+          {
+            "title": "Pearl\n Highlight",
+            "desc": "Catch the light naturally."
+          },
+          {
+            "title": "Glass\n Skin",
+            "desc": "The ultimate clear glow."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "💧",
+            "title": "Ultra Hydrating",
+            "text": "Moisture-locked formulas"
+          },
+          {
+            "icon": "☁️",
+            "title": "Airy Shipping",
+            "text": "Light and secure packaging"
+          },
+          {
+            "icon": "🤍",
+            "title": "Clear Returns",
+            "text": "Transparent exchange process"
+          },
+          {
+            "icon": "✨",
+            "title": "Glowing Support",
+            "text": "Radiant customer care"
+          }
+        ]
+      }
     }
   },
   "billing": {

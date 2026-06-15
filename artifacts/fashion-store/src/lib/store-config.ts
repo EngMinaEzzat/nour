@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful"  | "cyberpunk";
+  | "youthful"  | "cyberpunk"
+  | "dewy";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-cyberpunk";
+  | "luxury-catalog"  | "streetwear-cyberpunk"
+  | "cloud-glow";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -223,6 +225,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
+  const isCloudGlow = selectedStyle === "cloud-glow";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -235,11 +238,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
-        subheading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
-        ctaText: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        heading: tr(isCloudGlow ? "defaultSections.cloudGlow.hero.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCloudGlow ? `إشراقتك اليومية مع ${storeName}` : isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isCloudGlow ? "defaultSections.cloudGlow.hero.subheading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCloudGlow ? "لمسة نديّة ولؤلؤية لبشرة ناعمة كالسحاب" : isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isCloudGlow ? "defaultSections.cloudGlow.hero.ctaText" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCloudGlow ? "احصلي على الإشراقة" : isCyberpunk ? "Hack the System" : "تسوقي الآن"),
         ctaLink: "#products",
-        imageUrl: isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
+        imageUrl: isCloudGlow ? "/hero-cloud-optimized.jpg" : isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -366,7 +369,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCyberpunk ? [
+        items: tr(isCloudGlow ? "defaultSections.cloudGlow.trustStrip.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCloudGlow ? [
+          { icon: "💧", title: "ترطيب فائق", text: "تركيبات تحبس الرطوبة" },
+          { icon: "☁️", title: "شحن خفيف", text: "تغليف آمن وخفيف" },
+          { icon: "🤍", title: "إرجاع واضح", text: "عملية استبدال شفافة" },
+          { icon: "✨", title: "دعم مشرق", text: "رعاية عملاء متألقة" }
+        ] : isCyberpunk ? [
           { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
           { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
           { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
@@ -442,6 +450,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"اكسر القواعد — كن أنت\"",
     theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
   },
+  dewy: {
+    label: "ندية ومشرقة", desc: "لعلامات التجميل التي تعكس إشراقة السحاب ولمعان اللؤلؤ", emoji: "☁️",
+    colors: ["#87ceeb", "#ffe4e1"], font: "Outfit",
+    example: "\"إشراقتك اليومية بخفة الهواء\"",
+    theme: { primaryColor: "#87ceeb", secondaryColor: "#ffe4e1", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "subtle", cardShadow: "soft" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -477,6 +491,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "streetwear-cyberpunk": {
     label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
     sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+  },
+  "cloud-glow": {
+    label: "إشراقة السحاب", desc: "مظهر ندي ولؤلؤي وخفيف كالهواء", emoji: "✨",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
 };
 
