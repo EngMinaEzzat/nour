@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful"  | "cyberpunk";
+  | "youthful"  | "cyberpunk"
+  | "dreamy";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-cyberpunk";
+  | "luxury-catalog"  | "streetwear-cyberpunk"
+  | "dreamy-pastel";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -223,6 +225,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
+  const isDreamy = selectedStyle === "dreamy-pastel";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -235,11 +238,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
-        subheading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
-        ctaText: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        heading: tr(isDreamy ? "defaultSections.dreamyPastel.hero.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isDreamy ? `Dream in Colors with ${storeName}` : isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isDreamy ? "defaultSections.dreamyPastel.hero.subheading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isDreamy ? "Soft elegance and fairycore aesthetics" : isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isDreamy ? "defaultSections.dreamyPastel.hero.ctaText" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isDreamy ? "Enter the Dream" : isCyberpunk ? "Hack the System" : "تسوقي الآن"),
         ctaLink: "#products",
-        imageUrl: isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
+        imageUrl: isDreamy ? "/hero-dreamy-optimized.jpg" : isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -287,8 +290,8 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
-        body: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
+        heading: tr(isDreamy ? "defaultSections.dreamyPastel.about.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isDreamy ? "A Soft Escape" : isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isDreamy ? "defaultSections.dreamyPastel.about.body" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isDreamy ? "We believe in the magic of soft hues and gentle fabrics. Step into a world of pastel dreams and fairy-like elegance." : isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
         imageUrl: isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
@@ -330,8 +333,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isDreamy ? "defaultSections.dreamyPastel.lookbook.heading" : "defaultSections.lookbook.heading", isDreamy ? "Cloud Nine Collection" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isDreamy ? "defaultSections.dreamyPastel.lookbook.items" : "defaultSections.lookbook.items", isDreamy ? [
+          {
+            imageUrl: "/lookbook-1-dreamy-optimized.jpg",
+            tag: "Dreamy",
+            title: "Pastel\n Skies",
+            desc: "Soft hues for everyday magic.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-dreamy-optimized.jpg",
+            tag: "Fairy",
+            title: "Fairy\n Core",
+            desc: "Light, airy, and magical.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-dreamy-optimized.jpg",
+            tag: "Soft",
+            title: "Lilac\n Dreams",
+            desc: "A touch of sweet lavender.",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -366,7 +391,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCyberpunk ? [
+        items: tr(isDreamy ? "defaultSections.dreamyPastel.trustStrip.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isDreamy ? [
+          { icon: "☁️", title: "Soft Touch", text: "Gentle fabrics only" },
+          { icon: "🎀", title: "Sweet Shipping", text: "Wrapped like a gift" },
+          { icon: "🦋", title: "Easy Returns", text: "Float through the process" },
+          { icon: "✨", title: "Magical Support", text: "Here to make you smile" }
+        ] : isCyberpunk ? [
           { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
           { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
           { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
@@ -439,8 +469,14 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
   cyberpunk: {
     label: "سايبربانك", desc: "تصميم جريء ومظلم مع لمسات نيون قوية", emoji: "⚡",
     colors: ["#0f0f0f", "#39ff14"], font: "Cairo",
-    example: "\"اكسر القواعد — كن أنت\"",
+    example: '"اكسر القواعد — كن أنت"',
     theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
+  },
+  dreamy: {
+    label: "حالم وباستيل", desc: "تصميم ناعم، ساحر بألوان الباستيل", emoji: "☁️",
+    colors: ["#ffb6c1", "#e6e6fa"], font: "Quicksand",
+    example: '"ادخلي الحلم — عالم من الأناقة الناعمة"',
+    theme: { primaryColor: "#ffb6c1", secondaryColor: "#e6e6fa", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "subtle", cardShadow: "soft", radius: 24 },
   },
 };
 
@@ -477,6 +513,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "streetwear-cyberpunk": {
     label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
     sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+  },
+  "dreamy-pastel": {
+    label: "حلم الباستيل", desc: "أجواء خيالية ساحرة بدرجات الباستيل", emoji: "🎀",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
 };
 

@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "dreamyPastel": {
+      "hero": {
+        "heading": "Dream in Colors with {{storeName}}",
+        "subheading": "Soft elegance and fairycore aesthetics",
+        "ctaText": "Enter the Dream"
+      },
+      "about": {
+        "heading": "A Soft Escape",
+        "body": "We believe in the magic of soft hues and gentle fabrics. Step into a world of pastel dreams and fairy-like elegance."
+      },
+      "lookbook": {
+        "heading": "Cloud Nine Collection",
+        "items": [
+          {
+            "title": "Pastel\n Skies",
+            "desc": "Soft hues for everyday magic."
+          },
+          {
+            "title": "Fairy\n Core",
+            "desc": "Light, airy, and magical."
+          },
+          {
+            "title": "Lilac\n Dreams",
+            "desc": "A touch of sweet lavender."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "☁️",
+            "title": "Soft Touch",
+            "text": "Gentle fabrics only"
+          },
+          {
+            "icon": "🎀",
+            "title": "Sweet Shipping",
+            "text": "Wrapped like a gift"
+          },
+          {
+            "icon": "🦋",
+            "title": "Easy Returns",
+            "text": "Float through the process"
+          },
+          {
+            "icon": "✨",
+            "title": "Magical Support",
+            "text": "Here to make you smile"
+          }
+        ]
+      }
     }
   },
   "billing": {

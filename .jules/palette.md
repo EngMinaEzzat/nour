@@ -15,3 +15,7 @@
 ## 2024-06-13 - Add Cyberpunk Theme
 **Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
 **Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+
+## 2023-10-27 - Palette: Dreamy Pastel UI Generation
+**Learning:** StitchMCP was returning "Invalid Argument" when passing nested properties for \`create_design_system\`. The UI architecture handles stylistic configuration inside \`src/lib/store-config.ts\` by defining generic "StyleType" and "PersonalityType" options rather than fetching directly from external endpoints for presets.
+**Action:** When adding new aesthetic presets (like "dreamy-pastel"), modify \`store-config.ts\` \`STYLE_PRESETS\` and \`PERSONALITY_PRESETS\` to bind the raw CSS tokens (colors, font, animation, shadows) directly into the theme structure and leverage \`i18n\` locales files for matching contextual copy.
