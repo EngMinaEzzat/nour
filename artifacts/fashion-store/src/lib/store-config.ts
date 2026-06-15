@@ -32,7 +32,7 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-streetwear-cyberpunk"
+  | "luxury-catalog"  | "streetwear-cyberpunk"
   | "boho-chic";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
@@ -176,7 +176,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk" || partialTheme?.secondaryColor === "#111111" || partialTheme?.secondaryColor === "#0f0f0f";
-  const isBoho = selectedStyle === "boho-chic" || partialTheme?.personality === "boho";
+  const isBoho = selectedStyle === "boho-chic" || undefined === "boho";
   const activeStyle = isBoho ? "boho-chic" : (isCyberpunk ? "streetwear-cyberpunk" as StyleType : selectedStyle);
 
   existing.forEach((section, index) => {
@@ -473,6 +473,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"اكسر القواعد — كن أنت\"",
     theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
   },
+  boho: {
+    label: "بوهيمي وعضوي", desc: "لمنتجات ذات طابع طبيعي وألوان دافئة", emoji: "🌿",
+    colors: ["#e2725b", "#d4a373"], font: "Cormorant Garamond, serif",
+    example: '"جمال طبيعي، مستوحى من الأرض"',
+    theme: { primaryColor: "#e2725b", secondaryColor: "#d4a373", fontPairing: "serif-sans", buttonStyle: "rounded", cardShadow: "soft" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -508,6 +514,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "streetwear-cyberpunk": {
     label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
     sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+  },
+  "boho-chic": {
+    label: "بوهو شيك", desc: "أجواء دافئة وعضوية", emoji: "🌵",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
 };
 
