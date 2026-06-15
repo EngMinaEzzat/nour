@@ -85,26 +85,28 @@ const EMPTY_FORM: ProductForm = {
   imageUrl: "", featured: false, status: "active", categoryId: "",
 };
 
+type SizeVariant = {
+  size: string;
+  stock: string;
+  id?: number;
+  isNew?: boolean;
+};
+
 type VariantRow = {
   color: string;
   colorHex: string;
-  sizes: string[];
-  sizeStocks: Record<string, string>;
+  sizeVariants: SizeVariant[];
   imageUrls: string[];
   isNew?: boolean;
-  idMap?: Record<string, number>;
 };
 
 function newVariantRow(): VariantRow {
-  return { color: "", colorHex: "#000000", sizes: [], sizeStocks: {}, imageUrls: [], isNew: true, idMap: {} };
+  return { color: "", colorHex: "#000000", sizeVariants: [{ size: "", stock: "0", isNew: true }], imageUrls: [], isNew: true };
 }
 
 function variantStock(rows: VariantRow[]) {
   return rows.reduce((total, row) => {
-    if (row.sizes.length === 0) {
-      return total + (parseInt(row.sizeStocks?.[""] || "0", 10) || 0);
-    }
-    return total + row.sizes.reduce((sum, s) => sum + (parseInt(row.sizeStocks?.[s] || "0", 10) || 0), 0);
+    return total + row.sizeVariants.reduce((sum, sv) => sum + (parseInt(sv.stock, 10) || 0), 0);
   }, 0);
 }
 
@@ -120,20 +122,15 @@ function groupVariantsToRows(variants: ProductVariant[]): VariantRow[] {
       rowsMap[colorKey] = {
         color: v.color ?? "",
         colorHex: v.colorHex ?? "#000000",
-        sizes: [],
-        sizeStocks: {},
-        idMap: {},
+        sizeVariants: [],
         imageUrls: (v.imageUrls ?? []).map(normalizeStoredImageUrl),
       };
     }
-    const size = v.size || "";
-    if (size && !rowsMap[colorKey].sizes.includes(size)) {
-      rowsMap[colorKey].sizes.push(size);
-    }
-    rowsMap[colorKey].sizeStocks[size] = String(v.stock);
-    if (rowsMap[colorKey].idMap) {
-      rowsMap[colorKey].idMap![size] = v.id;
-    }
+    rowsMap[colorKey].sizeVariants.push({
+      size: v.size || "",
+      stock: String(v.stock),
+      id: v.id,
+    });
     const newUrls = (v.imageUrls ?? []).map(normalizeStoredImageUrl);
     for (const url of newUrls) {
       if (!rowsMap[colorKey].imageUrls.includes(url)) {
@@ -246,10 +243,10 @@ function DraftVariantManager({
               </div>
             </div>
 
-            {/* Sizes & Stock grid section */}
-            <div className="sm:col-span-8 space-y-1.5">
+            {/* Sizes & Stock list section */}
+            <div className="sm:col-span-8 space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stockPerSize") || "الكمية والمقاسات"}</Label>
+                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stockPerSize", "المقاسات والكمية الافتتاحية")}</Label>
                 <Button
                   type="button"
                   size="icon"
@@ -262,74 +259,61 @@ function DraftVariantManager({
                 </Button>
               </div>
 
-              {/* Grid of combined sizes and stocks */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {SIZES.map((s) => {
-                  const isActive = row.sizes.includes(s);
-                  return (
-                    <div 
-                      key={s} 
-                      className={cn(
-                        "flex items-center justify-between border rounded-lg p-1.5 transition-all text-xs h-9 cursor-pointer select-none",
-                        isActive 
-                          ? "border-primary bg-primary/5 ring-1 ring-primary" 
-                          : "border-border bg-background hover:bg-muted/30"
-                      )}
+              <div className="space-y-2">
+                {row.sizeVariants.map((sv, svIdx) => (
+                  <div key={svIdx} className="flex items-center gap-2 relative">
+                    <Input
+                      placeholder={t("products.variants.sizePlaceholder", "المقاس (ex: 42)")}
+                      type="text"
+                      value={sv.size}
+                      onChange={(e) => {
+                        const newSizeVariants = [...row.sizeVariants];
+                        newSizeVariants[svIdx] = { ...sv, size: e.target.value };
+                        updateRow(i, "sizeVariants", newSizeVariants);
+                      }}
+                      className="w-full text-xs h-9 rounded-md bg-background focus:ring-1 focus:ring-primary text-center sm:text-start"
+                    />
+                    <Input
+                      placeholder={t("products.variants.stockPlaceholder", "الكمية الافتتاحية")}
+                      type="number"
+                      min="0"
+                      value={sv.stock}
+                      onChange={(e) => {
+                        const newSizeVariants = [...row.sizeVariants];
+                        newSizeVariants[svIdx] = { ...sv, stock: e.target.value };
+                        updateRow(i, "sizeVariants", newSizeVariants);
+                      }}
+                      className="w-full text-xs h-9 rounded-md bg-background focus:ring-1 focus:ring-primary text-center sm:text-start"
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className={cn("h-9 w-9 text-destructive hover:bg-destructive/10 shrink-0", row.sizeVariants.length === 1 && "opacity-50 pointer-events-none")}
                       onClick={() => {
-                        if (!isActive) {
-                          const nextSizes = [...row.sizes, s];
-                          const nextStocks = { ...row.sizeStocks, [s]: "0" };
-                          updateRowFields(i, { sizes: nextSizes, sizeStocks: nextStocks });
-                        } else {
-                          const nextSizes = row.sizes.filter(x => x !== s);
-                          const nextStocks = { ...row.sizeStocks };
-                          delete nextStocks[s];
-                          updateRowFields(i, { sizes: nextSizes, sizeStocks: nextStocks });
+                        if (row.sizeVariants.length > 1) {
+                          const newSizeVariants = row.sizeVariants.filter((_, idx) => idx !== svIdx);
+                          updateRow(i, "sizeVariants", newSizeVariants);
                         }
                       }}
                     >
-                      <span className={cn("font-semibold uppercase px-1 text-[11px]", isActive ? "text-primary font-bold" : "text-muted-foreground")}>
-                        {t(`products.sizes.${s}`) || s}
-                      </span>
-                      {isActive ? (
-                        <input
-                          type="number"
-                          min="0"
-                          value={row.sizeStocks?.[s] || ""}
-                          onClick={(e) => e.stopPropagation()} // Prevent toggling off
-                          onChange={(e) => {
-                            const nextStocks = { ...row.sizeStocks, [s]: e.target.value };
-                            updateRow(i, "sizeStocks", nextStocks);
-                          }}
-                          className="w-10 h-6 border border-border bg-background rounded text-center font-bold text-[10px] focus:ring-1 focus:ring-primary focus:outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          placeholder="0"
-                          autoFocus
-                        />
-                      ) : (
-                        <Plus className="w-3 h-3 text-muted-foreground/60 me-1" />
-                      )}
-                    </div>
-                  );
-                })}
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
-
-              {/* Muted hint or stock for variant if no sizes are chosen */}
-              {row.sizes.length === 0 && (
-                <div className="flex items-center gap-2 mt-2 bg-muted/40 p-2 rounded-lg border border-border/50 w-fit animate-in fade-in duration-200">
-                  <span className="text-[10px] font-bold text-muted-foreground">{t("products.variants.stock")} ({t("products.variants.noSize") || "بدون مقاس"}):</span>
-                  <input
-                    type="number"
-                    min="0"
-                    value={row.sizeStocks?.[""] || ""}
-                    onChange={(e) => {
-                      const nextStocks = { ...row.sizeStocks, "": e.target.value };
-                      updateRow(i, "sizeStocks", nextStocks);
-                    }}
-                    className="h-6 text-xs bg-background w-16 border border-input rounded-md px-1 text-center focus:outline-none focus:ring-1 focus:ring-primary text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    placeholder="0"
-                  />
-                </div>
-              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-primary hover:bg-primary/5 text-xs gap-1.5 px-2 mt-1"
+                onClick={() => {
+                  const newSizeVariants = [...row.sizeVariants, { size: "", stock: "0", isNew: true }];
+                  updateRow(i, "sizeVariants", newSizeVariants);
+                }}
+              >
+                <Plus className="w-3.5 h-3.5" /> {t("products.variants.addSize", "إضافة مقاس آخر")}
+              </Button>
             </div>
 
             <div className="sm:col-span-12 mt-1">
@@ -900,26 +884,15 @@ export default function Products() {
           }[] = [];
 
           for (const row of rowsForCreate) {
-            if (row.sizes.length === 0) {
+            for (const sv of row.sizeVariants) {
               activePayloads.push({
-                id: row.idMap?.[""],
-                size: null,
+                id: sv.id,
+                size: sv.size || null,
                 color: row.color || null,
                 colorHex: row.colorHex || null,
                 imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-                stock: parseInt(row.sizeStocks?.[""] || "0", 10) || 0,
+                stock: parseInt(sv.stock, 10) || 0,
               });
-            } else {
-              for (const size of row.sizes) {
-                activePayloads.push({
-                  id: row.idMap?.[size],
-                  size: size,
-                  color: row.color || null,
-                  colorHex: row.colorHex || null,
-                  imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-                  stock: parseInt(row.sizeStocks?.[size] || "0", 10) || 0,
-                });
-              }
             }
           }
 
@@ -966,24 +939,14 @@ export default function Products() {
           }[] = [];
 
           for (const row of rowsForCreate) {
-            if (row.sizes.length === 0) {
+            for (const sv of row.sizeVariants) {
               createPayloads.push({
-                size: null,
+                size: sv.size || null,
                 color: row.color || null,
                 colorHex: row.colorHex || null,
                 imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-                stock: parseInt(row.sizeStocks?.[""] || "0", 10) || 0,
+                stock: parseInt(sv.stock, 10) || 0,
               });
-            } else {
-              for (const size of row.sizes) {
-                createPayloads.push({
-                  size: size,
-                  color: row.color || null,
-                  colorHex: row.colorHex || null,
-                  imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-                  stock: parseInt(row.sizeStocks?.[size] || "0", 10) || 0,
-                });
-              }
             }
           }
 
