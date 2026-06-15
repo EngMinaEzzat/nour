@@ -11,12 +11,13 @@ export function OffersPreview({ section, t, p, wrap }: PreviewSectionProps) {
     );
   return wrap(
     <div
-      className={`grid grid-cols-1 ${showPromo1 && showPromo2 ? "grid-cols-2 gap-2" : ""} p-4 bg-white`}
+      className={`grid grid-cols-1 ${showPromo1 && showPromo2 ? "grid-cols-2 gap-2" : ""} p-4`}
+      style={{ background: "var(--bg-section, #fff)" }}
     >
       {showPromo1 && (
         <div
-          className="px-4 py-6 text-center text-white relative overflow-hidden rounded-xl"
-          style={{ background: `linear-gradient(135deg, ${p}f0, #c97b8b)` }}
+          className="px-4 py-6 text-center text-white relative overflow-hidden"
+          style={{ background: `linear-gradient(135deg, ${p}f0, #c97b8b)`, borderRadius: "var(--card-radius, 12px)" }}
         >
           <div
             className="absolute inset-0 opacity-10"
@@ -27,12 +28,12 @@ export function OffersPreview({ section, t, p, wrap }: PreviewSectionProps) {
           />
           <p
             className="text-sm font-bold mb-1"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)" }}
           >
             {(section.content.promo1Heading as string) ??
               t("sectionPreview.defaults.offersHeading")}
           </p>
-          <span className="bg-white/20 text-[10px] px-2 py-1 font-semibold inline-block rounded">
+          <span className="text-[10px] px-2 py-1 font-semibold inline-block" style={{ background: "rgba(255,255,255,0.2)", borderRadius: "var(--btn-radius, 4px)", fontFamily: "var(--font-body)" }}>
             {(section.content.promo1Cta as string) ??
               t("sectionPreview.defaults.offersCta")}
           </span>
@@ -40,9 +41,10 @@ export function OffersPreview({ section, t, p, wrap }: PreviewSectionProps) {
       )}
       {showPromo2 && (
         <div
-          className="px-4 py-6 text-center text-white relative overflow-hidden rounded-xl"
+          className="px-4 py-6 text-center text-white relative overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #1a1614 0%, #2d2420 100%)",
+            borderRadius: "var(--card-radius, 12px)"
           }}
         >
           <div
@@ -51,14 +53,14 @@ export function OffersPreview({ section, t, p, wrap }: PreviewSectionProps) {
           />
           <p
             className="text-sm font-bold mb-1"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)" }}
           >
             {(section.content.promo2Heading as string) ??
               t("defaultSections.offers.promo2Heading")}
           </p>
           <span
-            className="text-[10px] px-2 py-1 font-semibold inline-block rounded"
-            style={{ color: "#c8963a", border: "1px solid #c8963a" }}
+            className="text-[10px] px-2 py-1 font-semibold inline-block"
+            style={{ color: "#c8963a", border: "1px solid #c8963a", borderRadius: "var(--btn-radius, 4px)", fontFamily: "var(--font-body)" }}
           >
             {(section.content.promo2Cta as string) ??
               t("defaultSections.offers.promo2Cta")}

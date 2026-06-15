@@ -113,13 +113,13 @@ export function StoreHeader({
           top: topOffset,
           height: 64,
           background: glass
-            ? "rgba(250,247,244,0.72)"
-            : "rgba(250,247,244,0.98)",
+            ? "var(--bg-header-glass, rgba(250,247,244,0.72))"
+            : "var(--bg-header, rgba(250,247,244,0.98))",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           borderBottom: scrolled
-            ? "1px solid rgba(139,26,53,0.12)"
-            : "1px solid rgba(139,26,53,0.06)",
+            ? "1px solid var(--border-color, rgba(139,26,53,0.12))"
+            : "1px solid var(--border-color, rgba(139,26,53,0.06))",
           boxShadow: scrolled
             ? "0 2px 24px rgba(26,22,20,0.07)"
             : "none",
@@ -140,8 +140,8 @@ export function StoreHeader({
                 </div>
               )}
             <span
-              className="font-bold text-[15px] tracking-tight text-stone-900 hidden sm:block"
-              style={{ fontFamily: SERIF, letterSpacing: "0.02em" }}
+              className="font-bold text-[15px] tracking-tight hidden sm:block"
+              style={{ fontFamily: "var(--font-heading)", color: "var(--text-heading)", letterSpacing: "0.02em" }}
             >
               {storeName}
             </span>
@@ -151,7 +151,8 @@ export function StoreHeader({
           <nav className="hidden md:flex items-center gap-6 flex-1 justify-center">
             <button
               onClick={() => scrollTo("new-arrivals")}
-              className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group"
+              className="text-[13px] font-medium transition-colors relative group hover:opacity-80"
+              style={{ color: "var(--text-body)" }}
             >
               {t("storefront.products.newArrivals")}
               <span className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center" style={{ background: p }} />
@@ -172,7 +173,10 @@ export function StoreHeader({
                 return (
                   <DropdownMenu key={cat.id}>
                     <DropdownMenuTrigger asChild>
-                      <button className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group flex items-center gap-1">
+                      <button 
+                        className="text-[13px] font-medium transition-colors relative group flex items-center gap-1 hover:opacity-80"
+                        style={{ color: "var(--text-body)" }}
+                      >
                         {label}
                         <ChevronDown className="w-3 h-3 opacity-50" />
                         <span className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center" style={{ background: p }} />
@@ -206,7 +210,8 @@ export function StoreHeader({
                 <button
                   key={cat.id}
                   onClick={() => handleNavClick(cat.id)}
-                  className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group"
+                  className="text-[13px] font-medium transition-colors relative group hover:opacity-80"
+                  style={{ color: "var(--text-body)" }}
                 >
                   {label}
                   <span className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center" style={{ background: p }} />
@@ -216,7 +221,8 @@ export function StoreHeader({
 
             <button
               onClick={() => scrollTo("products-section")}
-              className="text-[13px] font-medium text-stone-600 hover:text-stone-900 transition-colors relative group"
+              className="text-[13px] font-medium transition-colors relative group hover:opacity-80"
+              style={{ color: "var(--text-body)" }}
             >
               {t("storefront.header.links.allProducts")}
               <span className="absolute -bottom-0.5 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform origin-center" style={{ background: p }} />
@@ -227,7 +233,8 @@ export function StoreHeader({
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={onSearchOpen}
-              className="w-11 h-11 md:w-9 md:h-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
+              className="w-11 h-11 md:w-9 md:h-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100/10 hover:opacity-80"
+              style={{ color: "var(--text-body)" }}
               aria-label={t("storefront.header.search")}
             >
               <Search className="w-5 h-5 md:w-4 md:h-4" />
@@ -236,7 +243,8 @@ export function StoreHeader({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="h-11 md:h-9 px-2 min-w-[44px] md:min-w-9 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all"
+                  className="h-11 md:h-9 px-2 min-w-[44px] md:min-w-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100/10 hover:opacity-80"
+                  style={{ color: "var(--text-body)" }}
                   aria-label={t("storefront.header.actions.language", "Language")}
                 >
                   <span className="font-semibold text-xs md:text-xs uppercase tracking-wider">
@@ -258,7 +266,8 @@ export function StoreHeader({
 
             <button
               onClick={() => navigate(isAuthenticated ? "/customer/orders" : "/customer/login")}
-              className="h-11 md:h-9 px-3 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all text-sm md:text-[13px] font-medium"
+              className="h-11 md:h-9 px-3 rounded-xl flex items-center justify-center transition-all text-sm md:text-[13px] font-medium hover:bg-stone-100/10 hover:opacity-80"
+              style={{ color: "var(--text-body)" }}
             >
               {isAuthenticated ? t("storefront.header.actions.account") : t("storefront.header.actions.login")}
             </button>
@@ -283,7 +292,8 @@ export function StoreHeader({
             {/* Mobile hamburger */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className="md:hidden w-11 h-11 rounded-xl flex items-center justify-center text-stone-600 hover:bg-stone-100 transition-all"
+              className="md:hidden w-11 h-11 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100/10 hover:opacity-80"
+              style={{ color: "var(--text-body)" }}
               aria-label={t("layout.menu", { defaultValue: "Menu" })}
             >
               <Menu className="w-5 h-5" />
@@ -306,7 +316,7 @@ export function StoreHeader({
             <motion.aside
               className={`fixed top-0 end-0 h-full w-[280px] z-[70] flex flex-col`}
               style={{
-                background: "#faf7f4",
+                background: "var(--bg-drawer, #faf7f4)",
                 direction: i18n.dir(),
                 boxShadow: i18n.dir() === "rtl" ? "8px 0 40px rgba(26,22,20,0.15)" : "-8px 0 40px rgba(26,22,20,0.15)",
               }}
@@ -318,17 +328,18 @@ export function StoreHeader({
               {/* Drawer header */}
               <div
                 className="flex items-center justify-between px-5 py-4 border-b"
-                style={{ borderColor: "rgba(139,26,53,0.1)" }}
+                style={{ borderColor: "var(--border-color, rgba(139,26,53,0.1))" }}
               >
                 <span
-                  className="font-bold text-xl text-stone-900"
-                  style={{ fontFamily: SERIF }}
+                  className="font-bold text-xl"
+                  style={{ fontFamily: "var(--font-heading)", color: "var(--text-heading)" }}
                 >
                   {storeName}
                 </span>
                 <button
                   onClick={() => setDrawerOpen(false)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-stone-500 hover:bg-stone-100"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-stone-100/10"
+                  style={{ color: "var(--text-body)" }}
                   aria-label={t("common.buttons.close", "Close")}
                 >
                   <X className="w-4 h-4" />

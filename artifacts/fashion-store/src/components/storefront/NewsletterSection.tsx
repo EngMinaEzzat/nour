@@ -72,14 +72,14 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
 
           <h2
             className="text-4xl md:text-5xl text-white mb-4"
-            style={{ fontFamily: SERIF, fontWeight: 400 }}
+            style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', Georgia, serif)", fontWeight: 400 }}
           >
             {t("storefront.home.newsletter.title")}
             <br />
             <span style={{ color: "#f5d6a0", fontStyle: "italic" }}>{t("storefront.home.newsletter.subtitle")}</span>
           </h2>
 
-          <p className="text-white/50 text-sm mb-8 leading-relaxed max-w-sm mx-auto">
+          <p className="text-white/50 text-sm mb-8 leading-relaxed max-w-sm mx-auto" style={{ fontFamily: "var(--font-body)" }}>
             {t("storefront.home.newsletter.desc", `اشتركي في نشرة ${storeName} واستمتعي بعروض حصرية وأحدث الموضات مباشرةً على بريدك`, { storeName })}
           </p>
 
@@ -98,10 +98,10 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
                 >
                   <Check className="w-6 h-6 text-green-400" />
                 </div>
-                <p className="text-white font-semibold text-lg" style={{ fontFamily: SERIF }}>
+                <p className="text-white font-semibold text-lg" style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', Georgia, serif)" }}>
                   {t("storefront.home.newsletter.successTitle")}
                 </p>
-                <p className="text-white/50 text-sm">
+                <p className="text-white/50 text-sm" style={{ fontFamily: "var(--font-body)" }}>
                   {t("storefront.home.newsletter.successDesc", `يسعدنا انضمامك لمجتمع ${storeName} ✨`, { storeName })}
                 </p>
               </motion.div>
@@ -122,17 +122,19 @@ export function NewsletterSection({ primaryColor: p, storeName }: NewsletterSect
                   placeholder={t("storefront.home.newsletter.emailPlaceholder")}
                   aria-label={t("storefront.home.newsletter.emailPlaceholder")}
                   required
-                  className="flex-1 px-5 py-3.5 rounded-full text-sm outline-none text-[hsl(340,20%,15%)] placeholder:text-stone-400 text-left"
+                  className="flex-1 px-5 py-3.5 text-sm outline-none text-[hsl(340,20%,15%)] placeholder:text-stone-400 text-left"
                   style={{
                     background: "rgba(250,247,244,0.95)",
                     direction: "ltr",
+                    borderRadius: "var(--btn-radius, 9999px)",
+                    fontFamily: "var(--font-body)"
                   }}
                 />
                 <motion.button
                   type="submit"
                   disabled={loading}
-                  className="px-7 py-3.5 rounded-full text-sm font-semibold text-white shrink-0 flex items-center justify-center gap-2 transition-all"
-                  style={{ background: `linear-gradient(135deg, ${p}, #c97b8b)` }}
+                  className="px-7 py-3.5 text-sm font-semibold text-white shrink-0 flex items-center justify-center gap-2 transition-all"
+                  style={{ background: `linear-gradient(135deg, ${p}, #c97b8b)`, borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                 >

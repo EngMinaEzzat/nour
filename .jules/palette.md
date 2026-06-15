@@ -12,3 +12,13 @@
 ## 2024-06-08 - Password Visibility Toggles ARIA Labels
 **Learning:** Found multiple instances where the "Toggle Password Visibility" buttons in authentication flows lacked accessibility labels, rendering them difficult to use for screen readers. Added a translated `aria-label` utilizing `react-i18next`.
 **Action:** Always ensure that icon-only interactive elements in reusable or standalone components include translated `aria-label` attributes.
+## 2024-06-13 - Add Cyberpunk Theme
+**Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
+**Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+
+## 2026-06-15 - Palette: Introduce Boho Chic Theme
+**Learning:** Added a new complete visual theme (boho-chic) to the `artifacts/fashion-store`. This required creating the design system config using Stitch MCP (with `stitch_upload_design_md` and `stitch_create_design_system_from_design_md`), managing UI translation state in `translation.json`, and downloading appropriately stylized fallback placeholder images.
+**Action:** When adding new UI themes in the store config, ensure the theme maps correctly onto the existing Section configurations and `StyleType` / `PersonalityType` unions, add the corresponding default image fallbacks, and keep all textual copies heavily localized with `i18next`.
+## 2026-06-15 - Dynamic Arbitrary Variant Sizes
+**Learning:** For physical variants, standard sizes (S, M, L) are rarely comprehensive. Providing dynamic `size` strings combined with individual line items maps better to e-commerce reality.
+**Action:** When asked to alter predefined selection grids (like variants or dimensions), prioritize moving to a list of dynamic row items to fully unlock the feature's capability.

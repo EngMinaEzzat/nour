@@ -41,27 +41,27 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
   return (
     <section
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#faf7f4", direction: i18n.dir() }}
+      style={{ background: "var(--bg-main, #faf7f4)", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <p
             className="text-[11px] tracking-[0.25em] uppercase mb-2 font-medium"
-            style={{ color: p }}
+            style={{ color: p, fontFamily: "var(--font-body)" }}
           >
             {t("storefront.home.ugc.eyebrow")}
           </p>
           <h2
-            className="text-4xl md:text-5xl text-stone-900 mb-3"
-            style={{ fontFamily: SERIF, fontWeight: 400 }}
+            className="text-4xl md:text-5xl mb-3"
+            style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', Georgia, serif)", color: "var(--text-heading, #1c1917)", fontWeight: 400 }}
           >
             {t("storefront.home.ugc.title1")}
             <br />
             <span style={{ color: p, fontStyle: "italic" }}>{t("storefront.home.ugc.title2")}</span>
           </h2>
-          <p className="text-stone-400 text-sm max-w-sm mx-auto">
-            {t("storefront.home.ugc.subtitle")} <span className="font-semibold text-stone-600">#{t("storefront.home.ugc.hashtag")}</span>
+          <p className="text-sm max-w-sm mx-auto" style={{ color: "var(--text-body, #78716c)", fontFamily: "var(--font-body)" }}>
+            {t("storefront.home.ugc.subtitle")} <span className="font-semibold" style={{ color: "var(--text-heading, #44403c)" }}>#{t("storefront.home.ugc.hashtag")}</span>
           </p>
         </div>
 
@@ -70,7 +70,8 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
           {UGC_IMAGES.map((item, i) => (
             <motion.div
               key={i}
-              className="relative aspect-square overflow-hidden rounded-2xl group cursor-pointer"
+              className="relative aspect-square overflow-hidden group cursor-pointer"
+              style={{ borderRadius: "var(--card-radius, 16px)" }}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, amount: 0.1 }}
@@ -110,8 +111,8 @@ export function UGCSection({ primaryColor: p, instagramUrl }: UGCSectionProps) {
               href={instagramUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-full text-sm font-semibold border-2 transition-all hover:shadow-lg"
-              style={{ borderColor: "#c13584", color: "#c13584" }}
+              className="inline-flex items-center gap-2 px-7 py-3 text-sm font-semibold border-2 transition-all hover:shadow-lg"
+              style={{ borderColor: "#c13584", color: "#c13584", borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }}
             >
               <Instagram className="w-4 h-4" />
               {t("storefront.home.ugc.followUs")}
