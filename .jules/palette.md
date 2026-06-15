@@ -15,3 +15,6 @@
 ## 2024-06-13 - Add Cyberpunk Theme
 **Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
 **Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+## 2024-06-14 - Add Avant Garde Editorial Theme
+**Learning:** Adding new themes involves updating union types, creating specific configuration blocks, and adjusting factory functions to consume localized keys for the newly defined theme components. Image placeholders or assets must also be defined in public directories correctly matching the component.
+**Action:** When adding new configuration themes, ensure all union types (`StyleType`, `PersonalityType`) are expanded, presets are added, logic for applying specific translations is set up in factories, and `aria-label` attributes are reviewed for existing icon-only buttons to maintain accessibility.

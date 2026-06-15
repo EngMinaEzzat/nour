@@ -132,17 +132,17 @@ export default function EditorTopBar({
             disabled={!canUndo}
             title={t("editorTopBar.tooltips.undo")}
             className="w-8 h-8 flex items-center justify-center rounded-md text-stone-400 hover:text-stone-700 hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-          >
-            <Undo2 className="w-4 h-4" />
-          </button>
+           aria-label={t("common.buttons.undo2", "Undo2")}>
+        <Undo2 className="w-4 h-4" />
+      </button>
           <button
             onClick={onRedo}
             disabled={!canRedo}
             title={t("editorTopBar.tooltips.redo")}
             className="w-8 h-8 flex items-center justify-center rounded-md text-stone-400 hover:text-stone-700 hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-          >
-            <Redo2 className="w-4 h-4" />
-          </button>
+           aria-label={t("common.buttons.redo2", "Redo2")}>
+        <Redo2 className="w-4 h-4" />
+      </button>
         </div>
 
         <div className="w-px h-5 bg-stone-200" />

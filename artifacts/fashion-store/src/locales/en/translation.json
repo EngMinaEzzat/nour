@@ -3129,6 +3129,54 @@
           }
         ]
       }
+    },
+    "avantGardeEditorial": {
+      "hero": {
+        "heading": "The Editorial Look at {{storeName}}",
+        "subheading": "Redefine beauty with stark, asymmetric aesthetics",
+        "ctaText": "Shop the Runway"
+      },
+      "about": {
+        "heading": "Defying Convention",
+        "body": "We treat fashion and cosmetics as wearable art. High-contrast designs, brutalist structures, and an uncompromising editorial vision."
+      },
+      "lookbook": {
+        "heading": "The Manifesto",
+        "items": [
+          {
+            "title": "Structural\n Beauty",
+            "desc": "Angles and sharp lines."
+          },
+          {
+            "title": "Color\n Shock",
+            "desc": "Electric blue against stark white."
+          },
+          {
+            "title": "Asymmetric\n Flow",
+            "desc": "Breaking the rules of balance."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "title": "Curated Art",
+            "text": "Museum-quality pieces"
+          },
+          {
+            "title": "White Glove",
+            "text": "Premium editorial shipping"
+          },
+          {
+            "title": "Bespoke Returns",
+            "text": "Concierge exchange service"
+          },
+          {
+            "title": "Tailored Support",
+            "text": "Stylist-level assistance"
+          }
+        ]
+      }
     }
   },
   "billing": {

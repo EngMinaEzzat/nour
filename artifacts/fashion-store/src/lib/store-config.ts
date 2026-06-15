@@ -22,7 +22,8 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful"  | "cyberpunk";
+  | "youthful"  | "cyberpunk"
+  | "avant-garde";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +32,8 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-cyberpunk";
+  | "luxury-catalog"  | "streetwear-cyberpunk"
+  | "avant-garde-editorial";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -174,7 +176,8 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
   const seen = new Set<SectionType>();
   const normalized: SectionConfig[] = [];
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk" || partialTheme?.secondaryColor === "#111111" || partialTheme?.secondaryColor === "#0f0f0f";
-  const activeStyle = isCyberpunk ? "streetwear-cyberpunk" as StyleType : selectedStyle;
+  const isAvantGarde = selectedStyle === "avant-garde-editorial";
+  const activeStyle = isAvantGarde ? "avant-garde-editorial" : (isCyberpunk ? "streetwear-cyberpunk" as StyleType : selectedStyle);
 
   existing.forEach((section, index) => {
     if (!AVAILABLE_SECTIONS.includes(section.type) || seen.has(section.type)) {
@@ -223,6 +226,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
+  const isAvantGarde = selectedStyle === "avant-garde-editorial";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -235,11 +239,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
-        subheading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
-        ctaText: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        heading: tr(isAvantGarde ? "defaultSections.avantGardeEditorial.hero.heading" : (isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading"), isAvantGarde ? `The Editorial Look at ${storeName}` : isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isAvantGarde ? "defaultSections.avantGardeEditorial.hero.subheading" : (isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading"), isAvantGarde ? "Redefine beauty with stark, asymmetric aesthetics" : isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isAvantGarde ? "defaultSections.avantGardeEditorial.hero.ctaText" : (isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText"), isAvantGarde ? "Shop the Runway" : isCyberpunk ? "Hack the System" : "تسوقي الآن"),
         ctaLink: "#products",
-        imageUrl: isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
+        imageUrl: isAvantGarde ? "/hero-avant-garde-optimized.jpg" : isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -287,11 +291,9 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
-        body: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
-          ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
-          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
+        heading: tr(isAvantGarde ? "defaultSections.avantGardeEditorial.about.heading" : (isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading"), isAvantGarde ? "Defying Convention" : isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isAvantGarde ? "defaultSections.avantGardeEditorial.about.body" : (isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion"), isAvantGarde ? "We treat fashion and cosmetics as wearable art. High-contrast designs, brutalist structures, and an uncompromising editorial vision." : isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
+        imageUrl: isAvantGarde ? "/about-avant-garde-optimized.jpg" : isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -330,8 +332,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isAvantGarde ? "defaultSections.avantGardeEditorial.lookbook.heading" : "defaultSections.lookbook.heading", isAvantGarde ? "The Manifesto" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isAvantGarde ? "defaultSections.avantGardeEditorial.lookbook.items" : "defaultSections.lookbook.items", isAvantGarde ? [
+          {
+            imageUrl: "/lookbook-1-avant-garde-optimized.jpg",
+            tag: "Structural",
+            title: "Structural\\n Beauty",
+            desc: "Angles and sharp lines.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-avant-garde-optimized.jpg",
+            tag: "Color",
+            title: "Color\\n Shock",
+            desc: "Electric blue against stark white.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-avant-garde-optimized.jpg",
+            tag: "Asymmetric",
+            title: "Asymmetric\\n Flow",
+            desc: "Breaking the rules of balance.",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -366,7 +390,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCyberpunk ? [
+        items: tr(isAvantGarde ? "defaultSections.avantGardeEditorial.trustStrip.items" : (isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items"), isAvantGarde ? [
+          { icon: "📐", title: "Curated Art", text: "Museum-quality pieces" },
+          { icon: "📦", title: "White Glove", text: "Premium editorial shipping" },
+          { icon: "🖤", title: "Bespoke Returns", text: "Concierge exchange service" },
+          { icon: "✂️", title: "Tailored Support", text: "Stylist-level assistance" }
+        ] : isCyberpunk ? [
           { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
           { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
           { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
@@ -442,6 +471,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"اكسر القواعد — كن أنت\"",
     theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
   },
+  "avant-garde": {
+    label: "أفانت جارد", desc: "جرأة وتفرد في التصميم بألوان متباينة", emoji: "⬛",
+    colors: ["#000000", "#0014ff"], font: "Helvetica Neue",
+    example: "نتمرد على المألوف",
+    theme: { primaryColor: "#000000", secondaryColor: "#0014ff", fontPairing: "sans-sans", buttonStyle: "square", cardShadow: "none" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -477,6 +512,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "streetwear-cyberpunk": {
     label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
     sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+  },
+  "avant-garde-editorial": {
+    label: "أفانت جارد إديتوريال", desc: "تصميم يحاكي المجلات العالمية الحديثة", emoji: "📖",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
 };
 

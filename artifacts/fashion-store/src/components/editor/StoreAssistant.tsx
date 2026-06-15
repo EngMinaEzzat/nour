@@ -208,9 +208,9 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
           <button
             onClick={onClose}
             className="text-white/70 hover:text-white transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+           aria-label={t("common.buttons.x", "X")}>
+        <X className="w-4 h-4" />
+      </button>
         </div>
       </div>
 

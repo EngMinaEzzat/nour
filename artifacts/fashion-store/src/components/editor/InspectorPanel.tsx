@@ -216,9 +216,9 @@ export default function InspectorPanel({
                 disabled={!canMoveUp}
                 className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title={t("inspectorPanel.buttons.moveUp", "Move Up")}
-              >
-                <ChevronUp className="w-4 h-4" />
-              </button>
+               aria-label={t("common.buttons.chevronup", "ChevronUp")}>
+        <ChevronUp className="w-4 h-4" />
+      </button>
             )}
             {onMoveDown && (
               <button
@@ -226,9 +226,9 @@ export default function InspectorPanel({
                 disabled={!canMoveDown}
                 className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title={t("inspectorPanel.buttons.moveDown", "Move Down")}
-              >
-                <ChevronDown className="w-4 h-4" />
-              </button>
+               aria-label={t("common.buttons.chevrondown", "ChevronDown")}>
+        <ChevronDown className="w-4 h-4" />
+      </button>
             )}
             <button
               onClick={() => onDelete(section.id)}
