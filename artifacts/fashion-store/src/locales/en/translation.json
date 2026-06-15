@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "retroVintage": {
+      "hero": {
+        "heading": "Timeless Classics at {{storeName}}",
+        "subheading": "Vintage finds and 90s thrifting aesthetics",
+        "ctaText": "Shop the Past"
+      },
+      "about": {
+        "heading": "Our Vintage Story",
+        "body": "We believe in the charm of the past. Curated vintage finds, warm nostalgia, and timeless style that never fades."
+      },
+      "lookbook": {
+        "heading": "Thrifted Dreams - Lookbook",
+        "items": [
+          {
+            "title": "90s\n Denim",
+            "desc": "Classic cuts, authentic feel."
+          },
+          {
+            "title": "Sepia\n Tones",
+            "desc": "Warm hues for everyday wear."
+          },
+          {
+            "title": "Retro\n Sport",
+            "desc": "Old school athletic vibes."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🕰️",
+            "title": "Timeless Quality",
+            "text": "Built to last decades"
+          },
+          {
+            "icon": "📦",
+            "title": "Nostalgic Packaging",
+            "text": "Wrapped with vintage care"
+          },
+          {
+            "icon": "♻️",
+            "title": "Easy Returns",
+            "text": "Hassle-free process"
+          },
+          {
+            "icon": "💌",
+            "title": "Curated Selection",
+            "text": "Hand-picked vintage finds"
+          }
+        ]
+      }
     }
   },
   "billing": {

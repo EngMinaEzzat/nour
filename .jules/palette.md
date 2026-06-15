@@ -15,3 +15,6 @@
 ## 2024-06-13 - Add Cyberpunk Theme
 **Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
 **Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+## 2024-06-15 - Add Retro Theme
+**Learning:** Adding new themes to the application involves updating `StyleType` and `PersonalityType` unions, creating configuration objects in `PERSONALITY_PRESETS` and `STYLE_PRESETS`, adding corresponding translation JSON objects, generating/updating static image assets, and updating the section factory function to properly construct the correct default theme values.
+**Action:** When adding a new global theme, remember to touch configurations (`src/lib/store-config.ts`), translations (both `en` and `ar`), generate required static assets in `public/`, and tie them together in the default section generators with conditional fallbacks.

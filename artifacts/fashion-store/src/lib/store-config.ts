@@ -22,7 +22,7 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful"  | "cyberpunk";
+  | "youthful"  | "cyberpunk"  | "retro";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +31,7 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-cyberpunk";
+  | "luxury-catalog"  | "streetwear-cyberpunk"  | "retro-vintage";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -223,6 +223,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
+  const isRetro = selectedStyle === "retro-vintage";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -235,11 +236,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
-        subheading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
-        ctaText: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        heading: tr(isRetro ? "defaultSections.retroVintage.hero.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isRetro ? `Timeless Classics at ${storeName}` : isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isRetro ? "defaultSections.retroVintage.hero.subheading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isRetro ? "Vintage finds and 90s thrifting aesthetics" : isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isRetro ? "defaultSections.retroVintage.hero.ctaText" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isRetro ? "Shop the Past" : isCyberpunk ? "Hack the System" : "تسوقي الآن"),
         ctaLink: "#products",
-        imageUrl: isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
+        imageUrl: isRetro ? "/hero-retro-optimized.jpg" : isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -287,11 +288,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
-        body: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
+        heading: tr(isRetro ? "defaultSections.retroVintage.about.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isRetro ? "Our Vintage Story" : isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isRetro ? "defaultSections.retroVintage.about.body" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isRetro ? "We believe in the charm of the past. Curated vintage finds, warm nostalgia, and timeless style that never fades." : isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
+        imageUrl: isRetro ? "/about-retro-optimized.jpg" : isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -330,29 +331,19 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
-          {
-            imageUrl: "/lookbook-1-optimized.jpg",
-            tag: "Fashion",
-            title: "Egyptian\\n Beauty",
-            desc: "An exclusive collection inspired by heritage",
-            categoryId: "",
-          },
-          {
-            imageUrl: "/lookbook-2-optimized.jpg",
-            tag: "Spring 2025",
-            title: "Spring\\n Colors",
-            desc: "Soft shades for a perfect look",
-            categoryId: "",
-          },
-          {
-            imageUrl: "/lookbook-3-optimized.jpg",
-            tag: "Beauty",
-            title: "Beauty\\n Magic",
-            desc: "High quality care products",
-            categoryId: "",
-          },
+        heading: tr(isRetro ? "defaultSections.retroVintage.lookbook.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.lookbook.heading" : "defaultSections.lookbook.heading", isRetro ? "Thrifted Dreams - Lookbook" : isCyberpunk ? "Cyber Drip - Neural Uplink" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isRetro ? "defaultSections.retroVintage.lookbook.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.lookbook.items" : "defaultSections.lookbook.items", isRetro ? [
+          { title: "90s\n Denim", desc: "Classic cuts, authentic feel.", imageUrl: "/lookbook-1-retro-optimized.jpg", categoryId: "" },
+          { title: "Sepia\n Tones", desc: "Warm hues for everyday wear.", imageUrl: "/lookbook-2-retro-optimized.jpg", categoryId: "" },
+          { title: "Retro\n Sport", desc: "Old school athletic vibes.", imageUrl: "/lookbook-3-retro-optimized.jpg", categoryId: "" }
+        ] : isCyberpunk ? [
+          { title: "Neon\n Nights", desc: "High visibility. Zero stealth.", imageUrl: "/lookbook-1-streetwear-optimized.jpg", categoryId: "" },
+          { title: "Concrete\n Jungle", desc: "Brutalist aesthetics for the modern rogue.", imageUrl: "/lookbook-2-streetwear-optimized.jpg", categoryId: "" },
+          { title: "Glitch\n Reality", desc: "Distorted reality, perfected.", imageUrl: "/lookbook-3-streetwear-optimized.jpg", categoryId: "" }
+        ] : [
+          { imageUrl: "/lookbook-1-optimized.jpg", tag: "Fashion", title: "Egyptian\n Beauty", desc: "An exclusive collection inspired by heritage", categoryId: "" },
+          { imageUrl: "/lookbook-2-optimized.jpg", tag: "Spring 2025", title: "Spring\n Colors", desc: "Soft shades for a perfect look", categoryId: "" },
+          { imageUrl: "/lookbook-3-optimized.jpg", tag: "Beauty", title: "Beauty\n Magic", desc: "High quality care products", categoryId: "" }
         ])
       },
       settings: { columns: 3 },
@@ -366,7 +357,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCyberpunk ? [
+        items: tr(isRetro ? "defaultSections.retroVintage.trustStrip.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isRetro ? [
+          { icon: "🕰️", title: "Timeless Quality", text: "Built to last decades" },
+          { icon: "📦", title: "Nostalgic Packaging", text: "Wrapped with vintage care" },
+          { icon: "♻️", title: "Easy Returns", text: "Hassle-free process" },
+          { icon: "💌", title: "Curated Selection", text: "Hand-picked vintage finds" }
+        ] : isCyberpunk ? [
           { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
           { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
           { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
@@ -400,6 +396,12 @@ export const DEFAULT_THEME: ThemeConfig = {
 
 // ─── Personality presets ──────────────────────────────────────────────────────
 export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
+  retro: {
+    label: "كلاسيكية دافئة", desc: "أجواء تسعينات وقطع كلاسيكية", emoji: "🕰️",
+    colors: ["#8b5a2b", "#d2b48c"], font: "Courier Prime, Playfair Display, serif",
+    example: "\"أناقة الزمن الجميل\"",
+    theme: { primaryColor: "#8b5a2b", secondaryColor: "#d2b48c", fontPairing: "serif-sans", buttonStyle: "rounded", radius: 4 },
+  },
   elegant: {
     label: "أنيقة وراقية", desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع", emoji: "💎",
     colors: ["#1a1614", "#c8963a"], font: "Cormorant Garamond",
@@ -446,6 +448,10 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
 export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
+  "retro-vintage": {
+    label: "ريترو فينتدج", desc: "أجواء دافئة وحنين للماضي", emoji: "📻",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
   "modern-boutique": {
     label: "بوتيك عصري", desc: "مثالي للأزياء والإكسسوارات الراقية", emoji: "👗",
     sections: ["hero", "trust-strip", "new-arrivals", "categories", "lookbook", "about", "newsletter"],
