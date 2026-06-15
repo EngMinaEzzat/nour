@@ -99,3 +99,11 @@
 ## 2026-06-08 - [Coverage for generated API Client React library errors]
 **Learning:** Found untrusted / untested code for ApiError within our `lib/api-client-react` generator output code. Writing comprehensive Vitest unit tests to cover constructors handles error extraction robustness (message parsing, title, detail fields edge cases, long string handling, trimming).
 **Action:** Always write deterministic fast unit-tests for generated API client configurations and error definitions, checking properties explicitly (status, data, statusText) and edge cases handling in the API response format logic to build confidence in the error handling boundary between client and backend.
+
+## 2026-06-15 - Fixed broken image URLs on storefront
+**Learning:** In the image-url processing module, absolute URLs were stripped down to their paths, losing the origin when generating `srcSet` sizes. The resize API is mounted on the backend, but storefront often receives an absolute API URL.
+**Action:** When reconstructing the URL with sizes, retain and prepend the original absolute URL's origin.
+
+## 2026-06-15 - Fixed typecheck failure in store-config.ts
+**Learning:** Adding string literals to a union type (`PersonalityType`, `StyleType`) without also adding them to the corresponding `Record<..., ...>` constant dictionary causes typecheck failures (`TS2740: ... is missing the following properties`).
+**Action:** Always ensure that when adding a new enum or literal type to a union used as a `Record` key, the corresponding dictionary is also updated, or remove the unimplemented literals.
