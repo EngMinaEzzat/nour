@@ -448,7 +448,7 @@ export const DEFAULT_THEME: ThemeConfig = {
 };
 
 // ─── Personality presets ──────────────────────────────────────────────────────
-export const PERSONALITY_PRESETS: Partial<Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }>> = {
+export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc: string; emoji: string; colors: string[]; font: string; example: string; theme: Partial<ThemeConfig> }> = {
   elegant: {
     label: "أنيقة وراقية", desc: "لعلامات تجارية فاخرة تستهدف الذوق الرفيع", emoji: "💎",
     colors: ["#1a1614", "#c8963a"], font: "Cormorant Garamond",
@@ -497,10 +497,64 @@ export const PERSONALITY_PRESETS: Partial<Record<PersonalityType, { label: strin
     example: '"جمال طبيعي، مستوحى من الأرض"',
     theme: { primaryColor: "#e2725b", secondaryColor: "#d4a373", fontPairing: "serif-sans", buttonStyle: "rounded", cardShadow: "soft" },
   },
+  active: {
+    label: "طاقة وحركة", desc: "للأزياء الرياضية والأداء العالي", emoji: "🔥",
+    colors: ["#ff4500", "#2b2b2b"], font: "Impact",
+    example: '"تجاوزي حدودك"',
+    theme: { primaryColor: "#ff4500", secondaryColor: "#2b2b2b", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "none" }
+  },
+  "dark-glam": {
+    label: "فخامة داكنة", desc: "ألوان غامضة ولمسات ذهبية", emoji: "🖤",
+    colors: ["#1a0000", "#d4af37"], font: "Playfair Display",
+    example: '"جاذبية غامضة"',
+    theme: { primaryColor: "#d4af37", secondaryColor: "#1a0000", fontPairing: "serif-sans", buttonStyle: "square", animationLevel: "subtle", cardShadow: "strong" }
+  },
+  "avant-garde": {
+    label: "أفانت جارد", desc: "جرأة وتفرد في التصميم بألوان متباينة", emoji: "⬛",
+    colors: ["#000000", "#0014ff"], font: "Helvetica Neue",
+    example: '"نتمرد على المألوف"',
+    theme: { primaryColor: "#000000", secondaryColor: "#0014ff", fontPairing: "sans-sans", buttonStyle: "square", cardShadow: "none" }
+  },
+  dreamy: {
+    label: "حالم وناعم", desc: "ألوان الباستيل الهادئة", emoji: "☁️",
+    colors: ["#ffb6c1", "#e6e6fa"], font: "Quicksand",
+    example: '"احلمي بالألوان"',
+    theme: { primaryColor: "#ffb6c1", secondaryColor: "#e6e6fa", fontPairing: "sans-sans", buttonStyle: "pill", animationLevel: "subtle", cardShadow: "soft" }
+  },
+  dewy: {
+    label: "إشراقة السحاب", desc: "بشرة زجاجية ولمسات لؤلؤية", emoji: "💧",
+    colors: ["#87ceeb", "#ffe4e1"], font: "Outfit",
+    example: '"إشراقتك اليومية"',
+    theme: { primaryColor: "#87ceeb", secondaryColor: "#ffe4e1", fontPairing: "sans-sans", buttonStyle: "rounded", animationLevel: "subtle", cardShadow: "none" }
+  },
+  ethereal: {
+    label: "ملائكي نقي", desc: "بساطة فائقة ودرجات فاتحة جداً", emoji: "🕊️",
+    colors: ["#dcdcdc", "#f0f8ff"], font: "Cormorant",
+    example: '"همس الأناقة"',
+    theme: { primaryColor: "#dcdcdc", secondaryColor: "#f0f8ff", fontPairing: "serif-sans", buttonStyle: "square", animationLevel: "none", cardShadow: "none" }
+  },
+  royal: {
+    label: "مخمل ملكي", desc: "فخامة المخمل بألوان عميقة", emoji: "👑",
+    colors: ["#d4af37", "#013220"], font: "Cinzel",
+    example: '"تُوجي بالأناقة"',
+    theme: { primaryColor: "#d4af37", secondaryColor: "#013220", fontPairing: "serif-serif", buttonStyle: "rounded", animationLevel: "subtle", cardShadow: "soft" }
+  },
+  opulent: {
+    label: "الذهب الخالص", desc: "فخامة لا تضاهى بألوان الذهب والأسود", emoji: "✨",
+    colors: ["#ffd700", "#ffffff"], font: "Didot",
+    example: '"فخامة لا تضاهى"',
+    theme: { primaryColor: "#ffd700", secondaryColor: "#ffffff", fontPairing: "serif-sans", buttonStyle: "square", animationLevel: "subtle", cardShadow: "none" }
+  },
+  imperial: {
+    label: "إمبراطورية فاخرة", desc: "تصميم ملكي مستوحى من القصور", emoji: "🏛️",
+    colors: ["#800020", "#cfb53b"], font: "Trajan Pro",
+    example: '"أناقة القصور وعظمة كلاسيكية"',
+    theme: { primaryColor: "#800020", secondaryColor: "#cfb53b", fontPairing: "serif-serif", buttonStyle: "rounded", animationLevel: "subtle", cardShadow: "soft" }
+  }
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
-export const STYLE_PRESETS: Partial<Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }>> = {
+export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emoji: string; sections: SectionType[] }> = {
   "modern-boutique": {
     label: "بوتيك عصري", desc: "مثالي للأزياء والإكسسوارات الراقية", emoji: "👗",
     sections: ["hero", "trust-strip", "new-arrivals", "categories", "lookbook", "about", "newsletter"],
@@ -537,6 +591,42 @@ export const STYLE_PRESETS: Partial<Record<StyleType, { label: string; desc: str
     label: "بوهو شيك", desc: "أجواء دافئة وعضوية", emoji: "🌵",
     sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
+  "dynamic-active": {
+    label: "رياضي وديناميكي", desc: "أداء لا يتوقف مع ألوان مشتعلة", emoji: "🔥",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "dark-glamour": {
+    label: "جاذبية غامضة", desc: "مستحضرات تجميل بلمسة درامية فخمة", emoji: "🖤",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "avant-garde-editorial": {
+    label: "أفانت جارد إديتوريال", desc: "تصميم يحاكي المجلات العالمية الحديثة", emoji: "📖",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "dreamy-pastel": {
+    label: "باستيل حالم", desc: "ألوان ناعمة كالأحلام", emoji: "🌸",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "cloud-glow": {
+    label: "إشراقة السحاب", desc: "تصميم نقي يبرز جمال البشرة", emoji: "☁️",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "ethereal-minimal": {
+    label: "مينيمال ملائكي", desc: "بساطة مذهلة وألوان شفافة", emoji: "🕊️",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "royal-velvet": {
+    label: "مخمل ملكي", desc: "أناقة عميقة ولمسات ذهبية", emoji: "👑",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "golden-opulence": {
+    label: "رفاهية ذهبية", desc: "فخامة مطلقة بمستوى الألماس", emoji: "💎",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  },
+  "imperial-chic": {
+    label: "أناقة إمبراطورية", desc: "أناقة القصور وعظمة كلاسيكية خالدة", emoji: "🏛️",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
+  }
 };
 
 // ─── Default store config ─────────────────────────────────────────────────────
