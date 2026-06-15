@@ -3129,6 +3129,54 @@
           }
         ]
       }
+    },
+    "organicBotanical": {
+      "hero": {
+        "heading": "Pure & Natural Beauty by {{storeName}}",
+        "subheading": "Earth's secrets, ethically sourced and crafted",
+        "ctaText": "Explore Nature"
+      },
+      "about": {
+        "heading": "Rooted in Earth",
+        "body": "We harness the power of botanicals. Clean ingredients, apothecary traditions, and a deep respect for our planet."
+      },
+      "lookbook": {
+        "heading": "Botanical Extracts",
+        "items": [
+          {
+            "title": "Herbal\n Infusion",
+            "desc": "Potent plant-based actives."
+          },
+          {
+            "title": "Earthy\n Tones",
+            "desc": "Grounded in nature's palette."
+          },
+          {
+            "title": "Pure\n Essence",
+            "desc": "Distilled for your skin."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "title": "100% Organic",
+            "text": "Certified natural ingredients"
+          },
+          {
+            "title": "Cruelty-Free",
+            "text": "Never tested on animals"
+          },
+          {
+            "title": "Eco Packaging",
+            "text": "Biodegradable materials"
+          },
+          {
+            "title": "Pure Formulas",
+            "text": "No harsh chemicals"
+          }
+        ]
+      }
     }
   },
   "billing": {

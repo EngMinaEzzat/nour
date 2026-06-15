@@ -22,7 +22,7 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful"  | "cyberpunk";
+  | "youthful"  | "cyberpunk" | "organic";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +31,7 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-cyberpunk";
+  | "luxury-catalog"  | "streetwear-cyberpunk" | "organic-botanical";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -223,6 +223,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
+  const isOrganic = selectedStyle === "organic-botanical";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -235,11 +236,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
-        subheading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
-        ctaText: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        heading: tr(isOrganic ? "defaultSections.organicBotanical.hero.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isOrganic ? `Pure & Natural Beauty by ${storeName}` : isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isOrganic ? "defaultSections.organicBotanical.hero.subheading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isOrganic ? "Earth's secrets, ethically sourced and crafted" : isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isOrganic ? "defaultSections.organicBotanical.hero.ctaText" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isOrganic ? "Explore Nature" : isCyberpunk ? "Hack the System" : "تسوقي الآن"),
         ctaLink: "#products",
-        imageUrl: isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
+        imageUrl: isOrganic ? "/hero-organic-optimized.jpg" : isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -287,11 +288,9 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
-        body: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
-          ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
-          : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
+        heading: tr(isOrganic ? "defaultSections.organicBotanical.about.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isOrganic ? "Rooted in Earth" : isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isOrganic ? "defaultSections.organicBotanical.about.body" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isOrganic ? "We harness the power of botanicals. Clean ingredients, apothecary traditions, and a deep respect for our planet." : isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
+        imageUrl: isOrganic ? "/about-organic-optimized.jpg" : isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -330,8 +329,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isOrganic ? "defaultSections.organicBotanical.lookbook.heading" : "defaultSections.lookbook.heading", isOrganic ? "Botanical Extracts" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isOrganic ? "defaultSections.organicBotanical.lookbook.items" : "defaultSections.lookbook.items", isOrganic ? [
+          {
+            imageUrl: "/lookbook-1-organic-optimized.jpg",
+            tag: "Botanical",
+            title: "Herbal\n Infusion",
+            desc: "Potent plant-based actives.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-organic-optimized.jpg",
+            tag: "Clay",
+            title: "Earthy\n Tones",
+            desc: "Grounded in nature's palette.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-organic-optimized.jpg",
+            tag: "Essence",
+            title: "Pure\n Essence",
+            desc: "Distilled for your skin.",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -366,7 +387,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCyberpunk ? [
+        items: tr(isOrganic ? "defaultSections.organicBotanical.trustStrip.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isOrganic ? [
+          { icon: "🌿", title: "100% Organic", text: "Certified natural ingredients" },
+          { icon: "🐰", title: "Cruelty-Free", text: "Never tested on animals" },
+          { icon: "♻️", title: "Eco Packaging", text: "Biodegradable materials" },
+          { icon: "💧", title: "Pure Formulas", text: "No harsh chemicals" },
+        ] : isCyberpunk ? [
           { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
           { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
           { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
@@ -442,6 +468,13 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"اكسر القواعد — كن أنت\"",
     theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
   },
+
+  organic: {
+    label: "طبيعي وعضوي", desc: "ألوان ترابية ولمسات مستوحاة من الطبيعة الخالصة", emoji: "🌿",
+    colors: ["#6b8e23", "#f5f5f0"], font: "Lora",
+    example: "الجمال من الطبيعة وإليها",
+    theme: { primaryColor: "#6b8e23", secondaryColor: "#8fbc8f", fontPairing: "serif-sans", buttonStyle: "rounded", radius: 16, cardShadow: "soft" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -477,6 +510,11 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "streetwear-cyberpunk": {
     label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
     sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+  },
+
+  "organic-botanical": {
+    label: "نباتي وعضوي", desc: "تصميم طبيعي وألوان ترابية لمستحضرات التجميل العضوية", emoji: "🌿",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
 };
 
