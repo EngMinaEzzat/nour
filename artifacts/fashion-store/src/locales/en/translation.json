@@ -2952,6 +2952,33 @@
     "trust-strip": "Store Features"
   },
   "defaultSections": {
+    "dynamicActive": {
+      "hero": {
+        "heading": "Unstoppable Performance by {{storeName}}",
+        "subheading": "Push your limits with high-energy athletic gear",
+        "ctaText": "Get Moving"
+      },
+      "about": {
+        "heading": "Fuel Your Drive",
+        "body": "We engineer gear for the relentless. High-contrast designs, breathable fabrics, and a dynamic aesthetic that moves with you."
+      },
+      "lookbook": {
+        "heading": "Motion & Power",
+        "items": [
+          { "title": "High\n Impact", "desc": "Gear built for intensity." },
+          { "title": "Sleek\n Speed", "desc": "Aerodynamic fits." },
+          { "title": "Neon\n Pulse", "desc": "Stand out in the dark." }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          { "icon": "⚡", "title": "Lightning Fast", "text": "Express shipping available" },
+          { "icon": "💪", "title": "Durable Tech", "text": "Performance fabrics" },
+          { "icon": "🔄", "title": "Flex Returns", "text": "Quick & easy process" },
+          { "icon": "🔥", "title": "Pro Verified", "text": "Tested by athletes" }
+        ]
+      }
+    },
     "hero": {
       "heading": "Discover the latest collection from {{storeName}}",
       "headingCosmetics": "Discover your beauty with {{storeName}}",

@@ -15,3 +15,6 @@
 ## 2024-06-13 - Add Cyberpunk Theme
 **Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
 **Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+## 2025-06-15 - Dynamic Active Theme & Assets
+**Learning:** For global store configuration updates across multiple components and i18n locales, modifying the primary default values and preset configurations natively in TypeScript and JSON allows for large-scale theme changes without modifying internal UI components. Fallbacks and defaults should be conditional on the active style type (e.g., `dynamic-active`). Use localized variables `t()` consistently.
+**Action:** Always maintain the centralized `createDefaultSection` factory for defining new themes to ensure fallback content and theme consistency across standard components.
