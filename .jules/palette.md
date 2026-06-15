@@ -19,3 +19,6 @@
 ## 2026-06-15 - Palette: Introduce Boho Chic Theme
 **Learning:** Added a new complete visual theme (boho-chic) to the `artifacts/fashion-store`. This required creating the design system config using Stitch MCP (with `stitch_upload_design_md` and `stitch_create_design_system_from_design_md`), managing UI translation state in `translation.json`, and downloading appropriately stylized fallback placeholder images.
 **Action:** When adding new UI themes in the store config, ensure the theme maps correctly onto the existing Section configurations and `StyleType` / `PersonalityType` unions, add the corresponding default image fallbacks, and keep all textual copies heavily localized with `i18next`.
+## 2026-06-15 - [Product Grid Responsive Layout Update]
+**Learning:** For a better merchant experience on mobile, product grids should prioritize showing more items per viewport rather than large single items that require extensive scrolling.
+**Action:** Changed the Tailwind grid layout for product lists to start at `grid-cols-2` on mobile instead of `grid-cols-1`, ensuring at least two products are visible per row. Additionally reduced grid gaps on smaller screens to maximize visible area.
