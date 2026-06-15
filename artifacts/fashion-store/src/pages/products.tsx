@@ -1132,7 +1132,7 @@ export default function Products() {
 
       {/* Products grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5">
           {Array(8).fill(0).map((_, i) => (
             <div key={i} className="flex flex-col gap-3">
               <Skeleton className="aspect-[4/3] w-full rounded-xl" />
