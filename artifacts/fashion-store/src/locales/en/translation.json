@@ -3085,26 +3085,26 @@
     "streetwearCyberpunk": {
       "hero": {
         "heading": "Own the Streets with {{storeName}}",
-        "subheading": "Cyber Drip & High-Energy Aesthetics",
+        "subheading": "Brutalist Urban Gear & High-Energy Aesthetics",
         "ctaText": "Hack the System"
       },
       "about": {
         "heading": "The Core of {{storeName}}",
-        "body": "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative."
+        "body": "We are the concrete rebels. Forged in neon light, crafted for the modern street explorer. We blend brutalist design with high-octane energy."
       },
       "lookbook": {
         "heading": "Cyber Drip - Neural Uplink",
         "items": [
           {
-            "title": "Neon\n Nights",
+            "title": "Neon\\n Nights",
             "desc": "High visibility. Zero stealth."
           },
           {
-            "title": "Concrete\n Jungle",
-            "desc": "Brutalist aesthetics for the modern rogue."
+            "title": "Concrete\\n Jungle",
+            "desc": "Brutalist aesthetics for the rogue."
           },
           {
-            "title": "Glitch\n Reality",
+            "title": "Glitch\\n Reality",
             "desc": "Distorted reality, perfected."
           }
         ]
@@ -3112,20 +3112,24 @@
       "trustStrip": {
         "items": [
           {
+            "icon": "⚡",
             "title": "Hyper Delivery",
-            "text": "Light-speed shipping"
+            "text": "Light-speed urban shipping"
           },
           {
-            "title": "Encrypted Payment",
-            "text": "100% secure checkout"
+            "icon": "🔒",
+            "title": "Neural Lock",
+            "text": "100% encrypted checkout"
           },
           {
+            "icon": "🔄",
             "title": "System Reboot",
-            "text": "Hassle-free returns"
+            "text": "Instant hassle-free returns"
           },
           {
+            "icon": "🛡️",
             "title": "Prime Quality",
-            "text": "Verified authentic gear"
+            "text": "Verified street gear"
           }
         ]
       }

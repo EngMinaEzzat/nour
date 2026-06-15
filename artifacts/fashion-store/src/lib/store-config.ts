@@ -330,8 +330,30 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.lookbook.heading" : "defaultSections.lookbook.heading", isCyberpunk ? "Cyber Drip - Neural Uplink" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.lookbook.items" : "defaultSections.lookbook.items", isCyberpunk ? [
+          {
+            imageUrl: "/lookbook-1-optimized.jpg",
+            tag: "Neon",
+            title: "Neon\\n Nights",
+            desc: "High visibility. Zero stealth.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-optimized.jpg",
+            tag: "Concrete",
+            title: "Concrete\\n Jungle",
+            desc: "Brutalist aesthetics for the rogue.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-optimized.jpg",
+            tag: "Glitch",
+            title: "Glitch\\n Reality",
+            desc: "Distorted reality, perfected.",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
@@ -438,9 +460,9 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
   },
   cyberpunk: {
     label: "سايبربانك", desc: "تصميم جريء ومظلم مع لمسات نيون قوية", emoji: "⚡",
-    colors: ["#0f0f0f", "#39ff14"], font: "Cairo",
+    colors: ["#39ff14", "#0f0f11"], font: "Courier New, Courier, monospace",
     example: "\"اكسر القواعد — كن أنت\"",
-    theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
+    theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f11", fontPairing: "sans-sans", buttonStyle: "square", radius: 0, animationLevel: "lively", cardShadow: "strong" },
   },
 };
 
@@ -476,7 +498,7 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   },
   "streetwear-cyberpunk": {
     label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
-    sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
 };
 

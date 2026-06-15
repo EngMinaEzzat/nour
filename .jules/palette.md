@@ -15,3 +15,6 @@
 ## 2024-06-13 - Add Cyberpunk Theme
 **Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
 **Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+## 2026-06-15 - Implement Streetwear Cyberpunk Theme
+**Learning:** Added a new cohesive design theme ("streetwear-cyberpunk") via `store-config.ts` configuration injections and translations.
+**Action:** When adding new themes, always remember to add the theme identifier to both `StyleType` and `PersonalityType` unions, configure `PERSONALITY_PRESETS` with exact colors and border radii, sequence the `STYLE_PRESETS` properly, and update the default section factory and `i18n` translations (`en` and `ar`) to match the new stylistic context.
