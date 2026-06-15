@@ -15,3 +15,6 @@
 ## 2024-06-13 - Add Cyberpunk Theme
 **Learning:** Expanding types inside a union type configuration file requires updating functions that consume these types and conditionally return translations.
 **Action:** When adding new configuration themes with completely localized specific copies, ensure the default factories (like `createDefaultSection`) check for the active style, apply the new translation keys (with fallbacks to default theme values), and verify via unit tests that the fallback and specific languages logic remain intact.
+## 2024-05-18 - Clinical Derma Design System Implementation
+**Learning:** Successfully implementing a new theme via `store-config.ts` requires updating `StyleType` and `PersonalityType` unions, mapping the corresponding presets, conditionally rendering factory settings based on these values (like `isClinical`), appending the string translations in both i18n JSON files, and including specialized default image assets in the `public/` directory for fallbacks.
+**Action:** When asked to create a new design system, apply these changes across `store-config.ts` and `translation.json` in parallel and include asset placeholders to ensure robust rendering when selected.

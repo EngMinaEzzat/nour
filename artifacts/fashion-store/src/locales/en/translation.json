@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "clinicalDerma": {
+      "hero": {
+        "heading": "Science-Backed Dermaceuticals by {{storeName}}",
+        "subheading": "Active formulas & dermatologist approved results",
+        "ctaText": "Consult the Expert"
+      },
+      "about": {
+        "heading": "The Science of {{storeName}}",
+        "body": "Formulated by dermatologists, tested in clinical labs. We bring you active ingredients that deliver proven results. No fillers, just science."
+      },
+      "lookbook": {
+        "heading": "Clinical Trials - Skin Barrier",
+        "items": [
+          {
+            "title": "Active\n Formula",
+            "desc": "Deep cellular repair."
+          },
+          {
+            "title": "Clinical\n Trials",
+            "desc": "Dermatologist approved results."
+          },
+          {
+            "title": "Skin\n Barrier",
+            "desc": "Strengthen and protect daily."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🔬",
+            "title": "Lab Tested",
+            "text": "Dermatologically certified"
+          },
+          {
+            "icon": "🧪",
+            "title": "Pure Actives",
+            "text": "Clinically proven ingredients"
+          },
+          {
+            "icon": "🏥",
+            "title": "Medical Grade",
+            "text": "Safe for sensitive skin"
+          },
+          {
+            "icon": "📦",
+            "title": "Sterile Shipping",
+            "text": "Clean sealed packaging"
+          }
+        ]
+      }
     }
   },
   "billing": {

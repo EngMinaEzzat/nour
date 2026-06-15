@@ -22,7 +22,9 @@ export type PersonalityType =
   | "bold"
   | "minimal"
   | "warm"
-  | "youthful"  | "cyberpunk";
+  | "youthful"
+  | "cyberpunk"
+  | "clinical";
 
 export type StyleType =
   | "modern-boutique"
@@ -31,7 +33,9 @@ export type StyleType =
   | "premium-fashion"
   | "local-brand"
   | "playful-shop"
-  | "luxury-catalog"  | "streetwear-cyberpunk";
+  | "luxury-catalog"
+  | "streetwear-cyberpunk"
+  | "clinical-derma";
 
 export type DeviceType = "desktop" | "tablet" | "mobile";
 
@@ -223,6 +227,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const id = `${type}-${Date.now()}`;
   const isCosmetics = category === "cosmetics";
   const isCyberpunk = selectedStyle === "streetwear-cyberpunk";
+  const isClinical = selectedStyle === "clinical-derma";
   
   const tr = (key: string, fallback: any, options?: any) => {
     if (t) {
@@ -235,11 +240,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   const defaults: Record<SectionType, { content: SectionContent; settings: SectionSettings }> = {
     hero: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
-        subheading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
-        ctaText: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isCyberpunk ? "Hack the System" : "تسوقي الآن"),
+        heading: tr(isClinical ? "defaultSections.clinicalDerma.hero.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.heading" : isCosmetics ? "defaultSections.hero.headingCosmetics" : "defaultSections.hero.heading", isClinical ? `Science-Backed Dermaceuticals by ${storeName}` : isCyberpunk ? `Own the Streets with ${storeName}` : isCosmetics ? `اكتشفي جمالكِ مع ${storeName}` : `اكتشفي أحدث تشكيلة من ${storeName}`, { storeName }),
+        subheading: tr(isClinical ? "defaultSections.clinicalDerma.hero.subheading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.subheading" : isCosmetics ? "defaultSections.hero.subheadingCosmetics" : "defaultSections.hero.subheading", isClinical ? "Active formulas & dermatologist approved results" : isCyberpunk ? "Cyber Drip & High-Energy Aesthetics" : isCosmetics ? "مستحضرات عناية وتجميل تبرز جمالك الطبيعي" : "أزياء راقية بأسعار تناسبك"),
+        ctaText: tr(isClinical ? "defaultSections.clinicalDerma.hero.ctaText" : isCyberpunk ? "defaultSections.streetwearCyberpunk.hero.ctaText" : "defaultSections.hero.ctaText", isClinical ? "Consult the Expert" : isCyberpunk ? "Hack the System" : "تسوقي الآن"),
         ctaLink: "#products",
-        imageUrl: isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
+        imageUrl: isClinical ? "/hero-clinical-optimized.jpg" : isCyberpunk ? "/hero-streetwear-optimized.jpg" : undefined
       },
       settings: { height: "tall", textAlign: "right", overlayOpacity: 40 },
     },
@@ -287,11 +292,11 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     about: {
       content: { 
-        heading: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
-        body: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
+        heading: tr(isClinical ? "defaultSections.clinicalDerma.about.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.heading" : "defaultSections.about.heading", isClinical ? `The Science of ${storeName}` : isCyberpunk ? `The Core of ${storeName}` : `قصة ${storeName}`, { storeName }),
+        body: tr(isClinical ? "defaultSections.clinicalDerma.about.body" : isCyberpunk ? "defaultSections.streetwearCyberpunk.about.body" : isCosmetics ? "defaultSections.about.bodyCosmetics" : "defaultSections.about.bodyFashion", isClinical ? "Formulated by dermatologists, tested in clinical labs. We bring you active ingredients that deliver proven results. No fillers, just science." : isCyberpunk ? "Born in the neon glow, forged in the concrete jungle. We bring you the ultimate streetwear aesthetic, blending brutalist design with high-octane energy. Own your narrative." : isCosmetics
           ? "نؤمن بأن الجمال الحقيقي ينبع من الداخل، ومهمتنا هي توفير أفضل مستحضرات العناية والتجميل لتعزيز ثقتكِ بنفسكِ. كل منتج نختاره بعناية ليناسب احتياجاتكِ." 
           : "نؤمن بأن كل امرأة تستحق أن تشعر بالثقة والأناقة. بدأنا رحلتنا بشغف حقيقي لتقديم أجمل الأزياء بأفضل الأسعار."),
-        imageUrl: isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
+        imageUrl: isClinical ? "/about-clinical-optimized.jpg" : isCyberpunk ? "/about-streetwear-optimized.jpg" : "/about-optimized.jpg"
       },
       settings: { layout: "with-image" },
     },
@@ -330,26 +335,70 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     lookbook: {
       content: { 
-        heading: tr("defaultSections.lookbook.heading", "لوك بوك - إلهامي هذا الموسم"),
-        items: tr("defaultSections.lookbook.items", [
+        heading: tr(isClinical ? "defaultSections.clinicalDerma.lookbook.heading" : isCyberpunk ? "defaultSections.streetwearCyberpunk.lookbook.heading" : "defaultSections.lookbook.heading", isClinical ? "Clinical Trials - Skin Barrier" : isCyberpunk ? "Cyber Drip - Neural Uplink" : "لوك بوك - إلهامي هذا الموسم"),
+        items: tr(isClinical ? "defaultSections.clinicalDerma.lookbook.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.lookbook.items" : "defaultSections.lookbook.items", isClinical ? [
+          {
+            imageUrl: "/lookbook-1-clinical-optimized.jpg",
+            tag: "Active",
+            title: "Active\n Formula",
+            desc: "Deep cellular repair.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-clinical-optimized.jpg",
+            tag: "Clinical",
+            title: "Clinical\n Trials",
+            desc: "Dermatologist approved results.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-clinical-optimized.jpg",
+            tag: "Barrier",
+            title: "Skin\n Barrier",
+            desc: "Strengthen and protect daily.",
+            categoryId: "",
+          },
+        ] : isCyberpunk ? [
+          {
+            imageUrl: "/lookbook-1-streetwear-optimized.jpg",
+            tag: "Neon",
+            title: "Neon\n Nights",
+            desc: "High visibility. Zero stealth.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-2-streetwear-optimized.jpg",
+            tag: "Concrete",
+            title: "Concrete\n Jungle",
+            desc: "Brutalist aesthetics for the modern rogue.",
+            categoryId: "",
+          },
+          {
+            imageUrl: "/lookbook-3-streetwear-optimized.jpg",
+            tag: "Grid",
+            title: "Grid\n Runner",
+            desc: "Built for speed and style in the sprawl.",
+            categoryId: "",
+          },
+        ] : [
           {
             imageUrl: "/lookbook-1-optimized.jpg",
             tag: "Fashion",
-            title: "Egyptian\\n Beauty",
+            title: "Egyptian\n Beauty",
             desc: "An exclusive collection inspired by heritage",
             categoryId: "",
           },
           {
             imageUrl: "/lookbook-2-optimized.jpg",
             tag: "Spring 2025",
-            title: "Spring\\n Colors",
+            title: "Spring\n Colors",
             desc: "Soft shades for a perfect look",
             categoryId: "",
           },
           {
             imageUrl: "/lookbook-3-optimized.jpg",
             tag: "Beauty",
-            title: "Beauty\\n Magic",
+            title: "Beauty\n Magic",
             desc: "High quality care products",
             categoryId: "",
           },
@@ -366,7 +415,12 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
     },
     "trust-strip": {
       content: { 
-        items: tr(isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isCyberpunk ? [
+        items: tr(isClinical ? "defaultSections.clinicalDerma.trustStrip.items" : isCyberpunk ? "defaultSections.streetwearCyberpunk.trustStrip.items" : "defaultSections.trustStrip.items", isClinical ? [
+          { icon: "🔬", title: "Lab Tested", text: "Dermatologically certified" },
+          { icon: "🧪", title: "Pure Actives", text: "Clinically proven ingredients" },
+          { icon: "🏥", title: "Medical Grade", text: "Safe for sensitive skin" },
+          { icon: "📦", title: "Sterile Shipping", text: "Clean sealed packaging" }
+        ] : isCyberpunk ? [
           { icon: "⚡", title: "Hyper Delivery", text: "Light-speed shipping" },
           { icon: "🔒", title: "Encrypted Payment", text: "100% secure checkout" },
           { icon: "🔄", title: "System Reboot", text: "Hassle-free returns" },
@@ -442,6 +496,12 @@ export const PERSONALITY_PRESETS: Record<PersonalityType, { label: string; desc:
     example: "\"اكسر القواعد — كن أنت\"",
     theme: { primaryColor: "#39ff14", secondaryColor: "#0f0f0f", fontPairing: "sans-sans", buttonStyle: "square", animationLevel: "lively", cardShadow: "strong" },
   },
+  clinical: {
+    label: "طبية سريرية", desc: "تصميم نظيف وموثوق يعكس جودة علمية وطبية", emoji: "🔬",
+    colors: ["#008080", "#ffffff"], font: "system-ui, -apple-system, sans-serif",
+    example: "\"تركيبات نشطة ونتائج معتمدة من أطباء الجلدية\"",
+    theme: { primaryColor: "#008080", secondaryColor: "#ffffff", fontPairing: "sans-sans", buttonStyle: "rounded", cardShadow: "soft" },
+  },
 };
 
 // ─── Style / Template presets ─────────────────────────────────────────────────
@@ -477,6 +537,10 @@ export const STYLE_PRESETS: Record<StyleType, { label: string; desc: string; emo
   "streetwear-cyberpunk": {
     label: "ستريت وير", desc: "أزياء الشارع بطابع سايبربانك", emoji: "🕶️",
     sections: ["hero", "new-arrivals", "lookbook", "trust-strip", "categories", "about", "newsletter"],
+  },
+  "clinical-derma": {
+    label: "ديرما كلينيكال", desc: "للصيدليات ومستحضرات التجميل الطبية", emoji: "🔬",
+    sections: ["hero", "trust-strip", "categories", "new-arrivals", "best-sellers", "offers", "lookbook", "instagram", "newsletter", "about", "whatsapp"],
   },
 };
 
