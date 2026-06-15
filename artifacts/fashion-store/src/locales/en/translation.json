@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "darkGlamour": {
+      "hero": {
+        "heading": "Fierce Elegance by {{storeName}}",
+        "subheading": "Unveil the night with high-end dramatic beauty",
+        "ctaText": "Embrace the Dark"
+      },
+      "about": {
+        "heading": "The Art of Shadows",
+        "body": "We redefine luxury with a moody, gothic aesthetic. Deep pigments, metallic gold finishes, and fierce elegance for those who command the room."
+      },
+      "lookbook": {
+        "heading": "Midnight Collection",
+        "items": [
+          {
+            "title": "Velvet\n Kiss",
+            "desc": "Deep burgundy and rich matte shades."
+          },
+          {
+            "title": "Liquid\n Gold",
+            "desc": "Metallic highlights that blind."
+          },
+          {
+            "title": "Smokey\n Gaze",
+            "desc": "Intense, dramatic eye looks."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "✨",
+            "title": "Premium Quality",
+            "text": "Luxury in every drop"
+          },
+          {
+            "icon": "🌙",
+            "title": "Night Delivery",
+            "text": "Secure & discreet shipping"
+          },
+          {
+            "icon": "🖤",
+            "title": "Flawless Returns",
+            "text": "Seamless exchange policy"
+          },
+          {
+            "icon": "👑",
+            "title": "VIP Support",
+            "text": "Exclusive customer care"
+          }
+        ]
+      }
     }
   },
   "billing": {
