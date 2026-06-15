@@ -44,16 +44,16 @@ export function HeroPreview({
         style={{ background: `rgba(0,0,0,${overlay})` }}
       />
       <div className={`relative z-10 px-8 py-6 w-full text-${align}`}>
-        <p className="text-white text-[10px] font-medium mb-1 opacity-80 tracking-widest uppercase">
+        <p className="text-white text-[10px] font-medium mb-1 opacity-80 tracking-widest uppercase" style={{ fontFamily: "var(--font-body)" }}>
           {brand.name}
         </p>
         <h2
           className="text-white text-xl font-bold mb-2 leading-tight"
-          style={{ fontFamily: "'Cormorant Garamond', serif" }}
+          style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)" }}
         >
           {section.content.heading ?? t("sectionPreview.defaults.heroHeading")}
         </h2>
-        <p className="text-white/80 text-xs mb-4">
+        <p className="text-white/80 text-xs mb-4" style={{ fontFamily: "var(--font-body)" }}>
           {section.content.subheading ??
             t("sectionPreview.defaults.heroSubheading")}
         </p>
@@ -64,12 +64,8 @@ export function HeroPreview({
             className="text-white text-xs px-4 py-1.5 font-medium"
             style={{
               background: p,
-              borderRadius:
-                theme.buttonStyle === "pill"
-                  ? 999
-                  : theme.buttonStyle === "rounded"
-                    ? 6
-                    : 0,
+              borderRadius: "var(--btn-radius, 9999px)",
+              fontFamily: "var(--font-body)",
             }}
           >
             {section.content.ctaText ?? t("sectionPreview.defaults.heroCta")}
@@ -77,12 +73,8 @@ export function HeroPreview({
           <span
             className="text-white text-xs px-4 py-1.5 font-medium border border-white/60"
             style={{
-              borderRadius:
-                theme.buttonStyle === "pill"
-                  ? 999
-                  : theme.buttonStyle === "rounded"
-                    ? 6
-                    : 0,
+              borderRadius: "var(--btn-radius, 9999px)",
+              fontFamily: "var(--font-body)",
             }}
           >
             {t("sectionPreview.defaults.heroNewArrival")}

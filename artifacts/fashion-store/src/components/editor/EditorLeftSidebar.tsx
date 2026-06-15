@@ -618,15 +618,10 @@ function ThemePanel({
                 {/* Theme name */}
                 <div className="px-2 py-1.5 bg-white">
                   <p className="text-[11px] font-semibold text-stone-800 flex items-center gap-1">
-                    <span>{tTheme.emoji}</span>{" "}
-                    {t(
-                      `editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.name`,
-                    )}
+                    <span>{tTheme.emoji}</span> {tTheme.name}
                   </p>
                   <p className="text-[9px] text-stone-400 truncate">
-                    {t(
-                      `editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.desc`,
-                    )}
+                    {tTheme.desc}
                   </p>
                 </div>
               </motion.button>
