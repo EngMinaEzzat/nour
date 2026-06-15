@@ -3129,6 +3129,58 @@
           }
         ]
       }
+    },
+    "etherealMinimal": {
+      "hero": {
+        "heading": "Ethereal Beauty at {{storeName}}",
+        "subheading": "A whisper of elegance and sheer perfection",
+        "ctaText": "Discover Grace"
+      },
+      "about": {
+        "heading": "Less is More",
+        "body": "Embrace the sheer aesthetic. Our collection brings together ultra-soft minimal fashion and weightless cosmetics for an angelic touch."
+      },
+      "lookbook": {
+        "heading": "The Sheer Collection",
+        "items": [
+          {
+            "title": "Angelic\\n Glow",
+            "desc": "Soft, barely-there beauty."
+          },
+          {
+            "title": "Silk &\\n Chiffon",
+            "desc": "Delicate fabrics that float."
+          },
+          {
+            "title": "Ghost\\n White",
+            "desc": "The purest form of minimal."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🕊️",
+            "title": "Delicate Quality",
+            "text": "Handled with extreme care"
+          },
+          {
+            "icon": "🌬️",
+            "title": "Breeze Shipping",
+            "text": "Swift and silent delivery"
+          },
+          {
+            "icon": "🤍",
+            "title": "Simple Returns",
+            "text": "No questions asked"
+          },
+          {
+            "icon": "🕯️",
+            "title": "Serene Support",
+            "text": "Calm and helpful service"
+          }
+        ]
+      }
     }
   },
   "billing": {

@@ -1,8 +1,10 @@
 import { type StorefrontProps } from '@/components/themes/types';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { productImageUrl } from "@/lib/image-url";
 
 export function GlowGridStorefront({ store, products, categories }: StorefrontProps) {
+    const { t } = useTranslation();
 
 
     return (
@@ -18,7 +20,7 @@ export function GlowGridStorefront({ store, products, categories }: StorefrontPr
             {/* Header */}
             <header className="bg-[#201f1f] flex justify-between items-center w-full px-4 md:px-8 py-6 sticky top-0 z-50 border-b border-white/10">
                 <div className="flex gap-2 items-center">
-                    <button className="text-[#b9c3ff] font-medium text-sm transition-colors">
+                    <button aria-label={t("common.buttons.cart", "Cart")} className="text-[#b9c3ff] font-medium text-sm transition-colors">
                         shopping_bag
                     </button>
                 </div>
@@ -53,7 +55,7 @@ export function GlowGridStorefront({ store, products, categories }: StorefrontPr
                                     <h3 className="font-bold text-xl text-white" style={{ fontFamily: 'Anybody, sans-serif' }}>{p.name}</h3>
                                     <div className="flex items-center justify-between mt-2">
                                         <span className="text-[#cdf200] font-bold text-lg">EGP {p.price}</span>
-                                        <button className="w-10 h-10 rounded-full border border-[#8e8fa3] text-[#b9c3ff] flex items-center justify-center hover:bg-[#313030] transition-colors">
+                                        <button aria-label={t("common.buttons.add", "Add")} className="w-10 h-10 rounded-full border border-[#8e8fa3] text-[#b9c3ff] flex items-center justify-center hover:bg-[#313030] transition-colors">
                                             <span className="material-symbols-outlined font-sans font-bold text-sm">+</span>
                                         </button>
                                     </div>
