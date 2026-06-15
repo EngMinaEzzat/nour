@@ -57,7 +57,7 @@ You must implement this without breaking the existing styles and while adhering 
 ### Phase 3: Default Section Content & Imagery Generation
 1. In `src/lib/store-config.ts` (`createDefaultSection`), update the factory logic to conditionally apply the streetwear-cyberpunk translations if selected.
 2. **Generate and Save Visual Assets**:
-   Use image generation prompts or design tools to produce 5 optimized, theme-appropriate visual assets. Save them directly into the `public/` directory of the storefront:
+   Use stitch for image generation to produce 5 optimized, theme-appropriate visual assets. Save them directly into the `public/` directory of the storefront:
    - **`/hero-streetwear-optimized.jpg`**: A high-contrast urban landscape with neon glow, featuring edgy models wearing techwear/streetwear.
    - **`/about-streetwear-optimized.jpg`**: A close-up shot of brutalist-inspired concrete textures with neon pink and green laser lighting.
    - **`/lookbook-1-optimized.jpg`** (or `/lookbook-streetwear-1.jpg`): Dark, moody streetwear model standing in a neon rain-soaked alley.

@@ -57,7 +57,7 @@ You must implement this without breaking the existing styles and while adhering 
 ### Phase 3: Default Section Content & Imagery Generation
 1. In `src/lib/store-config.ts` (`createDefaultSection`), update the factory logic to conditionally apply the y2k-nostalgia translations if selected.
 2. **Generate and Save Visual Assets**:
-   Use image generation prompts or design tools to produce 5 optimized, theme-appropriate visual assets. Save them directly into the `public/` directory of the storefront:
+   Use stitch for image generation to produce 5 optimized, theme-appropriate visual assets. Save them directly into the `public/` directory of the storefront:
    - **`/hero-y2k-optimized.jpg`**: A bright, high-energy fashion layout featuring models posing in metallic silver puffer jackets and pink tinted sunglasses against a holographic background.
    - **`/about-y2k-optimized.jpg`**: A beautiful close-up of glitter-infused cosmetics lip gloss and sparkling pink aesthetic background.
    - **`/lookbook-1-y2k-optimized.jpg`**: A model wearing retro streetwear denim and baby tee with glitter effects.

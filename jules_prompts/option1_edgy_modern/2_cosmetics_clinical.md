@@ -57,7 +57,7 @@ You must implement this without breaking the existing styles and while adhering 
 ### Phase 3: Default Section Content & Imagery Generation
 1. In `src/lib/store-config.ts` (`createDefaultSection`), update the factory logic to conditionally apply the clinical-derma translations if selected.
 2. **Generate and Save Visual Assets**:
-   Use image generation prompts or design tools to produce 5 optimized, theme-appropriate visual assets. Save them directly into the `public/` directory of the storefront:
+   Use stitch for image generation to produce 5 optimized, theme-appropriate visual assets. Save them directly into the `public/` directory of the storefront:
    - **`/hero-clinical-optimized.jpg`**: A minimalist, high-key studio photograph showing premium cosmetic bottles next to botanical glass test tubes on a clean slate background.
    - **`/about-clinical-optimized.jpg`**: A clean, close-up shot of cosmetic serum drops or light blue gel textures with water droplets.
    - **`/lookbook-1-clinical-optimized.jpg`**: Minimalist product layout featuring dropper bottles and clear gel textures in a clean lab setting.
