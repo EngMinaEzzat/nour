@@ -150,3 +150,8 @@
 **Vulnerability:** A timing attack vulnerability was identified in `artifacts/api-server/src/services/WhatsappService.ts` where a sensitive webhook secret was being compared using a standard string inequality operator (`!==`).
 **Learning:** Standard string comparisons evaluate character by character and return as soon as a mismatch is found, allowing attackers to measure response times and progressively guess the secret.
 **Prevention:** Always convert sensitive strings to `Buffer`s and compare them using `crypto.timingSafeEqual`, ensuring you check that the buffer lengths match first to prevent runtime errors from `timingSafeEqual`.
+
+## 2024-06-15 - SSRF Filter Bypass via IPv4-mapped IPv6 Hex Encoding
+**Vulnerability:** The `isPrivateIp` function used to prevent SSRF in the AI import endpoint (`ai-import.ts`) failed to correctly validate hexadecimal encoded IPv4 payloads within IPv4-mapped IPv6 addresses (e.g., `::ffff:7f00:1` instead of `::ffff:127.0.0.1`).
+**Learning:** Naive string splitting (e.g., `ip.split(".")`) and basic malformed checks will reject non-standard IP formats without properly evaluating them, allowing an attacker to bypass loopback/private IP blocklists.
+**Prevention:** Always use robust IP parsing (like Node's `net.isIPv6` and `net.isIPv4`) and carefully handle the IPv4 payload within `::ffff:` mapped addresses, explicitly decoding hex if necessary or rejecting non-standard dotted decimal formats that evade basic filters.
