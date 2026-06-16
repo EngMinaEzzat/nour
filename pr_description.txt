@@ -1,4 +1,0 @@
-🎯 **What:** The translation function `t` was using the `any` type in `PlatformLabel` and `CopyButton` components in `affiliates.tsx`. This has been updated to use the strictly typed `TFunction` from `i18next`.
-💡 **Why:** Relying on `any` bypasses TypeScript's type checking, making the code more error-prone and harder to refactor. Replacing it with `TFunction` improves the maintainability and type safety of the translations without altering any runtime behavior.
-✅ **Verification:** I successfully ran `pnpm run typecheck` across all workspace projects, and ran the specific test suite for the frontend using `pnpm --filter @workspace/fashion-store run test`. I also verified that the production build completes successfully.
-✨ **Result:** A small, contained fix that eliminates `any` types for the `t` parameter, leading to better type safety and code health.

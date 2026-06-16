@@ -443,47 +443,49 @@ export class OrderService {
         }))
       );
 
-      for (const item of itemsWithPrices) {
-        const decremented = item.variantId
-          ? await tx
-              .update(productVariantsTable)
-              .set({ stock: sql`${productVariantsTable.stock} - ${item.quantity}` })
-              .where(
-                and(
-                  eq(productVariantsTable.id, item.variantId),
-                  eq(productVariantsTable.productId, item.productId),
-                  sql`${productVariantsTable.stock} >= ${item.quantity}`
+      await Promise.all(
+        itemsWithPrices.map(async (item) => {
+          const decremented = item.variantId
+            ? await tx
+                .update(productVariantsTable)
+                .set({ stock: sql`${productVariantsTable.stock} - ${item.quantity}` })
+                .where(
+                  and(
+                    eq(productVariantsTable.id, item.variantId),
+                    eq(productVariantsTable.productId, item.productId),
+                    sql`${productVariantsTable.stock} >= ${item.quantity}`
+                  )
                 )
-              )
-              .returning({ id: productVariantsTable.id })
-          : await tx
-              .update(productsTable)
-              .set({ stock: sql`${productsTable.stock} - ${item.quantity}` })
-              .where(
-                and(
-                  eq(productsTable.id, item.productId),
-                  eq(productsTable.tenantId, orderTenantId),
-                  sql`${productsTable.stock} >= ${item.quantity}`
+                .returning({ id: productVariantsTable.id })
+            : await tx
+                .update(productsTable)
+                .set({ stock: sql`${productsTable.stock} - ${item.quantity}` })
+                .where(
+                  and(
+                    eq(productsTable.id, item.productId),
+                    eq(productsTable.tenantId, orderTenantId),
+                    sql`${productsTable.stock} >= ${item.quantity}`
+                  )
                 )
-              )
-              .returning({ id: productsTable.id });
+                .returning({ id: productsTable.id });
 
-        if (decremented.length === 0) {
-          throw new CheckoutHttpError(409, `الكمية المطلوبة من المنتج #${item.productId} تتجاوز المخزون المتاح`);
-        }
+          if (decremented.length === 0) {
+            throw new CheckoutHttpError(409, `الكمية المطلوبة من المنتج #${item.productId} تتجاوز المخزون المتاح`);
+          }
 
-        const productSummaryUpdate = item.variantId
-          ? {
-              stock: sql`${productsTable.stock} - ${item.quantity}`,
-              orderCount: sql`${productsTable.orderCount} + ${item.quantity}`,
-            }
-          : { orderCount: sql`${productsTable.orderCount} + ${item.quantity}` };
+          const productSummaryUpdate = item.variantId
+            ? {
+                stock: sql`${productsTable.stock} - ${item.quantity}`,
+                orderCount: sql`${productsTable.orderCount} + ${item.quantity}`,
+              }
+            : { orderCount: sql`${productsTable.orderCount} + ${item.quantity}` };
 
-        await tx
-          .update(productsTable)
-          .set(productSummaryUpdate)
-          .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, orderTenantId)));
-      }
+          await tx
+            .update(productsTable)
+            .set(productSummaryUpdate)
+            .where(and(eq(productsTable.id, item.productId), eq(productsTable.tenantId, orderTenantId)));
+        })
+      );
 
       await tx.insert(orderStatusHistoryTable).values({
         orderId: order.id,
