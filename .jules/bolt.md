@@ -68,6 +68,10 @@
 ## 2026-06-07 - Follow Up Queue N+1 Optimization
 **Learning:** Found an N+1 query issue in the `/api/follow-up/queue` endpoint where the system was querying `contactAttemptsTable` individually for each order in a loop.
 **Action:** Replaced the loop-based querying with a single pre-fetching step using `inArray` to fetch all contact attempts for relevant orders at once, and constructed a JavaScript `Map` to assign them to their respective orders in O(1) time. This reduced processing time for 100 orders from ~82ms to ~12ms.
+## 2025-02-12 - Parallel Bulk Database Insertions
+**Learning:** Sequential `.slice()` batching with `await db.insert()` block the Node.js event thread unnecessarily. Drizzle combined with `pg` supports connection pooling allowing parallel inserts.
+**Action:** Use `Promise.all` over an array of promises calling `db.insert` with larger chunk sizes (e.g., 500) rather than smaller sizes (100) and sequential loops to improve scaling script performance.
+
 ## 2026-06-11 - [Optimize Order Checkout Items DB update using Promise.all]
 **Learning:** Found sequential database updates occurring within a `for...of` loop inside `OrderService.checkout` for decrementing product/variant stock and incrementing order counts. This creates an N+1 queries performance bottleneck.
 **Action:** Replaced the sequential `for...of` loop with concurrent `await Promise.all(itemsWithPrices.map(async (item) => { ... }))`. This allows the asynchronous database transaction update and selection promises to be resolved concurrently on the connection pool.
