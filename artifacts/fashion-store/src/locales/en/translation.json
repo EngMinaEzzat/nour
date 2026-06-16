@@ -873,7 +873,9 @@
       "salon_name": "Salon",
       "salon_desc": "Gentle gradient, circular images, feminine beauty look",
       "bold_name": "Bold",
-      "bold_desc": "Huge editorial division, 2 large columns, impactful"
+      "bold_desc": "Huge editorial division, 2 large columns, impactful",
+      "glow-grid_name": "Glow Grid",
+      "glow-grid_desc": "Modern dark theme, vibrant grid"
     },
     "livePreview": {
       "title": "Live Preview",
