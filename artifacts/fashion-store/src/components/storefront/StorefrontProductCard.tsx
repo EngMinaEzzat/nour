@@ -99,6 +99,10 @@ export function StorefrontProductCard({
   function handleAdd(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+    if (inCart) {
+      navigate("/checkout");
+      return;
+    }
     if (unavailable) return;
     if (product.hasVariants) {
       navigate(productHref);
@@ -205,7 +209,7 @@ export function StorefrontProductCard({
                     {product.hasVariants ? (
                       <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
                     ) : inCart ? (
-                      <><Check className="w-3.5 h-3.5" />{t("storefront.products.inCart")}</>
+                      <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
                     ) : (
                       <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
                     )}
@@ -336,7 +340,7 @@ export function StorefrontProductCard({
           ) : product.hasVariants ? (
             <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
           ) : inCart ? (
-            <><Check className="w-3.5 h-3.5" />{t("storefront.products.inCart")}</>
+            <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
           ) : (
             <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
           )}

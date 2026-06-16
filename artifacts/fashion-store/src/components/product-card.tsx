@@ -21,6 +21,10 @@ export function ProductCard({ product }: ProductCardProps) {
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+    if (inCart) {
+      navigate("/checkout");
+      return;
+    }
     if (unavailable) return;
     // Products with variants MUST select options on the detail page first
     if (product.hasVariants) {
@@ -70,7 +74,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   ? "bg-primary text-primary-foreground scale-110"
                   : "bg-white/90 text-foreground opacity-0 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground"
                 }`}
-              aria-label={product.hasVariants ? t("productCard.selectOptions") : inCart ? t("productCard.addedToBag") : t("productCard.addToBag")}
+              aria-label={product.hasVariants ? t("productCard.selectOptions") : inCart ? t("productDetail.goToCart") : t("productCard.addToBag")}
             >
               {product.hasVariants ? (
                 <Layers className="w-4 h-4" />

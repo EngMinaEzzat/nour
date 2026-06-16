@@ -1,4 +1,4 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetProduct, getGetProductQueryKey, useListProductVariants, getListProductVariantsQueryKey } from "@workspace/api-client-react";
 import { useCart } from "@/hooks/use-cart";
@@ -85,6 +85,7 @@ type Variant = { id: number; size?: string | null; color?: string | null; colorH
 export default function ProductDetail() {
   const { t, i18n } = useTranslation();
   const formatMoney = (value: number | string | null | undefined) => formatCurrency(value, i18n.language);
+  const [, navigate] = useLocation();
   const params = useParams<{ id?: string; slug?: string; productSlug?: string }>();
   const productId = idFromPublicSlug(params.id ?? params.productSlug);
 
@@ -256,6 +257,10 @@ export default function ProductDetail() {
   const unavailable = selectedOptionUnavailable;
 
   function handleAddToCart() {
+    if (inCart) {
+      navigate("/checkout");
+      return;
+    }
     if (!product || unavailable || !variantSelectionComplete) return;
     const item = {
       productId: product.id,
@@ -632,7 +637,7 @@ export default function ProductDetail() {
                 ) : hasVariants && !variantSelectionComplete ? (
                   <><Layers className="w-5 h-5 me-2" /> {t("productDetail.selectSizeColorFirst")}</>
                 ) : inCart ? (
-                  <><Check className="w-5 h-5 me-2" /> {t("productDetail.addedToCart")}</>
+                  <><Check className="w-5 h-5 me-2" /> {t("productDetail.goToCart")}</>
                 ) : (
                   <><ShoppingBag className="w-5 h-5 me-2" /> {t("productDetail.addToCart")}</>
                 )}
@@ -707,7 +712,7 @@ export default function ProductDetail() {
             ) : hasVariants && !variantSelectionComplete ? (
               <><Layers className="w-4 h-4 me-2" /> {t("productDetail.chooseOptions")}</>
             ) : inCart ? (
-              <><Check className="w-4 h-4 me-2" /> {t("productDetail.addedToCart")}</>
+              <><Check className="w-4 h-4 me-2" /> {t("productDetail.goToCart")}</>
             ) : (
               <><ShoppingBag className="w-4 h-4 me-2" /> {t("productDetail.addToCart")}</>
             )}
