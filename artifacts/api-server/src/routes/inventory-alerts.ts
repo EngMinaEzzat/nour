@@ -84,6 +84,7 @@ router.put("/inventory-alerts/settings", requireRole("owner", "manager"), async 
 router.put("/inventory-alerts/product/:id", requireRole("owner", "manager"), async (req, res) => {
   const tenantId = req.merchantTenantId!;
   const productId = parseInt(String(req.params.id), 10);
+  if (isNaN(productId)) return res.status(400).json({ error: "معرّف المنتج غير صالح" });
   const { threshold } = req.body as { threshold?: number | null };
 
   try {

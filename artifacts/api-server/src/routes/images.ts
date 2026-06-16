@@ -19,11 +19,72 @@ const uploadsDir = process.env.VERCEL
   ? path.join(os.tmpdir(), "uploads")
   : path.join(process.cwd(), "uploads");
 
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+async function findBlobUrl(filename: string): Promise<string | null> {
+  try {
+    const { list } = await import("@vercel/blob");
+    // Try exact match first
+    const exactRes = await list({ prefix: filename, limit: 1 });
+    if (exactRes.blobs.length > 0) {
+      return exactRes.blobs[0].url;
+    }
+
+    // Fallback: search by prefix without extension to handle random suffixes
+    const ext = path.extname(filename);
+    const base = ext ? filename.slice(0, -ext.length) : filename;
+    const listRes = await list({ prefix: base, limit: 5 });
+    for (const blob of listRes.blobs) {
+      const blobName = blob.pathname;
+      if (blobName === filename || blobName.startsWith(base + "-")) {
+        return blob.url;
+      }
+    }
+  } catch (err) {
+    console.error("Vercel Blob list error:", err);
+  }
+  return null;
+}
+
+router.get("/diagnostic/blob", async (req, res) => {
+  try {
+    const hasToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+    const tokenPreview = hasToken ? process.env.BLOB_READ_WRITE_TOKEN!.substring(0, 10) + "..." : null;
+    let blobs: any[] = [];
+    let errorStr = null;
+    let writeTest = null;
+    
+    if (hasToken) {
+      try {
+        const { list, put } = await import("@vercel/blob");
+        
+        try {
+          const blob = await put("diagnostic-test.txt", "hello world", { access: "public", addRandomSuffix: false });
+          writeTest = { success: true, url: blob.url };
+        } catch (we) {
+          writeTest = { success: false, error: String(we) };
+        }
+
+        const listRes = await list({ limit: 10 });
+        blobs = listRes.blobs;
+      } catch (err: any) {
+        errorStr = err.message;
+      }
+    }
+    
+    return res.json({ hasToken, tokenPreview, errorStr, writeTest, blobs });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 router.get(
   "/images/resize",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { path: imagePath, w, h } = req.query;
+      const { src: imagePath, w, h } = req.query;
 
       if (!imagePath || typeof imagePath !== "string") {
         return res.status(400).json({ error: "Missing path parameter" });
@@ -47,7 +108,29 @@ router.get(
       }
 
       if (!fs.existsSync(sourceFilePath)) {
-        return res.status(404).json({ error: "Image not found" });
+        // Blob fallback: if the file doesn't exist locally, try fetching from Vercel Blob
+        if (process.env.BLOB_READ_WRITE_TOKEN) {
+          try {
+            const blobUrl = await findBlobUrl(filename);
+            if (blobUrl) {
+              // For resize, download blob to temp, process, then clean up
+              const response = await fetch(blobUrl);
+              if (response.ok) {
+                const buffer = Buffer.from(await response.arrayBuffer());
+                fs.writeFileSync(sourceFilePath, buffer);
+                // File now exists locally — continue with resize below
+              } else {
+                return res.redirect("/product-fashion-optimized.jpg");
+              }
+            } else {
+              return res.redirect("/product-fashion-optimized.jpg");
+            }
+          } catch {
+            return res.redirect("/product-fashion-optimized.jpg");
+          }
+        } else {
+          return res.redirect("/product-fashion-optimized.jpg");
+        }
       }
 
       const width = w ? parseInt(w as string, 10) : undefined;
@@ -76,19 +159,25 @@ router.get(
       }
 
       // Resize using sharp
-      await sharp(sourceFilePath)
-        .resize({
-          width,
-          height,
-          fit: "cover",
-          withoutEnlargement: true,
-        })
-        .toFile(cachedFilePath);
+      try {
+        await sharp(sourceFilePath)
+          .resize({
+            width,
+            height,
+            fit: "cover",
+            withoutEnlargement: true,
+          })
+          .toFile(cachedFilePath);
 
-      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-      res.sendFile(cachedFilePath);
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        return res.sendFile(cachedFilePath);
+      } catch (sharpError) {
+        console.error(`Image resize error (sharp) for ${filename}:`, sharpError);
+        // Fallback to the default image to prevent broken images on storefronts
+        return res.redirect("/product-fashion-optimized.jpg");
+      }
     } catch (error) {
-      console.error("Image resize error:", error);
+      console.error("Image route error:", error);
       next(error);
     }
   },

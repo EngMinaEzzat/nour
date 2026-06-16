@@ -123,6 +123,10 @@ export type CategoryType = (typeof CategoryType)[keyof typeof CategoryType];
 export const CategoryType = {
   fashion: "fashion",
   cosmetics: "cosmetics",
+  clinic: "clinic",
+  electronics: "electronics",
+  bistro: "bistro",
+  spare_parts: "spare_parts",
 } as const;
 
 export interface Category {
@@ -143,6 +147,10 @@ export type CreateCategoryBodyType =
 export const CreateCategoryBodyType = {
   fashion: "fashion",
   cosmetics: "cosmetics",
+  clinic: "clinic",
+  electronics: "electronics",
+  bistro: "bistro",
+  spare_parts: "spare_parts",
 } as const;
 
 export interface CreateCategoryBody {
@@ -159,6 +167,10 @@ export type UpdateCategoryBodyType =
 export const UpdateCategoryBodyType = {
   fashion: "fashion",
   cosmetics: "cosmetics",
+  clinic: "clinic",
+  electronics: "electronics",
+  bistro: "bistro",
+  spare_parts: "spare_parts",
 } as const;
 
 export interface UpdateCategoryBody {

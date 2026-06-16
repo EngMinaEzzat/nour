@@ -14,6 +14,22 @@ if (process.env.REDIS_URL) {
 
 // Simple in-memory fallback for test/local
 const memoryCache = new Map<string, { value: string; expiry: number }>();
+// Map from tenantId to the Set of cache keys for that tenant
+const tenantKeys = new Map<number, Set<string>>();
+
+// Helper to extract tenantId from a key if it exists
+function getTenantIdFromKey(key: string): number | null {
+  if (key.startsWith("tenant:")) {
+    const endIdx = key.indexOf(":", 7);
+    if (endIdx !== -1) {
+      const parsed = parseInt(key.substring(7, endIdx), 10);
+      if (!Number.isNaN(parsed)) {
+        return parsed;
+      }
+    }
+  }
+  return null;
+}
 
 export const cache = {
   async get(key: string): Promise<string | null> {
@@ -25,6 +41,10 @@ export const cache = {
       if (entry) {
         if (Date.now() > entry.expiry) {
           memoryCache.delete(key);
+          const tId = getTenantIdFromKey(key);
+          if (tId !== null) {
+            tenantKeys.get(tId)?.delete(key);
+          }
           return null;
         }
         return entry.value;
@@ -42,6 +62,15 @@ export const cache = {
         return;
       }
       memoryCache.set(key, { value, expiry: Date.now() + ttlSeconds * 1000 });
+      const tenantIdForSet = getTenantIdFromKey(key);
+      if (tenantIdForSet !== null) {
+        let keys = tenantKeys.get(tenantIdForSet);
+        if (!keys) {
+          keys = new Set<string>();
+          tenantKeys.set(tenantIdForSet, keys);
+        }
+        keys.add(key);
+      }
     } catch {
       // Ignore cache set errors
     }
@@ -54,6 +83,10 @@ export const cache = {
         return;
       }
       memoryCache.delete(key);
+      const tId = getTenantIdFromKey(key);
+      if (tId !== null) {
+        tenantKeys.get(tId)?.delete(key);
+      }
     } catch {
       // Ignore
     }
@@ -71,10 +104,12 @@ export const cache = {
         }
         return;
       }
-      for (const key of memoryCache.keys()) {
-        if (key.startsWith(`tenant:${tenantId}:`)) {
+      const keys = tenantKeys.get(tenantId);
+      if (keys) {
+        for (const key of keys) {
           memoryCache.delete(key);
         }
+        tenantKeys.delete(tenantId);
       }
     } catch {
       // Ignore

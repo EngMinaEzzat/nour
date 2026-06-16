@@ -172,6 +172,31 @@ app.use(
   }),
 );
 
+async function findBlobUrl(filename: string): Promise<string | null> {
+  try {
+    const { list } = await import("@vercel/blob");
+    // Try exact match first
+    const exactRes = await list({ prefix: filename, limit: 1 });
+    if (exactRes.blobs.length > 0) {
+      return exactRes.blobs[0].url;
+    }
+
+    // Fallback: search by prefix without extension to handle random suffixes
+    const ext = path.extname(filename);
+    const base = ext ? filename.slice(0, -ext.length) : filename;
+    const listRes = await list({ prefix: base, limit: 5 });
+    for (const blob of listRes.blobs) {
+      const blobName = blob.pathname;
+      if (blobName === filename || blobName.startsWith(base + "-")) {
+        return blob.url;
+      }
+    }
+  } catch (err) {
+    logger.error({ err }, "Vercel Blob list error in fallback");
+  }
+  return null;
+}
+
 const uploadsDir = process.env.VERCEL ? path.join(os.tmpdir(), "uploads") : path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use("/api/uploads", (req, res, next) => {
@@ -179,7 +204,27 @@ app.use("/api/uploads", (req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Cache-Control", "public, max-age=86400, immutable");
   next();
-}, express.static(uploadsDir));
+}, express.static(uploadsDir), async (req, res, next) => {
+  // Blob fallback: if the file wasn't found locally and Vercel Blob is configured,
+  // look it up in Blob storage and redirect to the public blob URL.
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    return next();
+  }
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return next();
+  }
+  const filename = req.path.replace(/^\//, "");
+  if (!filename || /[\/\\]/.test(filename)) return next();
+  try {
+    const blobUrl = await findBlobUrl(filename);
+    if (blobUrl) {
+      return res.redirect(301, blobUrl);
+    }
+  } catch (err) {
+    logger.error({ err }, "Blob fallback lookup failed");
+  }
+  return next();
+});
 
 // CSRF protection — enforced in development and production.
 // Only skipped in test mode to allow integration tests without token ceremony.

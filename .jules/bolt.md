@@ -71,3 +71,51 @@
 ## 2025-02-12 - Parallel Bulk Database Insertions
 **Learning:** Sequential `.slice()` batching with `await db.insert()` block the Node.js event thread unnecessarily. Drizzle combined with `pg` supports connection pooling allowing parallel inserts.
 **Action:** Use `Promise.all` over an array of promises calling `db.insert` with larger chunk sizes (e.g., 500) rather than smaller sizes (100) and sequential loops to improve scaling script performance.
+
+## 2026-06-11 - [Optimize Order Checkout Items DB update using Promise.all]
+**Learning:** Found sequential database updates occurring within a `for...of` loop inside `OrderService.checkout` for decrementing product/variant stock and incrementing order counts. This creates an N+1 queries performance bottleneck.
+**Action:** Replaced the sequential `for...of` loop with concurrent `await Promise.all(itemsWithPrices.map(async (item) => { ... }))`. This allows the asynchronous database transaction update and selection promises to be resolved concurrently on the connection pool.
+
+## 2024-06-10 - Bolt Optimization: Fixing N+1 Queries with Drizzle Batching in Platform Endpoint
+**Learning:** Found an N+1 query issue in `/platform/provider-health` where two database aggregations (`count(...) filter`) and subqueries were executed in a `Promise.all` `.map` loop for every provider item, generating hundreds of concurrent requests for high tenant loads.
+**Action:** Replaced the mapped querying with two single batched Drizzle `inArray` and `groupBy` lookups along with `sql\`row_number()\`` window functions to gather all results in exactly two database queries, then mapped the Javascript array memory via Map data structure. Will apply this structural approach over mapped loop query requests whenever `select ... inArray` can extract keys.
+
+## 2026-06-08 - [Parallelize Frontend API Mutations in Checkout]
+**Learning:** Found sequential execution of asynchronous `createOrder.mutateAsync` calls within a `for...of` loop in the frontend checkout logic. This forces the browser to wait for each API request to complete before starting the next one, creating unnecessary round-trip latency.
+**Action:** Always replace sequential asynchronous operations within iteration loops on the frontend with `Promise.all` over mapped promises when the operations are independent, ensuring mutations are executed concurrently to minimize total execution time.
+
+## 2024-05-19 - Concurrent API Mutations in React Components
+**Learning:** Sequential `await` calls in a `for...of` loop during form submission (e.g., creating multiple variants) can lead to significant network latency accumulation, especially when order does not matter.
+**Action:** Replace independent sequential mutations with `await Promise.all(items.map(item => mutation(item)))` to run network requests concurrently, improving submission speed by ~5x.
+
+## 2024-05-18 - Improve SSRF redirect DNS resolution latency
+**Learning:** Checking for SSRF manually in a redirect loop can cause redundant synchronous DNS resolution lookups that multiply request latency.
+**Action:** When repeatedly resolving hostnames in a manual redirect loop (e.g. up to 5 times), cache the resolved hostnames using a `Set<string>` to ensure each hostname is resolved against the OS/DNS layer exactly once per request.
+
+## 2026-06-08 - Optimize In-Memory Cache Invalidation
+**Learning:** In Node.js, iterating over a large `Map` using `.keys()` (an O(N) operation) blocks the event loop and scales poorly. Similarly, using regular expressions to parse keys in hot paths adds significant CPU overhead compared to native string methods.
+**Action:** When implementing cache invalidation by prefix or tag, maintain secondary indexes (e.g., a `Map` of tags/tenant IDs to a `Set` of associated keys) to enable O(1) lookups and O(K) iteration (where K is the subset size). Also, prefer `startsWith` and `indexOf` over `RegExp` for simple string prefix matching in hot paths.
+
+## 2024-06-08 - [Add vitest dependencies to library packages]
+**Learning:** Some library packages may lack `vitest` dependencies or proper `test` script definitions in their `package.json`, preventing tests from running correctly.
+**Action:** When adding tests to a new library, explicitly install `vitest` as a dev dependency via `pnpm add -D vitest --filter <package-name>` and add the `"test": "vitest run"` script. Ensure to configure `vitest.config.ts` if specific environments (like "node") are needed.
+
+## 2024-06-11 - Promise.all loop conversion performance benefit
+**Learning:** Sequential `await` calls inside `for...of` loops, specifically when doing external network operations like sending emails (via Resend or similar providers), causes severe performance bottlenecks that scale linearly (O(n)). Converting a loop of 50 mocked tasks showed a ~50x speedup (2500ms -> 50ms) when parallelized.
+**Action:** When working on batch processing tasks (like schedulers, notifications, exports), always prefer `Promise.all` combined with `.map()` over `for...of` loops, as long as the underlying API/service handles concurrency. Always ensure individual `.catch()` handlers are attached within the mapped promises so that a single failure does not reject the entire batch.
+
+## 2026-06-08 - [Coverage for generated API Client React library errors]
+**Learning:** Found untrusted / untested code for ApiError within our `lib/api-client-react` generator output code. Writing comprehensive Vitest unit tests to cover constructors handles error extraction robustness (message parsing, title, detail fields edge cases, long string handling, trimming).
+**Action:** Always write deterministic fast unit-tests for generated API client configurations and error definitions, checking properties explicitly (status, data, statusText) and edge cases handling in the API response format logic to build confidence in the error handling boundary between client and backend.
+
+## 2024-06-12 - Parallelize array mapping inside transactions
+**Learning:** Checking out items or processing arrays of updates using `.map` with `Promise.all` inside nested promises can create N+1 bottlenecks.
+**Action:** Always prefer `items.flatMap` with a single top-level `Promise.all` when gathering updates to execute against the database inside Drizzle ORM transactions.
+
+## 2026-06-15 - Fixed broken image URLs on storefront
+**Learning:** In the image-url processing module, absolute URLs were stripped down to their paths, losing the origin when generating `srcSet` sizes. The resize API is mounted on the backend, but storefront often receives an absolute API URL.
+**Action:** When reconstructing the URL with sizes, retain and prepend the original absolute URL's origin.
+
+## 2026-06-15 - Fixed typecheck failure in store-config.ts
+**Learning:** Adding string literals to a union type (`PersonalityType`, `StyleType`) without also adding them to the corresponding `Record<..., ...>` constant dictionary causes typecheck failures (`TS2740: ... is missing the following properties`).
+**Action:** Always ensure that when adding a new enum or literal type to a union used as a `Record` key, the corresponding dictionary is also updated, or remove the unimplemented literals.

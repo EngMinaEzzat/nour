@@ -12,7 +12,8 @@
     "p-limit": "^7.3.0",
     "p-retry": "^7.1.1"
   },
-  "devDependencies": {
-    "@types/node": "catalog:"
+  "scripts": { "test": "vitest run" }, "devDependencies": {
+    "@types/node": "catalog:",
+    "vitest": "^4.1.8"
   }
 }

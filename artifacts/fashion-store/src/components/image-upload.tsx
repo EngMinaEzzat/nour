@@ -269,8 +269,7 @@ export function ImageUploadList({ values, onChange, label, className }: ImageUpl
     setUploading(true);
     setError(null);
     try {
-      const uploaded: string[] = [];
-      for (const file of files) uploaded.push(normalizeStoredImageUrl(await uploadImage(file)));
+      const uploaded: string[] = await Promise.all(files.map(async file => normalizeStoredImageUrl(await uploadImage(file))));
       onChange([...values, ...uploaded]);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : t("imageUpload.errorGeneric"));

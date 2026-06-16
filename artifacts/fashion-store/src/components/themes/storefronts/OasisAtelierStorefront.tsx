@@ -8,12 +8,12 @@ export function OasisAtelierStorefront({ store, products, categories }: Storefro
     return (
         <div className="min-h-screen bg-[#faf8f5] text-[#2d2926] font-sans selection:bg-[#c2a878]/30 overflow-x-hidden relative" style={{ fontFamily: '"Playfair Display", serif' }}>
 
-            <style dangerouslySetInnerHTML={{__html: `
+            <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap');
 
                 .font-sans { font-family: 'Lato', sans-serif; }
                 .font-serif { font-family: 'Playfair Display', serif; }
-            `}} />
+            `}</style>
 
             {/* Sidebar (Desktop) / Top Nav (Mobile) */}
             <div className="md:fixed md:top-0 md:left-0 md:h-screen md:w-64 bg-[#f2efe9] border-b md:border-b-0 md:border-r border-[#d4cfc7] z-40 flex flex-col justify-between py-6 md:py-12 px-6">

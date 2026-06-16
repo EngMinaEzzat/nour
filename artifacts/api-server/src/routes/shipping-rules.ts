@@ -80,7 +80,7 @@ router.put("/shipping/zones/:id", requireRole("owner", "manager"), async (req, r
       .where(eq(shippingZonesTable.id, zoneId));
 
     if (!existing) return res.status(404).json({ error: "منطقة الشحن غير موجودة" });
-    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "غير مصرح" });
+    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "لا يمكنك الوصول إلى بيانات متجر آخر" });
 
     const { governorate, city, shippingCost, deliveryDays, isEnabled } = req.body as {
       governorate?: string;
@@ -100,7 +100,7 @@ router.put("/shipping/zones/:id", requireRole("owner", "manager"), async (req, r
     const [updated] = await db
       .update(shippingZonesTable)
       .set(updateData)
-      .where(eq(shippingZonesTable.id, zoneId))
+      .where(and(eq(shippingZonesTable.id, zoneId), eq(shippingZonesTable.tenantId, tenantId)))
       .returning();
 
     res.json({
@@ -128,9 +128,9 @@ router.delete("/shipping/zones/:id", requireRole("owner", "manager"), async (req
       .where(eq(shippingZonesTable.id, zoneId));
 
     if (!existing) return res.status(404).json({ error: "منطقة الشحن غير موجودة" });
-    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "غير مصرح" });
+    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "لا يمكنك الوصول إلى بيانات متجر آخر" });
 
-    await db.delete(shippingZonesTable).where(eq(shippingZonesTable.id, zoneId));
+    await db.delete(shippingZonesTable).where(and(eq(shippingZonesTable.id, zoneId), eq(shippingZonesTable.tenantId, tenantId)));
     res.json({ success: true });
   } catch (err) {
     req.log.error(err);

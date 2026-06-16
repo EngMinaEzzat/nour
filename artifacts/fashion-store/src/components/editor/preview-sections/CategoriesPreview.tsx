@@ -12,10 +12,10 @@ export function CategoriesPreview({
 }: PreviewSectionProps) {
   const previewCategories = (categories ?? []).slice(0, 4);
   return wrap(
-    <div className="bg-white px-6 py-8">
+    <div className="px-6 py-8" style={{ background: "var(--bg-section, #fff)" }}>
       <h3
-        className="text-center text-lg font-semibold text-stone-900 mb-6"
-        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+        className="text-center text-lg font-semibold mb-6"
+        style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', serif)", color: "var(--text-heading, #1c1917)" }}
       >
         {section.content.heading ??
           t("sectionPreview.defaults.categoriesHeading")}
@@ -26,7 +26,7 @@ export function CategoriesPreview({
             <div
               key={cat.id}
               className="relative overflow-hidden bg-stone-100"
-              style={{ borderRadius: r }}
+              style={{ borderRadius: "var(--card-radius, 12px)" }}
             >
               {cat.imageUrl ? (
                 <img
@@ -44,7 +44,7 @@ export function CategoriesPreview({
                 />
               )}
               <div className="absolute inset-0 flex items-end p-2 bg-gradient-to-t from-black/55 to-transparent">
-                <span className="text-white text-[10px] font-semibold">
+                <span className="text-white text-[10px] font-semibold" style={{ fontFamily: "var(--font-body)" }}>
                   {i18n.language === "ar" ? cat.nameAr || cat.name : cat.name}
                 </span>
               </div>
@@ -61,7 +61,7 @@ export function CategoriesPreview({
             <div
               key={i}
               className="relative overflow-hidden bg-stone-100"
-              style={{ borderRadius: r }}
+              style={{ borderRadius: "var(--card-radius, 12px)" }}
             >
               <img
                 src={cat.image}
@@ -70,7 +70,7 @@ export function CategoriesPreview({
                 loading="lazy"
               />
               <div className="absolute inset-0 flex items-end p-2 bg-gradient-to-t from-black/55 to-transparent">
-                <span className="text-white text-[10px] font-semibold">
+                <span className="text-white text-[10px] font-semibold" style={{ fontFamily: "var(--font-body)" }}>
                   {cat.name}
                 </span>
               </div>

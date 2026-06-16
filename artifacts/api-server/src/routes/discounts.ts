@@ -91,7 +91,7 @@ router.put("/discounts/:id", requireRole("owner", "manager"), async (req, res) =
 
     const [updated] = await db.update(discountCodesTable)
       .set(updates)
-      .where(eq(discountCodesTable.id, id))
+      .where(and(eq(discountCodesTable.id, id), eq(discountCodesTable.tenantId, tenantId)))
       .returning();
     res.json({ ...updated, value: parseFloat(updated.value as string) });
   } catch (err) {
@@ -110,7 +110,7 @@ router.delete("/discounts/:id", requireRole("owner", "manager"), async (req, res
       .from(discountCodesTable)
       .where(and(eq(discountCodesTable.id, id), eq(discountCodesTable.tenantId, tenantId)));
     if (!existing) return res.status(404).json({ error: "الكود غير موجود" });
-    await db.delete(discountCodesTable).where(eq(discountCodesTable.id, id));
+    await db.delete(discountCodesTable).where(and(eq(discountCodesTable.id, id), eq(discountCodesTable.tenantId, tenantId)));
     res.json({ success: true });
   } catch (err) {
     req.log.error(err);

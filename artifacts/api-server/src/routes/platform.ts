@@ -11,7 +11,7 @@ import {
   billingTransferRequestsTable,
   billingInvoicesTable,
 } from "@workspace/db";
-import { eq, count, sql, desc, and, asc, sum } from "drizzle-orm";
+import { eq, count, sql, desc, and, asc, sum, inArray } from "drizzle-orm";
 import {
   requirePlatformAdmin,
   invalidateSubscriptionCache,
@@ -168,47 +168,82 @@ router.get(
         )
         .orderBy(whatsappProvidersTable.updatedAt);
 
-      const withStats = await Promise.all(
-        providers.map(async (p) => {
-          // ⚡ Bolt Optimization: Fetch message aggregates and recent logs concurrently per provider
-          const [[stats], recent] = await Promise.all([
-            db
-              .select({
-                total: count(),
-                failed: sql<number>`count(*) filter (where ${whatsappMessageLogsTable.status} = 'FAILED')`,
-                sent: sql<number>`count(*) filter (where ${whatsappMessageLogsTable.status} = 'SENT')`,
-              })
-              .from(whatsappMessageLogsTable)
-              .where(eq(whatsappMessageLogsTable.tenantId, p.tenantId)),
-            db
-              .select({
-                id: whatsappMessageLogsTable.id,
-                messageType: whatsappMessageLogsTable.messageType,
-                status: whatsappMessageLogsTable.status,
-                errorMessage: whatsappMessageLogsTable.errorMessage,
-                createdAt: whatsappMessageLogsTable.createdAt,
-              })
-              .from(whatsappMessageLogsTable)
-              .where(eq(whatsappMessageLogsTable.tenantId, p.tenantId))
-              .orderBy(desc(whatsappMessageLogsTable.createdAt))
-              .limit(5),
-          ]);
+      // ⚡ Bolt Optimization: Fix N+1 queries by batching stats and recent logs
+      const tenantIds = providers.map((p) => p.tenantId);
 
-          return {
-            ...p,
-            updatedAt: p.updatedAt.toISOString(),
-            messageStats: {
-              total: stats.total,
-              failed: Number(stats.failed ?? 0),
-              sent: Number(stats.sent ?? 0),
-            },
-            recentLogs: recent.map((r) => ({
-              ...r,
-              createdAt: r.createdAt.toISOString(),
-            })),
-          };
-        }),
-      );
+      const statsMap = new Map<number, { total: number; failed: number; sent: number }>();
+      const recentMap = new Map<number, any[]>();
+
+      if (tenantIds.length > 0) {
+        const sq = db
+          .select({
+            id: whatsappMessageLogsTable.id,
+            tenantId: whatsappMessageLogsTable.tenantId,
+            messageType: whatsappMessageLogsTable.messageType,
+            status: whatsappMessageLogsTable.status,
+            errorMessage: whatsappMessageLogsTable.errorMessage,
+            createdAt: whatsappMessageLogsTable.createdAt,
+            rn: sql<number>`row_number() over (partition by ${whatsappMessageLogsTable.tenantId} order by ${whatsappMessageLogsTable.createdAt} desc)`.as('rn')
+          })
+          .from(whatsappMessageLogsTable)
+          .where(inArray(whatsappMessageLogsTable.tenantId, tenantIds))
+          .as('sq');
+
+        const [statsData, recentData] = await Promise.all([
+          db
+            .select({
+              tenantId: whatsappMessageLogsTable.tenantId,
+              total: count(),
+              failed: sql<number>`count(*) filter (where ${whatsappMessageLogsTable.status} = 'FAILED')`,
+              sent: sql<number>`count(*) filter (where ${whatsappMessageLogsTable.status} = 'SENT')`,
+            })
+            .from(whatsappMessageLogsTable)
+            .where(inArray(whatsappMessageLogsTable.tenantId, tenantIds))
+            .groupBy(whatsappMessageLogsTable.tenantId),
+          db
+            .select({
+              id: sq.id,
+              tenantId: sq.tenantId,
+              messageType: sq.messageType,
+              status: sq.status,
+              errorMessage: sq.errorMessage,
+              createdAt: sq.createdAt,
+            })
+            .from(sq)
+            .where(sql`${sq.rn} <= 5`)
+            .orderBy(desc(sq.createdAt))
+        ]);
+
+        for (const stat of statsData) {
+          statsMap.set(stat.tenantId, {
+            total: stat.total,
+            failed: Number(stat.failed ?? 0),
+            sent: Number(stat.sent ?? 0),
+          });
+        }
+
+        for (const r of recentData) {
+          if (!recentMap.has(r.tenantId)) {
+            recentMap.set(r.tenantId, []);
+          }
+          recentMap.get(r.tenantId)!.push({
+            ...r,
+            createdAt: r.createdAt.toISOString(),
+          });
+        }
+      }
+
+      const withStats = providers.map((p) => {
+        const stats = statsMap.get(p.tenantId) || { total: 0, failed: 0, sent: 0 };
+        const recentLogs = recentMap.get(p.tenantId) || [];
+
+        return {
+          ...p,
+          updatedAt: p.updatedAt.toISOString(),
+          messageStats: stats,
+          recentLogs,
+        };
+      });
 
       res.json(withStats);
     } catch (err) {

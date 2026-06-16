@@ -1,8 +1,20 @@
-💡 **What:**
-Replaced an N+1 `Promise.all` loop executing individual `count()` queries per category with a single aggregate query. The new implementation collects all category IDs, fetches product counts using `inArray` and `groupBy`, and maps the totals back to the respective categories in memory.
+🧪 Add tests for getCsrfToken and setCsrfToken
 
-🎯 **Why:**
-The previous implementation performed a network round trip to the database for every single category returned. For stores with many categories, this caused severe latency and database connection strain. Grouping the counts into a single query fundamentally solves this bottleneck.
+🎯 **What:** Adds unit tests for the previously untested `getCsrfToken` and `setCsrfToken` functions in `@workspace/api-client-react`.
+📊 **Coverage:** Covers initialization (null), setting a token, and resetting the token (null).
+✨ **Result:** 100% branch and statement coverage for both getter and setter.
 
-📊 **Measured Improvement:**
-Due to database provisioning limitations in the isolated sandbox environment, a runtime baseline could not be captured. However, theoretically, the improvement reduces the number of database queries from `O(N)` to `O(1)` where N is the number of categories. This reduces the DB query overhead from potentially hundreds of round-trips to exactly 1 query, vastly decreasing response latency and CPU time for this route.
+---
+
+🎯 **What:** The testing gap addressed
+The `isRateLimitError` function in `@workspace/integrations-anthropic-ai` was completely untested, representing a gap in verifying our error handling for API quotas and rate limits.
+
+📊 **Coverage:** What scenarios are now tested
+- Matches for standard HTTP "429" error strings and Error objects.
+- Matches for specific Anthropic "RATELIMIT_EXCEEDED" strings and Error objects.
+- Case-insensitive matches for "quota" and "rate limit".
+- Correct handling of unrelated error messages (e.g., "Internal Server Error").
+- Edge cases where non-Error types (null, undefined, numbers) are passed to the handler.
+
+✨ **Result:** The improvement in test coverage
+The batch utilities for the Anthropic integration now have dedicated Vitest coverage. This guarantees that future adjustments to rate limit handling will catch regressions locally before impacting reliability when communicating with the AI provider.

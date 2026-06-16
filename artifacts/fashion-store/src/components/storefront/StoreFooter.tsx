@@ -119,7 +119,7 @@ export function StoreFooter({
               )}
               <span
                 className="text-white font-bold text-xl"
-                style={{ fontFamily: SERIF }}
+                style={{ fontFamily: "var(--font-heading)" }}
               >
                 {storeName}
               </span>
@@ -202,7 +202,7 @@ export function StoreFooter({
             <div key={section.title}>
               <h5
                 className="text-white font-semibold text-sm mb-5"
-                style={{ fontFamily: SERIF }}
+                style={{ fontFamily: "var(--font-heading)" }}
               >
                 {section.title}
               </h5>
@@ -225,7 +225,7 @@ export function StoreFooter({
           <div>
             <h5
               className="text-white font-semibold text-sm mb-5"
-              style={{ fontFamily: SERIF }}
+              style={{ fontFamily: "var(--font-heading)" }}
             >
               {t("storefront.footer.weAreHere")}
             </h5>
@@ -234,8 +234,8 @@ export function StoreFooter({
                 href={`https://wa.me/${waNum}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium mb-5 transition-all hover:opacity-90"
-                style={{ background: "rgba(37,211,102,0.1)", color: "#25D366" }}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium mb-5 transition-all hover:opacity-90"
+                style={{ background: "rgba(37,211,102,0.1)", color: "#25D366", borderRadius: "var(--btn-radius, 12px)" }}
               >
                 <MessageCircle className="w-4 h-4" />
                 {t("storefront.footer.whatsappDirect")}
@@ -258,10 +258,11 @@ export function StoreFooter({
               ].map((badge) => (
                 <span
                   key={badge}
-                  className="text-[10px] px-2.5 py-1 rounded-full font-medium"
+                  className="text-[10px] px-2.5 py-1 font-medium"
                   style={{
                     background: "rgba(255,255,255,0.06)",
                     color: "rgba(255,255,255,0.55)",
+                    borderRadius: "var(--btn-radius, 9999px)",
                   }}
                 >
                   {badge}

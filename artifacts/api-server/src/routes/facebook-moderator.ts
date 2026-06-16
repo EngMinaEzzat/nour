@@ -466,6 +466,7 @@ ${itemLabel}: "${content.trim()}"
         .onConflictDoUpdate({
           target: facebookModerationLogTable.itemId,
           set: { aiDraft: draft.trim() },
+          where: eq(facebookModerationLogTable.tenantId, merchant.tenantId),
         });
     }
 
@@ -539,6 +540,7 @@ router.post("/facebook/reply", requireAuth, async (req, res) => {
       .onConflictDoUpdate({
         target: facebookModerationLogTable.itemId,
         set: { status: "replied", repliedAt: new Date() },
+        where: eq(facebookModerationLogTable.tenantId, merchant.tenantId),
       });
 
     return res.json({ success: true });
@@ -588,6 +590,7 @@ router.post("/facebook/update-status", requireAuth, async (req, res) => {
         set: {
           status: status as "pending" | "replied" | "ignored" | "flagged",
         },
+        where: eq(facebookModerationLogTable.tenantId, merchant.tenantId),
       });
 
     return res.json({ success: true });

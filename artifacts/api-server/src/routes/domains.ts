@@ -107,6 +107,7 @@ router.delete("/domains/remove", requireRole("owner"), async (req, res) => {
 router.put("/domains/verify/:tenantId", requirePlatformAdmin, async (req, res) => {
   try {
     const tenantId = Number(req.params.tenantId);
+    if (isNaN(tenantId)) return res.status(400).json({ error: "معرّف المتجر غير صحيح" });
     const [domain] = await db.update(customDomainsTable).set({
       status: "ACTIVE",
       verifiedAt: new Date(),

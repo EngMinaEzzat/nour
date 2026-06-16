@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout";
 import { ProtectedRoute } from "@/components/protected-route";
 import { CustomerAuthProvider } from "@/hooks/use-customer-auth";
 import { CartProvider } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
 
 import Storefront from "@/pages/storefront";
 
@@ -36,7 +37,6 @@ const Billing = lazy(() => import("@/pages/billing"));
 const Domains = lazy(() => import("@/pages/domains"));
 const Tracking = lazy(() => import("@/pages/tracking"));
 const Exports = lazy(() => import("@/pages/exports"));
-const Growth = lazy(() => import("@/pages/growth"));
 const AcceptInvite = lazy(() => import("@/pages/accept-invite"));
 const Discounts = lazy(() => import("@/pages/discounts"));
 const Reviews = lazy(() => import("@/pages/reviews"));
@@ -122,7 +122,12 @@ export function AppRouter() {
           <Layout>
             <Switch>
               <Route path="/" component={Home} />
-              <Route path="/pricing" component={Pricing} />
+              <Route path="/pricing">
+                {() => {
+                  const { isAuthenticated } = useAuth();
+                  return isAuthenticated ? <Redirect to="/billing?tab=plans" /> : <Pricing />;
+                }}
+              </Route>
               <Route path="/tenants" component={Tenants} />
               <Route path="/tenants/:id" component={TenantDetail} />
               <Route path="/products/:id" component={ProductDetail} />
@@ -210,9 +215,7 @@ export function AppRouter() {
                 </ProtectedRoute>
               </Route>
               <Route path="/growth">
-                <ProtectedRoute>
-                  <Growth />
-                </ProtectedRoute>
+                <Redirect to="/billing?tab=plans" />
               </Route>
               <Route path="/discounts">
                 <ProtectedRoute>
