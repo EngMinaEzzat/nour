@@ -109,7 +109,7 @@ router.post("/returns", requireRole("owner", "manager"), async (req, res) => {
       .where(eq(ordersTable.id, orderId));
 
     if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
-    if (order.tenantId !== tenantId) return res.status(403).json({ error: "لا يمكنك إنشاء إرجاع لطلب متجر آخر" });
+    if (order.tenantId !== tenantId) return res.status(403).json({ error: "لا يمكنك إنشاء طلب إرجاع لطلب لمتجر آخر" });
 
     const [rc] = await db
       .insert(returnCasesTable)
@@ -147,7 +147,7 @@ router.put("/returns/:id", requireRole("owner", "manager"), async (req, res) => 
       .where(eq(returnCasesTable.id, id));
 
     if (!existing) return res.status(404).json({ error: "طلب الإرجاع غير موجود" });
-    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "غير مصرح" });
+    if (existing.tenantId !== tenantId) return res.status(403).json({ error: "لا يمكنك تعديل طلب إرجاع لمتجر آخر" });
 
     const { status, note } = req.body as {
       status?: string;
@@ -166,7 +166,7 @@ router.put("/returns/:id", requireRole("owner", "manager"), async (req, res) => 
     const [updated] = await db
       .update(returnCasesTable)
       .set(updateData)
-      .where(eq(returnCasesTable.id, id))
+      .where(and(eq(returnCasesTable.id, id), eq(returnCasesTable.tenantId, tenantId)))
       .returning();
 
     res.json({

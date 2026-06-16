@@ -9,7 +9,7 @@ const api = (p: string) => `${BASE}/api${p}`;
 type ShellOrder = { status: string };
 type ShellProduct = { status: string; stock: number };
 
-export type NavBadgeKey = "pendingOrders" | "lowStock" | "returns" | "followUp";
+export type NavBadgeKey = "pendingOrders" | "lowStock" | "returns" | "followUp" | "totalProducts";
 
 export const BADGE_CONFIG: Record<
   NavBadgeKey,
@@ -19,6 +19,7 @@ export const BADGE_CONFIG: Record<
   lowStock: { colorClass: "bg-destructive text-destructive-foreground" },
   returns: { icon: RotateCcw, colorClass: "bg-amber-500 text-white" },
   followUp: { icon: Bell, colorClass: "bg-red-500 text-white" },
+  totalProducts: { colorClass: "bg-secondary text-secondary-foreground border border-primary/20" },
 };
 
 export function useLayoutData() {
@@ -87,6 +88,7 @@ export function useLayoutData() {
       ["REQUESTED", "APPROVED", "RECEIVED"].includes(item.status),
     ).length,
     followUp: followUpQueue?.total ?? 0,
+    totalProducts: products.length,
   };
 
   return {

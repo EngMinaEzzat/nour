@@ -35,7 +35,7 @@ export function CategoryGrid({
   return (
     <section
       className="py-16 md:py-24 px-4 sm:px-6"
-      style={{ background: "#fff", direction: i18n.dir() }}
+      style={{ background: "var(--bg-section, #fff)", direction: i18n.dir() }}
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-10">
@@ -47,8 +47,8 @@ export function CategoryGrid({
               {t("storefront.home.categories.eyebrow")}
             </p>
             <h2
-              className="text-4xl md:text-5xl text-[hsl(340,20%,15%)]"
-              style={{ fontFamily: SERIF, fontWeight: 400 }}
+              className="text-4xl md:text-5xl"
+              style={{ fontFamily: "var(--font-heading)", fontWeight: 400, color: "var(--text-heading)" }}
             >
               {t("storefront.home.categories.title")}
             </h2>
@@ -85,8 +85,8 @@ export function CategoryGrid({
                   onCategorySelect(category.id);
                   window.requestAnimationFrame(onScrollToProducts);
                 }}
-                className={`relative overflow-hidden rounded-2xl group cursor-pointer text-start bg-stone-100`}
-                style={{ aspectRatio: "3/4" }}
+                className="relative overflow-hidden group cursor-pointer text-start bg-stone-100"
+                style={{ aspectRatio: "3/4", borderRadius: "var(--card-radius, 16px)" }}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
@@ -132,7 +132,7 @@ export function CategoryGrid({
                   </p>
                   <h3
                     className="text-white text-xl md:text-2xl"
-                    style={{ fontFamily: SERIF, fontWeight: 400 }}
+                    style={{ fontFamily: "var(--font-heading)", fontWeight: 400 }}
                   >
                     {label}
                   </h3>

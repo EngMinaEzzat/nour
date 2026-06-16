@@ -63,7 +63,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {!unavailable && (
             <button
               onClick={handleAddToCart}
-              className={`absolute bottom-3 end-3 w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all duration-200 border border-white/20
+              className={`absolute bottom-3 end-3 w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all duration-200 border border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
                 ${product.hasVariants
                   ? "bg-white/90 text-foreground opacity-0 group-hover:opacity-100 hover:bg-secondary hover:text-secondary-foreground"
                   : inCart

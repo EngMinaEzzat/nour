@@ -103,7 +103,7 @@ export function Homepage() {
 
   return (
     <div style={{ backgroundColor: COLORS.bg, color: COLORS.charcoal, fontFamily: FONTS.body, direction: "rtl" }} className="min-h-screen overflow-x-hidden">
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Cairo:wght@400;500;600&display=swap');
         
         .marquee-container {
@@ -139,7 +139,7 @@ export function Homepage() {
         .editorial-overlay {
           background: linear-gradient(to top, rgba(31, 20, 20, 0.8) 0%, transparent 100%);
         }
-      `}} />
+      `}</style>
 
       {/* 1. Announcement Bar */}
       <AnimatePresence>

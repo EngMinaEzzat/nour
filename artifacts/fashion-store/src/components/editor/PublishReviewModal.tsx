@@ -63,6 +63,7 @@ export default function PublishReviewModal({
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 text-stone-500 hover:text-stone-800"
+            aria-label={t("common.close", "Close")}
           >
             <X className="w-4 h-4" />
           </button>

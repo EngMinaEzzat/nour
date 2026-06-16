@@ -10,11 +10,11 @@ router.get("/whatsapp/provider", requireRole("owner", "manager"), async (req, re
   try {
     const status = await WhatsappService.getProviderStatus(tenantId);
     res.json(status);
-  } catch (err: any) {
-    if (err.message === "TENANT_NOT_FOUND") {
+  } catch (err) {
+    if (err instanceof Error && err.message === "TENANT_NOT_FOUND") {
       return res.status(404).json({ error: "المتجر غير موجود" });
     }
-    req.log.error(err);
+    req.log.error({ err }, "فشل جلب حالة واتساب");
     res.status(500).json({ error: "فشل جلب حالة واتساب" });
   }
 });
@@ -33,11 +33,11 @@ router.put("/whatsapp/provider", requireRole("owner"), async (req, res) => {
   try {
     const result = await WhatsappService.configureProvider(tenantId, data);
     res.json(result);
-  } catch (err: any) {
-    if (err.message === "PLAN_DISALLOWED") {
+  } catch (err) {
+    if (err instanceof Error && err.message === "PLAN_DISALLOWED") {
       return res.status(402).json({ error: "واتساب متاح فقط في خطة برو" });
     }
-    req.log.error(err);
+    req.log.error({ err }, "فشل تحديث إعدادات واتساب");
     res.status(500).json({ error: "فشل تحديث إعدادات واتساب" });
   }
 });
@@ -73,11 +73,11 @@ router.post("/whatsapp/templates/preview", requireRole("owner", "manager", "staf
       rendered,
       variables: vars,
     });
-  } catch (err: any) {
-    if (err.message === "ORDER_NOT_FOUND") {
+  } catch (err) {
+    if (err instanceof Error && err.message === "ORDER_NOT_FOUND") {
       return res.status(404).json({ error: "الطلب غير موجود أو لا ينتمي لمتجرك" });
     }
-    req.log.error(err);
+    req.log.error({ err }, "فشل معاينة القالب");
     res.status(500).json({ error: "فشل معاينة القالب" });
   }
 });
@@ -102,17 +102,17 @@ router.post("/whatsapp/messages/send", requireRole("owner", "manager"), async (r
       return res.status(200).json(result);
     }
     res.status(201).json(result);
-  } catch (err: any) {
-    if (err.message === "UNKNOWN_TEMPLATE") {
+  } catch (err) {
+    if (err instanceof Error && err.message === "UNKNOWN_TEMPLATE") {
       return res.status(400).json({ error: "كود القالب غير معروف" });
     }
-    if (err.message === "ORDER_NOT_FOUND") {
+    if (err instanceof Error && err.message === "ORDER_NOT_FOUND") {
       return res.status(404).json({ error: "الطلب غير موجود أو لا ينتمي لمتجرك" });
     }
-    if (err.message === "MISSING_CUSTOMER_PHONE") {
+    if (err instanceof Error && err.message === "MISSING_CUSTOMER_PHONE") {
       return res.status(400).json({ error: "لا يوجد رقم هاتف للعميل" });
     }
-    req.log.error(err);
+    req.log.error({ err }, "فشل إرسال رسالة واتساب");
     res.status(500).json({ error: "فشل إرسال رسالة واتساب" });
   }
 });
@@ -126,7 +126,7 @@ router.get("/whatsapp/messages", requireRole("owner", "manager", "staff"), async
     const logs = await WhatsappService.getMessages(tenantId, orderId);
     res.json(logs);
   } catch (err) {
-    req.log.error(err);
+    req.log.error({ err }, "فشل جلب سجلات الرسائل");
     res.status(500).json({ error: "فشل جلب سجلات الرسائل" });
   }
 });
@@ -150,17 +150,17 @@ router.post("/whatsapp/messages/:id/callback", async (req, res) => {
   try {
     await WhatsappService.processDeliveryCallback(logId, status, providerMessageId, authHeader);
     res.json({ success: true });
-  } catch (err: any) {
-    if (err.message === "INVALID_STATUS") {
+  } catch (err) {
+    if (err instanceof Error && err.message === "INVALID_STATUS") {
       return res.status(400).json({ error: "حالة غير صالحة" });
     }
-    if (err.message === "LOG_NOT_FOUND") {
+    if (err instanceof Error && err.message === "LOG_NOT_FOUND") {
       return res.status(404).json({ error: "سجل الرسالة غير موجود" });
     }
-    if (err.message === "WEBHOOK_NOT_CONFIGURED" || err.message === "UNAUTHORIZED") {
+    if (err instanceof Error && (err.message === "WEBHOOK_NOT_CONFIGURED" || err.message === "UNAUTHORIZED")) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    req.log.error(err);
+    req.log.error({ err }, "فشل تحديث حالة الرسالة");
     res.status(500).json({ error: "فشل تحديث حالة الرسالة" });
   }
 });

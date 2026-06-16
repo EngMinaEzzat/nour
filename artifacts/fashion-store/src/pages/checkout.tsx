@@ -348,23 +348,29 @@ export default function Checkout() {
       const orderIds: number[] = [];
       const orderTracks: Array<{ id: number; publicCode?: string; trackingToken?: string }> = [];
 
-      for (const [tenantIdStr, group] of Object.entries(groupedByTenant)) {
-        const tenantId = parseInt(tenantIdStr, 10);
-        const order = await createOrder.mutateAsync({ data: {
-          tenantId,
-          customerId,
-          shippingAddress,
-          customerPhone: normalizedPhone,
-          paymentMethod,
-          shippingGovernorate: governorate,
-          shippingCity: area.trim(),
-          discountCode: tenantId === firstTenantId && coupon.valid && coupon.input.trim()
-            ? coupon.input.trim().toUpperCase()
-            : undefined,
-          cartSessionId: sessionId,
-          storefrontSlug: group.items[0]?.tenantSlug,
-          items: group.items.map((i) => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
-        } as Parameters<typeof createOrder.mutateAsync>[0]["data"] });
+      const orderResults = await Promise.all(
+        Object.entries(groupedByTenant).map(async ([tenantIdStr, group]) => {
+          const tenantId = parseInt(tenantIdStr, 10);
+          const order = await createOrder.mutateAsync({ data: {
+            tenantId,
+            customerId,
+            shippingAddress,
+            customerPhone: normalizedPhone,
+            paymentMethod,
+            shippingGovernorate: governorate,
+            shippingCity: area.trim(),
+            discountCode: tenantId === firstTenantId && coupon.valid && coupon.input.trim()
+              ? coupon.input.trim().toUpperCase()
+              : undefined,
+            cartSessionId: sessionId,
+            storefrontSlug: group.items[0]?.tenantSlug,
+            items: group.items.map((i) => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
+          } as Parameters<typeof createOrder.mutateAsync>[0]["data"] });
+          return order;
+        })
+      );
+
+      for (const order of orderResults) {
         orderIds.push(order.id);
         orderTracks.push({ id: order.id, publicCode: (order as any).publicCode, trackingToken: (order as any).trackingToken });
       }

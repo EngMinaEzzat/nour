@@ -8,12 +8,12 @@ export function GlowGridStorefront({ store, products, categories }: StorefrontPr
     return (
         <div className="theme-glow-grid bg-[#131313] text-[#e5e2e1] min-h-[100dvh] pb-24 md:pb-0 w-full overflow-x-hidden" style={{ fontFamily: 'Spline Sans, sans-serif' }}>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Anybody:wght@700;800&family=Space+Grotesk:wght@500;700&family=Spline+Sans:wght@400&display=swap');
                 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
                 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
                 .theme-glow-grid { background-color: #131313 !important; color: #e5e2e1 !important; }
-            `}} />
+            `}</style>
 
             {/* Header */}
             <header className="bg-[#201f1f] flex justify-between items-center w-full px-4 md:px-8 py-6 sticky top-0 z-50 border-b border-white/10">
@@ -46,7 +46,7 @@ export function GlowGridStorefront({ store, products, categories }: StorefrontPr
                     {products.map((p: any) => (
                         <div key={p.id} className="bg-[#2a2a2a] rounded-3xl overflow-hidden group hover:border-[#cdf200] border-2 border-transparent transition-all shadow-lg">
                             <div className="aspect-[3/4] relative bg-[#201f1f]">
-                                {p.imageUrl && <img src={productImageUrl(p.imageUrl)} alt={p.name} className="w-full h-full object-cover opacity-90 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" />}
+                                <img src={productImageUrl(p.imageUrl)} alt={p.name} className="w-full h-full object-cover opacity-90 group-hover:scale-105 group-hover:opacity-100 transition-all duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#131313]/90 via-transparent to-transparent"></div>
 
                                 <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-2">

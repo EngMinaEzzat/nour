@@ -18,6 +18,8 @@ interface HeroSectionProps {
   onScrollToProducts: () => void;
 }
 
+import { productImageUrl } from "@/lib/image-url";
+
 export function HeroSection({
   storeName,
   description,
@@ -33,7 +35,8 @@ export function HeroSection({
 }: HeroSectionProps) {
   const { t, i18n } = useTranslation();
   const defaultHero = category === "cosmetics" ? "/hero-cosmetics-optimized.jpg" : category === "both" ? "/hero-both-optimized.jpg" : "/hero-fashion-optimized.jpg";
-  const imgSrc = imageUrl || coverUrl || defaultHero;
+  const rawImage = imageUrl || coverUrl;
+  const imgSrc = rawImage ? productImageUrl(rawImage) : defaultHero;
   const tagline =
     eyebrow ||
     category === "cosmetics"
@@ -50,7 +53,7 @@ export function HeroSection({
       {/* Text Panel */}
       <motion.div
         className="md:w-[44%] flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16 md:py-0 relative z-10"
-        style={{ background: "#faf7f4" }}
+        style={{ background: "var(--bg-main, #faf7f4)" }}
         initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.75, ease: "easeOut" }}
@@ -65,7 +68,7 @@ export function HeroSection({
           <Sparkles className="w-3.5 h-3.5" style={{ color: p }} />
           <span
             className="text-[11px] tracking-[0.25em] uppercase font-semibold"
-            style={{ color: p, direction: i18n.dir() }}
+            style={{ color: p, direction: i18n.dir(), fontFamily: "var(--font-body)" }}
           >
             {tagline}
           </span>
@@ -73,8 +76,8 @@ export function HeroSection({
 
         {/* Store name as editorial headline */}
         <motion.h1
-          className="text-6xl md:text-7xl lg:text-8xl leading-[0.9] text-[hsl(340,20%,15%)] mb-6"
-          style={{ fontFamily: SERIF, fontWeight: 300, direction: i18n.dir() }}
+          className="text-6xl md:text-7xl lg:text-8xl leading-[0.9] mb-6"
+          style={{ fontFamily: "var(--font-heading)", color: "var(--text-heading)", fontWeight: 300, direction: i18n.dir() }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7 }}
@@ -84,8 +87,8 @@ export function HeroSection({
 
         {description && (
           <motion.p
-            className="text-[hsl(340,15%,45%)] text-[15px] leading-relaxed mb-8 max-w-xs"
-            style={{ direction: i18n.dir() }}
+            className="text-[15px] leading-relaxed mb-8 max-w-xs"
+            style={{ direction: i18n.dir(), color: "var(--text-body)", fontFamily: "var(--font-body)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
@@ -104,8 +107,8 @@ export function HeroSection({
         >
           <motion.button
             onClick={onScrollToProducts}
-            className="px-8 py-3.5 text-sm font-semibold text-white rounded-full transition-all"
-            style={{ background: p, letterSpacing: "0.04em" }}
+            className="px-8 py-3.5 text-sm font-semibold text-white transition-all"
+            style={{ background: p, letterSpacing: "0.04em", borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }}
             whileHover={{ scale: 1.03, boxShadow: `0 8px 28px ${p}55` }}
             whileTap={{ scale: 0.97 }}
           >
@@ -113,8 +116,8 @@ export function HeroSection({
           </motion.button>
           <motion.button
             onClick={() => document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-8 py-3.5 text-sm font-semibold rounded-full border-2 transition-all text-stone-700"
-            style={{ borderColor: "rgba(26,22,20,0.2)" }}
+            className="px-8 py-3.5 text-sm font-semibold border-2 transition-all"
+            style={{ borderColor: "var(--border-color, rgba(26,22,20,0.2))", borderRadius: "var(--btn-radius, 9999px)", color: "var(--text-body)", fontFamily: "var(--font-body)" }}
             whileHover={{ borderColor: p, color: p }}
             whileTap={{ scale: 0.97 }}
           >
@@ -155,22 +158,24 @@ export function HeroSection({
           className="absolute inset-0"
           style={{
             background:
-              i18n.dir() === "rtl" ? "linear-gradient(to right, #faf7f4 0%, transparent 18%)" : "linear-gradient(to left, #faf7f4 0%, transparent 18%)",
+              i18n.dir() === "rtl" ? "linear-gradient(to right, var(--bg-main, #faf7f4) 0%, transparent 18%)" : "linear-gradient(to left, var(--bg-main, #faf7f4) 0%, transparent 18%)",
           }}
         />
         {/* Bottom blend on mobile */}
         <div
           className="absolute bottom-0 left-0 right-0 h-24 md:hidden"
-          style={{ background: "linear-gradient(to top, #faf7f4, transparent)" }}
+          style={{ background: "linear-gradient(to top, var(--bg-main, #faf7f4), transparent)" }}
         />
 
         {/* Floating product badge */}
         <motion.div
-          className="absolute bottom-8 left-8 right-auto md:left-auto md:right-8 hidden sm:flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl"
+          className="absolute bottom-8 left-8 right-auto md:left-auto md:right-8 hidden sm:flex items-center gap-3 px-4 py-3 shadow-xl"
           style={{
-            background: "rgba(250,247,244,0.92)",
+            background: "var(--bg-card, rgba(250,247,244,0.92))",
             backdropFilter: "blur(16px)",
             direction: i18n.dir(),
+            borderRadius: "var(--card-radius, 16px)",
+            border: "1px solid var(--border-color, transparent)"
           }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -183,8 +188,8 @@ export function HeroSection({
             <Sparkles className="w-4 h-4" style={{ color: p }} />
           </div>
           <div>
-            <p className="text-[11px] text-stone-400 font-medium">{t("storefront.hero.newCollection", { defaultValue: "New Collection" })}</p>
-            <p className="text-[13px] font-bold text-stone-800" style={{ fontFamily: SERIF }}>
+            <p className="text-[11px] font-medium" style={{ color: "var(--text-body)" }}>{t("storefront.hero.newCollection", { defaultValue: "New Collection" })}</p>
+            <p className="text-[13px] font-bold" style={{ fontFamily: "var(--font-heading)", color: "var(--text-heading)" }}>
               {t("storefront.hero.seasonName", { defaultValue: "Summer 2025" })}
             </p>
           </div>

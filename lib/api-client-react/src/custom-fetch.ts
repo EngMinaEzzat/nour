@@ -215,6 +215,31 @@ function buildErrorMessage(response: Response, data: unknown): string {
     return text ? `${prefix}: ${truncate(text)}` : prefix;
   }
 
+  // Handle nested validation errors (Zod / field errors)
+  if (data && typeof data === "object") {
+    const errObj = (data as any).error;
+    if (errObj && typeof errObj === "object") {
+      const fieldErrors = errObj.fieldErrors;
+      const formErrors = errObj.formErrors;
+
+      if (fieldErrors && typeof fieldErrors === "object") {
+        const messages: string[] = [];
+        for (const [field, errors] of Object.entries(fieldErrors)) {
+          if (Array.isArray(errors) && errors.length > 0) {
+            messages.push(`${field}: ${errors.join(", ")}`);
+          }
+        }
+        if (messages.length > 0) {
+          return `${prefix}: ${messages.join(" | ")}`;
+        }
+      }
+
+      if (Array.isArray(formErrors) && formErrors.length > 0) {
+        return `${prefix}: ${formErrors.join(", ")}`;
+      }
+    }
+  }
+
   const title = getStringField(data, "title");
   const detail = getStringField(data, "detail");
   const message =

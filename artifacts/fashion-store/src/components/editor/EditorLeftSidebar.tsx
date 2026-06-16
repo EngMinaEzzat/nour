@@ -293,6 +293,7 @@ export default function EditorLeftSidebar({
                                   }}
                                   className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
                                   title={t("editorSidebar.sectionItem.moveUp")}
+                                  aria-label={t("editorSidebar.sectionItem.moveUp")}
                                 >
                                   <ChevronUp className="w-3 h-3" />
                                 </button>
@@ -302,9 +303,8 @@ export default function EditorLeftSidebar({
                                     moveSection(section.id, "down");
                                   }}
                                   className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
-                                  title={t(
-                                    "editorSidebar.sectionItem.moveDown",
-                                  )}
+                                  title={t("editorSidebar.sectionItem.moveDown")}
+                                  aria-label={t("editorSidebar.sectionItem.moveDown")}
                                 >
                                   <ChevronDown className="w-3 h-3" />
                                 </button>
@@ -316,11 +316,8 @@ export default function EditorLeftSidebar({
                                     });
                                   }}
                                   className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
-                                  title={
-                                    section.visible
-                                      ? t("editorSidebar.sectionItem.hide")
-                                      : t("editorSidebar.sectionItem.show")
-                                  }
+                                  title={section.visible ? t("editorSidebar.sectionItem.hide") : t("editorSidebar.sectionItem.show")}
+                                  aria-label={section.visible ? t("editorSidebar.sectionItem.hide") : t("editorSidebar.sectionItem.show")}
                                 >
                                   {section.visible ? (
                                     <Eye className="w-3 h-3" />
@@ -334,9 +331,8 @@ export default function EditorLeftSidebar({
                                     duplicateSection(section.id);
                                   }}
                                   className="w-5 h-5 flex items-center justify-center rounded hover:bg-stone-200"
-                                  title={t(
-                                    "editorSidebar.sectionItem.duplicate",
-                                  )}
+                                  title={t("editorSidebar.sectionItem.duplicate")}
+                                  aria-label={t("editorSidebar.sectionItem.duplicate")}
                                 >
                                   <Copy className="w-3 h-3" />
                                 </button>
@@ -347,6 +343,7 @@ export default function EditorLeftSidebar({
                                   }}
                                   className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-100 hover:text-red-500"
                                   title={t("editorSidebar.sectionItem.delete")}
+                                  aria-label={t("editorSidebar.sectionItem.delete")}
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
@@ -621,15 +618,10 @@ function ThemePanel({
                 {/* Theme name */}
                 <div className="px-2 py-1.5 bg-white">
                   <p className="text-[11px] font-semibold text-stone-800 flex items-center gap-1">
-                    <span>{tTheme.emoji}</span>{" "}
-                    {t(
-                      `editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.name`,
-                    )}
+                    <span>{tTheme.emoji}</span> {tTheme.name}
                   </p>
                   <p className="text-[9px] text-stone-400 truncate">
-                    {t(
-                      `editorSidebar.themePanel.themes.${tTheme.id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())}.desc`,
-                    )}
+                    {tTheme.desc}
                   </p>
                 </div>
               </motion.button>

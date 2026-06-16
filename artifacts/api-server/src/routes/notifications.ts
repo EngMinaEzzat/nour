@@ -1,16 +1,18 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { ordersTable, orderItemsTable, customersTable, tenantsTable, productsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import * as whatsapp from "../lib/whatsapp";
-import { requireAuth } from "../middleware/require-role";
+import { requireRole } from "../middleware/require-role";
 
 const router = Router();
 
-router.post("/notifications/whatsapp", requireAuth, async (req, res) => {
+router.post("/notifications/whatsapp", requireRole("owner", "manager", "staff"), async (req, res) => {
   const { orderId, customerPhone } = req.body as { orderId?: number; customerPhone?: string };
   if (!orderId) return res.status(400).json({ error: "orderId مطلوب" });
   if (!customerPhone) return res.status(400).json({ error: "customerPhone مطلوب" });
+
+  const tenantId = req.merchantTenantId!;
 
   try {
     const [order] = await db
@@ -24,7 +26,7 @@ router.post("/notifications/whatsapp", requireAuth, async (req, res) => {
       .from(ordersTable)
       .leftJoin(customersTable, eq(ordersTable.customerId, customersTable.id))
       .leftJoin(tenantsTable, eq(ordersTable.tenantId, tenantsTable.id))
-      .where(eq(ordersTable.id, orderId));
+      .where(and(eq(ordersTable.id, orderId), eq(ordersTable.tenantId, tenantId)));
 
     if (!order) return res.status(404).json({ error: "الطلب غير موجود" });
 

@@ -76,9 +76,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   }
 
   return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
+    <style>{Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
@@ -87,17 +85,14 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    // Sanitize color to prevent CSS injection (strip structural CSS characters)
-    const sanitizedColor = color?.replace(/;|}|<\/style>/g, "")
-    return sanitizedColor ? `  --color-${key}: ${sanitizedColor};` : null
+    const sanitizedColor = color?.replace(/;|}|<\/style>/g, "");
+    return sanitizedColor ? `  --color-${key}: ${sanitizedColor};` : null;
   })
   .join("\n")}
 }
 `
           )
-          .join("\n"),
-      }}
-    />
+          .join("\n")}</style>
   )
 }
 

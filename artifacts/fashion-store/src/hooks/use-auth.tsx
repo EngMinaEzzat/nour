@@ -46,6 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string): Promise<AuthResponse> {
     const result = await loginMutation.mutateAsync({ data: { email, password } });
+    setCsrfToken(null);
+    await fetchAndSetCsrfToken(undefined, { force: true });
     queryClient.setQueryData(getGetMeQueryKey(), result);
     return result;
   }
@@ -56,9 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string;
     password: string;
     phone: string;
-    category: "fashion" | "cosmetics" | "both";
+    category: "fashion" | "cosmetics" | "both" | "clinic" | "electronics" | "bistro" | "spare_parts";
   }): Promise<AuthResponse> {
-    const result = await registerMutation.mutateAsync({ data });
+    const result = await registerMutation.mutateAsync({ data: data as any });
+    setCsrfToken(null);
+    await fetchAndSetCsrfToken(undefined, { force: true });
     queryClient.setQueryData(getGetMeQueryKey(), result);
     return result;
   }

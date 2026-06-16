@@ -58,7 +58,7 @@ export function getMerchantNav(
           name: "layout.products",
           href: "/products",
           icon: Package,
-          badgeKey: "lowStock",
+          badgeKey: "totalProducts",
         },
         { name: "layout.categories", href: "/categories", icon: Tags },
         { name: "layout.customers", href: "/customers", icon: Users },
@@ -75,7 +75,6 @@ export function getMerchantNav(
           href: "/abandoned-carts",
           icon: ShoppingCart,
         },
-        { name: "layout.growth", href: "/growth", icon: TrendingUp },
         { name: "layout.tracking", href: "/tracking", icon: BarChart2 },
       ],
     },
@@ -91,7 +90,6 @@ export function getMerchantNav(
         },
         { name: "layout.domains", href: "/domains", icon: Globe },
         { name: "layout.billing", href: "/billing", icon: CreditCard },
-        { name: "common.pricing", href: "/pricing", icon: CreditCard },
         ...(merchant?.role === "owner" || merchant?.role === "manager"
           ? [{ name: "layout.staff", href: "/staff", icon: UserCog }]
           : []),

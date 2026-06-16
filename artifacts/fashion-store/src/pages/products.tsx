@@ -36,9 +36,12 @@ import {
   Package, Plus, Pencil, Trash2, Search, Star, Eye, EyeOff,
   AlertCircle, Layers, X, Check, Palette, AlertTriangle, Sparkles, Loader2,
   FileUp, FileDown, CheckCircle2, XCircle, UploadCloud, MoreHorizontal, Filter, LayoutGrid, List,
+  ChevronDown,
 } from "lucide-react";
 import { ImageUpload, ImageUploadList } from "@/components/image-upload";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { normalizeStoredImageUrl, productImageUrl } from "@/lib/image-url";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { formatCurrency } from "@/lib/ui-format";
 import { AdminIconButton } from "@/components/admin/admin-icon-button";
@@ -82,232 +85,62 @@ const EMPTY_FORM: ProductForm = {
   imageUrl: "", featured: false, status: "active", categoryId: "",
 };
 
-type VariantRow = { id?: number; size: string; color: string; colorHex: string; stock: string; imageUrls: string[]; isNew?: boolean };
+type SizeVariant = {
+  size: string;
+  stock: string;
+  id?: number;
+  isNew?: boolean;
+};
+
+type VariantRow = {
+  color: string;
+  colorHex: string;
+  sizeVariants: SizeVariant[];
+  imageUrls: string[];
+  isNew?: boolean;
+};
 
 function newVariantRow(): VariantRow {
-  return { size: "", color: "", colorHex: "#000000", stock: "0", imageUrls: [], isNew: true };
+  return { color: "", colorHex: "#000000", sizeVariants: [{ size: "", stock: "0", isNew: true }], imageUrls: [], isNew: true };
 }
 
 function variantStock(rows: VariantRow[]) {
-  return rows.reduce((total, row) => total + (parseInt(row.stock, 10) || 0), 0);
+  return rows.reduce((total, row) => {
+    return total + row.sizeVariants.reduce((sum, sv) => sum + (parseInt(sv.stock, 10) || 0), 0);
+  }, 0);
 }
 
 function firstVariantImage(rows: VariantRow[]) {
   return rows.flatMap((row) => row.imageUrls.map(normalizeStoredImageUrl)).find(Boolean) ?? "";
 }
 
-function variantToRow(variant: ProductVariant): VariantRow {
-  return {
-    id: variant.id,
-    size: variant.size ?? "",
-    color: variant.color ?? "",
-    colorHex: variant.colorHex ?? "#000000",
-    imageUrls: (variant.imageUrls ?? []).map(normalizeStoredImageUrl),
-    stock: String(variant.stock),
-  };
+function groupVariantsToRows(variants: ProductVariant[]): VariantRow[] {
+  const rowsMap: Record<string, VariantRow> = {};
+  for (const v of variants) {
+    const colorKey = `${v.color ?? ""}-${v.colorHex ?? ""}`;
+    if (!rowsMap[colorKey]) {
+      rowsMap[colorKey] = {
+        color: v.color ?? "",
+        colorHex: v.colorHex ?? "#000000",
+        sizeVariants: [],
+        imageUrls: (v.imageUrls ?? []).map(normalizeStoredImageUrl),
+      };
+    }
+    rowsMap[colorKey].sizeVariants.push({
+      size: v.size || "",
+      stock: String(v.stock),
+      id: v.id,
+    });
+    const newUrls = (v.imageUrls ?? []).map(normalizeStoredImageUrl);
+    for (const url of newUrls) {
+      if (!rowsMap[colorKey].imageUrls.includes(url)) {
+        rowsMap[colorKey].imageUrls.push(url);
+      }
+    }
+  }
+  return Object.values(rowsMap);
 }
 
-/* ─── Variant Manager sub-component ─── */
-function VariantManager({ productId }: { productId: number }) {
-  const { t } = useTranslation();
-  const { data: variants, refetch } = useListProductVariants(productId);
-  const createVariant = useCreateProductVariant();
-  const updateVariant = useUpdateProductVariant();
-  const deleteVariant = useDeleteProductVariant();
-
-  const [rows, setRows] = useState<VariantRow[]>([]);
-  const [savingRow, setSavingRow] = useState<number | null>(null);
-
-  useEffect(() => {
-    setRows(variants?.map(variantToRow) ?? []);
-    if (variants && variants.length > 0) {
-      // notify parent if needed, but here we just manage rows
-    }
-  }, [productId, variants]);
-
-  function addRow() {
-    setRows((r) => [...r, newVariantRow()]);
-  }
-
-  function updateRow(i: number, field: keyof VariantRow, value: string | string[]) {
-    setRows((r) => r.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
-  }
-
-  function setPresetColor(i: number, name: string, hex: string) {
-    setRows((r) => r.map((row, idx) => idx === i ? { ...row, color: name, colorHex: hex } : row));
-  }
-
-  async function saveRow(i: number) {
-    const row = rows[i];
-    if (!row) return;
-    setSavingRow(i);
-    const payload = {
-      size: row.size || null,
-      color: row.color || null,
-      colorHex: row.colorHex || null,
-      imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-      stock: parseInt(row.stock, 10) || 0,
-    };
-    try {
-      const saved = row.id
-        ? await updateVariant.mutateAsync({ id: productId, variantId: row.id, data: payload })
-        : await createVariant.mutateAsync({ id: productId, data: payload });
-      setRows((current) => current.map((existing, idx) => idx === i ? variantToRow(saved) : existing));
-      await refetch();
-    } finally {
-      setSavingRow(null);
-    }
-  }
-
-  async function removeRow(i: number) {
-    const row = rows[i];
-    if (!row) return;
-    if (row.id) {
-      await deleteVariant.mutateAsync({ id: productId, variantId: row.id });
-      setRows((r) => r.filter((_, idx) => idx !== i));
-      await refetch();
-    } else {
-      setRows((r) => r.filter((_, idx) => idx !== i));
-    }
-  }
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Label className="flex items-center gap-1.5 text-sm font-semibold">
-          <Layers className="w-3.5 h-3.5 text-primary" /> {t("products.variants.title")}
-        </Label>
-        <Button type="button" size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={addRow}>
-          <Plus className="w-3 h-3" /> {t("products.variants.addBtn")}
-        </Button>
-      </div>
-
-      {rows.length === 0 && (
-        <p className="text-xs text-muted-foreground text-center py-3 border border-dashed border-border rounded-xl">
-          {t("products.variants.empty")}
-        </p>
-      )}
-
-      <div className="space-y-2">
-        {rows.map((row, i) => (
-          <motion.div
-            key={row.id ?? `new-${i}`}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50"
-          >
-            {/* Size */}
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.size")}</Label>
-              <Select
-                value={row.size || SELECT_NONE_VALUE}
-                onValueChange={(v) =>
-                  updateRow(i, "size", v === SELECT_NONE_VALUE ? "" : v)
-                }
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="اختاري..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={SELECT_NONE_VALUE}>{t("products.variants.sizeNone")}</SelectItem>
-                  {SIZES.map((s) => <SelectItem key={s} value={s}>{t(`products.sizes.${s}`) || s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Color */}
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.color")}</Label>
-              <div className="flex gap-1">
-                <div className="relative flex-1">
-                  <Input
-                    value={row.color}
-                    onChange={(e) => updateRow(i, "color", e.target.value)}
-                    placeholder={t("products.variants.colorPlaceholder")}
-                    className="h-8 text-xs ps-7"
-                  />
-                  <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50 overflow-hidden">
-                    <input
-                      type="color"
-                      className="absolute -top-2 -left-2 w-8 h-8 cursor-pointer"
-                      value={row.colorHex || "#000000"}
-                      onChange={(e) => updateRow(i, "colorHex", e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="relative">
-                  <Select onValueChange={(v) => {
-                    const preset = PRESET_COLORS.find((c) => c.key === v);
-                    if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
-                  }}>
-                    <SelectTrigger className="h-8 w-8 p-0 border-border/50">
-                      <Palette className="w-3 h-3 mx-auto text-muted-foreground" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PRESET_COLORS.map((c) => (
-                        <SelectItem key={c.key} value={c.key}>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: c.hex }} />
-                            {t(`products.colors.${c.key}`)}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Stock */}
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.stock")}</Label>
-              <Input
-                type="number"
-                min="0"
-                value={row.stock}
-                onChange={(e) => updateRow(i, "stock", e.target.value)}
-                className="h-8 text-xs w-16"
-              />
-            </div>
-
-            {/* Save */}
-            <Button
-              type="button"
-              size="icon"
-              className="h-8 w-8 mt-5 bg-primary/10 hover:bg-primary/20 text-primary"
-              onClick={() => saveRow(i)}
-              disabled={savingRow !== null}
-              title={t("products.variants.btnSave")}
-            >
-              {savingRow === i ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-            </Button>
-
-            {/* Delete */}
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 mt-5 text-destructive hover:bg-destructive/10"
-              onClick={() => removeRow(i)}
-              disabled={savingRow !== null}
-              title={t("products.variants.btnDelete")}
-            >
-              <X className="w-3.5 h-3.5" />
-            </Button>
-
-            <div className="sm:col-span-5">
-              <ImageUploadList
-                label={t("products.variants.images")}
-                values={row.imageUrls}
-                onChange={(urls) => updateRow(i, "imageUrls", urls)}
-              />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function DraftVariantManager({
   rows,
@@ -316,9 +149,13 @@ function DraftVariantManager({
   rows: VariantRow[];
   onChange: (rows: VariantRow[]) => void;
 }) {
-  const { t } = useTranslation();
-  function updateRow(i: number, field: keyof VariantRow, value: string | string[]) {
+  const { t, i18n } = useTranslation();
+  function updateRow(i: number, field: keyof VariantRow, value: any) {
     onChange(rows.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
+  }
+
+  function updateRowFields(i: number, updates: Partial<VariantRow>) {
+    onChange(rows.map((row, idx) => idx === i ? { ...row, ...updates } : row));
   }
 
   function setPresetColor(i: number, name: string, hex: string) {
@@ -326,7 +163,7 @@ function DraftVariantManager({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" style={{ direction: i18n.dir() }}>
       <div className="flex items-center justify-between">
         <Label className="flex items-center gap-1.5 text-sm font-semibold">
           <Layers className="w-3.5 h-3.5 text-primary" /> {t("products.variants.draftTitle")}
@@ -335,68 +172,151 @@ function DraftVariantManager({
           <Plus className="w-3 h-3" /> {t("products.variants.addBtn")}
         </Button>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-4">
         {rows.map((row, i) => (
-          <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 items-end bg-muted/30 rounded-xl p-2.5 border border-border/50">
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.size")}</Label>
-              <Select value={row.size || SELECT_NONE_VALUE} onValueChange={(v) => updateRow(i, "size", v === SELECT_NONE_VALUE ? "" : v)}>
-                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="اختاري..." /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={SELECT_NONE_VALUE}>{t("products.variants.sizeNone")}</SelectItem>
-                  {SIZES.map((s) => <SelectItem key={s} value={s}>{t(`products.sizes.${s}`) || s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.color")}</Label>
-              <div className="flex gap-1">
-                <div className="relative flex-1">
-                  <Input value={row.color} onChange={(e) => updateRow(i, "color", e.target.value)} placeholder={t("products.variants.colorPlaceholder")} className="h-8 text-xs ps-7" />
-                  <div className="absolute start-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border border-border/50 overflow-hidden">
-                    <input
-                      type="color"
-                      className="absolute -top-2 -left-2 w-8 h-8 cursor-pointer"
-                      value={row.colorHex || "#000000"}
-                      onChange={(e) => updateRow(i, "colorHex", e.target.value)}
-                    />
-                  </div>
-                </div>
+          <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start bg-muted/20 rounded-xl p-4 border border-border/50 relative group">
+            {/* Color section (firstly!) */}
+            <div className="sm:col-span-4 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.color")}</Label>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 text-destructive hover:bg-destructive/10 sm:hidden"
+                  onClick={() => rows.length > 1 && onChange(rows.filter((_, idx) => idx !== i))}
+                  disabled={rows.length === 1}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+              <div className="relative flex items-center gap-2 bg-background border border-input rounded-md px-2 focus-within:ring-1 focus-within:ring-primary h-9">
                 <Select onValueChange={(v) => {
-                  const preset = PRESET_COLORS.find((c) => c.key === v);
-                  if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
+                  if (v === "custom") {
+                    document.getElementById(`color-picker-${i}`)?.click();
+                  } else {
+                    const preset = PRESET_COLORS.find((c) => c.key === v);
+                    if (preset) setPresetColor(i, t(`products.colors.${preset.key}`), preset.hex);
+                  }
                 }}>
-                  <SelectTrigger className="h-8 w-8 p-0 border-border/50">
-                    <Palette className="w-3 h-3 mx-auto text-muted-foreground" />
+                  <SelectTrigger className="h-6 w-8 p-0 border-0 bg-transparent shadow-none focus:ring-0 flex items-center gap-1 shrink-0 [&>span]:line-clamp-none" aria-label={t("products.variants.colorPresets")}>
+                    <div 
+                      className="w-4 h-4 rounded-full border relative shadow-sm cursor-pointer shrink-0" 
+                      style={{ backgroundColor: row.colorHex || "#000000" }}
+                    />
+                    <ChevronDown className="w-2.5 h-2.5 text-muted-foreground opacity-50 shrink-0" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60 overflow-y-auto">
                     {PRESET_COLORS.map((c) => (
                       <SelectItem key={c.key} value={c.key}>
                         <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full border" style={{ backgroundColor: c.hex }} />
+                          <div className="w-3.5 h-3.5 rounded-full border shadow-sm" style={{ backgroundColor: c.hex }} />
                           {t(`products.colors.${c.key}`)}
                         </div>
                       </SelectItem>
                     ))}
+                    <SelectItem value="custom" className="text-primary font-medium focus:bg-primary/5 focus:text-primary border-t border-border/50 mt-1">
+                      <div className="flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5 text-primary" />
+                        {t("products.colors.custom") || "لون مخصص..."}
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
+
+                {/* Hidden color input for picker wheel */}
+                <input
+                  id={`color-picker-${i}`}
+                  type="color"
+                  className="absolute -z-10 opacity-0 pointer-events-none w-0 h-0"
+                  value={row.colorHex || "#000000"}
+                  onChange={(e) => updateRow(i, "colorHex", e.target.value)}
+                />
+
+                <input
+                  type="text"
+                  value={row.color}
+                  onChange={(e) => updateRow(i, "color", e.target.value)}
+                  placeholder={t("products.variants.colorPlaceholder")}
+                  className="w-full h-8 bg-transparent border-0 p-0 text-xs focus:outline-none focus:ring-0 text-foreground"
+                />
               </div>
             </div>
-            <div className="space-y-1">
-              <Label className="text-[10px] text-muted-foreground">{t("products.variants.stock")}</Label>
-              <Input type="number" min="0" value={row.stock} onChange={(e) => updateRow(i, "stock", e.target.value)} className="h-8 text-xs w-20" />
+
+            {/* Sizes & Stock list section */}
+            <div className="sm:col-span-8 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-[10px] uppercase font-bold text-muted-foreground">{t("products.variants.stockPerSize", "المقاسات والكمية الافتتاحية")}</Label>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 text-destructive hover:bg-destructive/10 hidden sm:inline-flex"
+                  onClick={() => rows.length > 1 && onChange(rows.filter((_, idx) => idx !== i))}
+                  disabled={rows.length === 1}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                {row.sizeVariants.map((sv, svIdx) => (
+                  <div key={svIdx} className="flex items-center gap-2 relative">
+                    <Input
+                      placeholder={t("products.variants.sizePlaceholder", "المقاس (ex: 42)")}
+                      type="text"
+                      value={sv.size}
+                      onChange={(e) => {
+                        const newSizeVariants = [...row.sizeVariants];
+                        newSizeVariants[svIdx] = { ...sv, size: e.target.value };
+                        updateRow(i, "sizeVariants", newSizeVariants);
+                      }}
+                      className="w-full text-xs h-9 rounded-md bg-background focus:ring-1 focus:ring-primary text-center sm:text-start"
+                    />
+                    <Input
+                      placeholder={t("products.variants.stockPlaceholder", "الكمية الافتتاحية")}
+                      type="number"
+                      min="0"
+                      value={sv.stock}
+                      onChange={(e) => {
+                        const newSizeVariants = [...row.sizeVariants];
+                        newSizeVariants[svIdx] = { ...sv, stock: e.target.value };
+                        updateRow(i, "sizeVariants", newSizeVariants);
+                      }}
+                      className="w-full text-xs h-9 rounded-md bg-background focus:ring-1 focus:ring-primary text-center sm:text-start"
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className={cn("h-9 w-9 text-destructive hover:bg-destructive/10 shrink-0", row.sizeVariants.length === 1 && "opacity-50 pointer-events-none")}
+                      onClick={() => {
+                        if (row.sizeVariants.length > 1) {
+                          const newSizeVariants = row.sizeVariants.filter((_, idx) => idx !== svIdx);
+                          updateRow(i, "sizeVariants", newSizeVariants);
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-primary hover:bg-primary/5 text-xs gap-1.5 px-2 mt-1"
+                onClick={() => {
+                  const newSizeVariants = [...row.sizeVariants, { size: "", stock: "0", isNew: true }];
+                  updateRow(i, "sizeVariants", newSizeVariants);
+                }}
+              >
+                <Plus className="w-3.5 h-3.5" /> {t("products.variants.addSize", "إضافة مقاس آخر")}
+              </Button>
             </div>
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 text-destructive hover:bg-destructive/10"
-              onClick={() => rows.length > 1 && onChange(rows.filter((_, idx) => idx !== i))}
-              disabled={rows.length === 1}
-            >
-              <X className="w-3.5 h-3.5" />
-            </Button>
-            <div className="sm:col-span-4">
+
+            <div className="sm:col-span-12 mt-1">
               <ImageUploadList label={t("products.variants.images")} values={row.imageUrls} onChange={(urls) => updateRow(i, "imageUrls", urls)} />
             </div>
           </div>
@@ -551,7 +471,7 @@ function CsvImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0" dir={i18n.dir()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 p-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
         <DialogHeader className="px-6 py-4 border-b border-border/40 shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base">
             <FileUp className="w-4 h-4 text-primary" />
@@ -723,6 +643,8 @@ export default function Products() {
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
   const createProductVariant = useCreateProductVariant();
+  const updateProductVariant = useUpdateProductVariant();
+  const deleteProductVariant = useDeleteProductVariant();
 
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -892,7 +814,7 @@ export default function Products() {
     setDialogOpen(true);
   }
 
-  function openEdit(p: NonNullable<typeof products>[0]) {
+  async function openEdit(p: NonNullable<typeof products>[0]) {
     setForm({
       name: p.name, description: p.description,
       price: String(p.price), originalPrice: p.originalPrice ? String(p.originalPrice) : "",
@@ -901,14 +823,27 @@ export default function Products() {
       featured: p.featured, status: p.status,
       categoryId: p.categoryId ? String(p.categoryId) : "",
     });
-    // Let hasVariants trigger after fetching if variants exist, or just rely on variant length.
-    // For simplicity, we assume they have variants if their stock doesn't perfectly match product stock, 
-    // or we'll let VariantManager handle it. Actually, just set it true for now and hide if 0 in effect.
     setHasVariants(p.hasVariants || false); 
     setFormError(null);
     setEditingId(p.id);
     setVariantsProductId(p.id);
     setDialogOpen(true);
+    
+    if (p.hasVariants) {
+      try {
+        const res = await fetch(`${BASE}/api/products/${p.id}/variants`);
+        if (res.ok) {
+          const variants = await res.json() as ProductVariant[];
+          if (variants && variants.length > 0) {
+            setDraftVariants(groupVariantsToRows(variants));
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch variants", e);
+      }
+    }
+    setDraftVariants([newVariantRow()]);
   }
 
   async function handleSave() {
@@ -937,16 +872,99 @@ export default function Products() {
       if (editingId) {
         const { stock: _stock, ...updatePayload } = payload;
         await updateProduct.mutateAsync({ id: editingId, data: hasVariants ? updatePayload : payload });
+        
+        if (hasVariants) {
+          const activePayloads: {
+            id?: number;
+            size: string | null;
+            color: string | null;
+            colorHex: string | null;
+            imageUrls: string[];
+            stock: number;
+          }[] = [];
+
+          for (const row of rowsForCreate) {
+            for (const sv of row.sizeVariants) {
+              activePayloads.push({
+                id: sv.id,
+                size: sv.size || null,
+                color: row.color || null,
+                colorHex: row.colorHex || null,
+                imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
+                stock: parseInt(sv.stock, 10) || 0,
+              });
+            }
+          }
+
+          const res = await fetch(`${BASE}/api/products/${editingId}/variants`);
+          const activeVariants = res.ok ? (await res.json() as ProductVariant[]) : [];
+          const existingIds = activeVariants.map(v => v.id);
+          
+          const keptIds = activePayloads.map(p => p.id).filter((id): id is number => typeof id === "number");
+          const deletedIds = existingIds.filter(id => !keptIds.includes(id));
+          
+          await Promise.all([
+            ...deletedIds.map(id => deleteProductVariant.mutateAsync({ id: editingId, variantId: id })),
+            ...activePayloads.map(p => {
+              const body = {
+                size: p.size,
+                color: p.color,
+                colorHex: p.colorHex,
+                imageUrls: p.imageUrls,
+                stock: p.stock,
+              };
+              if (p.id) {
+                return updateProductVariant.mutateAsync({ 
+                  id: editingId, 
+                  variantId: p.id, 
+                  data: body 
+                });
+              }
+              return createProductVariant.mutateAsync({
+                id: editingId,
+                data: body
+              });
+            })
+          ]);
+        }
       } else {
         const created = await createProduct.mutateAsync({ data: { ...payload, tenantId } });
         if (hasVariants) {
+          const createPayloads: {
+            size: string | null;
+            color: string | null;
+            colorHex: string | null;
+            imageUrls: string[];
+            stock: number;
+          }[] = [];
+
           for (const row of rowsForCreate) {
-            await createVariantFromDraft(created.id, row);
+            for (const sv of row.sizeVariants) {
+              createPayloads.push({
+                size: sv.size || null,
+                color: row.color || null,
+                colorHex: row.colorHex || null,
+                imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
+                stock: parseInt(sv.stock, 10) || 0,
+              });
+            }
           }
+
+          await Promise.all(createPayloads.map(p => createProductVariant.mutateAsync({
+            id: created.id,
+            data: {
+              size: p.size,
+              color: p.color,
+              colorHex: p.colorHex,
+              imageUrls: p.imageUrls,
+              stock: p.stock,
+            }
+          })));
         }
         setVariantsProductId(created.id);
         setEditingId(created.id);
       }
+      setDialogOpen(false);
       refetch();
     } finally {
       setSaving(false);
@@ -962,19 +980,6 @@ export default function Products() {
 
   const field = (key: keyof ProductForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
-
-  async function createVariantFromDraft(productId: number, row: VariantRow) {
-    await createProductVariant.mutateAsync({
-      id: productId,
-      data: {
-        size: row.size || null,
-        color: row.color || null,
-        colorHex: row.colorHex || null,
-        imageUrls: row.imageUrls.map(normalizeStoredImageUrl),
-        stock: parseInt(row.stock, 10) || 0,
-      },
-    });
-  }
 
   return (
     <div className="container mx-auto px-4 py-10" dir={i18n.dir()}>
@@ -1127,7 +1132,7 @@ export default function Products() {
 
       {/* Products grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5">
           {Array(8).fill(0).map((_, i) => (
             <div key={i} className="flex flex-col gap-3">
               <Skeleton className="aspect-[4/3] w-full rounded-xl" />
@@ -1354,180 +1359,178 @@ export default function Products() {
 
       {/* ─── Create / Edit Dialog ─── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl">
+        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
               {editingId ? t("products.form.editTitle") : t("products.form.addTitle")}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-6 py-4">
-            {form.status === "active" && (!form.imageUrl || (!hasVariants && Number(form.stock) <= 0)) && (
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm flex gap-2">
-                <AlertTriangle className="w-5 h-5 shrink-0" />
-                <div>
-                  <p className="font-semibold">{t("products.form.warnings.title")}</p>
-                  <ul className="list-disc list-inside mt-1 text-amber-700 opacity-90">
-                    {!form.imageUrl && <li>{t("products.form.warnings.noImage")}</li>}
-                    {(!hasVariants && Number(form.stock) <= 0) && <li>{t("products.form.warnings.noStock")}</li>}
-                  </ul>
+          <Tabs defaultValue="details" className="w-full" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
+            <div className="px-6 pt-4 border-b border-border/50 bg-muted/20">
+              <TabsList className="grid grid-cols-2 w-full bg-muted/60 p-1 rounded-xl h-10 mb-4">
+                <TabsTrigger value="details" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.details_short") || t("products.tabs.details")}</TabsTrigger>
+                <TabsTrigger value="variants" className="text-xs font-semibold rounded-lg transition-all">{t("products.tabs.variants_short") || t("products.tabs.variants")}</TabsTrigger>
+              </TabsList>
+            </div>
+
+            <div className="px-6 py-4 space-y-6">
+              {form.status === "active" && (!form.imageUrl || (!hasVariants && Number(form.stock) <= 0)) && (
+                <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm flex gap-2">
+                  <AlertTriangle className="w-5 h-5 shrink-0 animate-pulse" />
+                  <div>
+                    <p className="font-semibold">{t("products.form.warnings.title")}</p>
+                    <ul className="list-disc list-inside mt-1 text-amber-700 opacity-90 text-xs space-y-0.5">
+                      {!form.imageUrl && <li>{t("products.form.warnings.noImage")}</li>}
+                      {(!hasVariants && Number(form.stock) <= 0) && <li>{t("products.form.warnings.noStock")}</li>}
+                    </ul>
+                  </div>
                 </div>
+              )}
+
+              {/* ─── Details Tab ─── */}
+              <TabsContent value="details" className="space-y-4 outline-none mt-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="sm:col-span-2">
+                      <ImageUpload
+                        label={t("products.form.image")}
+                        value={form.imageUrl}
+                        onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
+                      />
+                    </div>
+                    <div className="sm:col-span-2 space-y-1.5 mt-2">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.name")} *</Label>
+                      <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} className="rounded-lg" />
+                    </div>
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.description")} *</Label>
+                      <Textarea value={form.description} onChange={field("description")} placeholder={t("products.form.descriptionPlaceholder")} rows={4} className="resize-none rounded-lg" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.category").split(" ")[0]}</Label>
+                      <Select
+                        value={form.categoryId || SELECT_NONE_VALUE}
+                        onValueChange={(v) =>
+                          setForm((f) => ({
+                            ...f,
+                            categoryId: v === SELECT_NONE_VALUE ? "" : v,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="rounded-lg"><SelectValue placeholder="اختاري..." /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={SELECT_NONE_VALUE}>{t("products.form.noCategory")}</SelectItem>
+                          {categories?.filter(c => !c.parentId).map((parent) => (
+                            <div key={parent.id}>
+                              <SelectItem value={String(parent.id)} className="font-semibold">
+                                {i18n.language === "en" ? parent.name : parent.nameAr}
+                              </SelectItem>
+                              {categories
+                                ?.filter((child) => child.parentId === parent.id)
+                                .map((child) => (
+                                   <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
+                                     — {i18n.language === "en" ? child.name : child.nameAr}
+                                   </SelectItem>
+                                ))}
+                            </div>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.status")}</Label>
+                      <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as ProductForm["status"] }))}>
+                        <SelectTrigger className="rounded-lg"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">{t("products.status.active")}</SelectItem>
+                          <SelectItem value="out_of_stock">{t("products.status.out_of_stock")}</SelectItem>
+                          <SelectItem value="hidden">{t("products.status.hidden")}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3 bg-muted/10 sm:col-span-2">
+                      <div>
+                        <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" /> {t("products.form.featured").split("(")[0]}
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t("products.form.featured").split("(")[1]?.replace(")", "")}</p>
+                      </div>
+                      <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
+                    </div>
+                  </div>
+              </TabsContent>
+
+              {/* ─── Pricing & Variants Tab ─── */}
+              <TabsContent value="variants" className="space-y-4 outline-none mt-0" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
+                <div className="space-y-6 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.price")} *</Label>
+                      <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} className="rounded-lg" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-bold text-foreground/80">{t("products.form.originalPrice")}</Label>
+                      <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} className="rounded-lg" />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border/50 pt-5 space-y-4">
+                    <div className="flex items-center justify-between bg-muted/30 p-4 rounded-xl border border-border/50">
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-semibold flex items-center gap-1.5">
+                          <Layers className="w-4 h-4 text-primary" />
+                          {t("products.tabs.variants")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">تفعيل خيارات المقاسات والألوان المتعددة لهذا المنتج</p>
+                      </div>
+                      <Switch checked={hasVariants} onCheckedChange={setHasVariants} />
+                    </div>
+
+                    {hasVariants ? (
+                      <div className="space-y-4 animate-in fade-in duration-200">
+                        <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
+                        <p className="text-xs text-muted-foreground bg-primary/5 text-primary p-2.5 rounded-lg border border-primary/10 flex items-center gap-1.5">
+                          💡 سيتم حفظ جميع المتغيرات والكميات تلقائياً عند حفظ المنتج.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 animate-in fade-in duration-200 max-w-xs">
+                        <Label className="text-xs font-bold text-foreground/80">{t("products.columns.stock")}</Label>
+                        <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" className="rounded-lg" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+
+            </div>
+
+            {formError && (
+              <div className="px-6 py-2">
+                <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2">{formError}</p>
               </div>
             )}
 
-            <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.tabs.details")}</CardTitle></CardHeader>
-              <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2 space-y-1.5">
-                  <Label>{t("products.form.name")} *</Label>
-                  <Input value={form.name} onChange={field("name")} placeholder={t("products.form.namePlaceholder")} />
-                </div>
-                <div className="sm:col-span-2 space-y-1.5">
-                  <Label>{t("products.form.description")} *</Label>
-                  <Textarea value={form.description} onChange={field("description")} placeholder={t("products.form.descriptionPlaceholder")} rows={3} className="resize-none" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>{t("products.form.category").split(" ")[0]}</Label>
-                  <Select
-                    value={form.categoryId || SELECT_NONE_VALUE}
-                    onValueChange={(v) =>
-                      setForm((f) => ({
-                        ...f,
-                        categoryId: v === SELECT_NONE_VALUE ? "" : v,
-                      }))
-                    }
-                  >
-                    <SelectTrigger><SelectValue placeholder="اختاري..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={SELECT_NONE_VALUE}>{t("products.form.noCategory")}</SelectItem>
-                      {categories?.filter(c => !c.parentId).map((parent) => (
-                        <div key={parent.id}>
-                          <SelectItem value={String(parent.id)} className="font-semibold">
-                            {i18n.language === "en" ? parent.name : parent.nameAr}
-                          </SelectItem>
-                          {categories
-                            ?.filter((child) => child.parentId === parent.id)
-                            .map((child) => (
-                               <SelectItem key={child.id} value={String(child.id)} className="ps-6 text-sm">
-                                 — {i18n.language === "en" ? child.name : child.nameAr}
-                               </SelectItem>
-                            ))}
-                        </div>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>{t("products.form.status")}</Label>
-                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as ProductForm["status"] }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">{t("products.status.active")}</SelectItem>
-                      <SelectItem value="out_of_stock">{t("products.status.out_of_stock")}</SelectItem>
-                      <SelectItem value="hidden">{t("products.status.hidden")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.image")}</CardTitle></CardHeader>
-              <CardContent>
-                <div className="sm:col-span-2">
-                  <ImageUpload
-                    label={t("products.form.image")}
-                    value={form.imageUrl}
-                    onChange={(url) => setForm((f) => ({ ...f, imageUrl: normalizeStoredImageUrl(url) }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3 flex-row items-center justify-between">
-                <CardTitle className="text-base">{t("products.tabs.variants")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
-                  <div className="space-y-1.5">
-                    <Label>{t("products.form.price")} *</Label>
-                    <Input type="number" value={form.price} onChange={field("price")} placeholder={t("products.form.pricePlaceholder")} />
+            <DialogFooter className="px-6 py-4 border-t border-border/50 bg-muted/10 gap-2 flex items-center justify-end">
+              <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-lg">{t("products.form.btnCancel")}</Button>
+              <Button
+                onClick={handleSave}
+                disabled={saving || !form.name || !form.price}
+                className="rounded-lg min-w-[100px] bg-primary hover:bg-primary/90 hover:brightness-105 active:scale-[0.98] shadow-sm hover:shadow transition-all disabled:opacity-40 disabled:pointer-events-auto disabled:cursor-not-allowed"
+              >
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {t("products.form.btnSaving")}
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>{t("products.form.originalPrice")}</Label>
-                    <Input type="number" value={form.originalPrice} onChange={field("originalPrice")} placeholder={t("products.form.originalPricePlaceholder")} />
-                  </div>
-                  {!hasVariants && (
-                    <div className="space-y-1.5 sm:col-span-2">
-                      <Label>{t("products.columns.stock")}</Label>
-                      <Input type="number" value={form.stock} onChange={field("stock")} placeholder="0" min="0" />
-                    </div>
-                  )}
-                </div>
-
-                {!variantsProductId && (
-                  <div className="border-t border-border/50 pt-5">
-                    {hasVariants ? (
-                      <DraftVariantManager rows={draftVariants} onChange={setDraftVariants} />
-                    ) : (
-                      <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
-                        <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
-                      </Button>
-                    )}
-                  </div>
+                ) : (
+                  t("products.form.btnSave")
                 )}
-
-                {variantsProductId && hasVariants && (
-                  <AnimatePresence>
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="border-t border-border/50 pt-5"
-                    >
-                      <VariantManager productId={variantsProductId} />
-                      <p className="text-xs text-muted-foreground mt-3">
-                        💡 كل متغيّر له مخزونه الخاص. اضغط ✓ بعد تعديل كل صف للحفظ.
-                      </p>
-                    </motion.div>
-                  </AnimatePresence>
-                )}
-                {variantsProductId && !hasVariants && (
-                  <div className="border-t border-border/50 pt-5">
-                    <Button type="button" variant="outline" className="w-full gap-2 border-dashed border-2 py-6 text-muted-foreground hover:text-foreground" onClick={() => setHasVariants(true)}>
-                      <Plus className="w-4 h-4" /> {t("products.variants.addBtn")}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm border-border/50">
-              <CardHeader className="pb-3"><CardTitle className="text-base">{t("products.form.featured")}</CardTitle></CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between border border-border/50 rounded-xl px-4 py-3">
-                  <div>
-                    <Label className="flex items-center gap-1.5">
-                      <Star className="w-3.5 h-3.5 text-amber-500" /> {t("products.form.featured").split("(")[0]}
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">{t("products.form.featured").split("(")[1]?.replace(")", "")}</p>
-                  </div>
-                  <Switch checked={form.featured} onCheckedChange={(v) => setForm((f) => ({ ...f, featured: v }))} />
-                </div>
-              </CardContent>
-            </Card>
-
-            {formError && (
-              <p className="text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2 mt-4">{formError}</p>
-            )}
-
-            <DialogFooter className="gap-2 mt-4 sticky bottom-0 bg-background/80 backdrop-blur-md p-4 border-t border-border/50 -mx-4 -mb-4">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("products.form.btnCancel")}</Button>
-              <Button onClick={handleSave} disabled={saving || !form.name || !form.price}>
-                {saving ? t("products.form.btnSaving") : t("products.form.btnSave")}
               </Button>
             </DialogFooter>
-          </div>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
@@ -1581,7 +1584,7 @@ export default function Products() {
 
       {/* ─── AI Pricing Advisor Dialog ─── */}
       <Dialog open={!!pricingProduct} onOpenChange={(o) => { if (!o) { setPricingProduct(null); setPricingAdvice(null); } }}>
-        <DialogContent className="max-w-lg" dir={i18n.dir()}>
+        <DialogContent className="max-w-lg" dir={i18n.dir()} style={{ direction: i18n.dir() }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base">
               <Sparkles className="w-5 h-5 text-amber-500" />

@@ -1441,7 +1441,7 @@ components:
         type:
           type: string
           enum: [fashion, cosmetics, clinic, electronics, bistro, spare_parts]
-          theme:
+        imageUrl:
           type: string
           nullable: true
         productCount:
@@ -1461,7 +1461,7 @@ components:
         type:
           type: string
           enum: [fashion, cosmetics, clinic, electronics, bistro, spare_parts]
-          theme:
+        imageUrl:
           type: string
           nullable: true
       required: [name, nameAr, type]
@@ -1479,7 +1479,7 @@ components:
         type:
           type: string
           enum: [fashion, cosmetics, clinic, electronics, bistro, spare_parts]
-          theme:
+        imageUrl:
           type: string
           nullable: true
 

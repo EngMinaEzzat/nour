@@ -64,3 +64,4 @@ artifacts/api-server/uploads/
 playwright-report/
 test-results/
 scratch/
+.agent/

@@ -300,6 +300,7 @@ function PriceRangePopover({
                 type="number"
                 min="0"
                 placeholder={t("storefront.filters.min")}
+                aria-label={t("storefront.filters.min")}
                 value={localMin}
                 onChange={(e) => setLocalMin(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
@@ -311,6 +312,7 @@ function PriceRangePopover({
                 type="number"
                 min="0"
                 placeholder={t("storefront.filters.max")}
+                aria-label={t("storefront.filters.max")}
                 value={localMax}
                 onChange={(e) => setLocalMax(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleApply()}
@@ -466,6 +468,7 @@ function MobileFilterSheet({
                     type="number"
                     min="0"
                     placeholder={t("storefront.filters.min")}
+                    aria-label={t("storefront.filters.min")}
                     value={localMin}
                     onChange={(e) => setLocalMin(e.target.value)}
                     className="flex-1 px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 text-stone-800"
@@ -476,6 +479,7 @@ function MobileFilterSheet({
                     type="number"
                     min="0"
                     placeholder={t("storefront.filters.max")}
+                    aria-label={t("storefront.filters.max")}
                     value={localMax}
                     onChange={(e) => setLocalMax(e.target.value)}
                     className="flex-1 px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 text-stone-800"

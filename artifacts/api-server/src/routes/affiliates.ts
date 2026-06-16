@@ -221,6 +221,7 @@ router.put(
     const tenantId = req.merchantTenantId;
     if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
     const id = parseInt(String(req.params.id), 10);
+    if (isNaN(id)) return res.status(400).json({ error: "معرّف غير صالح" });
 
     try {
       const [existing] = await db
@@ -245,7 +246,7 @@ router.put(
       const [updated] = await db
         .update(affiliatesTable)
         .set(updates)
-        .where(eq(affiliatesTable.id, id))
+        .where(and(eq(affiliatesTable.id, id), eq(affiliatesTable.tenantId, tenantId)))
         .returning();
 
       res.json({
@@ -267,6 +268,7 @@ router.delete(
     const tenantId = req.merchantTenantId;
     if (!tenantId) return res.status(401).json({ error: "غير مصرح" });
     const id = parseInt(String(req.params.id), 10);
+    if (isNaN(id)) return res.status(400).json({ error: "معرّف غير صالح" });
 
     try {
       const [existing] = await db
@@ -279,7 +281,7 @@ router.delete(
           ),
         );
       if (!existing) return res.status(404).json({ error: "المؤثر غير موجود" });
-      await db.delete(affiliatesTable).where(eq(affiliatesTable.id, id));
+      await db.delete(affiliatesTable).where(and(eq(affiliatesTable.id, id), eq(affiliatesTable.tenantId, tenantId)));
       res.json({ success: true });
     } catch (err) {
       req.log.error(err);

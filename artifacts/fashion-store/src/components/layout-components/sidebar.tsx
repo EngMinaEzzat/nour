@@ -257,6 +257,7 @@ export function Sidebar({
           className="h-8 w-8 ms-auto text-muted-foreground hover:text-foreground hover:bg-muted"
           onClick={toggleSidebar}
           title={sidebarCollapsed ? t("layout.expand") : t("layout.collapse")}
+          aria-label={sidebarCollapsed ? t("layout.expand") : t("layout.collapse")}
         >
           <Menu className="h-4 w-4" />
           {!sidebarCollapsed && (

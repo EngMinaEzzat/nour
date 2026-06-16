@@ -6,7 +6,7 @@ import {
   exportJobsTable,
   merchantsTable,
 } from "@workspace/db";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and } from "drizzle-orm";
 import crypto from "node:crypto";
 import { exportLimiter } from "../lib/rate-limiters";
 import { requirePlatformAdmin, requireRole } from "../middleware/require-role";
@@ -207,7 +207,7 @@ router.get(
       const [job] = await db
         .select()
         .from(exportJobsTable)
-        .where(eq(exportJobsTable.id, id));
+        .where(and(eq(exportJobsTable.id, id), eq(exportJobsTable.tenantId, req.merchantTenantId!)));
 
       if (!job || job.tenantId !== req.merchantTenantId) {
         return res.status(404).json({ error: "ملف التصدير غير موجود" });

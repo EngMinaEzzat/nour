@@ -1,3 +1,4 @@
+import net from "node:net";
 import { Router } from "express";
 import * as dns from "node:dns/promises";
 import { requireRole } from "../middleware/require-role.js";
@@ -28,13 +29,36 @@ const LOCKED_SYSTEM_PROMPT =
   "Never output anything other than valid JSON.";
 
 function isPrivateIp(ip: string): boolean {
-  if (ip.includes(":")) {
+  if (net.isIPv6(ip)) {
     const lowerIp = ip.toLowerCase();
 
     // Check for IPv4-mapped IPv6 address
     if (lowerIp.startsWith("::ffff:")) {
       const ipv4Part = lowerIp.substring(7);
-      return isPrivateIp(ipv4Part);
+      if (net.isIPv4(ipv4Part)) {
+        return isPrivateIp(ipv4Part);
+      } else {
+        // Handle hex encoded IPv4-mapped IPv6 (e.g., ::ffff:7f00:1)
+        const hexParts = ipv4Part.split(':');
+        if (hexParts.length <= 2) {
+          let hexString = '';
+          for (let i = 0; i < hexParts.length; i++) {
+            hexString += hexParts[i].padStart(4, '0');
+          }
+          if (hexString.length <= 8) {
+            hexString = hexString.padStart(8, '0');
+            const p1 = parseInt(hexString.substring(0, 2), 16);
+            const p2 = parseInt(hexString.substring(2, 4), 16);
+            const p3 = parseInt(hexString.substring(4, 6), 16);
+            const p4 = parseInt(hexString.substring(6, 8), 16);
+            if (!isNaN(p1) && !isNaN(p2) && !isNaN(p3) && !isNaN(p4)) {
+              return isPrivateIp(`${p1}.${p2}.${p3}.${p4}`);
+            }
+          }
+        }
+        // If it's a ::ffff: address but not a valid standard/hex IPv4, it's malformed/unsafe.
+        return true;
+      }
     }
 
     return (
@@ -45,8 +69,10 @@ function isPrivateIp(ip: string): boolean {
       lowerIp.startsWith("0000:0000:0000:0000:0000:0000:0000:0001")
     );
   }
+
+  if (!net.isIPv4(ip)) return true; // Block malformed or non-IPv4
+
   const parts = ip.split(".").map(Number);
-  if (parts.length !== 4 || parts.some(isNaN)) return true; // block malformed or non-IPv4
 
   const [p1, p2] = parts;
   if (p1 === 10) return true;
@@ -84,6 +110,7 @@ async function scrapeFacebookPage(initialUrl: string): Promise<{
 }> {
   let currentUrl = initialUrl;
   let html = "";
+  const resolvedHosts = new Set<string>();
 
   // Follow redirects manually to prevent SSRF
   for (let i = 0; i < 5; i++) {
@@ -97,13 +124,16 @@ async function scrapeFacebookPage(initialUrl: string): Promise<{
     }
 
     // Resolve DNS to verify it doesn't point to an internal IP (SSRF protection)
-    const addresses = await dns.lookup(parsedUrl.hostname, { all: true });
-    for (const { address } of addresses) {
-      if (isPrivateIp(address)) {
-        throw new Error(
-          `Security exception: Host ${parsedUrl.hostname} resolves to restricted IP ${address}`,
-        );
+    if (!resolvedHosts.has(parsedUrl.hostname)) {
+      const addresses = await dns.lookup(parsedUrl.hostname, { all: true });
+      for (const { address } of addresses) {
+        if (isPrivateIp(address)) {
+          throw new Error(
+            `Security exception: Host ${parsedUrl.hostname} resolves to restricted IP ${address}`,
+          );
+        }
       }
+      resolvedHosts.add(parsedUrl.hostname);
     }
 
     const res = await fetch(currentUrl, {

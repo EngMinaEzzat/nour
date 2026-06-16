@@ -35,16 +35,17 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content, set
   return (
     <section
       className="py-10 px-4 sm:px-6"
-      style={{ background: "#fff", direction: i18n.dir() }}
+      style={{ background: "var(--bg-section, #fff)", direction: i18n.dir() }}
     >
       <div className={`max-w-7xl mx-auto grid grid-cols-1 ${showPromo1 && showPromo2 ? "md:grid-cols-2" : ""} gap-4`}>
         {/* Promo 1 — discount */}
         {showPromo1 && (
         <motion.div
-          className="relative overflow-hidden rounded-3xl cursor-pointer group"
+          className="relative overflow-hidden cursor-pointer group"
           style={{
             minHeight: 200,
             background: `linear-gradient(135deg, ${p}f0, #c97b8b)`,
+            borderRadius: "var(--card-radius, 24px)"
           }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -71,19 +72,19 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content, set
               <Tag className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-white/70 text-[11px] tracking-widest uppercase mb-1 font-medium">
+              <p className="text-white/70 text-[11px] tracking-widest uppercase mb-1 font-medium" style={{ fontFamily: "var(--font-body)" }}>
                 {promo1Label}
               </p>
               <h3
                 className="text-white text-3xl mb-2"
-                style={{ fontFamily: SERIF, fontWeight: 400 }}
+                style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', Georgia, serif)", fontWeight: 400 }}
               >
                 {promo1Heading}
                 <br />
                 <span className="text-5xl font-bold">{promo1Discount}%</span>
               </h3>
-              <p className="text-white/80 text-sm">{promo1Desc}</p>
-              <div className="mt-5 flex items-center gap-2 text-white font-semibold text-sm group-hover:gap-3 transition-all">
+              <p className="text-white/80 text-sm" style={{ fontFamily: "var(--font-body)" }}>{promo1Desc}</p>
+              <div className="mt-5 flex items-center gap-2 text-white font-semibold text-sm group-hover:gap-3 transition-all" style={{ fontFamily: "var(--font-body)" }}>
                 {promo1Cta} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </div>
             </div>
@@ -94,10 +95,11 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content, set
         {/* Promo 2 — shipping */}
         {showPromo2 && (
         <motion.div
-          className="relative overflow-hidden rounded-3xl cursor-pointer group"
+          className="relative overflow-hidden cursor-pointer group"
           style={{
             minHeight: 200,
             background: "linear-gradient(135deg, #1a1614 0%, #2d2420 100%)",
+            borderRadius: "var(--card-radius, 24px)"
           }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -126,22 +128,22 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content, set
             <div>
               <p
                 className="text-[11px] tracking-widest uppercase mb-1 font-medium"
-                style={{ color: "#c8963a" }}
+                style={{ color: "#c8963a", fontFamily: "var(--font-body)" }}
               >
                 {promo2Label}
               </p>
               <h3
                 className="text-white text-3xl mb-2"
-                style={{ fontFamily: SERIF, fontWeight: 400 }}
+                style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', Georgia, serif)", fontWeight: 400 }}
               >
                 {promo2Heading}
                 <br />
                 <span style={{ color: "#c8963a" }}>{promo2Subheading}</span>
               </h3>
-              <p className="text-white/50 text-sm">
+              <p className="text-white/50 text-sm" style={{ fontFamily: "var(--font-body)" }}>
                 <span
                   className="text-4xl font-black"
-                  style={{ fontFamily: SERIF, color: "#c8963a" }}
+                  style={{ fontFamily: "var(--font-heading, 'Cormorant Garamond', Georgia, serif)", color: "#c8963a" }}
                 >
                   {promo2Threshold}
                 </span>
@@ -149,7 +151,7 @@ export function PromoBanners({ primaryColor: p, onScrollToProducts, content, set
               </p>
               <div
                 className="mt-5 flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all"
-                style={{ color: "#c8963a" }}
+                style={{ color: "#c8963a", fontFamily: "var(--font-body)" }}
               >
                 {promo2Cta} {i18n.dir() === "rtl" ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </div>
