@@ -22,3 +22,7 @@
 ## 2026-06-15 - Dynamic Arbitrary Variant Sizes
 **Learning:** For physical variants, standard sizes (S, M, L) are rarely comprehensive. Providing dynamic `size` strings combined with individual line items maps better to e-commerce reality.
 **Action:** When asked to alter predefined selection grids (like variants or dimensions), prioritize moving to a list of dynamic row items to fully unlock the feature's capability.
+
+## 2026-06-16 - Restored 12 Missing Themes from Git History
+**Learning:** A bad merge conflict resolution erased all newly added themes from the `getVisualThemes` array in `EditorLeftSidebar.tsx`, despite their configs and translations remaining in `store-config.ts` and `translation.json`.
+**Action:** Always verify git history (`git show` / `git log -S`) and map deeply between localized strings and data structures when an array is suddenly "missing" items after a merge. Reconstructed the exact array locally and appended it to restore full functionality.
