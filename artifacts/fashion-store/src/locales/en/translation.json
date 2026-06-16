@@ -3129,6 +3129,622 @@
           }
         ]
       }
+    },
+    "bohoChic": {
+      "hero": {
+        "heading": "Desert Dreams & Free Spirits at {{storeName}}",
+        "subheading": "Warm tones, relaxed fits, and natural glow",
+        "ctaText": "Discover Boho"
+      },
+      "about": {
+        "heading": "The Boho Soul",
+        "body": "Wanderlust woven into every piece. From flowing earthy fashion to natural glow cosmetics, we embrace the untamed aesthetic."
+      },
+      "lookbook": {
+        "heading": "Sun-Kissed Collection",
+        "items": [
+          {
+            "title": "Desert\\n Tones",
+            "desc": "Warm, baked earth hues."
+          },
+          {
+            "title": "Flowing\\n Silhouettes",
+            "desc": "Effortless and free."
+          },
+          {
+            "title": "Golden\\n Hour",
+            "desc": "That perfect natural glow."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "☀️",
+            "title": "Sun-Kissed",
+            "text": "Warm and authentic"
+          },
+          {
+            "icon": "🐪",
+            "title": "Nomad Shipping",
+            "text": "Delivered to your oasis"
+          },
+          {
+            "icon": "🧶",
+            "title": "Artisan Quality",
+            "text": "Crafted with love"
+          },
+          {
+            "icon": "🌸",
+            "title": "Free Returns",
+            "text": "Stress-free wandering"
+          }
+        ]
+      }
+    },
+    "imperialChic": {
+      "hero": {
+        "heading": "The Imperial Collection at {{storeName}}",
+        "subheading": "Classic majesty and palace-inspired elegance",
+        "ctaText": "View the Collection"
+      },
+      "about": {
+        "heading": "Timeless Splendor",
+        "body": "Inspired by antiquity and crafted for the modern era. We bring you deep wines, old golds, and a majestic aesthetic that stands the test of time."
+      },
+      "lookbook": {
+        "heading": "The Marble Hall",
+        "items": [
+          {
+            "title": "Deep\n Wine",
+            "desc": "Rich, intoxicating shades."
+          },
+          {
+            "title": "Old\n Gold",
+            "desc": "Antiqued metallic finishes."
+          },
+          {
+            "title": "Alabaster\n Skin",
+            "desc": "Flawless, statuesque beauty."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🏛️",
+            "title": "Classic Heritage",
+            "text": "Inspired by the greats"
+          },
+          {
+            "icon": "📜",
+            "title": "Historic Quality",
+            "text": "Made to be remembered"
+          },
+          {
+            "icon": "⚖️",
+            "title": "Fair Exchange",
+            "text": "A balanced return policy"
+          },
+          {
+            "icon": "🕊️",
+            "title": "Graceful Service",
+            "text": "At your command"
+          }
+        ]
+      }
+    },
+    "etherealMinimal": {
+      "hero": {
+        "heading": "Ethereal Beauty at {{storeName}}",
+        "subheading": "A whisper of elegance and sheer perfection",
+        "ctaText": "Discover Grace"
+      },
+      "about": {
+        "heading": "Less is More",
+        "body": "Embrace the sheer aesthetic. Our collection brings together ultra-soft minimal fashion and weightless cosmetics for an angelic touch."
+      },
+      "lookbook": {
+        "heading": "The Sheer Collection",
+        "items": [
+          {
+            "title": "Angelic\\n Glow",
+            "desc": "Soft, barely-there beauty."
+          },
+          {
+            "title": "Silk &\\n Chiffon",
+            "desc": "Delicate fabrics that float."
+          },
+          {
+            "title": "Ghost\\n White",
+            "desc": "The purest form of minimal."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🕊️",
+            "title": "Delicate Quality",
+            "text": "Handled with extreme care"
+          },
+          {
+            "icon": "🌬️",
+            "title": "Breeze Shipping",
+            "text": "Swift and silent delivery"
+          },
+          {
+            "icon": "🤍",
+            "title": "Simple Returns",
+            "text": "No questions asked"
+          },
+          {
+            "icon": "🕯️",
+            "title": "Serene Support",
+            "text": "Calm and helpful service"
+          }
+        ]
+      }
+    },
+    "darkGlamour": {
+      "hero": {
+        "heading": "Fierce Elegance by {{storeName}}",
+        "subheading": "Unveil the night with high-end dramatic beauty",
+        "ctaText": "Embrace the Dark"
+      },
+      "about": {
+        "heading": "The Art of Shadows",
+        "body": "We redefine luxury with a moody, gothic aesthetic. Deep pigments, metallic gold finishes, and fierce elegance for those who command the room."
+      },
+      "lookbook": {
+        "heading": "Midnight Collection",
+        "items": [
+          {
+            "title": "Velvet\n Kiss",
+            "desc": "Deep burgundy and rich matte shades."
+          },
+          {
+            "title": "Liquid\n Gold",
+            "desc": "Metallic highlights that blind."
+          },
+          {
+            "title": "Smokey\n Gaze",
+            "desc": "Intense, dramatic eye looks."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "✨",
+            "title": "Premium Quality",
+            "text": "Luxury in every drop"
+          },
+          {
+            "icon": "🌙",
+            "title": "Night Delivery",
+            "text": "Secure & discreet shipping"
+          },
+          {
+            "icon": "🖤",
+            "title": "Flawless Returns",
+            "text": "Seamless exchange policy"
+          },
+          {
+            "icon": "👑",
+            "title": "VIP Support",
+            "text": "Exclusive customer care"
+          }
+        ]
+      }
+    },
+    "dynamicActive": {
+      "hero": {
+        "heading": "Unstoppable Performance by {{storeName}}",
+        "subheading": "Push your limits with high-energy athletic gear",
+        "ctaText": "Get Moving"
+      },
+      "about": {
+        "heading": "Fuel Your Drive",
+        "body": "We engineer gear for the relentless. High-contrast designs, breathable fabrics, and a dynamic aesthetic that moves with you."
+      },
+      "lookbook": {
+        "heading": "Motion & Power",
+        "items": [
+          {
+            "title": "High\n Impact",
+            "desc": "Gear built for intensity."
+          },
+          {
+            "title": "Sleek\n Speed",
+            "desc": "Aerodynamic fits."
+          },
+          {
+            "title": "Neon\n Pulse",
+            "desc": "Stand out in the dark."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "⚡",
+            "title": "Lightning Fast",
+            "text": "Express shipping available"
+          },
+          {
+            "icon": "💪",
+            "title": "Durable Tech",
+            "text": "Performance fabrics"
+          },
+          {
+            "icon": "🔄",
+            "title": "Flex Returns",
+            "text": "Quick & easy process"
+          },
+          {
+            "icon": "🔥",
+            "title": "Pro Verified",
+            "text": "Tested by athletes"
+          }
+        ]
+      }
+    },
+    "organicBotanical": {
+      "hero": {
+        "heading": "Pure & Natural Beauty by {{storeName}}",
+        "subheading": "Earth's secrets, ethically sourced and crafted",
+        "ctaText": "Explore Nature"
+      },
+      "about": {
+        "heading": "Rooted in Earth",
+        "body": "We harness the power of botanicals. Clean ingredients, apothecary traditions, and a deep respect for our planet."
+      },
+      "lookbook": {
+        "heading": "Botanical Extracts",
+        "items": [
+          {
+            "title": "Herbal\n Infusion",
+            "desc": "Potent plant-based actives."
+          },
+          {
+            "title": "Earthy\n Tones",
+            "desc": "Grounded in nature's palette."
+          },
+          {
+            "title": "Pure\n Essence",
+            "desc": "Distilled for your skin."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "title": "100% Organic",
+            "text": "Certified natural ingredients"
+          },
+          {
+            "title": "Cruelty-Free",
+            "text": "Never tested on animals"
+          },
+          {
+            "title": "Eco Packaging",
+            "text": "Biodegradable materials"
+          },
+          {
+            "title": "Pure Formulas",
+            "text": "No harsh chemicals"
+          }
+        ]
+      }
+    },
+    "retroVintage": {
+      "hero": {
+        "heading": "Timeless Classics at {{storeName}}",
+        "subheading": "Vintage finds and 90s thrifting aesthetics",
+        "ctaText": "Shop the Past"
+      },
+      "about": {
+        "heading": "Our Vintage Story",
+        "body": "We believe in the charm of the past. Curated vintage finds, warm nostalgia, and timeless style that never fades."
+      },
+      "lookbook": {
+        "heading": "Thrifted Dreams - Lookbook",
+        "items": [
+          {
+            "title": "90s\n Denim",
+            "desc": "Classic cuts, authentic feel."
+          },
+          {
+            "title": "Sepia\n Tones",
+            "desc": "Warm hues for everyday wear."
+          },
+          {
+            "title": "Retro\n Sport",
+            "desc": "Old school athletic vibes."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🕰️",
+            "title": "Timeless Quality",
+            "text": "Built to last decades"
+          },
+          {
+            "icon": "📦",
+            "title": "Nostalgic Packaging",
+            "text": "Wrapped with vintage care"
+          },
+          {
+            "icon": "♻️",
+            "title": "Easy Returns",
+            "text": "Hassle-free process"
+          },
+          {
+            "icon": "💌",
+            "title": "Curated Selection",
+            "text": "Hand-picked vintage finds"
+          }
+        ]
+      }
+    },
+    "clinicalDerma": {
+      "hero": {
+        "heading": "Science-Backed Dermaceuticals by {{storeName}}",
+        "subheading": "Active formulas & dermatologist approved results",
+        "ctaText": "Consult the Expert"
+      },
+      "about": {
+        "heading": "The Science of {{storeName}}",
+        "body": "Formulated by dermatologists, tested in clinical labs. We bring you active ingredients that deliver proven results. No fillers, just science."
+      },
+      "lookbook": {
+        "heading": "Clinical Trials - Skin Barrier",
+        "items": [
+          {
+            "title": "Active\n Formula",
+            "desc": "Deep cellular repair."
+          },
+          {
+            "title": "Clinical\n Trials",
+            "desc": "Dermatologist approved results."
+          },
+          {
+            "title": "Skin\n Barrier",
+            "desc": "Strengthen and protect daily."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "🔬",
+            "title": "Lab Tested",
+            "text": "Dermatologically certified"
+          },
+          {
+            "icon": "🧪",
+            "title": "Pure Actives",
+            "text": "Clinically proven ingredients"
+          },
+          {
+            "icon": "🏥",
+            "title": "Medical Grade",
+            "text": "Safe for sensitive skin"
+          },
+          {
+            "icon": "📦",
+            "title": "Sterile Shipping",
+            "text": "Clean sealed packaging"
+          }
+        ]
+      }
+    },
+    "y2kNostalgia": {
+      "hero": {
+        "heading": "Retro Glamour, Today's Vibe at {{storeName}}",
+        "subheading": "Step into the glitter fantasy and holographic aesthetics",
+        "ctaText": "Pop Your Style"
+      },
+      "about": {
+        "heading": "Our Y2K Fantasy",
+        "body": "We are bringing back the futuristic optimism of the late 90s and early 2000s. Shiny fabrics, bubblegum shades, and pixel perfection. Celebrate self-expression with us."
+      },
+      "lookbook": {
+        "heading": "Glitter Fantasy - Hologram Daze",
+        "items": [
+          {
+            "title": "Hologram\n Daze",
+            "desc": "Futuristic shimmer meets retro vibes."
+          },
+          {
+            "title": "Pixel\n Perfect",
+            "desc": "Bold prints and shiny metallic textures."
+          },
+          {
+            "title": "Glitter\n Fantasy",
+            "desc": "Pure bubblegum pink nostalgia."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "💖",
+            "title": "Cute Quality",
+            "text": "Handpicked candy-sweet items"
+          },
+          {
+            "icon": "✨",
+            "title": "Holo Shipping",
+            "text": "Sparkly packaging, lightning fast"
+          },
+          {
+            "icon": "🎀",
+            "title": "Sweet Returns",
+            "text": "Easy returns with zero drama"
+          },
+          {
+            "icon": "⭐",
+            "title": "Star Support",
+            "text": "Friendly support, 24/7 online"
+          }
+        ]
+      }
+    },
+    "cloudGlow": {
+      "hero": {
+        "heading": "Your Daily Glow by {{storeName}}",
+        "subheading": "Dewy, pearlescent finish for cloud-like skin",
+        "ctaText": "Get the Glow"
+      },
+      "about": {
+        "heading": "Cloud-like Care",
+        "body": "Experience weightless beauty. Our formulas are designed to give you that fresh, airy, and luminous glow all day long."
+      },
+      "lookbook": {
+        "heading": "Pearlescent Perfection",
+        "items": [
+          {
+            "title": "Dewy\n Base",
+            "desc": "Flawless, hydrated skin."
+          },
+          {
+            "title": "Pearl\n Highlight",
+            "desc": "Catch the light naturally."
+          },
+          {
+            "title": "Glass\n Skin",
+            "desc": "The ultimate clear glow."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "💧",
+            "title": "Ultra Hydrating",
+            "text": "Moisture-locked formulas"
+          },
+          {
+            "icon": "☁️",
+            "title": "Airy Shipping",
+            "text": "Light and secure packaging"
+          },
+          {
+            "icon": "🤍",
+            "title": "Clear Returns",
+            "text": "Transparent exchange process"
+          },
+          {
+            "icon": "✨",
+            "title": "Glowing Support",
+            "text": "Radiant customer care"
+          }
+        ]
+      }
+    },
+    "dreamyPastel": {
+      "hero": {
+        "heading": "Dream in Colors with {{storeName}}",
+        "subheading": "Soft elegance and fairycore aesthetics",
+        "ctaText": "Enter the Dream"
+      },
+      "about": {
+        "heading": "A Soft Escape",
+        "body": "We believe in the magic of soft hues and gentle fabrics. Step into a world of pastel dreams and fairy-like elegance."
+      },
+      "lookbook": {
+        "heading": "Cloud Nine Collection",
+        "items": [
+          {
+            "title": "Pastel\n Skies",
+            "desc": "Soft hues for everyday magic."
+          },
+          {
+            "title": "Fairy\n Core",
+            "desc": "Light, airy, and magical."
+          },
+          {
+            "title": "Lilac\n Dreams",
+            "desc": "A touch of sweet lavender."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "icon": "☁️",
+            "title": "Soft Touch",
+            "text": "Gentle fabrics only"
+          },
+          {
+            "icon": "🎀",
+            "title": "Sweet Shipping",
+            "text": "Wrapped like a gift"
+          },
+          {
+            "icon": "🦋",
+            "title": "Easy Returns",
+            "text": "Float through the process"
+          },
+          {
+            "icon": "✨",
+            "title": "Magical Support",
+            "text": "Here to make you smile"
+          }
+        ]
+      }
+    },
+    "avantGardeEditorial": {
+      "hero": {
+        "heading": "The Editorial Look at {{storeName}}",
+        "subheading": "Redefine beauty with stark, asymmetric aesthetics",
+        "ctaText": "Shop the Runway"
+      },
+      "about": {
+        "heading": "Defying Convention",
+        "body": "We treat fashion and cosmetics as wearable art. High-contrast designs, brutalist structures, and an uncompromising editorial vision."
+      },
+      "lookbook": {
+        "heading": "The Manifesto",
+        "items": [
+          {
+            "title": "Structural\n Beauty",
+            "desc": "Angles and sharp lines."
+          },
+          {
+            "title": "Color\n Shock",
+            "desc": "Electric blue against stark white."
+          },
+          {
+            "title": "Asymmetric\n Flow",
+            "desc": "Breaking the rules of balance."
+          }
+        ]
+      },
+      "trustStrip": {
+        "items": [
+          {
+            "title": "Curated Art",
+            "text": "Museum-quality pieces"
+          },
+          {
+            "title": "White Glove",
+            "text": "Premium editorial shipping"
+          },
+          {
+            "title": "Bespoke Returns",
+            "text": "Concierge exchange service"
+          },
+          {
+            "title": "Tailored Support",
+            "text": "Stylist-level assistance"
+          }
+        ]
+      }
     }
   },
   "billing": {
