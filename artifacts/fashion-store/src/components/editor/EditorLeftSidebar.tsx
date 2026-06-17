@@ -1,3 +1,4 @@
+import { VISUAL_THEMES } from '@/lib/themes/registry';
 import i18n from "i18next";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -432,296 +433,11 @@ export default function EditorLeftSidebar({
 }
 
 // ─── Visual Theme Panel ─────────────────────────────────────────────────────────
-const getVisualThemes = (t: any) => [
-  {
-    id: "elegant-fashion",
-    name: t("editorSidebar.themePanel.presets.elegantFashion.name"),
-    desc: t("editorSidebar.themePanel.presets.elegantFashion.desc"),
-    emoji: "👗",
-    gradient: "from-stone-800 to-black",
-    preview: { bg: "#fdfbf7", accent: "#1a1a1a", text: "#1a1a1a" },
-    theme: {
-      primaryColor: "#1a1a1a",
-      secondaryColor: "#888888",
-      fontPairing: "serif-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "subtle" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "cosmetics-soft",
-    name: t("editorSidebar.themePanel.presets.softCosmetics.name"),
-    desc: t("editorSidebar.themePanel.presets.softCosmetics.desc"),
-    emoji: "✨",
-    gradient: "from-rose-200 to-pink-300",
-    preview: { bg: "#fff0f3", accent: "#d4a373", text: "#4a3b32" },
-    theme: {
-      primaryColor: "#d4a373",
-      secondaryColor: "#e6ccb2",
-      fontPairing: "serif-sans" as const,
-      buttonStyle: "pill" as const,
-      radius: 16,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "soft" as const,
-    },
-  },
-  {
-    id: "minimal-boutique",
-    name: t("editorSidebar.themePanel.presets.simpleBoutique.name"),
-    desc: t("editorSidebar.themePanel.presets.simpleBoutique.desc"),
-    emoji: "🤍",
-    gradient: "from-stone-200 to-stone-400",
-    preview: { bg: "#fafafa", accent: "#000000", text: "#111111" },
-    theme: {
-      primaryColor: "#000000",
-      secondaryColor: "#777777",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "rounded" as const,
-      radius: 6,
-      animationLevel: "none" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "bold-streetwear",
-    name: t("editorSidebar.themePanel.presets.streetWear.name"),
-    desc: t("editorSidebar.themePanel.presets.streetWear.desc"),
-    emoji: "🔥",
-    gradient: "from-orange-500 to-red-600",
-    preview: { bg: "#f8f9fa", accent: "#ff4500", text: "#111111" },
-    theme: {
-      primaryColor: "#ff4500",
-      secondaryColor: "#111111",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "lively" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "strong" as const,
-    },
-  },
-  {
-    id: "premium-occasion",
-    name: t("editorSidebar.themePanel.presets.luxuryEvents.name"),
-    desc: t("editorSidebar.themePanel.presets.luxuryEvents.desc"),
-    emoji: "👑",
-    gradient: "from-rose-800 to-stone-900",
-    preview: { bg: "#fdfbf7", accent: "#8B1A35", text: "#1a0a0e" },
-    theme: {
-      primaryColor: "#8B1A35",
-      secondaryColor: "#c8963a",
-      fontPairing: "serif-serif" as const,
-      buttonStyle: "rounded" as const,
-      radius: 8,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "soft" as const,
-    },
-  },
-  {
-    id: "streetwear-cyberpunk",
-    name: "Streetwear Cyberpunk",
-    desc: "Bold neon and dark vibes",
-    emoji: "⚡",
-    gradient: "from-green-400 to-black",
-    preview: { bg: "#0f0f0f", accent: "#39ff14", text: "#ffffff" },
-    theme: {
-      primaryColor: "#39ff14",
-      secondaryColor: "#0f0f0f",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "lively" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "strong" as const,
-    },
-  },
-  {
-    id: "boho-chic",
-    name: "Boho Chic",
-    desc: "Warm earthy tones",
-    emoji: "🌿",
-    gradient: "from-orange-300 to-amber-600",
-    preview: { bg: "#faf3e0", accent: "#e2725b", text: "#4a3b32" },
-    theme: {
-      primaryColor: "#e2725b",
-      secondaryColor: "#d4a373",
-      fontPairing: "serif-sans" as const,
-      buttonStyle: "rounded" as const,
-      radius: 12,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "soft" as const,
-    },
-  },
-  {
-    id: "dynamic-active",
-    name: "Dynamic Active",
-    desc: "High energy sports",
-    emoji: "🏃",
-    gradient: "from-red-500 to-orange-500",
-    preview: { bg: "#ffffff", accent: "#ff4500", text: "#111111" },
-    theme: {
-      primaryColor: "#ff4500",
-      secondaryColor: "#2b2b2b",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "lively" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "dark-glamour",
-    name: "Dark Glamour",
-    desc: "Luxurious dark mode",
-    emoji: "🖤",
-    gradient: "from-gray-900 to-black",
-    preview: { bg: "#1a0000", accent: "#d4af37", text: "#ffffff" },
-    theme: {
-      primaryColor: "#d4af37",
-      secondaryColor: "#1a0000",
-      fontPairing: "serif-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "strong" as const,
-    },
-  },
-  {
-    id: "avant-garde-editorial",
-    name: "Avant Garde",
-    desc: "High fashion editorial",
-    emoji: "⬛",
-    gradient: "from-black to-blue-800",
-    preview: { bg: "#ffffff", accent: "#000000", text: "#000000" },
-    theme: {
-      primaryColor: "#000000",
-      secondaryColor: "#0014ff",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "none" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "dreamy-pastel",
-    name: "Dreamy Pastel",
-    desc: "Soft and dreamy",
-    emoji: "☁️",
-    gradient: "from-pink-200 to-purple-200",
-    preview: { bg: "#fff5f8", accent: "#ffb6c1", text: "#555555" },
-    theme: {
-      primaryColor: "#ffb6c1",
-      secondaryColor: "#e6e6fa",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "pill" as const,
-      radius: 20,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "soft" as const,
-    },
-  },
-  {
-    id: "cloud-glow",
-    name: "Cloud Glow",
-    desc: "Dewy skin aesthetics",
-    emoji: "💧",
-    gradient: "from-blue-100 to-pink-100",
-    preview: { bg: "#f0f8ff", accent: "#87ceeb", text: "#333333" },
-    theme: {
-      primaryColor: "#87ceeb",
-      secondaryColor: "#ffe4e1",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "rounded" as const,
-      radius: 12,
-      animationLevel: "subtle" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "ethereal-minimal",
-    name: "Ethereal Minimal",
-    desc: "Pure and angelic",
-    emoji: "🕊️",
-    gradient: "from-gray-100 to-white",
-    preview: { bg: "#ffffff", accent: "#dcdcdc", text: "#222222" },
-    theme: {
-      primaryColor: "#dcdcdc",
-      secondaryColor: "#f0f8ff",
-      fontPairing: "serif-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "none" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "royal-velvet",
-    name: "Royal Velvet",
-    desc: "Deep rich velvet",
-    emoji: "👑",
-    gradient: "from-green-900 to-yellow-600",
-    preview: { bg: "#013220", accent: "#d4af37", text: "#ffffff" },
-    theme: {
-      primaryColor: "#d4af37",
-      secondaryColor: "#013220",
-      fontPairing: "serif-serif" as const,
-      buttonStyle: "rounded" as const,
-      radius: 8,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "soft" as const,
-    },
-  },
-  {
-    id: "golden-opulence",
-    name: "Golden Opulence",
-    desc: "Pure luxury",
-    emoji: "✨",
-    gradient: "from-yellow-400 to-yellow-600",
-    preview: { bg: "#111111", accent: "#ffd700", text: "#ffffff" },
-    theme: {
-      primaryColor: "#ffd700",
-      secondaryColor: "#ffffff",
-      fontPairing: "serif-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "subtle" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "imperial-chic",
-    name: "Imperial Chic",
-    desc: "Majestic palace style",
-    emoji: "🏛️",
-    gradient: "from-red-900 to-yellow-600",
-    preview: { bg: "#fdfbf7", accent: "#800020", text: "#111111" },
-    theme: {
-      primaryColor: "#800020",
-      secondaryColor: "#cfb53b",
-      fontPairing: "serif-serif" as const,
-      buttonStyle: "rounded" as const,
-      radius: 12,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "soft" as const,
-    },
-  }
-];
+const getVisualThemes = (t: any) => VISUAL_THEMES.map(theme => ({
+  ...theme,
+  name: t(theme.nameKey, theme.nameKey.split('.').pop() || ""),
+  desc: t(theme.descKey, theme.descKey.split('.').pop() || "")
+}));
 
 function ThemePanel({
   config,
@@ -735,9 +451,41 @@ function ThemePanel({
   const [showCustom, setShowCustom] = useState(false);
   const primaryContrast = contrastStatus(config.theme.primaryColor, "#ffffff");
 
-  function applyTheme(theme: any) {
+    function applyTheme(theme: any) {
     setActiveThemeId(theme.id);
-    onConfigChange({ ...config, theme: { ...config.theme, ...theme.theme } });
+    
+    // Update theme styling
+    const newConfig = { ...config, theme: { ...config.theme, ...theme.theme } };
+    
+    // Attempt to update images to match the new theme if user hasn't uploaded custom ones
+    if (theme.imagePrefix) {
+      newConfig.homepage = {
+        ...newConfig.homepage,
+        sections: newConfig.homepage.sections.map(section => {
+          let newContent = { ...section.content };
+          const prefix = theme.imagePrefix;
+          
+          if (section.type === "hero" && typeof newContent.imageUrl === "string" && newContent.imageUrl.startsWith("/")) {
+            newContent.imageUrl = `/hero-${prefix}-optimized.jpg`;
+          }
+          if (section.type === "about" && typeof newContent.imageUrl === "string" && newContent.imageUrl.startsWith("/")) {
+            newContent.imageUrl = `/about-${prefix}-optimized.jpg`;
+          }
+          if (section.type === "lookbook" && Array.isArray(newContent.items)) {
+            newContent.items = newContent.items.map((item: any, idx: number) => {
+              if (typeof item.imageUrl === "string" && item.imageUrl.startsWith("/")) {
+                return { ...item, imageUrl: `/lookbook-${idx + 1}-${prefix}-optimized.jpg` };
+              }
+              return item;
+            });
+          }
+          
+          return { ...section, content: newContent };
+        })
+      };
+    }
+    
+    onConfigChange(newConfig);
   }
 
   function patchTheme(t: Partial<StoreConfig["theme"]>) {
