@@ -1,3 +1,4 @@
+import { VISUAL_THEMES } from '@/lib/themes/registry';
 import i18n from "i18next";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -432,98 +433,11 @@ export default function EditorLeftSidebar({
 }
 
 // ─── Visual Theme Panel ─────────────────────────────────────────────────────────
-const getVisualThemes = (t: any) => [
-  {
-    id: "elegant-fashion",
-    name: t("editorSidebar.themePanel.presets.elegantFashion.name"),
-    desc: t("editorSidebar.themePanel.presets.elegantFashion.desc"),
-    emoji: "👗",
-    gradient: "from-stone-800 to-black",
-    preview: { bg: "#fdfbf7", accent: "#1a1a1a", text: "#1a1a1a" },
-    theme: {
-      primaryColor: "#1a1a1a",
-      secondaryColor: "#888888",
-      fontPairing: "serif-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "subtle" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "cosmetics-soft",
-    name: t("editorSidebar.themePanel.presets.softCosmetics.name"),
-    desc: t("editorSidebar.themePanel.presets.softCosmetics.desc"),
-    emoji: "✨",
-    gradient: "from-rose-200 to-pink-300",
-    preview: { bg: "#fff0f3", accent: "#d4a373", text: "#4a3b32" },
-    theme: {
-      primaryColor: "#d4a373",
-      secondaryColor: "#e6ccb2",
-      fontPairing: "serif-sans" as const,
-      buttonStyle: "pill" as const,
-      radius: 16,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "soft" as const,
-    },
-  },
-  {
-    id: "minimal-boutique",
-    name: t("editorSidebar.themePanel.presets.simpleBoutique.name"),
-    desc: t("editorSidebar.themePanel.presets.simpleBoutique.desc"),
-    emoji: "🤍",
-    gradient: "from-stone-200 to-stone-400",
-    preview: { bg: "#fafafa", accent: "#000000", text: "#111111" },
-    theme: {
-      primaryColor: "#000000",
-      secondaryColor: "#777777",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "rounded" as const,
-      radius: 6,
-      animationLevel: "none" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "none" as const,
-    },
-  },
-  {
-    id: "bold-streetwear",
-    name: t("editorSidebar.themePanel.presets.streetWear.name"),
-    desc: t("editorSidebar.themePanel.presets.streetWear.desc"),
-    emoji: "🔥",
-    gradient: "from-orange-500 to-red-600",
-    preview: { bg: "#f8f9fa", accent: "#ff4500", text: "#111111" },
-    theme: {
-      primaryColor: "#ff4500",
-      secondaryColor: "#111111",
-      fontPairing: "sans-sans" as const,
-      buttonStyle: "square" as const,
-      radius: 0,
-      animationLevel: "lively" as const,
-      pageWidth: "wide" as const,
-      cardShadow: "strong" as const,
-    },
-  },
-  {
-    id: "premium-occasion",
-    name: t("editorSidebar.themePanel.presets.luxuryEvents.name"),
-    desc: t("editorSidebar.themePanel.presets.luxuryEvents.desc"),
-    emoji: "👑",
-    gradient: "from-rose-800 to-stone-900",
-    preview: { bg: "#fdfbf7", accent: "#8B1A35", text: "#1a0a0e" },
-    theme: {
-      primaryColor: "#8B1A35",
-      secondaryColor: "#c8963a",
-      fontPairing: "serif-serif" as const,
-      buttonStyle: "rounded" as const,
-      radius: 8,
-      animationLevel: "subtle" as const,
-      pageWidth: "contained" as const,
-      cardShadow: "soft" as const,
-    },
-  },
-];
+const getVisualThemes = (t: any) => VISUAL_THEMES.map(theme => ({
+  ...theme,
+  name: t(theme.nameKey, theme.nameKey.split('.').pop() || ""),
+  desc: t(theme.descKey, theme.descKey.split('.').pop() || "")
+}));
 
 function ThemePanel({
   config,
@@ -537,9 +451,41 @@ function ThemePanel({
   const [showCustom, setShowCustom] = useState(false);
   const primaryContrast = contrastStatus(config.theme.primaryColor, "#ffffff");
 
-  function applyTheme(theme: any) {
+    function applyTheme(theme: any) {
     setActiveThemeId(theme.id);
-    onConfigChange({ ...config, theme: { ...config.theme, ...theme.theme } });
+    
+    // Update theme styling
+    const newConfig = { ...config, theme: { ...config.theme, ...theme.theme } };
+    
+    // Attempt to update images to match the new theme if user hasn't uploaded custom ones
+    if (theme.imagePrefix) {
+      newConfig.homepage = {
+        ...newConfig.homepage,
+        sections: newConfig.homepage.sections.map(section => {
+          let newContent = { ...section.content };
+          const prefix = theme.imagePrefix;
+          
+          if (section.type === "hero" && typeof newContent.imageUrl === "string" && newContent.imageUrl.startsWith("/")) {
+            newContent.imageUrl = `/hero-${prefix}-optimized.jpg`;
+          }
+          if (section.type === "about" && typeof newContent.imageUrl === "string" && newContent.imageUrl.startsWith("/")) {
+            newContent.imageUrl = `/about-${prefix}-optimized.jpg`;
+          }
+          if (section.type === "lookbook" && Array.isArray(newContent.items)) {
+            newContent.items = newContent.items.map((item: any, idx: number) => {
+              if (typeof item.imageUrl === "string" && item.imageUrl.startsWith("/")) {
+                return { ...item, imageUrl: `/lookbook-${idx + 1}-${prefix}-optimized.jpg` };
+              }
+              return item;
+            });
+          }
+          
+          return { ...section, content: newContent };
+        })
+      };
+    }
+    
+    onConfigChange(newConfig);
   }
 
   function patchTheme(t: Partial<StoreConfig["theme"]>) {

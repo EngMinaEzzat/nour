@@ -23,7 +23,7 @@ describe("ai-provider", () => {
     it("does not return requested if it is a generic provider name", () => {
       // It should fall through to default model resolution
       expect(resolveAiModel("anthropic", "claude")).toBe("claude-sonnet-4-6");
-      expect(resolveAiModel("gemini", "gemini")).toBe("gemini-2.5-flash");
+      expect(resolveAiModel("gemini", "gemini")).toBe("gemini-3.5-flash");
       expect(resolveAiModel("openai", "openai")).toBe("gpt-4o-mini");
       expect(resolveAiModel("openai", "gpt")).toBe("gpt-4o-mini");
     });
@@ -47,7 +47,7 @@ describe("ai-provider", () => {
 
     it("returns default model for provider when nothing else specified", () => {
       expect(resolveAiModel("openai")).toBe("gpt-4o-mini");
-      expect(resolveAiModel("gemini")).toBe("gemini-2.5-flash");
+      expect(resolveAiModel("gemini")).toBe("gemini-3.5-flash");
       expect(resolveAiModel("anthropic")).toBe("claude-sonnet-4-6");
       // Any other fallback also resolves to claude-sonnet-4-6 in current implementation
       // @ts-ignore - testing fallback
