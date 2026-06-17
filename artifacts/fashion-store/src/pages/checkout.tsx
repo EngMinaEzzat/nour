@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   ChevronRight, ShoppingBag, CheckCircle2, Loader2,
   CreditCard, Banknote, Phone, MapPin, User, Mail,
-  Tag, X, Check, Truck,
+  Tag, X, Check, Truck, Minus, Plus, Trash2,
 } from "lucide-react";
 import { productImageUrl } from "@/lib/image-url";
 
@@ -125,7 +125,7 @@ import { useCustomerAuth } from "@/hooks/use-customer-auth";
 
 export default function Checkout() {
   const { t, i18n } = useTranslation();
-  const { items, totalPrice, clearCart, sessionId } = useCart();
+  const { items, totalPrice, clearCart, sessionId, updateQuantity, removeItem } = useCart();
   const { customer: authCustomer, isAuthenticated } = useCustomerAuth();
   const [, navigate] = useLocation();
 

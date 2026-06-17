@@ -195,7 +195,7 @@ export default function ProductDetail() {
     });
   }
 
-  const { addItem, isInCart } = useCart();
+  const { addItem, isInCart, items, updateQuantity, removeItem } = useCart();
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -254,6 +254,8 @@ export default function ProductDetail() {
   }, [maxQuantity]);
 
   const inCart = product ? isInCart(product.id, selectedVariant?.id) : false;
+  const cartItem = product && items ? items.find((i) => i.productId === product.id && i.variantId === selectedVariant?.id) : null;
+  const cartQuantity = cartItem?.quantity || 0;
   const unavailable = selectedOptionUnavailable;
 
   function handleAddToCart() {
@@ -610,7 +612,7 @@ export default function ProductDetail() {
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <span className="w-8 text-center text-sm font-bold">{quantity}</span>
+                <span className="w-8 text-center text-sm font-bold">{inCart ? cartQuantity : quantity}</span>
                 <button
                   type="button"
                   onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
