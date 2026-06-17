@@ -1064,7 +1064,8 @@
     "variantUnavailable": "هذا الاختيار غير متوفر حالياً. جرّبي مقاساً أو لوناً آخر.",
     "quantity": "الكمية",
     "decreaseQuantity": "تقليل الكمية",
-    "increaseQuantity": "زيادة الكمية"
+    "increaseQuantity": "زيادة الكمية",
+    "goToCart": "اذهب إلى السلة"
   },
   "categories": {
     "types": {
@@ -2397,7 +2398,8 @@
       "hasVariants": "متعدد الخيارات",
       "productCount": "منتج",
       "emptyCategory": "لا توجد منتجات مطابقة",
-      "emptyHint": "جرّبي مسح الفلاتر أو اختيار فئة أخرى من المتجر."
+      "emptyHint": "جرّبي مسح الفلاتر أو اختيار فئة أخرى من المتجر.",
+      "goToCart": "اذهب إلى السلة"
     },
     "trust": {
       "shipping": "شحن مجاني",

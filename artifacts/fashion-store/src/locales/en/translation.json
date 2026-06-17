@@ -963,7 +963,8 @@
     "variantUnavailable": "Variant Unavailable",
     "quantity": "Quantity",
     "decreaseQuantity": "Decrease Quantity",
-    "increaseQuantity": "Increase Quantity"
+    "increaseQuantity": "Increase Quantity",
+    "goToCart": "Go to cart"
   },
   "categories": {
     "types": {
@@ -2320,7 +2321,8 @@
       "hasVariants": "Has Variants",
       "productCount": "Product",
       "emptyCategory": "No matching products",
-      "emptyHint": "Try clearing filters or choosing another category."
+      "emptyHint": "Try clearing filters or choosing another category.",
+      "goToCart": "Go to cart"
     },
     "trust": {
       "shipping": "Free Shipping",
