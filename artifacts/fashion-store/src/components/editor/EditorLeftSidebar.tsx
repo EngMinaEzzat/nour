@@ -735,9 +735,41 @@ function ThemePanel({
   const [showCustom, setShowCustom] = useState(false);
   const primaryContrast = contrastStatus(config.theme.primaryColor, "#ffffff");
 
-  function applyTheme(theme: any) {
+    function applyTheme(theme: any) {
     setActiveThemeId(theme.id);
-    onConfigChange({ ...config, theme: { ...config.theme, ...theme.theme } });
+    
+    // Update theme styling
+    const newConfig = { ...config, theme: { ...config.theme, ...theme.theme } };
+    
+    // Attempt to update images to match the new theme if user hasn't uploaded custom ones
+    if (theme.imagePrefix) {
+      newConfig.homepage = {
+        ...newConfig.homepage,
+        sections: newConfig.homepage.sections.map(section => {
+          let newContent = { ...section.content };
+          const prefix = theme.imagePrefix;
+          
+          if (section.type === "hero" && typeof newContent.imageUrl === "string" && newContent.imageUrl.startsWith("/")) {
+            newContent.imageUrl = `/hero-${prefix}-optimized.jpg`;
+          }
+          if (section.type === "about" && typeof newContent.imageUrl === "string" && newContent.imageUrl.startsWith("/")) {
+            newContent.imageUrl = `/about-${prefix}-optimized.jpg`;
+          }
+          if (section.type === "lookbook" && Array.isArray(newContent.items)) {
+            newContent.items = newContent.items.map((item: any, idx: number) => {
+              if (typeof item.imageUrl === "string" && item.imageUrl.startsWith("/")) {
+                return { ...item, imageUrl: `/lookbook-${idx + 1}-${prefix}-optimized.jpg` };
+              }
+              return item;
+            });
+          }
+          
+          return { ...section, content: newContent };
+        })
+      };
+    }
+    
+    onConfigChange(newConfig);
   }
 
   function patchTheme(t: Partial<StoreConfig["theme"]>) {
