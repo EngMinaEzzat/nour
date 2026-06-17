@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Product } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, Check, Layers } from "lucide-react";
+import { ShoppingBag, Check, Layers, Plus, Minus } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { getResponsiveImageProps } from "@/lib/image-url";
 import { useTranslation } from "react-i18next";
@@ -13,20 +13,17 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const [, navigate] = useLocation();
-  const { addItem, isInCart } = useCart();
+  const { items, addItem, isInCart, updateQuantity, removeItem } = useCart();
   const { t, i18n } = useTranslation();
   const inCart = isInCart(product.id);
+  const cartItem = items.find(i => i.productId === product.id);
+  const cartQuantity = cartItem?.quantity || 0;
   const unavailable = product.status === "out_of_stock" || product.stock === 0;
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (inCart) {
-      navigate("/checkout");
-      return;
-    }
     if (unavailable) return;
-    // Products with variants MUST select options on the detail page first
     if (product.hasVariants) {
       navigate(`/products/${product.id}`);
       return;
@@ -40,6 +37,14 @@ export function ProductCard({ product }: ProductCardProps) {
       imageUrl: product.imageUrl ?? null,
     });
   }
+
+  function handleUpdateQuantity(e: React.MouseEvent, delta: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!cartItem) return;
+    updateQuantity(product.id, cartItem.quantity + delta);
+  }
+
 
   return (
     <Link href={`/products/${product.id}`}>
@@ -65,25 +70,33 @@ export function ProductCard({ product }: ProductCardProps) {
             </Badge>
           )}
           {!unavailable && (
-            <button
-              onClick={handleAddToCart}
-              className={`absolute bottom-3 end-3 w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all duration-200 border border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
-                ${product.hasVariants
-                  ? "bg-white/90 text-foreground opacity-0 group-hover:opacity-100 hover:bg-secondary hover:text-secondary-foreground"
-                  : inCart
-                  ? "bg-primary text-primary-foreground scale-110"
-                  : "bg-white/90 text-foreground opacity-0 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground"
-                }`}
-              aria-label={product.hasVariants ? t("productCard.selectOptions") : inCart ? t("productDetail.goToCart") : t("productCard.addToBag")}
-            >
-              {product.hasVariants ? (
-                <Layers className="w-4 h-4" />
-              ) : inCart ? (
-                <Check className="w-4 h-4" />
+            <div className={`absolute bottom-3 end-3 flex items-center gap-1 transition-all duration-200 ${product.hasVariants ? "opacity-0 group-hover:opacity-100" : (inCart ? "opacity-100" : "opacity-0 group-hover:opacity-100")}`}>
+              {inCart && !product.hasVariants ? (
+                <div className="flex items-center bg-white/90 shadow-md rounded-full border border-white/20">
+                  <button
+                    onClick={(e) => handleUpdateQuantity(e, -1)}
+                    className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-secondary hover:text-secondary-foreground rounded-s-full"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <span className="w-6 text-center text-xs font-bold text-foreground">{cartQuantity}</span>
+                  <button
+                    onClick={(e) => handleUpdateQuantity(e, 1)}
+                    className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-secondary hover:text-secondary-foreground rounded-e-full"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
               ) : (
-                <ShoppingBag className="w-4 h-4" />
+                <button
+                  onClick={handleAddToCart}
+                  className="w-9 h-9 rounded-full flex items-center justify-center shadow-md bg-white/90 text-foreground hover:bg-primary hover:text-primary-foreground border border-white/20"
+                  aria-label={product.hasVariants ? t("productCard.selectOptions") : t("productCard.addToBag")}
+                >
+                  {product.hasVariants ? <Layers className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
+                </button>
               )}
-            </button>
+            </div>
           )}
         </div>
         <CardContent className="p-4 flex-1 flex flex-col">

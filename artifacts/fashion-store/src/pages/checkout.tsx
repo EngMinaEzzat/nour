@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   ChevronRight, ShoppingBag, CheckCircle2, Loader2,
   CreditCard, Banknote, Phone, MapPin, User, Mail,
-  Tag, X, Check, Truck,
+  Tag, X, Check, Truck, Minus, Plus, Trash2,
 } from "lucide-react";
 import { productImageUrl } from "@/lib/image-url";
 
@@ -125,7 +125,7 @@ import { useCustomerAuth } from "@/hooks/use-customer-auth";
 
 export default function Checkout() {
   const { t, i18n } = useTranslation();
-  const { items, totalPrice, clearCart, sessionId } = useCart();
+  const { items, totalPrice, clearCart, sessionId, updateQuantity, removeItem } = useCart();
   const { customer: authCustomer, isAuthenticated } = useCustomerAuth();
   const [, navigate] = useLocation();
 
@@ -723,9 +723,36 @@ export default function Checkout() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium line-clamp-1">{item.name}</p>
                         {item.variantLabel && <p className="text-xs text-muted-foreground line-clamp-1">{item.variantLabel}</p>}
-                        <p className="text-xs text-muted-foreground">الكمية: {item.quantity}</p>
+
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-xs text-muted-foreground me-2">الكمية:</p>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
+                            className="w-6 h-6 rounded-full border flex items-center justify-center hover:bg-muted"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-xs font-medium w-4 text-center">{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
+                            className="w-6 h-6 rounded-full border flex items-center justify-center hover:bg-muted"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-sm font-bold shrink-0">{(item.price * item.quantity).toLocaleString("ar-EG")} ج.م</p>
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        <p className="text-sm font-bold">{(item.price * item.quantity).toLocaleString("ar-EG")} ج.م</p>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.productId, item.variantId)}
+                          className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3" /> إزالة
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <Separator className="my-3" />

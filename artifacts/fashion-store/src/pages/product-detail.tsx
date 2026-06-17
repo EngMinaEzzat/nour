@@ -195,7 +195,7 @@ export default function ProductDetail() {
     });
   }
 
-  const { addItem, isInCart } = useCart();
+  const { addItem, isInCart, items, updateQuantity, removeItem } = useCart();
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -254,13 +254,12 @@ export default function ProductDetail() {
   }, [maxQuantity]);
 
   const inCart = product ? isInCart(product.id, selectedVariant?.id) : false;
+  const cartItem = product && items ? items.find((i) => i.productId === product.id && i.variantId === selectedVariant?.id) : null;
+  const cartQuantity = cartItem?.quantity || 0;
   const unavailable = selectedOptionUnavailable;
 
   function handleAddToCart() {
-    if (inCart) {
-      navigate("/checkout");
-      return;
-    }
+
     if (!product || unavailable || !variantSelectionComplete) return;
     const item = {
       productId: product.id,
@@ -603,18 +602,18 @@ export default function ProductDetail() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                  disabled={quantity <= 1 || unavailable || !variantSelectionComplete}
+                  onClick={() => inCart ? updateQuantity(product!.id, cartQuantity - 1, selectedVariant?.id) : setQuantity((value) => Math.max(1, value - 1))}
+                  disabled={(inCart ? cartQuantity <= 0 : quantity <= 1) || unavailable || !variantSelectionComplete}
                   className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 cursor-pointer"
                   aria-label={t("productDetail.decreaseQuantity")}
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <span className="w-8 text-center text-sm font-bold">{quantity}</span>
+                <span className="w-8 text-center text-sm font-bold">{inCart ? cartQuantity : quantity}</span>
                 <button
                   type="button"
-                  onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
-                  disabled={quantity >= maxQuantity || unavailable || !variantSelectionComplete}
+                  onClick={() => inCart ? updateQuantity(product!.id, cartQuantity + 1, selectedVariant?.id) : setQuantity((value) => Math.min(maxQuantity, value + 1))}
+                  disabled={(inCart ? cartQuantity >= maxQuantity : quantity >= maxQuantity) || unavailable || !variantSelectionComplete}
                   className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 cursor-pointer"
                   aria-label={t("productDetail.increaseQuantity")}
                 >
@@ -632,7 +631,9 @@ export default function ProductDetail() {
                 disabled={unavailable || (hasVariants && !variantSelectionComplete)}
                 onClick={handleAddToCart}
               >
-                {unavailable ? (
+                {inCart ? (
+                  <><Check className="w-5 h-5 me-2" /> {t("productDetail.addedToCart", { defaultValue: i18n.language === "ar" ? "تمت الإضافة للسلة" : "Added to Bag" })} ({cartQuantity})</>
+                ) : unavailable ? (
                   <><ShoppingBag className="w-5 h-5 me-2" /> {t("productDetail.outOfStockBadge")}</>
                 ) : hasVariants && !variantSelectionComplete ? (
                   <><Layers className="w-5 h-5 me-2" /> {t("productDetail.selectSizeColorFirst")}</>
@@ -706,8 +707,10 @@ export default function ProductDetail() {
             className={`h-12 rounded-2xl px-5 shrink-0 ${inCart ? "bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20" : ""}`}
             disabled={unavailable || (hasVariants && !variantSelectionComplete)}
             onClick={handleAddToCart}
-          >
-            {unavailable ? (
+              >
+                {inCart ? (
+                  <><Check className="w-5 h-5 me-2" /> {t("productDetail.addedToCart", { defaultValue: i18n.language === "ar" ? "تمت الإضافة للسلة" : "Added to Bag" })} ({cartQuantity})</>
+                ) : unavailable ? (
               <><ShoppingBag className="w-4 h-4 me-2" /> {t("productDetail.outOfStockBadge")}</>
             ) : hasVariants && !variantSelectionComplete ? (
               <><Layers className="w-4 h-4 me-2" /> {t("productDetail.chooseOptions")}</>
