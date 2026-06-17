@@ -59,7 +59,7 @@ export function resolveAiModel(provider: AiProviderName, requested?: string): st
   }
   if (process.env.AI_MODEL) return process.env.AI_MODEL;
   if (provider === "openai") return "gpt-4o-mini";
-  return provider === "gemini" ? "gemini-2.5-flash" : "claude-sonnet-4-6";
+  return provider === "gemini" ? "gemini-3.5-flash" : "claude-sonnet-4-6";
 }
 
 type OpenAiMessage = { role: "system" | "user" | "assistant"; content: string };

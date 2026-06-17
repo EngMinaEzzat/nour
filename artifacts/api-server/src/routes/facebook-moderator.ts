@@ -94,7 +94,7 @@ async function callAI(
 ): Promise<string> {
   if (model === "gemini") {
     const response = await gemini.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: [{ role: "user", parts: [{ text: `${system}\n\n${prompt}` }] }],
       config: { maxOutputTokens: 1024 },
     });
