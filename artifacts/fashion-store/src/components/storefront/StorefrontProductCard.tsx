@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { ShoppingBag, Check, Layers, Heart, Star } from "lucide-react";
+import { ShoppingBag, Check, Layers, Heart, Star, Plus, Minus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getGetProductQueryKey } from "@workspace/api-client-react";
 import { publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl, getResponsiveImageProps } from "@/lib/image-url";
 import { getStoreUrl } from "@/lib/utils";
 import { formatCurrency } from "@/lib/ui-format";
+import { useCart } from "@/hooks/use-cart";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -55,6 +56,16 @@ export function StorefrontProductCard({
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { t, i18n } = useTranslation();
+  const { items, updateQuantity } = useCart();
+  const cartItem = items.find(i => i.productId === product.id);
+  const cartQuantity = cartItem?.quantity || 0;
+
+  function handleUpdateQuantity(e: React.MouseEvent, delta: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!cartItem) return;
+    updateQuantity(product.id, cartItem.quantity + delta);
+  }
 
   const unavailable =
     product.status === "out_of_stock" || (product.stock ?? 1) === 0;
