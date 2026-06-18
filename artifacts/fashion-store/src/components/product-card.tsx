@@ -76,6 +76,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   <button
                     onClick={(e) => handleUpdateQuantity(e, -1)}
                     className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-secondary hover:text-secondary-foreground"
+                    aria-label={t("cart.actions.decrease", { defaultValue: i18n.language === "ar" ? "تقليل الكمية" : "Decrease quantity" })}
                   >
                     <Minus className="w-3 h-3" />
                   </button>
@@ -83,6 +84,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   <button
                     onClick={(e) => handleUpdateQuantity(e, 1)}
                     className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-secondary hover:text-secondary-foreground"
+                    aria-label={t("cart.actions.increase", { defaultValue: i18n.language === "ar" ? "زيادة الكمية" : "Increase quantity" })}
                   >
                     <Plus className="w-3 h-3" />
                   </button>

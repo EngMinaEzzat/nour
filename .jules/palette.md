@@ -22,3 +22,7 @@
 ## 2026-06-15 - Dynamic Arbitrary Variant Sizes
 **Learning:** For physical variants, standard sizes (S, M, L) are rarely comprehensive. Providing dynamic `size` strings combined with individual line items maps better to e-commerce reality.
 **Action:** When asked to alter predefined selection grids (like variants or dimensions), prioritize moving to a list of dynamic row items to fully unlock the feature's capability.
+
+## 2024-05-18 - Missing ARIA Labels on Icon-only Cart Quantity Buttons
+**Learning:** Icon-only buttons for adjusting quantity (`Plus` / `Minus` from lucide-react) inside `product-card.tsx` lack `aria-label`s, causing screen readers to miss vital functionality for navigating cart updates.
+**Action:** Actively scan components that use `Plus`, `Minus`, `Trash2`, `ShoppingBag`, or `X` icons for absent `aria-label` attributes. When adding them via `useTranslation`, ensure the `t` and `i18n` objects are already destructured in the component scope before passing inline fallback strings that depend on `i18n.language`.
