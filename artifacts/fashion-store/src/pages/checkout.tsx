@@ -707,9 +707,9 @@ export default function Checkout() {
               {Object.entries(groupedByTenant).map(([tenantId, group]) => (
                 <div key={tenantId}>
                   <p className="text-xs text-primary font-semibold mb-2">{group.tenantName}</p>
-                  {group.items.map((item) => (
-                    <div key={`${item.productId}-${item.variantId ?? "base"}`} className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-14 rounded-lg overflow-hidden bg-muted shrink-0">
+                   {group.items.map((item) => (
+                    <div key={`${item.productId}-${item.variantId ?? "base"}`} className="flex items-start gap-3 mb-4">
+                      <div className="w-12 h-14 rounded-lg overflow-hidden bg-muted shrink-0 border border-border/40">
                         <img
                           src={productImageUrl(item.imageUrl)}
                           alt={item.name}
@@ -723,9 +723,40 @@ export default function Checkout() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium line-clamp-1">{item.name}</p>
                         {item.variantLabel && <p className="text-xs text-muted-foreground line-clamp-1">{item.variantLabel}</p>}
-                        <p className="text-xs text-muted-foreground">الكمية: {item.quantity}</p>
+                        
+                        {/* Editable quantity selector */}
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
+                            className="w-6 h-6 rounded-full border border-border/80 flex items-center justify-center hover:bg-muted transition-colors cursor-pointer shrink-0"
+                            aria-label={t("cart.actions.decrease")}
+                          >
+                            <Minus className="w-2.5 h-2.5 text-stone-600" />
+                          </button>
+                          <span className="text-xs font-semibold w-4 text-center text-stone-800">{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
+                            className="w-6 h-6 rounded-full border border-border/80 flex items-center justify-center hover:bg-muted transition-colors cursor-pointer shrink-0"
+                            aria-label={t("cart.actions.increase")}
+                          >
+                            <Plus className="w-2.5 h-2.5 text-stone-600" />
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-sm font-bold shrink-0">{(item.price * item.quantity).toLocaleString("ar-EG")} ج.م</p>
+                      <div className="text-end shrink-0 flex flex-col justify-between items-end self-stretch py-0.5">
+                        <p className="text-sm font-bold">{(item.price * item.quantity).toLocaleString("ar-EG")} ج.م</p>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.productId, item.variantId)}
+                          className="text-[10px] text-destructive hover:underline flex items-center gap-0.5 mt-auto transition-all cursor-pointer opacity-80 hover:opacity-100"
+                          aria-label={t("cart.actions.remove")}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>إزالة</span>
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <Separator className="my-3" />

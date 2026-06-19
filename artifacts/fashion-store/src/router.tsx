@@ -3,7 +3,8 @@ import { lazy, Suspense } from "react";
 import { Layout } from "@/components/layout";
 import { ProtectedRoute } from "@/components/protected-route";
 import { CustomerAuthProvider } from "@/hooks/use-customer-auth";
-import { CartProvider } from "@/hooks/use-cart";
+import { CartProvider, useCart } from "@/hooks/use-cart";
+import { CartDrawer } from "@/components/cart-drawer";
 import { useAuth } from "@/hooks/use-auth";
 
 import Storefront from "@/pages/storefront";
@@ -65,6 +66,11 @@ export function PageFallback() {
   );
 }
 
+function CartDrawerContainer() {
+  const { cartOpen, setCartOpen } = useCart();
+  return <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />;
+}
+
 // ─── Storefront-only routing (used on {slug}.nour.eg subdomains) ─────────────
 export function StorefrontRouter({ slug }: { slug: string }) {
   return (
@@ -93,6 +99,7 @@ export function StorefrontRouter({ slug }: { slug: string }) {
             <Route component={() => <Storefront overrideSlug={slug} />} />
           </Switch>
         </Suspense>
+        <CartDrawerContainer />
       </CartProvider>
     </CustomerAuthProvider>
   );

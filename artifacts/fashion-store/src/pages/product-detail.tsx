@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
   ShoppingBag, AlertCircle, ChevronRight, Store, Tag, Check, Layers, Star,
-  MessageSquare, Loader2, MessageCircle, Minus, Plus, Truck, ShieldCheck, RotateCcw,
+  MessageSquare, Loader2, MessageCircle, Minus, Plus, Trash2, Truck, ShieldCheck, RotateCcw,
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -195,7 +195,7 @@ export default function ProductDetail() {
     });
   }
 
-  const { addItem, isInCart, items, updateQuantity, removeItem } = useCart();
+  const { addItem, isInCart, items, updateQuantity, removeItem, setCartOpen } = useCart();
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -258,9 +258,25 @@ export default function ProductDetail() {
   const cartQuantity = cartItem?.quantity || 0;
   const unavailable = selectedOptionUnavailable;
 
+  function handleQuantityChange(delta: number) {
+    if (inCart && cartItem) {
+      const newQty = cartQuantity + delta;
+      if (newQty <= 0) {
+        removeItem(product!.id, selectedVariant?.id);
+      } else {
+        updateQuantity(product!.id, newQty, selectedVariant?.id);
+      }
+    } else {
+      setQuantity((value) => {
+        const next = value + delta;
+        return Math.max(1, Math.min(maxQuantity, next));
+      });
+    }
+  }
+
   function handleAddToCart() {
     if (inCart) {
-      navigate("/checkout");
+      setCartOpen(true);
       return;
     }
     if (!product || unavailable || !variantSelectionComplete) return;
@@ -605,8 +621,8 @@ export default function ProductDetail() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                  disabled={quantity <= 1 || unavailable || !variantSelectionComplete}
+                  onClick={() => handleQuantityChange(-1)}
+                  disabled={unavailable || !variantSelectionComplete || (!inCart && quantity <= 1)}
                   className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 cursor-pointer"
                   aria-label={t("productDetail.decreaseQuantity")}
                 >
@@ -615,8 +631,8 @@ export default function ProductDetail() {
                 <span className="w-8 text-center text-sm font-bold">{inCart ? cartQuantity : quantity}</span>
                 <button
                   type="button"
-                  onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
-                  disabled={quantity >= maxQuantity || unavailable || !variantSelectionComplete}
+                  onClick={() => handleQuantityChange(1)}
+                  disabled={unavailable || !variantSelectionComplete || (inCart ? cartQuantity >= maxQuantity : quantity >= maxQuantity)}
                   className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 cursor-pointer"
                   aria-label={t("productDetail.increaseQuantity")}
                 >
@@ -625,26 +641,44 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            <motion.div whileTap={{ scale: 0.98 }}>
-              <Button
-                size="lg"
-                className={`w-full h-14 text-lg rounded-2xl transition-all shimmer-btn-effect cursor-pointer ${
-                  inCart ? "bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20" : "bg-primary text-primary-foreground hover:scale-[1.01] active:scale-[0.99] shadow-md hover:shadow-lg"
-                }`}
-                disabled={unavailable || (hasVariants && !variantSelectionComplete)}
-                onClick={handleAddToCart}
-              >
-                {unavailable ? (
-                  <><ShoppingBag className="w-5 h-5 me-2" /> {t("productDetail.outOfStockBadge")}</>
-                ) : hasVariants && !variantSelectionComplete ? (
-                  <><Layers className="w-5 h-5 me-2" /> {t("productDetail.selectSizeColorFirst")}</>
-                ) : inCart ? (
-                  <><Check className="w-5 h-5 me-2" /> {t("productDetail.goToCart")}</>
-                ) : (
-                  <><ShoppingBag className="w-5 h-5 me-2" /> {t("productDetail.addToCart")}</>
-                )}
-              </Button>
-            </motion.div>
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <motion.div whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    className={`w-full h-14 text-lg rounded-2xl transition-all shimmer-btn-effect cursor-pointer ${
+                      inCart ? "bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20" : "bg-primary text-primary-foreground hover:scale-[1.01] active:scale-[0.99] shadow-md hover:shadow-lg"
+                    }`}
+                    disabled={unavailable || (hasVariants && !variantSelectionComplete)}
+                    onClick={handleAddToCart}
+                  >
+                    {unavailable ? (
+                      <><ShoppingBag className="w-5 h-5 me-2" /> {t("productDetail.outOfStockBadge")}</>
+                    ) : hasVariants && !variantSelectionComplete ? (
+                      <><Layers className="w-5 h-5 me-2" /> {t("productDetail.selectSizeColorFirst")}</>
+                    ) : inCart ? (
+                      <><Check className="w-5 h-5 me-2" /> {t("productDetail.goToCart")}</>
+                    ) : (
+                      <><ShoppingBag className="w-5 h-5 me-2" /> {t("productDetail.addToCart")}</>
+                    )}
+                  </Button>
+                </motion.div>
+              </div>
+              {inCart && (
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => removeItem(product!.id, selectedVariant?.id)}
+                    className="h-14 w-14 rounded-2xl border-destructive/30 hover:border-destructive text-destructive hover:bg-destructive/10 transition-all cursor-pointer flex items-center justify-center shrink-0 animate-in fade-in zoom-in-95 duration-200"
+                    aria-label={t("productDetail.removeFromCart", { defaultValue: "إزالة من السلة" })}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </Button>
+                </motion.div>
+              )}
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div className="rounded-2xl bg-[#c97b8b]/5 border border-[#c97b8b]/15 px-3 py-3 text-xs text-stone-600 flex items-start gap-2">

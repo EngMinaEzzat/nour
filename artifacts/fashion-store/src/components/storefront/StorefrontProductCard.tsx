@@ -205,26 +205,55 @@ export function StorefrontProductCard({
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <button
-                    onClick={handleAdd}
-                    className="w-full py-3.5 text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-                    aria-label={product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
-                    style={{
-                      background: inCart
-                        ? "rgba(250,247,244,0.95)"
-                        : p,
-                      color: inCart ? p : "#fff",
-                      backdropFilter: "blur(12px)",
-                    }}
-                  >
-                    {product.hasVariants ? (
-                      <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
-                    ) : inCart ? (
-                      <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
-                    ) : (
-                      <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
-                    )}
-                  </button>
+                  {inCart && !product.hasVariants ? (
+                    <div
+                      className="w-full py-2.5 text-xs font-bold flex items-center justify-between px-4 gap-2 transition-all"
+                      style={{
+                        background: "rgba(250,247,244,0.95)",
+                        color: p,
+                        backdropFilter: "blur(12px)",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={(e) => handleUpdateQuantity(e, -1)}
+                        className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
+                        aria-label={t("productDetail.decreaseQuantity")}
+                      >
+                        <Minus className="w-3.5 h-3.5" style={{ color: p }} />
+                      </button>
+                      <span className="text-sm font-bold text-stone-800">{cartQuantity}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => handleUpdateQuantity(e, 1)}
+                        className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
+                        aria-label={t("productDetail.increaseQuantity")}
+                      >
+                        <Plus className="w-3.5 h-3.5" style={{ color: p }} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleAdd}
+                      className="w-full py-3.5 text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                      aria-label={product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
+                      style={{
+                        background: inCart
+                          ? "rgba(250,247,244,0.95)"
+                          : p,
+                        color: inCart ? p : "#fff",
+                        backdropFilter: "blur(12px)",
+                      }}
+                    >
+                      {product.hasVariants ? (
+                        <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
+                      ) : inCart ? (
+                        <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
+                      ) : (
+                        <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
+                      )}
+                    </button>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -329,33 +358,63 @@ export function StorefrontProductCard({
           </p>
         )}
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={unavailable}
-          className="sm:hidden mt-2.5 w-full min-h-11 px-4 py-2.5 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
-          aria-label={unavailable ? t("storefront.products.outOfStock") : product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
-          style={{
-            background: unavailable
-              ? "rgba(231, 223, 216, 0.5)"
-              : inCart
-                ? "rgba(250,247,244,0.95)"
-                : p,
-            color: unavailable ? "#7a6060" : inCart ? p : "#fff",
-            border: inCart ? `1px solid ${p}40` : "1px solid transparent",
-            borderRadius: "var(--btn-radius, 12px)",
-          }}
-        >
-          {unavailable ? (
-            <><ShoppingBag className="w-3.5 h-3.5" /> {t("storefront.products.outOfStock")}</>
-          ) : product.hasVariants ? (
-            <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
-          ) : inCart ? (
-            <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
-          ) : (
-            <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
-          )}
-        </button>
+        {inCart && !product.hasVariants && !unavailable ? (
+          <div
+            className="sm:hidden mt-2.5 w-full min-h-11 px-3 py-1 flex items-center justify-between gap-1.5 shadow-sm border"
+            style={{
+              background: "rgba(250,247,244,0.95)",
+              color: p,
+              borderColor: `${p}40`,
+              borderRadius: "var(--btn-radius, 12px)",
+            }}
+          >
+            <button
+              type="button"
+              onClick={(e) => handleUpdateQuantity(e, -1)}
+              className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
+              aria-label={t("productDetail.decreaseQuantity")}
+            >
+              <Minus className="w-3 h-3" style={{ color: p }} />
+            </button>
+            <span className="text-xs font-bold text-stone-800">{cartQuantity}</span>
+            <button
+              type="button"
+              onClick={(e) => handleUpdateQuantity(e, 1)}
+              className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
+              aria-label={t("productDetail.increaseQuantity")}
+            >
+              <Plus className="w-3 h-3" style={{ color: p }} />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={unavailable}
+            className="sm:hidden mt-2.5 w-full min-h-11 px-4 py-2.5 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+            aria-label={unavailable ? t("storefront.products.outOfStock") : product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
+            style={{
+              background: unavailable
+                ? "rgba(231, 223, 216, 0.5)"
+                : inCart
+                  ? "rgba(250,247,244,0.95)"
+                  : p,
+              color: unavailable ? "#7a6060" : inCart ? p : "#fff",
+              border: inCart ? `1px solid ${p}40` : "1px solid transparent",
+              borderRadius: "var(--btn-radius, 12px)",
+            }}
+          >
+            {unavailable ? (
+              <><ShoppingBag className="w-3.5 h-3.5" /> {t("storefront.products.outOfStock")}</>
+            ) : product.hasVariants ? (
+              <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
+            ) : inCart ? (
+              <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
+            ) : (
+              <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );

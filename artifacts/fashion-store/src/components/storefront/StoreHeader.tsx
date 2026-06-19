@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCustomerAuth } from "@/hooks/use-customer-auth";
+import { useCart } from "@/hooks/use-cart";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -51,6 +52,7 @@ export function StoreHeader({
   const [, navigate] = useLocation();
   const { t, i18n } = useTranslation();
   const { isAuthenticated } = useCustomerAuth();
+  const { setCartOpen } = useCart();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -273,7 +275,7 @@ export function StoreHeader({
             </button>
 
             <button
-              onClick={() => navigate("/checkout")}
+              onClick={() => setCartOpen(true)}
               className="relative w-11 h-11 md:w-9 md:h-9 rounded-xl flex items-center justify-center transition-all hover:bg-stone-100 cursor-pointer"
               style={{ color: p }}
               aria-label={t("storefront.header.actions.cart")}

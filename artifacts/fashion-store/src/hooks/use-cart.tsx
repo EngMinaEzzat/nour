@@ -19,6 +19,8 @@ interface CartContextValue {
   totalItems: number;
   totalPrice: number;
   sessionId: string;
+  cartOpen: boolean;
+  setCartOpen: (open: boolean) => void;
   addItem: (item: Omit<CartItem, "quantity">) => void;
   removeItem: (productId: number, variantId?: number) => void;
   updateQuantity: (productId: number, quantity: number, variantId?: number) => void;
@@ -80,6 +82,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   });
 
+  const [cartOpen, setCartOpen] = useState(false);
   const sessionId = useRef(getOrCreateSessionId()).current;
   const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -105,6 +108,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...item, quantity: 1 }];
     });
+    setCartOpen(true);
     toast({
       title: "✅ تمت الإضافة للسلة",
       description: item.name,
@@ -136,7 +140,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, totalItems, totalPrice, sessionId, addItem, removeItem, updateQuantity, clearCart, isInCart }}>
+    <CartContext.Provider value={{ items, totalItems, totalPrice, sessionId, cartOpen, setCartOpen, addItem, removeItem, updateQuantity, clearCart, isInCart }}>
       {children}
     </CartContext.Provider>
   );
