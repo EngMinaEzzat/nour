@@ -22,3 +22,6 @@
 ## 2026-06-15 - Dynamic Arbitrary Variant Sizes
 **Learning:** For physical variants, standard sizes (S, M, L) are rarely comprehensive. Providing dynamic `size` strings combined with individual line items maps better to e-commerce reality.
 **Action:** When asked to alter predefined selection grids (like variants or dimensions), prioritize moving to a list of dynamic row items to fully unlock the feature's capability.
+## 2024-05-24 - Accessibility on Custom Themes
+**Learning:** Custom themes and storefront templates (e.g., `GlowGridStorefront`, `OasisAtelierStorefront`) often miss standard accessibility attributes like `aria-label`s because they are separated from the core translated UI system (which usually enforces a11y via the `t()` function).
+**Action:** When auditing new custom design themes or experimental storefronts, actively check all decorative and icon-only interactive elements, as they are a common source of missing accessibility labels compared to main application components.
