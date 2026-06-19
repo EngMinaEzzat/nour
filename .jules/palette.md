@@ -22,3 +22,6 @@
 ## 2026-06-15 - Dynamic Arbitrary Variant Sizes
 **Learning:** For physical variants, standard sizes (S, M, L) are rarely comprehensive. Providing dynamic `size` strings combined with individual line items maps better to e-commerce reality.
 **Action:** When asked to alter predefined selection grids (like variants or dimensions), prioritize moving to a list of dynamic row items to fully unlock the feature's capability.
+## 2025-06-19 - [ARIA Attributes on Material Symbols Ligatures]
+**Learning:** For text-bearing buttons using font-ligature icons (like Material Symbols), applying `aria-hidden="true"` to the icon element is cleaner and more effective than applying `aria-label` to the button. A redundant `aria-label` overrides the already-visible button text for screen readers. Only use `aria-label` on buttons that have absolutely NO visible text (like icon-only Cart or Add buttons).
+**Action:** When improving accessibility of icon buttons, check if visible text exists inside the button. If yes, add `aria-hidden="true"` to the icon. If no, add an `aria-label` to the button and `aria-hidden="true"` to the icon.
