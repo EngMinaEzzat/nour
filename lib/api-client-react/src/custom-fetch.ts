@@ -406,6 +406,41 @@ async function parseSuccessBody(
   }
 }
 
+function getActiveStorefrontSlug(): string | null {
+  if (typeof window === "undefined") return null;
+
+  // 1. Check pathname fallback /store/:slug
+  const path = window.location.pathname;
+  if (path.startsWith("/store/")) {
+    const parts = path.split("/");
+    if (parts.length > 2 && parts[2]) {
+      return parts[2];
+    }
+  }
+
+  // 2. Check window global configuration
+  try {
+    const initialPublicPage = (
+      window as any
+    ).__NOUR_INITIAL_PUBLIC_PAGE__;
+    if (initialPublicPage?.slug) {
+      return initialPublicPage.slug;
+    }
+  } catch {}
+
+  // 3. Check subdomain: {slug}.domain.tld
+  const hostname = window.location.hostname;
+  const parts = hostname.split(".");
+  if (parts.length > 2) {
+    const sub = parts[0];
+    if (sub && sub !== "www" && sub !== "app" && sub !== "api") {
+      return sub;
+    }
+  }
+
+  return null;
+}
+
 export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
   options: CustomFetchOptions = {},
@@ -420,6 +455,11 @@ export async function customFetch<T = unknown>(
   }
 
   const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
+
+  const storefrontSlug = getActiveStorefrontSlug();
+  if (storefrontSlug && !headers.has("x-storefront-slug")) {
+    headers.set("x-storefront-slug", storefrontSlug);
+  }
 
   if (
     typeof init.body === "string" &&

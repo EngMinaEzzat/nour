@@ -5,6 +5,7 @@ import { CreateCustomerBody, GetCustomerParams } from "@workspace/api-zod";
 import { eq, count, sum, inArray, and, sql } from "drizzle-orm";
 import { requireRole } from "../middleware/require-role";
 import { checkoutLimiter } from "../lib/rate-limiters.js";
+import { resolveStorefrontTenantId } from "../lib/storefront-context.js";
 
 const router = Router();
 
@@ -140,6 +141,11 @@ router.get(
 
 // POST /customers — public (called by storefront during checkout)
 router.post("/customers", checkoutLimiter, async (req, res) => {
+  const tenantId = (await resolveStorefrontTenantId(req, { allowTestFallback: false })) || Number(req.body.tenantId);
+  if (!tenantId) {
+    return res.status(400).json({ error: "معرّف المتجر غير موجود أو غير صالح" });
+  }
+
   const parsed = CreateCustomerBody.safeParse(req.body);
   if (!parsed.success)
     return res.status(400).json({ error: parsed.error.flatten() });
@@ -147,7 +153,7 @@ router.post("/customers", checkoutLimiter, async (req, res) => {
     const existing = await db
       .select()
       .from(customersTable)
-      .where(eq(customersTable.email, parsed.data.email));
+      .where(and(eq(customersTable.email, parsed.data.email), eq(customersTable.tenantId, tenantId)));
     if (existing.length > 0) {
       const c = existing[0];
       // SECURITY: Return only id and name to prevent PII harvesting via email-based lookup.
@@ -160,7 +166,10 @@ router.post("/customers", checkoutLimiter, async (req, res) => {
         createdAt: c.createdAt.toISOString(),
       });
     }
-    const [customer] = await db.insert(customersTable).values(parsed.data).returning();
+    const [customer] = await db.insert(customersTable).values({
+      ...parsed.data,
+      tenantId,
+    }).returning();
     // SECURITY: Return only id and name to be consistent with the existing customer path.
     res.status(201).json({
       id: customer.id,

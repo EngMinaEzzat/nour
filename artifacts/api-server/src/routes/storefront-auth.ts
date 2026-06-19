@@ -3,9 +3,10 @@ import bcrypt from "bcryptjs";
 import rateLimit from "express-rate-limit";
 import { db, customersTable } from "@workspace/db";
 import { RegisterCustomerBody, LoginCustomerBody } from "@workspace/api-zod";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { normaliseEgyptianPhone, PHONE_ERROR_AR } from "../lib/egypt";
 import { validatePasswordComplexity } from "../lib/password.js";
+import { resolveStorefrontTenantId } from "../lib/storefront-context.js";
 
 const router = Router();
 
@@ -62,10 +63,11 @@ function clearFailedLogins(email: string): void {
   loginAttempts.delete(email);
 }
 
-function buildCustomerResponse(customer: { id: number; name: string; email: string; phone: string | null; marketingConsent: boolean; createdAt: Date }) {
+function buildCustomerResponse(customer: { id: number; tenantId: number; name: string; email: string; phone: string | null; marketingConsent: boolean; createdAt: Date }) {
   return {
     customer: {
       id: customer.id,
+      tenantId: customer.tenantId,
       name: customer.name,
       email: customer.email,
       phone: customer.phone,
@@ -76,6 +78,11 @@ function buildCustomerResponse(customer: { id: number; name: string; email: stri
 }
 
 router.post("/storefront-auth/register", authLimiter, async (req, res) => {
+  const tenantId = await resolveStorefrontTenantId(req);
+  if (!tenantId) {
+    return res.status(400).json({ error: "معرّف المتجر غير موجود أو غير صالح" });
+  }
+
   const rawPhone = typeof req.body?.phone === "string" ? req.body.phone.trim() : "";
   const parsed = RegisterCustomerBody.safeParse({
     ...req.body,
@@ -110,14 +117,16 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
   }
 
   try {
-    const existing = await db.select().from(customersTable).where(eq(customersTable.email, email));
-    if (existing.length > 0) return res.status(409).json({ error: "البريد الإلكتروني مسجل مسبقًا" });
+    const existing = await db.select().from(customersTable)
+      .where(and(eq(customersTable.email, email), eq(customersTable.tenantId, tenantId)));
+    if (existing.length > 0) return res.status(409).json({ error: "البريد الإلكتروني مسجل مسبقًا في هذا المتجر" });
 
     const passwordHash = await bcrypt.hash(password, 12);
 
     const [customer] = await db
       .insert(customersTable)
       .values({
+        tenantId,
         name,
         email,
         passwordHash,
@@ -133,7 +142,8 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
     });
 
     req.session.customerId = customer.id;
-    req.log.info({ customerId: customer.id }, "New customer registered");
+    req.session.customerTenantId = customer.tenantId;
+    req.log.info({ customerId: customer.id, tenantId }, "New customer registered");
 
     await new Promise<void>((resolve, reject) => {
       req.session.save((err) => {
@@ -145,14 +155,19 @@ router.post("/storefront-auth/register", authLimiter, async (req, res) => {
     return res.status(201).json(buildCustomerResponse(customer));
   } catch (err: any) {
     req.log.error(err);
-    if (err?.code === "23505" && err.constraint === "customers_email_unique") {
-      return res.status(409).json({ error: "البريد الإلكتروني مسجل مسبقًا" });
+    if (err?.code === "23505" && err.constraint === "idx_customers_tenant_email") {
+      return res.status(409).json({ error: "البريد الإلكتروني مسجل مسبقًا في هذا المتجر" });
     }
     return res.status(500).json({ error: "حدث خطأ أثناء التسجيل" });
   }
 });
 
 router.post("/storefront-auth/login", authLimiter, async (req, res) => {
+  const tenantId = await resolveStorefrontTenantId(req);
+  if (!tenantId) {
+    return res.status(400).json({ error: "معرّف المتجر غير موجود أو غير صالح" });
+  }
+
   const parsed = LoginCustomerBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
@@ -166,7 +181,8 @@ router.post("/storefront-auth/login", authLimiter, async (req, res) => {
   }
 
   try {
-    const [customer] = await db.select().from(customersTable).where(eq(customersTable.email, email));
+    const [customer] = await db.select().from(customersTable)
+      .where(and(eq(customersTable.email, email), eq(customersTable.tenantId, tenantId)));
     if (!customer || !customer.passwordHash) {
       recordFailedLogin(email);
       return res.status(401).json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
@@ -188,6 +204,7 @@ router.post("/storefront-auth/login", authLimiter, async (req, res) => {
     });
 
     req.session.customerId = customer.id;
+    req.session.customerTenantId = customer.tenantId;
     await new Promise<void>((resolve, reject) => {
       req.session.save((err) => {
         if (err) return reject(err);
@@ -209,10 +226,18 @@ router.post("/storefront-auth/logout", (req, res) => {
 
 router.get("/storefront-auth/me", async (req, res) => {
   const customerId = req.session.customerId;
+  const sessionTenantId = req.session.customerTenantId;
   if (!customerId) return res.status(401).json({ error: "غير مسجل الدخول" });
 
+  const tenantId = await resolveStorefrontTenantId(req);
+  const resolvedTenantId = tenantId || sessionTenantId;
+  if (!resolvedTenantId) {
+    return res.status(401).json({ error: "الجلسة غير صالحة" });
+  }
+
   try {
-    const [customer] = await db.select().from(customersTable).where(eq(customersTable.id, customerId));
+    const [customer] = await db.select().from(customersTable)
+      .where(and(eq(customersTable.id, customerId), eq(customersTable.tenantId, resolvedTenantId)));
     if (!customer) return res.status(401).json({ error: "الجلسة غير صالحة" });
 
     return res.json(buildCustomerResponse(customer));

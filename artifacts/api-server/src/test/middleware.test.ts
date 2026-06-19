@@ -203,6 +203,7 @@ describe("Middleware — Tenant Isolation", () => {
       name: `TenantB Customer ${id}`,
       phone: "01099999999",
       email: `tenantb.${id}@test.invalid`,
+      tenantId: ctxB.tenantId,
     });
     expect([200, 201]).toContain(cB.status);
 

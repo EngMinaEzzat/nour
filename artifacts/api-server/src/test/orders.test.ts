@@ -89,7 +89,7 @@ describe("Orders", () => {
 
   it("✅ list orders — search by customer phone works", async () => {
     const phone = "01012345678";
-    const cust = await createTestCustomer({ phone });
+    const cust = await createTestCustomer({ phone, tenantId: ctx.tenantId });
     await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
       customerId: cust.body.id,
@@ -193,7 +193,7 @@ describe("Orders", () => {
   });
 
   it("❌ create order with empty items array returns 400", async () => {
-    const cust = await createTestCustomer();
+    const cust = await createTestCustomer({ tenantId: ctx.tenantId });
     const res = await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
       customerId: cust.body.id,
@@ -217,7 +217,7 @@ describe("Orders", () => {
   });
 
   it("❌ create order with non-existent productId returns 400 (transaction error)", async () => {
-    const cust = await createTestCustomer();
+    const cust = await createTestCustomer({ tenantId: ctx.tenantId });
     const res = await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
       customerId: cust.body.id,
@@ -240,7 +240,7 @@ describe("Orders", () => {
     const other = await createTestMerchant();
     const product = await createTestProduct(other.agent, { stock: 3 });
     const before = await other.agent.get(`/api/products/${product.body.id}`);
-    const cust = await createTestCustomer();
+    const cust = await createTestCustomer({ tenantId: ctx.tenantId });
 
     const res = await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
@@ -259,7 +259,7 @@ describe("Orders", () => {
 
   it("rejects checkout when quantity exceeds stock without changing stock", async () => {
     const limited = await createTestProduct(ctx.agent, { stock: 1 });
-    const cust = await createTestCustomer();
+    const cust = await createTestCustomer({ tenantId: ctx.tenantId });
 
     const res = await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
@@ -325,7 +325,7 @@ describe("Orders", () => {
   });
 
   it("❌ create order with negative quantity returns 400", async () => {
-    const cust = await createTestCustomer();
+    const cust = await createTestCustomer({ tenantId: ctx.tenantId });
     const res = await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
       customerId: cust.body.id,
@@ -338,7 +338,7 @@ describe("Orders", () => {
   });
 
   it("❌ create order with invalid Egypt phone format returns 400", async () => {
-    const cust = await createTestCustomer();
+    const cust = await createTestCustomer({ tenantId: ctx.tenantId });
     const res = await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
       customerId: cust.body.id,

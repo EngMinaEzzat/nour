@@ -36,7 +36,7 @@ describe("Privacy Operations", () => {
     customer1Phone = "01012345678";
 
     // Create customer through order
-    customer1 = await createTestCustomer({ email: customer1Email, phone: customer1Phone });
+    customer1 = await createTestCustomer({ email: customer1Email, phone: customer1Phone, tenantId: ctx1.tenantId });
     customer1.body.email = customer1Email;
     customer1.body.phone = customer1Phone;
     await request(app)
@@ -110,7 +110,7 @@ describe("Privacy Operations", () => {
   it("✅ can export customer data as JSON", async () => {
     const freshEmail = `export.${uid()}@test.invalid`;
     const freshPhone = "01087654321";
-    const freshCustomer = await createTestCustomer({ email: freshEmail, phone: freshPhone });
+    const freshCustomer = await createTestCustomer({ email: freshEmail, phone: freshPhone, tenantId: ctx1.tenantId });
     await request(app)
       .post("/api/orders")
       .send({

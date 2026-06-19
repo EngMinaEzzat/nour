@@ -89,7 +89,7 @@ export async function createTestOrder(
   productId: number,
   overrides: Record<string, unknown> = {}
 ) {
-  const custRes = await createTestCustomer();
+  const custRes = await createTestCustomer({ tenantId });
   const customerId = custRes.body.id;
 
   const res = await request(app)

@@ -45,7 +45,7 @@ function loadEnvTestFallbacks(): void {
     if (process.env[key] !== undefined) continue;
 
     const value = parseEnvValue(trimmed.slice(separatorIndex + 1));
-    if (key === "DATABASE_URL") {
+    if (key === "DATABASE_URL" || key === "NOUR_TEST_DATABASE_OK") {
       process.env[key] = value;
     }
   }

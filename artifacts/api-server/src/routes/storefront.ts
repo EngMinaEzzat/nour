@@ -207,6 +207,7 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
 
 router.get("/store/:slug/customer-orders", async (req, res) => {
   const customerId = req.session.customerId;
+  const sessionTenantId = req.session.customerTenantId;
   if (!customerId) return res.status(401).json({ error: "غير مسجل الدخول" });
 
   const slug = String(req.params.slug);
@@ -218,6 +219,10 @@ router.get("/store/:slug/customer-orders", async (req, res) => {
       .where(and(eq(tenantsTable.slug, slug), eq(tenantsTable.status, "active")));
 
     if (!tenant) return res.status(404).json({ error: "المتجر غير موجود" });
+
+    if (sessionTenantId && sessionTenantId !== tenant.id) {
+      return res.status(403).json({ error: "غير مصرح بالدخول لبيانات هذا المتجر" });
+    }
 
     const orders = await db
       .select()

@@ -68,6 +68,7 @@ describe("Smoke Test — End-to-End COD Flow", () => {
       name: "Smoke Customer",
       email: `smoke.customer.${id}@test.invalid`,
       phone: "01099999999",
+      tenantId,
     });
     expect([200, 201]).toContain(res.status);
     customerId = res.body.id;

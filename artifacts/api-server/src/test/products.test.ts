@@ -153,3 +153,60 @@ describe("Products — Public Featured / Trending", () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 });
+
+describe("Products — Storefront Boundaries Isolation", () => {
+  it("❌ denies access to product belonging to another tenant when tenant context is supplied", async () => {
+    const tenantA = await createTestMerchant({ slug: `store-a-${uid()}` });
+    const tenantB = await createTestMerchant({ slug: `store-b-${uid()}` });
+    
+    // Create product in Tenant A
+    const productA = await createTestProduct(tenantA.agent, { name: `Product A ${uid()}`, price: 100 });
+    expect(productA.status).toBe(201);
+    
+    // Request product A using Tenant B's storefront context
+    const res = await request(app)
+      .get(`/api/products/${productA.body.id}`)
+      .set("x-storefront-slug", tenantB.slug);
+    
+    expect(res.status).toBe(404);
+    
+    // Request product A using Tenant A's storefront context
+    const resOk = await request(app)
+      .get(`/api/products/${productA.body.id}`)
+      .set("x-storefront-slug", tenantA.slug);
+      
+    expect(resOk.status).toBe(200);
+    expect(resOk.body.id).toBe(productA.body.id);
+    
+    // Cleanup
+    await cleanupTenant(tenantA.tenantId, tenantA.merchantId);
+    await cleanupTenant(tenantB.tenantId, tenantB.merchantId);
+  });
+
+  it("❌ denies access to variants of a product belonging to another tenant when tenant context is supplied", async () => {
+    const tenantA = await createTestMerchant({ slug: `store-a-${uid()}` });
+    const tenantB = await createTestMerchant({ slug: `store-b-${uid()}` });
+    
+    // Create product in Tenant A
+    const productA = await createTestProduct(tenantA.agent, { name: `Product A ${uid()}`, price: 100 });
+    expect(productA.status).toBe(201);
+    
+    // Request product A variants using Tenant B's storefront context
+    const res = await request(app)
+      .get(`/api/products/${productA.body.id}/variants`)
+      .set("x-storefront-slug", tenantB.slug);
+      
+    expect(res.status).toBe(404);
+    
+    // Request product A variants using Tenant A's storefront context
+    const resOk = await request(app)
+      .get(`/api/products/${productA.body.id}/variants`)
+      .set("x-storefront-slug", tenantA.slug);
+      
+    expect(resOk.status).toBe(200);
+    
+    // Cleanup
+    await cleanupTenant(tenantA.tenantId, tenantA.merchantId);
+    await cleanupTenant(tenantB.tenantId, tenantB.merchantId);
+  });
+});

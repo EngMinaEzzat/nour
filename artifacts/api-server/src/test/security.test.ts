@@ -199,25 +199,39 @@ describe("Security — Input Validation", () => {
 });
 
 describe("Security — Data Privacy", () => {
+  let ctx: Awaited<ReturnType<typeof createTestMerchant>>;
+
+  beforeAll(async () => {
+    ctx = await createTestMerchant();
+  });
+
+  afterAll(async () => {
+    await cleanupTenant(ctx.tenantId, ctx.merchantId);
+  });
+
   it("❌ POST /api/customers does not leak PII for existing emails", async () => {
     const email = `victim-${uid()}@example.com`;
     const phone = "01012345678";
     const city = "Cairo";
 
     // 1. Create a customer
-    await request(app).post("/api/customers").send({
-      name: "Victim Customer",
-      email,
-      phone,
-      city,
-    });
+    await request(app).post("/api/customers")
+      .set("x-storefront-slug", ctx.slug)
+      .send({
+        name: "Victim Customer",
+        email,
+        phone,
+        city,
+      });
 
     // 2. Try to harvest PII by just knowing the email
-    const res = await request(app).post("/api/customers").send({
-      name: "Attacker Guess",
-      email,
-      phone: "01099887766",
-    });
+    const res = await request(app).post("/api/customers")
+      .set("x-storefront-slug", ctx.slug)
+      .send({
+        name: "Attacker Guess",
+        email,
+        phone: "01099887766",
+      });
 
     expect(res.status).toBe(200);
     // Should NOT contain phone or city
@@ -230,12 +244,14 @@ describe("Security — Data Privacy", () => {
 
   it("✅ POST /api/customers (new) does not return sensitive fields", async () => {
     const email = `new-${uid()}@example.com`;
-    const res = await request(app).post("/api/customers").send({
-      name: "New Customer",
-      email,
-      phone: "01122334455",
-      city: "Giza",
-    });
+    const res = await request(app).post("/api/customers")
+      .set("x-storefront-slug", ctx.slug)
+      .send({
+        name: "New Customer",
+        email,
+        phone: "01122334455",
+        city: "Giza",
+      });
 
     expect(res.status).toBe(201);
     expect(res.body).not.toHaveProperty("phone");

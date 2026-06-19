@@ -4,6 +4,7 @@ declare module "express-session" {
   interface SessionData {
     merchantId?: number;
     customerId?: number;
+    customerTenantId?: number;
     isPlatformAdmin?: boolean;
   }
 }

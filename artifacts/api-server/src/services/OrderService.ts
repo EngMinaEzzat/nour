@@ -269,10 +269,14 @@ export class OrderService {
       let subtotal = 0;
 
       const [customer] = await tx
-        .select({ id: customersTable.id, name: customersTable.name })
+        .select({ id: customersTable.id, name: customersTable.name, tenantId: customersTable.tenantId })
         .from(customersTable)
         .where(eq(customersTable.id, customerId));
       if (!customer) throw new CheckoutHttpError(400, "بيانات العميل غير موجودة");
+
+      if (customer.tenantId !== orderTenantId) {
+        throw new CheckoutHttpError(403, "بيانات العميل غير صالحة لهذا المتجر");
+      }
 
       if (marketingConsent !== undefined) {
         await tx.update(customersTable).set({

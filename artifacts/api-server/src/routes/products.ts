@@ -10,6 +10,7 @@ import {
 import { requireRole } from "../middleware/require-role";
 import { cache } from "../lib/cache.js";
 import { ProductService } from "../services/ProductService";
+import { resolveStorefrontTenantId } from "../lib/storefront-context.js";
 
 const router = Router();
 
@@ -159,7 +160,9 @@ router.get("/products/:id", async (req, res) => {
       req.merchantTenantId,
       req.session?.merchantId
     );
-    const product = await ProductService.getProduct(parsed.data.id, sessionTenantId);
+    const storefrontTenantId = await resolveStorefrontTenantId(req, { allowTestFallback: false });
+    const effectiveTenantId = sessionTenantId || storefrontTenantId || null;
+    const product = await ProductService.getProduct(parsed.data.id, effectiveTenantId);
     res.json(product);
   } catch (err: any) {
     if (err.message === "PRODUCT_NOT_FOUND") {
@@ -215,7 +218,9 @@ router.get("/products/:id/variants", async (req, res) => {
       req.merchantTenantId,
       req.session?.merchantId
     );
-    const variants = await ProductService.getVariants(productId, sessionTenantId);
+    const storefrontTenantId = await resolveStorefrontTenantId(req, { allowTestFallback: false });
+    const effectiveTenantId = sessionTenantId || storefrontTenantId || null;
+    const variants = await ProductService.getVariants(productId, effectiveTenantId);
     res.json(variants);
   } catch (err: any) {
     if (err.message === "PRODUCT_NOT_FOUND") return res.status(404).json({ error: "المنتج غير موجود" });

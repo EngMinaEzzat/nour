@@ -75,7 +75,7 @@ describe("Discounts", () => {
     });
     expect(discount.status).toBe(201);
 
-    const customer = await createTestCustomer();
+    const customer = await createTestCustomer({ tenantId: ctx.tenantId });
     const order = await request(app).post("/api/orders").send({
       tenantId: ctx.tenantId,
       customerId: customer.body.id,
