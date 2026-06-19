@@ -6,9 +6,11 @@ const SERIF = "'Cormorant Garamond', Georgia, serif";
 
 export function AnnouncementBar({
   p = "#8B1A35",
+  text = "",
   onDismiss,
 }: {
   p?: string;
+  text?: string;
   onDismiss?: () => void;
 }) {
   const { t, i18n } = useTranslation();
@@ -16,15 +18,15 @@ export function AnnouncementBar({
 
   if (dismissed) return null;
 
-  const messages = [
+  const fallbackText = [
     t("storefront.announcement.msg1"),
     t("storefront.announcement.msg2"),
     t("storefront.announcement.msg3"),
     t("storefront.announcement.msg4"),
     t("storefront.announcement.msg5"),
-  ];
+  ].join("     •     ");
 
-  const text = messages.join("     •     ");
+  const displayParagraph = text || fallbackText;
 
   function handleDismiss() {
     setDismissed(true);
@@ -49,7 +51,7 @@ export function AnnouncementBar({
             paddingRight: "3rem",
           }}
         >
-          {text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}
+          {displayParagraph}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{displayParagraph}
         </div>
       </div>
 

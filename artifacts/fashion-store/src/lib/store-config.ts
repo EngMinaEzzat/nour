@@ -128,6 +128,11 @@ export interface StoreConfig {
     returnPolicy: string;
     socialLinks: Record<string, string>;
   };
+  announcement?: {
+    show: boolean;
+    textAr: string;
+    textEn: string;
+  };
 }
 
 // ─── Section Label Map ────────────────────────────────────────────────────────
@@ -640,6 +645,11 @@ export function createDefaultConfig(partial?: Partial<StoreConfig>, t?: TFunctio
       sections: normalizeHomepageSections(partial?.homepage?.sections, name, category, t, undefined, partial?.theme),
     },
     business: { whatsapp: "", city: "", deliveryAreas: [], paymentMethods: ["cod"], returnPolicy: "نقبل الإرجاع خلال 14 يوم", socialLinks: {}, ...(partial?.business ?? {}) },
+    announcement: {
+      show: partial?.announcement?.show ?? true,
+      textAr: partial?.announcement?.textAr ?? "✦ شحن مجاني على الطلبات فوق 999 ج.م • ✦ إرجاع مجاني خلال 14 يوم • ✦ الدفع عند الاستلام",
+      textEn: partial?.announcement?.textEn ?? "✦ Free shipping on orders over 999 EGP • ✦ Free returns within 14 days • ✦ Cash on Delivery",
+    },
   };
 }
 

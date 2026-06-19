@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -52,9 +52,20 @@ export function StoreHeader({
   const [, navigate] = useLocation();
   const { t, i18n } = useTranslation();
   const { isAuthenticated } = useCustomerAuth();
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 60);
+    const handler = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > 120 && currentScrollY > lastScrollY.current) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+      }
+      setScrolled(currentScrollY > 60);
+      lastScrollY.current = currentScrollY;
+    };
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
@@ -109,10 +120,12 @@ export function StoreHeader({
   return (
     <>
       <header
-        className="fixed left-0 right-0 z-50 transition-all duration-400"
+        className="fixed left-0 right-0 z-50"
         style={{
           top: topOffset,
           height: 64,
+          transform: visible ? "translateY(0)" : `translateY(-${64 + topOffset}px)`,
+          transition: "transform 0.3s ease-in-out, background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease",
           background: glass
             ? "var(--bg-header-glass, rgba(250,247,244,0.72))"
             : "var(--bg-header, rgba(250,247,244,0.98))",
@@ -480,6 +493,33 @@ export function StoreHeader({
               </div>
             </motion.aside>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Cart Button (when sticky header scrolls out of view) */}
+      <AnimatePresence>
+        {!visible && cartCount > 0 && (
+          <motion.button
+            key="floating-cart"
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            onClick={() => navigate("/checkout")}
+            className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 cursor-pointer"
+            style={{ backgroundColor: p, color: "#fff" }}
+            aria-label={t("storefront.header.actions.cart")}
+          >
+            <ShoppingBag className="w-6 h-6" />
+            {cartCount > 0 && (
+              <span
+                className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-black text-white flex items-center justify-center border-2 border-white"
+                style={{ background: p }}
+              >
+                {cartCount}
+              </span>
+            )}
+          </motion.button>
         )}
       </AnimatePresence>
     </>

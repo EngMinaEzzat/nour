@@ -590,6 +590,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
     },
     homepage: publishedConfig?.homepage,
     business: publishedConfig?.business,
+    announcement: publishedConfig?.announcement,
   });
   const p = visualConfig.theme.primaryColor;
   const s = visualConfig.theme.secondaryColor;
@@ -1127,7 +1128,13 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       />
 
       {/* ── Announcement Bar ── */}
-      <AnnouncementBar p={p} onDismiss={() => setBarVisible(false)} />
+      {visualConfig.announcement?.show && barVisible && (
+        <AnnouncementBar
+          p={p}
+          text={i18n.language === "ar" ? visualConfig.announcement.textAr : visualConfig.announcement.textEn}
+          onDismiss={() => setBarVisible(false)}
+        />
+      )}
 
       {/* ── Sticky Header ── */}
       <StoreHeader
@@ -1139,7 +1146,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
         socialLinks={(store as any).socialLinks}
         cartCount={cartCount}
         onSearchOpen={() => setSearchOpen(true)}
-        announcementVisible={barVisible}
+        announcementVisible={!!(visualConfig.announcement?.show && barVisible)}
         categories={store.categories ?? []}
         onCategorySelect={handleCategorySelect}
       />

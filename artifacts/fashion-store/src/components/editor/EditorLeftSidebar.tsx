@@ -823,6 +823,74 @@ function ThemePanel({
                   ))}
                 </div>
               </div>
+
+              {/* Announcement Bar Settings */}
+              <div className="border-t border-stone-100 pt-4 mt-4">
+                <p className="text-xs font-semibold text-stone-500 mb-2 uppercase tracking-wide">
+                  {t("editorSidebar.themePanel.announcement.title", "Announcement Bar")}
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 text-xs font-medium text-stone-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={config.announcement?.show ?? true}
+                      onChange={(e) => onConfigChange({
+                        ...config,
+                        announcement: {
+                          textAr: config.announcement?.textAr ?? "✦ شحن مجاني على الطلبات فوق 999 ج.م • ✦ إرجاع مجاني خلال 14 يوم • ✦ الدفع عند الاستلام",
+                          textEn: config.announcement?.textEn ?? "✦ Free shipping on orders over 999 EGP • ✦ Free returns within 14 days • ✦ Cash on Delivery",
+                          show: e.target.checked
+                        }
+                      })}
+                      className="rounded border-stone-300 text-[#8B1A35] focus:ring-[#8B1A35]"
+                    />
+                    <span>{t("editorSidebar.themePanel.announcement.show", "Show Announcement Bar")}</span>
+                  </label>
+                  
+                  {(config.announcement?.show ?? true) && (
+                    <div className="space-y-2 animate-in fade-in duration-200">
+                      <div>
+                        <label className="block text-[10px] font-medium text-stone-500 mb-1">
+                          {t("editorSidebar.themePanel.announcement.textAr", "Text (Arabic)")}
+                        </label>
+                        <input
+                          type="text"
+                          value={config.announcement?.textAr ?? ""}
+                          onChange={(e) => onConfigChange({
+                            ...config,
+                            announcement: {
+                              show: config.announcement?.show ?? true,
+                              textEn: config.announcement?.textEn ?? "✦ Free shipping on orders over 999 EGP • ✦ Free returns within 14 days • ✦ Cash on Delivery",
+                              textAr: e.target.value
+                            }
+                          })}
+                          className="w-full px-2.5 py-1.5 text-xs border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#8B1A35]"
+                          placeholder="✦ شحن مجاني..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-medium text-stone-500 mb-1">
+                          {t("editorSidebar.themePanel.announcement.textEn", "Text (English)")}
+                        </label>
+                        <input
+                          type="text"
+                          value={config.announcement?.textEn ?? ""}
+                          onChange={(e) => onConfigChange({
+                            ...config,
+                            announcement: {
+                              show: config.announcement?.show ?? true,
+                              textAr: config.announcement?.textAr ?? "✦ شحن مجاني على الطلبات فوق 999 ج.م • ✦ إرجاع مجاني خلال 14 يوم • ✦ الدفع عند الاستلام",
+                              textEn: e.target.value
+                            }
+                          })}
+                          className="w-full px-2.5 py-1.5 text-xs border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#8B1A35]"
+                          placeholder="✦ Free shipping..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
