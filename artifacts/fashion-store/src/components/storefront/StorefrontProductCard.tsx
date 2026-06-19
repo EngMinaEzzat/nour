@@ -56,7 +56,7 @@ export function StorefrontProductCard({
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { t, i18n } = useTranslation();
-  const { items, updateQuantity, setCartOpen } = useCart();
+  const { items, updateQuantity } = useCart();
   const inCart = items.some(i => i.productId === product.id);
   const cartItem = items.find(i => i.productId === product.id);
   const cartQuantity = cartItem?.quantity || 0;
@@ -112,7 +112,7 @@ export function StorefrontProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (inCart) {
-      setCartOpen(true);
+      navigate("/checkout");
       return;
     }
     if (unavailable) return;

@@ -196,7 +196,7 @@ export default function ProductDetail() {
     });
   }
 
-  const { addItem, isInCart, items, updateQuantity, removeItem, setCartOpen } = useCart();
+  const { addItem, isInCart, items, updateQuantity, removeItem } = useCart();
 
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -278,7 +278,7 @@ export default function ProductDetail() {
 
   function handleAddToCart() {
     if (inCart) {
-      setCartOpen(true);
+      navigate("/checkout");
       return;
     }
     if (quantity === 0) {
