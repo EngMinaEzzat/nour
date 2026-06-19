@@ -30,20 +30,40 @@ const LOCKED_SYSTEM_PROMPT =
 
 function isPrivateIp(ip: string): boolean {
   if (net.isIPv6(ip)) {
-    const lowerIp = ip.toLowerCase();
+    // Normalize the IPv6 address by expanding compressed segments
+    let expandedIp = ip.toLowerCase();
 
-    // Check for IPv4-mapped IPv6 address
-    if (lowerIp.startsWith("::ffff:")) {
-      const ipv4Part = lowerIp.substring(7);
-      if (net.isIPv4(ipv4Part)) {
-        return isPrivateIp(ipv4Part);
+    // Check if it's an IPv4-mapped IPv6 address directly from Node.js parsing (if node parsed it)
+    // To handle all valid mappings, we expand :: to 0 blocks.
+    if (expandedIp.includes("::")) {
+      const parts = expandedIp.split("::");
+      const left = parts[0] === "" ? [] : parts[0]!.split(":");
+      const right = parts[1] === "" ? [] : parts[1]!.split(":");
+      // We need to insert enough "0"s so that we have 8 parts in total
+      // Exception: if the last part is an IPv4 string, it counts as 2 parts.
+      let numParts = left.length + right.length;
+      if (right.length > 0 && right[right.length - 1]!.includes(".")) {
+        numParts += 1;
+      }
+      const missing = 8 - numParts;
+      const zeros = Array(missing).fill("0");
+      expandedIp = [...left, ...zeros, ...right].join(":");
+    }
+
+    // Now the IP is fully expanded like 0:0:0:0:0:ffff:127.0.0.1 or 0:0:0:0:0:ffff:7f00:1
+    const ipv4MappedMatch = expandedIp.match(/^(?:0{1,4}:){5}ffff:(.+)$/);
+
+    if (ipv4MappedMatch) {
+      const ipv4Part = ipv4MappedMatch[1];
+      if (net.isIPv4(ipv4Part!)) {
+        return isPrivateIp(ipv4Part!);
       } else {
         // Handle hex encoded IPv4-mapped IPv6 (e.g., ::ffff:7f00:1)
-        const hexParts = ipv4Part.split(':');
+        const hexParts = ipv4Part!.split(':');
         if (hexParts.length <= 2) {
           let hexString = '';
           for (let i = 0; i < hexParts.length; i++) {
-            hexString += hexParts[i].padStart(4, '0');
+            hexString += hexParts[i]!.padStart(4, '0');
           }
           if (hexString.length <= 8) {
             hexString = hexString.padStart(8, '0');
@@ -56,13 +76,16 @@ function isPrivateIp(ip: string): boolean {
             }
           }
         }
-        // If it's a ::ffff: address but not a valid standard/hex IPv4, it's malformed/unsafe.
+        // If it's a IPv4 mapped address but not a valid standard/hex IPv4, it's malformed/unsafe.
         return true;
       }
     }
 
+    const lowerIp = ip.toLowerCase();
     return (
       lowerIp === "::1" ||
+      lowerIp === "::" ||
+      lowerIp === "0:0:0:0:0:0:0:1" ||
       lowerIp.startsWith("fc") ||
       lowerIp.startsWith("fd") ||
       lowerIp.startsWith("fe8") ||
