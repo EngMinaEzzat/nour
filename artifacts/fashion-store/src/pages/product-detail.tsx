@@ -2,6 +2,7 @@ import { useParams, Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGetProduct, getGetProductQueryKey, useListProductVariants, getListProductVariantsQueryKey } from "@workspace/api-client-react";
 import { useCart } from "@/hooks/use-cart";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -200,7 +201,7 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
 
   const hasVariants = variants.length > 0;
   const uniqueSizes = useMemo(() => {
@@ -250,7 +251,7 @@ export default function ProductDetail() {
   const maxQuantity = Math.max(1, Math.min(effectiveStock || 1, 10));
 
   useEffect(() => {
-    setQuantity((current) => Math.min(Math.max(current, 1), maxQuantity));
+    setQuantity((current) => Math.min(Math.max(current, 0), maxQuantity));
   }, [maxQuantity]);
 
   const inCart = product ? isInCart(product.id, selectedVariant?.id) : false;
@@ -263,13 +264,14 @@ export default function ProductDetail() {
       const newQty = cartQuantity + delta;
       if (newQty <= 0) {
         removeItem(product!.id, selectedVariant?.id);
+        setQuantity(0);
       } else {
         updateQuantity(product!.id, newQty, selectedVariant?.id);
       }
     } else {
       setQuantity((value) => {
         const next = value + delta;
-        return Math.max(1, Math.min(maxQuantity, next));
+        return Math.max(0, Math.min(maxQuantity, next));
       });
     }
   }
@@ -277,6 +279,14 @@ export default function ProductDetail() {
   function handleAddToCart() {
     if (inCart) {
       setCartOpen(true);
+      return;
+    }
+    if (quantity === 0) {
+      toast({
+        title: "⚠️ الرجاء اختيار الكمية",
+        description: "يجب اختيار كمية ١ على الأقل لإضافة المنتج إلى السلة.",
+        variant: "destructive",
+      });
       return;
     }
     if (!product || unavailable || !variantSelectionComplete) return;
@@ -622,7 +632,7 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={() => handleQuantityChange(-1)}
-                  disabled={unavailable || !variantSelectionComplete || (!inCart && quantity <= 1)}
+                  disabled={unavailable || !variantSelectionComplete || (!inCart && quantity <= 0)}
                   className="h-11 w-11 rounded-full border border-border/70 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-background transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 cursor-pointer"
                   aria-label={t("productDetail.decreaseQuantity")}
                 >
@@ -730,12 +740,12 @@ export default function ProductDetail() {
               {hasVariants && !variantSelectionComplete
                 ? t("productDetail.selectSizeColorFirst")
                 : t("productDetail.quantitySummary", {
-                    count: quantity,
+                    count: inCart ? cartQuantity : quantity,
                     defaultValue: "{{count}} قطعة",
                   })}
             </p>
             <p className="text-base font-bold text-foreground truncate">
-              {(product.price * quantity).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}
+              {(product.price * (inCart ? cartQuantity : quantity)).toLocaleString(i18n.language === "ar" ? "ar-EG" : "en-US")} {i18n.language === "ar" ? "ج.م" : "EGP"}
             </p>
           </div>
           <Button

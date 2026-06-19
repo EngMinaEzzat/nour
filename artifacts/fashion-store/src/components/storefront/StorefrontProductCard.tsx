@@ -45,7 +45,7 @@ export function StorefrontProductCard({
   product,
   storeSlug,
   primaryColor: p,
-  inCart = false,
+  inCart: propInCart = false,
   onAdd,
   variant = "portrait",
   showRating = false,
@@ -56,7 +56,8 @@ export function StorefrontProductCard({
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { t, i18n } = useTranslation();
-  const { items, updateQuantity } = useCart();
+  const { items, updateQuantity, setCartOpen } = useCart();
+  const inCart = items.some(i => i.productId === product.id);
   const cartItem = items.find(i => i.productId === product.id);
   const cartQuantity = cartItem?.quantity || 0;
 
@@ -111,7 +112,7 @@ export function StorefrontProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (inCart) {
-      navigate("/checkout");
+      setCartOpen(true);
       return;
     }
     if (unavailable) return;
@@ -205,55 +206,27 @@ export function StorefrontProductCard({
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {inCart && !product.hasVariants ? (
-                    <div
-                      className="w-full py-2.5 text-xs font-bold flex items-center justify-between px-4 gap-2 transition-all"
-                      style={{
-                        background: "rgba(250,247,244,0.95)",
-                        color: p,
-                        backdropFilter: "blur(12px)",
-                      }}
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => handleUpdateQuantity(e, -1)}
-                        className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
-                        aria-label={t("productDetail.decreaseQuantity")}
-                      >
-                        <Minus className="w-3.5 h-3.5" style={{ color: p }} />
-                      </button>
-                      <span className="text-sm font-bold text-stone-800">{cartQuantity}</span>
-                      <button
-                        type="button"
-                        onClick={(e) => handleUpdateQuantity(e, 1)}
-                        className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
-                        aria-label={t("productDetail.increaseQuantity")}
-                      >
-                        <Plus className="w-3.5 h-3.5" style={{ color: p }} />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={handleAdd}
-                      className="w-full py-3.5 text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-                      aria-label={product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
-                      style={{
-                        background: inCart
-                          ? "rgba(250,247,244,0.95)"
-                          : p,
-                        color: inCart ? p : "#fff",
-                        backdropFilter: "blur(12px)",
-                      }}
-                    >
-                      {product.hasVariants ? (
-                        <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
-                      ) : inCart ? (
-                        <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
-                      ) : (
-                        <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
-                      )}
-                    </button>
-                  )}
+                  <button
+                    onClick={handleAdd}
+                    className="w-full py-3.5 text-xs font-bold flex items-center justify-center gap-2 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                    aria-label={product.hasVariants ? t("storefront.products.chooseOption") : t("storefront.products.addToCart")}
+                    style={{
+                      background: inCart
+                        ? "rgba(250,247,244,0.95)"
+                        : p,
+                      color: inCart ? p : "#fff",
+                      border: inCart ? `1px solid ${p}40` : "1px solid transparent",
+                      backdropFilter: "blur(12px)",
+                    }}
+                  >
+                    {product.hasVariants ? (
+                      <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
+                    ) : inCart ? (
+                      <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
+                    ) : (
+                      <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
+                    )}
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -358,35 +331,6 @@ export function StorefrontProductCard({
           </p>
         )}
 
-        {inCart && !product.hasVariants && !unavailable ? (
-          <div
-            className="sm:hidden mt-2.5 w-full min-h-11 px-3 py-1 flex items-center justify-between gap-1.5 shadow-sm border"
-            style={{
-              background: "rgba(250,247,244,0.95)",
-              color: p,
-              borderColor: `${p}40`,
-              borderRadius: "var(--btn-radius, 12px)",
-            }}
-          >
-            <button
-              type="button"
-              onClick={(e) => handleUpdateQuantity(e, -1)}
-              className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
-              aria-label={t("productDetail.decreaseQuantity")}
-            >
-              <Minus className="w-3 h-3" style={{ color: p }} />
-            </button>
-            <span className="text-xs font-bold text-stone-800">{cartQuantity}</span>
-            <button
-              type="button"
-              onClick={(e) => handleUpdateQuantity(e, 1)}
-              className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
-              aria-label={t("productDetail.increaseQuantity")}
-            >
-              <Plus className="w-3 h-3" style={{ color: p }} />
-            </button>
-          </div>
-        ) : (
           <button
             type="button"
             onClick={handleAdd}
@@ -409,12 +353,11 @@ export function StorefrontProductCard({
             ) : product.hasVariants ? (
               <><Layers className="w-3.5 h-3.5" />{t("storefront.products.chooseOption")}</>
             ) : inCart ? (
-              <><Check className="w-3.5 h-3.5" />{t("storefront.products.goToCart")}</>
+              <><Check className="w-3.5 h-3.5" /> {t("storefront.products.goToCart")}</>
             ) : (
-              <><ShoppingBag className="w-3.5 h-3.5" />{t("storefront.products.addToCart")}</>
+              <><ShoppingBag className="w-3.5 h-3.5" /> {t("storefront.products.addToCart")}</>
             )}
           </button>
-        )}
       </div>
     </div>
   );

@@ -707,38 +707,43 @@ export default function Checkout() {
               {Object.entries(groupedByTenant).map(([tenantId, group]) => (
                 <div key={tenantId}>
                   <p className="text-xs text-primary font-semibold mb-2">{group.tenantName}</p>
-                   {group.items.map((item) => (
-                    <div key={`${item.productId}-${item.variantId ?? "base"}`} className="flex items-start gap-3 mb-4">
-                      <div className="w-12 h-14 rounded-lg overflow-hidden bg-muted shrink-0 border border-border/40">
-                        <img
-                          src={productImageUrl(item.imageUrl)}
-                          alt={item.name}
-                          width={48}
-                          height={56}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover"
-                        />
+                  {group.items.map((item) => (
+                    <div key={`${item.productId}-${item.variantId ?? "base"}`} className="flex items-center justify-between gap-3 py-3 border-b border-border/40 last:border-0" style={{ direction: "rtl" }}>
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="w-12 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border/40">
+                          <img
+                            src={productImageUrl(item.imageUrl)}
+                            alt={item.name}
+                            width={48}
+                            height={64}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium line-clamp-1">{item.name}</p>
+                          {item.variantLabel && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{item.variantLabel}</p>}
+                          <p className="text-sm font-bold mt-1">{(item.price * item.quantity).toLocaleString("ar-EG")} ج.م</p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium line-clamp-1">{item.name}</p>
-                        {item.variantLabel && <p className="text-xs text-muted-foreground line-clamp-1">{item.variantLabel}</p>}
-                        
-                        {/* Editable quantity selector */}
-                        <div className="flex items-center gap-1.5 mt-2">
+                      
+                      {/* Quantity controls and delete beside details */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <div className="flex items-center bg-stone-100/80 rounded-full border border-stone-200 overflow-hidden">
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
-                            className="w-6 h-6 rounded-full border border-border/80 flex items-center justify-center hover:bg-muted transition-colors cursor-pointer shrink-0"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-stone-200 transition-colors cursor-pointer"
                             aria-label={t("cart.actions.decrease")}
                           >
                             <Minus className="w-2.5 h-2.5 text-stone-600" />
                           </button>
-                          <span className="text-xs font-semibold w-4 text-center text-stone-800">{item.quantity}</span>
+                          <span className="w-5 text-center text-xs font-semibold text-stone-800">{item.quantity}</span>
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
-                            className="w-6 h-6 rounded-full border border-border/80 flex items-center justify-center hover:bg-muted transition-colors cursor-pointer shrink-0"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-stone-200 transition-colors cursor-pointer"
                             aria-label={t("cart.actions.increase")}
                           >
                             <Plus className="w-2.5 h-2.5 text-stone-600" />

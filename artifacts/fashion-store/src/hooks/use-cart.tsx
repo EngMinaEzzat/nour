@@ -108,7 +108,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...item, quantity: 1 }];
     });
-    setCartOpen(true);
     toast({
       title: "✅ تمت الإضافة للسلة",
       description: item.name,

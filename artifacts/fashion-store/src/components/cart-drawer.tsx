@@ -253,55 +253,61 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
           <>
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
               {items.map((item) => (
-                <div key={`${item.productId}-${item.variantId ?? "base"}`} className="flex gap-4 items-start animate-slide-down">
-                  <div className="w-20 h-24 rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border/50">
-                    <img
-                      src={productImageUrl(item.imageUrl)}
-                      alt={item.name}
-                      width={80}
-                      height={96}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover"
-                    />
+                <div key={`${item.productId}-${item.variantId ?? "base"}`} className="flex gap-3 items-center justify-between animate-slide-down py-3 border-b border-border/40 last:border-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-16 h-20 rounded-xl overflow-hidden bg-muted flex-shrink-0 border border-border/50">
+                      <img
+                        src={productImageUrl(item.imageUrl)}
+                        alt={item.name}
+                        width={64}
+                        height={80}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] text-primary font-semibold uppercase tracking-wider mb-0.5">
+                        {item.tenantName}
+                      </p>
+                      <p className="font-serif text-sm text-foreground line-clamp-1 leading-snug">
+                        {item.name}
+                      </p>
+                      {item.variantLabel && (
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{item.variantLabel}</p>
+                      )}
+                      <p className="text-sm font-bold text-foreground mt-1">
+                        {formatMoney(item.price * item.quantity)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-primary font-semibold uppercase tracking-wider mb-0.5">
-                      {item.tenantName}
-                    </p>
-                    <p className="font-serif text-base text-foreground line-clamp-2 leading-snug">
-                      {item.name}
-                    </p>
-                    {item.variantLabel && (
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{item.variantLabel}</p>
-                    )}
-                    <p className="text-sm font-bold text-foreground mt-1">
-                      {formatMoney(item.price * item.quantity)}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
+                  
+                  {/* Quantity controls and delete beside details */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center bg-stone-100/80 rounded-full border border-stone-200 overflow-hidden">
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
-                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        aria-label={t("cart.actions.decrease", { defaultValue: i18n.language === "ar" ? "تقليل الكمية" : "Decrease quantity" })}
+                        className="w-8 h-8 flex items-center justify-center hover:bg-stone-200 transition-colors cursor-pointer"
+                        aria-label={t("cart.actions.decrease")}
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
+                      <span className="w-6 text-center text-xs font-semibold">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
-                        className="w-11 h-11 sm:w-9 sm:h-9 rounded-full border border-border/70 flex items-center justify-center hover:bg-muted transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        aria-label={t("cart.actions.increase", { defaultValue: i18n.language === "ar" ? "زيادة الكمية" : "Increase quantity" })}
+                        className="w-8 h-8 flex items-center justify-center hover:bg-stone-200 transition-colors cursor-pointer"
+                        aria-label={t("cart.actions.increase")}
                       >
                         <Plus className="w-3 h-3" />
                       </button>
-                      <button
-                        onClick={() => removeItem(item.productId, item.variantId)}
-                        className="ms-auto h-11 w-11 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        aria-label={t("cart.actions.remove", { defaultValue: i18n.language === "ar" ? "حذف المنتج" : "Remove item" })}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
+                    <button
+                      onClick={() => removeItem(item.productId, item.variantId)}
+                      className="w-8 h-8 rounded-full text-stone-400 hover:text-destructive hover:bg-destructive/10 flex items-center justify-center transition-all cursor-pointer"
+                      aria-label={t("cart.actions.remove")}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               ))}
