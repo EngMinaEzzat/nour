@@ -474,7 +474,7 @@ function renderDocument(opts: {
   }
   <meta data-rh="true" property="og:url" content="${esc(opts.canonical)}" />
   <meta data-rh="true" property="og:locale" content="ar_EG" />
-  <meta data-rh="true" property="og:site_name" content="نور" />
+  <meta data-rh="true" property="og:site_name" content="متجر إي جي" />
   <meta data-rh="true" name="twitter:card" content="${esc(twitterCard)}" />
   <meta data-rh="true" name="twitter:title" content="${esc(opts.title)}" />
   <meta data-rh="true" name="twitter:description" content="${esc(opts.description)}" />
@@ -506,7 +506,7 @@ function renderDocument(opts: {
 </head>
 <body>
   <div id="root">${opts.body}</div>
-  <script>window.__NOUR_INITIAL_PUBLIC_PAGE__=${safeJson(opts.initialData)};</script>
+  <script>window.__MATJAREG_INITIAL_PUBLIC_PAGE__=${safeJson(opts.initialData)};</script>
   ${assets.scripts}
 </body>
 </html>`;
@@ -575,7 +575,7 @@ function renderStorePage(
   products: ProductPublic[],
   categories: CategoryPublic[],
 ): string {
-  const title = tenant.seoTitle ?? `${tenant.name} | نور`;
+  const title = tenant.seoTitle ?? `${tenant.name} | متجر إي جي`;
   const description = tenant.seoDescription ?? tenant.description;
   const canonical = storeUrl(req, tenant);
   const image = absoluteUrl(req, tenant.coverUrl ?? tenant.logoUrl);
@@ -761,7 +761,7 @@ function renderCategoryPage(
 ): string {
   const canonical = categoryUrl(req, tenant, category);
   const title = `${category.nameAr || category.name} | ${tenant.name}`;
-  const description = `تسوق ${category.nameAr || category.name} من ${tenant.name} على نور.`;
+  const description = `تسوق ${category.nameAr || category.name} من ${tenant.name} على متجر إي جي.`;
   const image = absoluteUrl(req, tenant.coverUrl ?? tenant.logoUrl);
   const cards = products
     .map((product, index) => {

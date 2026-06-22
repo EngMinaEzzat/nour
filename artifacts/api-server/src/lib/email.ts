@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "production" && !process.env.EMAIL_FROM) {
 export type EmailSendResult =
   | { sent: true; id: string }
   | { sent: false; reason: "missing_api_key" | "provider_error" };
-const DEFAULT_FROM_NAME = "نور";
+const DEFAULT_FROM_NAME = "متجر إي جي";
 
 function escapeHtml(value: string): string {
   return value
@@ -75,7 +75,7 @@ function emailLayout(bodyHtml: string): string {
         <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.06);">
           <tr>
             <td style="background:#8b1a2e;padding:28px 48px;text-align:center;">
-              <span style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;">نور</span>
+              <span style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;">متجر إي جي</span>
             </td>
           </tr>
           <tr>
@@ -85,7 +85,7 @@ function emailLayout(bodyHtml: string): string {
           </tr>
           <tr>
             <td style="padding:24px 48px;border-top:1px solid #f0ebe5;text-align:center;">
-              <p style="margin:0;font-size:12px;color:#aaa;">منصة نور للتجارة الإلكترونية المصرية</p>
+              <p style="margin:0;font-size:12px;color:#aaa;">منصة متجر إي جي للتجارة الإلكترونية المصرية</p>
             </td>
           </tr>
         </table>
@@ -106,11 +106,11 @@ export async function sendWelcomeEmail(
 
   return sendEmail({
     to,
-    subject: `مرحباً بك في نور 🎉 — متجرك "${storeName}" جاهز!`,
+    subject: `مرحباً بك في متجر إي جي 🎉 — متجرك "${storeName}" جاهز!`,
     html: emailLayout(`
       <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#1a1a1a;">أهلاً وسهلاً! 🎉</h1>
       <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.8;">
-        تم إنشاء متجرك <strong style="color:#8b1a2e;">${safeStoreName}</strong> بنجاح على منصة نور.
+        تم إنشاء متجرك <strong style="color:#8b1a2e;">${safeStoreName}</strong> بنجاح على منصة متجر إي جي.
         يمكنك الآن مشاركة رابط متجرك مع عملائك والبدء في البيع فوراً.
       </p>
 
@@ -176,11 +176,11 @@ export async function sendNewMerchantNotification(
 
   await sendEmail({
     to: adminEmails,
-    subject: `🛍️ متجر جديد انضم إلى نور — ${storeName}`,
+    subject: `🛍️ متجر جديد انضم إلى متجر إي جي — ${storeName}`,
     html: emailLayout(`
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1a1a1a;">متجر جديد على المنصة 🎉</h1>
       <p style="margin:0 0 28px;font-size:15px;color:#555;line-height:1.7;">
-        انضم تاجر جديد للتو إلى منصة نور.
+        انضم تاجر جديد للتو إلى منصة متجر إي جي.
       </p>
 
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#fdf8f5;border:1px solid #f0e8e0;border-radius:16px;padding:4px;">
@@ -233,11 +233,11 @@ export async function sendPasswordResetEmail(
   const safeResetLink = escapeHtml(resetLink);
   const res = await sendEmail({
     to,
-    subject: "إعادة تعيين كلمة المرور — نور",
+    subject: "إعادة تعيين كلمة المرور — متجر إي جي",
     html: emailLayout(`
       <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#1a1a1a;">إعادة تعيين كلمة المرور</h1>
       <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.7;">
-        تلقّينا طلبًا لإعادة تعيين كلمة المرور الخاصة بحسابك على منصة نور.
+        تلقّينا طلبًا لإعادة تعيين كلمة المرور الخاصة بحسابك على منصة متجر إي جي.
         انقر على الزر أدناه لاختيار كلمة مرور جديدة.
       </p>
       <div style="text-align:center;margin:32px 0;">
@@ -263,11 +263,11 @@ export async function sendSubscriptionReminderEmail(
 ): Promise<void> {
   await sendEmail({
     to,
-    subject: `⏰ اشتراكك في نور ينتهي خلال ${daysLeft} ${daysLeft === 1 ? "يوم" : "أيام"}`,
+    subject: `⏰ اشتراكك في متجر إي جي ينتهي خلال ${daysLeft} ${daysLeft === 1 ? "يوم" : "أيام"}`,
     html: emailLayout(`
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1a1a1a;">اشتراكك على وشك الانتهاء</h1>
       <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.7;">
-        مرحبًا، اشتراك متجر <strong>${storeName}</strong> على منصة نور
+        مرحبًا، اشتراك متجر <strong>${storeName}</strong> على منصة متجر إي جي
         سينتهي خلال <strong>${daysLeft} ${daysLeft === 1 ? "يوم" : "أيام"}</strong> فقط.
         جدّد الآن حتى لا تنقطع خدمتك.
       </p>
@@ -300,7 +300,7 @@ export async function sendSubscriptionSuspendedEmail(
     html: emailLayout(`
       <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#1a1a1a;">تم إيقاف متجرك مؤقتًا</h1>
       <p style="margin:0 0 24px;font-size:15px;color:#555;line-height:1.7;">
-        نأسف لإبلاغك بأن متجر <strong>${safeStoreName}</strong> على منصة نور قد تم إيقافه مؤقتًا
+        نأسف لإبلاغك بأن متجر <strong>${safeStoreName}</strong> على منصة متجر إي جي قد تم إيقافه مؤقتًا
         بسبب انتهاء فترة الاشتراك.
       </p>
       <p style="margin:0 0 28px;font-size:15px;color:#555;line-height:1.7;">

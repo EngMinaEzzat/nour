@@ -15,7 +15,7 @@ interface SEOProps {
 }
 
 export function SEO({ title, description, image, url, type = "website", schema, price, availability, noindex, imageWidth, imageHeight }: SEOProps) {
-  const siteName = "Nour Platform"; // Or could be passed via context
+  const siteName = "MatjarEg Platform"; // Or could be passed via context
   
   return (
     <Helmet>

@@ -14,7 +14,7 @@ describe("Storefront Auth — Registration", () => {
 
   it("✅ successfully registers a new customer with a formatted Egypt phone number", async () => {
     const id = uid();
-    const email = `customer.${id}@nourtest.invalid`;
+    const email = `customer.${id}@matjaregtest.invalid`;
     const res = await request(app)
       .post("/api/storefront-auth/register")
       .send({
@@ -35,7 +35,7 @@ describe("Storefront Auth — Registration", () => {
       .post("/api/storefront-auth/register")
       .send({
         name: `No Phone ${id}`,
-        email: `nophone.${id}@nourtest.invalid`,
+        email: `nophone.${id}@matjaregtest.invalid`,
         password: "TestPass123!",
       });
     expect(res.status).toBe(400);
@@ -49,7 +49,7 @@ describe("Storefront Auth — Registration", () => {
       .post("/api/storefront-auth/register")
       .send({
         name: `Bad Phone ${id}`,
-        email: `badphone.${id}@nourtest.invalid`,
+        email: `badphone.${id}@matjaregtest.invalid`,
         password: "TestPass123!",
         phone: "12345", // Invalid Egyptian phone number
       });
@@ -59,7 +59,7 @@ describe("Storefront Auth — Registration", () => {
 
   it("❌ registration fails with duplicate email", async () => {
     const id = uid();
-    const email = `dup.${id}@nourtest.invalid`;
+    const email = `dup.${id}@matjaregtest.invalid`;
     const body = {
       name: `Dup Customer`,
       email,

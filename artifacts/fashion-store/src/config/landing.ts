@@ -11,8 +11,8 @@ import {
 export const LANDING_CONFIG = {
   hero: {
     badge: {
-      en: "Nour Egyptian E-Commerce Platform",
-      ar: "منصة نور للتجارة الإلكترونية المصرية"
+      en: "MatjarEg Egyptian E-Commerce Platform",
+      ar: "منصة متجر إي جي للتجارة الإلكترونية المصرية"
     },
     title1: {
       en: "Open your ",
@@ -27,8 +27,8 @@ export const LANDING_CONFIG = {
       ar: "في دقيقة واحدة"
     },
     subtitle: {
-      en: "Nour is a 100% Egyptian platform enabling merchants to create professional fashion and beauty stores. Gather all your orders from different social media platforms into one organized place effortlessly.",
-      ar: "نور هي منصة مصرية ١٠٠٪ تُمكّن التجار من إنشاء متاجر أزياء وجمال احترافية. اجمعي كل طلباتك من منصات التواصل الاجتماعي المختلفة في مكان واحد منظم بكل سهولة."
+      en: "MatjarEg is a 100% Egyptian platform enabling merchants to create professional fashion and beauty stores. Gather all your orders from different social media platforms into one organized place effortlessly.",
+      ar: "متجر إي جي هي منصة مصرية ١٠٠٪ تُمكّن التجار من إنشاء متاجر أزياء وجمال احترافية. اجمعي كل طلباتك من منصات التواصل الاجتماعي المختلفة في مكان واحد منظم بكل سهولة."
     },
     videoUrl: "/videos/boutique.mp4",
     posterUrl: "/videos/boutique-poster.jpg"
@@ -148,7 +148,7 @@ export const LANDING_CONFIG = {
     {
       name: { en: "Sara Mohamed", ar: "سارة محمد" },
       store: { en: "Pearl Boutique", ar: "بوتيك لؤلؤة" },
-      text: { en: "I opened my store in less than an hour and received my first order the same day! Nour changed my professional life.", ar: "فتحت متجري في أقل من ساعة وأول طلب وصلني في نفس اليوم! نور غيّر حياتي المهنية." },
+      text: { en: "I opened my store in less than an hour and received my first order the same day! MatjarEg changed my professional life.", ar: "فتحت متجري في أقل من ساعة وأول طلب وصلني في نفس اليوم! متجر إي جي غيّر حياتي المهنية." },
       stars: 5
     },
     {
@@ -172,6 +172,6 @@ export const LANDING_CONFIG = {
   ],
   cta: {
     title: { en: "Ready to open your store?", ar: "جاهزة تفتحي متجرك؟" },
-    subtitle: { en: "Join more than 500 Egyptian merchants building their commercial future with Nour.", ar: "انضمي لأكثر من ٥٠٠ تاجرة مصرية تبني مستقبلها التجاري مع نور." }
+    subtitle: { en: "Join more than 500 Egyptian merchants building their commercial future with MatjarEg.", ar: "انضمي لأكثر من ٥٠٠ تاجرة مصرية تبني مستقبلها التجاري مع متجر إي جي." }
   }
 };

@@ -66,7 +66,7 @@ function checkoutEmail(email: string, phone: string) {
   const trimmed = email.trim().toLowerCase();
   if (trimmed) return trimmed;
   const phoneKey = normalizeEgyptianMobileLocal(phone) ?? normalizeDigits(phone).replace(/\D/g, "");
-  return `checkout.${phoneKey || crypto.randomUUID()}@customers.nour.local`;
+  return `checkout.${phoneKey || crypto.randomUUID()}@customers.matjareg.local`;
 }
 
 interface CartDrawerProps {

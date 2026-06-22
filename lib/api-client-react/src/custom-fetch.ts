@@ -422,7 +422,7 @@ function getActiveStorefrontSlug(): string | null {
   try {
     const initialPublicPage = (
       window as any
-    ).__NOUR_INITIAL_PUBLIC_PAGE__;
+    ).__MATJAREG_INITIAL_PUBLIC_PAGE__;
     if (initialPublicPage?.slug) {
       return initialPublicPage.slug;
     }

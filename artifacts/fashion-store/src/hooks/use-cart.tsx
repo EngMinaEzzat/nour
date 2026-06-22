@@ -28,8 +28,8 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-const STORAGE_KEY = "nour_cart";
-const SESSION_KEY = "nour_session_id";
+const STORAGE_KEY = "matjareg_cart";
+const SESSION_KEY = "matjareg_session_id";
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function getOrCreateSessionId(): string {

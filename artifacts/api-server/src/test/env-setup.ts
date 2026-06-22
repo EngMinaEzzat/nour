@@ -45,7 +45,7 @@ function loadEnvTestFallbacks(): void {
     if (process.env[key] !== undefined) continue;
 
     const value = parseEnvValue(trimmed.slice(separatorIndex + 1));
-    if (key === "DATABASE_URL" || key === "NOUR_TEST_DATABASE_OK") {
+    if (key === "DATABASE_URL" || key === "MATJAREG_TEST_DATABASE_OK") {
       process.env[key] = value;
     }
   }
@@ -60,7 +60,7 @@ function loadTestDatabaseUrl(): string {
 // a test/development database. This prevents accidental data destruction if
 // DATABASE_URL points to a production database.
 const dbUrl = loadTestDatabaseUrl();
-const hasExplicitOverride = process.env.NOUR_TEST_DATABASE_OK === "true";
+const hasExplicitOverride = process.env.MATJAREG_TEST_DATABASE_OK === "true";
 const isSafeDb =
   dbUrl.includes("localhost") ||
   dbUrl.includes("127.0.0.1") ||
@@ -75,7 +75,7 @@ if (!isSafeDb) {
     "\nDATABASE_URL is missing or does not look like a dedicated test database.\n" +
     "Tests create and delete real data, so refusing to run.\n" +
     "Use a local database, a URL/name containing _test, -test, test_, or localtest,\n" +
-    "or set NOUR_TEST_DATABASE_OK=true in the shell only when intentionally using\n" +
+    "or set MATJAREG_TEST_DATABASE_OK=true in the shell only when intentionally using\n" +
     "a disposable/shared development database with no real merchant data.\n"
   );
   process.exit(1);
@@ -83,7 +83,7 @@ if (!isSafeDb) {
 
 if (hasExplicitOverride) {
   console.warn(
-    "\nNOUR_TEST_DATABASE_OK=true is enabled. Destructive tests may create/delete data\n" +
+    "\nMATJAREG_TEST_DATABASE_OK=true is enabled. Destructive tests may create/delete data\n" +
     "in the configured DATABASE_URL. Use this only while the database has no real\n" +
     "merchant, customer, order, or payment data.\n",
   );

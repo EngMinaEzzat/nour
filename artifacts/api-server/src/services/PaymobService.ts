@@ -166,7 +166,7 @@ export class PaymobService {
       orderId: order.id,
       amountEGP: parseFloat(order.totalAmount as string),
       customerName: order.customerName ?? "Customer",
-      customerEmail: order.customerEmail ?? "customer@nour.eg",
+      customerEmail: order.customerEmail ?? "customer@matjareg.com",
       customerPhone: order.customerPhone ?? "01000000000",
       shippingAddress: order.shippingAddress ?? "Cairo, Egypt",
       apiKey: provider.apiKey!,
@@ -221,12 +221,12 @@ export class PaymobService {
 
     const providerOrderId = String(body?.obj?.order?.id ?? "");
     const merchantOrderId = String(body?.obj?.order?.merchant_order_id ?? "");
-    const nourOrderId = Number.parseInt(merchantOrderId.replace("NOUR-", ""), 10);
+    const matjaregOrderId = Number.parseInt(merchantOrderId.replace("MATJAREG-", ""), 10);
     let [paymentRecord] = providerOrderId
       ? await db.select().from(paymentRecordsTable).where(eq(paymentRecordsTable.providerOrderId, providerOrderId)).limit(1)
       : [];
-    if (!paymentRecord && Number.isInteger(nourOrderId)) {
-      [paymentRecord] = await db.select().from(paymentRecordsTable).where(eq(paymentRecordsTable.orderId, nourOrderId)).limit(1);
+    if (!paymentRecord && Number.isInteger(matjaregOrderId)) {
+      [paymentRecord] = await db.select().from(paymentRecordsTable).where(eq(paymentRecordsTable.orderId, matjaregOrderId)).limit(1);
     }
 
     if (!paymentRecord) {

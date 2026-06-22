@@ -365,7 +365,7 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
 
   const selectedCategoryMeta = store?.categories?.find((category) => category.id === selectedCategory) ?? null;
   const initialPublicPage = typeof window !== "undefined"
-    ? (window as typeof window & { __NOUR_INITIAL_PUBLIC_PAGE__?: { page?: string; canonical?: string } }).__NOUR_INITIAL_PUBLIC_PAGE__
+    ? (window as typeof window & { __MATJAREG_INITIAL_PUBLIC_PAGE__?: { page?: string; canonical?: string } }).__MATJAREG_INITIAL_PUBLIC_PAGE__
     : undefined;
   const initialCanonicalMatches = initialPublicPage?.canonical
     && ((!selectedCategoryMeta && initialPublicPage.page === "store")

@@ -35,7 +35,7 @@ enContent.storefront = {
       faq: "FAQ"
     },
     rights: "All rights reserved.",
-    developedBy: "Developed by Nour"
+    developedBy: "Developed by MatjarEg"
   },
   hero: {
     shopNow: "Shop Now"
@@ -206,7 +206,7 @@ arContent.storefront = {
       faq: "الأسئلة الشائعة"
     },
     rights: "جميع الحقوق محفوظة.",
-    developedBy: "طُوِّر بواسطة نور"
+    developedBy: "طُوِّر بواسطة متجر إي جي"
   },
   hero: {
     shopNow: "تسوقي الآن"

@@ -105,7 +105,7 @@ export async function initPayment(params: {
 
   const integrationId = parseInt(params.integrationId, 10);
   const token = await authenticate(params.apiKey);
-  const paymobOrderId = await createOrder(token, amountCents, `NOUR-${params.orderId}`);
+  const paymobOrderId = await createOrder(token, amountCents, `MATJAREG-${params.orderId}`);
   const paymentKey = await createPaymentKey(token, integrationId, paymobOrderId, amountCents, {
     firstName,
     lastName,

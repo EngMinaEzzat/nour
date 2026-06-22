@@ -105,7 +105,7 @@ export default function DomainsPage() {
               <div className="space-y-2">
                 {[
                   { type: "CNAME", name: domain.domain, value: domain.dnsTarget, key: "cname" },
-                  { type: "TXT", name: `_nour-verify.${domain.domain}`, value: `nour-verify=${domain.verificationToken}`, key: "txt" },
+                  { type: "TXT", name: `_matjareg-verify.${domain.domain}`, value: `matjareg-verify=${domain.verificationToken}`, key: "txt" },
                 ].map((rec) => (
                   <div key={rec.key} className="bg-white rounded-lg p-3 flex items-center justify-between gap-3 border border-amber-100">
                     <div className="font-mono text-xs text-gray-600">

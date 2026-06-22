@@ -155,7 +155,7 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 app.use(
   session({
-    name: "nour.sid",
+    name: "matjareg.sid",
     store: buildSessionStore(),
     secret: process.env.SESSION_SECRET,
     resave: true,

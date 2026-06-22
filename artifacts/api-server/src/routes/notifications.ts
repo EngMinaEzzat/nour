@@ -39,7 +39,7 @@ router.post("/notifications/whatsapp", requireRole("owner", "manager", "staff"),
     const message = whatsapp.buildOrderConfirmationMessage({
       customerName: order.customerName ?? "عزيزنا",
       orderId: order.id,
-      storeName: order.storeName ?? "نور",
+      storeName: order.storeName ?? "متجر إي جي",
       totalAmount: parseFloat(order.totalAmount as string),
       items: items.map((i) => ({ name: i.name ?? "منتج", quantity: i.quantity })),
       trackingNumber: order.trackingNumber ?? undefined,
@@ -53,7 +53,7 @@ router.post("/notifications/whatsapp", requireRole("owner", "manager", "staff"),
         templateName: "order_confirmation",
         customerName: order.customerName ?? "عزيزنا",
         orderId: order.id,
-        storeName: order.storeName ?? "نور",
+        storeName: order.storeName ?? "متجر إي جي",
         totalAmount: parseFloat(order.totalAmount as string),
       });
       return res.json({

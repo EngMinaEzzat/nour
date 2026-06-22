@@ -10,8 +10,8 @@ import {
 } from "@workspace/db";
 
 async function main() {
-  if (process.env.NODE_ENV !== "test" && process.env.NOUR_TEST_DATABASE_OK !== "true") {
-    console.error("ERROR: Destructive seed scripts require NODE_ENV=test or NOUR_TEST_DATABASE_OK=true");
+  if (process.env.NODE_ENV !== "test" && process.env.MATJAREG_TEST_DATABASE_OK !== "true") {
+    console.error("ERROR: Destructive seed scripts require NODE_ENV=test or MATJAREG_TEST_DATABASE_OK=true");
     process.exit(1);
   }
 

@@ -7,7 +7,7 @@ vi.mock('./lib/utils', async () => {
   const actual = await vi.importActual('./lib/utils');
   return {
     ...actual,
-    getBaseDomain: vi.fn(() => 'nour.eg'),
+    getBaseDomain: vi.fn(() => 'matjareg.com'),
   };
 });
 
@@ -18,7 +18,7 @@ describe('App routing utils', () => {
     Object.defineProperty(global, 'window', {
       value: { 
         ...originalWindow,
-        location: { hostname: 'nour.eg', pathname: '/' }
+        location: { hostname: 'matjareg.com', pathname: '/' }
       },
       writable: true
     });
@@ -38,23 +38,23 @@ describe('App routing utils', () => {
       expect(getSubdomainSlug()).toBeNull();
     });
 
-    it('returns slug from __NOUR_INITIAL_PUBLIC_PAGE__', () => {
-      global.window.__NOUR_INITIAL_PUBLIC_PAGE__ = { slug: 'test-slug' };
+    it('returns slug from __MATJAREG_INITIAL_PUBLIC_PAGE__', () => {
+      global.window.__MATJAREG_INITIAL_PUBLIC_PAGE__ = { slug: 'test-slug' };
       expect(getSubdomainSlug()).toBe('test-slug');
     });
 
     it('returns null for base domain', () => {
-      global.window.location = { hostname: 'nour.eg' } as any;
+      global.window.location = { hostname: 'matjareg.com' } as any;
       expect(getSubdomainSlug()).toBeNull();
     });
 
     it('returns slug from valid subdomain', () => {
-      global.window.location = { hostname: 'my-store.nour.eg' } as any;
+      global.window.location = { hostname: 'my-store.matjareg.com' } as any;
       expect(getSubdomainSlug()).toBe('my-store');
     });
 
     it('returns null for restricted subdomains (www, app, api)', () => {
-      const restricted = ['www.nour.eg', 'app.nour.eg', 'api.nour.eg'];
+      const restricted = ['www.matjareg.com', 'app.matjareg.com', 'api.matjareg.com'];
       for (const hostname of restricted) {
         global.window.location = { hostname } as any;
         expect(getSubdomainSlug()).toBeNull();
@@ -62,7 +62,7 @@ describe('App routing utils', () => {
     });
 
     it('returns null for multi-level subdomains', () => {
-      global.window.location = { hostname: 'a.b.nour.eg' } as any;
+      global.window.location = { hostname: 'a.b.matjareg.com' } as any;
       expect(getSubdomainSlug()).toBeNull();
     });
   });
@@ -76,8 +76,8 @@ describe('App routing utils', () => {
       expect(isReadOnlyPublicRoute('my-store')).toBe(false);
     });
 
-    it('returns true if __NOUR_INITIAL_PUBLIC_PAGE__ has page', () => {
-      global.window.__NOUR_INITIAL_PUBLIC_PAGE__ = { page: 'store' };
+    it('returns true if __MATJAREG_INITIAL_PUBLIC_PAGE__ has page', () => {
+      global.window.__MATJAREG_INITIAL_PUBLIC_PAGE__ = { page: 'store' };
       expect(isReadOnlyPublicRoute('my-store')).toBe(true);
     });
 

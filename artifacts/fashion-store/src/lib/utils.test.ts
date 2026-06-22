@@ -20,9 +20,9 @@ describe('utils', () => {
   });
 
   describe('getBaseDomain', () => {
-    it('returns nour.eg when window is undefined', () => {
+    it('returns matjareg.com when window is undefined', () => {
       Object.defineProperty(global, 'window', { value: undefined, writable: true });
-      expect(getBaseDomain()).toBe('nour.eg');
+      expect(getBaseDomain()).toBe('matjareg.com');
     });
 
     it('returns localhost when hostname is localhost', () => {
@@ -35,21 +35,21 @@ describe('utils', () => {
       expect(getBaseDomain()).toBe('localhost');
     });
 
-    it('returns nour.eg when hostname is app.nour.eg', () => {
-      global.window.location = { hostname: 'app.nour.eg' } as any;
-      expect(getBaseDomain()).toBe('nour.eg');
+    it('returns matjareg.com when hostname is app.matjareg.com', () => {
+      global.window.location = { hostname: 'app.matjareg.com' } as any;
+      expect(getBaseDomain()).toBe('matjareg.com');
     });
 
-    it('returns nour.eg when hostname is just nour.eg', () => {
-      global.window.location = { hostname: 'nour.eg' } as any;
-      expect(getBaseDomain()).toBe('nour.eg');
+    it('returns matjareg.com when hostname is just matjareg.com', () => {
+      global.window.location = { hostname: 'matjareg.com' } as any;
+      expect(getBaseDomain()).toBe('matjareg.com');
     });
   });
 
   describe('getStoreUrl', () => {
-    it('returns https://slug.nour.eg when window is undefined', () => {
+    it('returns https://slug.matjareg.com when window is undefined', () => {
       Object.defineProperty(global, 'window', { value: undefined, writable: true });
-      expect(getStoreUrl('test-store')).toBe('https://test-store.nour.eg');
+      expect(getStoreUrl('test-store')).toBe('https://test-store.matjareg.com');
     });
 
     it('returns correct URL for localhost development', () => {
@@ -63,11 +63,11 @@ describe('utils', () => {
 
     it('returns correct URL for production with subdomains', () => {
       global.window.location = { 
-        hostname: 'nour.eg', 
+        hostname: 'matjareg.com', 
         port: '', 
         protocol: 'https:' 
       } as any;
-      expect(getStoreUrl('my-store')).toBe('https://my-store.nour.eg');
+      expect(getStoreUrl('my-store')).toBe('https://my-store.matjareg.com');
     });
     
     it('handles custom dev ports correctly', () => {

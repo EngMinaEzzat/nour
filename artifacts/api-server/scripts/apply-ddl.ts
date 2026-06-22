@@ -2,7 +2,7 @@ import { db } from "@workspace/db";
 import { sql } from "drizzle-orm";
 
 async function main() {
-  if (process.env.NODE_ENV !== "test" && process.env.NOUR_TEST_DATABASE_OK !== "true") {
+  if (process.env.NODE_ENV !== "test" && process.env.MATJAREG_TEST_DATABASE_OK !== "true") {
     console.error("Only for test db");
     process.exit(1);
   }

@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getBaseDomain(): string {
-  if (typeof window === "undefined") return "nour.eg";
+  if (typeof window === "undefined") return "matjareg.com";
   const hostname = window.location.hostname;
   
   // Support local development with localhost
@@ -26,11 +26,11 @@ export function getBaseDomain(): string {
   }
   
   // Replace this with any staging/dev domain as needed, default to production domain
-  return "nour.eg";
+  return "matjareg.com";
 }
 
 export function getStoreUrl(slug: string): string {
-  if (typeof window === "undefined") return `https://${slug}.nour.eg`;
+  if (typeof window === "undefined") return `https://${slug}.matjareg.com`;
   
   const hostname = window.location.hostname;
   // If deployed to Vercel without a custom wildcard domain, use path-based routing

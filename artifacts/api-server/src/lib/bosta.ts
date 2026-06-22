@@ -31,8 +31,8 @@ export interface DeliveryResult {
 export async function createDelivery(params: CreateDeliveryParams): Promise<DeliveryResult> {
   const body = {
     type: 10,
-    businessReference: `NOUR-${params.orderId}`,
-    notes: params.notes ?? `طلب نور #${params.orderId}`,
+    businessReference: `MATJAREG-${params.orderId}`,
+    notes: params.notes ?? `طلب متجر إي جي #${params.orderId}`,
     cod: params.paymentMethod === "cod" ? Math.round(params.orderTotal) : 0,
     receiver: {
       firstName: params.customerFirstName,

@@ -152,7 +152,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: transactionId,
           success: true,
-          order: { id: providerOrderId, merchant_order_id: `NOUR-${fixture.orderId}` }
+          order: { id: providerOrderId, merchant_order_id: `MATJAREG-${fixture.orderId}` }
         }
       });
       expect(res.status).toBe(503);
@@ -169,7 +169,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: transactionId,
           success: true,
-          order: { id: providerOrderId, merchant_order_id: `NOUR-${fixture.orderId}` }
+          order: { id: providerOrderId, merchant_order_id: `MATJAREG-${fixture.orderId}` }
         }
       });
       expect(res.status).toBe(401);
@@ -185,7 +185,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: transactionId,
           success: true,
-          order: { id: providerOrderId, merchant_order_id: `NOUR-${fixture.orderId}` }
+          order: { id: providerOrderId, merchant_order_id: `MATJAREG-${fixture.orderId}` }
         }
       });
       expect(res.status).toBe(401);
@@ -200,7 +200,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: transactionId,
           success: true,
-          order: { id: `unknown_paymob_order_${transactionId}`, merchant_order_id: "NOUR-999999999" }
+          order: { id: `unknown_paymob_order_${transactionId}`, merchant_order_id: "MATJAREG-999999999" }
         }
       };
 
@@ -219,7 +219,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: transactionId,
           success: true,
-          order: { id: providerOrderId, merchant_order_id: `NOUR-${fixture.orderId}` }
+          order: { id: providerOrderId, merchant_order_id: `MATJAREG-${fixture.orderId}` }
         }
       };
 
@@ -270,7 +270,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: 99991,
           success: true,
-          order: { id: "paymob_order_123", merchant_order_id: `NOUR-${orderId}` }
+          order: { id: "paymob_order_123", merchant_order_id: `MATJAREG-${orderId}` }
         }
       };
 
@@ -292,7 +292,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: 99991, // same transaction id
           success: true,
-          order: { id: "paymob_order_123", merchant_order_id: `NOUR-${orderId}` }
+          order: { id: "paymob_order_123", merchant_order_id: `MATJAREG-${orderId}` }
         }
       };
 
@@ -336,7 +336,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: transactionId,
           success: false,
-          order: { id: providerOrderId, merchant_order_id: `NOUR-${failOrderId}` }
+          order: { id: providerOrderId, merchant_order_id: `MATJAREG-${failOrderId}` }
         }
       };
 
@@ -362,7 +362,7 @@ describe("Paymob production safety", () => {
         obj: {
           id: transactionId + 1,
           success: false,
-          order: { id: providerOrderId, merchant_order_id: `NOUR-${failOrderId}` }
+          order: { id: providerOrderId, merchant_order_id: `MATJAREG-${failOrderId}` }
         }
       };
 
@@ -402,7 +402,7 @@ describe("Paymob production safety", () => {
           success: true,
           pending: false,
           ...flags,
-          order: { id: providerOrderId, merchant_order_id: `NOUR-${guardedOrderId}` }
+          order: { id: providerOrderId, merchant_order_id: `MATJAREG-${guardedOrderId}` }
         }
       };
 
@@ -435,7 +435,7 @@ describe("Paymob production safety", () => {
           id: transactionId,
           success: true,
           pending: true,
-          order: { id: providerOrderId, merchant_order_id: `NOUR-${pendingOrderId}` }
+          order: { id: providerOrderId, merchant_order_id: `MATJAREG-${pendingOrderId}` }
         }
       };
 

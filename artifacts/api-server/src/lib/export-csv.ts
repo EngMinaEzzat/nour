@@ -206,7 +206,7 @@ export function getExportFilePath(
   downloadToken: string,
 ): string {
   const baseDir =
-    process.env.EXPORT_OUTPUT_DIR || path.join(os.tmpdir(), "nour-exports");
+    process.env.EXPORT_OUTPUT_DIR || path.join(os.tmpdir(), "matjareg-exports");
   return path.join(baseDir, `${exportJobId}-${downloadToken}.csv`);
 }
 

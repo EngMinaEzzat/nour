@@ -226,7 +226,7 @@ router.post(
       );
       const storeName = tenant?.name ?? "متجرنا";
       const storeUrl = tenant?.slug
-        ? `https://nour.replit.app/store/${tenant.slug}`
+        ? `https://matjareg.com/store/${tenant.slug}`
         : "";
 
       const message = `مرحباً ${name} 👋\n\nلاحظنا أن سلة تسوقك في ${storeName} بقيمة ${total} ج.م لا تزال تنتظرك! 🛒\n\nأكملي الشراء الآن:\n${storeUrl}\n\nنحن هنا لأي مساعدة 💬`;

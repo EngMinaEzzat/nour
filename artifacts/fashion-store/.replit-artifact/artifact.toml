@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Nour — Egyptian Fashion & Beauty Marketplace"
+title = "MatjarEg — Egyptian Fashion & Beauty Marketplace"
 version = "1.0.0"
 id = "artifacts/fashion-store"
 router = "path"

@@ -20,7 +20,7 @@ const authLimiter = rateLimit({
   skip: () => process.env.NODE_ENV === "test" && !process.env.VERCEL,
 });
 
-const RESERVED_SLUGS = ["admin", "api", "www", "app", "nour", "support", "help", "store", "login", "register"];
+const RESERVED_SLUGS = ["admin", "api", "www", "app", "nour", "matjareg", "support", "help", "store", "login", "register"];
 const configuredEmailTimeoutMs = Number(process.env.AUTH_EMAIL_TIMEOUT_MS ?? 3000);
 const EMAIL_DELIVERY_TIMEOUT_MS =
   Number.isFinite(configuredEmailTimeoutMs) && configuredEmailTimeoutMs > 0
@@ -381,7 +381,7 @@ router.post("/auth/login", authLimiter, async (req, res) => {
 
 router.post("/auth/logout", (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie("nour.sid");
+    res.clearCookie("matjareg.sid");
     res.status(204).send();
   });
 });

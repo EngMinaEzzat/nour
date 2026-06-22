@@ -204,7 +204,7 @@
   },
   "domains": {
     "title": "Custom Domain",
-    "subtitle": "Connect your custom domain to your Nour store",
+    "subtitle": "Connect your custom domain to your MatjarEg store",
     "status": {
       "PENDING_DNS": "Pending DNS",
       "VERIFYING": "Verifying",
@@ -237,8 +237,8 @@
     }
   },
   "common": {
-    "appName": "Nour",
-    "appSubtitle": "Nour Platform for Egyptian E-commerce",
+    "appName": "MatjarEg",
+    "appSubtitle": "MatjarEg Platform for Egyptian E-commerce",
     "buttons": {
       "save": "Save",
       "cancel": "Cancel",
@@ -397,7 +397,7 @@
     },
     "register": {
       "title": "Open your store now",
-      "subtitle": "Join thousands of merchants on the Nour platform",
+      "subtitle": "Join thousands of merchants on the MatjarEg platform",
       "storeName": "Store Name",
       "storeNamePlaceholder": "Example: Layla Fashion",
       "storeSlug": "Store URL",
@@ -764,7 +764,7 @@
     },
     "identity": {
       "storeName": "Store Name *",
-      "storeNamePlaceholder": "Nour Boutique...",
+      "storeNamePlaceholder": "MatjarEg Boutique...",
       "storeLink": "Store Link",
       "copyLink": "Copy Link",
       "linkHint": "The link is fixed and cannot be changed after the store is created",
@@ -807,7 +807,7 @@
     },
     "seo": {
       "titleTag": "Page Title (Title Tag)",
-      "titlePlaceholder": "Nour Fashion Store — Latest Egyptian Fashion",
+      "titlePlaceholder": "MatjarEg Fashion Store — Latest Egyptian Fashion",
       "titleHint": "{{count}}/70 characters • Appears in Google results",
       "metaDesc": "Page Description (Meta Description)",
       "metaPlaceholder": "Discover the latest Egyptian fashion trends...",
@@ -2650,7 +2650,7 @@
         "title1": "Inspired By",
         "title2": "Our Customers",
         "subtitle": "Share your look of the day with",
-        "hashtag": "Nour",
+        "hashtag": "MatjarEg",
         "look": "Look",
         "followUs": "Follow us on Instagram"
       },
@@ -2780,16 +2780,16 @@
     "btnUpgrade": "Select Plan"
   },
   "home": {
-    "badge": "Nour Egyptian E-Commerce Platform",
+    "badge": "MatjarEg Egyptian E-Commerce Platform",
     "title_1": "Open your ",
     "title_highlight": "Online Store",
     "title_2": "in one minute",
-    "subtitle": "Nour is a 100% Egyptian SaaS platform enabling merchants to create professional fashion and beauty stores — with Paymob, Bosta, and WhatsApp ready from day one.",
+    "subtitle": "MatjarEg is a 100% Egyptian SaaS platform enabling merchants to create professional fashion and beauty stores — with Paymob, Bosta, and WhatsApp ready from day one.",
     "btnStartFree": "Start Free Now",
     "btnMerchantLogin": "Merchant Login",
     "noCreditCard": "No credit card required • Cancel anytime",
     "dashboardMockup": {
-      "title": "Nour — Dashboard",
+      "title": "MatjarEg — Dashboard",
       "sidebar": [
         "Dashboard",
         "Products",
@@ -2877,11 +2877,11 @@
       "ent_cta": "Contact us"
     },
     "testimonials": {
-      "badge": "Nour Merchants",
+      "badge": "MatjarEg Merchants",
       "title": "What our merchants say",
       "t1_name": "Sara Mohamed",
       "t1_store": "Pearl Boutique",
-      "t1_text": "I opened my store in less than an hour and received my first order the same day! Nour changed my professional life.",
+      "t1_text": "I opened my store in less than an hour and received my first order the same day! MatjarEg changed my professional life.",
       "t2_name": "Mai Ahmed",
       "t2_store": "Beauty World",
       "t2_text": "Payment via Paymob and Bosta shipping with one click — saved me hours every day.",
@@ -2897,15 +2897,15 @@
     },
     "cta": {
       "title": "Ready to open your store?",
-      "subtitle": "Join more than 500 Egyptian merchants building their commercial future with Nour."
+      "subtitle": "Join more than 500 Egyptian merchants building their commercial future with MatjarEg."
     }
   },
   "assistant": {
-    "tooltip": "Nour AI Assistant ✨",
-    "title": "Nour AI Assistant",
+    "tooltip": "MatjarEg AI Assistant ✨",
+    "title": "MatjarEg AI Assistant",
     "storeFallback": "Your Store",
     "clearHistory": "Clear chat",
-    "welcome": "Welcome to Nour Assistant!",
+    "welcome": "Welcome to MatjarEg Assistant!",
     "welcomeDesc": "Ask me about your orders, products, customers,\\nor ask me to help you with anything.",
     "quick1": "How many pending orders today?",
     "quick2": "What is the best-selling product?",

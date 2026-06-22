@@ -5,9 +5,9 @@ export function getSubdomainSlug(): string | null {
   if (typeof window === "undefined") return null;
   const initialPublicPage = (
     window as typeof window & {
-      __NOUR_INITIAL_PUBLIC_PAGE__?: { slug?: string };
+      __MATJAREG_INITIAL_PUBLIC_PAGE__?: { slug?: string };
     }
-  ).__NOUR_INITIAL_PUBLIC_PAGE__;
+  ).__MATJAREG_INITIAL_PUBLIC_PAGE__;
   if (initialPublicPage?.slug) {
     return initialPublicPage.slug;
   }
@@ -45,9 +45,9 @@ export function isReadOnlyPublicRoute(subdomainSlug: string | null): boolean {
   const path = window.location.pathname;
   const initialPublicPage = (
     window as typeof window & {
-      __NOUR_INITIAL_PUBLIC_PAGE__?: { page?: string };
+      __MATJAREG_INITIAL_PUBLIC_PAGE__?: { page?: string };
     }
-  ).__NOUR_INITIAL_PUBLIC_PAGE__;
+  ).__MATJAREG_INITIAL_PUBLIC_PAGE__;
 
   if (path === "/checkout" || path.startsWith("/order-")) return false;
   if (initialPublicPage?.page) return true;

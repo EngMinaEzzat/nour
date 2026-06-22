@@ -130,7 +130,7 @@ export default function ProductDetail() {
   const productAvailability = product && product.stock > 0 && product.status === "active"
     ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
   const initialPublicPage = typeof window !== "undefined"
-    ? (window as typeof window & { __NOUR_INITIAL_PUBLIC_PAGE__?: { page?: string; canonical?: string } }).__NOUR_INITIAL_PUBLIC_PAGE__
+    ? (window as typeof window & { __MATJAREG_INITIAL_PUBLIC_PAGE__?: { page?: string; canonical?: string } }).__MATJAREG_INITIAL_PUBLIC_PAGE__
     : undefined;
   const productTenantSlug = params.slug ?? (product as any)?.tenantSlug;
   const productPublicSlug = product ? publicEntitySlug(product.id, product.name) : null;

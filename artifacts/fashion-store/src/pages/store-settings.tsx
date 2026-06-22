@@ -1017,7 +1017,7 @@ export default function StoreSettings() {
               <div className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
                 <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <span className="text-xs text-muted-foreground truncate flex-1 font-mono" dir="ltr" style={{ textAlign: i18n.dir() === "rtl" ? "right" : "left" }}>
-                  {tenant.slug}.nour.eg
+                  {tenant.slug}.matjareg.com
                 </span>
                 <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={copySlug}>
                   {copiedSlug
@@ -1037,16 +1037,16 @@ export default function StoreSettings() {
                 <div className="flex flex-col items-center gap-3">
                   <div className="bg-white rounded-xl p-3 border border-border/40 shadow-sm">
                     <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`https://${tenant.slug}.nour.eg`)}&format=png&margin=4`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`https://${tenant.slug}.matjareg.com`)}&format=png&margin=4`}
                       alt={`QR Code لمتجر ${tenant.slug}`}
                       className="w-[120px] h-[120px] block"
                     />
                   </div>
                   <p className="text-[10px] text-muted-foreground text-center font-mono" dir="ltr">
-                    {tenant.slug}.nour.eg
+                    {tenant.slug}.matjareg.com
                   </p>
                   <a
-                    href={`https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(`https://${tenant.slug}.nour.eg`)}&format=png&margin=10`}
+                    href={`https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(`https://${tenant.slug}.matjareg.com`)}&format=png&margin=10`}
                     download={`qr-${tenant.slug}.png`}
                     target="_blank"
                     rel="noopener noreferrer"

@@ -13,7 +13,7 @@ describe("Auth — Registration", () => {
     const res = await request(app).post("/api/auth/register").send({
       storeName: `Test Store ${id}`,
       slug: `teststore${id}`,
-      email: `reg.${id}@nourtest.invalid`,
+      email: `reg.${id}@matjaregtest.invalid`,
       password: "TestPass123!",
       category: "fashion",
       phone: "01000000000",
@@ -37,7 +37,7 @@ describe("Auth — Registration", () => {
     const res = await request(app).post("/api/auth/register").send({
       storeName: `Slug Test ${id}`,
       slug: `  My Cool Slug ${id}  `,
-      email: `slug.${id}@nourtest.invalid`,
+      email: `slug.${id}@matjaregtest.invalid`,
       password: "TestPass123!",
       category: "fashion",
       phone: "01000000000",
@@ -53,7 +53,7 @@ describe("Auth — Registration", () => {
     const body = {
       storeName: `Dup Email ${id}`,
       slug: `dupem${id}`,
-      email: `duptest.${id}@nourtest.invalid`,
+      email: `duptest.${id}@matjaregtest.invalid`,
       password: "TestPass123!",
       category: "fashion",
       phone: "01000000000",
@@ -72,14 +72,14 @@ describe("Auth — Registration", () => {
     const id = uid();
     const slug = `dupslug${id}`;
     const r1 = await request(app).post("/api/auth/register").send({
-      storeName: `Store A ${id}`, slug, email: `dsa.${id}@nourtest.invalid`,
+      storeName: `Store A ${id}`, slug, email: `dsa.${id}@matjaregtest.invalid`,
       password: "TestPass123!", category: "fashion", phone: "01000000000", description: "Test",
     });
     expect(r1.status).toBe(201);
     registrations.push({ tenantId: r1.body.tenantId, merchantId: r1.body.merchantId });
 
     const r2 = await request(app).post("/api/auth/register").send({
-      storeName: `Store B ${id}`, slug, email: `dsb.${id}@nourtest.invalid`,
+      storeName: `Store B ${id}`, slug, email: `dsb.${id}@matjaregtest.invalid`,
       password: "TestPass123!", category: "fashion", phone: "01000000000", description: "Test",
     });
     expect(r2.status).toBe(409);
@@ -90,7 +90,7 @@ describe("Auth — Registration", () => {
     const id = uid();
     const res = await request(app).post("/api/auth/register").send({
       storeName: `Admin Store ${id}`, slug: "admin",
-      email: `reserved.${id}@nourtest.invalid`,
+      email: `reserved.${id}@matjaregtest.invalid`,
       password: "TestPass123!", category: "fashion", phone: "01000000000", description: "Test",
     });
     expect(res.status).toBe(400);
@@ -99,7 +99,7 @@ describe("Auth — Registration", () => {
 
   it("❌ missing required fields returns 400", async () => {
     const res = await request(app).post("/api/auth/register").send({
-      email: `incomplete.${uid()}@nourtest.invalid`,
+      email: `incomplete.${uid()}@matjaregtest.invalid`,
     });
     expect(res.status).toBe(400);
   });
@@ -108,7 +108,7 @@ describe("Auth — Registration", () => {
     const id = uid();
     const res = await request(app).post("/api/auth/register").send({
       storeName: `Bad Phone ${id}`, slug: `badphone${id}`,
-      email: `badphone.${id}@nourtest.invalid`,
+      email: `badphone.${id}@matjaregtest.invalid`,
       password: "TestPass123!", category: "fashion", phone: "not-a-phone", description: "Test",
     });
     expect(res.status).toBe(400);
@@ -118,7 +118,7 @@ describe("Auth — Registration", () => {
     const id = uid();
     const res = await request(app).post("/api/auth/register").send({
       storeName: `Bad Slug ${id}`, slug: "!!!###",
-      email: `badslug.${id}@nourtest.invalid`,
+      email: `badslug.${id}@matjaregtest.invalid`,
       password: "TestPass123!", category: "fashion", phone: "01000000000", description: "Test",
     });
     expect(res.status).toBe(400);
@@ -177,7 +177,7 @@ describe("Auth — Login & Session", () => {
 
   it("❌ login with non-existent email returns 401", async () => {
     const res = await request(app).post("/api/auth/login").send({
-      email: `nobody.${uid()}@nourtest.invalid`, password: "TestPass123!",
+      email: `nobody.${uid()}@matjaregtest.invalid`, password: "TestPass123!",
     });
     expect(res.status).toBe(401);
   });
@@ -236,7 +236,7 @@ describe("Auth — Password Reset", () => {
 
   it("✅ forgot-password returns ok: true for unknown email (privacy — no leakage)", async () => {
     const res = await request(app).post("/api/auth/forgot-password")
-      .send({ email: `nobody.${uid()}@nourtest.invalid` });
+      .send({ email: `nobody.${uid()}@matjaregtest.invalid` });
     expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
   });

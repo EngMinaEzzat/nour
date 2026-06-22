@@ -9,7 +9,7 @@ import {
 } from "./email.js";
 import { buildWhatsAppLink } from "./whatsapp.js";
 
-const APP_BASE_URL = process.env.APP_BASE_URL ?? "https://nour.eg";
+const APP_BASE_URL = process.env.APP_BASE_URL ?? "https://matjareg.com";
 
 function billingUrl() {
   return `${APP_BASE_URL}/billing`;

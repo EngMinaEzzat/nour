@@ -31,17 +31,17 @@ describe("Store settings", () => {
     expect(branding.body.category).toBe("cosmetics");
 
     const seo = await ctx.agent.put("/api/store-settings/seo").send({
-      seoTitle: "Nour Test Store",
+      seoTitle: "MatjarEg Test Store",
       seoDescription: "A focused SEO description",
     });
     expect(seo.status).toBe(200);
 
     const social = await ctx.agent.put("/api/store-settings/social").send({
-      instagram: "https://instagram.com/nour",
-      facebook: "https://facebook.com/nour",
-      tiktok: "https://tiktok.com/@nour",
+      instagram: "https://instagram.com/matjareg",
+      facebook: "https://facebook.com/matjareg",
+      tiktok: "https://tiktok.com/@matjareg",
       whatsapp: "01012345678",
-      email: "merchant@nour.test",
+      email: "merchant@matjareg.test",
       phone: "01012345678",
     });
     expect(social.status).toBe(200);
@@ -60,7 +60,7 @@ describe("Store settings", () => {
     expect(settings.body.theme).toBe("luxe");
     expect(settings.body.category).toBe("cosmetics");
     expect(settings.body.faviconUrl).toBe("/uploads/favicon.png");
-    expect(settings.body.seoTitle).toBe("Nour Test Store");
+    expect(settings.body.seoTitle).toBe("MatjarEg Test Store");
     expect(settings.body.socialLinks.whatsapp).toBe("01012345678");
 
     const storefront = await request(app).get(`/api/store/${ctx.slug}`);

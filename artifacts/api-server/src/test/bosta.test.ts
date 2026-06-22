@@ -67,8 +67,8 @@ describe("Bosta Integration", () => {
       const body = JSON.parse(requestCall[1].body);
       expect(body).toEqual(
         expect.objectContaining({
-          businessReference: "NOUR-123",
-          notes: "طلب نور #123",
+          businessReference: "MATJAREG-123",
+          notes: "طلب متجر إي جي #123",
           cod: 151, // Math.round(150.5)
           receiver: {
             firstName: "John",

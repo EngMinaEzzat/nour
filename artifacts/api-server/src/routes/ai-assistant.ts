@@ -156,7 +156,7 @@ router.post("/ai/assistant/chat", requireRole("owner", "manager", "staff"), aiLi
       tenant?.category === "fashion" ? "أزياء" : tenant?.category === "cosmetics" ? "تجميل" : "أزياء وتجميل";
 
     const now = new Date();
-    const systemPrompt = `أنت مساعد ذكي خاص بمتجر "${tenant?.name ?? "المتجر"}" على منصة نور للتجارة الإلكترونية المصرية.
+    const systemPrompt = `أنت مساعد ذكي خاص بمتجر "${tenant?.name ?? "المتجر"}" على منصة متجر إي جي للتجارة الإلكترونية المصرية.
 
 📊 **بيانات المتجر — ${now.toLocaleDateString("ar-EG")}:**
 - الاسم: ${tenant?.name ?? "غير محدد"} | التصنيف: ${categoryLabel}

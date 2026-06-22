@@ -31,7 +31,7 @@ export interface TestCtx {
 export async function createTestMerchant(opts?: { slug?: string; category?: string }): Promise<TestCtx> {
   const id = uid();
   const slug = opts?.slug ?? `test${id}`;
-  const email = `test.${id}@nourtest.invalid`;
+  const email = `test.${id}@matjaregtest.invalid`;
   const storeName = `TestStore ${id}`;
 
   const agent = request.agent(app);

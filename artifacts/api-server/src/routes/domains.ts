@@ -46,7 +46,7 @@ router.post("/domains/request", requireRole("owner"), async (req, res) => {
     }
 
     const verificationToken = crypto.randomBytes(16).toString("hex");
-    const dnsTarget = process.env.REPLIT_DOMAINS?.split(",")[0] ?? "nour.app";
+    const dnsTarget = process.env.REPLIT_DOMAINS?.split(",")[0] ?? "matjareg.com";
 
     const [record] = await db.insert(customDomainsTable).values({
       tenantId,
@@ -74,7 +74,7 @@ router.post("/domains/request", requireRole("owner"), async (req, res) => {
         type: "CNAME",
         name: domain,
         value: dnsTarget,
-        verificationTxtRecord: `nour-verify=${verificationToken}`,
+        verificationTxtRecord: `matjareg-verify=${verificationToken}`,
       },
     });
   } catch (err) {

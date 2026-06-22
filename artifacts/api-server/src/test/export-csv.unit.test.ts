@@ -168,7 +168,7 @@ describe("writeExportFile", () => {
     const downloadToken = "tokenXYZ";
     const csvContent = "id,name\n2,test2";
 
-    const expectedPath = path.join(os.tmpdir(), "nour-exports", `${exportJobId}-${downloadToken}.csv`);
+    const expectedPath = path.join(os.tmpdir(), "matjareg-exports", `${exportJobId}-${downloadToken}.csv`);
 
     const result = await writeExportFile(exportJobId, downloadToken, csvContent);
 
