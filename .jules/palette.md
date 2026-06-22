@@ -22,3 +22,13 @@
 ## 2026-06-15 - Dynamic Arbitrary Variant Sizes
 **Learning:** For physical variants, standard sizes (S, M, L) are rarely comprehensive. Providing dynamic `size` strings combined with individual line items maps better to e-commerce reality.
 **Action:** When asked to alter predefined selection grids (like variants or dimensions), prioritize moving to a list of dynamic row items to fully unlock the feature's capability.
+## 2026-06-25 - Palette: Modular Storefront Themes
+**💡 What:** Implemented `ClassicStorefront.tsx` for the first theme utilizing a modular architecture, replacing the limited color-override approach. Used Stitch's 'Imperial Chic' design output.
+**🎯 Why:** Users reported that changing the theme only altered button colors rather than providing a fully redesigned look.
+**📸 Before/After:** Before, the 'classic' theme was just the default storefront with custom CSS variables. Now, it's a completely standalone, fully designed component with distinct typography, layout, spacing, and styling.
+**♿ Accessibility:** Ensured standard text sizes, clear visual hierarchy, and  for text content to maintain i18n support.
+## 2026-06-25 - Palette: Modular Storefront Themes
+**💡 What:** Implemented ClassicStorefront.tsx for the first theme utilizing a modular architecture, replacing the limited color-override approach. Used Stitch's 'Imperial Chic' design output.
+**🎯 Why:** Users reported that changing the theme only altered button colors rather than providing a fully redesigned look.
+**📸 Before/After:** Before, the 'classic' theme was just the default storefront with custom CSS variables. Now, it's a completely standalone, fully designed component with distinct typography, layout, spacing, and styling.
+**♿ Accessibility:** Ensured standard text sizes, clear visual hierarchy, and useTranslation for text content to maintain i18n support.

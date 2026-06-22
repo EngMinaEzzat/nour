@@ -6,3 +6,4 @@ export interface StoreThemeProps {
 
 export * from "./GlowGridStorefront";
 export * from "./OasisAtelierStorefront";
+export * from "./ClassicStorefront";
