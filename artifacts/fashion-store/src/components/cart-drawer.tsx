@@ -417,8 +417,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   )}
 
                   <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-stone-500">الاسم بالكامل</label>
-                    <input
+                    <label htmlFor="quick-checkout-name" className="text-[11px] font-semibold text-stone-500">الاسم بالكامل</label>
+                    <input id="quick-checkout-name"
                       type="text"
                       required
                       value={name}
@@ -429,8 +429,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-stone-500">رقم الهاتف</label>
-                    <input
+                    <label htmlFor="quick-checkout-phone" className="text-[11px] font-semibold text-stone-500">رقم الهاتف</label>
+                    <input id="quick-checkout-phone"
                       type="tel"
                       required
                       value={phone}
@@ -443,8 +443,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-stone-500">المحافظة</label>
-                      <select
+                      <label htmlFor="quick-checkout-governorate" className="text-[11px] font-semibold text-stone-500">المحافظة</label>
+                      <select id="quick-checkout-governorate"
                         required
                         value={governorate}
                         onChange={(e) => setGovernorate(e.target.value)}
@@ -458,8 +458,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-stone-500">المنطقة / المدينة</label>
-                      <input
+                      <label htmlFor="quick-checkout-area" className="text-[11px] font-semibold text-stone-500">المنطقة / المدينة</label>
+                      <input id="quick-checkout-area"
                         type="text"
                         required
                         value={area}
@@ -471,8 +471,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[11px] font-semibold text-stone-500">العنوان بالتفصيل</label>
-                    <input
+                    <label htmlFor="quick-checkout-addressDetail" className="text-[11px] font-semibold text-stone-500">العنوان بالتفصيل</label>
+                    <input id="quick-checkout-addressDetail"
                       type="text"
                       required
                       value={addressDetail}
