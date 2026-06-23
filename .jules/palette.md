@@ -22,3 +22,6 @@
 ## 2026-06-15 - Dynamic Arbitrary Variant Sizes
 **Learning:** For physical variants, standard sizes (S, M, L) are rarely comprehensive. Providing dynamic `size` strings combined with individual line items maps better to e-commerce reality.
 **Action:** When asked to alter predefined selection grids (like variants or dimensions), prioritize moving to a list of dynamic row items to fully unlock the feature's capability.
+## 2024-06-25 - Quick Checkout Form Accessibility
+**Learning:** Visual `<label>` tags were used without the `htmlFor` attribute linking to an `id` on the `<input>` fields in the quick checkout form within the `CartDrawer`. This makes the form poorly accessible to screen reader users as inputs are not explicitly associated with their semantic labels.
+**Action:** When creating or modifying forms, especially custom inline forms like quick checkouts, always explicitly link `<label>` elements to `<input>`/`<select>` elements using `htmlFor` and `id` to ensure correct screen reader narration and click-to-focus functionality.
