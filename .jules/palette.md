@@ -1,3 +1,6 @@
 ## 2025-05-15 - [Accessible Icon-Only Buttons and Localized Feedback]
 **Learning:** In an RTL (Right-to-Left) and localized (Arabic) storefront, icon-only buttons (like Wishlist hearts or Star ratings) are frequently used for visual cleanliness, but they are completely invisible to screen readers without explicit `aria-label` attributes. Furthermore, silent state changes (like adding to a bag) need prominent, localized feedback (Success Toasts) to confirm the action, especially when the cart drawer is not automatically opened.
 **Action:** Always provide `aria-label` for icon-only buttons and use success toasts for critical async actions like "Add to Bag" to ensure accessibility and clear user feedback.
+## 2023-10-25 - Custom Themes Missing Accessibility Attributes
+**Learning:** Custom themes and storefront templates (e.g., `GlowGridStorefront`, `OasisAtelierStorefront`) often lack standard accessibility attributes like `aria-label`s because they are built separately from the core translated UI system and often hardcode raw icons for design purposes.
+**Action:** Always actively inspect icon-only interactive elements in custom templates or new storefront themes to ensure `aria-label`s and `aria-hidden` are applied, utilizing the existing `useTranslation()` hook where applicable.
