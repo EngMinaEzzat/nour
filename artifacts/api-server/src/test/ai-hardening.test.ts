@@ -26,11 +26,11 @@ import path from "node:path";
 process.env.AI_USE_MOCK = "true";
 
 const AI_ENDPOINTS = [
-  { method: "post" as const, path: "/api/ai/assistant/chat", body: { message: "test", model: "claude" } },
-  { method: "post" as const, path: "/api/ai/pricing-advice", body: { productName: "Test", price: 100, model: "claude" } },
-  { method: "post" as const, path: "/api/ai/import-facebook", body: { facebookUrl: "https://facebook.com/testpage", model: "claude" } },
-  { method: "post" as const, path: "/api/ai/generate-product-description", body: { productName: "Test Product", model: "claude" } },
-  { method: "post" as const, path: "/api/ai/draft-reply", body: { messageType: "confirmation", model: "claude" } },
+  { method: "post" as const, path: "/api/ai/assistant/chat", body: { message: "test", model: "gemini" } },
+  { method: "post" as const, path: "/api/ai/pricing-advice", body: { productName: "Test", price: 100, model: "gemini" } },
+  { method: "post" as const, path: "/api/ai/import-facebook", body: { facebookUrl: "https://facebook.com/testpage", model: "gemini" } },
+  { method: "post" as const, path: "/api/ai/generate-product-description", body: { productName: "Test Product", model: "gemini" } },
+  { method: "post" as const, path: "/api/ai/draft-reply", body: { messageType: "confirmation", model: "gemini" } },
 ];
 
 describe("AI Hardening — Auth Required", () => {
@@ -113,7 +113,7 @@ describe("AI Hardening — Tenant Scoping & Cross-Tenant Rejection", () => {
     resetAiRateLimit(ctxB.tenantId);
     const res = await ctxB.agent
       .post("/api/ai/assistant/chat")
-      .send({ message: "hijack attempt", conversationId: convIdA, model: "claude" });
+      .send({ message: "hijack attempt", conversationId: convIdA, model: "gemini" });
     // Should be 403 or the response should not use convIdA
     if (res.status === 200) {
       // SSE response — check it didn't use convIdA
@@ -189,7 +189,7 @@ describe("AI Hardening — Rate Limits", () => {
 
       const res = await ctx.agent
         .post("/api/ai/pricing-advice")
-        .send({ productName: "Test", price: 100, model: "claude" });
+        .send({ productName: "Test", price: 100, model: "gemini" });
 
       expect(res.status).toBe(429);
       expect(res.body.error).toBeTruthy();
@@ -209,22 +209,19 @@ describe("AI Hardening — Rate Limits", () => {
 
       const descRes = await ctx.agent
         .post("/api/ai/generate-product-description")
-        .send({ productName: "Test", model: "claude" });
-
+        .send({ productName: "Test", model: "gemini" });
       expect(descRes.status).toBe(429);
       expect(descRes.body.error).toBeTruthy();
 
       const replyRes = await ctx.agent
         .post("/api/ai/draft-reply")
-        .send({ messageType: "confirmation", customerName: "Test", model: "claude" });
-
+        .send({ messageType: "confirmation", customerName: "Test", model: "gemini" });
       expect(replyRes.status).toBe(429);
       expect(replyRes.body.error).toBeTruthy();
 
       const importRes = await ctx.agent
         .post("/api/ai/import-facebook")
-        .send({ facebookUrl: "https://facebook.com/test", model: "claude" });
-
+        .send({ facebookUrl: "https://facebook.com/test", model: "gemini" });
       expect(importRes.status).toBe(429);
       expect(importRes.body.error).toBeTruthy();
 
@@ -259,7 +256,7 @@ describe("AI Hardening — Input Length Limits", () => {
     const oversizedMessage = "أ".repeat(5000);
     const res = await ctx.agent
       .post("/api/ai/assistant/chat")
-      .send({ message: oversizedMessage, model: "claude" });
+      .send({ message: oversizedMessage, model: "gemini" });
     expect(res.status).toBe(400);
   });
 
@@ -269,7 +266,7 @@ describe("AI Hardening — Input Length Limits", () => {
     const oversizedDesc = "Y".repeat(600);
     const res = await ctx.agent
       .post("/api/ai/generate-product-description")
-      .send({ productName: oversizedName, storeDescription: oversizedDesc, model: "claude" });
+      .send({ productName: oversizedName, storeDescription: oversizedDesc, model: "gemini" });
     expect(res.status).toBe(400);
   });
 });
@@ -371,7 +368,7 @@ describe("AI Hardening — Usage Logging", () => {
     // Make an AI call that uses the mock provider
     const res = await ctx.agent
       .post("/api/ai/pricing-advice")
-      .send({ productName: "فستان أنيق", price: 350, model: "claude" });
+      .send({ productName: "فستان أنيق", price: 350, model: "gemini" });
 
     expect([200, 502]).toContain(res.status); // 200 success or 502 if mock JSON parsing fails
 
@@ -403,7 +400,7 @@ describe("AI Hardening — Usage Logging", () => {
 
     const res = await ctx.agent
       .post("/api/ai/assistant/chat")
-      .send({ message: "مرحباً", model: "claude" });
+      .send({ message: "مرحباً", model: "gemini" });
 
     expect(res.status).toBe(200);
 
@@ -449,7 +446,7 @@ describe("AI Hardening — No Auto-Mutation", () => {
     resetAiRateLimit(ctx.tenantId);
     await ctx.agent
       .post("/api/ai/generate-product-description")
-      .send({ productName: "New Product", model: "claude" });
+      .send({ productName: "New Product", model: "gemini" });
 
     const products = await db.select().from(productsTable).where(eq(productsTable.tenantId, ctx.tenantId));
     expect(products.length).toBe(productCountBefore);
@@ -459,7 +456,7 @@ describe("AI Hardening — No Auto-Mutation", () => {
     resetAiRateLimit(ctx.tenantId);
     await ctx.agent
       .post("/api/ai/draft-reply")
-      .send({ messageType: "confirmation", customerName: "أحمد", model: "claude" });
+      .send({ messageType: "confirmation", customerName: "أحمد", model: "gemini" });
 
     const orders = await db.select().from(ordersTable).where(eq(ordersTable.tenantId, ctx.tenantId));
     expect(orders.length).toBe(orderCountBefore);
@@ -469,7 +466,7 @@ describe("AI Hardening — No Auto-Mutation", () => {
     resetAiRateLimit(ctx.tenantId);
     await ctx.agent
       .post("/api/ai/pricing-advice")
-      .send({ productName: "Test", price: 100, model: "claude" });
+      .send({ productName: "Test", price: 100, model: "gemini" });
 
     const products = await db.select().from(productsTable).where(eq(productsTable.tenantId, ctx.tenantId));
     expect(products.length).toBe(productCountBefore);
@@ -480,7 +477,7 @@ describe("AI Hardening — No Auto-Mutation", () => {
     // This will likely fail on scraping but that's fine — we're checking it doesn't mutate
     await ctx.agent
       .post("/api/ai/import-facebook")
-      .send({ facebookUrl: "https://facebook.com/testpage", model: "claude" });
+      .send({ facebookUrl: "https://facebook.com/testpage", model: "gemini" });
 
     const products = await db.select().from(productsTable).where(eq(productsTable.tenantId, ctx.tenantId));
     const categories = await db.select().from(categoriesTable).where(eq(categoriesTable.tenantId, ctx.tenantId));

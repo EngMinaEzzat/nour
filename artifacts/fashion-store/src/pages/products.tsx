@@ -744,9 +744,9 @@ export default function Products() {
   const [pricingProduct, setPricingProduct] = useState<PricingProduct | null>(null);
   const [pricingAdvice, setPricingAdvice] = useState<string | null>(null);
   const [pricingLoading, setPricingLoading] = useState(false);
-  const [pricingModel, setPricingModel] = useState<"claude" | "gemini">("claude");
+  const [pricingModel, setPricingModel] = useState<"gemini">("gemini");
 
-  async function fetchPricingAdvice(product: PricingProduct, model: "claude" | "gemini") {
+  async function fetchPricingAdvice(product: PricingProduct, model: "gemini") {
     setPricingLoading(true);
     setPricingAdvice(null);
     try {
@@ -1595,21 +1595,10 @@ export default function Products() {
             </DialogTitle>
           </DialogHeader>
 
-          {/* Model selector */}
+          {/* Model indicator */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>{i18n.language === "en" ? "Model:" : "النموذج:"}</span>
-            {(["claude", "gemini"] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => {
-                  setPricingModel(m);
-                  if (pricingProduct) fetchPricingAdvice(pricingProduct, m);
-                }}
-                className={`px-2.5 py-1 rounded-lg border transition-all ${pricingModel === m ? "border-primary bg-primary/5 text-primary font-medium" : "border-border hover:border-primary/40"}`}
-              >
-                {m === "claude" ? t("products.pricing.claude").split(" ")[1] : t("products.pricing.gemini").split(" ")[1]}
-              </button>
-            ))}
+            <span className="font-semibold text-primary">Gemini AI</span>
             {pricingProduct && !pricingLoading && (
               <button
                 onClick={() => fetchPricingAdvice(pricingProduct, pricingModel)}

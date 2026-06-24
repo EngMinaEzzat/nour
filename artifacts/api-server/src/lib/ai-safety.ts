@@ -13,7 +13,6 @@ export class AiConfigurationError extends Error {
 }
 
 const AI_PROVIDER_ENV_KEYS: Record<string, string[]> = {
-  anthropic: ["AI_INTEGRATIONS_ANTHROPIC_API_KEY", "AI_INTEGRATIONS_ANTHROPIC_BASE_URL"],
   gemini: ["AI_INTEGRATIONS_GEMINI_API_KEY", "AI_INTEGRATIONS_GEMINI_BASE_URL"],
   openai: ["OPENAI_API_KEY"],
 };
@@ -32,8 +31,8 @@ export function isAiMockEnabled(): boolean {
  */
 export function assertAiProviderConfigured(provider?: string): void {
   if (isAiMockEnabled()) return;
-  const normalizedProvider = provider?.toLowerCase() ?? process.env.AI_PROVIDER?.toLowerCase() ?? "anthropic";
-  const requiredKeys = AI_PROVIDER_ENV_KEYS[normalizedProvider] ?? AI_PROVIDER_ENV_KEYS["anthropic"];
+  const normalizedProvider = provider?.toLowerCase() ?? process.env.AI_PROVIDER?.toLowerCase() ?? "gemini";
+  const requiredKeys = AI_PROVIDER_ENV_KEYS[normalizedProvider] ?? AI_PROVIDER_ENV_KEYS["gemini"];
 
   const missing = requiredKeys.filter((key) => !process.env[key]);
   if (missing.length > 0) {
@@ -46,8 +45,8 @@ export function assertAiProviderConfigured(provider?: string): void {
 export function assertAiConfigured(): void {
   if (process.env.NODE_ENV !== "production") return;
 
-  const provider = process.env.AI_PROVIDER?.toLowerCase() ?? "anthropic";
-  const requiredKeys = AI_PROVIDER_ENV_KEYS[provider] ?? AI_PROVIDER_ENV_KEYS["anthropic"];
+  const provider = process.env.AI_PROVIDER?.toLowerCase() ?? "gemini";
+  const requiredKeys = AI_PROVIDER_ENV_KEYS[provider] ?? AI_PROVIDER_ENV_KEYS["gemini"];
 
   const missing = requiredKeys.filter((key) => !process.env[key]);
   if (missing.length > 0) {

@@ -4,17 +4,9 @@ import { X, Wand2, Send, Sparkles, RefreshCw, ChevronDown } from "lucide-react";
 import { AI_QUICK_ACTIONS } from "@/lib/store-config";
 import { useTranslation } from "react-i18next";
 
-type AiModel = "claude" | "gemini";
+type AiModel = "gemini";
 
-const MODEL_OPTIONS: {
-  key: AiModel;
-  label: string;
-  badge: string;
-  color: string;
-}[] = [
-  { key: "claude", label: "Claude", badge: "Anthropic", color: "#8B1A35" },
-  { key: "gemini", label: "Gemini", badge: "Google", color: "#1a73e8" },
-];
+const activeModel = { key: "gemini" as const, label: "Gemini", badge: "Google", color: "#1a73e8" };
 
 interface Message {
   role: "user" | "assistant";
@@ -24,9 +16,10 @@ interface Message {
 
 interface StoreAssistantProps {
   onClose: () => void;
+  inline?: boolean;
 }
 
-export default function StoreAssistant({ onClose }: StoreAssistantProps) {
+export default function StoreAssistant({ onClose, inline = false }: StoreAssistantProps) {
   const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", text: t("storeAssistant.welcome") },
@@ -35,16 +28,12 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [model, setModel] = useState<AiModel>("claude");
-  const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const activeModel = MODEL_OPTIONS.find((m) => m.key === model)!;
 
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
@@ -68,7 +57,7 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ message: text, conversationId, model }),
+        body: JSON.stringify({ message: text, conversationId, model: "gemini" }),
         signal: ctrl.signal,
       });
 
@@ -143,77 +132,8 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
     }
   }
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      className="w-80 bg-white border-l border-stone-200 flex flex-col h-full shadow-xl"
-      dir={i18n.dir()}
-    >
-      {/* Header */}
-      <div
-        className="flex items-center justify-between p-4 border-b border-stone-100 shrink-0"
-        style={{
-          background: `linear-gradient(135deg, ${activeModel.color}, ${activeModel.color}99)`,
-        }}
-      >
-        <div className="flex items-center gap-2 text-white">
-          <Wand2 className="w-4 h-4" />
-          <span className="font-semibold text-sm">
-            {t("storeAssistant.title")}
-          </span>
-        </div>
-
-        {/* Model selector */}
-        <div className="relative flex items-center gap-2">
-          <button
-            onClick={() => setModelMenuOpen((o) => !o)}
-            className="flex items-center gap-1 text-white/90 bg-white/20 hover:bg-white/30 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all"
-          >
-            <span>{activeModel.label}</span>
-            <ChevronDown className="w-3 h-3" />
-          </button>
-          <AnimatePresence>
-            {modelMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -6, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.95 }}
-                transition={{ duration: 0.12 }}
-                className="absolute top-8 left-0 bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden z-50 w-44"
-              >
-                {MODEL_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() => {
-                      setModel(opt.key);
-                      setModelMenuOpen(false);
-                      setConversationId(null);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 text-xs transition-colors ${model === opt.key ? "bg-stone-50 font-semibold" : "hover:bg-stone-50"}`}
-                  >
-                    <span className="text-stone-800">{opt.label}</span>
-                    <span
-                      className="text-[10px] px-1.5 py-0.5 rounded-full text-white font-medium"
-                      style={{ background: opt.color }}
-                    >
-                      {opt.badge}
-                    </span>
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <button
-            onClick={onClose}
-            className="text-white/70 hover:text-white transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
+  const assistantContent = (
+    <>
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg, i) => (
@@ -327,6 +247,51 @@ export default function StoreAssistant({ onClose }: StoreAssistantProps) {
           {activeModel.badge})
         </p>
       </div>
+    </>
+  );
+
+  if (inline) {
+    return (
+      <div className="flex-1 flex flex-col overflow-hidden bg-white text-stone-800" dir={i18n.dir()}>
+        {assistantContent}
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="w-80 bg-white border-l border-stone-200 flex flex-col h-full shadow-xl"
+      dir={i18n.dir()}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between p-4 border-b border-stone-100 shrink-0"
+        style={{
+          background: `linear-gradient(135deg, ${activeModel.color}, ${activeModel.color}99)`,
+        }}
+      >
+        <div className="flex items-center gap-2 text-white">
+          <Wand2 className="w-4 h-4" />
+          <span className="font-semibold text-sm">
+            {t("storeAssistant.title")}
+          </span>
+        </div>
+
+        {/* Close Button */}
+        <div className="relative flex items-center gap-2">
+          <button
+            onClick={onClose}
+            className="text-white/70 hover:text-white transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {assistantContent}
     </motion.div>
   );
 }

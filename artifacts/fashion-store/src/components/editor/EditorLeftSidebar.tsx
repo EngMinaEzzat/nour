@@ -2,6 +2,8 @@ import { VISUAL_THEMES } from '@/lib/themes/registry';
 import i18n from "i18next";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import StoreAssistant from "./StoreAssistant";
+import PromptHelperWidget from "./PromptHelperWidget";
 import {
   Plus,
   Eye,
@@ -43,10 +45,12 @@ interface EditorLeftSidebarProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onConfigChange: (config: StoreConfig) => void;
-  onOpenAI: () => void;
+  onOpenAI?: () => void;
   productCount?: number;
   gender?: MerchantGender;
   className?: string;
+  tab?: SidebarTab;
+  onTabChange?: (tab: SidebarTab) => void;
 }
 
 export default function EditorLeftSidebar({
@@ -58,10 +62,17 @@ export default function EditorLeftSidebar({
   productCount = 0,
   gender = "female",
   className = "",
+  tab: controlledTab,
+  onTabChange,
 }: EditorLeftSidebarProps) {
   const { t, i18n } = useTranslation();
   const { merchant } = useAuth();
-  const [tab, setTab] = useState<SidebarTab>("sections");
+  
+  const [localTab, setLocalTab] = useState<SidebarTab>("sections");
+  const tab = controlledTab ?? localTab;
+  const setTab = onTabChange ?? setLocalTab;
+  
+  const [aiSubTab, setAiSubTab] = useState<"chat" | "images">("chat");
   const [addingSection, setAddingSection] = useState(false);
   const [sidebarHintDismissed, setSidebarHintDismissed] = useState(() => {
     try {
@@ -177,7 +188,7 @@ export default function EditorLeftSidebar({
             key={key}
             onClick={() => {
               setTab(key);
-              if (key === "ai") onOpenAI();
+              if (key === "ai" && onOpenAI) onOpenAI();
             }}
             className={`flex-1 py-2.5 text-xs flex flex-col items-center gap-1 transition-colors ${tab === key ? "text-[#8B1A35] border-b-2 border-[#8B1A35] -mb-px" : "text-stone-400 hover:text-stone-600"}`}
           >
@@ -374,6 +385,43 @@ export default function EditorLeftSidebar({
 
       {tab === "theme" && (
         <ThemePanel config={config} onConfigChange={onConfigChange} />
+      )}
+
+      {tab === "ai" && (
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Sub-tabs / Segments */}
+          <div className="flex p-2 bg-stone-50 border-b border-stone-100 gap-1 shrink-0">
+            <button
+              onClick={() => setAiSubTab("chat")}
+              className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${
+                aiSubTab === "chat"
+                  ? "bg-white text-[#8B1A35] shadow-sm border border-stone-200/50"
+                  : "text-stone-500 hover:text-stone-700"
+              }`}
+            >
+              {t("storeAssistant.title")}
+            </button>
+            <button
+              onClick={() => setAiSubTab("images")}
+              className={`flex-1 py-1.5 text-center text-xs font-semibold rounded-lg transition-all ${
+                aiSubTab === "images"
+                  ? "bg-white text-[#8B1A35] shadow-sm border border-stone-200/50"
+                  : "text-stone-500 hover:text-stone-700"
+              }`}
+            >
+              {i18n.dir() === "rtl" ? "مساعد الصور" : "Image Prompter"}
+            </button>
+          </div>
+
+          {/* Sub-tab Content */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {aiSubTab === "chat" ? (
+              <StoreAssistant inline onClose={() => setTab("sections")} />
+            ) : (
+              <PromptHelperWidget inline />
+            )}
+          </div>
+        </div>
       )}
 
       <AnimatePresence>

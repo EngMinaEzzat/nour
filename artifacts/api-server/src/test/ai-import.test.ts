@@ -149,8 +149,8 @@ describe("AI Import Routes", () => {
 
       vi.spyOn(aiProvider, "generateContent").mockResolvedValueOnce({
         text: JSON.stringify(mockResult),
-        provider: "anthropic",
-        model: "claude-sonnet-4-6",
+        provider: "gemini",
+        model: "gemini-3.5-flash",
         inputTokens: 100,
         outputTokens: 50,
       });
@@ -201,8 +201,8 @@ describe("AI Import Routes", () => {
 
       vi.spyOn(aiProvider, "generateContent").mockResolvedValueOnce({
         text: JSON.stringify(mockResult),
-        provider: "anthropic",
-        model: "claude-sonnet-4-6",
+        provider: "gemini",
+        model: "gemini-3.5-flash",
         inputTokens: 100,
         outputTokens: 50,
       });
@@ -243,8 +243,8 @@ describe("AI Import Routes", () => {
     it("returns 200 with generated mock drafted reply for valid input", async () => {
       vi.spyOn(aiProvider, "generateContent").mockResolvedValueOnce({
         text: "شكراً لطلبك يا John. طلبك مؤكد.",
-        provider: "anthropic",
-        model: "claude-sonnet-4-6",
+        provider: "gemini",
+        model: "gemini-3.5-flash",
         inputTokens: 100,
         outputTokens: 50,
       });

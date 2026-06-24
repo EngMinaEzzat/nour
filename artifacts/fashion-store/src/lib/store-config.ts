@@ -217,7 +217,7 @@ export function normalizeHomepageSections(sections: SectionConfig[] | undefined,
       ...section,
       id: section.id || `${section.type}-${Date.now()}-${index}`,
       label: section.label || SECTION_LABELS[section.type],
-      visible: section.visible ?? true,
+      visible: section.visible ?? (section.type === "instagram" ? false : true),
       order: Number.isFinite(section.order) ? section.order : index,
       content: shouldBackfillLookbookItems
         ? { ...content, items: defaultSection.content.items }
@@ -437,7 +437,7 @@ export function createDefaultSection(type: SectionType, storeName: string, categ
   };
 
   const d = defaults[type];
-  return { id, type, label: SECTION_LABELS[type], visible: true, order: 0, content: d.content, settings: d.settings };
+  return { id, type, label: SECTION_LABELS[type], visible: type !== "instagram", order: 0, content: d.content, settings: d.settings };
 }
 
 // ─── Default theme ────────────────────────────────────────────────────────────

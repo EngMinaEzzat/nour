@@ -53,25 +53,25 @@ describe("AI Safety Utilities", () => {
     it("does not throw if mock is enabled", () => {
       process.env.NODE_ENV = "test";
       process.env.AI_USE_MOCK = "true";
-      delete process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+      delete process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
 
       expect(() => assertAiProviderConfigured()).not.toThrow();
     });
 
-    it("throws if anthropic (default) is missing required env vars", () => {
+    it("throws if gemini (default) is missing required env vars", () => {
       process.env.NODE_ENV = "test";
       process.env.AI_USE_MOCK = "false";
-      delete process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+      delete process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
 
       expect(() => assertAiProviderConfigured()).toThrow(AiConfigurationError);
-      expect(() => assertAiProviderConfigured()).toThrow(/requires env vars: AI_INTEGRATIONS_ANTHROPIC_API_KEY/);
+      expect(() => assertAiProviderConfigured()).toThrow(/requires env vars: AI_INTEGRATIONS_GEMINI_API_KEY/);
     });
 
-    it("does not throw if anthropic (default) has required env vars", () => {
+    it("does not throw if gemini (default) has required env vars", () => {
       process.env.NODE_ENV = "test";
       process.env.AI_USE_MOCK = "false";
-      process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY = "test-key";
-      process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL = "test-url";
+      process.env.AI_INTEGRATIONS_GEMINI_API_KEY = "test-key";
+      process.env.AI_INTEGRATIONS_GEMINI_BASE_URL = "test-url";
 
       expect(() => assertAiProviderConfigured()).not.toThrow();
     });
@@ -107,14 +107,14 @@ describe("AI Safety Utilities", () => {
   describe("assertAiConfigured", () => {
     it("does not throw when not in production", () => {
       process.env.NODE_ENV = "development";
-      delete process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+      delete process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
 
       expect(() => assertAiConfigured()).not.toThrow();
     });
 
     it("throws in production if required env vars are missing", () => {
       process.env.NODE_ENV = "production";
-      delete process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+      delete process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
 
       expect(() => assertAiConfigured()).toThrow(AiConfigurationError);
       expect(() => assertAiConfigured()).toThrow(/AI features will not function without these in production/);
@@ -122,8 +122,8 @@ describe("AI Safety Utilities", () => {
 
     it("does not throw in production if required env vars are present", () => {
       process.env.NODE_ENV = "production";
-      process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY = "test-key";
-      process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL = "test-url";
+      process.env.AI_INTEGRATIONS_GEMINI_API_KEY = "test-key";
+      process.env.AI_INTEGRATIONS_GEMINI_BASE_URL = "test-url";
 
       expect(() => assertAiConfigured()).not.toThrow();
     });

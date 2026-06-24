@@ -18,7 +18,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-type AiModel = "claude" | "gemini";
+type AiModel = "gemini";
 type ItemStatus = "pending" | "replied" | "ignored" | "flagged";
 
 interface FbItem {
@@ -382,7 +382,7 @@ function FilterBar({ active, onChange, counts, t }: {
 /* ─── Main page ─── */
 export default function FacebookModerator() {
   const { t, i18n } = useTranslation();
-  const [model, setModel] = useState<AiModel>("claude");
+  const [model, setModel] = useState<AiModel>("gemini");
   const [commentFilter, setCommentFilter] = useState<Filter>("all");
   const [messageFilter, setMessageFilter] = useState<Filter>("all");
   const [localStatus, setLocalStatus] = useState<Map<string, ItemStatus>>(new Map());
@@ -465,15 +465,7 @@ export default function FacebookModerator() {
 
         {connected && (
           <div className="flex items-center gap-2">
-            {/* Model toggle */}
-            <div className="flex rounded-full overflow-hidden border border-border text-xs">
-              {(["claude", "gemini"] as AiModel[]).map((m) => (
-                <button key={m} onClick={() => setModel(m)}
-                  className={cn("px-3 py-1.5 transition-colors", model === m ? "bg-violet-600 text-white" : "hover:bg-muted text-muted-foreground")}>
-                  {m === "claude" ? "Claude" : "Gemini"}
-                </button>
-              ))}
-            </div>
+
 
             <Button size="sm" variant="outline" className="gap-1.5 h-8"
               onClick={() => { qc.invalidateQueries({ queryKey: ["fb-comments"] }); qc.invalidateQueries({ queryKey: ["fb-messages"] }); }}>

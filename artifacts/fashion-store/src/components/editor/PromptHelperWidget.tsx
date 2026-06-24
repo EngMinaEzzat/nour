@@ -12,7 +12,11 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-export default function PromptHelperWidget() {
+interface PromptHelperWidgetProps {
+  inline?: boolean;
+}
+
+export default function PromptHelperWidget({ inline = false }: PromptHelperWidgetProps) {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [preset, setPreset] = useState<"editorial" | "cosmetics" | "lifestyle">(
@@ -130,6 +134,304 @@ export default function PromptHelperWidget() {
 
   const isRtl = i18n.dir() === "rtl";
 
+  const promptContent = (
+    <>
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* 1. Presets */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
+            {isRtl ? "النمط الفني للمتجر" : "Visual Preset"}
+          </label>
+          <div className="grid grid-cols-3 gap-1.5">
+            {[
+              {
+                id: "editorial",
+                label: isRtl ? "تحريري" : "Editorial",
+                icon: Sparkles,
+              },
+              {
+                id: "cosmetics",
+                label: isRtl ? "تجميل" : "Cosmetics",
+                icon: Wand2,
+              },
+              {
+                id: "lifestyle",
+                label: isRtl ? "واقعي" : "Lifestyle",
+                icon: Camera,
+              },
+            ].map((p) => {
+              const Icon = p.icon;
+              const active = preset === p.id;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => handlePresetChange(p.id as any)}
+                  className={`py-2 px-2 rounded-xl border text-xs font-medium flex flex-col items-center gap-1 transition-all ${
+                    active
+                      ? "border-[#8B1A35] bg-rose-50/50 text-[#8B1A35]"
+                      : "border-stone-200 hover:border-stone-300 text-stone-600"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{p.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2. Attire / Subject Style (Skip if Cosmetics) */}
+        {preset !== "cosmetics" && (
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
+              {isRtl ? "التمثيل والهوية" : "Attire & Representation"}
+            </label>
+            <div className="flex flex-col gap-1.5">
+              {[
+                {
+                  id: "modest",
+                  label: isRtl
+                    ? "حجاب كتان أنيق (ألوان الباستيل الوردي)"
+                    : "Modest Linen Hijab (Rose Pastels)",
+                  desc: isRtl
+                    ? "تمثيل محتشم وواقعي بملامح شرق أوسطية"
+                    : "Middle Eastern modest style, soft pink accents",
+                },
+                {
+                  id: "curly",
+                  label: isRtl
+                    ? "شعر كيرلي طبيعي (بشرة سمراء متوازنة)"
+                    : "Natural Curly Hair (Melanin-Rich)",
+                  desc: isRtl
+                    ? "ملامح واقعية متنوعة وإضاءة مخصصة للبشرة الداكنة"
+                    : "Rich skin tones, natural curls & textures",
+                },
+              ].map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => setStyleAttire(s.id as any)}
+                  className={`p-2.5 rounded-xl border text-start transition-all ${
+                    styleAttire === s.id
+                      ? "border-[#8B1A35] bg-rose-50/50"
+                      : "border-stone-200 hover:border-stone-300"
+                  }`}
+                >
+                  <p
+                    className={`text-xs font-semibold ${
+                      styleAttire === s.id
+                        ? "text-[#8B1A35]"
+                        : "text-stone-800"
+                    }`}
+                  >
+                    {s.label}
+                  </p>
+                  <p className="text-[10px] text-stone-400 mt-0.5">
+                    {s.desc}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. Backdrop / Scenery */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
+            {isRtl
+              ? "الخلفية والأجواء المصرية"
+              : "Egyptian Backdrop Scenery"}
+          </label>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              {
+                id: "zamalek",
+                label: isRtl ? "شرفة بالزمالك" : "Zamalek Balcony",
+              },
+              {
+                id: "heliopolis",
+                label: isRtl
+                  ? "مصر الجديدة العريقة"
+                  : "Heliopolis Arches",
+              },
+              {
+                id: "maadi",
+                label: isRtl
+                  ? "شوارع المعادي الخضراء"
+                  : "Maadi Leafy Streets",
+              },
+              {
+                id: "alexandria",
+                label: isRtl ? "بحر الإسكندرية" : "Alexandria Seafront",
+              },
+            ].map((b) => (
+              <button
+                key={b.id}
+                onClick={() => setBackdrop(b.id as any)}
+                className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                  backdrop === b.id
+                    ? "border-[#8B1A35] bg-rose-50/50 text-[#8B1A35]"
+                    : "border-stone-200 hover:border-stone-300 text-stone-600"
+                }`}
+              >
+                {b.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 4. Aspect Ratio & AI Model */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
+              {isRtl ? "نسبة الأبعاد" : "Aspect Ratio"}
+            </label>
+            <div className="grid grid-cols-3 gap-1">
+              {[
+                {
+                  id: "16:9",
+                  label: "16:9",
+                  desc: isRtl ? "غلاف" : "Banner",
+                },
+                {
+                  id: "1:1",
+                  label: "1:1",
+                  desc: isRtl ? "مربع" : "Square",
+                },
+                {
+                  id: "4:5",
+                  label: "4:5",
+                  desc: isRtl ? "طولي" : "Portrait",
+                },
+              ].map((ar) => (
+                <button
+                  key={ar.id}
+                  onClick={() => setAspectRatio(ar.id as any)}
+                  className={`py-1.5 rounded-lg border text-center transition-all ${
+                    aspectRatio === ar.id
+                      ? "border-[#8B1A35] bg-rose-50/50 text-[#8B1A35]"
+                      : "border-stone-200 hover:border-stone-300 text-stone-600"
+                  }`}
+                >
+                  <p className="text-xs font-bold">{ar.label}</p>
+                  <p className="text-[8px] text-stone-400">{ar.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
+              {isRtl ? "محرك الذكاء الاصطناعي" : "AI Engine"}
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
+              {[
+                { id: "midjourney", label: "Midjourney" },
+                { id: "flux", label: "Flux" },
+              ].map((e) => (
+                <button
+                  key={e.id}
+                  onClick={() => setEngine(e.id as any)}
+                  className={`py-2 rounded-lg border text-xs font-semibold text-center transition-all ${
+                    engine === e.id
+                      ? "border-[#8B1A35] bg-rose-50/50 text-[#8B1A35]"
+                      : "border-stone-200 hover:border-stone-300 text-stone-600"
+                  }`}
+                >
+                  {e.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 5. Warning Alerts / Sociological Accuracy Guide */}
+        <div className="p-3 bg-rose-50/60 border border-rose-100 rounded-2xl space-y-2">
+          <div className="flex items-center gap-1.5 text-rose-800 font-bold text-xs">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <span>
+              {isRtl
+                ? "إرشادات تجنب النصوص والتشوهات"
+                : "Sociological Representation Guide"}
+            </span>
+          </div>
+          <ul className="text-[10px] text-rose-700 space-y-1 list-disc list-inside leading-relaxed">
+            <li>
+              {isRtl
+                ? "تجنب كتابة نصوص أو شعارات في الوصف لضمان عدم ظهور رموز غريبة."
+                : "Avoid text, logos, or flags inside prompts to prevent gibberish render symbols."}
+            </li>
+            <li>
+              {isRtl
+                ? "استخدم إضاءة Rembrandt الجانبية لإبراز ألوان البشرة السمراء دون تفتيح مفرط."
+                : "Rembrandt lighting filters preserve balanced melanin skin depth realistically."}
+            </li>
+            <li>
+              {isRtl
+                ? "الحجاب ينسدل بشكل طبيعي دون إيحاءات مبالغ فيها."
+                : "Attire folds draped naturally to ensure authentic cultural modesty."}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Dynamic prompt output box & action footer */}
+      <div className="p-4 border-t border-stone-200 bg-stone-50 space-y-3">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wide">
+              {isRtl ? "الوصف المولد" : "Generated Prompt"}
+            </span>
+            <span className="text-[9px] text-[#8B1A35] font-semibold bg-rose-100 px-1.5 py-0.5 rounded">
+              {engine.toUpperCase()}
+            </span>
+          </div>
+          <div className="bg-stone-900 rounded-xl p-3 border border-stone-800 relative">
+            <p className="text-[11px] text-stone-300 font-mono select-all break-words leading-relaxed max-h-24 overflow-y-auto">
+              {buildPrompt()}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleCopy}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-semibold text-xs shadow-md transition-all active:scale-95"
+          style={{
+            background: copied
+              ? "#10b981"
+              : "linear-gradient(135deg, #8B1A35, #c8963a)",
+          }}
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4" />
+              <span>
+                {isRtl ? "تم النسخ بنجاح!" : "Copied to Clipboard!"}
+              </span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              <span>
+                {isRtl
+                  ? "نسخ الوصف للاستخدام في مولد الصور"
+                  : "Copy Prompt for Generation"}
+              </span>
+            </>
+          )}
+        </button>
+      </div>
+    </>
+  );
+
+  if (inline) {
+    return (
+      <div className="flex-1 flex flex-col overflow-hidden bg-white text-stone-800" dir={isRtl ? "rtl" : "ltr"}>
+        {promptContent}
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Floating Trigger Button */}
@@ -195,291 +497,7 @@ export default function PromptHelperWidget() {
                 </button>
               </div>
 
-              {/* Scrollable content */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {/* 1. Presets */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
-                    {isRtl ? "النمط الفني للمتجر" : "Visual Preset"}
-                  </label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[
-                      {
-                        id: "editorial",
-                        label: isRtl ? "تحريري" : "Editorial",
-                        icon: Sparkles,
-                      },
-                      {
-                        id: "cosmetics",
-                        label: isRtl ? "تجميل" : "Cosmetics",
-                        icon: Wand2,
-                      },
-                      {
-                        id: "lifestyle",
-                        label: isRtl ? "واقعي" : "Lifestyle",
-                        icon: Camera,
-                      },
-                    ].map((p) => {
-                      const Icon = p.icon;
-                      const active = preset === p.id;
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => handlePresetChange(p.id as any)}
-                          className={`py-2 px-2 rounded-xl border text-xs font-medium flex flex-col items-center gap-1 transition-all ${
-                            active
-                              ? "border-[#8B1A35] bg-rose-50/50 text-[#8B1A35]"
-                              : "border-stone-200 hover:border-stone-300 text-stone-600"
-                          }`}
-                        >
-                          <Icon className="w-3.5 h-3.5" />
-                          <span>{p.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 2. Attire / Subject Style (Skip if Cosmetics) */}
-                {preset !== "cosmetics" && (
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
-                      {isRtl ? "التمثيل والهوية" : "Attire & Representation"}
-                    </label>
-                    <div className="flex flex-col gap-1.5">
-                      {[
-                        {
-                          id: "modest",
-                          label: isRtl
-                            ? "حجاب كتان أنيق (ألوان الباستيل الوردي)"
-                            : "Modest Linen Hijab (Rose Pastels)",
-                          desc: isRtl
-                            ? "تمثيل محتشم وواقعي بملامح شرق أوسطية"
-                            : "Middle Eastern modest style, soft pink accents",
-                        },
-                        {
-                          id: "curly",
-                          label: isRtl
-                            ? "شعر كيرلي طبيعي (بشرة سمراء متوازنة)"
-                            : "Natural Curly Hair (Melanin-Rich)",
-                          desc: isRtl
-                            ? "ملامح واقعية متنوعة وإضاءة مخصصة للبشرة الداكنة"
-                            : "Rich skin tones, natural curls & textures",
-                        },
-                      ].map((s) => (
-                        <button
-                          key={s.id}
-                          onClick={() => setStyleAttire(s.id as any)}
-                          className={`p-2.5 rounded-xl border text-start transition-all ${
-                            styleAttire === s.id
-                              ? "border-[#8B1A35] bg-rose-50/50"
-                              : "border-stone-200 hover:border-stone-300"
-                          }`}
-                        >
-                          <p
-                            className={`text-xs font-semibold ${
-                              styleAttire === s.id
-                                ? "text-[#8B1A35]"
-                                : "text-stone-800"
-                            }`}
-                          >
-                            {s.label}
-                          </p>
-                          <p className="text-[10px] text-stone-400 mt-0.5">
-                            {s.desc}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* 3. Backdrop / Scenery */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
-                    {isRtl
-                      ? "الخلفية والأجواء المصرية"
-                      : "Egyptian Backdrop Scenery"}
-                  </label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {[
-                      {
-                        id: "zamalek",
-                        label: isRtl ? "شرفة بالزمالك" : "Zamalek Balcony",
-                      },
-                      {
-                        id: "heliopolis",
-                        label: isRtl
-                          ? "مصر الجديدة العريقة"
-                          : "Heliopolis Arches",
-                      },
-                      {
-                        id: "maadi",
-                        label: isRtl
-                          ? "شوارع المعادي الخضراء"
-                          : "Maadi Leafy Streets",
-                      },
-                      {
-                        id: "alexandria",
-                        label: isRtl ? "بحر الإسكندرية" : "Alexandria Seafront",
-                      },
-                    ].map((b) => (
-                      <button
-                        key={b.id}
-                        onClick={() => setBackdrop(b.id as any)}
-                        className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
-                          backdrop === b.id
-                            ? "border-[#8B1A35] bg-rose-50/50 text-[#8B1A35]"
-                            : "border-stone-200 hover:border-stone-300 text-stone-600"
-                        }`}
-                      >
-                        {b.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 4. Aspect Ratio & AI Model */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
-                      {isRtl ? "نسبة الأبعاد" : "Aspect Ratio"}
-                    </label>
-                    <div className="grid grid-cols-3 gap-1">
-                      {[
-                        {
-                          id: "16:9",
-                          label: "16:9",
-                          desc: isRtl ? "غلاف" : "Banner",
-                        },
-                        {
-                          id: "1:1",
-                          label: "1:1",
-                          desc: isRtl ? "مربع" : "Square",
-                        },
-                        {
-                          id: "4:5",
-                          label: "4:5",
-                          desc: isRtl ? "طولي" : "Portrait",
-                        },
-                      ].map((ar) => (
-                        <button
-                          key={ar.id}
-                          onClick={() => setAspectRatio(ar.id as any)}
-                          className={`py-1.5 rounded-lg border text-center transition-all ${
-                            aspectRatio === ar.id
-                              ? "border-[#8B1A35] bg-rose-50/50 text-[#8B1A35]"
-                              : "border-stone-200 hover:border-stone-300 text-stone-600"
-                          }`}
-                        >
-                          <p className="text-xs font-bold">{ar.label}</p>
-                          <p className="text-[8px] text-stone-400">{ar.desc}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block">
-                      {isRtl ? "محرك الذكاء الاصطناعي" : "AI Engine"}
-                    </label>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {[
-                        { id: "midjourney", label: "Midjourney" },
-                        { id: "flux", label: "Flux" },
-                      ].map((e) => (
-                        <button
-                          key={e.id}
-                          onClick={() => setEngine(e.id as any)}
-                          className={`py-2 rounded-lg border text-xs font-semibold text-center transition-all ${
-                            engine === e.id
-                              ? "border-[#8B1A35] bg-rose-50/50 text-[#8B1A35]"
-                              : "border-stone-200 hover:border-stone-300 text-stone-600"
-                          }`}
-                        >
-                          {e.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 5. Warning Alerts / Sociological Accuracy Guide */}
-                <div className="p-3 bg-rose-50/60 border border-rose-100 rounded-2xl space-y-2">
-                  <div className="flex items-center gap-1.5 text-rose-800 font-bold text-xs">
-                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                    <span>
-                      {isRtl
-                        ? "إرشادات تجنب النصوص والتشوهات"
-                        : "Sociological Representation Guide"}
-                    </span>
-                  </div>
-                  <ul className="text-[10px] text-rose-700 space-y-1 list-disc list-inside leading-relaxed">
-                    <li>
-                      {isRtl
-                        ? "تجنب كتابة نصوص أو شعارات في الوصف لضمان عدم ظهور رموز غريبة."
-                        : "Avoid text, logos, or flags inside prompts to prevent gibberish render symbols."}
-                    </li>
-                    <li>
-                      {isRtl
-                        ? "استخدم إضاءة Rembrandt الجانبية لإبراز ألوان البشرة السمراء دون تفتيح مفرط."
-                        : "Rembrandt lighting filters preserve balanced melanin skin depth realistically."}
-                    </li>
-                    <li>
-                      {isRtl
-                        ? "الحجاب ينسدل بشكل طبيعي دون إيحاءات مبالغ فيها."
-                        : "Attire folds draped naturally to ensure authentic cultural modesty."}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Dynamic prompt output box & action footer */}
-              <div className="p-4 border-t border-stone-200 bg-stone-50 space-y-3">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wide">
-                      {isRtl ? "الوصف المولد" : "Generated Prompt"}
-                    </span>
-                    <span className="text-[9px] text-[#8B1A35] font-semibold bg-rose-100 px-1.5 py-0.5 rounded">
-                      {engine.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="bg-stone-900 rounded-xl p-3 border border-stone-800 relative">
-                    <p className="text-[11px] text-stone-300 font-mono select-all break-words leading-relaxed max-h-24 overflow-y-auto">
-                      {buildPrompt()}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleCopy}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-white font-semibold text-xs shadow-md transition-all active:scale-95"
-                  style={{
-                    background: copied
-                      ? "#10b981"
-                      : "linear-gradient(135deg, #8B1A35, #c8963a)",
-                  }}
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>
-                        {isRtl ? "تم النسخ بنجاح!" : "Copied to Clipboard!"}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      <span>
-                        {isRtl
-                          ? "نسخ الوصف للاستخدام في مولد الصور"
-                          : "Copy Prompt for Generation"}
-                      </span>
-                    </>
-                  )}
-                </button>
-              </div>
+              {promptContent}
             </motion.div>
           </>
         )}

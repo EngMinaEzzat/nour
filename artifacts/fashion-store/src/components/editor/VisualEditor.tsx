@@ -12,10 +12,8 @@ import EditorTopBar from "./EditorTopBar";
 import EditorLeftSidebar from "./EditorLeftSidebar";
 import EditorCanvas from "./EditorCanvas";
 import InspectorPanel from "./InspectorPanel";
-import StoreAssistant from "./StoreAssistant";
 import WelcomeOverlay, { type MerchantGender } from "./WelcomeOverlay";
 import PublishReviewModal from "./PublishReviewModal";
-import PromptHelperWidget from "./PromptHelperWidget";
 import { Layers3, Menu, Save, X } from "lucide-react";
 import { contrastStatus } from "@/lib/color-contrast";
 
@@ -74,10 +72,11 @@ export default function VisualEditor({
   }, [history.length]);
 
   // ─── UI state ──────────────────────────────────────────────────────────────
+  type SidebarTab = "sections" | "theme" | "ai";
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("sections");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [device, setDevice] = useState<DeviceType>("mobile");
   const [saving, setSaving] = useState(false);
-  const [aiOpen, setAiOpen] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(isFirstVisit);
   const [showPublishReview, setShowPublishReview] = useState(false);
@@ -219,7 +218,8 @@ export default function VisualEditor({
             selectedId={selectedId}
             onSelect={selectSection}
             onConfigChange={pushConfig}
-            onOpenAI={() => setAiOpen(true)}
+            tab={sidebarTab}
+            onTabChange={setSidebarTab}
             productCount={productCount}
             gender={gender}
           />
@@ -354,9 +354,10 @@ export default function VisualEditor({
                   selectedId={selectedId}
                   onSelect={selectSection}
                   onConfigChange={pushConfig}
+                  tab={sidebarTab}
+                  onTabChange={setSidebarTab}
                   onOpenAI={() => {
                     setSectionsOpen(false);
-                    setAiOpen(true);
                   }}
                   productCount={productCount}
                   gender={gender}
@@ -406,11 +407,6 @@ export default function VisualEditor({
           )}
         </AnimatePresence>
 
-        {/* AI assistant drawer */}
-        <AnimatePresence>
-          {aiOpen && <StoreAssistant onClose={() => setAiOpen(false)} />}
-        </AnimatePresence>
-
         {/* Welcome overlay for first-time merchants */}
         <AnimatePresence>
           {showWelcome && (
@@ -419,7 +415,7 @@ export default function VisualEditor({
               storeSlug={storeSlug}
               gender={gender}
               onDismiss={() => setShowWelcome(false)}
-              onOpenAssistant={() => setAiOpen(true)}
+              onOpenAssistant={() => setSidebarTab("ai")}
             />
           )}
         </AnimatePresence>
@@ -438,9 +434,6 @@ export default function VisualEditor({
             />
           )}
         </AnimatePresence>
-
-        {/* AI Image Prompt Helper Widget */}
-        <PromptHelperWidget />
       </div>
     </div>
   );

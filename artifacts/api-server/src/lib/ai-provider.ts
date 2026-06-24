@@ -5,11 +5,10 @@
  * in development/test, deterministic mocks require AI_USE_MOCK=true.
  */
 
-import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { ai as gemini } from "@workspace/integrations-gemini-ai";
 import { assertAiProviderConfigured, isAiMockEnabled } from "./ai-safety.js";
 
-export type AiProviderName = "anthropic" | "gemini" | "openai";
+export type AiProviderName = "gemini" | "openai";
 
 export interface AiGenerateOptions {
   provider?: AiProviderName;
@@ -34,23 +33,22 @@ export interface AiStreamOptions extends AiGenerateOptions {
 
 const DEFAULT_MAX_TOKENS = 2000;
 
-export function resolveAiProvider(requested?: AiProviderName): AiProviderName {
-  if (requested) return requested;
+export function resolveAiProvider(requested?: string): AiProviderName {
+  if (requested === "openai") return "openai";
+  if (requested === "gemini") return "gemini";
   const envProvider = process.env.AI_PROVIDER?.toLowerCase();
-  if (envProvider === "gemini") return "gemini";
   if (envProvider === "openai") return "openai";
-  return "anthropic";
+  return "gemini";
 }
 
 export function requestedModelToProvider(model?: string): AiProviderName | undefined {
-  if (model === "gemini") return "gemini";
+  if (model === "gemini" || model === "claude") return "gemini";
   if (model === "openai" || model === "gpt") return "openai";
-  if (model === "claude") return "anthropic";
   return undefined;
 }
 
-export function providerToClientModel(provider: AiProviderName): "claude" | "gemini" | "openai" {
-  return provider === "anthropic" ? "claude" : provider;
+export function providerToClientModel(provider: AiProviderName): "gemini" | "openai" {
+  return provider;
 }
 
 export function resolveAiModel(provider: AiProviderName, requested?: string): string {
@@ -59,7 +57,7 @@ export function resolveAiModel(provider: AiProviderName, requested?: string): st
   }
   if (process.env.AI_MODEL) return process.env.AI_MODEL;
   if (provider === "openai") return "gpt-4o-mini";
-  return provider === "gemini" ? "gemini-3.5-flash" : "claude-sonnet-4-6";
+  return "gemini-3.5-flash";
 }
 
 type OpenAiMessage = { role: "system" | "user" | "assistant"; content: string };
@@ -152,20 +150,7 @@ export async function generateContent(opts: AiGenerateOptions): Promise<AiGenera
     };
   }
 
-  const response = await anthropic.messages.create({
-    model,
-    max_tokens: maxTokens,
-    ...(opts.systemPrompt ? { system: opts.systemPrompt } : {}),
-    messages: [{ role: "user", content: opts.userPrompt }],
-  });
-
-  return {
-    text: response.content.map((c) => ("text" in c ? c.text : "")).join(""),
-    provider,
-    model,
-    inputTokens: response.usage?.input_tokens,
-    outputTokens: response.usage?.output_tokens,
-  };
+  throw new Error(`Unsupported AI provider: ${provider}`);
 }
 
 export async function streamContent(opts: AiStreamOptions): Promise<AiGenerateResult> {
@@ -223,31 +208,7 @@ export async function streamContent(opts: AiStreamOptions): Promise<AiGenerateRe
     };
   }
 
-  let fullResponse = "";
-  let inputTokens: number | undefined;
-  let outputTokens: number | undefined;
-  const stream = await anthropic.messages.create({
-    model,
-    max_tokens: maxTokens,
-    ...(opts.systemPrompt ? { system: opts.systemPrompt } : {}),
-    messages: [{ role: "user", content: opts.userPrompt }],
-    stream: true,
-  });
-
-  for await (const event of stream) {
-    if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-      fullResponse += event.delta.text;
-      opts.onChunk(event.delta.text);
-    }
-    if (event.type === "message_delta" && "usage" in event) {
-      outputTokens = (event as { usage?: { output_tokens?: number } }).usage?.output_tokens;
-    }
-    if (event.type === "message_start" && "message" in event) {
-      inputTokens = (event as { message?: { usage?: { input_tokens?: number } } }).message?.usage?.input_tokens;
-    }
-  }
-
-  return { text: fullResponse, provider, model, inputTokens, outputTokens };
+  throw new Error(`Unsupported AI provider: ${provider}`);
 }
 
 export async function streamChatWithHistory(opts: {
@@ -320,35 +281,5 @@ export async function streamChatWithHistory(opts: {
     };
   }
 
-  let fullResponse = "";
-  let inputTokens: number | undefined;
-  let outputTokens: number | undefined;
-  const stream = await anthropic.messages.create({
-    model,
-    max_tokens: maxTokens,
-    system: opts.systemPrompt,
-    messages: [
-      ...opts.history.map((m) => ({
-        role: (m.role === "assistant" ? "assistant" : "user") as "assistant" | "user",
-        content: m.content,
-      })),
-      { role: "user", content: opts.userMessage },
-    ],
-    stream: true,
-  });
-
-  for await (const event of stream) {
-    if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-      fullResponse += event.delta.text;
-      opts.onChunk(event.delta.text);
-    }
-    if (event.type === "message_delta" && "usage" in event) {
-      outputTokens = (event as { usage?: { output_tokens?: number } }).usage?.output_tokens;
-    }
-    if (event.type === "message_start" && "message" in event) {
-      inputTokens = (event as { message?: { usage?: { input_tokens?: number } } }).message?.usage?.input_tokens;
-    }
-  }
-
-  return { text: fullResponse, provider, model, inputTokens, outputTokens };
+  throw new Error(`Unsupported AI provider: ${provider}`);
 }

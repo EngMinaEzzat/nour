@@ -125,7 +125,7 @@ const MESSAGE_TYPES = [
 ] as const;
 
 type MsgType = typeof MESSAGE_TYPES[number]["id"];
-type AiModel = "claude" | "gemini";
+type AiModel = "gemini";
 
 function AiReplySection({
   customerName,
@@ -145,7 +145,7 @@ function AiReplySection({
   const { t, i18n } = useTranslation();
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
   const [msgType, setMsgType] = useState<MsgType>("confirmation");
-  const [aiModel, setAiModel] = useState<AiModel>("claude");
+  const [aiModel, setAiModel] = useState<AiModel>("gemini");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [draft, setDraft] = useState("");
@@ -220,25 +220,7 @@ function AiReplySection({
             ))}
           </div>
 
-          {/* Model + Generate row */}
           <div className="flex gap-2">
-            <div className="flex rounded-lg border border-border/60 overflow-hidden text-[11px] font-medium shrink-0">
-              {(["claude", "gemini"] as AiModel[]).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setAiModel(m)}
-                  className={cn(
-                    "px-2.5 py-1.5 transition-colors capitalize",
-                    aiModel === m
-                      ? "bg-violet-600 text-white"
-                      : "text-muted-foreground hover:bg-muted"
-                  )}
-                >
-                  {m === "claude" ? "Claude" : "Gemini"}
-                </button>
-              ))}
-            </div>
             <Button
               onClick={generateDraft}
               disabled={loading}

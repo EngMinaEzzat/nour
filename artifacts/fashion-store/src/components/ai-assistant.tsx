@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslation } from "react-i18next";
 
-type AiModel = "claude" | "gemini";
+type AiModel = "gemini";
 
 interface ChatMessage {
   id: string;
@@ -88,7 +88,7 @@ export function AiAssistant() {
   const { isAuthenticated, merchant } = useAuth();
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [model, setModel] = useState<AiModel>("claude");
+  const [model, setModel] = useState<AiModel>("gemini");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<number | null>(null);
@@ -306,23 +306,7 @@ export function AiAssistant() {
                 <p className="text-xs text-white/70 truncate">{storeName}</p>
               </div>
 
-              {/* Model toggle */}
-              <div className="flex rounded-full overflow-hidden border border-white/20 text-[11px] shrink-0">
-                {(["claude", "gemini"] as AiModel[]).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setModel(m)}
-                    className={cn(
-                      "px-2.5 py-1 transition-colors",
-                      model === m
-                        ? "bg-white/20 font-semibold"
-                        : "hover:bg-white/10",
-                    )}
-                  >
-                    {m === "claude" ? "Claude" : "Gemini"}
-                  </button>
-                ))}
-              </div>
+
 
               <div className="flex items-center gap-1 shrink-0">
                 {messages.length > 0 && (
@@ -419,7 +403,7 @@ export function AiAssistant() {
               </div>
               <p className="text-[10px] text-muted-foreground/50 text-center mt-1.5">
                 {t("assistant.poweredBy", {
-                  model: model === "claude" ? "Claude AI" : "Gemini AI",
+                  model: "Gemini AI",
                 })}
               </p>
             </div>

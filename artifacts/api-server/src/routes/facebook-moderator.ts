@@ -1,7 +1,6 @@
 import { Router } from "express";
 import type { Response } from "express";
 import { requireAuth } from "../middleware/require-role";
-import { anthropic } from "@workspace/integrations-anthropic-ai";
 import { ai as gemini } from "@workspace/integrations-gemini-ai";
 import {
   db,
@@ -13,7 +12,7 @@ import {
 import { eq, and } from "drizzle-orm";
 
 const router = Router();
-type AiModel = "claude" | "gemini";
+type AiModel = "gemini";
 
 const FB_API = "https://graph.facebook.com/v19.0";
 
@@ -92,21 +91,12 @@ async function callAI(
   system: string,
   prompt: string,
 ): Promise<string> {
-  if (model === "gemini") {
-    const response = await gemini.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: [{ role: "user", parts: [{ text: `${system}\n\n${prompt}` }] }],
-      config: { maxOutputTokens: 1024 },
-    });
-    return response.text ?? "";
-  }
-  const msg = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 1024,
-    system,
-    messages: [{ role: "user", content: prompt }],
+  const response = await gemini.models.generateContent({
+    model: "gemini-3.5-flash",
+    contents: [{ role: "user", parts: [{ text: `${system}\n\n${prompt}` }] }],
+    config: { maxOutputTokens: 1024 },
   });
-  return msg.content[0].type === "text" ? msg.content[0].text : "";
+  return response.text ?? "";
 }
 
 /* ─── routes ─── */
@@ -391,7 +381,7 @@ router.post("/facebook/ai-draft", requireAuth, async (req, res) => {
     authorName,
     content,
     postContext,
-    model = "claude",
+    model = "gemini",
   } = req.body as {
     itemId?: string;
     itemType?: string;
@@ -405,7 +395,7 @@ router.post("/facebook/ai-draft", requireAuth, async (req, res) => {
     return res.status(400).json({ error: "محتوى التعليق/الرسالة مطلوب" });
 
   const merchantId = req.session.merchantId!;
-  const aiModel: AiModel = model === "gemini" ? "gemini" : "claude";
+  const aiModel: AiModel = "gemini";
 
   try {
     const [merchant] = await db

@@ -97,7 +97,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </motion.main>
 
         {/* ─── AI Assistant floating widget ─── */}
-        <AiAssistant />
+        {!location.startsWith("/store-builder") && <AiAssistant />}
 
         {/* ─── Footer ─── */}
         <Footer />
