@@ -119,3 +119,6 @@
 ## 2026-06-15 - Fixed typecheck failure in store-config.ts
 **Learning:** Adding string literals to a union type (`PersonalityType`, `StyleType`) without also adding them to the corresponding `Record<..., ...>` constant dictionary causes typecheck failures (`TS2740: ... is missing the following properties`).
 **Action:** Always ensure that when adding a new enum or literal type to a union used as a `Record` key, the corresponding dictionary is also updated, or remove the unimplemented literals.
+## 2024-06-24 - Group independent Drizzle queries into Promise.all to avoid blocking IO
+**Learning:** Found sequential sequential database querying pattern with `await` in the `/tenants/:id/stats` endpoint. Fetching different independent datasets sequentially slows down the API endpoint unnecessarily.
+**Action:** Always group independent sub-queries in `Promise.all` blocks to avoid blocking the Node.js event loop and database connections.
