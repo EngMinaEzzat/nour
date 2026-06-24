@@ -1,6 +1,6 @@
 import { VISUAL_THEMES } from '@/lib/themes/registry';
 import i18n from "i18next";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import StoreAssistant from "./StoreAssistant";
 import PromptHelperWidget from "./PromptHelperWidget";
@@ -74,6 +74,20 @@ export default function EditorLeftSidebar({
   
   const [aiSubTab, setAiSubTab] = useState<"chat" | "images">("chat");
   const [addingSection, setAddingSection] = useState(false);
+  const sidebarContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (tab !== "sections") return;
+
+    const timer = setTimeout(() => {
+      const activeEl = sidebarContainerRef.current?.querySelector('[data-active="true"]');
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [selectedId, tab]);
   const [sidebarHintDismissed, setSidebarHintDismissed] = useState(() => {
     try {
       return localStorage.getItem("nour_sidebar_hint_seen") === "1";
@@ -200,7 +214,7 @@ export default function EditorLeftSidebar({
 
       {tab === "sections" && (
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+          <div ref={sidebarContainerRef} className="flex-1 overflow-y-auto">
             {/* First-visit hint banner */}
             {!sidebarHintDismissed && (
               <div className="mx-2 mt-2 p-3 rounded-xl bg-rose-50 border border-rose-100 relative">
@@ -276,6 +290,7 @@ export default function EditorLeftSidebar({
                           <div
                             key={section.id}
                             onClick={() => onSelect(section.id)}
+                            data-active={isSelected ? "true" : undefined}
                             className={`group relative rounded-xl p-3 cursor-pointer transition-all ${isSelected ? "bg-rose-50 border border-[#8B1A35]/20" : "hover:bg-stone-50 border border-transparent"}`}
                           >
                             <div className="flex items-center gap-2.5">
