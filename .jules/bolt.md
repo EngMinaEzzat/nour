@@ -119,3 +119,6 @@
 ## 2026-06-15 - Fixed typecheck failure in store-config.ts
 **Learning:** Adding string literals to a union type (`PersonalityType`, `StyleType`) without also adding them to the corresponding `Record<..., ...>` constant dictionary causes typecheck failures (`TS2740: ... is missing the following properties`).
 **Action:** Always ensure that when adding a new enum or literal type to a union used as a `Record` key, the corresponding dictionary is also updated, or remove the unimplemented literals.
+## 2024-11-20 - Grouping independent Drizzle queries in hot paths
+**Learning:** In heavily accessed public routes like `storefront.ts`, a sequence of independent metadata queries (e.g., categories, stats, tenant settings) executed sequentially creates a compounding performance bottleneck due to IO blocking.
+**Action:** Always identify independent database fetches in route handlers and group them using a single `Promise.all` with destructured assignment to execute them concurrently, significantly reducing response latency.
