@@ -143,23 +143,21 @@ router.get("/tenants/:id/stats", requirePlatformAdmin, async (req, res) => {
       .from(tenantsTable)
       .where(eq(tenantsTable.id, tenantId));
 
-    const [productCount] = await db.select({ count: count() }).from(productsTable).where(eq(productsTable.tenantId, tenantId));
-    const [orderStats] = await db
-      .select({ totalOrders: count(), totalRevenue: sum(ordersTable.totalAmount) })
-      .from(ordersTable)
-      .where(eq(ordersTable.tenantId, tenantId));
-
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const [recentOrderStats] = await db
-      .select({ count: count() })
-      .from(ordersTable)
-      .where(sql`${ordersTable.tenantId} = ${tenantId} AND ${ordersTable.createdAt} >= ${thirtyDaysAgo}`);
 
-    const customerRows = await db
-      .selectDistinct({ customerId: ordersTable.customerId })
-      .from(ordersTable)
-      .where(eq(ordersTable.tenantId, tenantId));
+    // ⚡ Bolt Optimization: Group independent tenant sub-queries in Promise.all to avoid blocking IO
+    const [
+      [productCount],
+      [orderStats],
+      [recentOrderStats],
+      customerRows
+    ] = await Promise.all([
+      db.select({ count: count() }).from(productsTable).where(eq(productsTable.tenantId, tenantId)),
+      db.select({ totalOrders: count(), totalRevenue: sum(ordersTable.totalAmount) }).from(ordersTable).where(eq(ordersTable.tenantId, tenantId)),
+      db.select({ count: count() }).from(ordersTable).where(sql`${ordersTable.tenantId} = ${tenantId} AND ${ordersTable.createdAt} >= ${thirtyDaysAgo}`),
+      db.selectDistinct({ customerId: ordersTable.customerId }).from(ordersTable).where(eq(ordersTable.tenantId, tenantId)),
+    ]);
 
     const plan = tenant ? getPlan(tenant.planCode) : null;
 
