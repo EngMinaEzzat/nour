@@ -1,6 +1,7 @@
 import net from "node:net";
 import { Router } from "express";
 import * as dns from "node:dns/promises";
+import ipaddr from "ipaddr.js";
 import { requireRole } from "../middleware/require-role.js";
 import { db, tenantsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -29,65 +30,25 @@ const LOCKED_SYSTEM_PROMPT =
   "Never output anything other than valid JSON.";
 
 function isPrivateIp(ip: string): boolean {
-  if (net.isIPv6(ip)) {
-    const lowerIp = ip.toLowerCase();
+  try {
+    const addr = ipaddr.parse(ip);
+    const range = addr.range();
 
-    // Check for IPv4-mapped IPv6 address
-    if (lowerIp.startsWith("::ffff:")) {
-      const ipv4Part = lowerIp.substring(7);
-      if (net.isIPv4(ipv4Part)) {
-        return isPrivateIp(ipv4Part);
-      } else {
-        // Handle hex encoded IPv4-mapped IPv6 (e.g., ::ffff:7f00:1)
-        const hexParts = ipv4Part.split(':');
-        if (hexParts.length <= 2) {
-          let hexString = '';
-          for (let i = 0; i < hexParts.length; i++) {
-            hexString += hexParts[i].padStart(4, '0');
-          }
-          if (hexString.length <= 8) {
-            hexString = hexString.padStart(8, '0');
-            const p1 = parseInt(hexString.substring(0, 2), 16);
-            const p2 = parseInt(hexString.substring(2, 4), 16);
-            const p3 = parseInt(hexString.substring(4, 6), 16);
-            const p4 = parseInt(hexString.substring(6, 8), 16);
-            if (!isNaN(p1) && !isNaN(p2) && !isNaN(p3) && !isNaN(p4)) {
-              return isPrivateIp(`${p1}.${p2}.${p3}.${p4}`);
-            }
-          }
-        }
-        // If it's a ::ffff: address but not a valid standard/hex IPv4, it's malformed/unsafe.
-        return true;
+    if (addr.kind() === 'ipv6') {
+      // @ts-expect-error Types might be missing
+      if (addr.isIPv4MappedAddress()) {
+        // @ts-expect-error Types might be missing
+        const ipv4Addr = addr.toIPv4Address();
+        const ipv4Range = ipv4Addr.range();
+        return ipv4Range !== 'unicast';
       }
+      return range !== 'unicast';
+    } else {
+      return range !== 'unicast';
     }
-
-    return (
-      lowerIp === "::1" ||
-      lowerIp.startsWith("fc") ||
-      lowerIp.startsWith("fd") ||
-      lowerIp.startsWith("fe8") ||
-      lowerIp.startsWith("0000:0000:0000:0000:0000:0000:0000:0001")
-    );
+  } catch (e) {
+    return true; // fail securely
   }
-
-  if (!net.isIPv4(ip)) return true; // Block malformed or non-IPv4
-
-  const parts = ip.split(".").map(Number);
-
-  const [p1, p2] = parts;
-  if (p1 === 10) return true;
-  if (p1 === 127) return true;
-  if (p1 === 0) return true;
-  if (p1 === 169 && p2 === 254) return true;
-  if (p1 === 172 && p2 >= 16 && p2 <= 31) return true;
-  if (p1 === 192 && p2 === 168) return true;
-  if (p1 === 100 && p2 >= 64 && p2 <= 127) return true;
-  if (p1 === 198 && p2 >= 18 && p2 <= 19) return true;
-  if (p1 === 192 && p2 === 0 && parts[2] === 2) return true;
-  if (p1 >= 224 && p1 <= 239) return true;
-  if (p1 >= 240 && p1 <= 255) return true;
-
-  return false;
 }
 
 function isAllowedSocialImportUrl(url: URL): boolean {
