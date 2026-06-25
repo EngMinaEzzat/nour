@@ -2,9 +2,11 @@ import React from 'react';
 import type { StorefrontResponse } from '@workspace/api-client-react';
 import { type StorefrontProps } from '@/components/themes/types';
 import { Link } from 'wouter';
+import { useTranslation } from 'react-i18next';
 import { productImageUrl } from '@/lib/image-url';
 
 export function OasisAtelierStorefront({ store, products, categories }: StorefrontProps) {
+    const { t } = useTranslation();
     return (
         <div className="min-h-screen bg-[#faf8f5] text-[#2d2926] font-sans selection:bg-[#c2a878]/30 overflow-x-hidden relative" style={{ fontFamily: '"Playfair Display", serif' }}>
 
@@ -106,15 +108,15 @@ export function OasisAtelierStorefront({ store, products, categories }: Storefro
             {/* BottomNavBar (Mobile) */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-xl bg-[#f2efe9]/95 backdrop-blur-lg border-t border-[#d4cfc7] shadow-[0_-4px_12px_rgba(45,41,38,0.08)]">
                 <div className="flex justify-around items-center py-3 px-4">
-                    <button className="flex flex-col items-center justify-center text-[#5c554d] hover:text-[#8b6f4e]">
+                    <button className="flex flex-col items-center justify-center text-[#5c554d] hover:text-[#8b6f4e]" aria-label={t("storefront.explore", "Explore")}>
                         <span className="material-symbols-outlined mb-1 text-xl">explore</span>
                         <span className="font-sans text-[9px] uppercase tracking-widest">Explore</span>
                     </button>
-                    <button className="flex flex-col items-center justify-center text-[#8b6f4e] bg-[#e6dbce] rounded-full px-4 py-1">
+                    <button className="flex flex-col items-center justify-center text-[#8b6f4e] bg-[#e6dbce] rounded-full px-4 py-1" aria-label={t("storefront.curated", "Curated")}>
                         <span className="material-symbols-outlined mb-1 text-xl">auto_awesome</span>
                         <span className="font-sans text-[9px] uppercase tracking-widest">Curated</span>
                     </button>
-                    <button className="flex flex-col items-center justify-center text-[#5c554d] hover:text-[#8b6f4e]">
+                    <button className="flex flex-col items-center justify-center text-[#5c554d] hover:text-[#8b6f4e]" aria-label={t("storefront.cart", "Cart")}>
                         <span className="material-symbols-outlined mb-1 text-xl">shopping_basket</span>
                         <span className="font-sans text-[9px] uppercase tracking-widest">Cart</span>
                     </button>
