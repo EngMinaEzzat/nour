@@ -251,7 +251,9 @@ router.post("/auth/register", authLimiter, async (req, res) => {
       req.log.warn({ err, tenantId: result.tenant.id }, "Default shipping seed failed — non-fatal"),
     );
 
-    const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
+    const baseUrl = (process.env.APP_BASE_URL && process.env.APP_BASE_URL.trim() !== "")
+      ? process.env.APP_BASE_URL
+      : `${req.protocol}://${req.get("host")}`;
     const storeUrl = `${baseUrl}/store/${slug}`;
 
     // Wait briefly for Vercel delivery, but never let email latency block signup.
@@ -459,7 +461,9 @@ router.post("/auth/forgot-password", authLimiter, async (req, res) => {
 
     await db.insert(passwordResetTokensTable).values({ merchantId: merchant.id, token: tokenHash, expiresAt });
 
-    const baseUrl = process.env.APP_BASE_URL ?? `${req.protocol}://${req.get("host")}`;
+    const baseUrl = (process.env.APP_BASE_URL && process.env.APP_BASE_URL.trim() !== "")
+      ? process.env.APP_BASE_URL
+      : `${req.protocol}://${req.get("host")}`;
     const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
     const { sent } = await sendPasswordResetEmail(email, resetLink);

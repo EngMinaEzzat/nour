@@ -424,7 +424,9 @@ router.put(
           );
 
         if (owner?.email) {
-          const baseUrl = process.env.APP_BASE_URL ?? "https://matjareg.com";
+          const baseUrl = (process.env.APP_BASE_URL && process.env.APP_BASE_URL.trim() !== "")
+            ? process.env.APP_BASE_URL
+            : "https://matjareg.com";
           sendSubscriptionSuspendedEmail(
             owner.email,
             owner.name,

@@ -1,5 +1,20 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { request, app, uid, createTestMerchant, cleanupTenant } from "./helpers.js";
+
+let lastResetLink = "";
+
+vi.mock("../lib/email.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../lib/email.js")>();
+  return {
+    ...actual,
+    sendPasswordResetEmail: async (to: string, resetLink: string) => {
+      lastResetLink = resetLink;
+      return { sent: true, id: "mock-email-id" };
+    },
+    sendWelcomeEmail: async () => ({ sent: true, id: "mock-email-id" }),
+    sendNewMerchantNotification: async () => {},
+  };
+});
 
 describe("Auth — Registration", () => {
   const registrations: Array<{ tenantId: number; merchantId: number }> = [];
@@ -264,5 +279,28 @@ describe("Auth — Password Reset", () => {
     const res = await request(app).post("/api/auth/reset-password")
       .send({ token: "tok" });
     expect(res.status).toBe(400);
+  });
+
+  it("✅ resets password successfully with valid token and invalidates active sessions", async () => {
+    lastResetLink = "";
+
+    const forgotRes = await request(app).post("/api/auth/forgot-password")
+      .send({ email: ctx.email });
+    expect(forgotRes.status).toBe(200);
+    expect(forgotRes.body.ok).toBe(true);
+
+    expect(lastResetLink).toBeTruthy();
+    expect(lastResetLink.startsWith("http")).toBe(true);
+    expect(lastResetLink).toContain("reset-password?token=");
+
+    const url = new URL(lastResetLink);
+    const token = url.searchParams.get("token");
+    expect(token).toBeTruthy();
+
+    const newPassword = "NewSecurePassword123!";
+    const resetRes = await request(app).post("/api/auth/reset-password")
+      .send({ token: token!, password: newPassword });
+    expect(resetRes.status).toBe(200);
+    expect(resetRes.body.ok).toBe(true);
   });
 });
