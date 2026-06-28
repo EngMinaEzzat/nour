@@ -266,10 +266,10 @@ export default function Discounts() {
                               onCheckedChange={() => toggleActive(code)}
                               disabled={updateMutation.isPending}
                             />
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(code)}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(code)} aria-label={t("common.buttons.edit", "Edit")}>
                               <Pencil className="w-3.5 h-3.5" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:text-destructive" onClick={() => setDeleteTarget(code)}>
+                            <Button size="icon" variant="ghost" className="h-8 w-8 hover:text-destructive" onClick={() => setDeleteTarget(code)} aria-label={t("common.buttons.delete", "Delete")}>
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
                           </div>
