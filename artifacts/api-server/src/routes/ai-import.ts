@@ -32,20 +32,17 @@ const LOCKED_SYSTEM_PROMPT =
 function isPrivateIp(ip: string): boolean {
   try {
     const addr = ipaddr.parse(ip);
-    const range = addr.range();
 
-    if (addr.kind() === 'ipv6') {
-      // @ts-expect-error Types might be missing
-      if (addr.isIPv4MappedAddress()) {
-        // @ts-expect-error Types might be missing
-        const ipv4Addr = addr.toIPv4Address();
-        const ipv4Range = ipv4Addr.range();
-        return ipv4Range !== 'unicast';
-      }
-      return range !== 'unicast';
-    } else {
-      return range !== 'unicast';
+    // Explicitly reject ALL variants of IPv4-mapped IPv6 addresses for safety,
+    // as they can bypass basic regex and node:net filters and resolve to local IPv4s.
+    // .isIPv4MappedAddress() securely handles partial compressions like 0::ffff:127.0.0.1
+    // @ts-expect-error Types might be missing
+    if (addr.kind() === 'ipv6' && addr.isIPv4MappedAddress()) {
+      return true; // fail securely on any mapped IPv4
     }
+
+    const range = addr.range();
+    return range !== 'unicast';
   } catch (e) {
     return true; // fail securely
   }
