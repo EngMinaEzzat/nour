@@ -303,4 +303,23 @@ describe("Auth — Password Reset", () => {
     expect(resetRes.status).toBe(200);
     expect(resetRes.body.ok).toBe(true);
   });
+
+  it("✅ strips trailing slashes from APP_BASE_URL when generating reset link", async () => {
+    lastResetLink = "";
+    const originalAppBaseUrl = process.env.APP_BASE_URL;
+    process.env.APP_BASE_URL = "https://nour-snowy-two.vercel.app/";
+
+    try {
+      const forgotRes = await request(app).post("/api/auth/forgot-password")
+        .send({ email: ctx.email });
+      expect(forgotRes.status).toBe(200);
+      expect(forgotRes.body.ok).toBe(true);
+
+      expect(lastResetLink).toBeTruthy();
+      expect(lastResetLink).not.toContain(".app//reset-password");
+      expect(lastResetLink).toContain("https://nour-snowy-two.vercel.app/reset-password?token=");
+    } finally {
+      process.env.APP_BASE_URL = originalAppBaseUrl;
+    }
+  });
 });

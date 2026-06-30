@@ -10,7 +10,7 @@ import {
 import { buildWhatsAppLink } from "./whatsapp.js";
 
 const APP_BASE_URL = (process.env.APP_BASE_URL && process.env.APP_BASE_URL.trim() !== "")
-  ? process.env.APP_BASE_URL
+  ? process.env.APP_BASE_URL.replace(/\/+$/, "")
   : "https://matjareg.com";
 
 function billingUrl() {

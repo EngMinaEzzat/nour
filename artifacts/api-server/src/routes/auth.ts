@@ -252,7 +252,7 @@ router.post("/auth/register", authLimiter, async (req, res) => {
     );
 
     const baseUrl = (process.env.APP_BASE_URL && process.env.APP_BASE_URL.trim() !== "")
-      ? process.env.APP_BASE_URL
+      ? process.env.APP_BASE_URL.replace(/\/+$/, "")
       : `${req.protocol}://${req.get("host")}`;
     const storeUrl = `${baseUrl}/store/${slug}`;
 
@@ -462,7 +462,7 @@ router.post("/auth/forgot-password", authLimiter, async (req, res) => {
     await db.insert(passwordResetTokensTable).values({ merchantId: merchant.id, token: tokenHash, expiresAt });
 
     const baseUrl = (process.env.APP_BASE_URL && process.env.APP_BASE_URL.trim() !== "")
-      ? process.env.APP_BASE_URL
+      ? process.env.APP_BASE_URL.replace(/\/+$/, "")
       : `${req.protocol}://${req.get("host")}`;
     const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
