@@ -31,21 +31,9 @@ const LOCKED_SYSTEM_PROMPT =
 
 function isPrivateIp(ip: string): boolean {
   try {
-    const addr = ipaddr.parse(ip);
-    const range = addr.range();
-
-    if (addr.kind() === 'ipv6') {
-      // @ts-expect-error Types might be missing
-      if (addr.isIPv4MappedAddress()) {
-        // @ts-expect-error Types might be missing
-        const ipv4Addr = addr.toIPv4Address();
-        const ipv4Range = ipv4Addr.range();
-        return ipv4Range !== 'unicast';
-      }
-      return range !== 'unicast';
-    } else {
-      return range !== 'unicast';
-    }
+    // ipaddr.process normalizes IPv4-mapped IPv6 addresses accurately
+    const addr = ipaddr.process(ip);
+    return addr.range() !== 'unicast';
   } catch (e) {
     return true; // fail securely
   }
