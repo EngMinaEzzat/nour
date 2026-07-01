@@ -37,6 +37,7 @@ import { idFromPublicSlug, publicEntitySlug } from "@/lib/seo-slugs";
 import { productImageUrl } from "@/lib/image-url";
 import { createDefaultConfig, type SectionConfig, type StoreConfig, isColorDark } from "@/lib/store-config";
 import { GlowGridStorefront } from "@/components/themes/storefronts/GlowGridStorefront";
+import { ElegantFashionStorefront } from "@/components/themes/storefronts/ElegantFashionStorefront";
 
 const SERIF = "'Cormorant Garamond', Georgia, serif";
 
@@ -561,6 +562,9 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
   const storeThemeId = ((store as any).theme as string) || "classic";
   if (storeThemeId === "glow-grid") {
     return <GlowGridStorefront store={store} products={store.products || []} categories={store.categories || []} />;
+  }
+  if (storeThemeId === "elegant") {
+    return <ElegantFashionStorefront store={store} products={store.products || []} categories={store.categories || []} />;
   }
 
   // ── Colours ──

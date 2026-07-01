@@ -1,3 +1,7 @@
 ## 2025-05-15 - [Accessible Icon-Only Buttons and Localized Feedback]
 **Learning:** In an RTL (Right-to-Left) and localized (Arabic) storefront, icon-only buttons (like Wishlist hearts or Star ratings) are frequently used for visual cleanliness, but they are completely invisible to screen readers without explicit `aria-label` attributes. Furthermore, silent state changes (like adding to a bag) need prominent, localized feedback (Success Toasts) to confirm the action, especially when the cart drawer is not automatically opened.
 **Action:** Always provide `aria-label` for icon-only buttons and use success toasts for critical async actions like "Add to Bag" to ensure accessibility and clear user feedback.
+
+## 2024-07-01 - Create completely custom theme based on a Stitch design system
+**Learning:** When using Stitch to generate a full-page theme/storefront design, we can translate its `designSystem` and layout suggestions directly into a standalone React component (like `ElegantFashionStorefront.tsx`). This component should act as a complete replacement for the default storefront layout by checking the `storeThemeId` in `storefront.tsx` and returning the custom component early.
+**Action:** When asked to completely redesign a theme and use Stitch, use the `stitch_generate_screen_from_text` tool, implement the resulting layout in a dedicated component file, export it from `index.ts`, and add an early return in `storefront.tsx` based on the requested theme's ID, ensuring to wire up necessary global hooks (like `useCart`) inside the new component.
