@@ -1,8 +1,10 @@
 import { type StorefrontProps } from '@/components/themes/types';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { productImageUrl } from "@/lib/image-url";
 
 export function GlowGridStorefront({ store, products, categories }: StorefrontProps) {
+    const { t } = useTranslation();
 
 
     return (
@@ -53,8 +55,8 @@ export function GlowGridStorefront({ store, products, categories }: StorefrontPr
                                     <h3 className="font-bold text-xl text-white" style={{ fontFamily: 'Anybody, sans-serif' }}>{p.name}</h3>
                                     <div className="flex items-center justify-between mt-2">
                                         <span className="text-[#cdf200] font-bold text-lg">EGP {p.price}</span>
-                                        <button className="w-10 h-10 rounded-full border border-[#8e8fa3] text-[#b9c3ff] flex items-center justify-center hover:bg-[#313030] transition-colors">
-                                            <span className="material-symbols-outlined font-sans font-bold text-sm">+</span>
+                                        <button aria-label={t("storefront.products.addToCart", "Add to Cart")} className="w-10 h-10 rounded-full border border-[#8e8fa3] text-[#b9c3ff] flex items-center justify-center hover:bg-[#313030] transition-colors">
+                                            <span className="material-symbols-outlined font-sans font-bold text-sm" aria-hidden="true">+</span>
                                         </button>
                                     </div>
                                 </div>
