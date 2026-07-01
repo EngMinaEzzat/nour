@@ -140,15 +140,27 @@ function TrialBanner({ trialEndsAt }: { trialEndsAt: string }) {
   const { t, i18n } = useTranslation();
   const daysLeft = Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000));
   const urgent = daysLeft <= 3;
+  const isExpired = daysLeft === 0;
+
   return (
-    <div className={`flex items-start gap-3 p-4 rounded-xl border ${urgent ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"}`}>
-      <Clock className={`w-5 h-5 shrink-0 mt-0.5 ${urgent ? "text-red-500" : "text-amber-500"}`} />
+    <div className={`flex items-start gap-3 p-4 rounded-xl border ${
+      isExpired 
+        ? "bg-destructive/10 border-destructive/30 text-destructive-foreground" 
+        : urgent 
+          ? "bg-red-50 border-red-200" 
+          : "bg-amber-50 border-amber-200"
+    }`}>
+      <Clock className={`w-5 h-5 shrink-0 mt-0.5 ${isExpired ? "text-destructive animate-pulse" : urgent ? "text-red-500" : "text-amber-500"}`} />
       <div>
-        <p className={`text-sm font-semibold ${urgent ? "text-red-800" : "text-amber-800"}`}>
-          {daysLeft === 0 ? t("billing.banners.trialEnded") : t("billing.banners.trialDaysLeft", { days: daysLeft })}
+        <p className={`text-sm font-bold ${isExpired ? "text-destructive" : urgent ? "text-red-800" : "text-amber-800"}`}>
+          {isExpired 
+            ? t("billing.banners.trialExpiredNotice", { defaultValue: "انتهت الفترة التجريبية — لوحة التحكم مقفلة" }) 
+            : t("billing.banners.trialDaysLeft", { days: daysLeft })}
         </p>
-        <p className={`text-xs mt-0.5 ${urgent ? "text-red-600" : "text-amber-700"}`}>
-          {t("billing.banners.trialEndsOn", { date: fmt(trialEndsAt, i18n.language) })}
+        <p className={`text-xs mt-1 ${isExpired ? "text-destructive/90" : urgent ? "text-red-600" : "text-amber-700"}`}>
+          {isExpired 
+            ? t("billing.banners.trialExpiredDesc", { defaultValue: "تم إيقاف ميزات المتجر مؤقتاً. يرجى اختيار خطة أدناه ورفع إيصال التحويل لتجديد اشتراكك واستعادة الوصول الكامل لعلامات التبويب والصفحات الأخرى." })
+            : t("billing.banners.trialEndsOn", { date: fmt(trialEndsAt, i18n.language) })}
         </p>
       </div>
     </div>

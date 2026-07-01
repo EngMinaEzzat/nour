@@ -9,12 +9,31 @@ import { getMerchantNav } from "./layout-components/navigation-config";
 import { Sidebar } from "./layout-components/sidebar";
 import { Header } from "./layout-components/header/header";
 import { Footer } from "./layout-components/footer";
+import { useToast } from "@/hooks/use-toast";
 
 export function Layout({ children }: { children: ReactNode }) {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isAuthenticated, logout, merchant } = useAuth();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const { toast } = useToast();
+
+  const isSubscriptionActive = !merchant || merchant.isPlatformAdmin || !merchant.subscriptionStatus || merchant.subscriptionStatus === "active" || (
+    merchant.subscriptionStatus === "trial" &&
+    (!merchant.trialEndsAt || new Date(merchant.trialEndsAt) > new Date())
+  );
+
+  useEffect(() => {
+    const currentPath = location.split("?")[0];
+    if (isAuthenticated && !isSubscriptionActive && currentPath !== "/billing") {
+      toast({
+        title: t("billing.banners.trialExpiredNotice", { defaultValue: "انتهت الفترة التجريبية" }),
+        description: t("billing.banners.trialExpiredToast", { defaultValue: "تم توجيهك إلى صفحة الاشتراك لتجديد حسابك." }),
+        variant: "destructive",
+      });
+      navigate("/billing");
+    }
+  }, [isAuthenticated, isSubscriptionActive, location, navigate, toast, t]);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     if (typeof window !== "undefined") {

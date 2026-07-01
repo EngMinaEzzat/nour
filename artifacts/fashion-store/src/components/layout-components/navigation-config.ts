@@ -39,8 +39,31 @@ export type MerchantNavGroup = {
 };
 
 export function getMerchantNav(
-  merchant: { slug?: string; role?: string; isPlatformAdmin?: boolean } | null,
+  merchant: {
+    slug?: string;
+    role?: string;
+    isPlatformAdmin?: boolean;
+    subscriptionStatus?: string;
+    trialEndsAt?: string | null;
+  } | null,
 ): MerchantNavGroup[] {
+  const isSubscriptionActive = !merchant || merchant.isPlatformAdmin || !merchant.subscriptionStatus || merchant.subscriptionStatus === "active" || (
+    merchant.subscriptionStatus === "trial" &&
+    (!merchant.trialEndsAt || new Date(merchant.trialEndsAt) > new Date())
+  );
+
+  if (merchant && !isSubscriptionActive) {
+    return [
+      {
+        title: "layout.group.settingsPreferences",
+        fallback: "Settings & Preferences",
+        items: [
+          { name: "layout.billing", href: "/billing", icon: CreditCard },
+        ],
+      },
+    ];
+  }
+
   const groups: MerchantNavGroup[] = [
     {
       title: "layout.group.storeManagement",

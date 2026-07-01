@@ -92,6 +92,14 @@ export function requireRole(...roles: MerchantRole[]) {
 
       if (subscriptionStatus === "active") return next();
 
+      // Bypass subscription gate for billing-related requests, plan entitlements, and image uploads
+      const isBypassRoute =
+        req.path.startsWith("/billing/") ||
+        req.path === "/plans/entitlements" ||
+        req.path === "/uploads/image";
+
+      if (isBypassRoute) return next();
+
       if (subscriptionStatus === "trial") {
         if (!trialEndsAt || trialEndsAt > nowDate) return next();
         return res.status(402).json({

@@ -69,7 +69,7 @@ describe("Middleware — Subscription Gate (trial)", () => {
       trialEndsAt: new Date(Date.now() - 86400000),
     }).where(eq(tenantsTable.id, expiredCtx.tenantId));
 
-    const res = await expiredCtx.agent.get("/api/billing/status");
+    const res = await expiredCtx.agent.get("/api/store-settings");
     expect(res.status).toBe(402);
     expect(res.body.code).toBe("TRIAL_EXPIRED");
     expect(res.body).toHaveProperty("trialEndsAt");
@@ -83,7 +83,7 @@ describe("Middleware — Subscription Gate (trial)", () => {
     await db.update(tenantsTable).set({ subscriptionStatus: "suspended" })
       .where(eq(tenantsTable.id, suspCtx.tenantId));
 
-    const res = await suspCtx.agent.get("/api/billing/status");
+    const res = await suspCtx.agent.get("/api/store-settings");
     expect(res.status).toBe(402);
     expect(res.body.code).toBe("SUBSCRIPTION_SUSPENDED");
 
@@ -96,7 +96,7 @@ describe("Middleware — Subscription Gate (trial)", () => {
     await db.update(tenantsTable).set({ subscriptionStatus: "past_due" })
       .where(eq(tenantsTable.id, pastCtx.tenantId));
 
-    const res = await pastCtx.agent.get("/api/billing/status");
+    const res = await pastCtx.agent.get("/api/store-settings");
     expect(res.status).toBe(402);
     expect(res.body.code).toBe("SUBSCRIPTION_SUSPENDED");
 
@@ -109,7 +109,7 @@ describe("Middleware — Subscription Gate (trial)", () => {
     await db.update(tenantsTable).set({ subscriptionStatus: "canceled" })
       .where(eq(tenantsTable.id, cancelCtx.tenantId));
 
-    const res = await cancelCtx.agent.get("/api/billing/status");
+    const res = await cancelCtx.agent.get("/api/store-settings");
     expect(res.status).toBe(402);
     expect(res.body.code).toBe("SUBSCRIPTION_CANCELED");
 
