@@ -20,7 +20,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
   const isSubscriptionActive = !merchant || merchant.isPlatformAdmin || !merchant.subscriptionStatus || merchant.subscriptionStatus === "active" || (
     merchant.subscriptionStatus === "trial" &&
-    (!merchant.subscriptionTrialEnd || new Date(merchant.subscriptionTrialEnd) > new Date())
+    true
   );
 
   useEffect(() => {
