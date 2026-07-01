@@ -1105,7 +1105,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       case "about":
       case "testimonials":
       case "whatsapp":
-        return <EditorTextSection section={section} primaryColor={p} onScrollToProducts={scrollToProducts} whatsappNumber={getWhatsAppNumber(store as any)} storeName={store.name} />;
+        return <EditorTextSection section={section} primaryColor={p} onScrollToProducts={scrollToProducts} whatsappNumber={store ? getWhatsAppNumber(store as any) : undefined} storeName={store?.name} />;
+
       default:
         return null;
     }

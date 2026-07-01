@@ -87,3 +87,5 @@ AggregateError [ECONNREFUSED]:
 AggregateError [ECONNREFUSED]:
     at internalConnectMultiple (node:net:1134:18)
     at afterConnectMultiple (node:net:1715:7)
+4:40:16 PM [vite] (client) hmr update /src/pages/storefront.tsx, /src/index.css
+4:47:20 PM [vite] (client) hmr update /src/components/layout.tsx, /src/index.css
