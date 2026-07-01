@@ -14,7 +14,7 @@ import { getStoreUrl } from "@/lib/utils";
 import { NavBadgeKey, BADGE_CONFIG } from "@/hooks/use-layout-data";
 import { MerchantNavGroup, PUBLIC_NAV } from "../navigation-config";
 import { NavUrgencyBadge } from "../nav-urgency-badge";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface MobileMenuContentProps {
   isAuthenticated: boolean;
@@ -38,6 +38,42 @@ export function MobileMenuContent({
   const { t } = useTranslation();
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // On mount, automatically open advanced menu if an active child is inside,
+  // then scroll the active item into view. We use a ref to track if this initial
+  // mount setup has completed to prevent hijacking user scroll later.
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    if (isMounted.current || !menuRef.current) return;
+
+    const activeItemPaths = merchantNav
+        .find(g => g.advanced)?.items
+        .filter(i => isActive(i.href)) || [];
+
+    let didOpenAdvanced = false;
+
+    // Set advancedOpen state initially if needed
+    if (activeItemPaths.length > 0) {
+        setAdvancedOpen(true);
+        didOpenAdvanced = true;
+    }
+
+    const timer = setTimeout(() => {
+      if (!menuRef.current) return;
+      const activeElement = menuRef.current.querySelector('[aria-current="page"]');
+      if (activeElement) {
+        // Prevent horizontal scroll, only vertical scroll
+        activeElement.scrollIntoView({ block: "center" });
+      }
+      isMounted.current = true;
+    }, didOpenAdvanced ? 150 : 50); // Give the animation a little more time if we had to open the menu
+
+    return () => clearTimeout(timer);
+  }, [merchantNav, isActive]);
+
+
   return (
     <>
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 shrink-0">
@@ -56,7 +92,7 @@ export function MobileMenuContent({
           <X className="h-4 w-4" />
         </Button>
       </div>
-      <div className="flex flex-col p-4 space-y-1 overflow-y-auto flex-1">
+      <div ref={menuRef} className="flex flex-col p-4 space-y-1 overflow-y-auto flex-1">
         {isAuthenticated ? (
           <>
             <div className="flex flex-col mb-4">
