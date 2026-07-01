@@ -63,3 +63,13 @@ export async function resolveStorefrontTenantId(
 
   return null;
 }
+
+export function getStorefrontContext(req: Request) {
+  // 1. Try custom domain first
+  const host = req.headers.host;
+
+  // 2. Try subdomain
+  const subdomain = req.headers["x-tenant-domain"] as string;
+
+  return { host, subdomain };
+}
