@@ -13,14 +13,14 @@ import { requirePlatformAdmin, requireRole } from "../middleware/require-role";
 
 const router = Router();
 
-function lookupColumn(lookupBy: unknown) {
+function lookupColumn(lookupBy: string) {
   return lookupBy === "email" ? customersTable.email : customersTable.phone;
 }
 
 async function findCustomerForTenant(params: {
   tenantId: number;
   subjectIdentifier: string;
-  lookupBy: unknown;
+  lookupBy: string;
 }) {
   const [row] = await db
     .select({ customer: customersTable })
@@ -152,6 +152,10 @@ router.post(
           .json({ error: "هذا المسار يدعم حذف العملاء فقط حاليا" });
       }
 
+      if (typeof req.body.lookupBy !== "string") {
+        return res.status(400).json({ error: "معامل البحث غير صالح" });
+      }
+
       const customer = await findCustomerForTenant({
         tenantId,
         subjectIdentifier: privacyReq.subjectIdentifier,
@@ -278,6 +282,10 @@ router.get(
         return res
           .status(400)
           .json({ error: "هذا المسار لتصدير بيانات العملاء فقط" });
+      }
+
+      if (typeof req.query.lookupBy !== "string") {
+        return res.status(400).json({ error: "معامل البحث غير صالح" });
       }
 
       const customer = await findCustomerForTenant({
