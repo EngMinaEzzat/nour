@@ -119,3 +119,6 @@
 ## 2026-06-15 - Fixed typecheck failure in store-config.ts
 **Learning:** Adding string literals to a union type (`PersonalityType`, `StyleType`) without also adding them to the corresponding `Record<..., ...>` constant dictionary causes typecheck failures (`TS2740: ... is missing the following properties`).
 **Action:** Always ensure that when adding a new enum or literal type to a union used as a `Record` key, the corresponding dictionary is also updated, or remove the unimplemented literals.
+## 2026-06-21 - [Optimize Storefront Data Loading via Concurrent Query Execution]
+**Learning:** Found sequential independent database queries in the highly trafficked `GET /store/:slug` endpoint (fetching categories, stats, and settings after products) which blocked the Node.js event loop unnecessarily and inflated TTFB (Time to First Byte).
+**Action:** Always group fully independent Drizzle ORM queries using `Promise.all` to execute them concurrently on the database connection pool. If some queries depend on others sequentially (like fetching products before fetching variant counts), isolate those into an async Immediately Invoked Function Expression (IIFE) inside the `Promise.all` array to preserve their relative order without blocking the execution of unrelated queries.
