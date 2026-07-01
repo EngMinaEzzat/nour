@@ -18,7 +18,7 @@ export function ElegantFashionStorefront({ store, products, categories }: Storef
             name: product.name,
             price: product.price,
             imageUrl: product.imageUrl,
-            quantity: 1,
+
             tenantId: store.id,
             tenantName: store.name,
             attributes: {}
