@@ -107,9 +107,16 @@ describe("isCsrfExempt sub-paths and edge cases", () => {
 
   it("should return true for sub-paths of exempt paths", async () => {
     const { isCsrfExempt } = await import("../lib/csrf.js");
+    // Deeply nested sub-path
+    expect(isCsrfExempt("/api/whatsapp/messages/12345/status/delivered")).toBe(true);
     expect(isCsrfExempt("/api/whatsapp/messages/12345")).toBe(true);
-    expect(isCsrfExempt("/api/whatsapp/messages/12345/status")).toBe(true);
+  });
+
+  it("should return true for exact paths or sub-paths containing query parameters", async () => {
+    const { isCsrfExempt } = await import("../lib/csrf.js");
     expect(isCsrfExempt("/api/paymob/callback?param=123")).toBe(true);
+    expect(isCsrfExempt("/api/paymob/callback?amount=500&currency=EGP")).toBe(true);
+    expect(isCsrfExempt("/api/whatsapp/messages/12345?debug=true")).toBe(true);
   });
 
   it("should return false for completely unrelated paths", async () => {
@@ -120,14 +127,19 @@ describe("isCsrfExempt sub-paths and edge cases", () => {
     expect(isCsrfExempt("/")).toBe(false);
   });
 
-  it("should handle partial path matches that shouldn't be exempt", async () => {
+  it("should securely reject malicious partial path matches (Prefix Bug Fix)", async () => {
     const { isCsrfExempt } = await import("../lib/csrf.js");
-    expect(isCsrfExempt("/api/paymob/callback-fake")).toBe(true);
+    // These paths start with an exempt path string, but are completely distinct directories/routes.
+    expect(isCsrfExempt("/api/paymob/callback-fake")).toBe(false);
     expect(isCsrfExempt("/api/whatsapp/messages-fake")).toBe(false);
+    expect(isCsrfExempt("/api/paymob/callback_fake")).toBe(false);
+    expect(isCsrfExempt("/api/paymob/callback123")).toBe(false);
   });
 
-  it("should handle empty string correctly", async () => {
+  it("should handle empty strings and invalid formats safely", async () => {
     const { isCsrfExempt } = await import("../lib/csrf.js");
     expect(isCsrfExempt("")).toBe(false);
+    expect(isCsrfExempt("?query=123")).toBe(false);
+    expect(isCsrfExempt("/invalid/route")).toBe(false);
   });
 });
