@@ -119,3 +119,6 @@
 ## 2026-06-15 - Fixed typecheck failure in store-config.ts
 **Learning:** Adding string literals to a union type (`PersonalityType`, `StyleType`) without also adding them to the corresponding `Record<..., ...>` constant dictionary causes typecheck failures (`TS2740: ... is missing the following properties`).
 **Action:** Always ensure that when adding a new enum or literal type to a union used as a `Record` key, the corresponding dictionary is also updated, or remove the unimplemented literals.
+## 2024-05-18 - Missing exported functions in tests
+**Learning:** Adding new test files to test previously unexported or non-existent functions within an existing file requires correctly appending the function to the file before writing/executing tests.
+**Action:** When adding missing functions to existing files to make them testable, ensure they don't already exist and are appended correctly (e.g. `cat >>`).
