@@ -48,16 +48,23 @@ describe("entitlements", () => {
     it("returns false if the limit is unlimited (-1)", () => {
       expect(isAtLimit(100, -1)).toBe(false);
       expect(isAtLimit(0, -1)).toBe(false);
+      expect(isAtLimit(-10, -1)).toBe(false);
     });
 
-    it("returns true if current is exactly at or over the limit", () => {
+    it("returns true if current is exactly equal to the limit", () => {
       expect(isAtLimit(100, 100)).toBe(true);
-      expect(isAtLimit(101, 100)).toBe(true);
+      expect(isAtLimit(0, 0)).toBe(true);
     });
 
-    it("returns false if current is under the limit", () => {
+    it("returns true if current is greater than the limit", () => {
+      expect(isAtLimit(101, 100)).toBe(true);
+      expect(isAtLimit(1, 0)).toBe(true);
+    });
+
+    it("returns false if current is less than the limit", () => {
       expect(isAtLimit(99, 100)).toBe(false);
       expect(isAtLimit(0, 100)).toBe(false);
+      expect(isAtLimit(-1, 0)).toBe(false);
     });
   });
 
