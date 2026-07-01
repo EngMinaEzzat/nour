@@ -119,3 +119,6 @@
 ## 2026-06-15 - Fixed typecheck failure in store-config.ts
 **Learning:** Adding string literals to a union type (`PersonalityType`, `StyleType`) without also adding them to the corresponding `Record<..., ...>` constant dictionary causes typecheck failures (`TS2740: ... is missing the following properties`).
 **Action:** Always ensure that when adding a new enum or literal type to a union used as a `Record` key, the corresponding dictionary is also updated, or remove the unimplemented literals.
+## 2026-07-01 - Benchmark with DB connections
+**Learning:** When executing ad-hoc scripts or files in the `api-server` workspace (e.g., using `tsx`), you must set the `SESSION_SECRET` environment variable (e.g., `SESSION_SECRET="test-secret"`) alongside database URLs. Failing to do so will result in an immediate `Error: SESSION_SECRET environment variable is required` thrown from `src/app.ts`.
+**Action:** Always provide `SESSION_SECRET` and `CSRF_SECRET` when running scripts that import models or files that depend on app setup.

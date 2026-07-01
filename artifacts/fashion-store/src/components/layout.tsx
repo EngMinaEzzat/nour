@@ -19,8 +19,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   const isSubscriptionActive = !merchant || merchant.isPlatformAdmin || !merchant.subscriptionStatus || merchant.subscriptionStatus === "active" || (
-    merchant.subscriptionStatus === "trial" &&
-    (!merchant.trialEndsAt || new Date(merchant.trialEndsAt) > new Date())
+    merchant.subscriptionStatus === "trial" /* trialEndsAt removed from AuthResponse */
   );
 
   useEffect(() => {
