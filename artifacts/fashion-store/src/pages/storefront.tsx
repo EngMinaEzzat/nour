@@ -251,10 +251,14 @@ function EditorTextSection({
   section,
   primaryColor,
   onScrollToProducts,
+  whatsappNumber,
+  storeName,
 }: {
   section: SectionConfig;
   primaryColor: string;
   onScrollToProducts: () => void;
+  whatsappNumber?: string | null;
+  storeName?: string;
 }) {
   const items = (section.content.items ?? []) as Array<Record<string, string>>;
   const heading = typeof section.content.heading === "string" ? section.content.heading : section.label;
@@ -266,14 +270,21 @@ function EditorTextSection({
   const { t, i18n } = useTranslation();
 
   if (section.type === "whatsapp") {
+    const msg = storeName ? encodeURIComponent(`مرحباً 👋، أريد الاستفسار عن متجر ${storeName}`) : "";
     return (
       <section className="py-16 px-4 sm:px-6 text-center" style={{ background: "var(--bg-main, #faf7f4)", direction: i18n.dir() }}>
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl mb-3" style={{ fontFamily: "var(--font-heading, 'Playfair Display', Georgia, serif)", color: "var(--text-heading, hsl(340,20%,15%))", fontWeight: 400 }}>{heading}</h2>
           {body && <p className="text-sm mb-6" style={{ color: "var(--text-body, hsl(340,15%,45%))", fontFamily: "var(--font-body)" }}>{body}</p>}
-          <button onClick={onScrollToProducts} className="px-8 py-3 text-white text-sm font-semibold transition-all" style={{ background: primaryColor, borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }}>
-            {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow")}
-          </button>
+          {whatsappNumber ? (
+            <a href={`https://wa.me/${whatsappNumber}?text=${msg}`} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3 text-white text-sm font-semibold transition-all" style={{ background: primaryColor, borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }}>
+              {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow")}
+            </a>
+          ) : (
+            <button onClick={onScrollToProducts} className="px-8 py-3 text-white text-sm font-semibold transition-all" style={{ background: primaryColor, borderRadius: "var(--btn-radius, 9999px)", fontFamily: "var(--font-body)" }}>
+              {typeof section.content.ctaText === "string" ? section.content.ctaText : t("storefront.hero.shopNow")}
+            </button>
+          )}
         </div>
       </section>
     );
@@ -1094,7 +1105,8 @@ export default function Storefront({ overrideSlug }: { overrideSlug?: string; pa
       case "about":
       case "testimonials":
       case "whatsapp":
-        return <EditorTextSection section={section} primaryColor={p} onScrollToProducts={scrollToProducts} />;
+        return <EditorTextSection section={section} primaryColor={p} onScrollToProducts={scrollToProducts} whatsappNumber={store ? getWhatsAppNumber(store as any) : undefined} storeName={store?.name} />;
+
       default:
         return null;
     }
