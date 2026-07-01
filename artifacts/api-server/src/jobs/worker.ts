@@ -160,9 +160,7 @@ export async function runWorkerLoop() {
   while (true) {
     try {
       const claimed = await claimJobs();
-      for (const job of claimed) {
-        await processJob(job);
-      }
+      await Promise.allSettled(claimed.map((job) => processJob(job)));
       await new Promise((resolve) =>
         setTimeout(resolve, claimed.length === 0 ? 5000 : 1000),
       );
