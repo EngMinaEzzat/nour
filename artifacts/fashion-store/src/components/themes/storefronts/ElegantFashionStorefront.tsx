@@ -21,7 +21,7 @@ export function ElegantFashionStorefront({ store, products, categories }: Storef
 
             tenantId: store.id,
             tenantName: store.name,
-            attributes: {}
+
         });
     };
 
