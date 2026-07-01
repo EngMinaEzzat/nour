@@ -43,77 +43,106 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
     ];
     if (searchQ) conditions.push(ilike(productsTable.name, `%${searchQ.replace(/%/g, "\\%").replace(/_/g, "\\_")}%`));
 
-    if (categoryIdQ) {
-      const subcategories = await db
-        .select({ id: categoriesTable.id })
-        .from(categoriesTable)
-        .where(eq(categoriesTable.parentId, categoryIdQ));
+    // ⚡ Bolt Optimization: Group independent sub-queries in Promise.all to avoid blocking IO
+    const [
+      { products, variantCounts },
+      categoryRows,
+      categoryProductCounts,
+      [orderStats],
+      [trackingSettings]
+    ] = await Promise.all([
+      (async () => {
+        if (categoryIdQ) {
+          const subcategories = await db
+            .select({ id: categoriesTable.id })
+            .from(categoriesTable)
+            .where(eq(categoriesTable.parentId, categoryIdQ));
 
-      const categoryIds = [categoryIdQ, ...subcategories.map((s) => s.id)];
-      conditions.push(inArray(productsTable.categoryId, categoryIds));
-    }
+          const categoryIds = [categoryIdQ, ...subcategories.map((s) => s.id)];
+          conditions.push(inArray(productsTable.categoryId, categoryIds));
+        }
 
-    const products = await db
-      .select({
-        id: productsTable.id,
-        name: productsTable.name,
-        description: productsTable.description,
-        price: productsTable.price,
-        originalPrice: productsTable.originalPrice,
-        imageUrl: productsTable.imageUrl,
-        stock: productsTable.stock,
-        status: productsTable.status,
-        categoryId: productsTable.categoryId,
-      })
-      .from(productsTable)
-      .where(and(...conditions))
-      .orderBy(productsTable.createdAt);
+        const products = await db
+          .select({
+            id: productsTable.id,
+            name: productsTable.name,
+            description: productsTable.description,
+            price: productsTable.price,
+            originalPrice: productsTable.originalPrice,
+            imageUrl: productsTable.imageUrl,
+            stock: productsTable.stock,
+            status: productsTable.status,
+            categoryId: productsTable.categoryId,
+          })
+          .from(productsTable)
+          .where(and(...conditions) as any)
+          .orderBy(productsTable.createdAt);
 
-    const productIds = products.map((p) => p.id);
-    let variantCounts: { productId: number; count: number }[] = [];
-    if (productIds.length > 0) {
-      variantCounts = await db
+        const productIds = products.map((p) => p.id);
+        let variantCounts: { productId: number; count: number }[] = [];
+        if (productIds.length > 0) {
+          variantCounts = await db
+            .select({
+              productId: productVariantsTable.productId,
+              count: count(),
+            })
+            .from(productVariantsTable)
+            .where(inArray(productVariantsTable.productId, productIds))
+            .groupBy(productVariantsTable.productId);
+        }
+        return { products, variantCounts };
+      })(),
+      db
         .select({
-          productId: productVariantsTable.productId,
-          count: count(),
+          id: categoriesTable.id,
+          name: categoriesTable.name,
+          nameAr: categoriesTable.nameAr,
+          parentId: categoriesTable.parentId,
+          type: categoriesTable.type,
+          imageUrl: categoriesTable.imageUrl,
         })
-        .from(productVariantsTable)
-        .where(inArray(productVariantsTable.productId, productIds))
-        .groupBy(productVariantsTable.productId);
-    }
+        .from(categoriesTable)
+        .where(
+          or(
+            eq(categoriesTable.tenantId, tenant.id),
+            isNull(categoriesTable.tenantId),
+          ),
+        )
+        .orderBy(categoriesTable.name),
+      db
+        .select({ categoryId: productsTable.categoryId, total: count() })
+        .from(productsTable)
+        .where(
+          and(
+            eq(productsTable.tenantId, tenant.id),
+            eq(productsTable.status, "active"),
+          ),
+        )
+        .groupBy(productsTable.categoryId),
+      db
+        .select({ totalOrders: count() })
+        .from(ordersTable)
+        .where(eq(ordersTable.tenantId, tenant.id)),
+      db
+        .select({
+          ga4MeasurementId: trackingSettingsTable.ga4MeasurementId,
+          ga4Enabled: trackingSettingsTable.ga4Enabled,
+          metaPixelId: trackingSettingsTable.metaPixelId,
+          metaEnabled: trackingSettingsTable.metaEnabled,
+          tiktokPixelId: trackingSettingsTable.tiktokPixelId,
+          tiktokEnabled: trackingSettingsTable.tiktokEnabled,
+          googleAdsConversionId: trackingSettingsTable.googleAdsConversionId,
+          googleAdsEnabled: trackingSettingsTable.googleAdsEnabled,
+        })
+        .from(trackingSettingsTable)
+        .where(eq(trackingSettingsTable.tenantId, tenant.id)),
+    ]);
+
     const variantCountMap = new Map(
       variantCounts.map((v) => [v.productId, v.count]),
     );
 
-    const categoryRows = await db
-      .select({
-        id: categoriesTable.id,
-        name: categoriesTable.name,
-        nameAr: categoriesTable.nameAr,
-        parentId: categoriesTable.parentId,
-        type: categoriesTable.type,
-        imageUrl: categoriesTable.imageUrl,
-      })
-      .from(categoriesTable)
-      .where(
-        or(
-          eq(categoriesTable.tenantId, tenant.id),
-          isNull(categoriesTable.tenantId),
-        ),
-      )
-      .orderBy(categoriesTable.name);
     const categoryMap = new Map(categoryRows.map((c) => [c.id, c.name]));
-
-    const categoryProductCounts = await db
-      .select({ categoryId: productsTable.categoryId, total: count() })
-      .from(productsTable)
-      .where(
-        and(
-          eq(productsTable.tenantId, tenant.id),
-          eq(productsTable.status, "active"),
-        ),
-      )
-      .groupBy(productsTable.categoryId);
 
     const categoryProductCountMap = new Map(
       categoryProductCounts.map((row) => [row.categoryId, row.total]),
@@ -138,25 +167,6 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
       hasVariants: (variantCountMap.get(p.id) ?? 0) > 0,
       variantCount: variantCountMap.get(p.id) ?? 0,
     }));
-
-    const [orderStats] = await db
-      .select({ totalOrders: count() })
-      .from(ordersTable)
-      .where(eq(ordersTable.tenantId, tenant.id));
-
-    const [trackingSettings] = await db
-      .select({
-        ga4MeasurementId: trackingSettingsTable.ga4MeasurementId,
-        ga4Enabled: trackingSettingsTable.ga4Enabled,
-        metaPixelId: trackingSettingsTable.metaPixelId,
-        metaEnabled: trackingSettingsTable.metaEnabled,
-        tiktokPixelId: trackingSettingsTable.tiktokPixelId,
-        tiktokEnabled: trackingSettingsTable.tiktokEnabled,
-        googleAdsConversionId: trackingSettingsTable.googleAdsConversionId,
-        googleAdsEnabled: trackingSettingsTable.googleAdsEnabled,
-      })
-      .from(trackingSettingsTable)
-      .where(eq(trackingSettingsTable.tenantId, tenant.id));
 
     const responsePayload = {
       id: tenant.id,
