@@ -693,6 +693,7 @@ export interface AuthResponse {
   isPlatformAdmin: boolean;
   planCode: string;
   subscriptionStatus: AuthResponseSubscriptionStatus;
+  trialEndsAt?: string | null;
 }
 
 export interface StorefrontProduct {
