@@ -119,3 +119,6 @@
 ## 2026-06-15 - Fixed typecheck failure in store-config.ts
 **Learning:** Adding string literals to a union type (`PersonalityType`, `StyleType`) without also adding them to the corresponding `Record<..., ...>` constant dictionary causes typecheck failures (`TS2740: ... is missing the following properties`).
 **Action:** Always ensure that when adding a new enum or literal type to a union used as a `Record` key, the corresponding dictionary is also updated, or remove the unimplemented literals.
+## 2026-07-01 - Fix translation extraction typings and variable scoping
+**Learning:** When extracting code with a dependency on `t` from `useTranslation()`, you must explicitly import `TFunction` from `i18next` to type it, because the default return signature is too broad. Also, watch out for global state variables when refactoring component inner functions.
+**Action:** When performing extraction refactoring, always carefully audit the dependencies to verify they can be satisfied or abstracted before extracting to a separate utility file.
