@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import {
   Settings, Save, Store, MapPin, Globe, Image, Palette,
   AlertCircle, CheckCircle2, Copy, Check, ExternalLink, Eye,
-  Search, Share2, QrCode, Download, Menu, X, Loader2,
+  Search, Share2, QrCode, Download, Menu, X, Loader2, Lock,
 } from "lucide-react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -451,7 +451,7 @@ export default function StoreSettings() {
   const colorInputRef = useRef<HTMLInputElement>(null);
   const secondaryColorRef = useRef<HTMLInputElement>(null);
 
-  const { data: tenant, isLoading } = useQuery({
+  const { data: tenant, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["store-settings-main", tenantId],
     queryFn: fetchStoreSettings,
     enabled: !!tenantId,
@@ -541,6 +541,43 @@ export default function StoreSettings() {
           </div>
           <div className="lg:col-span-2"><Skeleton className="h-64 w-full rounded-2xl" /></div>
         </div>
+      </div>
+    );
+  }
+
+  const isSubscriptionError = error instanceof Error && (
+    error.message.includes("402") || 
+    error.message.includes("TRIAL_EXPIRED") || 
+    error.message.includes("SUBSCRIPTION")
+  );
+
+  if (isError) {
+    return (
+      <div className="container mx-auto px-4 py-10 max-w-xl flex items-center justify-center min-h-[60vh]" dir={i18n.dir()}>
+        <Card className="w-full text-center p-6 border-border/50 shadow-sm rounded-2xl">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+            <Lock className="w-5 h-5" />
+          </div>
+          <h2 className="text-lg font-bold text-foreground mb-2">
+            {isSubscriptionError 
+              ? t("storeSettings.trialEndedTitle", { defaultValue: "انتهت الفترة التجريبية — الإعدادات مقفلة" }) 
+              : t("storeSettings.loadErrorTitle", { defaultValue: "فشل تحميل الإعدادات" })}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+            {isSubscriptionError 
+              ? t("storeSettings.trialEndedDesc", { defaultValue: "يرجى تجديد اشتراكك للوصول إلى إعدادات العلامة التجارية والخيارات الأخرى." }) 
+              : (error instanceof Error ? error.message : t("storeSettings.loadErrorDesc", { defaultValue: "حدث خطأ غير متوقع." }))}
+          </p>
+          {isSubscriptionError ? (
+            <Button asChild className="w-full rounded-xl">
+              <a href="/billing">{t("billing.title", { defaultValue: "الاشتراك والخطط" })}</a>
+            </Button>
+          ) : (
+            <Button onClick={() => refetch()} className="w-full rounded-xl">
+              {t("common.buttons.retry", { defaultValue: "إعادة المحاولة" })}
+            </Button>
+          )}
+        </Card>
       </div>
     );
   }

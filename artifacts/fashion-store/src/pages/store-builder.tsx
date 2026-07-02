@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import VisualEditor from "@/components/editor/VisualEditor";
 import { StoreConfig, createDefaultConfig, normalizeHomepageSections } from "@/lib/store-config";
 import type { MerchantGender } from "@/components/editor/WelcomeOverlay";
+import { Lock } from "lucide-react";
 
 const STORAGE_KEY = (slug: string) => `nour_store_config_${slug}`;
 
@@ -247,6 +248,33 @@ export default function StoreBuilder() {
   }
 
   if (isError || !tenant) {
+    const isSubscriptionError = error instanceof Error && (
+      error.message.includes("402") || 
+      error.message.includes("TRIAL_EXPIRED") || 
+      error.message.includes("SUBSCRIPTION")
+    );
+
+    if (isSubscriptionError) {
+      return (
+        <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center px-4" dir={i18n.dir()}>
+          <div className="max-w-md w-full text-center rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+              <Lock className="w-5 h-5 animate-pulse" />
+            </div>
+            <h1 className="mb-2 text-lg font-bold text-stone-900">
+              {t("storeBuilder.trialEndedTitle", { defaultValue: "انتهت الفترة التجريبية — أداة البناء مقفلة" })}
+            </h1>
+            <p className="mb-5 text-sm leading-6 text-stone-500">
+              {t("storeBuilder.trialEndedDesc", { defaultValue: "تم قفل أداة تصميم المتجر. يرجى تجديد اشتراكك للمتابعة واستعادة الوصول." })}
+            </p>
+            <Button asChild className="rounded-xl w-full">
+              <a href="/billing">{t("billing.title", { defaultValue: "الاشتراك والخطف" })}</a>
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-[#faf7f4] flex items-center justify-center px-4" dir={i18n.dir()}>
         <div className="max-w-md text-center rounded-2xl border border-red-100 bg-white p-6 shadow-sm">

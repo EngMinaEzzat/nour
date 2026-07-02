@@ -322,6 +322,15 @@ function TransferRequestForm({
   );
 }
 
+const fetchJson = async <T = any>(url: string): Promise<T> => {
+  const res = await fetch(url, { credentials: "include" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(typeof data?.error === "string" ? data.error : `Request failed: ${res.status}`);
+  }
+  return data as T;
+};
+
 export default function BillingPage() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
@@ -348,28 +357,33 @@ export default function BillingPage() {
 
   const { data: status, isLoading: loadingStatus } = useQuery({
     queryKey: ["billing-status"],
-    queryFn: () => fetch(api("/billing/status"), { credentials: "include" }).then((r) => r.json()),
+    queryFn: () => fetchJson(api("/billing/status")),
   });
   const { data: plans, isLoading: loadingPlans } = useListPlans();
 
-  const { data: invoices = [], isLoading: loadingInv } = useQuery({
+  const { data: invoices = [], isLoading: loadingInv } = useQuery<any[]>({
     queryKey: ["billing-invoices"],
-    queryFn: () => fetch(api("/billing/invoices"), { credentials: "include" }).then((r) => r.json()),
+    queryFn: () => fetchJson(api("/billing/invoices")),
+    initialData: [],
   });
-  const { data: transfers = [], isLoading: loadingTransfers } = useQuery({
+  const { data: transfers = [], isLoading: loadingTransfers } = useQuery<any[]>({
     queryKey: ["billing-transfers"],
-    queryFn: () => fetch(api("/billing/transfer-requests"), { credentials: "include" }).then((r) => r.json()),
+    queryFn: () => fetchJson(api("/billing/transfer-requests")),
+    initialData: [],
   });
-  const { data: bankDetails } = useQuery({
+  const { data: bankDetails } = useQuery<BankDetails>({
     queryKey: ["billing-bank-details"],
-    queryFn: () => fetch(api("/billing/bank-details"), { credentials: "include" }).then((r) => r.json() as Promise<BankDetails>),
+    queryFn: () => fetchJson(api("/billing/bank-details")),
   });
 
   const subStatus = status?.subscriptionStatus ?? "trial";
   const currentPlan = status?.planCode ?? "starter";
   const isTrial = subStatus === "trial";
   const isSuspended = subStatus === "suspended" || subStatus === "past_due";
-  const hasPending = (transfers as any[]).some((tItem) => tItem.status === "pending");
+  
+  const invoiceList = Array.isArray(invoices) ? invoices : [];
+  const transferList = Array.isArray(transfers) ? transfers : [];
+  const hasPending = transferList.some((tItem) => tItem.status === "pending");
 
   const matrix = FEATURE_MATRIX(t);
   const commercialPlans = plans?.filter((p) => p.code !== "free") ?? [];
@@ -611,19 +625,19 @@ export default function BillingPage() {
                   <CardTitle className="text-sm flex items-center gap-2 font-semibold">
                     <FileText className="w-4 h-4 text-blue-500" /> {t("billing.invoices.title")}
                   </CardTitle>
-                  <Badge variant="secondary" className="text-[10px] font-semibold">{(invoices as any[]).length} {t("billing.invoices.count")}</Badge>
+                  <Badge variant="secondary" className="text-[10px] font-semibold">{invoiceList.length} {t("billing.invoices.count")}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="pt-4">
                 {loadingInv ? (
                   <div className="space-y-2">{[1, 2].map((i) => <Skeleton key={i} className="h-12" />)}</div>
-                ) : (invoices as any[]).length === 0 ? (
+                ) : invoiceList.length === 0 ? (
                   <div className="py-8 text-center text-muted-foreground text-sm">
                     <CreditCard className="w-8 h-8 mx-auto mb-2 opacity-35" />{t("billing.invoices.noInvoices")}
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {(invoices as any[]).map((inv: any) => {
+                    {invoiceList.map((inv: any) => {
                       const sColor = INV_STATUS_COLORS[inv.status] ?? INV_STATUS_COLORS.issued;
                       const sLabel = t(`billing.invStatus.${inv.status}`);
                       return (
