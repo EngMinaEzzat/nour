@@ -2342,6 +2342,10 @@ components:
         subscriptionStatus:
           type: string
           enum: [trial, active, past_due, suspended, canceled]
+        trialEndsAt:
+          type: string
+          format: date-time
+          nullable: true
       required:
         [
           merchantId,
