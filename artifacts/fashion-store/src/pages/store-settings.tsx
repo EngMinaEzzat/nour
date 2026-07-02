@@ -17,11 +17,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import {
   Settings, Save, Store, MapPin, Globe, Image, Palette,
   AlertCircle, CheckCircle2, Copy, Check, ExternalLink, Eye,
-  Search, Share2, QrCode, Download, Menu, X, Loader2, Lock,
+  Search, Share2, QrCode, Download, Menu, X, Loader2, Lock, CreditCard, HelpCircle
 } from "lucide-react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { getBaseDomain, getStoreUrl } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const api = (p: string) => `${BASE}/api${p}`;
@@ -172,6 +173,7 @@ const SETTING_SECTIONS = [
   { id: "section-theme",     key: "theme",           icon: Settings },
   { id: "section-seo",       key: "seo",     icon: Search },
   { id: "section-social",    key: "social",    icon: Share2 },
+  { id: "section-kashier",   key: "kashier",   icon: CreditCard },
 ];
 
 function scrollToSection(id: string) {
@@ -432,6 +434,182 @@ function SocialSection({ tenantId }: { tenantId: number }) {
         <div className="flex justify-end">
           <Button onClick={() => mutation.mutate()} disabled={mutation.isPending} size="sm" className="gap-2 rounded-xl">
             <Save className="w-3.5 h-3.5" />{mutation.isPending ? t("settings.social.saving") : t("settings.social.save")}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function KashierSection({ tenantId }: { tenantId: number }) {
+  const { t, i18n } = useTranslation();
+  const { toast } = useToast();
+
+  const { data, refetch, isLoading } = useQuery({
+    queryKey: ["store-settings-kashier", tenantId],
+    queryFn: () => fetch(api("/kashier/status"), { credentials: "include" }).then((r) => r.json()),
+    enabled: !!tenantId,
+  });
+
+  const [form, setForm] = useState({ merchantId: "", apiKey: "", enabled: false });
+
+  useEffect(() => {
+    if (data) {
+      setForm({
+        merchantId: data.merchantId ?? "",
+        apiKey: data.hasApiKey ? "••••••••••••••••" : "",
+        enabled: data.status === "ACTIVE",
+      });
+    }
+  }, [data]);
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      fetch(api("/kashier/configure"), {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchantId: form.merchantId,
+          apiKey: form.apiKey === "••••••••••••••••" ? undefined : form.apiKey,
+          enabled: form.enabled,
+        }),
+      }).then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error);
+        return d;
+      }),
+    onSuccess: () => {
+      toast({
+        title: i18n.language === "ar" ? "تم الحفظ بنجاح" : "Saved successfully",
+        description: i18n.language === "ar" ? "تم تحديث إعدادات كاشير بنجاح." : "Kashier settings updated successfully.",
+      });
+      refetch();
+    },
+    onError: (e: any) => {
+      toast({
+        title: i18n.language === "ar" ? "خطأ في الحفظ" : "Save failed",
+        description: e.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  if (isLoading) {
+    return <Skeleton className="h-64 w-full rounded-2xl" />;
+  }
+
+  if (data?.status === "PLAN_DISALLOWED") {
+    return (
+      <Card className="border-border/50 bg-amber-50/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-muted-foreground" />
+            {i18n.language === "ar" ? "بوابة الدفع كاشير (Kashier)" : "Kashier Payment Gateway"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start gap-3 text-amber-800">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold">
+                {i18n.language === "ar" ? "بوابة الدفع غير متاحة في خطتك الحالية" : "Kashier is not available in your plan"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {i18n.language === "ar" 
+                  ? "يرجى ترقية اشتراكك إلى باقة جروث (Growth) أو برو (Pro) لتفعيل الدفع الإلكتروني عبر كاشير."
+                  : "Please upgrade your subscription to Growth or Pro plan to enable Kashier online payments."}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border-border/50">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <CreditCard className="w-4 h-4 text-primary" />
+          {i18n.language === "ar" ? "بوابة الدفع كاشير (Kashier)" : "Kashier Payment Gateway"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="bg-muted/40 border border-border/50 rounded-xl p-4 text-sm space-y-2">
+          <p className="font-semibold text-foreground flex items-center gap-1.5">
+            <HelpCircle className="w-4 h-4 text-primary" />
+            {i18n.language === "ar" ? "كيفية الحصول على بيانات الربط:" : "How to get your credentials:"}
+          </p>
+          <ol className="list-decimal list-inside text-muted-foreground text-xs space-y-1.5 leading-relaxed">
+            <li>
+              {i18n.language === "ar" 
+                ? "قم بتسجيل الدخول إلى حساب التاجر الخاص بك في كاشير (merchant.kashier.io)." 
+                : "Log in to your Kashier Merchant Portal (merchant.kashier.io)."}
+            </li>
+            <li>
+              {i18n.language === "ar" 
+                ? "انتقل إلى قسم الربط (Integrate Now) من القائمة الجانبية." 
+                : "Navigate to the Integration page (Integrate Now) from the side menu."}
+            </li>
+            <li>
+              {i18n.language === "ar" 
+                ? "انسخ معرف التاجر (Merchant ID) الذي يبدأ بـ MID- وضعه في الحقل أدناه." 
+                : "Copy the Merchant ID (starts with MID-) and paste it below."}
+            </li>
+            <li>
+              {i18n.language === "ar" 
+                ? "من جدول مفاتيح الربط (Payment Api Keys)، انسخ مفتاح الربط السري (Secret/IFrame Key) وضعه في حقل المفتاح السري." 
+                : "From the Payment Api Keys section, copy the Secret API Key (IFrame Key) and paste it in the Secret Key field."}
+            </li>
+          </ol>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label>{i18n.language === "ar" ? "معرّف التاجر (Merchant ID)" : "Merchant ID"}</Label>
+            <Input 
+              value={form.merchantId} 
+              onChange={(e) => setForm(f => ({ ...f, merchantId: e.target.value }))} 
+              placeholder="MID-XXXX-XXXX" 
+              className="h-10 text-sm font-mono" 
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>{i18n.language === "ar" ? "المفتاح السري (Secret Key)" : "Secret Key"}</Label>
+            <Input 
+              type="password"
+              value={form.apiKey} 
+              onChange={(e) => setForm(f => ({ ...f, apiKey: e.target.value }))} 
+              placeholder={form.apiKey ? "••••••••••••••••" : "ApiKey"} 
+              className="h-10 text-sm font-mono" 
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between border-t border-border/50 pt-4 mt-2">
+          <div className="flex flex-col gap-0.5">
+            <Label className="text-sm font-medium">
+              {i18n.language === "ar" ? "تفعيل بوابة الدفع كاشير" : "Enable Kashier Payments"}
+            </Label>
+            <span className="text-xs text-muted-foreground">
+              {i18n.language === "ar" 
+                ? "تفعيل الدفع الإلكتروني بالبطاقات والمحافظ عبر كاشير عند الشراء." 
+                : "Allow shoppers to pay online via Kashier at checkout."}
+            </span>
+          </div>
+          <Switch 
+            checked={form.enabled} 
+            onCheckedChange={(checked) => setForm(f => ({ ...f, enabled: checked }))} 
+          />
+        </div>
+
+        <div className="flex justify-end mt-4 pt-2">
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending} size="sm" className="gap-2 rounded-xl">
+            {mutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            {mutation.isPending 
+              ? (i18n.language === "ar" ? "جاري الحفظ..." : "Saving...") 
+              : (i18n.language === "ar" ? "حفظ إعدادات كاشير" : "Save Kashier Settings")}
           </Button>
         </div>
       </CardContent>
@@ -1021,6 +1199,11 @@ export default function StoreSettings() {
           {/* Social Links Section */}
           <motion.div id="section-social" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <SocialSection tenantId={tenantId!} />
+          </motion.div>
+
+          {/* Kashier Payment Section */}
+          <motion.div id="section-kashier" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <KashierSection tenantId={tenantId!} />
           </motion.div>
 
         </div>

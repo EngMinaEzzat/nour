@@ -760,7 +760,8 @@
       "colors": "Colors",
       "theme": "Store Theme",
       "seo": "SEO",
-      "social": "Social Links"
+      "social": "Social Links",
+      "kashier": "Kashier Gateway"
     },
     "identity": {
       "storeName": "Store Name *",
