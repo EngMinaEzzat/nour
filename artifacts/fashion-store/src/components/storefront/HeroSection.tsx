@@ -131,6 +131,7 @@ export function HeroSection({
           className="absolute bottom-8 right-0 left-0 flex flex-col items-center gap-1 opacity-30 hover:opacity-60 transition-opacity"
           animate={{ y: [0, 6, 0] }}
           transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+          aria-label={t("storefront.hero.scrollToProducts", { defaultValue: "Scroll to products" })}
         >
           <ChevronDown className="w-5 h-5 text-stone-600" />
         </motion.button>
