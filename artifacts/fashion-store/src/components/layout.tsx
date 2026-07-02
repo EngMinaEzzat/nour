@@ -18,9 +18,10 @@ export function Layout({ children }: { children: ReactNode }) {
   const { i18n, t } = useTranslation();
   const { toast } = useToast();
 
-  const isSubscriptionActive = !merchant || merchant.isPlatformAdmin || !merchant.subscriptionStatus || merchant.subscriptionStatus === "active" || (
-    merchant.subscriptionStatus === "trial" &&
-    (!merchant.trialEndsAt || new Date(merchant.trialEndsAt) > new Date())
+  const merchantAny = merchant as any;
+  const isSubscriptionActive = !merchantAny || merchantAny.isPlatformAdmin || !merchantAny.subscriptionStatus || merchantAny.subscriptionStatus === "active" || (
+    merchantAny.subscriptionStatus === "trial" &&
+    (!merchantAny.trialEndsAt || new Date(merchantAny.trialEndsAt) > new Date())
   );
 
   useEffect(() => {
