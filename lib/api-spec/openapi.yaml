@@ -163,6 +163,88 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaymobWebhookResponse"
 
+  /kashier/status:
+    get:
+      operationId: getKashierStatus
+      tags: [orders]
+      summary: Get Kashier integration status for merchant tenant
+      security:
+        - session: []
+      responses:
+        "200":
+          description: Status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  merchantId:
+                    type: string
+                  hasApiKey:
+                    type: boolean
+                  isMockAllowed:
+                    type: string
+                required: [status]
+
+  /kashier/configure:
+    put:
+      operationId: configureKashier
+      tags: [orders]
+      summary: Configure Kashier credentials for merchant tenant
+      security:
+        - session: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfigureKashierBody"
+      responses:
+        "200":
+          description: Configured successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                required: [success]
+
+  /kashier/public/initiate:
+    post:
+      operationId: initKashierPayment
+      tags: [orders]
+      summary: Initialize a Kashier payment for an order (shopper flow)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitKashierPaymentBody"
+      responses:
+        "200":
+          description: Payment init response with checkout URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InitKashierPaymentResponse"
+
+  /kashier/webhook:
+    post:
+      operationId: kashierWebhook
+      tags: [orders]
+      summary: Kashier webhook handler for transaction events
+      responses:
+        "200":
+          description: Webhook received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KashierWebhookResponse"
+
   /shipping/bosta/create:
     post:
       operationId: createBostaShipment
@@ -1819,7 +1901,7 @@ components:
           nullable: true
         paymentMethod:
           type: string
-          enum: [cod, paymob]
+          enum: [cod, paymob, kashier]
         paymentStatus:
           type: string
           enum: [pending, paid, failed]
@@ -1896,7 +1978,7 @@ components:
           nullable: true
         paymentMethod:
           type: string
-          enum: [cod, paymob]
+          enum: [cod, paymob, kashier]
         discountCode:
           type: string
           nullable: true
@@ -1998,6 +2080,47 @@ components:
       required: [paymentRecordId, iframeSrc, expiresAt]
 
     PaymobWebhookResponse:
+      type: object
+      properties:
+        received:
+          type: boolean
+        duplicate:
+          type: boolean
+      required: [received]
+
+    ConfigureKashierBody:
+      type: object
+      properties:
+        merchantId:
+          type: string
+        apiKey:
+          type: string
+        enabled:
+          type: boolean
+      required: [merchantId, apiKey, enabled]
+
+    InitKashierPaymentBody:
+      type: object
+      properties:
+        orderId:
+          type: integer
+        trackingToken:
+          type: string
+      required: [orderId, trackingToken]
+
+    InitKashierPaymentResponse:
+      type: object
+      properties:
+        paymentRecordId:
+          type: integer
+        iframeSrc:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+      required: [paymentRecordId, iframeSrc, expiresAt]
+
+    KashierWebhookResponse:
       type: object
       properties:
         received:

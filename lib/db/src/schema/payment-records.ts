@@ -34,6 +34,27 @@ export const paymobProvidersTable = pgTable("paymob_providers", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const kashierProviderStatusEnum = pgEnum("kashier_provider_status", [
+  "NOT_CONFIGURED",
+  "CONFIGURED_DISABLED",
+  "ACTIVE",
+  "ERROR",
+  "PLAN_DISALLOWED",
+]);
+
+export const kashierProvidersTable = pgTable("kashier_providers", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").notNull().unique().references(() => tenantsTable.id, { onDelete: "cascade" }),
+  status: kashierProviderStatusEnum("status").notNull().default("NOT_CONFIGURED"),
+  merchantId: text("merchant_id"),
+  apiKey: text("api_key"),
+  isMockAllowed: text("is_mock_allowed").notNull().default("false"),
+  lastErrorAt: timestamp("last_error_at"),
+  lastErrorMessage: text("last_error_message"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const paymentRecordsTable = pgTable("payment_records", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").notNull().references(() => tenantsTable.id, { onDelete: "cascade" }),
@@ -67,5 +88,6 @@ export const paymentWebhooksTable = pgTable("payment_webhooks", {
 });
 
 export type PaymobProvider = typeof paymobProvidersTable.$inferSelect;
+export type KashierProvider = typeof kashierProvidersTable.$inferSelect;
 export type PaymentRecord = typeof paymentRecordsTable.$inferSelect;
 export type PaymentWebhook = typeof paymentWebhooksTable.$inferSelect;

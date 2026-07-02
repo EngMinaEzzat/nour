@@ -65,7 +65,7 @@ export default function OrderConfirmation() {
   const phone = params.get("phone") ?? "";
   const paymentMethod = params.get("payment") ?? "cod";
   const firstOrderId = orderIds[0];
-  const isOnlinePayment = paymentMethod === "paymob";
+  const isOnlinePayment = paymentMethod === "paymob" || paymentMethod === "kashier";
 
   function trackHref(id: string) {
     const track = orderTracks.find((item) => String(item.id) === id);

@@ -355,6 +355,7 @@ export type OrderPaymentMethod =
 export const OrderPaymentMethod = {
   cod: "cod",
   paymob: "paymob",
+  kashier: "kashier",
 } as const;
 
 export type OrderPaymentStatus =
@@ -405,6 +406,7 @@ export type CreateOrderBodyPaymentMethod =
 export const CreateOrderBodyPaymentMethod = {
   cod: "cod",
   paymob: "paymob",
+  kashier: "kashier",
 } as const;
 
 export type CreateOrderBodyItemsItem = {
@@ -484,6 +486,28 @@ export interface InitPaymobPaymentResponse {
 }
 
 export interface PaymobWebhookResponse {
+  received: boolean;
+  duplicate?: boolean;
+}
+
+export interface ConfigureKashierBody {
+  merchantId: string;
+  apiKey: string;
+  enabled: boolean;
+}
+
+export interface InitKashierPaymentBody {
+  orderId: number;
+  trackingToken: string;
+}
+
+export interface InitKashierPaymentResponse {
+  paymentRecordId: number;
+  iframeSrc: string;
+  expiresAt: string;
+}
+
+export interface KashierWebhookResponse {
   received: boolean;
   duplicate?: boolean;
 }
@@ -893,6 +917,17 @@ export interface PlatformStats {
   planBreakdown: PlatformStatsPlanBreakdownItem[];
   onboardingCompletion: PlatformStatsOnboardingCompletion;
 }
+
+export type GetKashierStatus200 = {
+  status: string;
+  merchantId?: string;
+  hasApiKey?: boolean;
+  isMockAllowed?: string;
+};
+
+export type ConfigureKashier200 = {
+  success: boolean;
+};
 
 export type ListProductsParams = {
   tenantId?: number;

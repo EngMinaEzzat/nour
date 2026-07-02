@@ -20,6 +20,8 @@ import type {
   ActivityItem,
   AuthResponse,
   Category,
+  ConfigureKashier200,
+  ConfigureKashierBody,
   ContactAttempt,
   CreateBostaShipmentBody,
   CreateBostaShipmentResponse,
@@ -35,11 +37,15 @@ import type {
   CustomerAuthResponse,
   DashboardSummary,
   EntitlementStatus,
+  GetKashierStatus200,
   GetMerchantAnalyticsParams,
   HealthStatus,
+  InitKashierPaymentBody,
+  InitKashierPaymentResponse,
   InitPaymobPaymentBody,
   InitPaymobPaymentResponse,
   InviteStaffBody,
+  KashierWebhookResponse,
   ListOrdersParams,
   ListOrdersResponse,
   ListProductsParams,
@@ -573,6 +579,334 @@ export const usePaymobWebhook = <
   TContext
 > => {
   return useMutation(getPaymobWebhookMutationOptions(options));
+};
+
+/**
+ * @summary Get Kashier integration status for merchant tenant
+ */
+export const getGetKashierStatusUrl = () => {
+  return `/api/kashier/status`;
+};
+
+export const getKashierStatus = async (
+  options?: RequestInit,
+): Promise<GetKashierStatus200> => {
+  return customFetch<GetKashierStatus200>(getGetKashierStatusUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetKashierStatusQueryKey = () => {
+  return [`/api/kashier/status`] as const;
+};
+
+export const getGetKashierStatusQueryOptions = <
+  TData = Awaited<ReturnType<typeof getKashierStatus>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getKashierStatus>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetKashierStatusQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getKashierStatus>>
+  > = ({ signal }) => getKashierStatus({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getKashierStatus>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetKashierStatusQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getKashierStatus>>
+>;
+export type GetKashierStatusQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get Kashier integration status for merchant tenant
+ */
+
+export function useGetKashierStatus<
+  TData = Awaited<ReturnType<typeof getKashierStatus>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getKashierStatus>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetKashierStatusQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Configure Kashier credentials for merchant tenant
+ */
+export const getConfigureKashierUrl = () => {
+  return `/api/kashier/configure`;
+};
+
+export const configureKashier = async (
+  configureKashierBody: ConfigureKashierBody,
+  options?: RequestInit,
+): Promise<ConfigureKashier200> => {
+  return customFetch<ConfigureKashier200>(getConfigureKashierUrl(), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(configureKashierBody),
+  });
+};
+
+export const getConfigureKashierMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof configureKashier>>,
+    TError,
+    { data: BodyType<ConfigureKashierBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof configureKashier>>,
+  TError,
+  { data: BodyType<ConfigureKashierBody> },
+  TContext
+> => {
+  const mutationKey = ["configureKashier"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof configureKashier>>,
+    { data: BodyType<ConfigureKashierBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return configureKashier(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ConfigureKashierMutationResult = NonNullable<
+  Awaited<ReturnType<typeof configureKashier>>
+>;
+export type ConfigureKashierMutationBody = BodyType<ConfigureKashierBody>;
+export type ConfigureKashierMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Configure Kashier credentials for merchant tenant
+ */
+export const useConfigureKashier = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof configureKashier>>,
+    TError,
+    { data: BodyType<ConfigureKashierBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof configureKashier>>,
+  TError,
+  { data: BodyType<ConfigureKashierBody> },
+  TContext
+> => {
+  return useMutation(getConfigureKashierMutationOptions(options));
+};
+
+/**
+ * @summary Initialize a Kashier payment for an order (shopper flow)
+ */
+export const getInitKashierPaymentUrl = () => {
+  return `/api/kashier/public/initiate`;
+};
+
+export const initKashierPayment = async (
+  initKashierPaymentBody: InitKashierPaymentBody,
+  options?: RequestInit,
+): Promise<InitKashierPaymentResponse> => {
+  return customFetch<InitKashierPaymentResponse>(getInitKashierPaymentUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(initKashierPaymentBody),
+  });
+};
+
+export const getInitKashierPaymentMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof initKashierPayment>>,
+    TError,
+    { data: BodyType<InitKashierPaymentBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof initKashierPayment>>,
+  TError,
+  { data: BodyType<InitKashierPaymentBody> },
+  TContext
+> => {
+  const mutationKey = ["initKashierPayment"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof initKashierPayment>>,
+    { data: BodyType<InitKashierPaymentBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return initKashierPayment(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type InitKashierPaymentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof initKashierPayment>>
+>;
+export type InitKashierPaymentMutationBody = BodyType<InitKashierPaymentBody>;
+export type InitKashierPaymentMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Initialize a Kashier payment for an order (shopper flow)
+ */
+export const useInitKashierPayment = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof initKashierPayment>>,
+    TError,
+    { data: BodyType<InitKashierPaymentBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof initKashierPayment>>,
+  TError,
+  { data: BodyType<InitKashierPaymentBody> },
+  TContext
+> => {
+  return useMutation(getInitKashierPaymentMutationOptions(options));
+};
+
+/**
+ * @summary Kashier webhook handler for transaction events
+ */
+export const getKashierWebhookUrl = () => {
+  return `/api/kashier/webhook`;
+};
+
+export const kashierWebhook = async (
+  options?: RequestInit,
+): Promise<KashierWebhookResponse> => {
+  return customFetch<KashierWebhookResponse>(getKashierWebhookUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getKashierWebhookMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof kashierWebhook>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof kashierWebhook>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["kashierWebhook"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof kashierWebhook>>,
+    void
+  > = () => {
+    return kashierWebhook(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type KashierWebhookMutationResult = NonNullable<
+  Awaited<ReturnType<typeof kashierWebhook>>
+>;
+
+export type KashierWebhookMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Kashier webhook handler for transaction events
+ */
+export const useKashierWebhook = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof kashierWebhook>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof kashierWebhook>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getKashierWebhookMutationOptions(options));
 };
 
 /**

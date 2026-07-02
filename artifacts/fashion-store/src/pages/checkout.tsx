@@ -19,11 +19,12 @@ import {
 } from "lucide-react";
 import { productImageUrl } from "@/lib/image-url";
 
-type PaymentMethod = "cod" | "paymob";
+type PaymentMethod = "cod" | "paymob" | "kashier";
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; desc: string; icon: typeof Banknote }[] = [
   { value: "cod", label: "الدفع عند الاستلام", desc: "ادفع نقداً عند وصول طلبك", icon: Banknote },
-  { value: "paymob", label: "الدفع الإلكتروني", desc: "بطاقة ائتمان / فيزا / فوري / محافظ إلكترونية", icon: CreditCard },
+  { value: "paymob", label: "الدفع الإلكتروني (Paymob)", desc: "بطاقة ائتمان / فيزا / فوري / محافظ إلكترونية", icon: CreditCard },
+  { value: "kashier", label: "الدفع الإلكتروني (Kashier)", desc: "بطاقة ائتمان / ميزة / محافظ إلكترونية", icon: CreditCard },
 ];
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -140,6 +141,7 @@ export default function Checkout() {
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [paymobIframeUrl, setPaymobIframeUrl] = useState<string | null>(null);
+  const [kashierIframeUrl, setKashierIframeUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [shippingQuotes, setShippingQuotes] = useState<Record<number, ShippingQuote>>({});
@@ -407,6 +409,31 @@ export default function Checkout() {
         }
       }
 
+      if (paymentMethod === "kashier" && orderIds.length > 0) {
+        const trackingToken = orderTracks[0]?.trackingToken;
+        if (!trackingToken) {
+          setErrors({ submit: "تعذر تجهيز رابط الدفع. يرجى المحاولة مرة أخرى أو اختيار الدفع عند الاستلام." });
+          return;
+        }
+
+        const initRes = await fetch(`${BASE}/api/kashier/public/initiate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ orderId: orderIds[0], trackingToken }),
+        });
+        const initData = await initRes.json() as { iframeSrc?: string; paymentRecordId?: number; error?: string };
+        if (initRes.ok && initData.iframeSrc) {
+          clearCart();
+          setKashierIframeUrl(initData.iframeSrc);
+          sessionStorage.setItem("pendingOrderIds", orderIds.join(","));
+          sessionStorage.setItem("pendingOrderName", name);
+          return;
+        } else {
+          setErrors({ submit: initData.error ?? "Kashier غير مُهيأ بعد. تم حفظ طلبك — سيتم الدفع عند التسليم." });
+        }
+      }
+
       clearCart();
       const tracks = encodeURIComponent(JSON.stringify(orderTracks));
       if (typeof window !== "undefined") {
@@ -444,6 +471,33 @@ export default function Checkout() {
               const ids = sessionStorage.getItem("pendingOrderIds") ?? "";
               const pName = sessionStorage.getItem("pendingOrderName") ?? "";
               navigate(`/order-confirmation?orders=${ids}&name=${encodeURIComponent(pName)}&payment=paymob`);
+            }}>
+              تم الدفع — عرض الطلب
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (kashierIframeUrl) {
+    return (
+      <div className="container mx-auto px-4 py-10 max-w-3xl">
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="text-3xl font-bold mb-6 text-center">إتمام الدفع الإلكتروني (Kashier)</h1>
+          <Card className="border-border/50 overflow-hidden">
+            <CardContent className="p-0">
+              <iframe src={kashierIframeUrl} className="w-full" style={{ height: "650px", border: "none" }} title="Kashier Payment" />
+            </CardContent>
+          </Card>
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            بعد إتمام الدفع ستصلك رسالة تأكيد على واتساب وبريدك الإلكتروني
+          </p>
+          <div className="text-center mt-4">
+            <Button variant="outline" className="rounded-full" onClick={() => {
+              const ids = sessionStorage.getItem("pendingOrderIds") ?? "";
+              const pName = sessionStorage.getItem("pendingOrderName") ?? "";
+              navigate(`/order-confirmation?orders=${ids}&name=${encodeURIComponent(pName)}&payment=kashier`);
             }}>
               تم الدفع — عرض الطلب
             </Button>

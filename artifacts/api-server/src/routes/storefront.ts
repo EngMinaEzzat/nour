@@ -175,7 +175,19 @@ router.get("/store/:slug", storefrontLimiter, async (req, res) => {
       seoTitle: tenant.seoTitle ?? null,
       seoDescription: tenant.seoDescription ?? null,
       socialLinks,
-      storeConfig: tenant.storeConfig ?? null,
+      storeConfig: (() => {
+        let sc = tenant.storeConfig as any ?? null;
+        if (sc?.business?.paymentMethods && process.env.KASHIER_PLATFORM_ENABLED !== "true") {
+          sc = {
+            ...sc,
+            business: {
+              ...sc.business,
+              paymentMethods: sc.business.paymentMethods.filter((m: string) => m !== "kashier"),
+            },
+          };
+        }
+        return sc;
+      })(),
       trackingSettings: trackingSettings ?? {
         ga4MeasurementId: null,
         ga4Enabled: false,

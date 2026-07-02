@@ -22,6 +22,7 @@ export const auditEventTypeEnum = pgEnum("audit_event_type", [
   "export_failed",
   "support_note_added",
   "paymob_configured",
+  "kashier_configured",
   "tracking_updated",
   "privacy_request_created",
   "customer_pseudonymized",

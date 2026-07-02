@@ -25,6 +25,9 @@ export const CSRF_EXEMPT_PATHS = [
   "/api/paymob/hmac-verify",
   "/api/paymob/public/initiate",
   "/api/paymob/webhook",
+  "/api/kashier/callback",
+  "/api/kashier/webhook",
+  "/api/kashier/public/initiate",
   "/api/whatsapp/messages/",
 ];
 

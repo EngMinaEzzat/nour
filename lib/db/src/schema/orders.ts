@@ -15,7 +15,7 @@ export const orderStatusEnum = pgEnum("order_status", [
   "cancelled",
   "returned",
 ]);
-export const paymentMethodEnum = pgEnum("payment_method", ["cod", "paymob"]);
+export const paymentMethodEnum = pgEnum("payment_method", ["cod", "paymob", "kashier"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed"]);
 
 export const ordersTable = pgTable(

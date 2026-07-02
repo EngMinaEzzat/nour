@@ -115,7 +115,7 @@ app.use(
         imgSrc: ["'self'", "data:", "blob:", "https:"],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
         connectSrc: ["'self'", "https:", "wss:"],
-        frameSrc: ["https://accept.paymob.com", "https://accept.paymobsolutions.com"],
+        frameSrc: ["https://accept.paymob.com", "https://accept.paymobsolutions.com", "https://checkout.kashier.io"],
         frameAncestors: ["'self'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],

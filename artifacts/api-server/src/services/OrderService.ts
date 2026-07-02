@@ -74,7 +74,7 @@ export class OrderService {
   static assertAllowedOrderTransition(params: {
     from: OrderStatus;
     to: OrderStatus;
-    paymentMethod: "cod" | "paymob";
+    paymentMethod: "cod" | "paymob" | "kashier";
     paymentStatus: "pending" | "paid" | "failed";
     nextPaymentStatus?: "pending" | "paid" | "failed";
   }) {
@@ -86,11 +86,11 @@ export class OrderService {
 
     const effectivePaymentStatus = params.nextPaymentStatus ?? params.paymentStatus;
     if (
-      params.paymentMethod === "paymob" &&
+      (params.paymentMethod === "paymob" || params.paymentMethod === "kashier") &&
       ["confirmed", "dispatched", "shipped", "delivered"].includes(params.to) &&
       effectivePaymentStatus !== "paid"
     ) {
-      throw new CheckoutHttpError(409, "Paymob orders must be paid before fulfillment status changes");
+      throw new CheckoutHttpError(409, "Online orders must be paid before fulfillment status changes");
     }
   }
 

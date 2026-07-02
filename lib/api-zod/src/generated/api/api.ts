@@ -79,6 +79,51 @@ export const PaymobWebhookResponse = zod.object({
 });
 
 /**
+ * @summary Get Kashier integration status for merchant tenant
+ */
+export const GetKashierStatusResponse = zod.object({
+  status: zod.string(),
+  merchantId: zod.string().optional(),
+  hasApiKey: zod.boolean().optional(),
+  isMockAllowed: zod.string().optional(),
+});
+
+/**
+ * @summary Configure Kashier credentials for merchant tenant
+ */
+export const ConfigureKashierBody = zod.object({
+  merchantId: zod.string(),
+  apiKey: zod.string(),
+  enabled: zod.boolean(),
+});
+
+export const ConfigureKashierResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
+ * @summary Initialize a Kashier payment for an order (shopper flow)
+ */
+export const InitKashierPaymentBody = zod.object({
+  orderId: zod.number(),
+  trackingToken: zod.string(),
+});
+
+export const InitKashierPaymentResponse = zod.object({
+  paymentRecordId: zod.number(),
+  iframeSrc: zod.string(),
+  expiresAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Kashier webhook handler for transaction events
+ */
+export const KashierWebhookResponse = zod.object({
+  received: zod.boolean(),
+  duplicate: zod.boolean().optional(),
+});
+
+/**
  * @summary Create a Bosta shipment for an order
  */
 export const CreateBostaShipmentBody = zod.object({
@@ -336,7 +381,7 @@ export const GetCustomerOrdersResponseItem = zod.object({
   shippingCost: zod.number().optional(),
   shippingAddress: zod.string().nullish(),
   customerPhone: zod.string().nullish(),
-  paymentMethod: zod.enum(["cod", "paymob"]),
+  paymentMethod: zod.enum(["cod", "paymob", "kashier"]),
   paymentStatus: zod.enum(["pending", "paid", "failed"]),
   paymobOrderId: zod.string().nullish(),
   paymobTransactionId: zod.string().nullish(),
@@ -957,7 +1002,7 @@ export const ListOrdersResponse = zod.object({
       shippingCost: zod.number().optional(),
       shippingAddress: zod.string().nullish(),
       customerPhone: zod.string().nullish(),
-      paymentMethod: zod.enum(["cod", "paymob"]),
+      paymentMethod: zod.enum(["cod", "paymob", "kashier"]),
       paymentStatus: zod.enum(["pending", "paid", "failed"]),
       paymobOrderId: zod.string().nullish(),
       paymobTransactionId: zod.string().nullish(),
@@ -1006,7 +1051,7 @@ export const CreateOrderBody = zod.object({
   customerId: zod.number(),
   shippingAddress: zod.string().nullish(),
   customerPhone: zod.string().nullish(),
-  paymentMethod: zod.enum(["cod", "paymob"]).optional(),
+  paymentMethod: zod.enum(["cod", "paymob", "kashier"]).optional(),
   discountCode: zod
     .string()
     .nullish()
@@ -1053,7 +1098,7 @@ export const GetOrderResponse = zod.object({
   shippingCost: zod.number().optional(),
   shippingAddress: zod.string().nullish(),
   customerPhone: zod.string().nullish(),
-  paymentMethod: zod.enum(["cod", "paymob"]),
+  paymentMethod: zod.enum(["cod", "paymob", "kashier"]),
   paymentStatus: zod.enum(["pending", "paid", "failed"]),
   paymobOrderId: zod.string().nullish(),
   paymobTransactionId: zod.string().nullish(),
@@ -1129,7 +1174,7 @@ export const UpdateOrderResponse = zod.object({
   shippingCost: zod.number().optional(),
   shippingAddress: zod.string().nullish(),
   customerPhone: zod.string().nullish(),
-  paymentMethod: zod.enum(["cod", "paymob"]),
+  paymentMethod: zod.enum(["cod", "paymob", "kashier"]),
   paymentStatus: zod.enum(["pending", "paid", "failed"]),
   paymobOrderId: zod.string().nullish(),
   paymobTransactionId: zod.string().nullish(),
