@@ -3995,5 +3995,44 @@
   },
   "faqQ": "FAQ Question",
   "errorGeneric": "Generic Error",
-  "invalidDomainDesc": "Invalid Domain Description"
+  "invalidDomainDesc": "Invalid Domain Description",
+  "support": {
+    "title": "Help & Support",
+    "tooltip": "Need Help? Contact Us",
+    "whatsappCta": "Chat on WhatsApp",
+    "leaveMessage": "Leave a Message",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "message": "Message",
+    "placeholderName": "Your Name",
+    "placeholderEmail": "name@example.com",
+    "placeholderPhone": "01xxxxxxxxx",
+    "placeholderMessage": "How can we help you?",
+    "submit": "Send Message",
+    "sending": "Sending...",
+    "success": "Message Sent",
+    "successDesc": "Thank you! We will get in touch with you soon.",
+    "error": "Error",
+    "errorDesc": "Failed to send message. Please try again.",
+    "tabTitle": "Support",
+    "listTitle": "Merchant Support Requests",
+    "table": {
+      "merchant": "Merchant",
+      "phone": "Phone",
+      "message": "Message",
+      "status": "Status",
+      "date": "Submitted At",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "resolved": "Resolved"
+    },
+    "actions": {
+      "resolve": "Mark Resolved",
+      "resolving": "Resolving..."
+    },
+    "noMessages": "No support messages received yet."
+  }
 }

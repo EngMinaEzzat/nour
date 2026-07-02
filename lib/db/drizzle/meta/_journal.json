@@ -155,6 +155,13 @@
       "when": 1783015104078,
       "tag": "0022_perfect_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1783035998618,
+      "tag": "0023_bouncy_kulan_gath",
+      "breakpoints": true
     }
   ]
 }

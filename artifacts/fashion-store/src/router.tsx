@@ -1,6 +1,7 @@
 import { Switch, Route, Redirect } from "wouter";
 import { lazy, Suspense } from "react";
 import { Layout } from "@/components/layout";
+import { PlatformSupportWidget } from "@/components/platform-support-widget";
 import { ProtectedRoute } from "@/components/protected-route";
 import { CustomerAuthProvider } from "@/hooks/use-customer-auth";
 import { CartProvider, useCart } from "@/hooks/use-cart";
@@ -264,6 +265,7 @@ export function AppRouter() {
           </Layout>
         </Route>
       </Switch>
+      <PlatformSupportWidget />
     </Suspense>
   );
 }

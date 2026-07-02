@@ -3931,5 +3931,44 @@
     "loggingIn": "جاري تسجيل الدخول...",
     "noAccount": "ليس لديك حساب؟",
     "registerNow": "سجل الآن"
+  },
+  "support": {
+    "title": "الدعم والمساعدة",
+    "tooltip": "تحتاج مساعدة؟ تواصل معنا",
+    "whatsappCta": "تواصل عبر واتساب",
+    "leaveMessage": "اترك رسالة لنا",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "message": "الرسالة",
+    "placeholderName": "اسمك الكامل",
+    "placeholderEmail": "name@example.com",
+    "placeholderPhone": "01xxxxxxxxx",
+    "placeholderMessage": "كيف يمكننا مساعدتك؟",
+    "submit": "إرسال الرسالة",
+    "sending": "جاري الإرسال...",
+    "success": "تم إرسال الرسالة",
+    "successDesc": "شكراً لك! سنتواصل معك في أقرب وقت.",
+    "error": "خطأ",
+    "errorDesc": "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
+    "tabTitle": "الدعم",
+    "listTitle": "طلبات الدعم من التجار",
+    "table": {
+      "merchant": "التاجر",
+      "phone": "الهاتف",
+      "message": "الرسالة",
+      "status": "الحالة",
+      "date": "تاريخ التقديم",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "resolved": "تم الحل"
+    },
+    "actions": {
+      "resolve": "تحديد كمحلول",
+      "resolving": "جاري التحديث..."
+    },
+    "noMessages": "لم يتم استلام أي رسائل دعم بعد."
   }
 }

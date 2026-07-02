@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import { useListTenants, getListTenantsQueryKey, useGetPlatformStats, getGetPlatformStatsQueryKey } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,7 @@ import {
   Search, Store, Users, TrendingUp, AlertTriangle,
   ShieldCheck, Package, ChevronLeft, BarChart2, Heart,
   Mail, ExternalLink, MapPin, Calendar, Ban, CheckCircle, Loader2,
-  CreditCard, Eye, X, ShoppingBag, Banknote,
+  CreditCard, Eye, X, ShoppingBag, Banknote, Phone,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -236,7 +237,8 @@ export default function Platform() {
   const [, navigate] = useLocation();
   const { merchant, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"merchants" | "payments" | "tenants" | "health">("merchants");
+  const [activeTab, setActiveTab] = useState<"merchants" | "payments" | "tenants" | "health" | "support">("merchants");
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: merchants = [], isLoading: merchantsLoading } = useQuery<MerchantRow[]>({
@@ -259,6 +261,12 @@ export default function Platform() {
     queryKey: ["platform-health-scores"],
     queryFn: () => fetch(api("/platform/health-scores"), { credentials: "include" }).then((r) => r.json()),
     enabled: !!merchant?.isPlatformAdmin && activeTab === "health",
+  });
+
+  const { data: supportMessages = [], isLoading: supportLoading, refetch: refetchSupport } = useQuery<any[]>({
+    queryKey: ["platform-support-messages"],
+    queryFn: () => fetch(api("/platform/support-messages"), { credentials: "include" }).then((r) => r.json()),
+    enabled: !!merchant?.isPlatformAdmin && activeTab === "support",
   });
 
   const { data: stats, isLoading: statsLoading } = useGetPlatformStats({
@@ -320,6 +328,7 @@ export default function Platform() {
             { id: "payments",  label: t("platform.tabs.payments"),    icon: CreditCard,  badge: (transferRequests as any[]).filter((req) => req.status === "pending").length || null },
             { id: "tenants",   label: t("platform.tabs.tenants"),      icon: Users,       badge: null },
             { id: "health",    label: t("platform.tabs.health"),   icon: Heart,       badge: null },
+            { id: "support",   label: t("support.tabTitle"), icon: Mail, badge: supportMessages.filter((msg: any) => msg.status === "pending").length || null },
           ].map(({ id, label, icon: Icon, badge }) => (
             <Button key={id} variant={activeTab === id ? "default" : "outline"} size="sm" className="rounded-full gap-2 relative"
               onClick={() => { setSearch(""); setActiveTab(id as typeof activeTab); }}>
@@ -778,6 +787,118 @@ export default function Platform() {
           )}
         </motion.div>
       )}
+
+      {/* ── Support messages tab ── */}
+      {activeTab === "support" && (
+        <motion.div className="space-y-4" variants={stagger.container} initial="hidden" animate="show">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold">{t("support.listTitle")}</h2>
+          </div>
+          {supportLoading ? (
+            Array(3).fill(0).map((_, i) => (
+              <motion.div key={i} variants={stagger.item}>
+                <Skeleton className="h-28 w-full rounded-xl" />
+              </motion.div>
+            ))
+          ) : supportMessages.length === 0 ? (
+            <div className="text-center py-20 bg-card rounded-2xl border border-border/50">
+              <Mail className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground">{t("support.noMessages")}</p>
+            </div>
+          ) : (
+            supportMessages.map((msg: any) => {
+              const isPending = msg.status === "pending";
+              const dateStr = new Date(msg.createdAt).toLocaleString(
+                i18n.language === "ar" ? "ar-EG" : "en-US"
+              );
+
+              return (
+                <motion.div key={msg.id} variants={stagger.item}>
+                  <Card className="border-border/50">
+                    <CardContent className="p-5 flex flex-col md:flex-row md:items-start justify-between gap-4">
+                      <div className="space-y-2 min-w-0 flex-1">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <span className="font-semibold text-foreground text-sm">
+                            {msg.name || "Guest Merchant"}
+                          </span>
+                          {msg.email && (
+                            <span className="text-xs text-muted-foreground font-mono">
+                              ({msg.email})
+                            </span>
+                          )}
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] px-2 py-0.5 border ${
+                              isPending
+                                ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-900/30"
+                                : "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/10 dark:text-green-400 dark:border-green-900/30"
+                            }`}
+                          >
+                            {t(`support.status.${msg.status}`)}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1.5" dir="ltr">
+                            <Phone className="w-3.5 h-3.5" />
+                            <a href={`tel:${msg.phone}`} className="hover:underline font-mono">
+                              {msg.phone}
+                            </a>
+                            <a
+                              href={`https://wa.me/${msg.phone.replace(/[^0-9]/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-emerald-600 hover:text-emerald-500 font-medium ms-1"
+                            >
+                              (WhatsApp)
+                            </a>
+                          </span>
+                          <span>•</span>
+                          <span>{dateStr}</span>
+                        </div>
+                        <p className="text-sm text-foreground bg-muted/40 p-3.5 rounded-xl border border-border/30 whitespace-pre-wrap mt-2">
+                          {msg.message}
+                        </p>
+                      </div>
+
+                      {isPending && (
+                        <div className="shrink-0 flex items-center self-end md:self-start">
+                          <Button
+                            size="sm"
+                            className="bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs rounded-xl"
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(api(`/platform/support-messages/${msg.id}/resolve`), {
+                                  method: "PUT",
+                                  credentials: "include",
+                                });
+                                if (!res.ok) throw new Error();
+                                refetchSupport();
+                                toast({
+                                  title: t("common.success", { defaultValue: "نجاح" }),
+                                  description: t("support.successDescResolved", { defaultValue: "تم تمييز الرسالة كمحلولة" }),
+                                });
+                              } catch {
+                                toast({
+                                  title: t("common.error", { defaultValue: "خطأ" }),
+                                  description: t("support.errorDesc", { defaultValue: "حدث خطأ ما" }),
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                          >
+                            {t("support.actions.resolve")}
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })
+          )}
+        </motion.div>
+      )}
     </div>
+
   );
 }
