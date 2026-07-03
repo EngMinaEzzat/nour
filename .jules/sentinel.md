@@ -159,3 +159,8 @@
 **Vulnerability:** The AI Facebook page import tool (`ai-import.ts`) had an SSRF vulnerability where attackers could supply a partially compressed IPv4-mapped IPv6 address (e.g., `0::ffff:127.0.0.1`) that evaded the naive regex checks and tricked the system into resolving a local server.
 **Learning:** Naive regular expressions or incomplete logic fails to detect the myriad variations of IPv6 compression and parsing. Attackers can leverage IPv6 representations of IPv4 loops to bypass naive validation logic in `isPrivateIp` functions.
 **Prevention:** To reliably prevent SSRF, utilize an established IP parsing library (like `ipaddr.js`) that handles compression forms consistently. First map IPv4-mapped IPv6 back to standard IPv4 structures before validating against protected subnets, avoiding the manual reimplementation of network IP parsing logic.
+
+## 2024-07-03 - CSRF Bypass via Partial Path Matching
+**Vulnerability:** The CSRF validation middleware exempted specific paths from checks (e.g., webhook endpoints) using a naive `.startsWith(path)` check. This allowed attackers to craft malicious requests to unauthenticated, state-mutating endpoints by partially matching the path (e.g., `/api/paymob/callback-fake`).
+**Learning:** Naive `.startsWith()` checks for path-based security exemptions are inherently flawed and create trivial bypasses for overlapping paths.
+**Prevention:** When implementing path-based whitelisting or exemptions (e.g., CSRF protection), strictly enforce exact matches (`pathname === p`) or strict directory boundaries (`pathname.startsWith(p + '/')` or query strings `pathname.startsWith(p + '?')`) to prevent partial match bypasses.
