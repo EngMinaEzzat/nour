@@ -32,7 +32,7 @@ export function OasisAtelierStorefront({ store, products, categories }: Storefro
                 </div>
                 <div className="hidden md:flex flex-col gap-6">
                     <button className="flex items-center gap-3 text-[#5c554d] hover:text-[#8b6f4e] transition-colors group">
-                        <span className="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">shopping_basket</span>
+                        <span aria-hidden="true" className="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">shopping_basket</span>
                         <span className="font-sans text-xs tracking-widest uppercase">Cart</span>
                     </button>
                     <p className="font-sans text-[10px] uppercase tracking-widest text-[#8c857b]">
@@ -107,15 +107,15 @@ export function OasisAtelierStorefront({ store, products, categories }: Storefro
             <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-xl bg-[#f2efe9]/95 backdrop-blur-lg border-t border-[#d4cfc7] shadow-[0_-4px_12px_rgba(45,41,38,0.08)]">
                 <div className="flex justify-around items-center py-3 px-4">
                     <button className="flex flex-col items-center justify-center text-[#5c554d] hover:text-[#8b6f4e]">
-                        <span className="material-symbols-outlined mb-1 text-xl">explore</span>
+                        <span aria-hidden="true" className="material-symbols-outlined mb-1 text-xl">explore</span>
                         <span className="font-sans text-[9px] uppercase tracking-widest">Explore</span>
                     </button>
                     <button className="flex flex-col items-center justify-center text-[#8b6f4e] bg-[#e6dbce] rounded-full px-4 py-1">
-                        <span className="material-symbols-outlined mb-1 text-xl">auto_awesome</span>
+                        <span aria-hidden="true" className="material-symbols-outlined mb-1 text-xl">auto_awesome</span>
                         <span className="font-sans text-[9px] uppercase tracking-widest">Curated</span>
                     </button>
                     <button className="flex flex-col items-center justify-center text-[#5c554d] hover:text-[#8b6f4e]">
-                        <span className="material-symbols-outlined mb-1 text-xl">shopping_basket</span>
+                        <span aria-hidden="true" className="material-symbols-outlined mb-1 text-xl">shopping_basket</span>
                         <span className="font-sans text-[9px] uppercase tracking-widest">Cart</span>
                     </button>
                 </div>
