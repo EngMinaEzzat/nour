@@ -122,7 +122,7 @@ describe("isCsrfExempt sub-paths and edge cases", () => {
 
   it("should handle partial path matches that shouldn't be exempt", async () => {
     const { isCsrfExempt } = await import("../lib/csrf.js");
-    expect(isCsrfExempt("/api/paymob/callback-fake")).toBe(true);
+    expect(isCsrfExempt("/api/paymob/callback-fake")).toBe(false);
     expect(isCsrfExempt("/api/whatsapp/messages-fake")).toBe(false);
   });
 
